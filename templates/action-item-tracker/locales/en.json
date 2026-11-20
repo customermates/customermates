@@ -1,0 +1,155 @@
+{
+  "locale": "en",
+  "name": "Action item tracker",
+  "summary": "Make sure what was agreed in a meeting actually happens. Every action gets one owner and a due date, linked to the decision or project it came from, with a weekly review.",
+  "description": "Actions agreed in meetings, audits and customer calls vanish into notes and chat threads, and the same item gets discussed again next week. This template sets up one list of actions with six statuses, a priority, one owner, a due date and a follow-up date, linked to the meeting, decision or project they came from, plus a decision log and a check that a corrective action worked. It fits teams, project leads and quality managers who want one weekly review of what is open, overdue or blocked. Reminders come from automation rules and notifications you switch on.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "Team members, partners, customers and suppliers." },
+    "meetings": { "label": "Meeting", "pluralLabel": "Meetings", "description": "Where actions and decisions come from." },
+    "decisions": { "label": "Decision", "pluralLabel": "Decisions", "description": "The decision log with a review date." },
+    "projects": { "label": "Project", "pluralLabel": "Projects", "description": "The project an action belongs to." },
+    "actions": { "label": "Action", "pluralLabel": "Actions", "description": "One owner and one due date per action." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "Open", "in_progress": "In progress", "blocked": "Blocked", "in_review": "In review", "done": "Done", "cancelled": "Cancelled" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Planned", "active": "Active", "on_hold": "On hold", "done": "Done" }
+    },
+    "people.person_role": {
+      "label": "Role",
+      "options": { "team_member": "Team member", "external": "External partner", "customer": "Customer", "supplier": "Supplier", "other": "Other" }
+    },
+    "people.team": { "label": "Team" },
+    "meetings.meeting_type": {
+      "label": "Meeting type",
+      "options": { "team": "Team meeting", "project": "Project meeting", "steering": "Steering committee", "customer": "Customer meeting", "audit": "Audit or review" }
+    },
+    "meetings.held_at": { "label": "Held at" },
+    "meetings.agenda_url": { "label": "Agenda link" },
+    "meetings.minutes_url": { "label": "Minutes link" },
+    "meetings.minutes_sent_on": { "label": "Minutes sent on" },
+    "meetings.next_meeting_on": { "label": "Next meeting on" },
+    "decisions.decision_text": { "label": "Decision" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Valid", "superseded": "Superseded", "revoked": "Revoked" } },
+    "decisions.decided_on": { "label": "Decided on" },
+    "decisions.review_on": { "label": "Review on" },
+    "projects.owner": { "label": "Owner" },
+    "projects.start_date": { "label": "Start date" },
+    "projects.end_date": { "label": "End date" },
+    "actions.priority": { "label": "Priority", "options": { "high": "High", "medium": "Medium", "low": "Low" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "action": "Action", "follow_up": "Follow-up", "review": "Review", "corrective": "Corrective action", "preventive": "Preventive action", "customer_request": "Customer request" }
+    },
+    "actions.source": {
+      "label": "Source",
+      "options": { "meeting": "Meeting", "email": "Email", "project_plan": "Project plan", "audit": "Audit or inspection", "complaint": "Complaint", "incident": "Incident" }
+    },
+    "actions.owner": { "label": "Owner" },
+    "actions.due": { "label": "Due date" },
+    "actions.follow_up_on": { "label": "Follow up on" },
+    "actions.done_on": { "label": "Done on" },
+    "actions.blocker_note": { "label": "What blocks it" },
+    "actions.proof_url": { "label": "Proof link" },
+    "actions.outcome": { "label": "Outcome" },
+    "actions.days_late": { "label": "Days late" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Meeting", "targetLabel": "Actions" },
+    "action_project": { "sourceLabel": "Project", "targetLabel": "Actions" },
+    "decision_meeting": { "sourceLabel": "Meeting", "targetLabel": "Decisions" }
+  },
+  "views": {
+    "actions_all": { "name": "All actions" },
+    "actions_board": { "name": "Actions by status" },
+    "blocked_actions": { "name": "Blocked" },
+    "overdue_list": { "name": "Overdue" },
+    "meetings_all": { "name": "All meetings" },
+    "decisions_all": { "name": "Decision log" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Actions by status" },
+    "overdue_count": { "title": "Overdue actions" },
+    "blocked_count": { "title": "Blocked actions" },
+    "due_soon": { "title": "Due soon" },
+    "open_by_owner": { "title": "Open actions per owner" },
+    "done_per_month": { "title": "Done per month" },
+    "actions_by_source": { "title": "Actions by source" },
+    "average_days_late": { "title": "Average days late" },
+    "activity_timeline": { "title": "Recent activity" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "How we write an action", "sections": ["One verb, one owner, one date", "What done looks like"] },
+    "weekly_action_review": { "title": "Weekly 15-minute action review", "sections": ["Blocked, slipping, no next step", "Re-date, delegate or cancel"] },
+    "closing_with_proof": { "title": "Closing an action with proof", "sections": ["Link the proof", "Effectiveness check for corrective actions"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Send the minutes and the action list after a meeting" },
+    "unblock_action": { "title": "Name who can unblock an action that becomes blocked" },
+    "due_reminder": { "title": "Remind the owner two days before an action is due" },
+    "overdue_notice": { "title": "Tell the owner the day after an action became overdue" },
+    "follow_up_date": { "title": "Look at the action again on its follow-up date" },
+    "effectiveness_check": { "title": "Check the effectiveness of a corrective or preventive action after 30 days" },
+    "weekly_action_review": { "title": "Run the weekly action review every Monday" },
+    "decision_review": { "title": "Review a decision on its review date" },
+    "request_form_action": { "title": "Create an action from a request sent through a form" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every action has one of six statuses.",
+    "due_field": "Every action has an owner and a due date.",
+    "overdue_widget": "The dashboard shows how many actions are overdue."
+  },
+  "page": {
+    "metaTitle": "Action Item Tracker Template: One Owner, One Due Date",
+    "metaDescription": "Task tracker template for meeting actions: paste it into Claude, ChatGPT or Codex and get one owner, a due date and a weekly review for every action item.",
+    "headline": "Make sure what was agreed gets done: an action item tracker your AI agent builds in your CRM",
+    "answer": "An action item tracker is one list of actions, each with one owner, one due date and a status, linked to the meeting or decision it came from, so what was agreed actually happens. Paste this template into your AI agent and it builds the list in Customermates, with meetings, decisions, projects, a decision log and a weekly review of what is open, overdue or blocked. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly 15-minute action review",
+      "steps": [
+        "Open the list and look only at the exceptions: blocked actions, actions that slip past their date and actions without a next step.",
+        "For every blocked action, name who can unblock it and set a date to look at it again.",
+        "For every overdue action, decide with its owner: set a new date, hand it to someone else or cancel it.",
+        "Confirm date changes in the meeting, not afterwards, and close an action only with proof such as a link, a file or a message."
+      ]
+    },
+    "limits": [
+      "It is not a project management suite. There are no task dependencies, no timeline or Gantt view, no sprints and no time tracking. Keep those jobs in your project tool.",
+      "It is not a validated quality system. Regulated corrective action, for example in medical devices, pharma or aviation, needs electronic signatures and validated audit trails. The template gives a small organisation a clear record and an effectiveness check, not that.",
+      "Keep care plans and any health data out of it.",
+      "Nobody is reminded automatically. The weekly review and the dashboard show what is due; reminders come from automation rules and notifications, or from a routine your agent runs on a schedule, and you decide which ones to switch on.",
+      "A view cannot show overdue and blocked actions at once, so the template keeps one view for each."
+    ],
+    "faq": [
+      {
+        "question": "What should an action item contain?",
+        "answer": "A title that starts with a verb and has fewer than ten words, one named owner, a specific date rather than a window such as next week, and a status. Practitioners add a priority and a link to the meeting or decision the action came from. The template holds all of this in one list, so an action without an owner or a date stands out."
+      },
+      {
+        "question": "Which statuses should an action have?",
+        "answer": "Practitioner guides use Not started, In progress, Blocked, In review and Done, and some add Cancelled. This template uses six: open, in progress, blocked, in review, done and cancelled. Escalate at Blocked, not at the deadline: a blocked action names who can unblock it and gets a date to look at it again."
+      },
+      {
+        "question": "When is an action really closed?",
+        "answer": "When there is proof, not only the word done: a link, a file or a message, and the actual completion date. A corrective or preventive action counts as closed only when its effectiveness has been checked; the template creates that check 30 days after the action is done, and you can change the period."
+      },
+      {
+        "question": "Does the agent send minutes or reminders?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Things we agree in meetings keep falling through, and nobody can say who owns what by when. Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
+    "questions": [
+      "Where do your actions come from: meetings, projects, audits, customers?",
+      "Who owns actions, and who decides when one is re-dated or cancelled?",
+      "Do you need corrective and preventive actions with an effectiveness check, as in ISO 9001?",
+      "Do you keep minutes elsewhere? Only a link to them is kept here."
+    ]
+  }
+}

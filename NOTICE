@@ -1,0 +1,18 @@
+Customermates
+Copyright (c) 2026-present Benjamin Wagner, doing business as Customermates.
+https://customermates.com
+
+This product includes software developed by Benjamin Wagner, doing business as Customermates.
+
+Licences in this repository
+
+- Files outside ee/: Sustainable Use License, version 1.0, in LICENSE.md.
+- Files in ee/: Customermates Enterprise License, in ee/LICENSE.md.
+- Folder plugins/cursor/: MIT License, in plugins/cursor/LICENSE.
+- Third-party components: the licence supplied by each copyright holder.
+  THIRD_PARTY_LICENSES.md lists the npm dependencies and their licences, generated from yarn.lock.
+  THIRD_PARTY_NOTICES.md lists the third-party data sets that ship with the software.
+- Compiled and object-code artifacts: the licence of the source they are generated from.
+
+How the licences apply is explained in LICENSING.md. The Customermates name and logo are covered by TRADEMARK.md.
+Licence, copyright and other notices must stay in every copy of the software, as the Sustainable Use License requires.

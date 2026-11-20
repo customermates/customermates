@@ -5,6 +5,7 @@ import {
   RANGE_PRESET_KEYS,
   localTimeValue,
   parseIsoDate,
+  parseLocalDay,
   rangeForPreset,
   toLocalIso,
 } from "../iso-date-values";
@@ -84,6 +85,41 @@ describe("toLocalIso", () => {
     const withTime = new Date(2026, 2, 9, 14, 30, 45);
 
     expect(toLocalIso(withTime, false)).toBe(withTime.toISOString());
+  });
+});
+
+describe("parseLocalDay", () => {
+  const original = process.env.TZ;
+
+  afterEach(() => {
+    if (original === undefined) delete process.env.TZ;
+    else process.env.TZ = original;
+  });
+
+  it.each(["America/Los_Angeles", "America/New_York", "UTC", "Europe/Berlin", "Pacific/Auckland"])(
+    "reads a plain day as that calendar day in %s, where UTC midnight can be the evening before",
+    (timeZone) => {
+      process.env.TZ = timeZone;
+
+      const day = parseLocalDay("2026-11-16");
+
+      expect(day && toLocalIso(day, true)).toBe("2026-11-16");
+      expect(day?.getHours()).toBe(0);
+    },
+  );
+
+  it("shows why a plain day must not be read as UTC midnight west of UTC", () => {
+    process.env.TZ = "America/New_York";
+
+    expect(toLocalIso(parseIsoDate("2026-11-16") as Date, true)).toBe("2026-11-15");
+    expect(toLocalIso(parseLocalDay("2026-11-16") as Date, true)).toBe("2026-11-16");
+  });
+
+  it("leaves values that carry a time, and anything that is no day, to the instant parser", () => {
+    expect(parseLocalDay("2026-11-16T10:00:00.000Z")).toBeUndefined();
+    expect(parseLocalDay("16.11.2026")).toBeUndefined();
+    expect(parseLocalDay("")).toBeUndefined();
+    expect(parseLocalDay(undefined)).toBeUndefined();
   });
 });
 

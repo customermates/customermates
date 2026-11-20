@@ -43,7 +43,9 @@ export default async function InvitationPage({ searchParams }: Props) {
     return (
       <CenteredCardPage>
         <WorkspaceInvitationCard
+          companyId={invitation.companyId}
           email={resolution.sessionUser.email}
+          inactiveReason={membership?.inactiveReason ?? null}
           invitationIntent={invitation.intent}
           inviterName={invitation.inviterName}
           membershipStatus={membership?.status ?? null}

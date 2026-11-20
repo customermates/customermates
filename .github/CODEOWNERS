@@ -1,1 +1,18 @@
 * @benjiwagner
+
+/ee/ @benjiwagner
+/LICENSE.md @benjiwagner
+/LICENSING.md @benjiwagner
+/NOTICE @benjiwagner
+/TRADEMARK.md @benjiwagner
+/THIRD_PARTY_LICENSES.md @benjiwagner
+/THIRD_PARTY_NOTICES.md @benjiwagner
+/.github/CLA.md @benjiwagner
+/.github/CODEOWNERS @benjiwagner
+/.github/workflows/cla-check.yml @benjiwagner
+/scripts/licenses/ @benjiwagner
+
+/core/commercial/ @benjiwagner
+/features/billing-usage/ @benjiwagner
+/app/api/webhooks/lemonsqueezy/ @benjiwagner
+/app/**/settings/**/billing/ @benjiwagner

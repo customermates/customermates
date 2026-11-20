@@ -271,7 +271,8 @@ test("routines are listed with their owners and triggers", async ({ page, databa
   for (const routine of routines) {
     const row = page.getByRole("row").filter({ has: page.getByText(routine.name, { exact: true }) });
     await expect(row, routine.name).toBeVisible();
-    if (routine.trigger === "event") await expect(row).toContainText("When something changes");
+    // The merged Automations list reads every item as a sentence: "When <event>, ask Mate to <prompt>".
+    if (routine.trigger === "event") await expect(row).toContainText(/When .+, ask Mate to/);
     else {
       // Schedules read in words, for example "Weekdays at 08:00 AM" or "Every Monday at 07:00 AM", never as cron.
       await expect(row).toContainText(/(Every|Weekdays|Weekends|Daily)\b.* at \d{1,2}:\d{2}/);
@@ -287,10 +288,10 @@ test("self-hosted keeps the seeded Inbox and routines out of reach and sends the
   errors,
 }, testInfo) => {
   test.skip(e2eAppMode() !== "self-hosted", "The Inbox and routines are available on Customermates Cloud");
-  for (const path of [appPath(DEMO_SLUG, "/inbox"), appPath(DEMO_SLUG, "/routines")]) {
-    await page.goto(path);
-    await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/dashboard$"));
-  }
+  await page.goto(appPath(DEMO_SLUG, "/inbox"));
+  await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/dashboard$"));
+  await page.goto(appPath(DEMO_SLUG, "/routines"));
+  await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/automations\\?filters=automationKind%3Ain%3Aroutine$"));
   // The phone sidebar is a closed sheet; the desktop sidebar shows the navigation without either entry.
   if (!testInfo.project.use.isMobile) {
     const navigation = page.locator('[data-sidebar="sidebar"]');

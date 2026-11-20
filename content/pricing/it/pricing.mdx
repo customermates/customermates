@@ -13,7 +13,7 @@ pricing:
   totalSuffixPlural: "/mese in totale per {count} utenti"
   moreTitle: "Più utilizzo o una configurazione su misura"
   selfHost:
-    text: "Preferisci gestirlo da solo? L’edizione open source è gratuita da ospitare."
+    text: "Preferisci gestirlo da solo? La Community Edition self-hosted è su GitHub: codice sorgente disponibile, gratuita per la tua azienda."
     linkLabel: "Guida al self-hosting"
     href: /docs/self-hosting
   pricingCards:
@@ -187,6 +187,10 @@ comparison:
     rows:
       - label: Routine per utente
         catalogFact: includedRoutinesPerUser
+      - label: Automazioni attive
+        catalogFact: activeAutomationRules
+      - label: Agenti con la tua chiave AI
+        catalogFact: agentOwnKey
       - label: Spazio per i file per utente, condiviso nello spazio di lavoro
         catalogFact: fileStoragePerActiveUser
       - label: "Richieste API e MCP per spazio di lavoro"
@@ -221,6 +225,10 @@ comparison:
         enterprise: true
       - label: "Webhook e trigger n8n"
         catalogFact: webhooks
+      - label: Invii di modulo al mese
+        catalogFact: formSubmissionsPerMonth
+      - label: Moduli senza la dicitura Customermates
+        catalogFact: formBadge
       - label: Accesso MCP per un client IA esterno
         free: true
         starter: true
@@ -244,13 +252,13 @@ comparison:
         business: false
         max: false
         enterprise: "Su richiesta"
-      - label: White-label (non ancora sviluppato, su accordo)
+      - label: Integrazione e white-label (non ancora sviluppati, su accordo)
         free: false
         starter: false
         pro: false
         business: false
         max: false
-        enterprise: "Su richiesta"
+        enterprise: "Su accordo, il marchio resta visibile"
       - label: Flusso di lavoro con agenti personalizzati su contratto (non integrato)
         free: false
         starter: false
@@ -321,7 +329,10 @@ faq:
     content: "Il tuo primo spazio di lavoro Cloud parte con la prova di Pro di [[commercial.trial.days]] giorni, senza carta di credito; ogni altro spazio di lavoro parte scegliendo un piano. Se la prova finisce senza un piano a pagamento, lo spazio di lavoro passa a Free invece di essere bloccato, e nulla viene eliminato. Free serve per provare Customermates da solo: [[commercial.limit.free.maxMembers]] persona, fino a [[commercial.limit.free.maxRecords]] record e [[commercial.limit.free.fileStorageBytes]] di spazio per i file per spazio di lavoro. Non ha posta in arrivo né account collegati, né Mate, né routine, né webhook, né trigger n8n. L’API REST e MCP sono incluse con fino a [[commercial.limit.free.apiRequestsPerMinute]] richieste al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno per spazio di lavoro, così puoi portare il tuo Claude o ChatGPT. Record e file oltre un limite restano; viene rifiutata solo l’aggiunta di altri. Puoi passare a un piano a pagamento in qualsiasi momento. Un’istanza self-hosted resta gratuita senza questi limiti."
   - id: pricing-faq-13
     title: "Che cosa succede al mio team quando uno spazio di lavoro passa a Free?"
-    content: "Free mantiene [[commercial.limit.free.maxMembers]] persona attiva per spazio di lavoro: la persona che ha creato lo spazio di lavoro, oppure il primo amministratore in ordine di tempo. Tutti gli altri vengono messi in pausa, non rimossi. Le persone in pausa non possono aprire lo spazio di lavoro, e i loro record, le loro note e la loro cronologia restano. Gli inviti aperti e le richieste di adesione vengono annullati, le routine vengono messe in pausa e i webhook esistenti smettono di inviare. Un amministratore può passare il posto attivo a un altro amministratore. Appena lo spazio di lavoro sceglie un qualsiasi piano a pagamento, tutte le persone in pausa tornano automaticamente e contano di nuovo come posto a pagamento, e routine e webhook riprendono."
+    content: "Free mantiene [[commercial.limit.free.maxMembers]] persona attiva per spazio di lavoro: la persona che ha creato lo spazio di lavoro, oppure il primo amministratore in ordine di tempo. Tutti gli altri vengono messi in pausa, non rimossi. Le persone in pausa non possono aprire lo spazio di lavoro, e i loro record, le loro note e la loro cronologia restano. Gli inviti aperti e le richieste di adesione vengono annullati, le routine vengono messe in pausa, le automazioni oltre il limite Free di [[commercial.entitlement.free.activeAutomationRules]] vengono disattivate, i moduli pubblici non accettano più invii oltre il limite mensile di [[commercial.entitlement.free.formSubmissionsPerMonth]] e i webhook esistenti smettono di inviare. Un amministratore può passare il posto attivo a un altro amministratore. Appena lo spazio di lavoro sceglie un qualsiasi piano a pagamento, tutte le persone in pausa tornano automaticamente e contano di nuovo come posto a pagamento, e routine, automazioni, moduli e webhook riprendono."
+  - id: pricing-faq-14
+    title: "Come monitorate l’uso di un’istanza self-hosted?"
+    content: "Non lo facciamo. Una Community Edition self-hosted non ha una chiave di licenza e non segnala l’uso a Customermates: l’immagine pubblicata non ha ping di licenza e disattiva la telemetria di Next.js e Prisma, e gli errori dell’app restano nei tuoi log. La licenza vale per i suoi termini, non per la telemetria: la Sustainable Use License limita l’uso alla tua azienda, e le funzioni Enterprise, l’integrazione e il white-label richiedono un accordo. Un piano Cloud non sblocca nulla su un’istanza self-hosted. Altre informazioni: https://customermates.com/docs/licence-faq e https://customermates.com/docs/compare-editions"
 
 cta:
   action: "Pronto a fare follow up su ogni cliente?"

@@ -1,0 +1,137 @@
+{
+  "locale": "it",
+  "name": "Gestione attività del team",
+  "summary": "Vedi chi fa che cosa e per quando, senza uno strumento di project management pesante. Progetti e attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno del team sulla stessa lista.",
+  "description": "In un piccolo team le attività si nascondono in chat, bacheche e teste, e un'attività bloccata passa inosservata fino al giorno della scadenza. Questo modello tiene un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
+  "lists": {
+    "requesters": { "label": "Richiedente", "pluralLabel": "Richiedenti", "description": "Le persone esterne al team che chiedono lavoro." },
+    "projects": { "label": "Progetto", "pluralLabel": "Progetti", "description": "Un insieme di attività con responsabile, andamento e scadenza." },
+    "tasks": { "label": "Attività", "pluralLabel": "Attività", "description": "Un lavoro con un responsabile e una scadenza." },
+    "recurring": { "label": "Attività ricorrente", "pluralLabel": "Attività ricorrenti", "description": "Un'attività che ritorna ogni settimana, mese, trimestre o anno." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relazione",
+      "options": { "customer": "Cliente", "colleague": "Collega", "partner": "Partner", "vendor": "Fornitore", "other": "Altro" }
+    },
+    "requesters.team": { "label": "Team" },
+    "projects.status": {
+      "label": "Stato",
+      "options": { "planned": "Pianificato", "active": "Attivo", "on_hold": "In pausa", "done": "Concluso", "cancelled": "Annullato" }
+    },
+    "projects.health": { "label": "Andamento", "options": { "on_track": "In linea", "at_risk": "A rischio", "off_track": "Fuori rotta" } },
+    "projects.owner": { "label": "Responsabile" },
+    "projects.due_date": { "label": "Scadenza" },
+    "projects.repo_url": { "label": "Link al repository" },
+    "tasks.status": {
+      "label": "Stato",
+      "options": { "backlog": "Backlog", "todo": "Da fare", "in_progress": "In corso", "in_review": "In revisione", "blocked": "Bloccata", "done": "Completata", "cancelled": "Annullata" }
+    },
+    "tasks.kind": { "label": "Tipo", "options": { "task": "Attività", "bug": "Bug", "feature": "Funzionalità", "chore": "Routine", "request": "Richiesta" } },
+    "tasks.priority": { "label": "Priorità", "options": { "urgent": "Urgente", "high": "Alta", "medium": "Media", "low": "Bassa" } },
+    "tasks.owner": { "label": "Responsabile" },
+    "tasks.due": { "label": "Scadenza" },
+    "tasks.original_due": { "label": "Scadenza originale" },
+    "tasks.done_on": { "label": "Completata il" },
+    "tasks.blocked_reason": { "label": "Motivo del blocco" },
+    "tasks.external_url": { "label": "Link (pull request o ticket)" },
+    "recurring.cadence": { "label": "Si ripete", "options": { "weekly": "Ogni settimana", "monthly": "Ogni mese", "quarterly": "Ogni trimestre", "yearly": "Ogni anno" } },
+    "recurring.next_due": { "label": "Prossima scadenza" },
+    "recurring.owner": { "label": "Responsabile" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Progetto", "targetLabel": "Attività" },
+    "task_requester": { "sourceLabel": "Richiedente", "targetLabel": "Attività" },
+    "recurring_project": { "sourceLabel": "Progetto", "targetLabel": "Attività ricorrenti" }
+  },
+  "views": {
+    "tasks_all": { "name": "Tutte le attività" },
+    "tasks_board": { "name": "Board delle attività" },
+    "blocked_tasks": { "name": "Attività bloccate" },
+    "projects_all": { "name": "Tutti i progetti" },
+    "recurring_all": { "name": "Tutte le attività ricorrenti" },
+    "requesters_all": { "name": "Tutti i richiedenti" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Attività per stato" },
+    "open_by_priority": { "title": "Attività aperte per priorità" },
+    "overdue_tasks": { "title": "Attività in ritardo" },
+    "due_soon": { "title": "Attività in scadenza" },
+    "blocked_count": { "title": "Attività bloccate" },
+    "activity_timeline": { "title": "Attività recenti" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Come lavoriamo", "sections": ["Stati, priorità e che cosa significa completata", "Un responsabile e una data per attività"] },
+    "weekly_review": { "title": "Revisione settimanale", "sections": ["Ritardi, blocchi e attività senza responsabile", "Che cosa cambia questa settimana"] },
+    "triage": { "title": "Smistamento di richieste e bug", "sections": ["Chi decide che cosa entra", "Gravità e priorità"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Avvisare il nuovo responsabile quando gli viene assegnata un'attività" },
+    "due_tomorrow": { "title": "Avvisare il responsabile il giorno prima della scadenza" },
+    "overdue_task": { "title": "Avvisare il responsabile del team il giorno dopo la scadenza" },
+    "blocked_stale": { "title": "Avvisare il responsabile del team quando un'attività resta bloccata per 3 giorni" },
+    "stale_in_progress": { "title": "Sollecitare il responsabile quando un'attività è ferma da 5 giorni" },
+    "recurring_due": { "title": "Creare un'attività quando scade un'attività ricorrente" },
+    "task_from_git": { "title": "Creare un'attività quando il servizio Git invia un evento" },
+    "request_form": { "title": "Creare attività e richiedente quando viene inviato il modulo di richiesta" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Ogni attività ha uno stato.",
+    "due_field": "Ogni attività ha una scadenza.",
+    "tasks_board_view": "Le attività si aprono come board per stato."
+  },
+  "page": {
+    "metaTitle": "Gestionale progetti per piccoli team: modello attività",
+    "metaDescription": "Un gestionale progetti semplice per 2-15 persone: un responsabile e una scadenza per attività, bug, attività ricorrenti. Incolla il modello nel tuo agente IA.",
+    "headline": "Un gestionale progetti semplice per piccoli team, costruito dal tuo agente IA nel tuo CRM",
+    "answer": "Un gestionale progetti per un piccolo team è un’unica lista di attività, ciascuna con un responsabile, uno stato, una priorità e una scadenza, più una bacheca e una breve revisione settimanale di ciò che è in ritardo o bloccato. Incolla questo modello nel tuo agente IA e lui costruisce la lista in Customermates, con progetti, attività ricorrenti e richieste dall’esterno del team. Approvi tu il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La riunione settimanale del team in 30 minuti",
+      "steps": [
+        "Apri la lista della settimana scorsa e parti da ciò che era stato promesso: che cosa è fatto e che cosa è slittato.",
+        "Passa in rassegna le attività in ritardo e bloccate e decidi per ciascuna: riconfermare, ridurre l’ambito o riassegnare. Quando una data slitta, tieni la data originale e annota la nuova con il motivo.",
+        "Guarda le attività ferme da cinque giorni e chiediti se sono vaghe o troppo grandi. Chiudi quelle che a nessuno servono.",
+        "Smista le nuove richieste e i bug: dai a ciascuno un tipo, una priorità e un responsabile.",
+        "Chiudi rileggendo la lista, così ogni attività ha un responsabile con nome e una scadenza prima della fine della riunione."
+      ]
+    },
+    "limits": [
+      "Non è uno strumento per sprint e velocity: non ci sono sprint, story point o burn-down. Chi ne ha bisogno resta su Linear o Jira.",
+      "Non è un pianificatore Gantt, di dipendenze o di capacità, né uno strumento di rilevazione del tempo o di gestione dei rilasci.",
+      "Non è un host di codice, un sistema di integrazione continua né un service desk con tempi di risposta. Il link a una pull request o a un ticket è un semplice campo link.",
+      "Non c’è un’integrazione nativa con Slack o Teams né un’app mobile. Per Slack la strada passa da n8n.",
+      "Non è un sistema HR o di valutazione delle prestazioni e non ha né single sign-on né permessi per campo."
+    ],
+    "faq": [
+      {
+        "question": "Un gestionale semplice può sostituire Trello, Jira o un foglio di calcolo?",
+        "answer": "Per da due a quindici persone che vogliono un responsabile e una scadenza per attività, una revisione settimanale e le richieste esterne sulla stessa lista, sì. Esporta la bacheca o il foglio in CSV o Excel e importali con la procedura guidata di associazione delle colonne, oppure lascia che il tuo agente associ e importi. Se servono sprint, velocity o dipendenze, resta su Linear, Jira o ClickUp."
+      },
+      {
+        "question": "Quali stati dovrebbe usare un piccolo team?",
+        "answer": "Meno di quanti si pensi. Da fare, In corso e Fatto di Trello, oppure Backlog, Todo, In Progress, Done e Canceled di Linear, sono tipici. Il modello parte da sette stati (Backlog, Da fare, In corso, In revisione, Bloccata, Completata, Annullata) che puoi rinominare o togliere. Bloccata ha il suo posto, perché altrimenti un’attività bloccata passa inosservata fino alla scadenza."
+      },
+      {
+        "question": "Meglio lavorare a sprint o con una bacheca?",
+        "answer": "Le guide kanban puntano sul flusso e sul limite del lavoro in corso, Linear e Jira più sugli sprint. Questo modello usa una bacheca e una scadenza e non ha un oggetto sprint: un team che ha bisogno di velocity resta su uno strumento a sprint."
+      },
+      {
+        "question": "Le attività ferme vanno chiuse in automatico?",
+        "answer": "No. Un promemoria dopo cinque giorni senza movimento è più sicuro di una chiusura automatica, e le guide alle riunioni consigliano di chiudere esplicitamente ciò che resta fermo. Il modello ricorda al responsabile e decide lui. Un’attività che resta aperta settimana dopo settimana è di solito vaga o troppo grande: correggi la definizione, non la persona."
+      },
+      {
+        "question": "L’agente scrive al mio team?",
+        "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Il lavoro del nostro team è sparso tra chat, una bacheca e un foglio di calcolo e non riesco a vedere che cosa è in ritardo o bloccato. Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
+    "questions": [
+      "Quante persone ha il team e di cosa si occupano?",
+      "Quali stati usi oggi in Trello, Jira, Asana o in un foglio di calcolo?",
+      "Quali attività tornano ogni settimana o ogni mese e chi ne è responsabile?",
+      "Da dove arrivano le richieste e devono arrivare da un modulo?"
+    ]
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "locale": "en",
+  "name": "Custom CRM",
+  "summary": "Move off your spreadsheet or old tool without a big migration project. Contacts, organizations, opportunities and dated actions shaped around how you work, with an import of your data and a weekly review.",
+  "description": "Your customer data is spread over a spreadsheet, a Notion page or an old tool, and nobody wants to start a migration project. This template starts from the four lists every CRM needs, contacts, organizations, opportunities and actions, and your agent changes the stages, fields and views to fit how you work. It then imports your data and keeps a note of where each record came from. It is meant for people leaving a spreadsheet, Notion, Airtable or Trello.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you deal with." },
+    "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Companies and other bodies." },
+    "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "One deal from lead to won or lost." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Stage",
+      "options": { "lead": "Lead", "qualified": "Qualified", "proposal": "Proposal", "negotiation": "Negotiation", "won": "Won", "lost": "Lost" }
+    },
+    "contacts.job_title": { "label": "Job title" },
+    "contacts.contact_role": {
+      "label": "Role",
+      "options": { "decision_maker": "Decision maker", "influencer": "Influencer", "user": "User", "billing": "Billing", "other": "Other" }
+    },
+    "contacts.language": { "label": "Language" },
+    "contacts.last_contact": { "label": "Last contact" },
+    "contacts.consent": { "label": "Consent to contact" },
+    "organizations.relationship": {
+      "label": "Relationship",
+      "options": { "prospect": "Prospect", "customer": "Customer", "former_customer": "Former customer", "partner": "Partner", "other": "Other" }
+    },
+    "organizations.owner": { "label": "Owner" },
+    "organizations.source": {
+      "label": "Source",
+      "options": { "referral": "Referral", "website": "Website", "event": "Event", "outbound": "Outbound", "import": "Import", "other": "Other" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.address": { "label": "Address" },
+    "organizations.imported_from": { "label": "Imported from" },
+    "opportunities.owner": { "label": "Owner" },
+    "opportunities.expected_close": { "label": "Expected close" },
+    "opportunities.next_step": { "label": "Next step" },
+    "opportunities.next_step_due": { "label": "Next step due" },
+    "opportunities.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "competitor": "Competitor", "no_decision": "No decision", "timing": "Timing", "no_response": "No response", "not_a_fit": "Not a fit", "other": "Other" }
+    },
+    "opportunities.weighted_value": { "label": "Weighted value" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "call": "Call", "email": "Email", "meeting": "Meeting", "follow_up": "Follow-up", "review": "Review", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organization", "targetLabel": "Contacts" },
+    "opportunity_organization": { "sourceLabel": "Organization", "targetLabel": "Opportunities" },
+    "action_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Actions" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "All opportunities" },
+    "no_next_step": { "name": "No next step" },
+    "organizations_all": { "name": "All organizations" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Open opportunities by stage" },
+    "open_value": { "title": "Open value" },
+    "open_weighted_value": { "title": "Open weighted value" },
+    "lost_reasons": { "title": "Lost reasons" },
+    "deals_without_next_step": { "title": "Deals without a next step" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "How we use this CRM", "sections": ["What goes in and who updates it", "Stages and when a deal moves"] },
+    "data_entry_rules": { "title": "Data entry rules", "sections": ["Names, emails and one record per person", "A next step with a date on every open deal"] },
+    "import_notes": { "title": "Import notes: what came from where", "sections": ["Source tool and export date", "What did not travel and why"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Create a follow-up Action when an opportunity changes stage" },
+    "set_a_next_step": { "title": "Ask for a next step on every open opportunity that has none" },
+    "next_step_notice": { "title": "Tell the owner when a next step is due" },
+    "expected_close_passed": { "title": "Review an open opportunity the day after its expected close" },
+    "weekly_review": { "title": "Run the weekly review every Friday" },
+    "enquiry_form_records": { "title": "Create the contact, organization and opportunity from an inquiry form" },
+    "webhook_upsert": { "title": "Create or update records from the old tool through an incoming webhook" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every opportunity has a stage.",
+    "board_view": "The pipeline opens as a board by stage with totals.",
+    "how_we_use_page": "The Knowledge Base explains how the team uses the CRM."
+  },
+  "page": {
+    "metaTitle": "Google Sheets Alternative: Build Your Own CRM",
+    "metaDescription": "Outgrown Google Sheets? Paste this template into Claude, ChatGPT or Codex: your agent builds a CRM around how you sell and imports your spreadsheet data.",
+    "headline": "A Google Sheets alternative for customers and deals: your AI agent builds the CRM and imports your data",
+    "answer": "If your customers and deals live in a spreadsheet, a Notion page or an old tool, a custom CRM replaces it without a migration project: contacts, organizations, opportunities and dated actions shaped around how you sell. Paste this template into your AI agent. It asks how you work, builds the CRM in Customermates and imports your data. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The Friday review of your CRM",
+      "steps": [
+        "Open the pipeline board and look at each stage: what moved this week and what did not.",
+        "Open the deals without a next step and give each one a dated next step, or close it.",
+        "Check the deals with an expected close date in the coming month and move the dates that have slipped.",
+        "Clear the overdue actions: do them, move them or drop them.",
+        "Fix what the import left behind: duplicate contacts, a missing owner, a record without a next step."
+      ]
+    },
+    "limits": [
+      "It is not a no-code app builder. There are no custom screens, customer portals or scripts: you get lists, relationships, table, board and calendar views, dashboards and your agent. If you need an app builder, use one.",
+      "It is not a free-form workspace. Notion and Airtable stay better for pages, wikis and data that has nothing to do with customers.",
+      "There is no two-way sync with your old tool and no undo for an import. The import is a one-way copy after you have checked the mapping, and nothing in the source is changed or deleted.",
+      "There are no Gantt charts, resource planning or timelines. Project tools keep that job.",
+      "There are no field-level permissions. If some columns must stay hidden from colleagues, put them in a separate list with its own access.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+    ],
+    "faq": [
+      {
+        "question": "How do I move from Google Sheets or Excel to a CRM?",
+        "answer": "Tell the agent which columns you really use. It proposes lists and fields, checks a sample of rows for duplicates and unknown values, and imports once you have approved the mapping. Customermates imports Excel and CSV files through a column-mapping wizard, and your agent can import records through MCP. The import is a copy: your sheet stays as it is until you decide to stop using it."
+      },
+      {
+        "question": "When is a spreadsheet no longer enough for customers and deals?",
+        "answer": "CRM vendors' guides put the limit somewhere between 25 and 200 contacts, or at the moment several people edit the same file or nobody is reminded of a follow-up. A CRM helps then: contacts are linked to organizations and deals, next steps are dated actions and the conversations sit next to each record."
+      },
+      {
+        "question": "Do I have to design the CRM myself?",
+        "answer": "No. The agent interviews you first: what you sell, the real stages from first contact to done, what you check every morning and every Friday, who else uses it, where your data lives today and what stays in another tool. It proposes the model and builds it after you approve. You can change stages, fields and views later by asking."
+      },
+      {
+        "question": "What does not come across from my old tool?",
+        "answer": "The import copies records. Automations, forms, views, comments and attachments do not travel, and relations that your old tool exported as plain text have to be rebuilt. The agent notes where each imported record came from, so you can trace it later."
+      },
+      {
+        "question": "How is this different from a bespoke CRM built by an agency?",
+        "answer": "Agencies that build a custom CRM quote several months. Here the CRM already exists, with roles and access per list, and only its content is yours: the stages, fields and views. A first working pipeline can come out of one conversation, and you read it back yourself before you rely on it."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "My customers and deals live in a spreadsheet or an old tool, and I want a CRM that fits how I work. Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
+    "questions": [
+      "Which tool or spreadsheet do your records come from, and can you export it?",
+      "What stages does a deal go through in your business?",
+      "Which fields do you really use today, and which can you leave behind?",
+      "Who works in the CRM, and who owns which records?"
+    ]
+  }
+}

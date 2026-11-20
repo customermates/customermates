@@ -120,7 +120,6 @@ type TaskKey = (typeof TASKS)[number];
 const en = {
   countryCode: "us",
   company: "Fernhill Creative",
-  workspaceName: "Agencies",
   website: "https://fernhill-creative.example",
   phones: { office: { templates: ["+1 312 555 01##", "+1 773 555 01##", "+1 847 555 01##"], start: 40 } },
   selfTitle: "Founder and managing director",
@@ -800,7 +799,6 @@ export type Strings = typeof en;
 const de: Strings = {
   countryCode: "de",
   company: "Kranich Kommunikation",
-  workspaceName: "Agenturen",
   website: "https://kranich-kommunikation.example",
   phones: { office: { templates: ["+49 30 23125 4##"], start: 0 } },
   selfTitle: "Gründer und Geschäftsführer",
@@ -2486,7 +2484,6 @@ export default defineSolution<Strings>({
       t.threads[key].messages.map((text, index) => ({ from: from[index], text }));
 
     return {
-      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "project", "retainer", "task"] as const).map((key) => ({
         key,

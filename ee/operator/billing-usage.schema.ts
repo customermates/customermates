@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
+import { NOT_ACTIVE_REASONS } from "./workspace-activation";
+import { PLAN_IDS } from "@/core/commercial/plan-catalog";
+import { SignupCampaignSchema } from "@/features/acquisition/signup-campaign";
+import { TeamSizeSchema } from "@/features/onboarding-funnel/team-size";
+
 export const BILLING_USAGE_MONTH_PATTERN = /^20\d{2}-(0[1-9]|1[0-2])$/;
 
 export const BillingUsageMonthSchema = z.string().regex(BILLING_USAGE_MONTH_PATTERN);
@@ -55,8 +60,55 @@ export const WorkspaceSubscriptionDtoSchema = z.object({
   trialEndDate: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
   enterpriseAgentCreditsPerUser: z.number().int().nullable(),
+  trialEnded: z.boolean(),
+  effectivePlan: z.enum(PLAN_IDS),
 });
 export type WorkspaceSubscriptionDto = z.infer<typeof WorkspaceSubscriptionDtoSchema>;
+
+export const WorkspaceAcquisitionDtoSchema = z.object({
+  signupTemplate: z.string().nullable(),
+  lastPageBeforeSignup: z.string().nullable(),
+  campaign: SignupCampaignSchema.nullable(),
+  teamSize: TeamSizeSchema.nullable(),
+  businessEmail: z.boolean().nullable(),
+  company: z.boolean().nullable(),
+  discovery: z
+    .object({ choice: z.string().nullable(), detail: z.string().nullable(), answeredAt: z.date() })
+    .nullable(),
+  consentedSource: z
+    .object({
+      job: z.string().nullable(),
+      landingPath: z.string(),
+      referrerHost: z.string().nullable(),
+      utmSource: z.string().nullable(),
+      utmMedium: z.string().nullable(),
+      utmCampaign: z.string().nullable(),
+      marketingConsentedAt: z.date().nullable(),
+      capturedAt: z.date(),
+    })
+    .nullable(),
+});
+export type WorkspaceAcquisitionDto = z.infer<typeof WorkspaceAcquisitionDtoSchema>;
+
+export const WorkspaceActivationDtoSchema = z.object({
+  firstValue: z.object({
+    setupCompletedAt: z.date().nullable(),
+    wizardCompletedAt: z.date().nullable(),
+    agentFirstCallAt: z.date().nullable(),
+    firstChannelConnectedAt: z.date().nullable(),
+    channelSkippedAt: z.date().nullable(),
+    inviteSentAt: z.date().nullable(),
+    inviteAcceptedAt: z.date().nullable(),
+    paidAt: z.date().nullable(),
+    firstModelChangeAt: z.date().nullable(),
+    firstRecordCreatedAt: z.date().nullable(),
+  }),
+  agentLastCallAt: z.date().nullable(),
+  active: z.boolean(),
+  activeSince: z.date().nullable(),
+  notActiveBecause: z.enum(NOT_ACTIVE_REASONS).nullable(),
+});
+export type WorkspaceActivationDto = z.infer<typeof WorkspaceActivationDtoSchema>;
 
 export const WorkspaceBillingUsageDtoSchema = z.object({
   companyId: z.uuid(),
@@ -80,6 +132,8 @@ export const WorkspaceBillingUsageDtoSchema = z.object({
     connectedChannels: z.number().int().min(0),
   }),
   subscription: WorkspaceSubscriptionDtoSchema.nullable(),
+  acquisition: WorkspaceAcquisitionDtoSchema.nullable().optional(),
+  activation: WorkspaceActivationDtoSchema.nullable().optional(),
 });
 export type WorkspaceBillingUsageDto = z.infer<typeof WorkspaceBillingUsageDtoSchema>;
 
@@ -97,6 +151,7 @@ export const OperatorBillingUsageDtoSchema = z.object({
         billing: z.enum(BILLING_SOURCES),
         plan: z.enum(SubscriptionPlan),
         status: z.enum(SubscriptionStatus),
+        trialEnded: z.boolean(),
         workspaces: z.number().int().min(0),
         activeSeats: z.number().int().min(0),
       }),

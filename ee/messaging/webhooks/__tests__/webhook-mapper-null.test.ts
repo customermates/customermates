@@ -145,6 +145,7 @@ describe("calendar.event.upsert mapper-null handling", () => {
       calendarRepo as any,
       accountRepo() as any,
       {} as any,
+      {} as any,
     );
 
     const call = interactor.invoke({

@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
-import type { SignupJourneyInput } from "@/features/acquisition/signup-source";
+import type { SignupRequest } from "@/features/acquisition/signup-source";
 
 import { action, makeObservable, observable, toJS } from "mobx";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -14,7 +14,7 @@ import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-u
 
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
   showPassword = false;
-  signupJourney: SignupJourneyInput | null = null;
+  signupJourney: SignupRequest | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "", onboardingIntent: undefined });
@@ -30,11 +30,11 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
     });
   }
 
-  setSignupJourney = (journey: SignupJourneyInput | null) => {
+  setSignupJourney = (journey: SignupRequest | null) => {
     this.signupJourney = journey;
   };
 
-  private get journeyForAction(): SignupJourneyInput | undefined {
+  private get journeyForAction(): SignupRequest | undefined {
     return this.form.onboardingIntent || !this.signupJourney ? undefined : toJS(this.signupJourney);
   }
 

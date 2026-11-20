@@ -22,6 +22,10 @@ vi.mock("../../actions", () => ({
   saveOnboardingWizardProgressAction: vi.fn(),
   selectOnboardingJobAction: vi.fn().mockResolvedValue({ ok: true, data: { job: "followup", next: "playbook" } }),
 }));
+vi.mock("../../onboarding-agent-actions", () => ({
+  getOnboardingAgentStatusAction: vi.fn(),
+  getOnboardingTemplatePromptAction: vi.fn(),
+}));
 
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
 import { StepPlaybook } from "../step-playbook";

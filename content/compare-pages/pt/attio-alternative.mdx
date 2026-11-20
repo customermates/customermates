@@ -1,5 +1,5 @@
 ---
-title: "Alternativa ao Attio: CRM open source, WhatsApp e LinkedIn"
+title: "Alternativa ao Attio: CRM self-hosted, WhatsApp e LinkedIn"
 description: "Alternativa ao Attio: Twenty, folk, Pipedrive, HubSpot e Customermates comparados em preço, objetos personalizados, caixa unificada, MCP e hospedagem própria."
 competitorName: Attio
 
@@ -15,8 +15,8 @@ sections:
       description: "A partir do Pro, sua caixa do Gmail, Outlook ou IMAP, o LinkedIn (incluindo Sales Navigator e Recruiter), o WhatsApp, o Instagram e o Telegram ficam em uma só caixa de entrada, e cada conversa aparece no cliente."
     - title: "Uma resposta redigida, um próximo passo definido"
       description: "No Customermates Cloud, o Mate salva um rascunho de resposta na conversa e adiciona o próximo passo. Você revisa, edita e envia. Prefere o Claude ou o ChatGPT? Conecte-o via MCP."
-    - title: "Código aberto, com escolha de hospedagem"
-      description: "O Attio vende apenas planos hospedados. O núcleo do Customermates é AGPL-3.0 e roda no seu próprio servidor com Docker Compose e PostgreSQL 16; na nuvem, o banco de dados é configurado em Frankfurt."
+    - title: "Código-fonte disponível, com escolha de hospedagem"
+      description: "O Attio vende apenas planos hospedados. A edição Community do Customermates roda no seu próprio servidor, para uso interno, com Docker Compose e PostgreSQL 16; na nuvem, o banco de dados é configurado em Frankfurt."
   switchSteps: true
 
 hero:
@@ -96,8 +96,8 @@ comparison:
         competitor: true
   - title: Licença, hospedagem e acesso
     features:
-      - name: Licença de código aberto
-        source: Núcleo AGPL-3.0
+      - name: Código-fonte disponível
+        source: Sustainable Use License; ee/ sob uma licença comercial separada
         competitor: false
       - name: Hospedagem própria
         source: Docker Compose (CRM básico sem caixa de entrada nem Mate)
@@ -125,7 +125,7 @@ cta:
 
 A ordem segue uma única tarefa: manter cada conversa com clientes ao lado do negócio. O Customermates publica esta lista e fica em primeiro nesse critério, então confira cada linha no site do próprio fornecedor. Preços e recursos vêm da página de preços de cada fornecedor, todas verificadas em 12 de novembro de 2026.
 
-1. **Customermates** serve para pequenas equipes que lidam com clientes e cujos clientes escrevem por e-mail, LinkedIn, WhatsApp, Instagram e Telegram. A partir do Pro, por [[commercial.price.pro.monthly]] por usuário por mês, essas conversas ficam no registro do cliente e o Mate redige a resposta para você revisar e enviar. O núcleo AGPL-3.0 pode ser hospedado por conta própria, sem a caixa de entrada e sem o Mate.
+1. **Customermates** serve para pequenas equipes que lidam com clientes e cujos clientes escrevem por e-mail, LinkedIn, WhatsApp, Instagram e Telegram. A partir do Pro, por [[commercial.price.pro.monthly]] por usuário por mês, essas conversas ficam no registro do cliente e o Mate redige a resposta para você revisar e enviar. A edição Community pode ser hospedada por conta própria, para uso interno, sem a caixa de entrada e sem o Mate.
 2. **Twenty** é a opção de código aberto mais próxima do modelo de dados do Attio. Tem objetos personalizados ilimitados, um servidor MCP em todo espaço de trabalho na nuvem e uma edição com hospedagem própria. O Cloud Pro custa US$ 9 por usuário por mês com cobrança anual. O Organization, a US$ 39 por usuário por mês com cobrança anual, acrescenta single sign-on SAML/OIDC e permissões por campo e por linha. O teste dura 30 dias. A [comparação com o Twenty](/compare/twenty-alternative) entra em detalhes.
 3. **folk** serve para equipes baseadas em relacionamento que prospectam no LinkedIn. O Standard custa US$ 24 por membro por mês com cobrança anual ou US$ 30 no mensal e inclui uma extensão do LinkedIn, sincronização de e-mail, calendário e WhatsApp, enriquecimento de contatos e campanhas de e-mail. Objetos personalizados, negócios e sequências de e-mail exigem o Premium, a US$ 48 ou US$ 60. Veja o [folk comparado com o Customermates](/compare/folk).
 4. **Breakcold** serve para equipes que vendem pelo LinkedIn. A página de preços lista planos a partir de US$ 49 por licença por mês com cobrança mensal, com duas contas conectadas por licença e acesso ao Claude, ao ChatGPT e ao MCP em todos os planos. Veja o [Breakcold comparado com o Customermates](/compare/breakcold-alternative).
@@ -141,7 +141,7 @@ A ordem segue uma única tarefa: manter cada conversa com clientes ao lado do ne
 | Você grava chamadas de vendas ou envia sequências de e-mail pelo CRM | Attio Pro | Call Intelligence e sequências são recursos do Pro; o Customermates não tem nenhum dos dois |
 | Seus clientes escrevem no WhatsApp, LinkedIn, Instagram ou Telegram além do e-mail | Customermates Pro ou Business | Todos esses canais são nativos em uma só caixa de entrada |
 | Sua caixa de e-mail roda em IMAP, fora do Google e do Microsoft 365 | Customermates Pro ou Business | O Attio sincroniza diretamente apenas Gmail e Microsoft 365; e-mails de outros provedores entram por encaminhamento |
-| Você precisa de uma licença de código aberto ou quer hospedar o CRM você mesmo | Customermates ou Twenty | Os dois podem ser hospedados por conta própria (o Customermates sem a caixa de entrada e o Mate); o Attio vende apenas planos hospedados |
+| Você precisa de código aberto em sentido estrito ou quer hospedar o CRM você mesmo | Twenty ou Customermates | Os dois podem ser hospedados por conta própria (o Twenty é de código aberto; o Customermates tem o código-fonte disponível e não inclui a caixa de entrada nem o Mate); o Attio vende apenas planos hospedados |
 | Você precisa de SSO, SCIM ou aplicativos móveis nativos | Attio | O Attio tem aplicativos para iOS e Android e oferece SSO e SCIM no Ultra, ou no Pro com o complemento Governance; o Customermates não oferece nenhum deles |
 
 ## Para quem o Attio é uma boa escolha
@@ -183,7 +183,7 @@ Essas linhas não oferecem as mesmas coisas, então leia-as em pares:
 
 ## Onde o Customermates se encaixa
 
-Se seus clientes respondem no LinkedIn ou no WhatsApp e o Attio mantém essas conversas em aplicativos extras, o Customermates as mantém no registro do cliente desde o início. O Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, e você revisa, edita e envia. O núcleo é de código aberto e feito na Alemanha.
+Se seus clientes respondem no LinkedIn ou no WhatsApp e o Attio mantém essas conversas em aplicativos extras, o Customermates as mantém no registro do cliente desde o início. O Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, e você revisa, edita e envia. Tem o código-fonte disponível e é feito na Alemanha.
 
 **Conversas ao lado do negócio.** A partir do Pro, a [caixa de entrada unificada](/features/unified-inbox) reúne caixas do Gmail, Outlook e IMAP, LinkedIn (incluindo Sales Navigator e Recruiter), WhatsApp, Instagram e Telegram em uma única lista, e você responde no canal original. Vincule um participante a um contato uma vez, e toda conversa com aquele endereço ou perfil aparece na linha do tempo do contato. O Starter não tem caixa de entrada.
 
@@ -191,7 +191,7 @@ Se seus clientes respondem no LinkedIn ou no WhatsApp e o Attio mantém essas co
 
 Prefere o Claude, o ChatGPT ou outro cliente que você já paga? Conecte-o ao [servidor MCP](/docs/mcp), que oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e em instalações com hospedagem própria. As chamadas ao modelo rodam então no seu próprio provedor de IA.
 
-**Código aberto, com escolha de hospedagem.** O núcleo é AGPL-3.0 e roda no seu próprio servidor com Docker Compose e PostgreSQL 16, incluindo REST, webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, há um [DPA](/dpa) disponível e os subprocessadores, incluindo provedores dos EUA, estão listados nas páginas legais. O Customermates não tem nenhuma certificação de conformidade.
+**Código-fonte disponível, com escolha de hospedagem.** A edição Community (Sustainable Use License, fair-code, não é código aberto no sentido da OSI) roda no seu próprio servidor para uso interno, com Docker Compose e PostgreSQL 16, incluindo REST, webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, há um [DPA](/dpa) disponível e os subprocessadores, incluindo provedores dos EUA, estão listados nas páginas legais. O Customermates não tem nenhuma certificação de conformidade.
 
 ## Onde o Customermates é a escolha errada
 
@@ -245,7 +245,7 @@ Sim, para pequenas equipes. O Attio Free cobre até 3 licenças, 50.000 registro
 </FaqItem>
 
 <FaqItem question="Existe uma alternativa de código aberto ao Attio?">
-Sim, duas. O Twenty é o mais próximo do modelo de dados do Attio, com objetos personalizados, e pode ser hospedado por conta própria. O Customermates tem um núcleo AGPL-3.0 que você pode hospedar por conta própria com Docker Compose; a caixa de entrada e o Mate existem apenas no Customermates Cloud.
+Sim. O Twenty é o mais próximo do modelo de dados do Attio, com objetos personalizados, e pode ser hospedado por conta própria. O Customermates não é código aberto, mas tem o código-fonte disponível sob a Sustainable Use License e uma edição Community que você pode hospedar por conta própria com Docker Compose, para uso interno; a caixa de entrada e o Mate existem apenas no Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="O Attio oferece suporte a mensagens do WhatsApp e do LinkedIn?">

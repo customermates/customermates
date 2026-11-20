@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/core/utils/cn";
 
 type ButtonProps = {
+  ariaLabel?: string;
   blocker: string | null;
   className?: string;
   fullWidth?: boolean;
@@ -42,6 +43,7 @@ export function BlockableWorkspaceReason({ blocker, className, id, slot }: Reaso
 }
 
 export function BlockableWorkspaceButton({
+  ariaLabel,
   blocker,
   className,
   fullWidth = false,
@@ -54,6 +56,7 @@ export function BlockableWorkspaceButton({
 }: ButtonProps) {
   const button = (
     <Button
+      aria-label={ariaLabel}
       className={cn(fullWidth && "w-full", className)}
       disabled={blocker !== null}
       id={id}
@@ -73,7 +76,7 @@ export function BlockableWorkspaceButton({
         <span
           aria-describedby={blockedReasonId(id)}
           aria-disabled="true"
-          aria-label={label}
+          aria-label={ariaLabel ?? label}
           className={fullWidth ? "flex w-full" : "inline-flex w-fit"}
           data-slot={`${slot}-blocked`}
           role="button"

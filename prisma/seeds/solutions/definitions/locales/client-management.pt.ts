@@ -3,7 +3,6 @@ import type { Strings } from "../client-management";
 
 export const pt: Strings = {
   company: "Grão Certo Serviços para Escritórios",
-  workspaceName: "Clientes",
   website: "https://graocerto.example",
   phones: {
     mobile: { templates: ["+55 11 90000-0###"], start: 0 },

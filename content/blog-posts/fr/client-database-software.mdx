@@ -23,7 +23,7 @@ blogPost:
     - Base de données clients
     - Logiciel CRM
     - PME
-    - Open source
+    - Source-available
 ---
 
 # Logiciel de base de données clients et de fichier client : quel type choisir
@@ -36,7 +36,7 @@ Vous trouverez ci-dessous la différence entre base de données clients, fichier
   <SummaryItem label="Quel type">Un CRM léger pour les équipes en contact avec les clients, une base de données no-code pour un modèle de données atypique, un tableur ou un carnet d’adresses pour une seule personne.</SummaryItem>
   <SummaryItem label="Formules gratuites">Les outils gratuits de HubSpot s’arrêtent à 1 000 contacts, Airtable Free à 1 000 enregistrements par base, Ninox Free à 5 000 enregistrements. Les CRM open source auto-hébergés n’ont pas de frais de licence mais demandent un serveur.</SummaryItem>
   <SummaryItem label="Avant de vous engager">Importez 50 vraies lignes, ajoutez un doublon exprès, puis exportez tout. L’export vous dit à quel point il sera difficile de partir.</SummaryItem>
-  <SummaryItem label="Customermates">Un CRM open source dans lequel Contacts peut être renommé Clients. Cloud à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois ; la boîte de réception unifiée commence avec Pro.</SummaryItem>
+  <SummaryItem label="Customermates">Un CRM source-available dans lequel Contacts peut être renommé Clients. Cloud à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois ; la boîte de réception unifiée commence avec Pro.</SummaryItem>
   <SummaryItem label="Transparence">Customermates publie ce guide. Les autres outils sont décrits selon leur adéquation, sans classement.</SummaryItem>
 </ArticleSummary>
 
@@ -113,7 +113,7 @@ Les formules gratuites existent bel et bien, mais chacune s’arrête contre un 
 | [Ninox Free](https://ninox.com/de/preise) | Base de données no-code | Jusqu’à 5 utilisateurs, 5 000 enregistrements, 100 Mo de stockage, région de serveur Allemagne | Les enregistrements et le stockage |
 | [Notion Free](https://www.notion.com/pricing) | Espace de travail avec bases de données | Blocs illimités pour une personne, un nombre limité dès que 2 membres ou plus rejoignent | Le premier collègue |
 | [EspoCRM](https://www.espocrm.com/download/) et [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | CRM open source, auto-hébergé | Pas de frais de licence, AGPLv3 | Vous gérez le serveur, les mises à jour et les sauvegardes |
-| [Noyau Customermates](/features/self-hosted) | CRM open source, auto-hébergé | Pas de frais de licence, AGPL-3.0 | L’auto-hébergement n’a ni boîte de réception unifiée ni Mate |
+| [Noyau Customermates](/features/self-hosted) | CRM source-available, auto-hébergé | Pas de frais de licence en usage interne, Sustainable Use License | L’auto-hébergement n’a ni boîte de réception unifiée ni Mate |
 
 Pipedrive n’a pas de formule gratuite et propose un essai gratuit de 14 jours. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; son essai dure [[commercial.trial.days]] jours.
 
@@ -135,7 +135,7 @@ Airtable et Ninox sont des outils pour construire des bases de données : ce pr
 
 ## Un fichier client dans Customermates, étape par étape
 
-Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes en contact avec les clients, comme les consultants, les agences et les fondateurs. Voici un fichier client pour un petit cabinet de conseil, configuré comme le produit fonctionne aujourd’hui. Un nouvel espace de travail démarre sans listes : sur Customermates Cloud, vous décrivez votre activité en une phrase et Mate construit les listes, le pipeline et le tableau de bord ; en auto-hébergement, vous créez les listes dans Modèle de données. Ensuite, vous les ajustez ainsi.
+Customermates est un CRM source-available et IA native, développé en Allemagne pour les petites équipes en contact avec les clients, comme les consultants, les agences et les fondateurs. Voici un fichier client pour un petit cabinet de conseil, configuré comme le produit fonctionne aujourd’hui. Un nouvel espace de travail démarre sans listes : sur Customermates Cloud, vous décrivez votre activité en une phrase et Mate construit les listes, le pipeline et le tableau de bord ; en auto-hébergement, vous créez les listes dans Modèle de données. Ensuite, vous les ajustez ainsi.
 
 <Steps>
   <Step title="Nommez les enregistrements comme vous parlez">Dans Modèle de données, ouvrez une liste et modifiez son **Nom** et son **Nom au pluriel** sous **Général** : renommez Contacts en Clients et Organisations en Entreprises. Les affaires peuvent devenir des Projets, et les tâches des Suivis. N’importe quel nom convient, et il s’applique à tout l’espace de travail.</Step>
@@ -169,7 +169,7 @@ Une base de clients se rentabilise quand chaque client a une prochaine étape. A
 - **Vous prenez des réservations ou des rendez-vous.** Customermates n’a pas de réservation. Regardez les logiciels sectoriels de votre métier.
 - **Vous travaillez surtout depuis votre téléphone.** Il n’y a pas d’application mobile native.
 - **Votre modèle de données n’est pas fait de personnes et d’entreprises.** Customermates démarre sans listes et vous laisse créer les vôtres, mais il est construit autour de personnes, d’entreprises et d’affaires. Du matériel, des biens ou des évènements sans rien à vendre conviendront peut-être mieux à Airtable ou Ninox.
-- **Vous voulez auto-héberger et garder la boîte de réception.** L’auto-hébergement, c’est le noyau AGPL avec REST, les webhooks et MCP. La boîte de réception unifiée et Mate n’en font pas partie.
+- **Vous voulez auto-héberger et garder la boîte de réception.** L’auto-hébergement, c’est la Community Edition avec REST, les webhooks et MCP. La boîte de réception unifiée et Mate n’en font pas partie.
 
 ## Où se trouvent les données clients
 
@@ -189,7 +189,7 @@ Commencez par ce que vous recherchez et filtrez : nom, entreprise, numéros de 
 </FaqItem>
 
 <FaqItem question="Quel est le meilleur logiciel de fichier client gratuit ?">
-Cela dépend du nombre de personnes qui l’utilisent et du nombre d’enregistrements que vous gardez. Les outils gratuits de HubSpot couvrent 2 utilisateurs et 1 000 contacts, l’édition gratuite de Zoho CRM 3 utilisateurs, Airtable Free 1 000 enregistrements par base et Ninox Free 5 utilisateurs avec 5 000 enregistrements. Si vous pouvez gérer un serveur, EspoCRM, SuiteCRM et le noyau Customermates sont open source sans frais de licence. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, et un essai de [[commercial.trial.days]] jours.
+Cela dépend du nombre de personnes qui l’utilisent et du nombre d’enregistrements que vous gardez. Les outils gratuits de HubSpot couvrent 2 utilisateurs et 1 000 contacts, l’édition gratuite de Zoho CRM 3 utilisateurs, Airtable Free 1 000 enregistrements par base et Ninox Free 5 utilisateurs avec 5 000 enregistrements. Si vous pouvez gérer un serveur, EspoCRM et SuiteCRM sont open source et la Community Edition de Customermates est source-available, sans frais de licence. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, et un essai de [[commercial.trial.days]] jours.
 </FaqItem>
 
 <FaqItem question="Comment créer un fichier client ?">
@@ -209,7 +209,7 @@ Si les noms et les adresses sont tout ce dont vous avez besoin, la liste de clie
 </FaqItem>
 
 <FaqItem question="Puis-je héberger un fichier client sur mon propre serveur ?">
-Oui, avec un CRM open source. EspoCRM et SuiteCRM sont sous licence AGPLv3, et EspoCRM fonctionne avec PHP et MySQL, MariaDB ou PostgreSQL. Le noyau Customermates est sous AGPL-3.0 et fonctionne avec Docker Compose et PostgreSQL 16. Customermates auto-hébergé comprend REST, les webhooks et MCP pour votre propre client IA, mais pas de boîte de réception unifiée ni de Mate.
+Oui, avec un CRM open source. EspoCRM et SuiteCRM sont sous licence AGPLv3, et EspoCRM fonctionne avec PHP et MySQL, MariaDB ou PostgreSQL. La Community Edition de Customermates est sous Sustainable Use License (source-available) et fonctionne avec Docker Compose et PostgreSQL 16. Customermates auto-hébergé comprend REST, les webhooks et MCP pour votre propre client IA, mais pas de boîte de réception unifiée ni de Mate.
 </FaqItem>
 </Faq>
 

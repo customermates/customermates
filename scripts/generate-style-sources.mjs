@@ -102,6 +102,13 @@ export function generateStyleSources(root, development) {
         ) {
           // Locale JSON has no component imports; scan every supported language.
           seen.add(path.join(root, "i18n/locales"));
+        } else if (
+          specifier &&
+          ts.isTemplateExpression(specifier) &&
+          specifier.head.text === "./bundles/" &&
+          path.dirname(file) === path.join(root, "core/templates")
+        ) {
+          // Template bundles are JSON data without component imports.
         } else if (specifier && ts.isTemplateExpression(specifier) && !/^(?:[.@]|\/)/.test(specifier.head.text)) {
           // External packages (for example Zod locale modules) supply their own styles.
         } else throw new Error(`Public CSS cannot trace a nonliteral dynamic import in ${path.relative(root, file)}`);

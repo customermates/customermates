@@ -1,0 +1,59 @@
+---
+title: "Agents : clés de fournisseur, runtimes et exécutions"
+description: "Les étapes d’agent tournent sur Mate, avec votre propre clé d’IA ou sur votre propre runner : ajouter une clé, modèles, limites et historique des exécutions."
+---
+
+Un agent est une IA qui exécute l’étape d’agent d’une [automatisation](/docs/app-automations) : elle lit l’enregistrement qui a déclenché l’automatisation, utilise les mêmes outils CRM que Mate et rend compte de ce qu’elle a fait. L’endroit où un agent tourne est le **runtime** de l’étape : **Mate** (l’agent hébergé de Customermates, payé avec les crédits IA de votre forfait, Cloud uniquement), **Votre propre clé** (un agent dans le cloud Customermates ou sur votre instance auto-hébergée qui utilise une clé API de votre fournisseur d’IA, facturée par le fournisseur) ou **Votre propre runner** (Claude Code ou Codex sur votre propre machine, avec votre propre session).
+
+Ouvrez [Agents](app:settings/agents), dans les paramètres, pour voir les runtimes disponibles, ajouter des clés de fournisseur, voir les runners de l’espace de travail et lire les dernières exécutions. La page s’adresse aux personnes qui peuvent modifier les paramètres de l’espace de travail.
+
+## Comment ajouter une clé de fournisseur ? [#how-do-i-add-a-provider-key]
+
+Ouvrez **Agents**, cliquez sur **Ajouter une clé** et choisissez le **Fournisseur** (Anthropic, OpenAI ou Google). Donnez un **Libellé** à la clé, collez la **Clé API** depuis la console du fournisseur et choisissez un **Modèle par défaut**. Customermates demande au fournisseur si la clé fonctionne avant de la conserver. Une clé que le fournisseur refuse n’est pas enregistrée, et si le fournisseur est injoignable pour le moment, il vous est demandé de réessayer. Une clé que le fournisseur accepte mais qui n’a pas le droit de lister ses modèles, par exemple une clé OpenAI restreinte, est enregistrée avec une note indiquant qu’elle n’a pas pu être vérifiée.
+
+La clé est stockée chiffrée et n’est plus jamais affichée : la liste montre uniquement le libellé, le fournisseur et les quatre derniers caractères. Un espace de travail a une clé par fournisseur, donc ajouter une clé pour un fournisseur qui en a déjà une la remplace. **Tester** interroge de nouveau le fournisseur et met à jour **Dernière vérification**, **Retirer** supprime définitivement la clé. Si le secret de chiffrement du serveur a changé après l’enregistrement de la clé, **Tester** et les exécutions d’agent indiquent que la clé ne peut pas être lue, et vous l’enregistrez de nouveau. Les clés fonctionnent sur tous les forfaits payants et sur les instances auto-hébergées, où la clé vous appartient de toute façon ; le forfait Free ne peut pas en ajouter.
+
+## Combien cela coûte-t-il ? [#what-does-it-cost]
+
+Un agent sur votre propre clé vous coûte ce que le fournisseur facture pour les appels, sur la facture du fournisseur. Il n’utilise pas les crédits IA de votre forfait Customermates. Un agent sur Mate utilise les crédits de la personne propriétaire de l’automatisation, le même quota que les conversations Mate et les routines, et chaque exécution indique les crédits utilisés. Une exécution sur Mate réserve des crédits tour après tour et s’arrête avant d’utiliser plus de 10 crédits ou plus que ce qu’il reste de ce quota.
+
+## Quels modèles puis-je utiliser ? [#which-models-can-i-use]
+
+La liste par fournisseur est tenue par Customermates et montre les modèles des fournisseurs pour lesquels vous avez ajouté une clé :
+
+- **Anthropic :** Claude Sonnet 5.5 (par défaut), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 et Claude Haiku 4.5.
+- **OpenAI :** GPT-5 mini (par défaut), GPT-5, GPT-5 nano, GPT-4.1 et GPT-4.1 mini.
+- **Google :** Gemini 2.5 Flash (par défaut), Gemini 2.5 Pro et Gemini 2.5 Flash-Lite.
+
+Une étape enregistrée sans modèle conserve dès lors le modèle par défaut de l’unique clé de fournisseur de l’espace de travail. Avec plusieurs clés, l’étape a besoin d’un modèle, afin que le retrait d’une clé ne déplace jamais une étape vers un autre fournisseur. Quand le modèle par défaut d’une clé n’est plus proposé, l’exécution utilise le modèle par défaut du fournisseur et l’indique dans sa transcription. Customermates ne demande jamais de connexion Claude Pro ou Max : le runtime avec votre propre clé fonctionne uniquement avec une clé API de la console du fournisseur.
+
+## Que peut faire une étape d’agent ? [#what-may-an-agent-step-do]
+
+Une étape d’agent s’exécute en tant que propriétaire de l’automatisation, avec ses droits, sans que personne ne regarde. Elle peut lire et modifier des enregistrements, lire la base de connaissances et utiliser les autres outils d’espace de travail de Mate. Elle ne peut pas utiliser l’interface et n’a pas de recherche web. Tout ce qui demande une approbation, comme supprimer des enregistrements ou inviter des personnes, est refusé et l’agent indique ce qui reste à faire.
+
+Une exécution a deux plafonds : au plus 25 appels d’outils et 10 minutes. Quand un plafond est atteint, l’exécution s’arrête et le dit. Quand l’événement qui a déclenché l’automatisation vient de l’extérieur de l’espace de travail, par exemple un formulaire, un webhook ou un message entrant, l’agent traite l’enregistrement et tout son contenu comme des données, jamais comme des instructions. Il en va de même pour un nom d’enregistrement que la consigne utilise avec `{{record.name}}` : il parvient à l’agent marqué comme donnée et limité à 200 caractères. Une exécution que du texte extérieur peut atteindre par l’une de ces voies ne peut pas envoyer d’e-mails ni de messages de chat, envoyer des invitations de mise en relation, ni créer, modifier ou lancer des webhooks et des routines : l’agent indique dans son rapport ce qui devrait être envoyé ou modifié. Il en va de même quand l’enregistrement qui a déclenché l’automatisation a été écrit par un formulaire public, un webhook entrant ou une étape d’agent que du texte extérieur pouvait atteindre, quel que soit le déclencheur de l’automatisation. Aucune étape d’agent ne crée, ne modifie ni ne supprime de pages de la base de connaissances. De même, aucune étape d’agent ne lance une routine, ni ne crée ou modifie une routine qui réagit à des événements, car une telle routine pourrait relancer l’automatisation sans fin. Une étape déclenchée par un message entrant apprend quelle conversation lire. Une exécution interrompue après son démarrage, par exemple par un redémarrage du serveur, n’est jamais relancée, car elle a peut-être déjà envoyé ou modifié quelque chose : elle se termine en délai dépassé quelques minutes après l’expiration de son délai. Un espace de travail exécute au plus cinq étapes d’agent à la fois sur Mate ou sur sa propre clé ; les suivantes attendent dans la file jusqu’à ce que l’une soit terminée. Une exécution qui n’a pas pu démarrer est retentée en quelques minutes et se termine en délai dépassé si elle n’a toujours pas démarré au bout de 15 minutes. Une exécution qui échoue à cause du fournisseur affiche la classe d’erreur du fournisseur, jamais la clé.
+
+## Où voir ce qu’un agent a fait ? [#where-do-i-see-what-an-agent-did]
+
+**Dernières exécutions d’agent** sur la page **Agents** liste les exécutions, les plus récentes d’abord, avec le statut (**En attente**, **Démarrage**, **En cours**, **Terminée**, **Échec**, **Délai dépassé** ou **Annulée**), le runtime, le modèle, les tokens et, pour Mate, les crédits utilisés. Ouvrez une exécution pour lire sa transcription : la consigne, chaque outil appelé avec un court résumé des arguments, un court résumé de chaque résultat et le rapport final. Les exécutions sont conservées 90 jours. Les personnes qui voient toutes les automatisations voient toutes les exécutions, les autres voient celles de leurs propres automatisations. La consigne, la transcription et le rapport final d’une exécution ne sont montrés qu’au propriétaire de l’automatisation et aux administrateurs ; les autres personnes qui voient l’exécution voient son statut, son runtime, son modèle, ses tokens et ses horaires.
+
+## Pour les agents [#for-agents]
+
+L’étape d’agent est l’effet `agent` d’une règle dans `manage_rules` via [MCP](/docs/mcp) : `runtime` vaut `mate`, `ownKey` ou `runner`, `prompt` est la tâche (elle peut utiliser `{{record.name}}` et `{{rule.name}}`), `model` choisit pour `ownKey` un modèle du fournisseur de la clé, et `runnerId` impose pour `runner` un runner précis. Un runtime indisponible fait échouer l’effet avec la raison `plan`, `noKey`, `noRunner`, `selfHosted` ou `notConfigured`.
+
+## Questions fréquentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Puis-je utiliser mon abonnement Claude Pro ou Max ?">
+Non. Customermates exécute les agents avec une clé API de la console du fournisseur, que le fournisseur facture à l’usage. Une connexion Claude Pro ou Max appartient à Claude lui-même et n’est pas utilisée par Customermates.
+</FaqItem>
+<FaqItem question="Ma clé est-elle en sécurité ?">
+La clé est vérifiée auprès du fournisseur, stockée chiffrée et affichée nulle part de nouveau, pas même aux administrateurs. Elle n’est ouverte que le temps d’une exécution, pour les appels de cette exécution au fournisseur, et n’est jamais écrite dans l’historique des exécutions.
+</FaqItem>
+<FaqItem question="Pourquoi Votre propre clé n’est-elle pas disponible ?">
+La page **Agents** indique la raison à côté de chaque runtime : votre forfait ne l’inclut pas, ou aucune clé de fournisseur n’a encore été ajoutée. Un runner est disponible si l’un d’eux a été vu au cours des deux dernières minutes.
+</FaqItem>
+<FaqItem question="Une exécution continue-t-elle si je ferme la page ?">
+Oui. Une exécution est lancée sur le serveur par l’automatisation et s’y termine. La page montre seulement ce qui a été enregistré.
+</FaqItem>
+</Faq>

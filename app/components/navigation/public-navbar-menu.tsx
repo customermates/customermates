@@ -74,6 +74,7 @@ type Props = {
   onNavigate: () => void;
   pathname: string;
   pricingLabel: string;
+  templatesLabel?: string;
 };
 
 function isPathActive(pathname: string, href: string) {
@@ -174,7 +175,15 @@ function PublicNavLinkIcon({ icon: LinkIcon }: { icon: LucideIcon }) {
   );
 }
 
-export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pathname, pricingLabel }: Props) {
+export function PublicNavbarMenu({
+  ariaLabel,
+  docsLabel,
+  groups,
+  onNavigate,
+  pathname,
+  pricingLabel,
+  templatesLabel,
+}: Props) {
   const [openGroup, setOpenGroup] = useState("");
   const [previewHref, setPreviewHref] = useState("");
   const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
@@ -183,6 +192,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
   const keyboardNavigationRef = useRef(false);
   const panelRefs = useRef(new Map<string, HTMLDivElement>());
   const pricingItemRef = useRef<HTMLLIElement>(null);
+  const templatesItemRef = useRef<HTMLLIElement>(null);
   const triggerRefs = useRef(new Map<string, HTMLButtonElement>());
   const activeGroupId = resolveActivePublicNavGroup(pathname, groups);
   const visibleGroup = groups.find((group) => group.id === openGroup);
@@ -234,7 +244,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
     close();
 
     if (nextGroup) triggerRefs.current.get(nextGroup.id)?.focus();
-    else pricingItemRef.current?.querySelector<HTMLAnchorElement>("a[href]")?.focus();
+    else (templatesItemRef.current ?? pricingItemRef.current)?.querySelector<HTMLAnchorElement>("a[href]")?.focus();
   }
 
   function handlePanelLinkKeyDown(event: ReactKeyboardEvent<HTMLAnchorElement>, groupId: string) {
@@ -562,6 +572,23 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                 </li>
               );
             })}
+
+            {templatesLabel ? (
+              <li ref={templatesItemRef}>
+                <AppLink
+                  appearance="unstyled"
+                  aria-current={isPathActive(pathname, "/templates") ? "page" : undefined}
+                  className={cn(
+                    "flex h-8 items-center rounded-full px-3 text-[13px] font-medium transition-[background-color,color,box-shadow] duration-200 hover:bg-foreground/[0.06] hover:text-foreground focus-visible:bg-foreground/[0.06] motion-reduce:transition-none",
+                    isPathActive(pathname, "/templates") ? "bg-foreground/[0.07] text-foreground" : "text-subdued",
+                  )}
+                  href="/templates"
+                  onNavigate={navigate}
+                >
+                  {templatesLabel}
+                </AppLink>
+              </li>
+            ) : null}
 
             <li ref={pricingItemRef}>
               <AppLink

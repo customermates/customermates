@@ -168,7 +168,7 @@ describe("AuthService", () => {
       locale: "it",
       layoutCopy: {
         country: "Germania",
-        tagline: "Il CRM open source per seguire ogni cliente",
+        tagline: "Il CRM source-available per seguire ogni cliente",
       },
     });
   });
@@ -184,7 +184,7 @@ describe("AuthService", () => {
       locale: "fr",
       layoutCopy: {
         country: "Allemagne",
-        tagline: "Le CRM open source pour relancer vos clients",
+        tagline: "Le CRM source-available pour relancer vos clients",
       },
     });
   });

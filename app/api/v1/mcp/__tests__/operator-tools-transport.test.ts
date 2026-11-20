@@ -35,9 +35,15 @@ vi.mock("@/core/di", async () => {
   return {
     getAuthService: () => authService,
     getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+    getRecordAgentFirstCallInteractor: () => ({
+      invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }),
+    }),
     getOperatorAccessService: () => accessService,
     getGetOperatorBillingUsageInteractor: () =>
-      new GetOperatorBillingUsageInteractor({ readBillingUsageLedgerUnscoped: state.ledgerReads }),
+      new GetOperatorBillingUsageInteractor({
+        readBillingUsageLedgerUnscoped: state.ledgerReads,
+        readWorkspaceMeasurementsUnscoped: () => Promise.resolve(new Map()),
+      }),
   };
 });
 

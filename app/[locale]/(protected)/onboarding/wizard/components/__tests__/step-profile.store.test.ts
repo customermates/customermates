@@ -5,6 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const actions = vi.hoisted(() => ({ registerProfileAction: vi.fn() }));
 
 vi.mock("../../actions", () => actions);
+vi.mock("../../onboarding-agent-actions", () => ({
+  getOnboardingAgentStatusAction: vi.fn(),
+  getOnboardingTemplatePromptAction: vi.fn(),
+}));
 
 import { StepProfileStore } from "../step-profile.store";
 
@@ -38,8 +42,39 @@ describe("StepProfileStore", () => {
       firstName: "Owner",
       lastName: "Example",
       onboardingIntent: "signed.create.intent",
+      teamSize: null,
       workspaceName: "",
     });
+  });
+
+  it("asks a new cloud owner for the team size before it registers", async () => {
+    const store = new StepProfileStore(rootStore);
+    store.onInitOrRefresh({ email: "owner@example.com", firstName: "Owner", lastName: "Example" });
+    store.setRequiresTeamSize(true);
+
+    await store.onSubmit();
+
+    expect(store.teamSizeMissing).toBe(true);
+    expect(actions.registerProfileAction).not.toHaveBeenCalled();
+
+    store.setTeamSize("not-a-size");
+    expect(store.form.teamSize).toBeNull();
+    store.setTeamSize("small");
+    expect(store.teamSizeMissing).toBe(false);
+    await store.onSubmit();
+
+    expect(actions.registerProfileAction.mock.calls[0][0]).toMatchObject({ teamSize: "small" });
+  });
+
+  it("sends no team size where the question is not asked", async () => {
+    const store = new StepProfileStore(rootStore);
+    store.onInitOrRefresh({ email: "owner@example.com", firstName: "Owner", lastName: "Example" });
+    store.setTeamSize("large");
+    store.setRequiresTeamSize(false);
+
+    await store.onSubmit();
+
+    expect(actions.registerProfileAction.mock.calls[0][0]).toMatchObject({ teamSize: null });
   });
 
   it("submits the name chosen for a new workspace", async () => {

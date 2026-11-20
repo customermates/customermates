@@ -3,7 +3,6 @@ import type { Strings } from "../client-management";
 
 export const nl: Strings = {
   company: "Bonenhuis Kantoorservice",
-  workspaceName: "Klanten",
   website: "https://bonenhuis-kantoorservice.example",
   phones: {
     mobile: { templates: ["+31 6 0000 0###"], start: 0 },

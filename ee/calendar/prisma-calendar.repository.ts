@@ -155,6 +155,7 @@ export class PrismaCalendarRepo
       recurrenceRule: args.event.recurrenceRule,
       status: args.event.status,
       visibility: args.event.visibility,
+      transparency: args.event.transparency,
       attendees: args.event.attendees,
       organizer: args.event.organizer ?? Prisma.JsonNull,
       attendeeEmails: args.attendeeEmails,
@@ -173,6 +174,24 @@ export class PrismaCalendarRepo
     });
 
     return { id: row.id };
+  }
+
+  @BypassTenantGuard
+  async markCalendarEventCancelledUnscoped(args: RepoArgs<CalendarWriteRepo, "markCalendarEventCancelledUnscoped">) {
+    const event = await this.prisma.calendarEvent.findUnique({
+      where: {
+        connectedAccountId_unipileEventId: {
+          connectedAccountId: args.connectedAccountId,
+          unipileEventId: args.unipileEventId,
+        },
+      },
+      select: { id: true },
+    });
+    if (!event) return null;
+
+    await this.prisma.calendarEvent.update({ where: { id: event.id }, data: { status: "cancelled" } });
+
+    return { id: event.id };
   }
 
   @BypassTenantGuard

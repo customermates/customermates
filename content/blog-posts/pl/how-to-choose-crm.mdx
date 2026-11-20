@@ -104,7 +104,7 @@ Pięciu kandydatów to za dużo, żeby porządnie przetestować ich w jeden tydz
 | Większość szans zaczyna się od marketingu przychodzącego (formularze, newslettery, treści) | Pakietu z narzędziami marketingowymi w tej samej bazie danych |
 | Zespół sprzedaży obsługuje dużą liczbę podobnych szans | CRM sprzedażowego opartego na pipeline'ie, ze śledzeniem aktywności i funkcjami dzwonienia |
 | Kilka długich relacji z klientami toczy się przez e-mail i komunikatory (konsulting, agencje, doradcy) | CRM, który trzyma rozmowy przy kontakcie i szansie sprzedaży, z prostym pipeline |
-| Potrzebujesz danych na własnych serwerach albo chcesz czytać kod | CRM open source, który można hostować samodzielnie; sprawdź, jakich funkcji brakuje w wersji self-hosted |
+| Potrzebujesz danych na własnych serwerach albo chcesz czytać kod | CRM open source albo source-available, który można hostować samodzielnie; sprawdź, jakich funkcji brakuje w wersji self-hosted |
 | Jedna lub dwie osoby, poniżej 100 kontaktów | [Arkusz kalkulacyjny](/blog/excel-crm-template) albo plan darmowy, dopóki nie przestanie wystarczać |
 
 Warto zajrzeć do CRM branżowych (nieruchomości, ubezpieczenia, rekrutacja), gdy Twój proces ma stałe kroki, które ogólny CRM musiałby odwzorowywać wieloma własnymi polami. Nasze [porównanie CRM](/blog/crm-comparison) zestawia obok siebie popularne rozwiązania ogólnego przeznaczenia.
@@ -195,7 +195,7 @@ Lokalny dostawca bywa wygodniejszy, gdy zależy Ci na bezpośredniej rozmowie po
 
 ## Gdzie pasuje Customermates
 
-*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM open source zaprojektowany z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami, takich jak konsultanci, agencje i założyciele. To jeden z kandydatów, których warto przepuścić przez powyższe kroki, a nie skrót, który je omija.
+*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM source-available zaprojektowany z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami, takich jak konsultanci, agencje i założyciele. To jeden z kandydatów, których warto przepuścić przez powyższe kroki, a nie skrót, który je omija.
 
 **Co warto przetestować.** Kontakty, organizacje, szanse sprzedaży, usługi i zadania z własnymi polami niestandardowymi. Etap szansy to pole Pojedynczy wybór, które konfigurujesz, a każdy etap może mieć wagę, z której powstają ważone wartości szans i ważona suma pipeline. Listy wyświetlają się jako tabela lub tablica, a filtry, sortowanie i kolumny zapisują się jako widoki, które można udostępniać. Role ustawiają prawa tworzenia, odczytu, edycji i usuwania dla każdej listy. Import czyta skoroszyty Excela (XLSX lub XLS) i pliki CSV z mapowaniem kolumn, a każda lista eksportuje się do XLSX lub JSON, po jednej liście naraz; szczegóły podaje [dokumentacja rekordów](/docs/app-records).
 
@@ -203,7 +203,7 @@ Lokalny dostawca bywa wygodniejszy, gdy zależy Ci na bezpośredniej rozmowie po
 
 **AI.** W Customermates Cloud asystent Mate korzysta z kredytów AI w chmurze, żeby streszczać, przygotowywać szkice odpowiedzi i aktualizować rekordy, a rutyny uruchamiają zapisane polecenia według harmonogramu lub przy zdarzeniach na rekordach. Każdy płatny plan zawiera miesięczne kredyty AI na aktywnego użytkownika; kwoty podaje [strona z cennikiem](/pricing). Możesz też użyć własnego klienta AI, który współpracuje z CRM przez [MCP](/docs/mcp).
 
-**Hosting.** Baza danych w chmurze jest skonfigurowana w regionie AWS Frankfurt; [strona o podmiotach podprzetwarzających](/subprocessors) wymienia każdy podmiot podprzetwarzający, a dostępna jest [umowa DPA](/dpa). Rdzeń open source można [hostować samodzielnie](/features/self-hosted) z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i kredytów w chmurze.
+**Hosting.** Baza danych w chmurze jest skonfigurowana w regionie AWS Frankfurt; [strona o podmiotach podprzetwarzających](/subprocessors) wymienia każdy podmiot podprzetwarzający, a dostępna jest [umowa DPA](/dpa). Community Edition można [hostować samodzielnie](/features/self-hosted) z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i kredytów w chmurze.
 
 **Koszt dla przykładowego zespołu.** Pięciu użytkowników na planie Pro kosztuje [[commercial.price.pro.monthly.seats.5]] miesięcznie, czyli [[commercial.price.pro.monthly.seats.5.months.12]] w ciągu dwunastu miesięcy. Rozliczenie jest wyłącznie miesięczne, bez opłaty za wdrożenie, a okres próbny trwa [[commercial.trial.days]] dni w planie Pro, bez karty kredytowej. [Rozpocznij okres próbny](/auth/signup?job=followup) i wykorzystaj go w kroku 5.
 

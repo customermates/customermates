@@ -4,11 +4,15 @@ import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-d
 import type { CreateApiKeyData } from "@/features/api-key/create-api-key.interactor";
 import type { DeleteApiKeyData } from "@/features/api-key/delete-api-key.interactor";
 
+import type { DisconnectConnectedAppData } from "@/features/connected-apps/connected-app.schema";
+
 import {
   getUpdateUserDetailsInteractor,
   getCreateApiKeyInteractor,
   getDeleteApiKeyInteractor,
+  getDisconnectConnectedAppInteractor,
   getGetApiKeysInteractor,
+  getGetConnectedAppsInteractor,
   getResendVerificationEmailInteractor,
 } from "@/core/di";
 import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
@@ -27,6 +31,14 @@ export async function deleteApiKeyAction(data: DeleteApiKeyData) {
 
 export async function refreshApiKeysAction() {
   return serializeTypedResult(getGetApiKeysInteractor().invoke());
+}
+
+export async function disconnectConnectedAppAction(data: DisconnectConnectedAppData) {
+  return serializeResult(getDisconnectConnectedAppInteractor().invoke(data));
+}
+
+export async function refreshConnectedAppsAction() {
+  return serializeTypedResult(getGetConnectedAppsInteractor().invoke());
 }
 
 export async function resendVerificationEmailFromAppAction(): Promise<{ ok: boolean }> {

@@ -1,0 +1,182 @@
+{
+  "locale": "en",
+  "name": "Tax and bookkeeping practice",
+  "summary": "Keep every mandate, client job and deadline under control. Win a mandate through identification and engagement letter, run recurring jobs per client, and keep a deadline register that a second person verifies.",
+  "description": "In a tax or bookkeeping practice the calendar fills with waiting for client documents, and every deadline needs a second pair of eyes. This template runs two flows: mandates from inquiry to an active engagement with a money-laundering identification step in between, and recurring jobs per client and period with a waiting-for-documents status. A register of deadlines holds a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "People at your clients who send documents and sign." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Individuals, sole traders, companies and associations you act for." },
+    "mandates": { "label": "Mandate", "pluralLabel": "Mandates", "description": "One engagement from inquiry to active or declined." },
+    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "Recurring work for a client and period, such as a monthly close or a VAT return." },
+    "deadlines": { "label": "Deadline", "pluralLabel": "Deadlines", "description": "A legal or authority date with its source, a pre-deadline and the person who verified it." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "phone": "Phone", "portal": "Portal", "whatsapp": "WhatsApp", "post": "Post" } },
+    "clients.client_type": { "label": "Type", "options": { "individual": "Individual", "sole_trader": "Sole trader", "company": "Company", "association": "Association" } },
+    "clients.vat_frequency": { "label": "VAT returns", "options": { "monthly": "Monthly", "quarterly": "Quarterly", "annual": "Annual", "not_applicable": "Not applicable" } },
+    "clients.authorisation_on": { "label": "Authorisation on file since" },
+    "clients.aml_risk": {
+      "label": "Money-laundering risk",
+      "options": { "not_assessed": "Not assessed", "low": "Low", "standard": "Standard", "enhanced": "Enhanced", "declined": "Declined" }
+    },
+    "clients.aml_next_review": { "label": "Next risk review" },
+    "mandates.stage": {
+      "label": "Stage",
+      "options": { "inquiry": "Inquiry", "intro_call": "Intro call", "proposal_sent": "Proposal sent", "aml_check": "Identification", "engagement_letter_out": "Engagement letter sent", "active": "Active", "declined": "Declined", "not_going_ahead": "Not going ahead" }
+    },
+    "mandates.services": {
+      "label": "Services",
+      "options": { "bookkeeping": "Bookkeeping", "payroll": "Payroll", "vat_returns": "VAT returns", "annual_accounts": "Annual accounts", "tax_returns": "Tax returns", "advisory": "Advisory" }
+    },
+    "mandates.fee_model": { "label": "Fee model", "options": { "fixed_monthly": "Fixed monthly", "hourly": "Hourly", "per_filing": "Per filing", "value_based": "Value based" } },
+    "mandates.next_step_due": { "label": "Next step due" },
+    "mandates.lost_reason": {
+      "label": "Reason",
+      "options": { "capacity": "No capacity", "risk_declined": "Declined for risk", "scope_mismatch": "Scope mismatch", "price": "Price", "chose_other_advisor": "Chose another advisor", "no_response": "No response" }
+    },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "planned": "Planned", "waiting_for_documents": "Waiting for documents", "in_preparation": "In preparation", "in_review": "In review", "client_approval": "Waiting for client approval", "submitted": "Submitted", "waiting_for_authority": "Waiting for the authority", "done": "Done" }
+    },
+    "jobs.job_type": {
+      "label": "Job type",
+      "options": { "monthly_bookkeeping": "Monthly bookkeeping", "payroll_run": "Payroll run", "vat_return": "VAT return", "annual_accounts": "Annual accounts", "tax_return": "Tax return", "year_end": "Year-end" }
+    },
+    "jobs.period": { "label": "Period" },
+    "jobs.documents_due": { "label": "Documents needed by" },
+    "jobs.internal_due": { "label": "Internal due date" },
+    "jobs.reviewer": { "label": "Reviewer" },
+    "jobs.notice_received_on": { "label": "Authority notice received on" },
+    "deadlines.kind": {
+      "label": "Kind",
+      "options": { "vat_return": "VAT return", "vat_payment": "VAT payment", "payroll_report": "Payroll report", "annual_accounts": "Annual accounts", "tax_return": "Tax return", "appeal": "Appeal", "payment": "Payment", "aml_review": "Risk review", "other": "Other" }
+    },
+    "deadlines.due_date": { "label": "Due date" },
+    "deadlines.pre_deadline": { "label": "Pre-deadline" },
+    "deadlines.source_ref": { "label": "Source of the date" },
+    "deadlines.verified_by": { "label": "Verified by" },
+    "deadlines.status": { "label": "Status", "options": { "open": "Open", "in_progress": "In progress", "filed": "Filed", "extended": "Extended", "cancelled": "Cancelled" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "request_documents": "Request documents",
+        "chase_documents": "Chase documents",
+        "chase_approval": "Chase approval or signature",
+        "review": "Review",
+        "reply": "Reply",
+        "aml": "Identification and risk rating",
+        "filing": "Filing",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "mandate_client": { "sourceLabel": "Client", "targetLabel": "Mandates" },
+    "job_client": { "sourceLabel": "Client", "targetLabel": "Jobs" },
+    "deadline_client": { "sourceLabel": "Client", "targetLabel": "Deadlines" },
+    "action_job": { "sourceLabel": "Job", "targetLabel": "Actions" },
+    "action_client": { "sourceLabel": "Client", "targetLabel": "Actions" }
+  },
+  "views": {
+    "mandates_board": { "name": "Mandates by stage" },
+    "mandates_all": { "name": "All mandates" },
+    "jobs_board": { "name": "Jobs by status" },
+    "jobs_waiting_documents": { "name": "Waiting for documents" },
+    "deadlines_all": { "name": "All deadlines" },
+    "unverified_deadlines": { "name": "Deadlines nobody has verified" },
+    "clients_all": { "name": "All clients" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Deadlines coming up" },
+    "unverified_count": { "title": "Open deadlines without a verifier" },
+    "jobs_by_status": { "title": "Open jobs by status" },
+    "documents_waiting": { "title": "Jobs waiting for documents" },
+    "jobs_waiting_on_client": { "title": "Jobs waiting for client approval" },
+    "mandates_funnel": { "title": "Mandates by stage" },
+    "aml_reviews": { "title": "Risk reviews due" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the practice runs", "sections": ["The two flows: winning a mandate and doing the work", "Who owns which stage and the rule of one dated Action per open job"] },
+    "onboarding_and_aml": { "title": "Onboarding and identification", "sections": ["Identifying the client and the beneficial owner, and the risk rating", "Engagement letter checklist (no ID copies are stored here)"] },
+    "deadline_control": { "title": "Deadline control", "sections": ["How a date is entered with its source and verified by a second person", "Pre-deadline check and extension decision"] },
+    "document_checklists": { "title": "Document requests by service", "sections": ["What we ask for each service and by when", "Reminders and what happens when documents stay missing"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Follow up on a proposal 3 days after it is sent" },
+    "aml_identification": { "title": "Identify the client within 2 days when a mandate reaches the identification stage" },
+    "onboarding_set": { "title": "Request the authorisation and the first documents when a mandate becomes active" },
+    "recontact_not_going_ahead": { "title": "Set the next step to 90 days out when a mandate is not going ahead" },
+    "documents_chase": { "title": "Chase the documents 3 days before they are needed" },
+    "documents_overdue_notice": { "title": "Notify the owner when the documents are due and still missing" },
+    "pre_deadline_check": { "title": "Notify the owner on the pre-deadline of an open deadline" },
+    "due_date_escalation": { "title": "Notify the lead 2 days before an open deadline" },
+    "approval_chase": { "title": "Chase the client approval after 5 days of waiting" },
+    "notice_check": { "title": "Check an authority notice within 3 days of receiving it" },
+    "aml_review": { "title": "Review the risk rating when the next review date arrives" },
+    "monthly_close_jobs": { "title": "Create the monthly jobs at the start of each month" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Every mandate has a stage.",
+    "job_status_field": "Every job has a status, including waiting for documents.",
+    "deadline_due_field": "Every deadline records its due date.",
+    "deadline_verifier_field": "Every deadline records who verified it.",
+    "deadline_control_page": "The knowledge base holds a page on deadline control."
+  },
+  "page": {
+    "metaTitle": "Accounting Practice Management Software: Deadline Register",
+    "metaDescription": "Practice management for accountants: mandates, recurring jobs, document chasing and a deadline register a second person verifies. Paste it into your AI agent.",
+    "headline": "Accounting practice management software that tracks every deadline and missing document, built by your AI agent",
+    "answer": "Accounting practice management means two flows side by side: winning a mandate through identification and an engagement letter, and doing the recurring work per client and period while you wait for documents. Paste this template into your AI agent and it builds both in Customermates, with a deadline register that records a pre-deadline and the person who verified each date. You approve the plan before anything is built. It sits next to your practice software and does not replace it.",
+    "routine": {
+      "title": "The weekly practice review",
+      "steps": [
+        "Open the jobs board and see who holds the ball: waiting for documents, waiting for client approval or waiting for the authority.",
+        "Chase the documents due within three days, and for those still missing after their date decide: extend, prepare in part or escalate to the partner.",
+        "Check the deadline register: every open deadline has a source, a pre-deadline and a second person who verified the date.",
+        "Enter any authority notice received this week with its appeal deadline and source, and have a second person verify it.",
+        "Give every active job without an open Action a next step, or record why it is parked.",
+        "Review proposals sent more than three days ago and mandates in the identification stage, so no work starts before the client is identified."
+      ]
+    },
+    "limits": [
+      "It is not your filing or practice software. Filing, the ledger, payroll and the calculation of statutory deadlines stay in tools such as DATEV, Karbon or TaxDome, and the template never says that a return is on time.",
+      "It computes no legal dates. A deadline is a record with a source, a pre-deadline and a named person who verified it; the date itself comes from you.",
+      "It is not a time-tracking or invoicing tool, and it has no client portal or e-signature. A signed engagement letter is a link to the signed file.",
+      "Keep identity copies, tax IDs and special-category data out of it: there are no field-level permissions. They belong in your document system with its retention rules.",
+      "Scanned receipts are stored but not read, because there is no text recognition."
+    ],
+    "faq": [
+      {
+        "question": "What is the best accounting practice management software?",
+        "answer": "That depends on what you need. Tools such as DATEV, Karbon and TaxDome cover filing, the ledger, billing and a client portal. Customermates is the relationship, deadline-evidence and follow-up layer next to them: mandates, jobs waiting for documents and a deadline register. If you want one tool for everything, this template is not it."
+      },
+      {
+        "question": "Why keep a separate deadline register?",
+        "answer": "Practice-liability case law, for example in Germany around restoring a missed deadline under § 110 AO, asks a practice to show that its deadline control existed; saying that deadlines were checked is not proof. A register with a source, a pre-deadline and a verifier lets you show that control afterwards. The template records the control and never calculates the date."
+      },
+      {
+        "question": "Should the money-laundering check come before the engagement letter?",
+        "answer": "Practice differs. The template makes identification its own stage before the engagement letter, because it cannot enforce an order and the cautious default avoids doing work before the client is identified. Identification covers the client, the person acting and the beneficial owner, plus a risk rating. No source sets a fixed review interval, so that is your choice. Keep identity copies in your document system."
+      },
+      {
+        "question": "How do I stop chasing documents by hand?",
+        "answer": "Put a needed-by date on every document request. The template then creates a chase Action three days before that date and notifies the owner when the documents are due and still missing. Waiting for documents, waiting for client approval and waiting for the authority are three separate statuses, so the board shows who holds the ball."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "I run a tax and bookkeeping practice and need to see which mandates are open, which jobs wait for documents and which deadlines have been checked. Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
+    "questions": [
+      "Which services do you offer, and which recurring jobs do you run per client?",
+      "In which country do you practise, and which deadlines do you track?",
+      "Who prepares, who reviews, and who verifies a deadline?",
+      "How do you identify new clients, and how often do you review their risk rating?"
+    ]
+  }
+}

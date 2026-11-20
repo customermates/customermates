@@ -105,6 +105,16 @@ describe("workspace setup workflows", () => {
     expect(state.sleeps).toBe(0);
   });
 
+  it("drafts no plan part and finishes nothing when the claim already stored the plan of a template", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.claimPlan.mockResolvedValue({ status: "planned" });
+    await planWorkspaceSetup(payload);
+    expect(state.claimPlan).toHaveBeenCalledOnce();
+    expect(state.planPart).not.toHaveBeenCalled();
+    expect(state.finishPlan).not.toHaveBeenCalled();
+    expect(state.sleeps).toBe(0);
+  });
+
   it("repeats a part attempt the planner asked to repair and skips views without a record model", async () => {
     state.followUps.mockResolvedValue("none");
     state.planPart.mockImplementation((_id: string, _revision: number, part: string) =>

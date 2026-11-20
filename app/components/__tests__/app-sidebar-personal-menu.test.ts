@@ -102,6 +102,7 @@ function rootStoreWith(user: TenantUser | null) {
     globalSearchModalStore: { openFrom: vi.fn() },
     keyboardShortcutsStore: { openFrom: vi.fn(), setDestinations: vi.fn() },
     messagingThreadsStore: { unreadThreadCount: null, refreshUnreadCount: vi.fn() },
+    notificationsStore: { unreadCount: null, refreshUnreadCount: vi.fn() },
     recordWorkspaceStore: {
       navigation: null,
       navigationRefreshFailed: false,

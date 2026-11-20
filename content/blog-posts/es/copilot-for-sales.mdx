@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - IA para ventas
     - CRM
-    - Código abierto
+    - Código fuente disponible
 ---
 
 # Copilot for Sales: qué hace Sales agent, qué necesita y cuánto cuesta
@@ -112,7 +112,7 @@ Sobre si vale la pena: Sales agent compensa cuando los vendedores ya pasan el d�
 
 ## Dónde encaja Customermates
 
-Customermates es un CRM de código abierto y nativo de IA para equipos pequeños que atienden a clientes, como consultoras y agencias, creado en Alemania. Es una opción para la última fila de la tabla, y no sustituye a Sales agent en una empresa que usa Dynamics 365 y graba las llamadas con clientes en Teams.
+Customermates es un CRM autoalojable, con el código fuente disponible y nativo de IA, para equipos pequeños que atienden a clientes, como consultoras y agencias, creado en Alemania. Es una opción para la última fila de la tabla, y no sustituye a Sales agent en una empresa que usa Dynamics 365 y graba las llamadas con clientes en Teams.
 
 Una configuración típica para un equipo de cinco personas:
 
@@ -122,7 +122,7 @@ Una configuración típica para un equipo de cinco personas:
 - **Una rutina, en Customermates Cloud.** Disparador «Cuando algo cambia», evento «Registro actualizado» para Oportunidades, y en «Campos modificados» el campo Etapa. Instrucciones: «Cuando una oportunidad pase a Propuesta, lee el último hilo con el contacto y guarda un borrador de respuesta. No envíes nada.» La rutina se ejecuta como su propietario, con los canales de ese propietario. Consulta las [rutinas](/docs/app-routines).
 - **Tu propio cliente de IA.** Si tu equipo ya usa Claude o ChatGPT, conéctalo por MCP con el [conector personalizado](/docs/connect-custom-connector). Microsoft documenta que los agentes de Copilot Studio pueden conectarse a un servidor MCP existente; Customermates todavía no tiene una guía publicada para ese cliente, así que prueba una lectura antes de depender de ello.
 
-**Coste.** Cinco usuarios en Pro cuestan [[commercial.price.pro.monthly.seats.5]] al mes, con facturación mensual, e incluyen la bandeja de entrada y créditos de IA alojados mensuales por usuario activo ([ver precios](/pricing)). Starter, a [[commercial.price.starter.monthly]] por usuario, no tiene bandeja de entrada. Autoalojar el núcleo AGPL no tiene costes de licencia y conserva REST, webhooks y MCP, pero no tiene bandeja de entrada ni Mate.
+**Coste.** Cinco usuarios en Pro cuestan [[commercial.price.pro.monthly.seats.5]] al mes, con facturación mensual, e incluyen la bandeja de entrada y créditos de IA alojados mensuales por usuario activo ([ver precios](/pricing)). Starter, a [[commercial.price.starter.monthly]] por usuario, no tiene bandeja de entrada. Autoalojar la edición Community para uso interno no tiene costes de licencia y conserva REST, webhooks y MCP, pero no tiene bandeja de entrada ni Mate.
 
 Lo que un equipo pequeño obtiene por esa plaza es seguimiento sin un stack de Microsoft: hilos en la ficha del cliente, un borrador de respuesta y un siguiente paso preparados por Mate o por tu propio cliente de IA, y tú revisas y envías. Para probarlo con tu propio buzón o con LinkedIn, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup). Sin tarjeta de crédito.
 

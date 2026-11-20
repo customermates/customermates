@@ -1,0 +1,175 @@
+{
+  "locale": "es",
+  "name": "Dealflow para inversores",
+  "summary": "Recuerda quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Un dealflow para un fondo pequeño o un business angel, con ocho etapas de la detección al cierre o al rechazo.",
+  "description": "En el dealflow la mayoría son rechazos, y sin un registro de quién presentó una startup y por qué dijiste que no, la misma operación se vuelve a filtrar desde cero la próxima vez. Esta plantilla sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Fundadores, inversores, coinversores y quienes presentan operaciones." },
+    "organizations": { "label": "Organización", "pluralLabel": "Organizaciones", "description": "Startups, fondos, sindicatos y aceleradoras." },
+    "deals": { "label": "Operación", "pluralLabel": "Operaciones", "description": "Una oportunidad de inversión de la detección al cierre o al rechazo." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Etapa",
+      "options": { "sourced": "Detectada", "screening": "Filtrado", "first_meeting": "Primera reunión", "partner_meeting": "Comité de inversión", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Cerrada", "passed": "Rechazada" }
+    },
+    "people.person_role": {
+      "label": "Función",
+      "options": { "founder": "Fundador", "investor": "Socio inversor", "angel": "Business angel", "co_investor": "Coinversor", "introducer": "Quien presenta", "advisor": "Asesor" }
+    },
+    "people.focus_stages": {
+      "label": "Etapas de interés",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b_plus": "Serie B y posteriores" }
+    },
+    "people.thesis": { "label": "Tesis de inversión" },
+    "people.relationship_strength": { "label": "Relación", "options": { "strong": "Fuerte", "warm": "Buena", "new": "Nueva" } },
+    "people.last_meeting_on": { "label": "Última reunión" },
+    "people.relationship_owner": { "label": "Responsable" },
+    "organizations.org_type": {
+      "label": "Tipo",
+      "options": { "startup": "Startup", "vc_fund": "Fondo de venture capital", "angel_syndicate": "Sindicato de business angels", "corporate_vc": "Corporate venture", "accelerator": "Aceleradora", "other": "Otro" }
+    },
+    "organizations.website": { "label": "Sitio web" },
+    "organizations.sector": { "label": "Sector" },
+    "organizations.stage": {
+      "label": "Etapa",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "growth": "Crecimiento" }
+    },
+    "organizations.country": { "label": "País" },
+    "organizations.conflict_check": { "label": "Comprobación de conflicto de intereses", "options": { "to_check": "Por comprobar", "clear": "Sin conflicto", "conflict": "Conflicto" } },
+    "deals.round": {
+      "label": "Ronda",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "bridge": "Ronda puente" }
+    },
+    "deals.lead_role": { "label": "Nuestro papel", "options": { "lead": "Lead", "follow": "Seguidor", "undecided": "Sin decidir" } },
+    "deals.thesis_fit": { "label": "Encaje con la tesis", "options": { "strong": "Fuerte", "partial": "Parcial", "weak": "Débil" } },
+    "deals.owner": { "label": "Responsable" },
+    "deals.source": {
+      "label": "Origen",
+      "options": { "warm_introduction": "Presentación personal", "inbound": "Solicitud entrante", "outbound": "Prospección", "event": "Evento", "portfolio_referral": "Recomendación de la cartera", "co_investor": "Coinversor" }
+    },
+    "deals.intro_requested_on": { "label": "Presentación solicitada el" },
+    "deals.intro_made_on": { "label": "Presentación hecha el" },
+    "deals.first_meeting_on": { "label": "Primera reunión el" },
+    "deals.decision_on": { "label": "Decisión el" },
+    "deals.term_sheet_on": { "label": "Term sheet el" },
+    "deals.closed_on": { "label": "Cierre el" },
+    "deals.nda_signed": { "label": "NDA firmado" },
+    "deals.pass_reason": {
+      "label": "Motivo de rechazo",
+      "options": { "thesis_mismatch": "Fuera de tesis", "team": "Equipo", "market": "Mercado", "too_early": "Demasiado pronto", "valuation": "Valoración", "timing": "Momento", "other": "Otro" }
+    },
+    "deals.revisit_on": { "label": "Fecha para retomar" },
+    "deals.data_room_url": { "label": "Enlace de la data room" },
+    "deals.days_to_term_sheet": { "label": "Días de la primera reunión al term sheet" },
+    "deals.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "request_intro": "Pedir una presentación",
+        "send_deck": "Enviar el deck",
+        "prepare_meeting": "Preparar una reunión",
+        "follow_up": "Seguimiento",
+        "diligence_request": "Petición de due diligence",
+        "write_memo": "Escribir el memo",
+        "send_pass_note": "Enviar un rechazo",
+        "revisit": "Retomar el contacto",
+        "thank_introducer": "Agradecer o recordar a quien presentó",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Empresa", "targetLabel": "Operaciones" },
+    "deal_contacts": { "sourceLabel": "Fundadores y contactos", "targetLabel": "Operaciones" },
+    "action_deal": { "sourceLabel": "Operación", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Todas las operaciones" },
+    "passed_to_revisit": { "name": "Rechazadas, por retomar" },
+    "organizations_all": { "name": "Todas las organizaciones" },
+    "people_all": { "name": "Todas las personas" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Operaciones abiertas por etapa" },
+    "deals_by_source": { "title": "Operaciones por origen" },
+    "pass_reasons": { "title": "Motivos de rechazo" },
+    "average_days_to_term_sheet": { "title": "Media de días hasta el term sheet" },
+    "revisits_coming": { "title": "Próximos contactos por retomar" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Tesis de inversión y foco", "sections": ["Etapa, sector y tamaño de ticket", "En qué no invertimos"] },
+    "stage_criteria": { "title": "Criterios por etapa", "sections": ["Qué lleva una operación a la siguiente etapa", "Quién decide en el comité"] },
+    "pass_notes": { "title": "Rechazos y reglas para retomar", "sections": ["Cómo rechazamos", "Cuándo volvemos a mirar"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Enviar un mensaje con los siguientes pasos tras una primera reunión" },
+    "stale_screening": { "title": "Reactivar o rechazar una operación parada 14 días en filtrado" },
+    "pass_note": { "title": "Enviar un rechazo cuando se rechaza una operación" },
+    "revisit_deal": { "title": "Retomar una operación rechazada en su fecha" },
+    "diligence_checklist": { "title": "Iniciar la lista de due diligence cuando se acuerda un term sheet" },
+    "first_check_in_after_close": { "title": "Hacer un seguimiento 30 días después del cierre" },
+    "intro_nudge": { "title": "Recordar a quien presentó una semana después de pedir la presentación" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada operación tiene una de las ocho etapas.",
+    "pass_reason_field": "Cada operación anota por qué se rechazó.",
+    "board_view": "Las operaciones se abren como tablero por etapa."
+  },
+  "page": {
+    "metaTitle": "CRM para inversores: plantilla de dealflow con rechazos",
+    "metaDescription": "Un CRM para tu dealflow: quién te presentó cada operación, por qué la rechazaste y cuándo volver a mirarla. Pega la plantilla en tu agente de IA y la monta.",
+    "headline": "Un CRM para inversores que recuerda quién presentó una operación y cuándo volver a mirarla, montado por tu agente de IA",
+    "answer": "El dealflow es un embudo que descarta casi todo, así que el valor está en la relación que lo rodea: quién presentó una startup, por qué la rechazaste y cuándo volver a mirarla. Pega esta plantilla en tu agente de IA y él monta en Customermates una lista de operaciones en ocho etapas, de la detección al cierre o al rechazo, con startups, inversores y seguimientos con fecha. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal del pipeline",
+      "steps": [
+        "Abre el tablero de operaciones y anota qué es nuevo esta semana y qué se ha movido.",
+        "Mira las operaciones que llevan 14 días en filtrado y decide: retomar el contacto o rechazar.",
+        "En cada rechazo anota el motivo y una fecha para retomar, y envía una nota de rechazo cuando convenga.",
+        "Tras una primera reunión envía un seguimiento con los próximos pasos y, cuando se acuerda un term sheet, inicia la lista de la due diligence.",
+        "Agradece a quienes presentaron las operaciones nuevas y reclama cualquier presentación pedida hace una semana que no se haya hecho.",
+        "Mira las operaciones rechazadas cuya fecha para retomar ha llegado y vuelve a revisarlas con el contexto anterior."
+      ]
+    },
+    "limits": [
+      "No hay puntuación de relaciones ni enriquecimiento de empresas. En Customermates Cloud con el plan Pro o superior, los correos con la dirección de los datos de contacto de un registro aparecen en ese registro y desde él se pueden programar reuniones en tu calendario; un agente trabaja por MCP.",
+      "No es un portal para los LP, una cap table ni una contabilidad de fondos. Herramientas como Carta o Dynamo hacen esos trabajos.",
+      "No es una base de datos de operaciones ni una fuente de datos de mercado como PitchBook, Dealroom o Crunchbase.",
+      "No es una data room ni una herramienta de firma electrónica. Enlaza en su lugar tu data room, por ejemplo DocSend o Papermark.",
+      "No redacta documentos legales ni decide sobre KYC, prevención del blanqueo o control de inversiones extranjeras. Eso corresponde a asesores y cumplimiento; la plantilla guarda fechas y enlaces."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué etapas tiene un dealflow?",
+        "answer": "Los profesionales coinciden en siete fases: sourcing, filtrado, primera reunión, due diligence, comité de inversión, term sheet y cierre. La plantilla usa ocho etapas: Detectada, Filtrado, Primera reunión, Comité de inversión, Due diligence, Term sheet, Cerrada y Rechazada. Los inversores financian menos del 1 % de las empresas que ven."
+      },
+      {
+        "question": "¿Por qué anotar el motivo de un rechazo?",
+        "answer": "Un rechazo con motivo permite volver a mirar la empresa más adelante con contexto. La plantilla guarda un motivo de rechazo y una fecha para retomar en cada operación y crea una tarea de revisión en esa fecha. Sin ese registro, la misma operación se estudia desde cero la próxima vez."
+      },
+      {
+        "question": "¿Puede usarla un fundador para seguir a sus inversores?",
+        "answer": "La estructura encaja: una operación por cada conversación con un inversor. Sigue a cada inversor como persona, no solo al fondo, y mantén al día a los interesados cada cuatro a seis semanas o cada mes. Los campos están escritos desde el punto de vista de un inversor: pide a tu agente que cambie el nombre de los que no encajen, como Nuestro papel y Encaje con la tesis."
+      },
+      {
+        "question": "¿Cuándo conviene pasar a Affinity o a Attio?",
+        "answer": "Cuando necesites puntuación de relaciones, clasificación de caminos de presentación, enriquecimiento o informes para los LP. Las conversaciones de correo ya aparecen en el registro cuya dirección coincide (Customermates Cloud, plan Pro o superior), pero nada puntúa relaciones ni clasifica caminos. Para un fondo pequeño o un business angel que trabaja con una lista y una revisión semanal, esta plantilla basta."
+      },
+      {
+        "question": "¿El agente escribe a startups o inversores?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Reviso muchas startups y se me olvida quién me las presentó, por qué las rechacé y cuándo quería volver a mirarlas. Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
+    "questions": [
+      "¿En qué etapas y sectores inviertes y cuál es el tamaño habitual de tu ticket?",
+      "¿Cómo te llegan las operaciones y quién las presenta?",
+      "¿Quién decide en cada etapa y cuándo rechazas?",
+      "¿Dónde guardas los documentos legales y la data room? Aquí solo se guarda un enlace."
+    ]
+  }
+}

@@ -48,7 +48,7 @@ useCases:
       visual: import
 ---
 
-Eine SaaS-Testphase endet oft nicht mit einem „Nein“, sondern im Schweigen: Die letzte LinkedIn-Nachricht des Fürsprechers bleibt unbeantwortet, während das Team ausliefert, und am Tag des Testendes schreibt niemand. Ein CRM für SaaS-Unternehmen hält jeden Account, der testet, kauft, ausbaut oder kündigt, mit seinen Kontakten, Deals und Gesprächen an einem Ort zusammen. Customermates ist ein Open-Source-CRM mit KI aus Deutschland für produktgetriebene SaaS-Teams, die ihre Listen selbst gestalten und ihr Produkt über REST-API, Webhooks und n8n anbinden. In Customermates Cloud ab Pro liegen die LinkedIn- und E-Mail-Verläufe am Account, und Mate oder Ihr eigener KI-Client über MCP entwirft Antwort und nächsten Schritt, die Sie prüfen, bearbeiten und senden. Eine native Anbindung an Abrechnung oder Produktanalyse gibt es nicht.
+Eine SaaS-Testphase endet oft nicht mit einem „Nein“, sondern im Schweigen: Die letzte LinkedIn-Nachricht des Fürsprechers bleibt unbeantwortet, während das Team ausliefert, und am Tag des Testendes schreibt niemand. Ein CRM für SaaS-Unternehmen hält jeden Account, der testet, kauft, ausbaut oder kündigt, mit seinen Kontakten, Deals und Gesprächen an einem Ort zusammen. Customermates ist ein CRM mit KI und einsehbarem Quellcode aus Deutschland für produktgetriebene SaaS-Teams, die ihre Listen selbst gestalten und ihr Produkt über REST-API, Webhooks und n8n anbinden. In Customermates Cloud ab Pro liegen die LinkedIn- und E-Mail-Verläufe am Account, und Mate oder Ihr eigener KI-Client über MCP entwirft Antwort und nächsten Schritt, die Sie prüfen, bearbeiten und senden. Eine native Anbindung an Abrechnung oder Produktanalyse gibt es nicht.
 
 „SaaS CRM“ meint auch ein CRM, das selbst als Cloud-Dienst geliefert wird. Auch das ist Customermates, der erste Abschnitt unten trennt deshalb die beiden Bedeutungen.
 
@@ -96,7 +96,7 @@ Der Begriff hat zwei Bedeutungen, und die Suchergebnisse mischen sie.
 | Ein CRM, das als SaaS geliefert wird | Jedes CRM, das Sie im Browser nutzen, ohne Server zu betreiben, im Gegensatz zu Software, die Sie selbst installieren | [Cloud CRM](/features/cloud-crm) erklärt Cloud gegenüber Self-Hosting und die Auswahl |
 | Ein CRM für SaaS-Unternehmen | Ein CRM für ein Unternehmen, das Abos verkauft: Accounts mit mehreren Nutzern, Testphasen, Tarife, Verlängerungen und Nutzung | Der Rest dieser Seite |
 
-Customermates deckt beides ab. Es läuft als Customermates Cloud, ein gehosteter Dienst mit bezahlten Tarifen bei monatlicher Abrechnung pro Nutzer und einem Free-Tarif für eine Person, und als selbst gehostete Installation des Open-Source-Kerns. Was es nicht kann, ist Abos von selbst zu verstehen. Es gibt kein eingebautes Abo-, Testphasen- oder Abrechnungsmodell: Sie legen sie als Felder und Listen an und entscheiden, wie Produktdaten dorthin gelangen.
+Customermates deckt beides ab. Es läuft als Customermates Cloud, ein gehosteter Dienst mit bezahlten Tarifen bei monatlicher Abrechnung pro Nutzer und einem Free-Tarif für eine Person, und als selbst gehostete Installation der Community Edition. Was es nicht kann, ist Abos von selbst zu verstehen. Es gibt kein eingebautes Abo-, Testphasen- oder Abrechnungsmodell: Sie legen sie als Felder und Listen an und entscheiden, wie Produktdaten dorthin gelangen.
 
 ## Was braucht ein SaaS-Unternehmen von einem CRM?
 
@@ -242,7 +242,7 @@ Produktanalyse, Abrechnung und Abo-Verwaltung, Support-Desks und In-App-Nachrich
 
 ## Sollte ein SaaS-Unternehmen sein CRM selbst hosten?
 
-Manche SaaS-Teams betreiben ihr CRM lieber neben der eigenen Infrastruktur. Customermates ist Open Core, und eine [selbst gehostete Installation](/features/self-hosted) läuft mit Docker Compose auf PostgreSQL 16. Sie hat den Funktionsumfang von Starter mit REST, Webhooks und MCP, aber ohne Posteingang, ohne Mate und ohne KI-Einrichtung, und Sie betreiben Server, Backups und Updates selbst. Self-Hosting ist für sich genommen keine Compliance-Garantie.
+Manche SaaS-Teams betreiben ihr CRM lieber neben der eigenen Infrastruktur. Customermates ist ein CRM mit einsehbarem Quellcode (fair-code), und eine [selbst gehostete Installation](/features/self-hosted) läuft mit Docker Compose auf PostgreSQL 16. Sie hat den Funktionsumfang von Starter mit REST, Webhooks und MCP, aber ohne Posteingang, ohne Mate und ohne KI-Einrichtung, und Sie betreiben Server, Backups und Updates selbst. Self-Hosting ist für sich genommen keine Compliance-Garantie.
 
 In Customermates Cloud liegt die primäre Datenbank in der AWS-Region Frankfurt. Unterauftragsverarbeiter, darunter Anbieter aus den USA, stehen auf der [Seite zu Unterauftragsverarbeitern](/subprocessors), ein [Auftragsverarbeitungsvertrag](/dpa) ist verfügbar. Customermates hat keine Zertifizierung wie ISO 27001 oder SOC 2. Das spielt eine Rolle, sobald der Sicherheitsfragebogen eines Kunden nach Ihren Dienstleistern fragt.
 
@@ -287,6 +287,6 @@ Nein. REST-API und MCP gehören zu jedem Tarif und zur selbst gehosteten Edition
 </FaqItem>
 
 <FaqItem question="Ist Customermates selbst ein SaaS CRM?">
-Ja, im Sinne der Cloud: Customermates Cloud ist ein gehosteter Dienst mit einem Free-Tarif für eine Person und bezahlten Tarifen bei monatlicher Abrechnung pro Nutzer, die [Seite zu Cloud CRM](/features/cloud-crm) erklärt, was das bedeutet. Den Open-Source-Kern können Sie auch selbst betreiben, dann ohne Posteingang und Mate.
+Ja, im Sinne der Cloud: Customermates Cloud ist ein gehosteter Dienst mit einem Free-Tarif für eine Person und bezahlten Tarifen bei monatlicher Abrechnung pro Nutzer, die [Seite zu Cloud CRM](/features/cloud-crm) erklärt, was das bedeutet. Die Community Edition können Sie auch selbst betreiben, dann ohne Posteingang und Mate.
 </FaqItem>
 </Faq>

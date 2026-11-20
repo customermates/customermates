@@ -68,6 +68,7 @@ export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore
     recurrenceRule: raw.recurrence?.length ? raw.recurrence.join("\n") : null,
     status: raw.is_cancelled ? CalendarEventStatus.cancelled : CalendarEventStatus.confirmed,
     visibility: raw.visibility ?? null,
+    transparency: raw.transparency?.trim().toLowerCase() || null,
     attendees: (raw.attendees ?? []).flatMap((a) => {
       const mapped = toCalendarAttendee(a, false);
       return mapped ? [mapped] : [];

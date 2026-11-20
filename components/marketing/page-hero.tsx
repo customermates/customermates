@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/core/utils/cn";
 
-import { AgplGithubBadge } from "./agpl-github-badge";
+import { SourceBadge } from "./source-badge";
 import { HeadingText } from "./heading-text";
 import { MarketingButton } from "./marketing-button";
 import { MarketingContainer } from "./marketing-container";
@@ -59,7 +59,7 @@ export function PageHero(props: Props) {
               visual ? "col-span-12 lg:col-span-6 lg:pr-8" : "flex max-w-[60rem] flex-col items-center",
             )}
           >
-            {showOpenSourceBadge ? <AgplGithubBadge className="mk-hero-chip" /> : null}
+            {showOpenSourceBadge ? <SourceBadge className="mk-hero-chip" /> : null}
 
             <div className={cn("m-0", visual ? "mk-display" : "mk-hero max-w-[60rem]")}>
               <h1 className="inline">

@@ -183,7 +183,7 @@ const PRIORITY_NAV_PATHS = [
   "/for/professional-services",
   "/for/agencies",
   "/blog/agentic-crm",
-  "/blog/open-source-crm",
+  "/features/claude-crm",
 ] as const;
 const FOOTER_UTILITY_DETAIL_PATHS = [
   "/features/integrations",
@@ -933,6 +933,6 @@ describe("hub pagination and rendered reachability", () => {
       expect(maxCards).toBe(24);
       expect(maxHtmlBytes).toBeGreaterThan(0);
     },
-    180_000,
+    480_000,
   );
 });

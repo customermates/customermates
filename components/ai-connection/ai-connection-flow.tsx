@@ -11,6 +11,7 @@ import { AiConnectionApiKeySetup } from "./ai-connection-api-key-setup";
 import { AiConnectionClaudeSetup } from "./ai-connection-claude-setup";
 import { executeAiConnectionKeyCreation } from "./ai-connection-key-creation";
 import { AiConnectionOpenAiSetup } from "./ai-connection-openai-setup";
+import { AiConnectionOtherSetup } from "./ai-connection-other-setup";
 import { AiConnectionProviderGrid } from "./ai-connection-provider-grid";
 import { AiConnectionSubstepHeader } from "./ai-connection-substep-header";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
@@ -84,7 +85,27 @@ export const AiConnectionFlow = observer(
               providerRefs.current[provider] = element;
             }}
             onSelect={store.selectProvider}
+            onSelectOther={store.selectOtherClient}
           />
+        </div>
+      );
+    }
+
+    if (store.route.screen === "other") {
+      return (
+        <div className="flex flex-col gap-4">
+          <AiConnectionSubstepHeader
+            backDisabled={interactionDisabled}
+            backLabel={resolvedBackLabel}
+            headingRef={screenHeadingRef}
+            mode={substepHeaderMode}
+            showBack={showInlineBack}
+            subtitle={t("OnboardingWizard.ai.other.subtitle")}
+            title={t("OnboardingWizard.ai.other.title")}
+            onBack={store.backToProviders}
+          />
+
+          <AiConnectionOtherSetup mcpUrl={mcpUrl} workspaceName={workspaceName} />
         </div>
       );
     }

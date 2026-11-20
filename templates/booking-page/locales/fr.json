@@ -1,0 +1,150 @@
+{
+  "locale": "fr",
+  "name": "Prise de rendez-vous",
+  "summary": "Gardez chaque appel, consultation ou visite au même endroit, de la demande au résultat. Des types de rendez-vous avec durée et délai de prévenance, un statut et des rappels sur chaque réservation, et une prochaine étape après chacun.",
+  "description": "Les réservations qui n’existent que dans un agenda et une boîte mail finissent par être oubliées : un client ne vient pas faute de rappel et personne ne note ce qu’a donné l’appel. Ce modèle met en place quelques types de rendez-vous avec une durée, un temps de battement et un délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois que vous confirmez, deux rappels et un résultat noté après chaque rendez-vous. Il convient aux prestataires de services qui prennent des appels, des consultations, des séances ou des visites, et il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
+  "lists": {
+    "people": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui prennent rendez-vous avec vous." },
+    "appointment_types": { "label": "Type de rendez-vous", "pluralLabel": "Types de rendez-vous", "description": "Un type de rendez-vous avec sa durée, son temps de battement, son délai de prévenance et son prix." },
+    "appointments": { "label": "Rendez-vous", "pluralLabel": "Rendez-vous", "description": "Une réservation, de demandée à tenue, manquée ou annulée." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Canal préféré", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Téléphone" } },
+    "people.time_zone": { "label": "Fuseau horaire" },
+    "appointment_types.duration_minutes": { "label": "Durée (minutes)" },
+    "appointment_types.buffer_minutes": { "label": "Temps de battement après (minutes)" },
+    "appointment_types.min_notice_hours": { "label": "Délai de prévenance (heures)" },
+    "appointment_types.booking_window_days": { "label": "Réservable jusqu’à (jours à l’avance)" },
+    "appointment_types.daily_limit": { "label": "Limite par jour" },
+    "appointment_types.location_type": {
+      "label": "Lieu",
+      "options": { "video_call": "Visioconférence", "phone": "Téléphone", "office": "Au cabinet", "client_site": "Chez le client" }
+    },
+    "appointment_types.price": { "label": "Prix" },
+    "appointment_types.active": { "label": "Actif" },
+    "appointments.status": {
+      "label": "Statut",
+      "options": { "requested": "Demandé", "confirmed": "Confirmé", "rescheduled": "Reporté", "held": "Tenu", "no_show": "Absent", "cancelled_by_client": "Annulé par le client", "cancelled_by_us": "Annulé par nous" }
+    },
+    "appointments.start_at": { "label": "Début" },
+    "appointments.source": { "label": "Source", "options": { "booking_page": "Page de réservation", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Téléphone", "manual": "Saisi manuellement" } },
+    "appointments.meeting_url": { "label": "Lien de la réunion" },
+    "appointments.outcome": {
+      "label": "Résultat",
+      "options": { "not_decided": "Pas encore décidé", "qualified": "Qualifié", "second_call": "Deuxième appel nécessaire", "proposal_needed": "Proposition à envoyer", "won": "Gagné pendant l’appel", "not_a_fit": "Ne convient pas" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Motif d’annulation",
+      "options": { "schedule_conflict": "Conflit d’agenda", "other_provider": "A trouvé un autre prestataire", "no_longer_needed": "N’en a plus besoin", "personal": "Raison personnelle", "other": "Autre" }
+    },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "confirm_booking": "Confirmer la réservation",
+        "send_reminder": "Envoyer un rappel",
+        "prepare_call": "Préparer le rendez-vous",
+        "send_follow_up": "Envoyer le message de suivi",
+        "offer_new_slot": "Proposer un nouveau créneau",
+        "record_outcome": "Noter le résultat",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contact", "targetLabel": "Rendez-vous" },
+    "appointment_type": { "sourceLabel": "Type de rendez-vous", "targetLabel": "Rendez-vous" },
+    "action_appointment": { "sourceLabel": "Rendez-vous", "targetLabel": "Actions" }
+  },
+  "views": {
+    "appointments_all": { "name": "Tous les rendez-vous" },
+    "appointments_board": { "name": "Board des rendez-vous" },
+    "missed_or_cancelled": { "name": "Manqués ou annulés" },
+    "appointment_types_all": { "name": "Tous les types de rendez-vous" },
+    "people_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Rendez-vous à venir" },
+    "appointments_by_status": { "title": "Rendez-vous par statut" },
+    "outcomes_of_held": { "title": "Résultats des rendez-vous tenus" },
+    "requests_waiting": { "title": "Demandes en attente de réponse" },
+    "no_shows": { "title": "Absences" },
+    "bookings_by_source": { "title": "Réservations par source" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Types de rendez-vous et disponibilités", "sections": ["Types, durées, temps de battement et délai de prévenance", "Horaires et limites par jour"] },
+    "reminder_policy": { "title": "Rappels et absences", "sections": ["Rappels 3 jours et 1 jour avant", "Ce que nous faisons après une absence"] },
+    "cancellation_policy": { "title": "Annulation et report", "sections": ["Jusqu’à quand un client peut annuler", "Comment un nouveau créneau est proposé"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Créer le contact et le rendez-vous quand le formulaire de réservation est envoyé" },
+    "confirm_event": { "title": "Ajouter un événement d’agenda quand un rendez-vous est confirmé" },
+    "notify_new_booking": { "title": "Prévenir le responsable quand une réservation arrive" },
+    "first_reminder": { "title": "Envoyer un premier rappel 3 jours avant un rendez-vous confirmé" },
+    "second_reminder": { "title": "Envoyer un second rappel 1 jour avant un rendez-vous confirmé" },
+    "record_outcome": { "title": "Noter le résultat après qu’un rendez-vous confirmé a eu lieu" },
+    "no_show_new_slot": { "title": "Proposer un nouveau créneau le lendemain d’une absence" },
+    "follow_up_held": { "title": "Envoyer le suivi le lendemain d’un rendez-vous tenu" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque rendez-vous a un statut.",
+    "start_field": "Chaque rendez-vous indique quand il commence.",
+    "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
+  },
+  "page": {
+    "metaTitle": "Logiciel de réservation en ligne : prise de rendez-vous",
+    "metaDescription": "Logiciel de réservation en ligne : votre agent IA crée dans votre CRM types de rendez-vous, statut par réservation, rappels et résultat de chaque appel.",
+    "headline": "Un logiciel de réservation en ligne qui garde trace de chaque rendez-vous, construit par votre agent IA",
+    "answer": "Un logiciel de réservation en ligne amène un appel, une consultation ou une visite de la demande à un créneau confirmé, puis garde trace de ce qu’il en est sorti. Ce modèle met en place des types de rendez-vous avec durée, temps de battement et délai de prévenance, un statut par réservation, des rappels avant et un résultat après. Collez-le dans votre agent IA : il construit tout dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+    "routine": {
+      "title": "La revue hebdomadaire des rendez-vous",
+      "steps": [
+        "Passez en revue les rendez-vous de la semaine passée et notez un résultat sur chaque rendez-vous tenu : qualifié, deuxième appel, proposition à faire ou pas adapté.",
+        "Proposez un nouveau créneau, sans reproche, à ceux qui ne sont pas venus ou qui ont annulé.",
+        "Répondez aux demandes qui attendent depuis plus d’un jour, puis vérifiez les 14 prochains jours : créneaux vides, rappels restant à envoyer. Par défaut : un rappel 3 jours et un autre 1 jour avant.",
+        "Changez une seule chose : un temps de battement, un délai de prévenance ou un délai d’annulation. Au début de chaque trimestre, relisez disponibilités et règles."
+      ]
+    },
+    "limits": [
+      "Il réserve uniquement le temps de personnes. Salles, matériel, nuits d’hôtel, cours avec liste d’attente et billetterie d’événements demandent un outil conçu pour cela.",
+      "Ce n’est pas un système de rendez-vous médicaux. Laissez diagnostics et motif d’un rendez-vous médical, thérapeutique ou juridique hors du formulaire, et demandez plutôt de quoi la personne souhaite parler.",
+      "Il n’encaisse aucun paiement et n’héberge pas d’appels. L’événement de l’agenda porte le lien de votre outil de visio, et un éventuel acompte reste dans votre outil de paiement.",
+      "Les pages de réservation publiques et l’écriture des rendez-vous dans votre agenda Google ou Microsoft demandent Customermates Cloud en formule Pro ou supérieure, pas l’auto-hébergement. Sans elles, un formulaire public reçoit les demandes et vous saisissez ici l’heure confirmée.",
+      "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer. Customermates n’envoie pas de SMS."
+    ],
+    "faq": [
+      {
+        "question": "Que doit contenir un logiciel de réservation en ligne ?",
+        "answer": "Chaque type de rendez-vous avec sa durée, son temps de battement, son délai de prévenance et la durée à l’avance pendant laquelle on peut réserver ; un court formulaire avec un nom, un contact et seulement les questions qui changent le rendez-vous ; une confirmation et des rappels ; et un endroit où noter si le rendez-vous a eu lieu et ce qui a suivi."
+      },
+      {
+        "question": "Combien de rappels réduisent les absences ?",
+        "answer": "Dans un essai mené dans le secteur de la santé, des rappels 3 jours et 1 jour avant ont laissé 4,4 % de rendez-vous manqués, contre 5,8 % avec le seul rappel à 3 jours et 5,3 % avec le seul rappel à 1 jour. Une synthèse d’essais randomisés n’a trouvé aucune différence significative entre des rappels envoyés 24, 48 ou 72 heures avant. Ces données viennent de la santé : prenez 3 jours et 1 jour comme point de départ."
+      },
+      {
+        "question": "Que ne faut-il jamais demander dans un formulaire de réservation ?",
+        "answer": "Limitez-vous à ce que le rendez-vous exige : un nom, un e-mail, éventuellement un téléphone et une ou deux questions qui changent le rendez-vous. Ne demandez ni diagnostic, ni détails d’un dossier, ni numéro de carte bancaire, ni pièce d’identité, ni rien qui révèle la santé, la religion ou l’orientation. Les réponses libres sont stockées comme données dans la fiche : gardez le formulaire court."
+      },
+      {
+        "question": "Peut-on prendre des rendez-vous sans page de réservation publique ?",
+        "answer": "Oui. Un formulaire public fonctionne avec toutes les formules, avec une limite mensuelle et un badge sur Free : il reçoit la demande et crée le rendez-vous, lié à une personne retrouvée ou créée grâce à son e-mail. Quand quelqu’un écrit par e-mail ou WhatsApp, votre agent propose des créneaux libres à partir de votre agenda connecté et rédige la réponse ; vous la relisez et l’envoyez. Avec Customermates Cloud et la formule Pro ou supérieure, planifier une réunion depuis une fiche inscrit l’événement dans votre agenda Google ou Microsoft, et une page de réservation publique laisse les personnes choisir elles-mêmes un créneau libre."
+      },
+      {
+        "question": "Faut-il demander un acompte ou des frais d’absence ?",
+        "answer": "Les paiements restent dans votre outil de paiement. Le modèle enregistre le prix de chaque type de rendez-vous et contient une page sur la politique d’annulation. Nous n’avons trouvé aucune étude montrant que les acomptes ou les frais réduisent les absences : le modèle n’affirme donc rien de tel."
+      },
+      {
+        "question": "L’agent écrit-il à mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Je prends des appels, des consultations et des visites, et je ne sais plus qui est réservé, qui a confirmé ni ce que chaque rendez-vous a donné. Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
+    "questions": [
+      "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
+      "De quel délai de prévenance avez-vous besoin, et jusqu’à combien de temps à l’avance peut-on réserver ?",
+      "Quelles questions un client doit-il renseigner en réservant ?",
+      "Comment gérez-vous aujourd’hui les absences et les annulations tardives ?"
+    ]
+  }
+}

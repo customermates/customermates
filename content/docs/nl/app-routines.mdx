@@ -5,11 +5,11 @@ description: "Routines laten Mate op een schema of bij een gewijzigd record draa
 
 Een routine is een opgeslagen instructie plus een trigger. Wanneer de trigger afgaat, opent Customermates een nieuw assistentgesprek, stuurt je instructie mee en laat Mate zelfstandig aan het werk gaan. Routines bestaan alleen in Customermates Cloud, omdat ze het maandelijkse Mate-tegoed van de eigenaar gebruiken.
 
-Wie routines ziet, hangt af van de rij **Routines** van hun rol in [Rollen](app:settings/roles): **Leestoegang** **Alle** toont elke routine in de werkruimte, **Toegewezen** alleen hun eigen routines, en **Geen** verbergt [Routines](app:routines). Aanmaken vraagt **Aanmaken**, je eigen routines bewerken vraagt **Bewerken**. Iedereen die een routine kan zien, ziet de samenvattingen van de uitvoeringen; het volledige transcript blijft bij de persoon als wie de uitvoering is gedraaid.
+Wie routines ziet, hangt af van de rij **Routines en automatiseringen** van hun rol in [Rollen](app:settings/roles): **Leestoegang** **Alle** toont elke routine in de werkruimte, **Toegewezen** alleen hun eigen routines, en **Geen** verbergt [Routines](app:automations). Aanmaken vraagt **Aanmaken**, je eigen routines bewerken vraagt **Bewerken**. Iedereen die een routine kan zien, ziet de samenvattingen van de uitvoeringen; het volledige transcript blijft bij de persoon als wie de uitvoering is gedraaid.
 
 ## Hoe maak ik een routine of automatisering aan? [#how-do-i-create-a-routine]
 
-Open [Routines](app:routines) en klik op [Toevoegen](app:routines?focus=add). Vul een **Naam** en **Instructies** in, kies een trigger en klik op **Opslaan**. De routine wordt **Actief** opgeslagen, tenzij je hem eerst op **Gepauzeerd** zet. Je kunt Mate ook vragen er een aan te maken; Mate slaat hem gepauzeerd op, tenzij je vraagt of hij actief moet zijn. Bestaande routines vind je door te zoeken of te filteren onder [Filters](app:routines?focus=filter), en je wisselt tussen tabel en bord onder [Weergave](app:routines?focus=display-options).
+Routines staan nu in de lijst [Automatiseringen](app:automations), naast de automatiseringen, en de oude pagina Routines verwijst daarheen. Open Automatiseringen, open het menu van **Nieuwe automatisering** en kies **Routine (Mate volgens een schema)**. Vul een **Naam** en **Instructies** in, kies een trigger en klik op **Opslaan**. De routine wordt **Actief** opgeslagen, tenzij je hem eerst op **Gepauzeerd** zet. Je kunt Mate ook vragen er een aan te maken; Mate slaat hem gepauzeerd op, tenzij je vraagt of hij actief moet zijn. Bestaande routines vind je door te zoeken of te filteren onder [Filters](app:automations?focus=filter), en je wisselt tussen tabel en bord onder [Weergave](app:automations?focus=display-options).
 
 ## Waaruit bestaat een routine? [#what-is-a-routine-made-of]
 
@@ -44,7 +44,7 @@ Elke routine-uitvoering begint met de kern-CRM-tools en laadt andere toolsets wa
 
 ## Schema's: hoe laat ik een routine elke ochtend of elke maandag draaien? [#how-do-schedules-work]
 
-Open in [Routines](app:routines) een routine of klik op [Toevoegen](app:routines?focus=add) en kies dan onder **Herhaalt** **Elke 15 minuten**, **Elke 30 minuten**, **Elk uur**, **Elke dag**, **Elke week** of **Elke maand**, plus waar nodig de weekdag, de dag van de maand (1 tot 28) of de tijd in stappen van vijf minuten. Standaard is dat elke dag om 09:00. Voor de voorinstellingen per uur en langer staat het schema eronder uitgeschreven, gevolgd door **Tijden worden getoond in** en de tijdzone, die komt uit de browser waarin de routine is aangemaakt (UTC als die onbekend is).
+Open in [Routines](app:automations) een routine of klik op [Toevoegen](app:automations?focus=add) en kies dan onder **Herhaalt** **Elke 15 minuten**, **Elke 30 minuten**, **Elk uur**, **Elke dag**, **Elke week** of **Elke maand**, plus waar nodig de weekdag, de dag van de maand (1 tot 28) of de tijd in stappen van vijf minuten. Standaard is dat elke dag om 09:00. Voor de voorinstellingen per uur en langer staat het schema eronder uitgeschreven, gevolgd door **Tijden worden getoond in** en de tijdzone, die komt uit de browser waarin de routine is aangemaakt (UTC als die onbekend is).
 
 Een schema dat bij geen enkele voorinstelling past, bijvoorbeeld alleen op werkdagen, en een andere tijdzone kun je alleen instellen via Mate, een MCP-client of de REST API; het dialoogvenster toont dan **Deze routine gebruikt een aangepast schema** met **Overschakelen naar een voorinstelling**. De planner controleert elke vijf minuten, dus een uitvoering kan een paar minuten te laat starten, en een uitvoering die na twee minuten nog in de wachtrij staat, wordt opnieuw verzonden.
 
@@ -61,7 +61,7 @@ Laat je beide leeg, dan draait de routine bij elke passende gebeurtenis. Een geb
 
 Mate krijgt vóór je instructies te horen wat er is gebeurd: de gebeurtenis, het soort record en de ID ervan, bij een update de gewijzigde velden en bij een inboxgebeurtenis de thread. Mate kan het record vanaf daar lezen, maar krijgt de vorige waarden niet.
 
-## Wat betekenen de uitvoeringen en hun statussen? [#what-do-the-runs-and-their-statuses-mean]
+## Wat betekenen de uitvoeringen in de geschiedenis van een routine en hun statussen? [#what-do-the-runs-and-their-statuses-mean]
 
 Open een routine om zijn **Uitvoeringen** te zien, de nieuwste eerst: naast de configuratie op een breed scherm, of achter de schakelaar **Details** en **Uitvoeringen** op een smal scherm. Klik op een uitvoering voor **Details van de uitvoering**: **Uitgevoerd als** met de naam van de eigenaar, het aandeel van het maandelijkse Mate-tegoed van de eigenaar dat is gebruikt (exacte kosten van de aanbieder, als percentage getoond), de trigger (**Record**, **Gewijzigde velden**, **Gesprek**) en, als de uitvoering vroegtijdig stopte, de reden. Heeft de uitvoering wijzigingen in de Kennisbank voorgesteld, dan staat daar hoeveel en biedt de pagina **Beoordelen** aan. Alleen de persoon als wie de uitvoering draaide, kan het volledige transcript openen, en zodra de uitvoering klaar is, kan die persoon eronder antwoorden om het gesprek met Mate voort te zetten, wat zijn tegoed gebruikt.
 

@@ -1,15 +1,21 @@
 import type { BillingUsageLedger, GetOperatorBillingUsageRepo } from "./get/get-operator-billing-usage.repo";
 import type { WorkspaceSubscriptionDto } from "./billing-usage.schema";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import type { WorkspaceMeasurementRow } from "./workspace-measurement";
+import type { SubscriptionPlan } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { ConnectedAccountStatus, Status } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status, SubscriptionStatus } from "@/generated/prisma";
+import { effectivePlanId } from "@/ee/subscription/entitlements";
 
 import { OBSERVATION_LAG_MS } from "./billing-usage";
 import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
 import { resolveWorkspaceOwners } from "./operator-list-filters";
+import { earliestOf, secondWeekWindow } from "./workspace-activation";
 import { workspaceLabelFor } from "./workspace-label";
+
+const SECOND_WEEK_QUERY_CHUNK = 10;
+const RECORD_CHANGE_EVENT_KINDS = ["record.created", "record.updated", "record.deleted", "record.restored"] as const;
 
 function deletedWorkspaceLabel(metadata: unknown): string | null {
   if (!metadata || typeof metadata !== "object") return null;
@@ -28,8 +34,17 @@ function workspaceSubscription(subscription: {
   enterpriseAgentCreditsPerUser: number | null;
 }): WorkspaceSubscriptionDto {
   const { lemonSqueezyId, ...terms } = subscription;
+  const now = new Date();
 
-  return { ...terms, billing: lemonSqueezyId ? "lemonSqueezy" : "manual" };
+  return {
+    ...terms,
+    billing: lemonSqueezyId ? "lemonSqueezy" : "manual",
+    trialEnded:
+      subscription.status === SubscriptionStatus.trial &&
+      subscription.trialEndDate !== null &&
+      subscription.trialEndDate < now,
+    effectivePlan: effectivePlanId(subscription, now),
+  };
 }
 
 const INTERVAL_SELECT = {
@@ -227,5 +242,160 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       intervals: [...intervals, ...firstSeats.filter((row) => !intervalIds.has(row.id))],
       recordingStartedAt: recording._min.seatsRecordedFrom,
     };
+  }
+
+  @BypassTenantGuard
+  async readWorkspaceMeasurementsUnscoped(
+    workspaces: ReadonlyArray<{ companyId: string; createdAt: Date }>,
+  ): Promise<Map<string, WorkspaceMeasurementRow>> {
+    if (workspaces.length === 0) return new Map();
+    const companyIds = workspaces.map((workspace) => workspace.companyId);
+    const now = new Date();
+    const [companies, accounts, owners, revisions, records, secondWeek, members] = await Promise.all([
+      this.prisma.company.findMany({
+        where: { id: { in: companyIds } },
+        select: {
+          id: true,
+          signupTemplate: true,
+          signupLastPage: true,
+          signupCampaign: true,
+          teamSize: true,
+          agentLastCallAt: true,
+          discoveryChoice: true,
+          discoveryDetail: true,
+          discoveryAnsweredAt: true,
+          agentFirstCallAt: true,
+          signupSource: {
+            select: {
+              job: true,
+              landingPath: true,
+              referrerHost: true,
+              utmSource: true,
+              utmMedium: true,
+              utmCampaign: true,
+              marketingConsentedAt: true,
+              capturedAt: true,
+            },
+          },
+          funnelEvents: { select: { type: true, occurredAt: true } },
+        },
+      }),
+      this.prisma.connectedAccount.groupBy({
+        by: ["companyId"],
+        where: { companyId: { in: companyIds } },
+        _min: { createdAt: true },
+      }),
+      this.prisma.user.groupBy({
+        by: ["companyId"],
+        where: {
+          companyId: { in: companyIds },
+          onboardingWizardCompletedAt: { not: null },
+          role: { isSystemRole: true },
+        },
+        _min: { onboardingWizardCompletedAt: true },
+      }),
+      this.prisma.recordSchemaRevision.groupBy({
+        by: ["companyId"],
+        where: { companyId: { in: companyIds } },
+        _min: { createdAt: true },
+      }),
+      this.prisma.eventLog.groupBy({
+        by: ["companyId"],
+        where: { companyId: { in: companyIds }, subjectKind: "record", kind: "record.created", actorId: { not: null } },
+        _min: { createdAt: true },
+      }),
+      this.firstChangesInSecondWeek(workspaces, now),
+      this.prisma.user.findMany({
+        where: { companyId: { in: companyIds } },
+        select: { companyId: true, createdAt: true },
+        orderBy: { createdAt: "asc" },
+      }),
+    ]);
+
+    const seatsSeen = new Map<string, number>();
+    const secondSeat = new Map<string, Date>();
+    for (const member of members) {
+      const seen = (seatsSeen.get(member.companyId) ?? 0) + 1;
+      seatsSeen.set(member.companyId, seen);
+      if (seen === 2) secondSeat.set(member.companyId, member.createdAt);
+    }
+
+    const firstAccount = new Map(accounts.map((row) => [row.companyId, row._min.createdAt]));
+    const firstOwnerWizard = new Map(owners.map((row) => [row.companyId, row._min.onboardingWizardCompletedAt]));
+    const firstRevision = new Map(revisions.map((row) => [row.companyId, row._min.createdAt]));
+    const firstRecord = new Map(records.map((row) => [row.companyId, row._min.createdAt]));
+
+    return new Map(
+      companies.map((company) => {
+        const funnel = new Map(company.funnelEvents.map((event) => [event.type, event.occurredAt]));
+        const row: WorkspaceMeasurementRow = {
+          signupTemplate: company.signupTemplate,
+          signupLastPage: company.signupLastPage,
+          signupCampaign: company.signupCampaign,
+          teamSize: company.teamSize,
+          agentLastCallAt: company.agentLastCallAt,
+          funnelChannelSkippedAt: funnel.get("channelSkipped") ?? null,
+          funnelInviteSentAt: funnel.get("inviteSent") ?? null,
+          funnelInviteAcceptedAt: funnel.get("inviteAccepted") ?? null,
+          funnelPaidAt: funnel.get("paid") ?? null,
+          secondSeatAt: secondSeat.get(company.id) ?? null,
+          discoveryChoice: company.discoveryChoice,
+          discoveryDetail: company.discoveryDetail,
+          discoveryAnsweredAt: company.discoveryAnsweredAt,
+          signupSource: company.signupSource,
+          agentFirstCallAt: company.agentFirstCallAt,
+          funnelSetupCompletedAt: funnel.get("setupCompleted") ?? null,
+          funnelAgentConnectedAt: funnel.get("agentConnected") ?? null,
+          funnelChannelConnectedAt: funnel.get("channelConnected") ?? null,
+          wizardCompletedAt: firstOwnerWizard.get(company.id) ?? null,
+          firstConnectedAccountAt: firstAccount.get(company.id) ?? null,
+          firstModelChangeAt: firstRevision.get(company.id) ?? null,
+          firstRecordCreatedAt: firstRecord.get(company.id) ?? null,
+          changeInSecondWeekAt: secondWeek.get(company.id) ?? null,
+        };
+        return [company.id, row];
+      }),
+    );
+  }
+
+  private async firstChangesInSecondWeek(
+    workspaces: ReadonlyArray<{ companyId: string; createdAt: Date }>,
+    now: Date,
+  ): Promise<Map<string, Date>> {
+    const reached = workspaces.filter((workspace) => secondWeekWindow(workspace.createdAt).from <= now);
+    const found = new Map<string, Date>();
+    for (let start = 0; start < reached.length; start += SECOND_WEEK_QUERY_CHUNK) {
+      const chunk = reached.slice(start, start + SECOND_WEEK_QUERY_CHUNK);
+      const changes = await Promise.all(chunk.map((workspace) => this.firstChangeInSecondWeek(workspace)));
+      chunk.forEach((workspace, index) => {
+        const change = changes[index];
+        if (change) found.set(workspace.companyId, change);
+      });
+    }
+    return found;
+  }
+
+  private async firstChangeInSecondWeek(workspace: { companyId: string; createdAt: Date }): Promise<Date | null> {
+    const { from, to } = secondWeekWindow(workspace.createdAt);
+    const createdAt = { gte: from, lt: to };
+    const [record, model] = await Promise.all([
+      this.prisma.eventLog.findFirst({
+        where: {
+          companyId: workspace.companyId,
+          subjectKind: "record",
+          kind: { in: [...RECORD_CHANGE_EVENT_KINDS] },
+          actorId: { not: null },
+          createdAt,
+        },
+        orderBy: { createdAt: "asc" },
+        select: { createdAt: true },
+      }),
+      this.prisma.recordSchemaRevision.findFirst({
+        where: { companyId: workspace.companyId, createdAt },
+        orderBy: { createdAt: "asc" },
+        select: { createdAt: true },
+      }),
+    ]);
+    return earliestOf(record?.createdAt ?? null, model?.createdAt ?? null);
   }
 }

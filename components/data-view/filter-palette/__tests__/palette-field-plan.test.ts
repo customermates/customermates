@@ -136,6 +136,9 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.workspaceId]: SELECT,
   [FilterFieldKey.workspaceTags]: SELECT,
   [FilterFieldKey.trashKind]: SELECT,
+  [FilterFieldKey.automationKind]: SELECT,
+  [FilterFieldKey.automationStatus]: SELECT,
+  [FilterFieldKey.automationRunsOn]: SELECT,
   [FilterFieldKey.trashList]: SELECT,
 };
 

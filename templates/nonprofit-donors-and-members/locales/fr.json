@@ -1,0 +1,198 @@
+{
+  "locale": "fr",
+  "name": "Adhérents et donateurs",
+  "summary": "Sachez qui sont vos adhérents et vos soutiens, qui attend encore un remerciement et qui doit renouveler. Un registre unique pour les adhésions avec leur échéance, les dons avec le reçu fiscal, et les grands dons et subventions.",
+  "description": "Les clubs, les associations caritatives et les paroisses perdent des adhérents et de la bonne volonté quand des renouvellements sont manqués et des dons jamais remerciés, parce que les listes sont tenues par des bénévoles différents. Ce modèle met en place les personnes, les adhésions avec cotisation et date d’échéance, les dons avec le remerciement et l’état du reçu fiscal, et un suivi des grands dons et subventions. Il convient aux associations, aux clubs, aux organismes caritatifs et aux paroisses qui veulent un seul registre au lieu de plusieurs. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+  "lists": {
+    "supporters": { "label": "Personne", "pluralLabel": "Personnes", "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau." },
+    "memberships": { "label": "Adhésion", "pluralLabel": "Adhésions", "description": "Une adhésion avec sa cotisation et son échéance." },
+    "gifts": { "label": "Don", "pluralLabel": "Dons", "description": "Chaque don avec son remerciement et son reçu fiscal." },
+    "gift_opportunities": { "label": "Piste de don", "pluralLabel": "Pistes de dons", "description": "Grands dons, subventions et mécénats en cours." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Statut",
+      "options": { "applied": "Adhésion en attente", "active": "Adhérent à jour", "grace_period": "Cotisation à renouveler", "lapsed": "Adhésion échue", "resigned": "Démission" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Étape",
+      "options": { "identified": "Identifiée", "qualified": "Qualifiée", "cultivation": "Relation en cours", "ask_made": "Demande faite", "pledged": "Promesse reçue", "received": "Reçue", "declined": "Refusée" }
+    },
+    "supporters.member_number": { "label": "Numéro d’adhérent" },
+    "supporters.supporter_types": {
+      "label": "Type de soutien",
+      "options": { "member": "Adhérent", "donor": "Donateur", "volunteer": "Bénévole", "guest": "Invité", "board_member": "Membre du bureau" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relation",
+      "options": { "prospect": "Prospect", "active": "Actif", "lapsed": "Inactif", "former": "Ancien", "do_not_contact": "Ne pas contacter" }
+    },
+    "supporters.joined_on": { "label": "Date d’arrivée" },
+    "supporters.relationship_owner": { "label": "Référent" },
+    "supporters.contact_consent": { "label": "Consentement au contact", "options": { "granted": "Accordé", "not_granted": "Non accordé", "unknown": "Inconnu" } },
+    "supporters.consent_date": { "label": "Date du consentement" },
+    "supporters.last_contact_on": { "label": "Dernier contact" },
+    "memberships.level": {
+      "label": "Catégorie",
+      "options": { "regular": "Plein tarif", "reduced": "Tarif réduit", "family": "Famille", "youth": "Jeune", "supporting": "Membre bienfaiteur", "honorary": "Membre d’honneur" }
+    },
+    "memberships.fee": { "label": "Montant de la cotisation" },
+    "memberships.billing_cycle": {
+      "label": "Périodicité",
+      "options": { "yearly": "Annuelle", "quarterly": "Trimestrielle", "monthly": "Mensuelle", "one_off": "Unique", "none": "Aucune" }
+    },
+    "memberships.fee_status": {
+      "label": "État de la cotisation",
+      "options": { "open": "À payer", "paid": "Payée", "reminded": "Relancée", "overdue": "En retard", "waived": "Offerte" }
+    },
+    "memberships.mandate_on_file": { "label": "Mandat de prélèvement au dossier" },
+    "memberships.started_on": { "label": "Début le" },
+    "memberships.renewal_due": { "label": "Date d’échéance" },
+    "memberships.end_reason": {
+      "label": "Motif de départ",
+      "options": { "moved_away": "Déménagement", "cost": "Coût", "lost_interest": "Perte d’intérêt", "dissatisfied": "Insatisfaction", "unpaid_fees": "Cotisations impayées", "other": "Autre" }
+    },
+    "gifts.received_on": { "label": "Date de réception" },
+    "gifts.amount": { "label": "Montant" },
+    "gifts.gift_type": {
+      "label": "Type de don",
+      "options": { "one_off": "Don ponctuel", "recurring": "Don régulier", "pledge_payment": "Versement sur promesse", "in_kind": "Don en nature", "legacy": "Legs" }
+    },
+    "gifts.fund": {
+      "label": "Affectation",
+      "options": { "unrestricted": "Non affecté", "restricted_project": "Projet précis", "appeal": "Appel à dons", "event": "Événement", "in_memory": "En mémoire de" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Remerciement",
+      "options": { "to_acknowledge": "À remercier", "acknowledged": "Remercié", "not_needed": "Sans objet" }
+    },
+    "gifts.receipt_status": {
+      "label": "Reçu fiscal",
+      "options": { "not_needed": "Sans objet", "to_issue": "À émettre", "issued": "Émis", "annual_summary_sent": "Récapitulatif annuel envoyé" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Type",
+      "options": { "major_gift": "Grand don", "grant": "Subvention", "sponsorship": "Mécénat d’entreprise", "legacy": "Legs", "campaign_pledge": "Promesse de campagne" }
+    },
+    "gift_opportunities.solicitor": { "label": "Demandé par" },
+    "gift_opportunities.ask_date": { "label": "Date de la demande" },
+    "gift_opportunities.decision_on": { "label": "Décision le" },
+    "gift_opportunities.report_due": { "label": "Compte rendu à remettre le" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "thank_donor": "Remercier un donateur",
+        "issue_receipt": "Émettre un reçu fiscal",
+        "welcome_member": "Accueillir un adhérent",
+        "renewal_notice": "Avis de renouvellement",
+        "chase_fee": "Relancer une cotisation",
+        "ask": "Demande",
+        "report_to_funder": "Rendre compte à un financeur",
+        "call_or_visit": "Appel ou visite",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Adhérent", "targetLabel": "Adhésions" },
+    "gift_supporter": { "sourceLabel": "Donateur", "targetLabel": "Dons" },
+    "opportunity_supporter": { "sourceLabel": "Prospect", "targetLabel": "Pistes de dons" },
+    "action_supporter": { "sourceLabel": "Personne", "targetLabel": "Actions" }
+  },
+  "views": {
+    "supporters_all": { "name": "Toutes les personnes" },
+    "memberships_all": { "name": "Toutes les adhésions" },
+    "memberships_board": { "name": "Adhésions par statut" },
+    "fees_to_chase": { "name": "Cotisations à relancer" },
+    "gifts_all": { "name": "Tous les dons" },
+    "receipts_to_issue": { "name": "Reçus fiscaux à émettre" },
+    "opportunities_board": { "name": "Pistes de dons" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Adhésions par statut" },
+    "gifts_per_month": { "title": "Dons par mois" },
+    "gifts_by_fund": { "title": "Dons par affectation" },
+    "open_pipeline_value": { "title": "Grands dons en cours" },
+    "renewals_coming": { "title": "Renouvellements à venir" },
+    "receipts_to_issue_count": { "title": "Reçus fiscaux à émettre" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Ce que contient le registre et ce qui reste dehors", "sections": ["Finalité et base légale", "Champs obligatoires et facultatifs", "Consentement et conservation"] },
+    "renewals_and_fees": { "title": "Renouvellements et relances de cotisation", "sections": ["Avis à 60 et à 30 jours", "Période de grâce et fin d’adhésion selon vos statuts"] },
+    "receipts_and_thanks": { "title": "Remerciements et reçus fiscaux", "sections": ["Remercier sous deux jours", "Quand un reçu est possible et sous quel modèle"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Remercier le donateur quand un don est enregistré" },
+    "issue_receipt": { "title": "Émettre le reçu fiscal quand un don est marqué à émettre" },
+    "welcome_member": { "title": "Accueillir l’adhérent quand une demande d’adhésion arrive" },
+    "renewal_notice": { "title": "Envoyer un avis de renouvellement 60 jours avant l’échéance d’une adhésion active" },
+    "renewal_reminder": { "title": "Relancer un adhérent dont la cotisation est à payer 30 jours avant l’échéance" },
+    "expiry_notice": { "title": "Relancer la cotisation impayée le jour de l’échéance" },
+    "report_to_funder": { "title": "Préparer le compte rendu au financeur deux semaines avant l’échéance" },
+    "join_form_records": { "title": "Créer la personne et l’adhésion à partir d’un formulaire d’adhésion" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque adhésion a un statut.",
+    "renewal_field": "Chaque adhésion a une date d’échéance.",
+    "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
+  },
+  "page": {
+    "metaTitle": "Logiciel association : adhérents, dons et renouvellements",
+    "metaDescription": "Logiciel association : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit un registre des adhérents, des dons et des renouvellements.",
+    "headline": "Un logiciel d’association qui n’oublie ni renouvellement ni remerciement : le registre que votre agent IA construit",
+    "answer": "Un logiciel d’association commence par un seul registre au lieu de plusieurs listes tenues par des bénévoles : personnes, adhésions avec cotisation et date d’échéance, dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions. Collez ce modèle dans votre agent IA : il construit le registre dans Customermates. Vous validez le plan avant que rien ne soit créé. L’outil n’encaisse rien et n’émet pas de reçus fiscaux : il vous montre lesquels sont à faire.",
+    "routine": {
+      "title": "La routine hebdomadaire des adhésions et des dons",
+      "steps": [
+        "Remerciez chaque nouveau don dans les deux jours, par un appel ou un mot personnel.",
+        "Accueillez les adhérents dont la demande est arrivée cette semaine, et envoyez l’avis de renouvellement aux adhésions qui arrivent à échéance dans environ 60 jours.",
+        "Relancez les adhérents dont la cotisation reste à payer 30 jours avant l’échéance, et les cotisations des adhésions échues impayées.",
+        "Regardez les dons dont le reçu fiscal est à émettre et émettez-les dans votre logiciel de comptabilité, au format officiel de votre pays.",
+        "Passez en revue le suivi des grands dons et subventions : la prochaine étape de chaque piste et les dates de rapport attendues par les financeurs."
+      ]
+    },
+    "limits": [
+      "Il n’encaisse pas les cotisations, ne lance pas de prélèvements et ne tient pas la comptabilité. Votre logiciel de comptabilité ou de gestion d’association tient le grand livre ; ici vous gardez l’état de la cotisation, pas l’argent.",
+      "Il n’émet pas de reçus fiscaux. Ils se font au format exigé par l’administration fiscale, avec votre logiciel de comptabilité ; le registre suit seulement qu’un reçu est à faire.",
+      "Ce n’est pas une page de dons en ligne. Les dons se collectent sur une plateforme de paiement, et vous enregistrez le don ici.",
+      "Pour une paroisse, il couvre le suivi des visiteurs et des membres, pas les bornes d’accueil, les plannings de service, les présences ni les relevés de dons. Les notes pastorales, la confession et les dossiers de protection n’ont jamais leur place ici.",
+      "Gardez hors du registre les données de santé, les détails sur les enfants, les coordonnées bancaires et tout ce que l’adhésion n’exige pas. Customermates n’a pas de droits au niveau du champ.",
+      "Il ne fait ni analyse de patrimoine des donateurs, ni dons récurrents avec relance de paiement, ni newsletters en masse. C’est le registre d’une petite structure, pas une plateforme d’analyse des donateurs."
+    ],
+    "faq": [
+      {
+        "question": "Une cotisation d’adhérent est-elle un don déductible ?",
+        "answer": "En général non. En France, une cotisation qui donne accès aux activités n’ouvre pas droit à un reçu fiscal ; seul un don sans contrepartie à un organisme éligible le permet. En Allemagne, seuls les organismes à but non lucratif reconnus émettent un reçu de don au modèle officiel, et les cotisations de la plupart des clubs de sport ne sont pas déductibles. Les règles varient selon le pays : demandez à votre expert-comptable ou à l’administration fiscale. Le registre suit l’état du reçu fiscal et n’en émet aucun."
+      },
+      {
+        "question": "En combien de temps remercier un donateur ?",
+        "answer": "Dans les 48 heures, selon le conseil courant des guides de collecte de fonds, de préférence par un appel ou un mot personnel. Le modèle crée une action de remerciement dès qu’un don est enregistré, pour que le remerciement ne dépende pas de la mémoire d’un seul bénévole."
+      },
+      {
+        "question": "Quand rappeler aux adhérents de renouveler ?",
+        "answer": "Les guides pour associations suggèrent plusieurs relances avant l’échéance, souvent de 90 jours environ jusqu’au jour même, et une après. Le modèle crée une action pour envoyer un avis de renouvellement 60 jours avant l’échéance d’une adhésion active, une pour relancer l’adhérent dont la cotisation reste à payer 30 jours avant, et une pour relancer la cotisation impayée le jour de l’échéance."
+      },
+      {
+        "question": "Quelles données d’adhérents et de donateurs conserver ?",
+        "answer": "Seulement ce que l’adhésion ou le don exige. Les guides sur le RGPD indiquent que les informations inutiles à l’adhésion ne doivent pas être enregistrées, que le bulletin d’adhésion doit montrer quels champs sont obligatoires et lesquels facultatifs, et que les photos demandent un consentement. Les données de santé, les détails sur les enfants et les coordonnées bancaires restent hors du registre. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "Convient-il à une paroisse ou à un club ?",
+        "answer": "Oui pour la partie registre : personnes, adhésions, dons et suivi des membres et des visiteurs au même endroit. Il ne remplace ni un logiciel de gestion paroissiale pour l’accueil, les plannings ou les relevés de dons, ni un outil de club pour les prélèvements et l’encaissement des cotisations."
+      },
+      {
+        "question": "L’agent écrit-il à mes adhérents et donateurs ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Nos adhérents, donateurs et bénévoles sont répartis sur plusieurs listes, et des renouvellements et des remerciements nous échappent. Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+    "questions": [
+      "Êtes-vous une association ou un club, un organisme caritatif ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
+      "Quelles catégories d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
+      "Dans quel pays votre organisation est-elle enregistrée, et quel reçu fiscal y émettez-vous ?",
+      "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
+    ]
+  }
+}

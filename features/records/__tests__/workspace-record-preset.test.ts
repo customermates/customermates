@@ -32,6 +32,14 @@ describe("new workspace CRM templates", () => {
       defaultValue: { kind: "text", value: translate("RecordModel.lineItem") },
     });
     expect(model.fields.some((field) => field.publishedSummary)).toBe(false);
+    expect(
+      Object.fromEntries(
+        model.types.flatMap((type) => (type.relationshipPaths ?? []).map((path) => [path.id, path.label])),
+      ),
+    ).toEqual({
+      [id("deal.services.path")]: translate("RecordModel.starterTypes.service.plural"),
+      [id("service.deals.path")]: translate("RecordModel.starterTypes.deal.plural"),
+    });
     expect(model.accessPresets).toEqual([]);
     expect(JSON.stringify(model)).not.toMatch(/RecordModel\.|Common\.|Terminology\./);
   });

@@ -101,7 +101,9 @@ describe("InvitationPage", () => {
     expect(mocks.redirect).not.toHaveBeenCalled();
     expect(card.type).toBe(WorkspaceInvitationCard);
     expect(card.props).toEqual({
+      companyId: "invited-company",
       email: "member@example.com",
+      inactiveReason: null,
       invitationIntent: "signed-intent",
       inviterName: "Invite Admin",
       membershipStatus: null,
@@ -128,6 +130,29 @@ describe("InvitationPage", () => {
       expect(card.props.membershipStatus).toBe(status);
     },
   );
+
+  it("tells the join card which workspace an inactive membership belongs to and why it is inactive", async () => {
+    mocks.resolveAccountState.mockResolvedValue({
+      state: "allowed",
+      sessionUser: { email: "member@example.com" },
+      user: { id: "tenant-user", companyId: "own-company" },
+    });
+    mocks.listMyWorkspaces.mockResolvedValue({
+      ok: true,
+      data: [
+        workspace("own-company", "active"),
+        { ...workspace("invited-company", "inactive"), inactiveReason: "pausedByPlan" },
+      ],
+    });
+
+    const card = renderedCard(await InvitationPage({ searchParams: Promise.resolve({ intent: "signed-intent" }) }));
+
+    expect(card.props).toMatchObject({
+      companyId: "invited-company",
+      inactiveReason: "pausedByPlan",
+      membershipStatus: "inactive",
+    });
+  });
 
   it("keeps the first-workspace flow for a signed-in login without any membership", async () => {
     mocks.resolveAccountState.mockResolvedValue({

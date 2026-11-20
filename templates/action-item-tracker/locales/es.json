@@ -1,0 +1,155 @@
+{
+  "locale": "es",
+  "name": "Plan de acción",
+  "summary": "Haz que lo acordado en las reuniones se haga de verdad. Cada acción, vinculada a la decisión o al proyecto de donde sale, tiene un responsable y una fecha límite, y se repasa en una revisión semanal.",
+  "description": "Las acciones que se acuerdan en reuniones, auditorías y llamadas con clientes se pierden entre notas y chats, y a la semana siguiente se vuelve a discutir lo mismo. Esta plantilla prepara una lista única de acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a la reunión, la decisión o el proyecto de donde salen, más un registro de decisiones y una comprobación de que una acción correctiva funcionó. Encaja con equipos, responsables de proyecto y responsables de calidad que quieren una revisión semanal de lo que está abierto, vencido o bloqueado. Los recordatorios vienen de las reglas de automatización y de las notificaciones que tú actives.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Equipo, socios, clientes y proveedores." },
+    "meetings": { "label": "Reunión", "pluralLabel": "Reuniones", "description": "De dónde salen las acciones y las decisiones." },
+    "decisions": { "label": "Decisión", "pluralLabel": "Decisiones", "description": "El registro de decisiones con una fecha de revisión." },
+    "projects": { "label": "Proyecto", "pluralLabel": "Proyectos", "description": "El proyecto al que pertenece una acción." },
+    "actions": { "label": "Acción", "pluralLabel": "Acciones", "description": "Un responsable y una fecha límite por acción." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Estado",
+      "options": { "open": "Pendiente", "in_progress": "En curso", "blocked": "Bloqueada", "in_review": "En revisión", "done": "Hecha", "cancelled": "Cancelada" }
+    },
+    "projects.status": {
+      "label": "Estado",
+      "options": { "planned": "Planificado", "active": "Activo", "on_hold": "En pausa", "done": "Terminado" }
+    },
+    "people.person_role": {
+      "label": "Función",
+      "options": { "team_member": "Miembro del equipo", "external": "Colaborador externo", "customer": "Cliente", "supplier": "Proveedor", "other": "Otro" }
+    },
+    "people.team": { "label": "Equipo" },
+    "meetings.meeting_type": {
+      "label": "Tipo de reunión",
+      "options": { "team": "Reunión de equipo", "project": "Reunión de proyecto", "steering": "Comité de dirección", "customer": "Reunión con cliente", "audit": "Auditoría o revisión" }
+    },
+    "meetings.held_at": { "label": "Celebrada el" },
+    "meetings.agenda_url": { "label": "Enlace del orden del día" },
+    "meetings.minutes_url": { "label": "Enlace del acta" },
+    "meetings.minutes_sent_on": { "label": "Acta enviada el" },
+    "meetings.next_meeting_on": { "label": "Próxima reunión el" },
+    "decisions.decision_text": { "label": "Decisión" },
+    "decisions.status": { "label": "Estado", "options": { "valid": "Vigente", "superseded": "Sustituida", "revoked": "Revocada" } },
+    "decisions.decided_on": { "label": "Decidida el" },
+    "decisions.review_on": { "label": "Revisión el" },
+    "projects.owner": { "label": "Responsable" },
+    "projects.start_date": { "label": "Inicio" },
+    "projects.end_date": { "label": "Fin" },
+    "actions.priority": { "label": "Prioridad", "options": { "high": "Alta", "medium": "Media", "low": "Baja" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "action": "Acción", "follow_up": "Seguimiento", "review": "Revisión", "corrective": "Acción correctiva", "preventive": "Acción preventiva", "customer_request": "Petición de cliente" }
+    },
+    "actions.source": {
+      "label": "Origen",
+      "options": { "meeting": "Reunión", "email": "Correo", "project_plan": "Plan de proyecto", "audit": "Auditoría o inspección", "complaint": "Reclamación", "incident": "Incidente" }
+    },
+    "actions.owner": { "label": "Responsable" },
+    "actions.due": { "label": "Fecha límite" },
+    "actions.follow_up_on": { "label": "Seguimiento el" },
+    "actions.done_on": { "label": "Hecha el" },
+    "actions.blocker_note": { "label": "Qué la bloquea" },
+    "actions.proof_url": { "label": "Enlace de la evidencia" },
+    "actions.outcome": { "label": "Resultado" },
+    "actions.days_late": { "label": "Días de retraso" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Reunión", "targetLabel": "Acciones" },
+    "action_project": { "sourceLabel": "Proyecto", "targetLabel": "Acciones" },
+    "decision_meeting": { "sourceLabel": "Reunión", "targetLabel": "Decisiones" }
+  },
+  "views": {
+    "actions_all": { "name": "Todas las acciones" },
+    "actions_board": { "name": "Acciones por estado" },
+    "blocked_actions": { "name": "Bloqueadas" },
+    "overdue_list": { "name": "Vencidas" },
+    "meetings_all": { "name": "Todas las reuniones" },
+    "decisions_all": { "name": "Registro de decisiones" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Acciones por estado" },
+    "overdue_count": { "title": "Acciones vencidas" },
+    "blocked_count": { "title": "Acciones bloqueadas" },
+    "due_soon": { "title": "Vencen pronto" },
+    "open_by_owner": { "title": "Acciones abiertas por responsable" },
+    "done_per_month": { "title": "Hechas por mes" },
+    "actions_by_source": { "title": "Acciones por origen" },
+    "average_days_late": { "title": "Retraso medio en días" },
+    "activity_timeline": { "title": "Actividad reciente" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "Cómo redactamos una acción", "sections": ["Un verbo, un responsable, una fecha", "Qué aspecto tiene «hecha»"] },
+    "weekly_action_review": { "title": "Revisión semanal de acciones en 15 minutos", "sections": ["Bloqueadas, retrasadas, sin siguiente paso", "Cambiar la fecha, delegar o cancelar"] },
+    "closing_with_proof": { "title": "Cerrar una acción con evidencia", "sections": ["Enlazar la evidencia", "Verificación de la eficacia de las acciones correctivas"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Enviar el acta y la lista de acciones tras una reunión" },
+    "unblock_action": { "title": "Indicar quién puede desbloquear una acción que pasa a bloqueada" },
+    "due_reminder": { "title": "Recordar al responsable dos días antes de la fecha límite" },
+    "overdue_notice": { "title": "Avisar al responsable al día siguiente de vencer la fecha límite" },
+    "follow_up_date": { "title": "Retomar la acción en su fecha de seguimiento" },
+    "effectiveness_check": { "title": "Verificar la eficacia de una acción correctiva o preventiva a los 30 días" },
+    "weekly_action_review": { "title": "Hacer la revisión semanal de acciones cada lunes" },
+    "decision_review": { "title": "Revisar una decisión en su fecha de revisión" },
+    "request_form_action": { "title": "Crear una acción a partir de una petición enviada por formulario" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada acción tiene uno de los seis estados.",
+    "due_field": "Cada acción tiene un responsable y una fecha límite.",
+    "overdue_widget": "El panel muestra cuántas acciones están vencidas."
+  },
+  "page": {
+    "metaTitle": "Plan de acción: plantilla para que se cumpla lo acordado",
+    "metaDescription": "Pega este plan de acción en Claude, ChatGPT o Codex: cada acción acordada en una reunión tiene un responsable, una fecha límite y una revisión semanal.",
+    "headline": "Que se cumpla lo acordado: un plan de acción que tu agente de IA construye en tu CRM",
+    "answer": "Un plan de acción es una lista en la que cada acción tiene un responsable, una fecha límite y un estado, vinculada a la reunión o la decisión de donde sale, para que lo acordado se haga de verdad. Pega esta plantilla en tu agente de IA y construye la lista en Customermates, con reuniones, decisiones, proyectos, un registro de decisiones y una revisión semanal de lo que está abierto, vencido o bloqueado. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La revisión semanal de acciones en 15 minutos",
+      "steps": [
+        "Mira solo las excepciones: las acciones bloqueadas, las que se pasan de fecha y las que no tienen un siguiente paso.",
+        "En cada acción bloqueada, indica quién puede desbloquearla y fija una fecha para retomarla.",
+        "En cada acción vencida, decide con su responsable: nueva fecha, pasarla a otra persona o cancelarla.",
+        "Confirma los cambios de fecha en la reunión, no después, y cierra una acción solo con una prueba, como un enlace, un archivo o un mensaje."
+      ]
+    },
+    "limits": [
+      "No es una suite de gestión de proyectos. No hay dependencias entre tareas, vista de cronograma o Gantt, sprints ni control de horas. Esas funciones se quedan en tu herramienta de proyectos.",
+      "No es un sistema de calidad validado. Las acciones correctivas reguladas, por ejemplo en productos sanitarios, farmacia o aviación, exigen firmas electrónicas y pistas de auditoría validadas. La plantilla ofrece a una organización pequeña un registro claro y una comprobación de eficacia, nada más.",
+      "Deja fuera los planes de cuidados y cualquier dato de salud.",
+      "Nadie recibe un aviso automático. La revisión semanal y el panel muestran lo que vence; los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con una periodicidad fija, y tú decides cuáles activar.",
+      "Una vista no puede mostrar a la vez las acciones vencidas y las bloqueadas, así que la plantilla tiene una vista para cada una."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe llevar una acción?",
+        "answer": "Un título que empiece por un verbo y tenga menos de diez palabras, un responsable con nombre, una fecha concreta y no un margen como la semana que viene, y un estado. Los profesionales añaden una prioridad y el vínculo con la reunión o la decisión de donde sale la acción. La plantilla lo reúne todo en una sola lista, así que una acción sin responsable ni fecha salta a la vista."
+      },
+      {
+        "question": "¿Qué estados debe tener una acción?",
+        "answer": "Las guías de profesionales usan Pendiente, En curso, Bloqueada, En revisión y Hecha, y algunas añaden Cancelada. Esta plantilla tiene seis: pendiente, en curso, bloqueada, en revisión, hecha y cancelada. Se escala al bloqueo, no a la fecha límite: una acción bloqueada indica quién puede desbloquearla y recibe una fecha de seguimiento."
+      },
+      {
+        "question": "¿Cuándo se da una acción por cerrada?",
+        "answer": "Cuando hay una prueba y no solo la palabra hecho: un enlace, un archivo o un mensaje, más la fecha real de cierre. Una acción correctiva o preventiva solo se cierra cuando se ha comprobado su eficacia; la plantilla crea esa comprobación a los 30 días de terminarla, y puedes cambiar el plazo."
+      },
+      {
+        "question": "¿El agente envía las actas o los recordatorios?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Solo hay borradores si los pides, y los envías tú."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Lo que acordamos en las reuniones se queda por el camino y nadie sabe quién se encarga de qué ni para cuándo. Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
+    "questions": [
+      "¿De dónde salen tus acciones: reuniones, proyectos, auditorías, clientes?",
+      "¿Quién es responsable de las acciones y quién decide cuándo una cambia de fecha o se cancela?",
+      "¿Necesitas acciones correctivas y preventivas con comprobación de eficacia, como en ISO 9001?",
+      "¿Guardas las actas en otro sitio? Aquí solo se guarda un enlace."
+    ]
+  }
+}

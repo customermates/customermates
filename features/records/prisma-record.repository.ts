@@ -612,12 +612,14 @@ export class PrismaRecordRepo
   async getEventSubscriptionsCompanyWide(afterId?: string) {
     const rows = await this.owners.subscriptions.getPageCompanyWide(this.companyId, afterId);
     const ids = rows.map((row) => row.id);
-    const [routines, webhooks] = await Promise.all([
+    const [routines, rules, webhooks] = await Promise.all([
       this.owners.routines.getLabelsCompanyWide(this.companyId, ids),
+      this.owners.rules.getLabelsCompanyWide(this.companyId, ids),
       this.owners.webhooks.getLabelsCompanyWide(this.companyId, ids),
     ]);
     const labels = new Map([
       ...routines.map((routine) => [routine.id, routine.name] as const),
+      ...rules.map((rule) => [rule.id, rule.name] as const),
       ...webhooks.map((webhook) => [webhook.id, webhook.description || webhook.url] as const),
     ]);
     return rows.map(({ companyId: _companyId, ...row }) => ({

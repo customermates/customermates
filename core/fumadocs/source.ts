@@ -1,154 +1,65 @@
-import { loader } from "fumadocs-core/source";
-import { toFumadocsSource } from "fumadocs-mdx/runtime/server";
+import { headLoader } from "./head-source";
 
-import { i18n, marketingI18n } from "./i18n";
+import { about } from "@/.source/heads/about";
+import { affiliate } from "@/.source/heads/affiliate";
+import { apiDocs } from "@/.source/heads/apiDocs";
+import { apiOverview } from "@/.source/heads/apiOverview";
+import { auth } from "@/.source/heads/auth";
+import { automation } from "@/.source/heads/automation";
+import { blog } from "@/.source/heads/blog";
+import { blogPosts } from "@/.source/heads/blogPosts";
+import { compare } from "@/.source/heads/compare";
+import { comparePages } from "@/.source/heads/comparePages";
+import { contact } from "@/.source/heads/contact";
+import { docs } from "@/.source/heads/docs";
+import { featurePages } from "@/.source/heads/featurePages";
+import { features } from "@/.source/heads/features";
+import { featuresAll } from "@/.source/heads/featuresAll";
+import { forHub } from "@/.source/heads/forHub";
+import { forPages } from "@/.source/heads/forPages";
+import { helpAndFeedback } from "@/.source/heads/helpAndFeedback";
+import { homepage } from "@/.source/heads/homepage";
+import { legal } from "@/.source/heads/legal";
+import { pricing } from "@/.source/heads/pricing";
 
-import {
-  about,
-  apiDocs,
-  apiOverview,
-  affiliate,
-  auth,
-  automation,
-  blog,
-  blogPosts,
-  compare,
-  comparePages,
-  contact,
-  docs,
-  featurePages,
-  features,
-  featuresAll,
-  forHub,
-  forPages,
-  helpAndFeedback,
-  homepage,
-  legal,
-  pricing,
-} from "@/.source/server";
+export const aboutSource = headLoader("about", about);
 
-export const blogSource = loader({
-  baseUrl: "/blog",
-  i18n,
-  source: toFumadocsSource(blog, []),
-});
+export const affiliateSource = headLoader("affiliate", affiliate);
 
-export const blogPostsSource = loader({
-  baseUrl: "/blog",
-  i18n,
-  source: toFumadocsSource(blogPosts, []),
-});
+export const apiDocsSource = headLoader("apiDocs", apiDocs);
 
-export const legalSource = loader({
-  baseUrl: "",
-  i18n,
-  source: toFumadocsSource(legal, []),
-});
+export const apiOverviewSource = headLoader("apiOverview", apiOverview);
 
-export const docsSource = loader({
-  baseUrl: "/docs",
-  i18n,
-  source: toFumadocsSource(docs, []),
-});
+export const authSource = headLoader("auth", auth);
 
-export const apiDocsSource = loader({
-  baseUrl: "/docs/openapi",
-  i18n,
-  source: toFumadocsSource(apiDocs, []),
-});
+export const automationSource = headLoader("automation", automation);
 
-export const aboutSource = loader({
-  baseUrl: "/about",
-  i18n,
-  source: toFumadocsSource(about, []),
-});
+export const blogSource = headLoader("blog", blog);
 
-export const contactSource = loader({
-  baseUrl: "/contact",
-  i18n,
-  source: toFumadocsSource(contact, []),
-});
+export const blogPostsSource = headLoader("blogPosts", blogPosts);
 
-export const apiOverviewSource = loader({
-  baseUrl: "/docs/openapi",
-  i18n,
-  source: toFumadocsSource(apiOverview, []),
-});
+export const compareSource = headLoader("compare", compare);
 
-export const compareSource = loader({
-  baseUrl: "/compare",
-  i18n,
-  source: toFumadocsSource(compare, []),
-});
+export const comparePagesSource = headLoader("comparePages", comparePages);
 
-export const comparePagesSource = loader({
-  baseUrl: "/compare",
-  i18n,
-  source: toFumadocsSource(comparePages, []),
-});
+export const contactSource = headLoader("contact", contact);
 
-export const forSource = loader({
-  baseUrl: "/for",
-  i18n: marketingI18n,
-  source: toFumadocsSource(forHub, []),
-});
+export const docsSource = headLoader("docs", docs);
 
-export const pricingSource = loader({
-  baseUrl: "/pricing",
-  i18n: marketingI18n,
-  source: toFumadocsSource(pricing, []),
-});
+export const featurePagesSource = headLoader("featurePages", featurePages);
 
-export const featurePagesSource = loader({
-  baseUrl: "/features",
-  i18n: marketingI18n,
-  source: toFumadocsSource(featurePages, []),
-});
+export const featuresSource = headLoader("features", features);
 
-export const featuresSource = loader({
-  baseUrl: "/features",
-  i18n,
-  source: toFumadocsSource(features, []),
-});
+export const featuresAllSource = headLoader("featuresAll", featuresAll);
 
-export const featuresAllSource = loader({
-  baseUrl: "/features",
-  i18n,
-  source: toFumadocsSource(featuresAll, []),
-});
+export const forSource = headLoader("forHub", forHub);
 
-export const forPagesSource = loader({
-  baseUrl: "/for",
-  i18n: marketingI18n,
-  source: toFumadocsSource(forPages, []),
-});
+export const forPagesSource = headLoader("forPages", forPages);
 
-export const helpAndFeedbackSource = loader({
-  baseUrl: "/help-and-feedback",
-  i18n,
-  source: toFumadocsSource(helpAndFeedback, []),
-});
+export const helpAndFeedbackSource = headLoader("helpAndFeedback", helpAndFeedback);
 
-export const homepageSource = loader({
-  baseUrl: "",
-  i18n: marketingI18n,
-  source: toFumadocsSource(homepage, []),
-});
+export const homepageSource = headLoader("homepage", homepage);
 
-export const automationSource = loader({
-  baseUrl: "/n8n-crm",
-  i18n,
-  source: toFumadocsSource(automation, []),
-});
+export const legalSource = headLoader("legal", legal);
 
-export const authSource = loader({
-  baseUrl: "/auth",
-  i18n,
-  source: toFumadocsSource(auth, []),
-});
-
-export const affiliateSource = loader({
-  baseUrl: "/affiliate",
-  i18n,
-  source: toFumadocsSource(affiliate, []),
-});
+export const pricingSource = headLoader("pricing", pricing);

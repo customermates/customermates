@@ -1,6 +1,7 @@
 import type { CompleteOnboardingSetupStepRepo } from "./complete-onboarding-setup-step.repo";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
+import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
@@ -12,6 +13,7 @@ export class CompleteOnboardingSetupStepInteractor {
   constructor(
     private repo: CompleteOnboardingSetupStepRepo,
     private routeGuardService: RouteGuardService,
+    private funnel?: Pick<OnboardingFunnelRepo, "recordFunnelEvent">,
   ) {}
 
   async invoke(): Promise<{ ok: true; data: { completed: true } } | Redirect> {
@@ -23,6 +25,7 @@ export class CompleteOnboardingSetupStepInteractor {
 
     return runWithTenant(user, async () => {
       await this.repo.markOnboardingSetupStepCompleted({ userId: user.id });
+      await this.funnel?.recordFunnelEvent({ type: "jobSelected", occurredAt: new Date() });
       return { ok: true as const, data: { completed: true as const } };
     });
   }

@@ -25,7 +25,7 @@ import {
 import { FormSaveMenuItem } from "@/components/forms/form-footer-actions";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE, recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
@@ -499,6 +499,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
       {shareTarget && (
         <ShareViewDialog
+          formTypeId={surfaceKind === "list" && store.p13nId ? recordSurfaceTypeId(store.p13nId) : null}
           kind={surfaceKind}
           link={shareTarget.link}
           view={store.views.find((view) => view.id === shareTarget.viewId) ?? null}

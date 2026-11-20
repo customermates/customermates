@@ -39,7 +39,7 @@ Please make sure to go through the [documentation](https://customermates.com/doc
    git push origin your-branch-name
    ```
 
-8. **Create a Pull Request:** Open a pull request against `main` in the Customermates repository. Use a Conventional Commit header as the pull-request title and fill in every required description section. Submitting a pull request means you agree to the [CLA](./CLA.md).
+8. **Create a Pull Request:** Open a pull request against `main` in the Customermates repository. Use a Conventional Commit header as the pull-request title and fill in every required description section. A pull request can only be merged once every contributor has signed the [Contributor License Agreement](./CLA.md); see the next section.
 
 9. **Code Review:** Your pull request runs the automated checks and is reviewed by a Code Owner.
 
@@ -53,7 +53,7 @@ Vercel builds a preview only for SEO daily branches (`feat/seo-daily-*`) and for
 
 Customermates uses a main-only integration model:
 
-- `main` is the only long-lived branch and always holds the latest stable state. There is no integration or release branch.
+- `main` is the only long-lived branch for code and always holds the latest stable state. There is no integration or release branch. The `cla-signatures` branch holds only the list of signed contributor agreements and is written only by the CLA check.
 - Every change arrives through a pull request that targets `main`. Direct pushes, force pushes, and branch deletion are blocked for everyone.
 - Pull requests are squash-merged, and the branch is deleted automatically afterwards.
 
@@ -87,7 +87,7 @@ Every pull-request description must contain these sections, in this order:
 
 The organization pull-request template pre-fills them, so open the pull request and replace the guidance text.
 
-Because every pull request is squash-merged, avoid updating your branch with a merge commit — the generated `Merge branch main into …` header does not satisfy the convention. Rebase onto `main` instead.
+Because every pull request is squash-merged, avoid updating your branch with a merge commit: the generated `Merge branch main into …` header does not satisfy the convention. Rebase onto `main` instead.
 
 ### Automatic Validation
 
@@ -101,6 +101,38 @@ Reviews follow the Code Owners listed in [CODEOWNERS](./CODEOWNERS):
 - A Code Owner does not need a second person to approve their own pull request.
 - In every case, all CI and policy checks still apply, and no one can merge a pull request whose checks are failing or whose conversations are unresolved.
 
+## Contributor License Agreement
+
+Contributing needs a signed Contributor License Agreement. It is the plain-English agreement from Indie Open Source, a few sentences long, and you sign it with one comment. The full text is in [CLA.md](./CLA.md). It gives Customermates permission to license your contribution on any terms, and it means you are not liable for your contribution.
+
+Once a pull request is opened, an automated check named "CLA Check" leaves a comment that lists everyone who has not signed yet. Sign by replying with the sentence the comment asks for, `I have read the CLA Document and I hereby sign the CLA`. The check records your GitHub account on the `cla-signatures` branch, so you sign once for every later pull request. Comment `recheck` to run the check again. The pull request can only be merged once the check passes.
+
+## Licence of your contribution
+
+When you contribute code to a repository that carries a licence notice, you license the code under the same terms. Code outside `ee/` is under the [Sustainable Use License](../LICENSE.md). Code in `ee/` is under the [Customermates Enterprise License](../ee/LICENSE.md). Read [LICENSING.md](../LICENSING.md) for what each licence allows.
+
+Outside patches to `ee/` are accepted only under Section 2 of `ee/LICENSE.md` and the Contributor License Agreement. A patch to `ee/` may be used in production only with an enterprise licence, and the same goes for the patch after it is merged.
+
+## Community PR Guidelines
+
+- We read and review every pull request by hand. A contribution should be worth more to the project than the time it takes to review it.
+- A bug-fix pull request describes the problem and how to reproduce it, so the problem can be confirmed and tracked. One without a description of the problem is returned.
+- A feature pull request that arrives without a prior discussion is closed with a pointer to the contact options. Talk to us first, through [customermates.com](https://customermates.com).
+- Pull requests must include tests that fail without the change.
+- Keep a pull request to about 1,000 added lines. Split bigger changes.
+- Write the description in your own words. AI-assisted work is welcome when you own every line of it and can explain it.
+- A pull request with no real description, and one that only fixes a typo, is closed.
+- Please answer requested changes within 14 days. A pull request with no response or update in that time is closed.
+
+## In-house areas
+
+The Customermates team handles changes to these areas itself. Contact us before you start work on them:
+
+- identity and access: sign-in, sessions, API keys, roles and permissions, and the tenant boundary
+- billing, subscriptions and entitlements, including everything under `ee/subscription` and `core/commercial`
+- the licence files, notices and the trademark policy
+- everything under `ee/`, except patches as described above
+
 ## Reporting Issues
 
-GitHub issue tracking is disabled on this repository. If you face a problem or have a suggestion, please use the contact options at [customermates.com](https://customermates.com) and provide as much detail as possible. Suspected security vulnerabilities go through private vulnerability reporting on the repository's Security tab, as described in the [security policy](https://github.com/customermates/.github/blob/main/SECURITY.md) — never through a public channel.
+GitHub issue tracking is disabled on this repository. If you face a problem or have a suggestion, please use the contact options at [customermates.com](https://customermates.com) and provide as much detail as possible. Suspected security vulnerabilities go through private vulnerability reporting on the repository's Security tab, as described in the [security policy](https://github.com/customermates/.github/blob/main/SECURITY.md), never through a public channel.

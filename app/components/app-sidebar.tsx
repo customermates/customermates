@@ -15,11 +15,12 @@ import {
   Settings2,
   Settings,
   CreditCard,
+  Bell,
   Inbox,
   Plus,
   LayoutGrid,
   CalendarDays,
-  Repeat,
+  Workflow,
   ShieldCheck,
   UserPlus,
   Users,
@@ -149,7 +150,7 @@ const FullAppSidebar = observer(
       userStore,
       workspacesStore,
     } = rootStore;
-    const { messagingThreadsStore } = rootStore;
+    const { messagingThreadsStore, notificationsStore } = rootStore;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const inboxVisible =
       !restricted &&
@@ -165,6 +166,9 @@ const FullAppSidebar = observer(
       ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount)
       : 0;
     const onInbox = intlPathname === "/inbox";
+    const notificationsVisible = !restricted && !isDocsRoute;
+    const onNotifications = intlPathname === "/notifications";
+    const currentUnreadNotificationCount = notificationsVisible ? (notificationsStore.unreadCount ?? 0) : 0;
     const inboxUpsellPlanName = t(`Subscription.planNames.${MESSAGING_UPSELL_PLAN}`);
     const inboxPlanTag =
       inboxVisible && subscription !== null && !getEntitlements(effectivePlanId(subscription)).messaging
@@ -200,6 +204,17 @@ const FullAppSidebar = observer(
         repeat: !onInbox,
       });
     }, [inboxAvailable, onInbox, messagingThreadsStore]);
+
+    useEffect(() => {
+      if (!notificationsVisible) return;
+      return startBackgroundPoll({
+        refresh: notificationsStore.refreshUnreadCount,
+        onError: reportApplicationError,
+        intervalMs: UNREAD_REFRESH_INTERVAL_MS,
+        immediate: true,
+        repeat: !onNotifications,
+      });
+    }, [notificationsVisible, onNotifications, notificationsStore]);
 
     function closeMobileSidebar(cb?: () => void) {
       if (isMobile) setOpenMobile(false);
@@ -245,11 +260,19 @@ const FullAppSidebar = observer(
               planTag: inboxPlanTag,
             },
             {
-              key: "routines",
-              title: t("NavigationBar.routines"),
-              href: "/routines",
-              icon: Repeat,
-              visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
+              key: "notifications",
+              title: t("NavigationBar.notifications"),
+              href: "/notifications",
+              icon: Bell,
+              visible: notificationsVisible,
+              badge: currentUnreadNotificationCount,
+            },
+            {
+              key: "automations",
+              title: t("NavigationBar.automations"),
+              href: "/automations",
+              icon: Workflow,
+              visible: canAccess(Resource.routines),
             },
           ].filter((i) => i.visible),
         },
@@ -292,7 +315,15 @@ const FullAppSidebar = observer(
           ],
         },
       ].filter((g) => g.items.length > 0);
-    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, currentUnreadThreadCount]);
+    }, [
+      t,
+      recordWorkspaceStore.navigation,
+      rootStore.appMode,
+      user,
+      currentUnreadThreadCount,
+      notificationsVisible,
+      currentUnreadNotificationCount,
+    ]);
 
     const areaGroups: AreaNavGroup[] = useMemo(() => {
       if (area === "operator") {
@@ -557,6 +588,7 @@ const FullAppSidebar = observer(
               currentWorkspace
                 ? {
                     companyId: currentWorkspace.companyId,
+                    logoUrl: currentWorkspace.logoUrl,
                     name: workspaceDisplayName(currentWorkspace.name, t("Workspaces.fallbackName")),
                   }
                 : null

@@ -120,6 +120,19 @@ describe("EmailService", () => {
     expect(resendSend).not.toHaveBeenCalled();
   });
 
+  it("says whether a mail provider is configured, so callers that can do without mail need not try", () => {
+    expect(new EmailService().isConfigured()).toBe(true);
+
+    mockEnv.RESEND_API_KEY = undefined;
+    expect(new EmailService().isConfigured()).toBe(false);
+
+    mockEnv.RESEND_API_KEY = "";
+    expect(new EmailService().isConfigured()).toBe(false);
+
+    mockEnv.NODE_ENV = "test";
+    expect(new EmailService().isConfigured()).toBe(true);
+  });
+
   it("preserves unexpected provider exceptions", async () => {
     const failure = new TypeError("email rendering failed");
     resendSend.mockRejectedValue(failure);

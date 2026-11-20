@@ -72,7 +72,7 @@ export const RoutineModal = observer(() => {
         () => routineModalStore.delete(),
         form.name ?? "",
         undefined,
-        () => routineModalStore.rootStore.routinesStore.refresh(),
+        () => routineModalStore.rootStore.automationsStore.refresh(),
       ),
   };
   const backAction: AppModalActionProps = {

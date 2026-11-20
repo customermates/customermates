@@ -107,6 +107,19 @@ import {
   updateWebhookOperation,
 } from "@/features/webhook/webhook-rest.openapi";
 import { routineApiPaths } from "@/ee/routines/routines.openapi";
+import { automationRuleApiPaths } from "@/features/automation-rules/automation-rules.openapi";
+import {
+  WebhookAutomationRuleFiredSchema,
+  webhookAutomationRuleFiredOperation,
+} from "@/features/automation-rules/automation-rule-fired.openapi";
+import {
+  WebhookBookingChangedSchema,
+  WebhookFormSubmittedSchema,
+  WebhookWebhookReceivedSchema,
+  webhookBookingChangedOperation,
+  webhookFormSubmittedOperation,
+  webhookWebhookReceivedOperation,
+} from "@/features/event/external-trigger-events.openapi";
 import { RoutineDtoSchema } from "@/ee/routines/routine.schema";
 import { WebhookPublicDtoSchema } from "@/features/webhook/webhook.schema";
 
@@ -116,6 +129,9 @@ import { widgetApiPaths } from "@/features/widget/widget.openapi";
 import { trashApiPaths } from "@/features/trash/trash.openapi";
 import { addressApiPaths } from "@/features/addresses/addresses.openapi";
 import { recordFileApiPaths } from "@/features/record-files/record-files.openapi";
+import { publicFormApiPaths } from "@/features/public-form/public-form.openapi";
+import { incomingWebhookApiPaths } from "@/features/incoming-webhook/incoming-webhook.openapi";
+import { agentRunnerApiPaths } from "@/features/agent-runners/agent-runner.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -141,6 +157,9 @@ export function generateOpenApiSpec() {
       ...trashApiPaths,
       ...addressApiPaths,
       ...recordFileApiPaths,
+      ...publicFormApiPaths,
+      ...incomingWebhookApiPaths,
+      ...agentRunnerApiPaths,
       ...connectedAccountSettingsApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
@@ -150,6 +169,7 @@ export function generateOpenApiSpec() {
         patch: updateUserProfileOperation,
       },
       ...routineApiPaths,
+      ...automationRuleApiPaths,
       "/v1/webhooks": {
         get: listWebhooksOperation,
         post: createWebhookOperation,
@@ -294,6 +314,18 @@ export function generateOpenApiSpec() {
       messagingRelationCreated: {
         post: webhookMessagingRelationCreatedOperation,
       },
+      formSubmitted: {
+        post: webhookFormSubmittedOperation,
+      },
+      webhookReceived: {
+        post: webhookWebhookReceivedOperation,
+      },
+      bookingChanged: {
+        post: webhookBookingChangedOperation,
+      },
+      automationRuleFired: {
+        post: webhookAutomationRuleFiredOperation,
+      },
     },
     components: {
       schemas: {
@@ -315,6 +347,10 @@ export function generateOpenApiSpec() {
         WebhookMessagingCalendarChangedSchema,
         WebhookMessagingCalendarEventChangedSchema,
         WebhookMessagingRelationCreatedSchema,
+        WebhookFormSubmittedSchema,
+        WebhookWebhookReceivedSchema,
+        WebhookBookingChangedSchema,
+        WebhookAutomationRuleFiredSchema,
         UserDtoSchema,
         MemberDtoSchema,
         RoutineDtoSchema,
@@ -333,6 +369,12 @@ export function generateOpenApiSpec() {
           name: "x-api-key",
           description:
             "API key authentication. Create an API key in your user profile and include it in the x-api-key header.",
+        },
+        runnerTokenAuth: {
+          type: "http",
+          scheme: "bearer",
+          description:
+            "Runner token authentication. Add a runner under Settings, Agents, copy its token once and send it as `Authorization: Bearer cmr_...`. It only reaches the /v1/runner endpoints.",
         },
         fileLinkToken: {
           type: "apiKey",

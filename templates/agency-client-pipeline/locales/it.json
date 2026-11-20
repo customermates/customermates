@@ -1,0 +1,159 @@
+{
+  "locale": "it",
+  "name": "Pipeline clienti per agenzie",
+  "summary": "Conquista nuovi clienti e tienili oltre il primo progetto. Le opportunità vanno dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e ogni retainer ha la sua data di rinnovo e una revisione trimestrale.",
+  "description": "Un'agenzia conquista un cliente e poi si accorge all'ultimo che il retainer sta per scadere, perché le gare e il lavoro in corso stanno in posti diversi. Questo modello imposta le opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una vittoria che avvia un onboarding in cinque passaggi, e i contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati; credenziali di accesso, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Adatto ad agenzie di marketing, comunicazione, creatività e digital; project management, rilevazione dei tempi e fatturazione restano nei tuoi strumenti.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Decisori, responsabili marketing, acquisti e referenti operativi." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Potenziali clienti, clienti, ex clienti e partner." },
+    "opportunities": { "label": "Opportunità", "pluralLabel": "Opportunità", "description": "Un possibile lavoro, dalla prima conversazione a vinto o perso." },
+    "engagements": { "label": "Contratto", "pluralLabel": "Contratti (retainer) e progetti", "description": "Un retainer o un progetto in corso con canone, data di rinnovo, preavviso e stato di salute." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Ruolo", "options": { "decision_maker": "Decisore", "marketing_lead": "Responsabile marketing", "procurement": "Acquisti", "day_to_day": "Referente operativo", "referrer": "Segnalatore" } },
+    "contacts.preferred_channel": { "label": "Canale preferito", "options": { "email": "Email", "phone": "Telefono", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack o chat" } },
+    "clients.relationship": { "label": "Relazione", "options": { "prospect": "Potenziale cliente", "client": "Cliente", "former_client": "Ex cliente", "partner": "Partner" } },
+    "clients.website": { "label": "Sito web" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "prospect": "Contatto", "conversation": "Conversazione", "qualified": "Qualificato", "brief_or_pitch": "Brief o gara", "proposal_sent": "Preventivo inviato", "negotiation": "Trattativa", "won": "Vinto", "lost": "Perso" }
+    },
+    "opportunities.opportunity_type": { "label": "Tipo", "options": { "retainer": "Retainer", "project": "Progetto", "audit_or_workshop": "Audit o workshop", "one_off": "Lavoro una tantum" } },
+    "opportunities.services": {
+      "label": "Servizi",
+      "options": { "seo": "SEO", "paid_media": "Campagne a pagamento", "social": "Social", "content": "Contenuti", "web": "Web", "branding": "Branding", "pr": "Ufficio stampa" }
+    },
+    "opportunities.source": { "label": "Origine", "options": { "referral": "Segnalazione", "inbound": "Richiesta in entrata", "outbound": "Prospezione", "existing_client": "Cliente esistente", "event": "Evento", "marketplace": "Marketplace" } },
+    "opportunities.competitive_pitch": { "label": "Gara con più agenzie" },
+    "opportunities.pitch_date": { "label": "Data della presentazione" },
+    "opportunities.monthly_fee": { "label": "Canone mensile" },
+    "opportunities.decision_expected": { "label": "Decisione attesa" },
+    "opportunities.next_step_due": { "label": "Prossimo passo entro" },
+    "opportunities.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "price": "Prezzo", "chose_other_agency": "Ha scelto un'altra agenzia", "in_house": "Lo gestisce internamente", "budget_cut": "Budget tagliato", "no_decision": "Nessuna decisione", "scope_mismatch": "Ambito non adatto", "no_response": "Nessuna risposta" }
+    },
+    "engagements.engagement_status": { "label": "Stato", "options": { "onboarding": "Onboarding", "active": "Attivo", "at_risk": "A rischio", "paused": "In pausa", "ended": "Concluso" } },
+    "engagements.health": { "label": "Stato di salute", "options": { "green": "Verde", "amber": "Arancione", "red": "Rosso" } },
+    "engagements.start_date": { "label": "Inizio" },
+    "engagements.renewal_date": { "label": "Rinnovo il" },
+    "engagements.notice_days": { "label": "Preavviso (giorni)" },
+    "engagements.monthly_fee": { "label": "Canone mensile" },
+    "engagements.next_qbr_on": { "label": "Prossima revisione trimestrale" },
+    "engagements.account_manager": { "label": "Account manager" },
+    "engagements.ended_reason": {
+      "label": "Motivo della conclusione",
+      "options": { "client_ended": "Interrotto dal cliente", "agency_ended": "Interrotto dall'agenzia", "project_completed": "Progetto completato", "budget": "Budget", "in_house": "Internalizzato", "moved_agency": "Passato a un'altra agenzia" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Chiamata", "email": "Email", "proposal": "Preventivo o preparazione della presentazione", "onboarding": "Passaggio di onboarding", "report": "Report", "qbr": "Revisione trimestrale", "renewal": "Rinnovo", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Referenti" },
+    "opportunity_client": { "sourceLabel": "Cliente", "targetLabel": "Opportunità" },
+    "engagement_client": { "sourceLabel": "Cliente", "targetLabel": "Contratti (retainer) e progetti" },
+    "engagement_opportunity": { "sourceLabel": "Opportunità", "targetLabel": "Contratti (retainer) e progetti" },
+    "action_opportunity": { "sourceLabel": "Opportunità", "targetLabel": "Attività" },
+    "action_engagement": { "sourceLabel": "Contratto", "targetLabel": "Attività" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Opportunità per fase" },
+    "opportunities_all": { "name": "Tutte le opportunità" },
+    "engagements_all": { "name": "Tutti i retainer e progetti" },
+    "at_risk_engagements": { "name": "Contratti arancioni e rossi" },
+    "clients_all": { "name": "Tutti i clienti" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Opportunità per fase" },
+    "recurring_revenue": { "title": "Ricavo ricorrente mensile" },
+    "pipeline_fees": { "title": "Canoni mensili in pipeline" },
+    "renewals_coming": { "title": "Rinnovi in arrivo" },
+    "qbrs_coming": { "title": "Revisioni trimestrali in arrivo" },
+    "health_split": { "title": "Stato di salute dei contratti in corso" },
+    "pitches_coming": { "title": "Presentazioni in arrivo" },
+    "lost_reasons": { "title": "Perché le opportunità sono perse" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Come funziona la pipeline dell'agenzia", "sections": ["Le fasi e chi ne è responsabile", "Domande di qualificazione: obiettivi, urgenza, budget, decisori"] },
+    "pitch_go_no_go": { "title": "Lista di controllo: partecipare o meno alla gara", "sections": ["Costo della presentazione, numero di agenzie e compenso per la partecipazione", "Criteri e chi decide"] },
+    "onboarding_checklist": { "title": "Onboarding in cinque passaggi", "sections": ["Benvenuto e pagamento, materiali e tempistiche", "Kickoff entro cinque giorni e flusso di consegna"] },
+    "renewal_playbook": { "title": "Guida a rinnovo e revisione trimestrale", "sections": ["Bilancio dei risultati e opzioni di ampliamento", "Finestra di preavviso e proposta di rinnovo"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Creare referente e opportunità quando viene inviato il modulo di brief" },
+    "respond_to_brief": { "title": "Rispondere a una nuova opportunità entro un giorno" },
+    "qualify_check": { "title": "Confermare la fascia di budget e il decisore 2 giorni dopo la qualificazione" },
+    "pitch_go_no_go": { "title": "Decidere se partecipare il giorno in cui un'opportunità raggiunge brief o gara" },
+    "pitch_rehearsal": { "title": "Ricordare al responsabile 3 giorni prima di una presentazione" },
+    "proposal_follow_up": { "title": "Chiamare 2 giorni dopo l'invio di un preventivo" },
+    "onboarding_set": { "title": "Avviare i passaggi di onboarding il giorno dopo una trattativa vinta" },
+    "lost_feedback": { "title": "Chiedere un riscontro 2 giorni dopo un'opportunità persa" },
+    "renewal_review": { "title": "Rivedere il rinnovo 90 giorni prima della scadenza di un contratto" },
+    "renewal_notice": { "title": "Avvisare il responsabile 45 giorni prima del rinnovo per confermare l'intenzione del cliente" },
+    "qbr_due": { "title": "Preparare la revisione trimestrale alla sua data" },
+    "health_red": { "title": "Avvisare l'account manager quando un contratto diventa rosso" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni opportunità ha una fase.",
+    "renewal_date_field": "Ogni contratto indica la data di rinnovo.",
+    "notice_days_field": "Ogni contratto indica il preavviso.",
+    "opportunities_board_view": "Le opportunità si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "Pipeline clienti per agenzie: gare, retainer e rinnovi",
+    "metaDescription": "Incolla questa pipeline clienti per agenzie in Claude, ChatGPT o Codex: decisione sulla gara, onboarding in cinque passaggi, retainer con rinnovo e revisione.",
+    "headline": "Conquista clienti e vedi arrivare ogni rinnovo: la pipeline per agenzie che il tuo agente IA costruisce",
+    "answer": "Una pipeline clienti per agenzie segue due cose nello stesso posto: i nuovi clienti, dalla prima conversazione alla firma, e i contratti e progetti che seguono, ciascuno con una data di rinnovo e una revisione trimestrale. Incolla questo modello nel tuo agente IA e costruisce entrambi in Customermates, con la decisione se partecipare alla gara, un onboarding in cinque passaggi dopo una vittoria e un preavviso su ogni contratto. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale dell'agenzia",
+      "steps": [
+        "Apri ogni opportunità senza un prossimo passo e aggiungine uno con una data, oppure chiudila.",
+        "Decidi per ogni nuovo brief o invito a una gara se partecipare o no: quanto costa la proposta, quante agenzie sono in gara e chi presenta e chi consegna.",
+        "Controlla i contratti che si rinnovano nei prossimi 90 giorni e le date di preavviso che scadono nelle prossime settimane.",
+        "Guarda i retainer senza contatti da 30 giorni e i contratti con l'indicatore di salute passato al rosso, e pianifica il check-in o la chiamata del partner."
+      ]
+    },
+    "limits": [
+      "Non è un software per agenzie per progetti, rilevazione dei tempi, pianificazione delle risorse o fatturazione. Queste funzioni restano nei tuoi strumenti; qui c'è lo strato commerciale e dei retainer accanto a loro.",
+      "Non è un portale clienti né un flusso di approvazione, e non fa report sui risultati delle campagne.",
+      "Non salvare mai nello spazio di lavoro credenziali dei clienti, materiali del marchio o accessi agli account pubblicitari. Tienili in un gestore di password e nella tua libreria di materiali.",
+      "Non scrive proposte e non raccoglie firme elettroniche. Proposte e contratti stanno nel tuo strumento per i documenti e si collegano all'opportunità.",
+      "Non è uno strumento per sequenze o invii di massa. Ogni follow-up è un'attività con data e una bozza che rivedi e invii tu.",
+      "Un budget si registra solo quando lo dichiara il cliente e non c'è un preavviso predefinito: inserisci quello di ogni contratto."
+    ],
+    "faq": [
+      {
+        "question": "In che cosa una pipeline per agenzie è diversa da una pipeline commerciale normale?",
+        "answer": "Un'agenzia ha meno opportunità, più grandi, con più interlocutori e decisioni lunghe, e la maggior parte del fatturato viene dai clienti che restano e crescono. Per questo il modello aggiunge la decisione sulla gara, un onboarding in cinque passaggi dopo una vittoria e contratti con una data di rinnovo, invece di fermarsi a vinto."
+      },
+      {
+        "question": "Un'agenzia deve partecipare a ogni gara?",
+        "answer": "No. Una gara costa molto tempo e denaro, quindi chi consiglia raccomanda di verificare prima se serve davvero: c'è un brief chiaro con una fascia di budget, quante agenzie partecipano, c'è un compenso per la presentazione, e chi presenta e chi consegna. Il modello chiede questa decisione il giorno in cui un'opportunità arriva alla fase brief o gara."
+      },
+      {
+        "question": "Quanto dovrebbe durare il preavviso di un retainer?",
+        "answer": "Nessuna legge dà una risposta unica. Trenta giorni per iscritto sono l'uso più comune, e un rinnovo automatico con preavviso di 90 giorni favorisce l'agenzia. Il modello registra il preavviso di ogni contratto e non ne presume nessuno. Crea una revisione del rinnovo 90 giorni prima della scadenza e un promemoria 45 giorni prima per confermare l'intenzione del cliente."
+      },
+      {
+        "question": "Che cosa succede dopo una vittoria?",
+        "answer": "Una vittoria avvia un onboarding in cinque passaggi: benvenuto e conferma del kickoff, raccolta dei materiali, calendario, kickoff e flusso di consegna. Molte agenzie legano il kickoff al pagamento. Poi il cliente prosegue come contratto, con la sua data di rinnovo e la revisione trimestrale."
+      },
+      {
+        "question": "L'agente contatta i miei clienti o i potenziali clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Conquisto nuovi clienti per la mia agenzia ma perdo il filo delle gare in corso e di quando scadono i retainer. Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
+    "questions": [
+      "Quali servizi vendi e lavori a retainer, a progetto o in entrambi i modi?",
+      "Come decidi se partecipare a una gara con più agenzie?",
+      "Qual è il preavviso abituale e la durata del contratto?",
+      "Ogni quanto rivedi i risultati con un cliente?"
+    ]
+  }
+}

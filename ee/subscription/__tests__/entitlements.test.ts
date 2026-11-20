@@ -62,6 +62,16 @@ describe("hosted AI plan entitlements", () => {
     expect(getEntitlements(SubscriptionPlan.starter).webhooks).toBe(true);
   });
 
+  it("leaves automations and forms uncapped on a self-hosted install", () => {
+    const selfHosted = getEffectiveEntitlements({ appMode: "self-hosted", plan: SubscriptionPlan.starter });
+
+    expect(selfHosted).toMatchObject({
+      activeAutomationRules: "unlimited",
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+    });
+  });
+
   it("pools file storage per active user in the cloud and leaves self-hosted storage unlimited", () => {
     expect(getEntitlements(SubscriptionPlan.starter).fileStorageBytesPerActiveUser).toBe(1024 ** 3);
     expect(getEntitlements(SubscriptionPlan.pro).fileStorageBytesPerActiveUser).toBe(5 * 1024 ** 3);

@@ -1,0 +1,138 @@
+{
+  "locale": "it",
+  "name": "Dal modulo al CRM",
+  "summary": "Fai in modo che nessuna richiesta dal modulo web resti senza risposta. Ogni invio diventa una richiesta con la sua origine e una scadenza di risposta, passa da nuova a convertita e tiene separati spam e richieste non idonee.",
+  "description": "Le richieste dei moduli di contatto, preventivo o accoglienza finiscono in una casella di posta dove ricevono risposta tardi o mai, e non capisci da dove arrivino quelle buone. Questo modello trasforma ogni invio in una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve al cliente e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam, una richiesta rimasta senza risposta viene segnalata e per i dati raccolti si conservano il consenso e una data di revisione. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
+  "lists": {
+    "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che ti scrivono tramite un modulo." },
+    "requests": { "label": "Richiesta", "pluralLabel": "Richieste", "description": "Un invio di modulo, da nuova a convertita, non idonea o spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Azienda" },
+    "contacts.language": { "label": "Lingua" },
+    "contacts.marketing_consent": { "label": "Consenso alle email promozionali" },
+    "contacts.marketing_consent_on": { "label": "Consenso dato il" },
+    "requests.stage": {
+      "label": "Fase",
+      "options": { "new": "Nuova", "contacted": "Contattata", "qualified": "Qualificata", "converted": "Convertita", "not_a_fit": "Non idonea", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Modulo", "options": { "contact": "Modulo di contatto", "quote_request": "Richiesta preventivo", "intake": "Modulo di accoglienza", "callback": "Richiesta di richiamata", "other": "Altro" } },
+    "requests.owner": { "label": "Responsabile" },
+    "requests.service_interest": { "label": "Servizio richiesto" },
+    "requests.needed_by": {
+      "label": "Entro quando",
+      "options": { "asap": "Appena possibile", "within_a_month": "Entro un mese", "within_three_months": "Entro tre mesi", "just_looking": "Solo informazioni", "no_answer": "Nessuna risposta" }
+    },
+    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Nessuna risposta", "low": "Basso", "medium": "Medio", "high": "Alto" } },
+    "requests.submitted_at": { "label": "Ricevuta il" },
+    "requests.first_response_at": { "label": "Prima risposta" },
+    "requests.utm_source": { "label": "Origine del visitatore" },
+    "requests.landing_page": { "label": "Pagina del modulo" },
+    "requests.repeat_submission": { "label": "Ha già scritto" },
+    "requests.not_a_fit_reason": {
+      "label": "Motivo di non idoneità",
+      "options": { "out_of_area": "Fuori zona", "no_budget": "Nessun budget", "wrong_service": "Servizio sbagliato", "no_response": "Nessuna risposta", "duplicate": "Duplicato", "other": "Altro" }
+    },
+    "requests.closed_on": { "label": "Chiusa il" },
+    "requests.data_review_on": { "label": "Rivedere i dati il" },
+    "requests.days_to_close": { "label": "Giorni dall'invio alla chiusura" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Rispondere", "qualify_call": "Chiamata di qualifica", "send_quote": "Inviare un preventivo", "convert": "Passare alla pipeline", "chase": "Sollecitare", "data_review": "Rivedere i dati", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contatto", "targetLabel": "Richieste" },
+    "action_request": { "sourceLabel": "Richiesta", "targetLabel": "Attività" }
+  },
+  "views": {
+    "requests_all": { "name": "Tutte le richieste" },
+    "requests_board": { "name": "Board delle richieste" },
+    "new_requests": { "name": "Nuove richieste" },
+    "closed_without_deal": { "name": "Non idonee o spam" },
+    "contacts_all": { "name": "Tutti i contatti" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Richieste per fase" },
+    "requests_per_week": { "title": "Richieste per settimana" },
+    "requests_by_form": { "title": "Richieste per modulo" },
+    "new_requests_count": { "title": "Nuove richieste" },
+    "not_a_fit_reasons": { "title": "Perché le richieste non sono idonee" },
+    "average_days_to_close": { "title": "Giorni medi alla chiusura" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Guida dal modulo al CRM", "sections": ["Quali moduli usiamo e chi risponde", "In quanto tempo rispondiamo"] },
+    "privacy_notice": { "title": "Informativa privacy dei moduli", "sections": ["Che cosa comunichiamo sul modulo", "Per quanto tempo conserviamo una richiesta"] },
+    "spam_and_duplicates": { "title": "Spam e invii ripetuti", "sections": ["Che cosa conta come spam", "Che cosa facciamo quando la stessa persona scrive di nuovo"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Creare contatto e richiesta quando viene inviato il modulo di richiesta" },
+    "reply_task": { "title": "Creare un'attività di risposta per il giorno dopo quando nasce una richiesta" },
+    "first_response_missed": { "title": "Avvisare il responsabile quando una richiesta è ancora nuova un giorno dopo l'invio" },
+    "chase_contacted": { "title": "Sollecitare una richiesta contattata ferma da 3 giorni" },
+    "converted_task": { "title": "Passare la richiesta alla pipeline quando viene convertita" },
+    "review_date_not_a_fit": { "title": "Fissare la revisione dei dati a un anno quando una richiesta è non idonea" },
+    "data_review": { "title": "Rivedere i dati quando arriva la data di revisione" },
+    "external_form_records": { "title": "Creare contatto e richiesta quando un altro strumento di moduli trasmette un invio" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni richiesta ha una fase.",
+    "submitted_field": "Ogni richiesta indica quando è stata ricevuta.",
+    "requests_board_view": "Le richieste si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "Modulo di contatto online con CRM: nessuna richiesta persa",
+    "metaDescription": "Modulo di contatto online che alimenta il CRM: incolla il modello in Claude, ChatGPT o Codex e ogni richiesta ha un responsabile e una risposta da dare.",
+    "headline": "Un modulo di contatto online collegato al tuo CRM: ogni richiesta ha un responsabile e una risposta da dare",
+    "answer": "Un modulo online serve solo se ogni invio riceve una risposta. Questo modello trasforma ogni invio in una richiesta collegata a un contatto, con il modulo di provenienza, una risposta da dare entro il giorno dopo e uno stato da nuova a convertita. Incollalo nel tuo agente IA: costruisce l'elenco delle richieste in Customermates e il percorso dal tuo modulo, e tu approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La prima risposta a ogni richiesta",
+      "steps": [
+        "Rispondi alle nuove richieste lo stesso giorno. Il modello crea un'attività di risposta con scadenza il giorno dopo e segnala una richiesta ancora nuova dopo un giorno.",
+        "Invia una breve conferma che riprende la richiesta con le parole della persona e dice quando arriverà la risposta o il preventivo.",
+        "Fai le una o due domande che decidono il prezzo o chi se ne occupa, invece di pretendere subito un modulo lungo.",
+        "Sollecita una richiesta contattata dopo 3 giorni. Se i solleciti restano senza risposta, segnala la richiesta come non idonea con il motivo mancata risposta.",
+        "Segna lo spam e le richieste non idonee e lascia correre la loro data di verifica dei dati, così le richieste vecchie vengono riviste o cancellate in tempo.",
+        "Passa ogni richiesta che diventa un affare alla tua pipeline di vendita e impostala qui come convertita."
+      ]
+    },
+    "limits": [
+      "Il modulo pubblico è semplice e non è un costruttore completo: niente pagamenti, quiz, calcolatori, caricamento di file o firme elettroniche. Per questo restano più adatti Typeform, Tally o Jotform, e un webhook in entrata porta qui le loro risposte.",
+      "Tieni i documenti sensibili fuori dal modulo. Chiedili tramite un canale con accesso controllato.",
+      "Non invia nulla da solo. Conferme e risposte sono bozze che controlli e invii tu.",
+      "Non è uno strumento di mailing. Registra un consenso marketing, ma sequenze e newsletter richiedono uno strumento di email marketing, perché Customermates non ha sequenze né invii di massa.",
+      "I testi sulla privacy sono punti di partenza, non una consulenza legale. Adatta informativa, formula di consenso e tempi di conservazione al tuo paese insieme al tuo consulente."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve chiedere un modulo di richiesta preventivo?",
+        "answer": "Solo ciò che cambia il prezzo o decide chi risponde: di solito da quattro a sette domande, come di cosa hai bisogno, per quando e una fascia di budget. I dettagli lasciali alla prima chiamata. Il modello conserva il modulo, la pagina e la fonte di ogni richiesta, così vedi da dove arrivano quelle buone."
+      },
+      {
+        "question": "Quanto in fretta devo rispondere a una richiesta dal web?",
+        "answer": "Il più in fretta che puoi promettere e mantenere: al più tardi lo stesso giorno, e dì sul modulo quando la persona avrà tue notizie. Le guide dei fornitori di moduli consigliano un primo messaggio che conferma la richiesta e dice quando arriva il preventivo. Il modello crea un'attività di risposta con scadenza il giorno dopo e segnala una richiesta che nessuno ha toccato dopo un giorno."
+      },
+      {
+        "question": "Serve una casella di consenso in un modulo di richiesta preventivo?",
+        "answer": "Non automaticamente. Secondo il GDPR una richiesta di preventivo si tratta di norma per rispondere, quindi ciò che devi alla persona sul modulo è un'informativa: chi sei, perché usi i dati, su quale base, per quanto tempo li conservi e quali diritti ha. La pubblicità richiede un consenso separato, non preselezionato, che sai dimostrare; una casella già spuntata non vale. Il modello registra il consenso e una data di verifica dei dati, e la casella di consenso facoltativa del modulo salva il tuo testo, la sua versione e l'orario a ogni compilazione. Non è una consulenza legale."
+      },
+      {
+        "question": "Funziona con Typeform, Tally o Jotform?",
+        "answer": "Sì, con qualsiasi strumento di moduli in grado di inviare un webhook, come Typeform, Tally o Jotform. Un webhook in entrata dà a una lista un indirizzo segreto, e ogni compilazione inviata lì crea o aggiorna un record. Il modello contiene una regola che crea il contatto e la richiesta quando un altro strumento di moduli invia una compilazione, e il tuo agente imposta durante l'intervista l'indirizzo e la mappatura dei campi. I webhook in entrata richiedono il piano Starter o superiore su Customermates Cloud e non hanno limiti in self-hosting. Un modulo sul tuo sito funziona allo stesso modo, oppure usi il modulo pubblico di Customermates."
+      },
+      {
+        "question": "L'agente contatta le persone che compilano il mio modulo?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Le richieste dai moduli del mio sito ricevono risposta tardi o mai e non vedo da dove arrivino quelle buone. Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
+    "questions": [
+      "Quali moduli usi e che cosa devi sapere per fare un preventivo o smistare una richiesta?",
+      "Chi risponde e in quanto tempo ti impegni a farlo?",
+      "Che cosa dici alle persone sui loro dati nel modulo?",
+      "Usi un altro strumento di moduli come Typeform, Tally o Jotform?"
+    ]
+  }
+}

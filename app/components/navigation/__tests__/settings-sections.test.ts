@@ -18,13 +18,32 @@ describe("settings sections", () => {
       "roles",
       "billing",
       "activity",
+      "agents",
       "webhooks",
+      "incoming-webhooks",
       "webhook-deliveries",
     ]);
     expect(settingsSectionOf("billing")).toBe("workspace");
+    expect(settingsSectionOf("agents")).toBe("workspace");
+    expect(settingsSectionOf("incoming-webhooks")).toBe("workspace");
     expect(settingsSectionOf("general")).toBe("workspace");
     expect(settingsSectionOf("workspaces")).toBe("account");
     expect(settingsSectionOf("unknown")).toBeNull();
+  });
+
+  it("lists each page only for a member who may open it", () => {
+    const workspace = (allowed: Resource[]) =>
+      visibleSubroutes("workspace", "cloud", (resource) => allowed.includes(resource)).map(({ slug }) => slug);
+    const account = (allowed: Resource[]) =>
+      visibleSubroutes("account", "cloud", (resource) => allowed.includes(resource)).map(({ slug }) => slug);
+
+    expect(workspace([])).toEqual(["general"]);
+    expect(workspace([Resource.routines])).toEqual(["general"]);
+    expect(workspace([Resource.company])).toEqual(["general", "billing", "agents"]);
+    expect(workspace([Resource.api])).toEqual(["general", "webhooks", "incoming-webhooks", "webhook-deliveries"]);
+    expect(account([])).toEqual(["profile", "workspaces"]);
+    expect(account([Resource.inboxMessages])).toEqual(["profile", "workspaces", "channels"]);
+    expect(account([Resource.api])).toEqual(["profile", "workspaces", "api-keys"]);
   });
 
   it("keeps permissions and cloud-only pages exactly as before", () => {
@@ -33,12 +52,19 @@ describe("settings sections", () => {
       "profile",
       "workspaces",
     ]);
+    expect(visibleSubroutes("account", "self-hosted", () => true).map(({ slug }) => slug)).toEqual([
+      "profile",
+      "workspaces",
+      "api-keys",
+    ]);
     expect(visibleSubroutes("workspace", "self-hosted", () => true).map(({ slug }) => slug)).toEqual([
       "general",
       "members",
       "roles",
       "activity",
+      "agents",
       "webhooks",
+      "incoming-webhooks",
       "webhook-deliveries",
     ]);
     expect(visibleSubroutes("account", "cloud", () => true).map(({ slug }) => slug)).toEqual([
@@ -47,5 +73,9 @@ describe("settings sections", () => {
       "channels",
       "api-keys",
     ]);
+  });
+
+  it("keeps booking pages out of Settings because the Calendar page holds them", () => {
+    expect(settingsSectionOf("booking")).toBeNull();
   });
 });

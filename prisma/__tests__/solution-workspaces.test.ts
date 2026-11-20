@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES } from "@/core/solutions/solution-catalog";
 import { presetId } from "@/features/records/crm-preset";
+import { resolveRecordPath } from "@/features/records/record-relationship-path";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { DataViewStateSchema } from "@/core/data-view/data-view-state.schema";
 
@@ -15,7 +16,12 @@ import { buildSolutionRecordData } from "../seeds/solutions/solution-data";
 import { buildSolutionMessaging } from "../seeds/solutions/solution-messaging";
 import { buildSolutionModel } from "../seeds/solutions/solution-model";
 import { buildSolutionViews, buildSolutionWidgets, buildSolutionWiki } from "../seeds/solutions/solution-presentation";
-import { SOLUTION_WORKSPACES, TEAM_SOLUTION_WORKSPACE } from "../seeds/solutions/solution-workspaces";
+import {
+  SOLUTION_WORKSPACES,
+  TEAM_SOLUTION_WORKSPACE,
+  findSolutionWorkspace,
+} from "../seeds/solutions/solution-workspaces";
+import { TEAM_WORKSPACE_NAME } from "../seeds/solutions/team-workspace";
 import { UNSUPPORTED_CLAIM_PATTERN, validateSolutionDefinition } from "../seeds/solutions/validate-solution";
 import { SYNTHETIC_TIMELINE_SHIFT_MS, storyMoment } from "../seeds/timeline";
 
@@ -34,6 +40,12 @@ function built(index: number) {
 }
 
 const WORKSPACE_COUNT = SOLUTION_CATALOG.length * SOLUTION_DATA_LOCALES.length;
+
+const LEGAL_FORM = /(?:^|[ ,])(?:GmbH|UG|S\.L\.|S\.A\.|Ltda\.|B\.V\.|[Ss]p\. z o\.o\.|Inc\.|LLC|Ltd\.?)(?=$|[ ,.;:)])/u;
+
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
 
 describe("solution demo workspaces", { timeout: 60_000 }, () => {
   it("seeds one workspace per catalog solution and data locale, keeping the two former workspace ids", () => {
@@ -79,19 +91,43 @@ describe("solution demo workspaces", { timeout: 60_000 }, () => {
     expect(new Set(plans.map(({ content }) => content.companyName)).size).toBe(WORKSPACE_COUNT);
   });
 
-  it("names every workspace after its solution and keeps the story company in the guide", () => {
+  it("names every workspace after its fictional business, in one form throughout its content", () => {
     for (const locale of SOLUTION_DATA_LOCALES) {
       const names = plans
         .filter(({ workspace }) => workspace.locale === locale)
-        .map(({ content }) => content.workspaceName);
+        .map(({ content }) => content.companyName);
       expect(new Set(names).size, locale).toBe(SOLUTION_CATALOG.length);
     }
     for (const { workspace, content } of plans) {
-      expect(content.workspaceName, workspace.slug).not.toBe(content.companyName);
+      const name = content.companyName;
+      expect(name.trim(), workspace.slug).toBe(name);
+      expect(name.length, workspace.slug).toBeGreaterThan(2);
+      expect(name, workspace.slug).not.toMatch(LEGAL_FORM);
       const guide = content.wiki.find((page) => page.kind === "guide");
-      expect(guide?.markdown.join("\n"), workspace.slug).toContain(content.companyName.split(" ")[0]);
+      expect(guide?.markdown.join("\n"), workspace.slug).toContain(name);
+      const text = JSON.stringify(content);
+      const longerForms = [...text.matchAll(new RegExp(`${escapeRegExp(name)}(,? [^"\\\\]{0,14})`, "gu"))]
+        .map((match) => match[1])
+        .filter((tail) => LEGAL_FORM.test(tail));
+      expect(longerForms, workspace.slug).toEqual([]);
     }
-    expect(plans.find(({ workspace }) => workspace.team)?.content.workspaceName).toBe("Small business");
+    expect(TEAM_WORKSPACE_NAME).toBe("Harbor Lane IT");
+    expect(plans.find(({ workspace }) => workspace.team)?.content.companyName).toBe(TEAM_WORKSPACE_NAME);
+  });
+
+  it("keeps the workspace ids and slugs of the solution catalog", () => {
+    expect(SOLUTION_WORKSPACES.map(({ companyId, slug }) => `${slug} ${companyId}`)).toEqual(
+      SOLUTION_CATALOG.flatMap((solution) =>
+        SOLUTION_DATA_LOCALES.map(
+          (locale) => `${solution.workspaces[locale].slug} ${solution.workspaces[locale].companyId}`,
+        ),
+      ),
+    );
+    expect(TEAM_SOLUTION_WORKSPACE.slug).toBe("small-business");
+    expect(findSolutionWorkspace("consultants", "de")).toMatchObject({
+      companyId: SEED_IDS.secondWorkspaceCompany,
+      slug: "beratung",
+    });
   });
 
   it("gives every workspace routines and the team-type workspaces two colleagues", () => {
@@ -193,6 +229,21 @@ describe("solution demo workspaces", { timeout: 60_000 }, () => {
         workspace.slug,
       ).toEqual(content.lists.map((list) => presetId(workspace.companyId, list.key)));
     }
+  });
+
+  it("labels every relationship path with the plural of the list it ends at, in the workspace's own words", () => {
+    let paths = 0;
+    for (const { workspace, model } of plans) {
+      for (const type of model.types) {
+        for (const path of type.relationshipPaths ?? []) {
+          const end = resolveRecordPath(type.id, path.path, model)?.at(-1);
+          const list = model.types.find((candidate) => candidate.id === end?.typeId);
+          expect(path.label, `${workspace.slug} ${path.id}`).toBe(list?.pluralLabel);
+          paths += 1;
+        }
+      }
+    }
+    expect(paths).toBeGreaterThan(0);
   });
 
   it("gives the team workspace the records its routines and Trash fixtures refer to", () => {

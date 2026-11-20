@@ -1,0 +1,141 @@
+{
+  "locale": "de",
+  "name": "Team-Aufgaben",
+  "summary": "Sehen, wer was bis wann erledigt, ohne schweres Projektwerkzeug. Projekte und Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf einer Liste.",
+  "description": "In einem kleinen Team verstecken sich Aufgaben in Chat, Boards und Köpfen, und eine blockierte Aufgabe fällt erst am Fälligkeitstag auf. Diese Vorlage führt ein Team von zwei bis fünfzehn Personen auf einer Liste: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
+  "lists": {
+    "requesters": { "label": "Anfragender", "pluralLabel": "Anfragende", "description": "Die Personen außerhalb des Teams, die Arbeit anfragen." },
+    "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Ampel und Termin." },
+    "tasks": { "label": "Aufgabe", "pluralLabel": "Aufgaben", "description": "Eine Arbeit mit einem Verantwortlichen und einem Termin." },
+    "recurring": { "label": "Wiederkehrende Aufgabe", "pluralLabel": "Wiederkehrende Aufgaben", "description": "Eine Aufgabe, die wöchentlich, monatlich, vierteljährlich oder jährlich wiederkommt." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Beziehung",
+      "options": { "customer": "Kunde", "colleague": "Kollege", "partner": "Partner", "vendor": "Lieferant", "other": "Sonstige" }
+    },
+    "requesters.team": { "label": "Team" },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Geplant", "active": "Aktiv", "on_hold": "Pausiert", "done": "Abgeschlossen", "cancelled": "Abgebrochen" }
+    },
+    "projects.health": { "label": "Ampel", "options": { "on_track": "Im Plan", "at_risk": "Gefährdet", "off_track": "Außer Plan" } },
+    "projects.owner": { "label": "Verantwortlich" },
+    "projects.due_date": { "label": "Fällig am" },
+    "projects.repo_url": { "label": "Link zum Repository" },
+    "tasks.status": {
+      "label": "Status",
+      "options": { "backlog": "Backlog", "todo": "Geplant", "in_progress": "In Arbeit", "in_review": "In Prüfung", "blocked": "Blockiert", "done": "Erledigt", "cancelled": "Abgebrochen" }
+    },
+    "tasks.kind": { "label": "Art", "options": { "task": "Aufgabe", "bug": "Fehler", "feature": "Funktion", "chore": "Routineaufgabe", "request": "Anfrage" } },
+    "tasks.priority": { "label": "Priorität", "options": { "urgent": "Dringend", "high": "Hoch", "medium": "Mittel", "low": "Niedrig" } },
+    "tasks.owner": { "label": "Verantwortlich" },
+    "tasks.due": { "label": "Fällig am" },
+    "tasks.original_due": { "label": "Ursprünglicher Termin" },
+    "tasks.done_on": { "label": "Erledigt am" },
+    "tasks.blocked_reason": { "label": "Blockiert wegen" },
+    "tasks.external_url": { "label": "Link (Pull Request oder Ticket)" },
+    "recurring.cadence": { "label": "Wiederholung", "options": { "weekly": "Wöchentlich", "monthly": "Monatlich", "quarterly": "Vierteljährlich", "yearly": "Jährlich" } },
+    "recurring.next_due": { "label": "Nächste Fälligkeit" },
+    "recurring.owner": { "label": "Verantwortlich" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Projekt", "targetLabel": "Aufgaben" },
+    "task_requester": { "sourceLabel": "Anfragender", "targetLabel": "Aufgaben" },
+    "recurring_project": { "sourceLabel": "Projekt", "targetLabel": "Wiederkehrende Aufgaben" }
+  },
+  "views": {
+    "tasks_all": { "name": "Alle Aufgaben" },
+    "tasks_board": { "name": "Aufgaben-Board" },
+    "blocked_tasks": { "name": "Blockierte Aufgaben" },
+    "projects_all": { "name": "Alle Projekte" },
+    "recurring_all": { "name": "Alle wiederkehrenden Aufgaben" },
+    "requesters_all": { "name": "Alle Anfragenden" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Aufgaben nach Status" },
+    "open_by_priority": { "title": "Offene Aufgaben nach Priorität" },
+    "overdue_tasks": { "title": "Überfällige Aufgaben" },
+    "due_soon": { "title": "Bald fällige Aufgaben" },
+    "blocked_count": { "title": "Blockierte Aufgaben" },
+    "activity_timeline": { "title": "Letzte Aktivität" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "So arbeiten wir", "sections": ["Status, Prioritäten und was erledigt bedeutet", "Ein Verantwortlicher und ein Termin je Aufgabe"] },
+    "weekly_review": { "title": "Wochenrückblick", "sections": ["Überfälliges, Blockiertes und Unzugewiesenes", "Was sich diese Woche ändert"] },
+    "triage": { "title": "Einordnung von Anfragen und Fehlern", "sections": ["Wer entscheidet, was hereinkommt", "Schweregrad gegenüber Priorität"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Den neuen Verantwortlichen informieren, wenn eine Aufgabe zugewiesen wird" },
+    "due_tomorrow": { "title": "Den Verantwortlichen am Tag vor der Fälligkeit erinnern" },
+    "overdue_task": { "title": "Die Leitung am Tag nach der Fälligkeit informieren" },
+    "blocked_stale": { "title": "Die Leitung informieren, wenn eine Aufgabe 3 Tage blockiert bleibt" },
+    "stale_in_progress": { "title": "Den Verantwortlichen erinnern, wenn sich eine Aufgabe 5 Tage nicht bewegt hat" },
+    "recurring_due": { "title": "Eine Aufgabe anlegen, wenn eine wiederkehrende Aufgabe fällig wird" },
+    "task_from_git": { "title": "Eine Aufgabe anlegen, wenn der Git-Dienst ein Ereignis schickt" },
+    "request_form": { "title": "Aufgabe und Anfragenden anlegen, wenn das Anfrageformular abgeschickt wird" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jede Aufgabe hat einen Status.",
+    "due_field": "Jede Aufgabe hat einen Fälligkeitstermin.",
+    "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
+  },
+  "page": {
+    "metaTitle": "Jira Alternative für kleine Teams: Aufgaben mit Termin",
+    "metaDescription": "Jira Alternative für 2 bis 15 Personen: ein Verantwortlicher und ein Termin je Aufgabe, Fehler, Routineaufgaben. Vorlage in Ihren KI-Agenten einfügen.",
+    "headline": "Eine einfache Jira Alternative für kleine Teams, aufgebaut von Ihrem KI-Agenten in Ihrem CRM",
+    "answer": "Eine einfache Aufgabenverwaltung für ein kleines Team ist eine Liste mit Arbeitspaketen, jedes mit einem Verantwortlichen, einem Status, einer Priorität und einem Termin, dazu ein Board und eine kurze wöchentliche Durchsicht von Überfälligem und Blockiertem. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Projekten, wiederkehrenden Aufgaben und Anfragen von außerhalb des Teams. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Teambesprechung in 30 Minuten",
+      "steps": [
+        "Öffnen Sie die Liste der letzten Woche und beginnen Sie mit dem Zugesagten: Was ist erledigt, was ist gerutscht?",
+        "Gehen Sie die überfälligen und blockierten Aufgaben durch und entscheiden Sie je Aufgabe: neu zusagen, verkleinern oder neu zuweisen. Rutscht ein Termin, bleibt der ursprüngliche Termin stehen und der neue kommt mit Begründung dazu.",
+        "Sehen Sie sich Aufgaben an, die seit fünf Tagen nicht vorangekommen sind, und fragen Sie, ob die Aufgabe unklar oder zu groß ist. Schließen Sie, was niemand braucht.",
+        "Sichten Sie neue Anfragen und Fehler: Jede bekommt eine Art, eine Priorität und einen Verantwortlichen.",
+        "Lesen Sie die Liste zum Schluss vor, damit jede Aufgabe vor dem Ende der Besprechung einen benannten Verantwortlichen und einen Termin hat."
+      ]
+    },
+    "limits": [
+      "Es ist kein Werkzeug für Sprints und Velocity: Es gibt keine Sprints, Story Points oder Burn-down-Diagramme. Wer sie braucht, bleibt bei Linear oder Jira.",
+      "Es ist kein Gantt-, Abhängigkeits- oder Kapazitätsplaner, keine Zeiterfassung und kein Release-Management.",
+      "Es ist kein Code-Host, kein CI-System und kein Service Desk mit Reaktionszeiten. Der Link zu einem Pull Request oder Ticket ist ein einfaches Linkfeld.",
+      "Es gibt keine native Slack- oder Teams-Anbindung und keine mobile App. Der Weg zu Slack führt über n8n.",
+      "Es ist kein HR- oder Leistungsbeurteilungssystem und hat weder Single Sign-on noch Rechte auf Feldebene."
+    ],
+    "faq": [
+      {
+        "question": "Kann eine einfache Aufgabenverwaltung Trello, Jira oder eine Tabelle ersetzen?",
+        "answer": "Für zwei bis fünfzehn Personen, die je Aufgabe einen Verantwortlichen und einen Termin, eine wöchentliche Durchsicht und Anfragen von außerhalb auf derselben Liste wollen, ja. Exportieren Sie Ihr Board oder Ihre Tabelle als CSV oder Excel und importieren Sie sie über den Assistenten zur Spaltenzuordnung, oder lassen Sie Ihren Agenten zuordnen und importieren. Wer Sprints, Velocity oder Abhängigkeiten braucht, bleibt bei Linear, Jira oder ClickUp."
+      },
+      {
+        "question": "Welche Status sollte ein kleines Team verwenden?",
+        "answer": "Weniger, als man denkt. Typisch sind Trellos Zu erledigen, In Arbeit und Erledigt oder Linears Backlog, Todo, In Progress, Done und Canceled. Die Vorlage startet mit sieben (Backlog, Geplant, In Arbeit, In Prüfung, Blockiert, Erledigt, Abgebrochen), und Sie benennen um oder lassen weg. Blockiert hat seinen Platz, weil eine blockierte Aufgabe sonst bis zum Fälligkeitstag unbemerkt bleibt."
+      },
+      {
+        "question": "Sollte ein Team in Sprints oder auf einem Board arbeiten?",
+        "answer": "Kanban-Leitfäden setzen auf Fluss und begrenzte parallele Arbeit, Linear und Jira eher auf Sprints. Diese Vorlage arbeitet mit einem Board und einem Termin und kennt kein Sprint-Objekt. Wer Velocity braucht, bleibt bei einem Sprint-Werkzeug."
+      },
+      {
+        "question": "Sollen liegen gebliebene Aufgaben automatisch geschlossen werden?",
+        "answer": "Nein. Eine Erinnerung nach fünf Tagen ohne Bewegung ist sicherer als ein automatisches Schließen, und Besprechungsleitfäden raten dazu, liegen gebliebene Punkte ausdrücklich zu schließen. Die Vorlage erinnert den Verantwortlichen, und er entscheidet. Eine Aufgabe, die Woche für Woche offen bleibt, ist meist unklar oder zu groß: Verbessern Sie die Definition, nicht die Person."
+      },
+      {
+        "question": "Braucht es den Betriebsrat, wenn das Team Aufgaben so erfasst?",
+        "answer": "Ein Werkzeug, mit dem sich Zeiten oder Ergebnisse einzelner Beschäftigter auswerten lassen, kann nach § 87 Abs. 1 Nr. 6 BetrVG mitbestimmungspflichtig sein, und schon die objektive Eignung kann genügen. Die Vorlage hat keine Zeiterfassung und keine Leistungsauswertung, die Frage bleibt aber Ihre. Klären Sie sie vor dem Start mit Ihrer Rechtsberatung. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Schreibt der Agent meinem Team?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Die Arbeit in unserem Team verteilt sich auf Chat, Board und Tabelle, und ich sehe nicht, was überfällig oder blockiert ist. Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
+    "questions": [
+      "Wie viele Personen hat das Team, und woran arbeiten sie?",
+      "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",
+      "Welche Aufgaben kommen jede Woche oder jeden Monat wieder, und wer ist zuständig?",
+      "Woher kommen Anfragen, und sollen sie über ein Formular eingehen?"
+    ]
+  }
+}

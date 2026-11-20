@@ -1,11 +1,14 @@
 import type { z } from "zod";
 
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
-import { DomainEvent } from "@/features/event/domain-events";
 
 const NON_TRIGGERING_EVENTS = [
-  DomainEvent.MESSAGING_EMAIL_DELETED,
-  DomainEvent.MESSAGING_CHAT_DELETED,
+  "messaging.email.deleted",
+  "messaging.chat.deleted",
+  "automation.rule.fired",
+  "form.submitted",
+  "webhook.received",
+  "booking.changed",
   "record.deletedPermanently",
 ] as const;
 

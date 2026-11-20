@@ -18,6 +18,7 @@ import { tenantStorage } from "@/core/decorators/tenant-context";
 import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
+import { admitsAgentJobKey } from "@/features/agent-runners/agent-job-request-context";
 import { mustVerifyEmail } from "@/features/auth/email-verification-grace";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 
@@ -66,6 +67,9 @@ export class UserService {
       await this.recordActivity(user);
       return user;
     }
+
+    const agentJobKey = await this.authService.getAgentJobApiKey(session);
+    if (agentJobKey && !admitsAgentJobKey(agentJobKey.keyId)) throw new AuthError();
 
     if (!canUseApiKeys(user.role)) throw new ApiKeyAccessDeniedError();
     if (!(await this.plans.canUseIntegrations(user.companyId))) throw new WorkspacePlanRequiredError();

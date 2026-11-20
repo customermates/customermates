@@ -84,6 +84,42 @@ import { GetCalendarEventsInteractor } from "@/ee/calendar/get-calendar-events.i
 import { GetCalendarsInteractor } from "@/ee/calendar/get-calendars.interactor";
 import { PrismaCalendarEventsRepo } from "@/ee/calendar/prisma-calendar-events.repository";
 import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
+import { resolveUserLocale } from "@/i18n/user-locale";
+import { BookingAnnouncer } from "@/ee/calendar/booking-announcer";
+import { BookingAvailability, type HostRunner } from "@/ee/calendar/booking-availability";
+import { BookingEventSync } from "@/ee/calendar/booking-event-sync";
+import { CancelPublicBookingInteractor } from "@/ee/calendar/cancel-public-booking.interactor";
+import { GetUpcomingBookingsInteractor } from "@/ee/calendar/get-upcoming-bookings.interactor";
+import { ReadPublicBookingManageInteractor } from "@/ee/calendar/read-public-booking-manage.interactor";
+import { ReadPublicBookingManageSlotsInteractor } from "@/ee/calendar/read-public-booking-manage-slots.interactor";
+import { ReschedulePublicBookingInteractor } from "@/ee/calendar/reschedule-public-booking.interactor";
+import { BusyTimeReader } from "@/ee/calendar/busy-time.reader";
+import { CalendarEventWriter } from "@/ee/calendar/calendar-event-writer";
+import { CancelMeetingInteractor } from "@/ee/calendar/cancel-meeting.interactor";
+import { DeleteBookingLinkInteractor } from "@/ee/calendar/delete-booking-link.interactor";
+import { GetBookingLinkByIdInteractor } from "@/ee/calendar/get-booking-link-by-id.interactor";
+import { GetBookingLinksInteractor } from "@/ee/calendar/get-booking-links.interactor";
+import { GetWorkspaceBookingLinksInteractor } from "@/ee/calendar/get-workspace-booking-links.interactor";
+import { GetFreeSlotsInteractor } from "@/ee/calendar/get-free-slots.interactor";
+import { GetMeetingOptionsInteractor } from "@/ee/calendar/get-meeting-options.interactor";
+import { MeetingRecordService } from "@/ee/calendar/meeting-record.service";
+import { PrismaBookingRepo } from "@/ee/calendar/prisma-booking.repository";
+import { PrismaCalendarEventLinkRepo } from "@/ee/calendar/prisma-calendar-event-link.repository";
+import { PrismaCalendarWriteAccessRepo } from "@/ee/calendar/prisma-calendar-write-access.repository";
+import { PruneBookingsInteractor } from "@/ee/calendar/prune-bookings.interactor";
+import { PublicBookingAccess } from "@/ee/calendar/public-booking-access";
+import { ReadPublicBookingInteractor } from "@/ee/calendar/read-public-booking.interactor";
+import { ReadPublicBookingSlotsInteractor } from "@/ee/calendar/read-public-booking-slots.interactor";
+import { SaveBookingLinkInteractor } from "@/ee/calendar/save-booking-link.interactor";
+import { ScheduleMeetingInteractor } from "@/ee/calendar/schedule-meeting.interactor";
+import { SubmitPublicBookingInteractor } from "@/ee/calendar/submit-public-booking.interactor";
+import { UpdateMeetingInteractor } from "@/ee/calendar/update-meeting.interactor";
+import { BookingMailer } from "@/ee/calendar/booking-mailer";
+import { CancelHostedBookingInteractor } from "@/ee/calendar/cancel-hosted-booking.interactor";
+import { GetHostedBookingSlotsInteractor } from "@/ee/calendar/get-hosted-booking-slots.interactor";
+import { HostedBookingAccess } from "@/ee/calendar/hosted-booking-access";
+import { RescheduleHostedBookingInteractor } from "@/ee/calendar/reschedule-hosted-booking.interactor";
+import { SendBookingRemindersInteractor } from "@/ee/calendar/send-booking-reminders.interactor";
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
@@ -232,6 +268,13 @@ import { GetOnboardingJobChoiceInteractor } from "@/features/onboarding-funnel/g
 import { SelectOnboardingJobInteractor } from "@/features/onboarding-funnel/select-onboarding-job.interactor";
 import { ApplyOnboardingPlaybookInteractor } from "@/features/onboarding-funnel/apply-onboarding-playbook.interactor";
 import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/record-agent-connected.interactor";
+import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
+import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
+import { RecordChannelSkippedInteractor } from "@/features/onboarding-funnel/record-channel-skipped.interactor";
+import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
+import { GetOnboardingTemplatePromptInteractor } from "@/features/onboarding-templates/get-onboarding-template-prompt.interactor";
+import { GetOnboardingTemplateChoiceInteractor } from "@/features/onboarding-templates/get-onboarding-template-choice.interactor";
+import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -243,6 +286,7 @@ import { EmailService } from "@/features/email/email.service";
 import { EventService } from "@/features/event/event.service";
 import { UserService } from "@/features/user/user.service";
 import { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
+import { HandOverPublicEndpointsService } from "@/features/workspace/hand-over-public-endpoints.service";
 import { WorkspaceDepartureService } from "@/features/workspace/workspace-departure.service";
 import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 // Task Listeners
@@ -282,6 +326,7 @@ import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-
 import { CreateWorkspaceInteractor } from "@/features/workspace/create-workspace.interactor";
 import { GetMemberRemovalInteractor } from "@/features/workspace/get-member-removal.interactor";
 import { JoinWorkspaceInteractor } from "@/features/workspace/join-workspace.interactor";
+import { LeaveInactiveWorkspaceInteractor } from "@/features/workspace/leave-inactive-workspace.interactor";
 import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.interactor";
 import { DeleteWorkspaceInteractor } from "@/features/workspace/delete-workspace.interactor";
 import { UnrecordedSubscriptionCheck } from "@/ee/subscription/unrecorded-subscription-check";
@@ -289,6 +334,7 @@ import { GetWorkspaceDeletionInteractor } from "@/features/workspace/get-workspa
 import { GetTrialEligibilityInteractor } from "@/features/workspace/get-trial-eligibility.interactor";
 import { GetWorkspaceLeaveInteractor } from "@/features/workspace/get-workspace-leave.interactor";
 import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
+import { ListWorkspaceLeavesInteractor } from "@/features/workspace/list-workspace-leaves.interactor";
 import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
 import { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
 import { UpdateWorkspaceSlugInteractor } from "@/features/workspace/update-workspace-slug.interactor";
@@ -462,6 +508,9 @@ import { CreateApiKeyInteractor } from "@/features/api-key/create-api-key.intera
 import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.interactor";
 import { AuthorizeMcpConnectionInteractor } from "@/features/auth/authorize-mcp-connection.interactor";
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
+import { DisconnectConnectedAppInteractor } from "@/features/connected-apps/disconnect-connected-app.interactor";
+import { GetConnectedAppsInteractor } from "@/features/connected-apps/get-connected-apps.interactor";
+import { PrismaConnectedAppRepo } from "@/features/connected-apps/prisma-connected-app.repository";
 // EE Subscription interactors
 import { AbandonCheckoutInteractor } from "@/ee/subscription/abandon-checkout.interactor";
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
@@ -498,6 +547,7 @@ import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval
 import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
 import { RestoreAgentConversationInteractor } from "@/ee/agent-chat/restore-agent-conversation.interactor";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
+import { AgentTemplateRules } from "@/ee/agent-chat/agent-template-rules";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { CreateAgentCreditAdjustmentInteractor } from "@/ee/operator/create-agent-credit-adjustment.interactor";
 import { DeleteOperatorWorkspaceInteractor } from "@/ee/operator/delete-operator-workspace.interactor";
@@ -538,7 +588,7 @@ import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service
 import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
 import { DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
 import { PrismaDocsSectionRepo } from "@/features/mcp-tools/prisma-docs-section.repository";
-import { tenantStorage } from "@/core/decorators/tenant-context";
+import { getTenantUser, tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
@@ -572,6 +622,7 @@ const getRecordRepoOwners = (): RecordRepoOwners => ({
   events: getEventLogRepo(),
   webhooks: getWebhookRepo(),
   routines: getRoutineRepo(),
+  rules: getAutomationRuleRepo(),
   members: getUserRepo(),
   roles: getRoleRepo(),
   subscriptions: getRecordEventSubscriptionRepo(),
@@ -1038,7 +1089,11 @@ export const getWebhookAdmission = () =>
     getPlanLimitsService(),
   );
 export const getProcessEventInteractor = (
-  admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
+  admission: EventAdmission = new EventAdmissionGroup([
+    getWebhookAdmission(),
+    getRoutineAdmission(),
+    getAutomationRuleAdmission(),
+  ]),
 ) => new ProcessEventInteractor(getEventLogRepo(), admission);
 export const getProcessDueEventsInteractor = () =>
   new ProcessDueEventsInteractor(getEventLogRepo(), getProcessEventInteractor(), getBackgroundTaskService());
@@ -1235,12 +1290,20 @@ export const getFreePlanPauseService = () =>
     getUserRepo(),
     getCompanyRepo(),
     (companyId) => getRoutineRepo(companyId),
+    (companyId) => getAutomationRuleRepo(companyId),
+    getHandOverPublicEndpointsService(),
     env.APP_MODE,
     new PaidSeatQuantitySync(getCompanyRepo(), getSubscriptionService()).sync,
   );
 export const getSyncFreePlanPausesInteractor = () =>
   new SyncFreePlanPausesInteractor(getUserRepo(), getFreePlanPauseService(), getEmailService());
-export const getSwapFreePlanSeatInteractor = () => new SwapFreePlanSeatInteractor(getUserRepo(), getEventService());
+export const getSwapFreePlanSeatInteractor = () =>
+  new SwapFreePlanSeatInteractor(
+    getUserRepo(),
+    getEventService(),
+    getFreePlanPauseService(),
+    getHandOverPublicEndpointsService(),
+  );
 export const getGetPlanPauseStateInteractor = () => new GetPlanPauseStateInteractor(getUserRepo());
 const getIntegrationRequestLimiter = () =>
   new IntegrationRequestLimiter(
@@ -1282,6 +1345,7 @@ export const getRegisterUserInteractor = () =>
     getCompanyRepo(),
     new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
     getPlanLimitsService(),
+    getOnboardingFunnelRepo(),
   );
 
 export const getRegisterOnboardingProfileInteractor = () =>
@@ -1311,7 +1375,7 @@ export const getUpdateUserDetailsInteractor = () =>
 export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
 export const getCompleteOnboardingSetupStepInteractor = () =>
-  new CompleteOnboardingSetupStepInteractor(getUserRepo(), getRouteGuardService());
+  new CompleteOnboardingSetupStepInteractor(getUserRepo(), getRouteGuardService(), getOnboardingFunnelRepo());
 
 export const getOnboardingFunnelRepo = () => new PrismaOnboardingFunnelRepo();
 export const getGetOnboardingJobChoiceInteractor = () =>
@@ -1326,6 +1390,22 @@ export const getApplyOnboardingPlaybookInteractor = () =>
     getRouteGuardService(),
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
+export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
+export const getRecordChannelSkippedInteractor = () =>
+  new RecordChannelSkippedInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
+export const getRecordDiscoveryAnswerInteractor = () =>
+  new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
+export const getGetOnboardingAgentStatusInteractor = () =>
+  new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
+export const getGetOnboardingTemplatePromptInteractor = () =>
+  new GetOnboardingTemplatePromptInteractor(
+    loadTemplateBundle,
+    getRouteGuardService(),
+    getOnboardingFunnelRepo(),
+    getCompanyRepo(),
+  );
+export const getGetOnboardingTemplateChoiceInteractor = () =>
+  new GetOnboardingTemplateChoiceInteractor(getOnboardingFunnelRepo());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
   new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
@@ -1392,12 +1472,27 @@ export const getWorkspaceDepartureService = () =>
     getReleaseOwnerRoutinesInteractor(),
     getConnectedAccountRepo(),
     getDeleteAccountForBillingService(),
+    getHandOverPublicEndpointsService(),
+    getAgentRunnerRevocation(),
+    getAutomationRuleRepo(),
   );
 
 export const getLeaveWorkspaceInteractor = () =>
   new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
 
+export const getLeaveInactiveWorkspaceInteractor = () =>
+  new LeaveInactiveWorkspaceInteractor(
+    getAuthService(),
+    getUserRepo(),
+    getUserRepo(),
+    getRoleRepo(),
+    getWorkspaceDepartureService(),
+  );
+
 export const getGetWorkspaceLeaveInteractor = () => new GetWorkspaceLeaveInteractor(getUserRepo(), getRoleRepo());
+
+export const getListWorkspaceLeavesInteractor = () =>
+  new ListWorkspaceLeavesInteractor(getAuthService(), getUserRepo());
 
 export const getDeleteWorkspaceInteractor = () =>
   new DeleteWorkspaceInteractor(
@@ -1445,7 +1540,7 @@ export const getJoinWorkspaceInteractor = () =>
 export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(getAuthService());
 
 export const getSignUpWithEmailInteractor = () =>
-  new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService());
+  new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService(), getUserRepo());
 
 export const getRequestPasswordResetInteractor = () =>
   new RequestPasswordResetInteractor(getAuthService(), getOnboardingIntentService());
@@ -1482,6 +1577,7 @@ export const getInviteUsersByEmailInteractor = () =>
     getGetOrCreateInviteTokenInteractor(),
     getCompanyRepo(),
     getPlanLimitsService(),
+    getOnboardingFunnelRepo(),
   );
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
@@ -1780,9 +1876,19 @@ export const getProcessCalendarUpsertWebhookInteractor = () =>
 export const getProcessCalendarDeleteWebhookInteractor = () =>
   new ProcessCalendarDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessCalendarEventUpsertWebhookInteractor = () =>
-  new ProcessCalendarEventUpsertWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessCalendarEventUpsertWebhookInteractor(
+    getCalendarRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getBookingEventSync(),
+  );
 export const getProcessCalendarEventDeleteWebhookInteractor = () =>
-  new ProcessCalendarEventDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessCalendarEventDeleteWebhookInteractor(
+    getCalendarRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getBookingEventSync(),
+  );
 export const getGetCalendarsInteractor = () =>
   new GetCalendarsInteractor(
     getCalendarRepo(),
@@ -1811,6 +1917,197 @@ export const getGetCalendarEventsApiInteractor = () =>
   );
 export const getGetCalendarEventByIdInteractor = () =>
   new GetCalendarEventByIdInteractor(getCalendarEventsRepo(), getEntitlementService());
+
+const getCalendarWriteAccessRepo = () => new PrismaCalendarWriteAccessRepo();
+const getCalendarEventLinkRepo = () => new PrismaCalendarEventLinkRepo();
+const getBookingRepo = () => new PrismaBookingRepo();
+const getCalendarEventWriter = () => new CalendarEventWriter(getMessagingService(), getCalendarRepo());
+const getBusyTimeReader = () => new BusyTimeReader(new PrismaPlannerPersonalEventsRepo("own"));
+const runAsBookingHost: HostRunner = (userId, work) => publicTenant.run(userId, work, () => Promise.resolve(null));
+const getBookingAvailability = () => new BookingAvailability(getBusyTimeReader(), getBookingRepo(), runAsBookingHost);
+const getBookingAnnouncer = () =>
+  new BookingAnnouncer(getEventService(), getNotificationService(), async (locale, kind, values) => {
+    const t = await getTranslator(locale, "Booking.hostNotice");
+    const title =
+      kind === "booked"
+        ? t("bookedTitle", { name: values.name })
+        : kind === "cancelled"
+          ? t("cancelledTitle", { name: values.name })
+          : t("rescheduledTitle", { name: values.name });
+    const body = t("body", { page: values.page, when: values.when });
+
+    return { title, body: values.reason ? `${body} ${t("reason", { reason: values.reason })}` : body };
+  });
+const getBookingMailer = () => new BookingMailer(getEmailService(), env.BASE_URL);
+const getBookingEventSync = () =>
+  new BookingEventSync(
+    getBookingRepo(),
+    getBookingAnnouncer(),
+    getMeetingRecordService(),
+    runAsBookingHost,
+    getBookingMailer(),
+  );
+const getHostedBookingAccess = () => new HostedBookingAccess(getBookingRepo(), getBookingRepo());
+export const getSendBookingRemindersInteractor = () =>
+  new SendBookingRemindersInteractor(getBookingRepo(), getBookingMailer());
+export const getGetHostedBookingSlotsInteractor = () =>
+  new GetHostedBookingSlotsInteractor(getHostedBookingAccess(), getBookingAvailability(), getEntitlementService());
+export const getCancelHostedBookingInteractor = () =>
+  new CancelHostedBookingInteractor(
+    getHostedBookingAccess(),
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getBookingAnnouncer(),
+    getBookingMailer(),
+    runAsBookingHost,
+    getEntitlementService(),
+  );
+export const getRescheduleHostedBookingInteractor = () =>
+  new RescheduleHostedBookingInteractor(
+    getHostedBookingAccess(),
+    getBookingAvailability(),
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getMeetingRecordService(),
+    getBookingAnnouncer(),
+    getBookingMailer(),
+    runAsBookingHost,
+    getEntitlementService(),
+  );
+const getMeetingRecordService = () =>
+  new MeetingRecordService({
+    model: getGetRecordModelInteractor(),
+    read: getGetRecordInteractor(),
+    mutate: getMutateRecordInteractor(),
+    people: getRecordRepo(),
+  });
+export const getGetMeetingOptionsInteractor = () =>
+  new GetMeetingOptionsInteractor(getCalendarWriteAccessRepo(), getMeetingRecordService(), getEntitlementService());
+export const getGetFreeSlotsInteractor = () => new GetFreeSlotsInteractor(getBusyTimeReader(), getEntitlementService());
+export const getScheduleMeetingInteractor = () =>
+  new ScheduleMeetingInteractor(
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getCalendarEventLinkRepo(),
+    getMeetingRecordService(),
+    getEntitlementService(),
+  );
+export const getUpdateMeetingInteractor = () =>
+  new UpdateMeetingInteractor(
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getCalendarEventLinkRepo(),
+    getEntitlementService(),
+    getBookingEventSync(),
+  );
+export const getCancelMeetingInteractor = () =>
+  new CancelMeetingInteractor(
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getBookingEventSync(),
+    getEntitlementService(),
+  );
+export const getGetUpcomingBookingsInteractor = () =>
+  new GetUpcomingBookingsInteractor(getBookingRepo(), getEntitlementService());
+export const getGetBookingLinksInteractor = () =>
+  new GetBookingLinksInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
+export const getGetWorkspaceBookingLinksInteractor = () =>
+  new GetWorkspaceBookingLinksInteractor(
+    getBookingRepo(),
+    getEntitlementService(),
+    env.BASE_URL,
+    getBookingAvailability(),
+    getCalendarWriteAccessRepo(),
+  );
+export const getGetBookingLinkByIdInteractor = () =>
+  new GetBookingLinkByIdInteractor(getBookingRepo(), getEntitlementService(), env.BASE_URL);
+export const getSaveBookingLinkInteractor = () =>
+  new SaveBookingLinkInteractor(
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getMeetingRecordService(),
+    getEntitlementService(),
+    env.BASE_URL,
+  );
+export const getDeleteBookingLinkInteractor = () =>
+  new DeleteBookingLinkInteractor(getBookingRepo(), getEntitlementService());
+export const getPruneBookingsInteractor = () => new PruneBookingsInteractor(getBookingRepo());
+
+const publicTenant = new PublicTenant(getUserService());
+const bookingAccessSettings = {
+  authSecret: env.BETTER_AUTH_SECRET,
+  locale: () => resolveUserLocale(getTenantUser()),
+};
+const publicBookingReadAccess = new PublicBookingAccess(
+  getBookingRepo(),
+  publicTenant,
+  { perLink: new TokenBucketRateLimiter(300, 60_000), perVisitor: new TokenBucketRateLimiter(60, 60_000) },
+  () => getEntitlementService(),
+  () => getPermissionService(),
+  () => getCalendarWriteAccessRepo(),
+  bookingAccessSettings,
+);
+const publicBookingSubmitAccess = new PublicBookingAccess(
+  getBookingRepo(),
+  publicTenant,
+  { perLink: new TokenBucketRateLimiter(30, 600_000), perVisitor: new TokenBucketRateLimiter(5, 600_000) },
+  () => getEntitlementService(),
+  () => getPermissionService(),
+  () => getCalendarWriteAccessRepo(),
+  bookingAccessSettings,
+);
+const publicBookingChangeAccess = new PublicBookingAccess(
+  getBookingRepo(),
+  publicTenant,
+  { perLink: new TokenBucketRateLimiter(60, 600_000), perVisitor: new TokenBucketRateLimiter(20, 600_000) },
+  () => getEntitlementService(),
+  () => getPermissionService(),
+  () => getCalendarWriteAccessRepo(),
+  bookingAccessSettings,
+);
+export const getReadPublicBookingInteractor = () =>
+  new ReadPublicBookingInteractor(publicBookingReadAccess, getMeetingRecordService());
+export const getReadPublicBookingSlotsInteractor = () =>
+  new ReadPublicBookingSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
+export const getSubmitPublicBookingInteractor = () =>
+  new SubmitPublicBookingInteractor(
+    publicBookingSubmitAccess,
+    getBookingAvailability(),
+    getBookingRepo(),
+    getCalendarEventWriter(),
+    getCalendarEventLinkRepo(),
+    getMeetingRecordService(),
+    getEventService(),
+    getBookingAnnouncer(),
+    env.BASE_URL,
+    getBookingMailer(),
+  );
+export const getReadPublicBookingManageInteractor = () =>
+  new ReadPublicBookingManageInteractor(publicBookingReadAccess, getCalendarWriteAccessRepo());
+export const getReadPublicBookingManageSlotsInteractor = () =>
+  new ReadPublicBookingManageSlotsInteractor(publicBookingReadAccess, getBookingAvailability());
+export const getCancelPublicBookingInteractor = () =>
+  new CancelPublicBookingInteractor(
+    publicBookingChangeAccess,
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getBookingAnnouncer(),
+    getBookingMailer(),
+  );
+export const getReschedulePublicBookingInteractor = () =>
+  new ReschedulePublicBookingInteractor(
+    publicBookingChangeAccess,
+    getBookingAvailability(),
+    getBookingRepo(),
+    getCalendarWriteAccessRepo(),
+    getCalendarEventWriter(),
+    getMeetingRecordService(),
+    getBookingAnnouncer(),
+    getBookingMailer(),
+  );
 export const getProcessAccountAddWebhookInteractor = () =>
   new ProcessAccountAddWebhookInteractor(
     getMessagingService(),
@@ -2149,6 +2446,11 @@ export const getCreateApiKeyInteractor = () => new CreateApiKeyInteractor(getAut
 export const getGetApiKeysInteractor = () => new GetApiKeysInteractor(getAuthService());
 
 export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAuthService());
+
+export const getGetConnectedAppsInteractor = () =>
+  new GetConnectedAppsInteractor(new PrismaConnectedAppRepo(), getAuthService());
+
+export const getDisconnectConnectedAppInteractor = () => new DisconnectConnectedAppInteractor(getAuthService());
 export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnectionInteractor();
 
 // --- EE Subscription ---
@@ -2171,6 +2473,7 @@ export const getProcessLemonSqueezyWebhookInteractor = () =>
     getDeleteAccountsForPlanInteractor(),
     getEmailService(),
     getFreePlanPauseService(),
+    getOnboardingFunnelRepo(),
   );
 
 export const getGetSubscriptionInteractor = () =>
@@ -2243,6 +2546,9 @@ export const getDraftCalculationInteractor = () =>
 export const getReconcileRetrievalReservationsInteractor = () =>
   new ReconcileRetrievalReservationsInteractor(getAgentUsageService());
 
+export const getAgentTemplateRules = () =>
+  new AgentTemplateRules(getWorkspaceSetupRepo(), getRecordRepo(), getGetAutomationRulesInteractor(), getCompanyRepo());
+
 export const getSendAgentMessageInteractor = () =>
   new SendAgentMessageInteractor(
     getAgentChatRepo(),
@@ -2254,6 +2560,7 @@ export const getSendAgentMessageInteractor = () =>
     getUserService(),
     getWikiWebsiteCrawlRepo(),
     getAgentChatFileService(),
+    getAgentTemplateRules(),
   );
 
 export const getGetRoutinesInteractor = () =>
@@ -2293,7 +2600,12 @@ export const getSweepDueRoutinesInteractor = () =>
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
 
 export const getReleaseOwnerRoutinesInteractor = () =>
-  new ReleaseOwnerRoutinesInteractor(getRoutineRepo(), getReconcileRoutineRunsInteractor());
+  new ReleaseOwnerRoutinesInteractor(
+    getRoutineRepo(),
+    getReconcileRoutineRunsInteractor(),
+    getAutomationRuleRepo(),
+    getAgentRunnerRevocation(),
+  );
 
 export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 
@@ -2505,8 +2817,9 @@ export const getManageDataViewsInteractor = () =>
       [SURFACE.roles]: getRoleRepo(),
       [SURFACE.webhooks]: getWebhookRepo(),
       [SURFACE.webhookDeliveries]: getWebhookDeliveryRepo(),
+      [SURFACE.incomingWebhooks]: getIncomingWebhookRepo(),
       [SURFACE.messagingThreads]: getMessagingRepo(),
-      [SURFACE.routines]: getRoutineRepo(),
+      [SURFACE.routines]: getAutomationsListComposer(),
     },
     getDataViewStateRepo(),
     getUpsertDataViewInteractor(),
@@ -2705,6 +3018,243 @@ export const getReadCalendarSubscriptionInteractor = () =>
     getExportPlannerInteractor(),
   );
 
+import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
+import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
+import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
+import { RecordRecipientAccess } from "@/features/automation-rules/automation-recipient-access";
+import { ReadableDateCandidates } from "@/features/automation-rules/automation-date-candidates";
+import { GetAgentRuntimeAvailabilityInteractor } from "@/features/automation-rules/get-agent-runtime-availability.interactor";
+import { PrismaAgentJobRepo } from "@/features/agent-jobs/prisma-agent-job.repository";
+import { EnqueueAgentJobInteractor } from "@/features/agent-jobs/enqueue-agent-job.interactor";
+import { AutomationRunTriggerSource } from "@/features/agent-jobs/agent-job-trigger-source";
+import { GetAgentJobsInteractor } from "@/features/agent-jobs/get-agent-jobs.interactor";
+import { GetAgentJobInteractor } from "@/features/agent-jobs/get-agent-job.interactor";
+import { DiscardAgentJobInteractor } from "@/features/agent-jobs/discard-agent-job.interactor";
+import { SweepAgentJobTimeoutsInteractor } from "@/features/agent-jobs/sweep-agent-job-timeouts.interactor";
+import { PruneAgentJobsInteractor } from "@/features/agent-jobs/prune-agent-jobs.interactor";
+import { PrismaAgentProviderKeyRepo } from "@/ee/agent-keys/prisma-agent-provider-key.repository";
+import { AgentOwnKeyPlan } from "@/ee/agent-keys/agent-own-key-plan";
+import { FetchAgentProviderKeyValidator } from "@/ee/agent-keys/fetch-agent-provider-key-validator";
+import { GetAgentProviderKeysInteractor } from "@/ee/agent-keys/get-agent-provider-keys.interactor";
+import { SaveAgentProviderKeyInteractor } from "@/ee/agent-keys/save-agent-provider-key.interactor";
+import { DeleteAgentProviderKeyInteractor } from "@/ee/agent-keys/delete-agent-provider-key.interactor";
+import { TestAgentProviderKeyInteractor } from "@/ee/agent-keys/test-agent-provider-key.interactor";
+import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
+import { AgentRuntimeAvailabilityAdapter } from "@/ee/agent-runtime/agent-runtime-availability-source";
+import { createOwnKeyModel } from "@/ee/agent-runtime/create-own-key-model";
+import { createAgentJobToolkit } from "@/ee/agent-runtime/agent-job-toolset";
+import { MateAgentJobCredits } from "@/ee/agent-runtime/mate-agent-job-credits";
+import { RunAgentJobInteractor } from "@/ee/agent-runtime/run-agent-job.interactor";
+import { AutomationPlanLimitsAdapter } from "@/features/automation-rules/automation-plan-limits";
+import { AutomationRuleAdmission } from "@/features/automation-rules/automation-rule-admission";
+import { DeleteAutomationRuleInteractor } from "@/features/automation-rules/delete-automation-rule.interactor";
+import { DiscardAutomationRuleRunInteractor } from "@/features/automation-rules/discard-automation-rule-run.interactor";
+import { GetAutomationRuleRunsInteractor } from "@/features/automation-rules/get-automation-rule-runs.interactor";
+import { GetAutomationRuleInteractor } from "@/features/automation-rules/get-automation-rule.interactor";
+import { GetAutomationRulesInteractor } from "@/features/automation-rules/get-automation-rules.interactor";
+import { AutomationsListComposer } from "@/features/automation-rules/automations-list.composer";
+import { ComposeAutomationInteractor } from "@/ee/automation-compose/compose-automation.interactor";
+import { HostedComposeModelCaller } from "@/ee/automation-compose/hosted-compose-model-caller";
+import { GetAutomationsListInteractor } from "@/features/automation-rules/get-automations-list.interactor";
+import { PreviewAutomationRuleInteractor } from "@/features/automation-rules/preview-automation-rule.interactor";
+import { RecordAutomationPort } from "@/features/automation-rules/record-automation.port";
+import { RunAutomationRuleInteractor } from "@/features/automation-rules/run-automation-rule.interactor";
+import { SetAutomationRuleEnabledInteractor } from "@/features/automation-rules/set-automation-rule-enabled.interactor";
+import { PruneAutomationRuleRunsInteractor } from "@/features/automation-rules/prune-automation-rule-runs.interactor";
+import { SweepAutomationRulesInteractor } from "@/features/automation-rules/sweep-automation-rules.interactor";
+import { UpsertAutomationRuleInteractor } from "@/features/automation-rules/upsert-automation-rule.interactor";
+import { PrismaNotificationRepo } from "@/features/notifications/prisma-notification.repository";
+import { PrismaNotificationPauseRepo } from "@/features/notifications/prisma-notification-pause.repository";
+import { EmailNotificationMailer } from "@/features/notifications/email-notification-mailer";
+import { GetNotificationPreferencesInteractor } from "@/features/notifications/get-notification-preferences.interactor";
+import { GetNotificationsInteractor } from "@/features/notifications/get-notifications.interactor";
+import { MarkNotificationsReadInteractor } from "@/features/notifications/mark-notifications-read.interactor";
+import { NotificationService } from "@/features/notifications/notification.service";
+import { PruneNotificationsInteractor } from "@/features/notifications/prune-notifications.interactor";
+import { SendInstantNotificationFallbackInteractor } from "@/features/notifications/send-instant-notification-fallback.interactor";
+import { SendNotificationDigestInteractor } from "@/features/notifications/send-notification-digest.interactor";
+import { SetNotificationKindOffInteractor } from "@/features/notifications/set-notification-kind-off.interactor";
+import { SetNotificationPauseInteractor } from "@/features/notifications/set-notification-pause.interactor";
+import { SetNotificationPreferencesInteractor } from "@/features/notifications/set-notification-preferences.interactor";
+
+const getNotificationRepo = () => new PrismaNotificationRepo();
+const getNotificationPauseRepo = () => new PrismaNotificationPauseRepo();
+const getNotificationMailer = () =>
+  new EmailNotificationMailer(getEmailService(), env.BETTER_AUTH_SECRET, getNotificationRepo());
+export const getNotificationService = () =>
+  new NotificationService(getNotificationRepo(), getNotificationMailer(), () => new Date(), getNotificationPauseRepo());
+export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
+export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
+const notificationClock = () => new Date();
+export const getGetNotificationPreferencesInteractor = () =>
+  new GetNotificationPreferencesInteractor(
+    getNotificationRepo(),
+    getNotificationPauseRepo(),
+    notificationClock,
+    getEmailService(),
+  );
+export const getSetNotificationPreferencesInteractor = () =>
+  new SetNotificationPreferencesInteractor(
+    getNotificationRepo(),
+    getNotificationPauseRepo(),
+    notificationClock,
+    getEmailService(),
+  );
+export const getSetNotificationPauseInteractor = () =>
+  new SetNotificationPauseInteractor(
+    getNotificationRepo(),
+    getNotificationPauseRepo(),
+    notificationClock,
+    getEmailService(),
+  );
+export const getSetNotificationKindOffInteractor = () =>
+  new SetNotificationKindOffInteractor(
+    getNotificationRepo(),
+    env.BETTER_AUTH_SECRET,
+    () => new Date(),
+    async () => (await getAuthService().getInteractiveSession())?.user.email ?? null,
+  );
+export const getSendNotificationDigestInteractor = () =>
+  new SendNotificationDigestInteractor(
+    getNotificationRepo(),
+    getNotificationMailer(),
+    Date.now,
+    getNotificationPauseRepo(),
+  );
+export const getSendInstantNotificationFallbackInteractor = () =>
+  new SendInstantNotificationFallbackInteractor(
+    getNotificationRepo(),
+    getNotificationMailer(),
+    Date.now,
+    getNotificationPauseRepo(),
+  );
+export const getPruneNotificationsInteractor = () => new PruneNotificationsInteractor(getNotificationRepo());
+
+const getAutomationRuleRepo = (companyId?: string) =>
+  new PrismaAutomationRuleRepo(getRecordEventSubscriptionRepo(companyId), companyId);
+const getRecordAutomationPort = () =>
+  new RecordAutomationPort(getGetRecordModelInteractor(), getGetRecordInteractor(), getMutateRecordInteractor());
+const getAutomationPlanLimits = () =>
+  new AutomationPlanLimitsAdapter(getPlanLimitsService(), (plan) => upgradeOfferValues(plan));
+export const getAgentJobRepo = () => new PrismaAgentJobRepo();
+const getAgentProviderKeyRepo = () => new PrismaAgentProviderKeyRepo();
+const getAgentOwnKeyPlan = () => new AgentOwnKeyPlan(getPlanLimitsService());
+const getAgentRuntimeAvailabilitySource = () =>
+  new AgentRuntimeAvailabilityAdapter(
+    env.APP_MODE,
+    isAgentChatAvailable,
+    getPlanLimitsService(),
+    getAgentOwnKeyPlan(),
+    getAgentProviderKeyRepo(),
+    getAgentRunnerRepo(),
+    () => getTenantUser().id,
+  );
+const getMateAgentJobCredits = () => new MateAgentJobCredits(getAgentUsageService());
+const getEnqueueAgentJobInteractor = () =>
+  new EnqueueAgentJobInteractor(
+    getAgentJobRepo(),
+    getAgentRuntimeAvailabilitySource(),
+    getBackgroundTaskService(),
+    new AutomationRunTriggerSource(getAutomationRuleRepo(), getEventLogRepo(), getThreadRecordsRepo()),
+  );
+const getAutomationEffectRunner = () =>
+  new AutomationEffectRunner(
+    getRecordAutomationPort(),
+    getNotificationService(),
+    getEventService(),
+    getAutomationRuleRepo(),
+    getEnqueueAgentJobInteractor(),
+    new RecordRecipientAccess((companyId) => createPrismaRecordRepo(companyId), getRecordRecipientRepo()),
+  );
+export const getAutomationRuleAdmission = () =>
+  new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService(), getRecordRecipientReader());
+export const getGetAutomationRulesInteractor = () => new GetAutomationRulesInteractor(getAutomationRuleRepo());
+const getAutomationsListComposer = () =>
+  new AutomationsListComposer(
+    getAutomationRuleRepo(),
+    env.APP_MODE === "self-hosted" ? null : getRoutineRepo(),
+    getPermissionService(),
+  );
+export const getComposeAutomationInteractor = () =>
+  new ComposeAutomationInteractor(
+    getRecordAutomationPort(),
+    getEntitlementService(),
+    new HostedComposeModelCaller(getAgentUsageService()),
+  );
+export const getGetAutomationsListInteractor = () =>
+  new GetAutomationsListInteractor(
+    getAutomationsListComposer(),
+    getDataViewStateRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+  );
+export const getGetAutomationRuleInteractor = () => new GetAutomationRuleInteractor(getAutomationRuleRepo());
+export const getGetAutomationRuleRunsInteractor = () =>
+  new GetAutomationRuleRunsInteractor(getAutomationRuleRepo(), getReadableDateCandidates());
+export const getUpsertAutomationRuleInteractor = () =>
+  new UpsertAutomationRuleInteractor(
+    getAutomationRuleRepo(),
+    getRecordAutomationPort(),
+    getAutomationPlanLimits(),
+    getAgentRuntimeAvailabilitySource(),
+    getAgentJobRepo(),
+  );
+export const getSetAutomationRuleEnabledInteractor = () =>
+  new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits(), getAgentJobRepo());
+export const getDeleteAutomationRuleInteractor = () =>
+  new DeleteAutomationRuleInteractor(getAutomationRuleRepo(), getAgentJobRepo());
+const getReadableDateCandidates = () =>
+  new ReadableDateCandidates(
+    (companyId) => createPrismaRecordRepo(companyId),
+    getRecordRecipientRepo(),
+    getAutomationRuleRepo(),
+  );
+export const getPreviewAutomationRuleInteractor = () =>
+  new PreviewAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort(), getReadableDateCandidates());
+export const getRunAutomationRuleInteractor = () =>
+  new RunAutomationRuleInteractor(getAutomationRuleRepo(), getAutomationEffectRunner(), getRecordAutomationPort());
+export const getDiscardAutomationRuleRunInteractor = () =>
+  new DiscardAutomationRuleRunInteractor(getAutomationRuleRepo());
+export const getSweepAutomationRulesInteractor = () =>
+  new SweepAutomationRulesInteractor(
+    getAutomationRuleRepo(),
+    getReadableDateCandidates(),
+    getBackgroundTaskService(),
+    getDiscardAutomationRuleRunInteractor(),
+  );
+export const getPruneAutomationRuleRunsInteractor = () =>
+  new PruneAutomationRuleRunsInteractor(getAutomationRuleRepo());
+export const getGetAgentRuntimeAvailabilityInteractor = () =>
+  new GetAgentRuntimeAvailabilityInteractor(getAgentRuntimeAvailabilitySource());
+export const getGetAgentJobsInteractor = () => new GetAgentJobsInteractor(getAgentJobRepo());
+export const getGetAgentJobInteractor = () => new GetAgentJobInteractor(getAgentJobRepo());
+export const getRunAgentJobInteractor = () =>
+  new RunAgentJobInteractor(
+    getAgentJobRepo(),
+    getAgentProviderKeyRepo(),
+    getAutomationRuleRepo(),
+    getMateAgentJobCredits(),
+    getAgentOwnKeyPlan(),
+    createOwnKeyModel,
+    createAgentJobToolkit,
+    getBackgroundTaskService(),
+  );
+export const getDiscardAgentJobInteractor = () => new DiscardAgentJobInteractor(getAgentJobRepo());
+export const getSweepAgentJobTimeoutsInteractor = () =>
+  new SweepAgentJobTimeoutsInteractor(getAgentJobRepo(), getBackgroundTaskService(), getMateAgentJobCredits());
+export const getPruneAgentJobsInteractor = () => new PruneAgentJobsInteractor(getAgentJobRepo());
+export const getGetAgentProviderKeysInteractor = () => new GetAgentProviderKeysInteractor(getAgentProviderKeyRepo());
+export const getSaveAgentProviderKeyInteractor = () =>
+  new SaveAgentProviderKeyInteractor(
+    getAgentProviderKeyRepo(),
+    new FetchAgentProviderKeyValidator(),
+    getAgentOwnKeyPlan(),
+  );
+export const getDeleteAgentProviderKeyInteractor = () =>
+  new DeleteAgentProviderKeyInteractor(getAgentProviderKeyRepo());
+export const getTestAgentProviderKeyInteractor = () =>
+  new TestAgentProviderKeyInteractor(getAgentProviderKeyRepo(), new FetchAgentProviderKeyValidator());
+
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
 import { ReadPublicLinkInteractor } from "@/features/public-link/read-public-link.interactor";
@@ -2713,7 +3263,7 @@ import { ReadPublicListRecordsInteractor } from "@/features/public-link/read-pub
 import { ReadPublicWidgetRecordsInteractor } from "@/features/public-link/read-public-widget-records.interactor";
 import { PublicLinkAccess } from "@/features/public-link/public-link-access";
 import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
-import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
+import { PublicTenant } from "@/core/network/public-tenant";
 import { GetPublicLinkSettingsInteractor } from "@/features/public-link/get-public-link-settings.interactor";
 import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-public-links-allowed.interactor";
 
@@ -2727,7 +3277,7 @@ export const getManagePublicLinkInteractor = () =>
 
 const publicLinkAccess = new PublicLinkAccess(
   getPublicLinkRepo(),
-  new PublicLinkTenant(getUserService()),
+  publicTenant,
   { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
   new TokenBucketRateLimiter(120, 60_000),
   new TokenBucketRateLimiter(60, 60_000),
@@ -2755,3 +3305,228 @@ export const getReadPublicListRecordsInteractor = () =>
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
 export const getSetPublicLinksAllowedInteractor = () =>
   new SetPublicLinksAllowedInteractor(getCompanyRepo(), getEventService());
+
+import { PrismaWorkspaceBrandRepo } from "@/features/workspace-brand/prisma-workspace-brand.repository";
+import { GetWorkspaceBrandInteractor } from "@/features/workspace-brand/get-workspace-brand.interactor";
+import { ReadWorkspaceBrandLogoInteractor } from "@/features/workspace-brand/read-workspace-brand-logo.interactor";
+import { SaveWorkspaceBrandInteractor } from "@/features/workspace-brand/save-workspace-brand.interactor";
+
+const getWorkspaceBrandRepo = () => new PrismaWorkspaceBrandRepo();
+
+export const getGetWorkspaceBrandInteractor = () => new GetWorkspaceBrandInteractor(getWorkspaceBrandRepo());
+export const getSaveWorkspaceBrandInteractor = () => new SaveWorkspaceBrandInteractor(getWorkspaceBrandRepo());
+export const getReadWorkspaceBrandLogoInteractor = () => new ReadWorkspaceBrandLogoInteractor(getWorkspaceBrandRepo());
+
+import { PrismaPublicFormRepo } from "@/features/public-form/prisma-public-form.repository";
+import { PublicFormAccess } from "@/features/public-form/public-form-access";
+import { PUBLIC_FORM_LIMITS } from "@/features/public-form/public-form.schema";
+import { PlanPublicFormQuota } from "@/features/public-form/public-form-quota";
+import { PrunePublicFormSubmissionsInteractor } from "@/features/public-form/prune-public-form-submissions.interactor";
+import { DisablePublicFormInteractor } from "@/features/public-form/disable-public-form.interactor";
+import { GetPublicFormEditorInteractor } from "@/features/public-form/get-public-form-editor.interactor";
+import { GetPublicFormInteractor } from "@/features/public-form/get-public-form.interactor";
+import { ListPublicFormsInteractor } from "@/features/public-form/list-public-forms.interactor";
+import { ReadPublicFormInteractor } from "@/features/public-form/read-public-form.interactor";
+import { SubmitPublicFormInteractor } from "@/features/public-form/submit-public-form.interactor";
+import { UpsertPublicFormInteractor } from "@/features/public-form/upsert-public-form.interactor";
+
+const getPublicFormRepo = () => new PrismaPublicFormRepo();
+const getPublicFormQuota = () => new PlanPublicFormQuota(getPlanLimitsService());
+const getPublicFormSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BETTER_AUTH_SECRET });
+
+const publicFormAccess = new PublicFormAccess(
+  getPublicFormRepo(),
+  publicTenant,
+  {
+    view: new TokenBucketRateLimiter(PUBLIC_FORM_LIMITS.viewBucket.capacity, PUBLIC_FORM_LIMITS.viewBucket.windowMs),
+    visitorSubmit: new TokenBucketRateLimiter(
+      PUBLIC_FORM_LIMITS.ipBucket.capacity,
+      PUBLIC_FORM_LIMITS.ipBucket.windowMs,
+    ),
+    formSubmit: new TokenBucketRateLimiter(
+      PUBLIC_FORM_LIMITS.formBucket.capacity,
+      PUBLIC_FORM_LIMITS.formBucket.windowMs,
+    ),
+  },
+  { authSecret: env.BETTER_AUTH_SECRET },
+);
+
+export const getReadPublicFormInteractor = () =>
+  new ReadPublicFormInteractor(publicFormAccess, getRecordRepo(), getRecordAccessPolicy(), getPublicFormQuota());
+
+export const getSubmitPublicFormInteractor = () =>
+  new SubmitPublicFormInteractor(
+    publicFormAccess,
+    getPublicFormRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getMutateRecordInteractor(),
+    getEventService(),
+    getPublicFormQuota(),
+  );
+
+export const getPrunePublicFormSubmissionsInteractor = () =>
+  new PrunePublicFormSubmissionsInteractor(getPublicFormRepo());
+
+export const getListPublicFormsInteractor = () =>
+  new ListPublicFormsInteractor(
+    getPublicFormRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+export const getGetPublicFormInteractor = () =>
+  new GetPublicFormInteractor(
+    getPublicFormRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+export const getUpsertPublicFormInteractor = () =>
+  new UpsertPublicFormInteractor(
+    getPublicFormRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+export const getDisablePublicFormInteractor = () =>
+  new DisablePublicFormInteractor(
+    getPublicFormRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+export const getGetPublicFormEditorInteractor = () =>
+  new GetPublicFormEditorInteractor(
+    getPublicFormRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+import { PrismaIncomingWebhookRepo } from "@/features/incoming-webhook/prisma-incoming-webhook.repository";
+import { INCOMING_WEBHOOK_LIMITS } from "@/features/incoming-webhook/incoming-webhook.schema";
+import { GetIncomingWebhooksInteractor } from "@/features/incoming-webhook/get-incoming-webhooks.interactor";
+import { IncomingWebhookEngine } from "@/features/incoming-webhook/incoming-webhook-engine";
+import { ManageIncomingWebhookInteractor } from "@/features/incoming-webhook/manage-incoming-webhook.interactor";
+import { PruneIncomingWebhookDeliveriesInteractor } from "@/features/incoming-webhook/prune-incoming-webhook-deliveries.interactor";
+import { ReceiveIncomingWebhookInteractor } from "@/features/incoming-webhook/receive-incoming-webhook.interactor";
+
+const getIncomingWebhookSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BETTER_AUTH_SECRET });
+const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo(getIncomingWebhookSettings());
+const getIncomingWebhookEngine = () =>
+  new IncomingWebhookEngine(getRecordRepo(), getQueryRecordsInteractor(), getMutateRecordInteractor());
+
+export const getHandOverPublicEndpointsService = () =>
+  new HandOverPublicEndpointsService(getPublicFormRepo(), getIncomingWebhookRepo());
+
+const incomingWebhookLimiters = {
+  webhook: new TokenBucketRateLimiter(
+    INCOMING_WEBHOOK_LIMITS.webhookBucket.capacity,
+    INCOMING_WEBHOOK_LIMITS.webhookBucket.windowMs,
+  ),
+  visitor: new TokenBucketRateLimiter(
+    INCOMING_WEBHOOK_LIMITS.visitorBucket.capacity,
+    INCOMING_WEBHOOK_LIMITS.visitorBucket.windowMs,
+  ),
+};
+
+export const getPruneIncomingWebhookDeliveriesInteractor = () =>
+  new PruneIncomingWebhookDeliveriesInteractor(getIncomingWebhookRepo());
+
+export const getGetIncomingWebhooksInteractor = () =>
+  new GetIncomingWebhooksInteractor(
+    getIncomingWebhookRepo(),
+    getDataViewStateRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+  );
+
+export const getManageIncomingWebhookInteractor = () =>
+  new ManageIncomingWebhookInteractor(
+    getIncomingWebhookRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getIncomingWebhookEngine(),
+    getPlanLimitsService(),
+    getIncomingWebhookSettings(),
+  );
+
+export const getReceiveIncomingWebhookInteractor = () =>
+  new ReceiveIncomingWebhookInteractor(
+    getIncomingWebhookRepo(),
+    getIncomingWebhookRepo(),
+    publicTenant,
+    getIncomingWebhookEngine(),
+    getEventService(),
+    getPlanLimitsService(),
+    incomingWebhookLimiters,
+    { authSecret: env.BETTER_AUTH_SECRET },
+  );
+
+import { AdmitAgentJobCredentialInteractor } from "@/features/agent-runners/admit-agent-job-credential.interactor";
+import { AgentRunnerAdmission } from "@/features/agent-runners/agent-runner-admission";
+import { AgentRunnerAuthenticator } from "@/features/agent-runners/agent-runner-authenticator";
+import { AgentRunnerRevocation } from "@/features/agent-runners/agent-runner-revocation";
+import { StartAgentJobInteractor } from "@/features/agent-runners/start-agent-job.interactor";
+import { AGENT_RUNNER_LIMITS } from "@/features/agent-runners/agent-runner.schema";
+import { AppendAgentJobEventsInteractor } from "@/features/agent-runners/append-agent-job-events.interactor";
+import { AuthAgentJobCredentials } from "@/features/agent-runners/auth-agent-job-credentials";
+import { ClaimAgentJobInteractor } from "@/features/agent-runners/claim-agent-job.interactor";
+import { CreateAgentRunnerInteractor } from "@/features/agent-runners/create-agent-runner.interactor";
+import { FinishAgentJobInteractor } from "@/features/agent-runners/finish-agent-job.interactor";
+import { GetAgentRunnersInteractor } from "@/features/agent-runners/get-agent-runners.interactor";
+import { HeartbeatAgentRunnerInteractor } from "@/features/agent-runners/heartbeat-agent-runner.interactor";
+import { QueuedAgentJobRunnerRepo } from "@/features/agent-runners/queued-agent-job-runner.repository";
+import { NotifyRunnerOfflineInteractor } from "@/features/agent-runners/notify-runner-offline.interactor";
+import { PrismaAgentRunnerRepo } from "@/features/agent-runners/prisma-agent-runner.repository";
+import { RevokeAgentRunnerInteractor } from "@/features/agent-runners/revoke-agent-runner.interactor";
+import { getTranslator } from "@/i18n/get-translator";
+
+const getAgentRunnerRepo = () => new PrismaAgentRunnerRepo();
+const getAgentJobRunnerRepo = () => new QueuedAgentJobRunnerRepo(getAgentJobRepo(), getAgentRunnerRepo());
+const getAgentJobCredentials = () =>
+  new AuthAgentJobCredentials(getAuthService(), getUserService(), getWorkspacePlanService(), env.BASE_URL);
+export const getAgentRunnerRevocation = () =>
+  new AgentRunnerRevocation(getAgentRunnerRepo(), getAgentJobRepo(), getAgentJobCredentials());
+
+const agentRunnerLimiters = {
+  runner: new TokenBucketRateLimiter(
+    AGENT_RUNNER_LIMITS.requestBucket.capacity,
+    AGENT_RUNNER_LIMITS.requestBucket.windowMs,
+  ),
+  visitor: new TokenBucketRateLimiter(
+    AGENT_RUNNER_LIMITS.requestBucket.capacity * 4,
+    AGENT_RUNNER_LIMITS.requestBucket.windowMs,
+  ),
+};
+
+const getAgentRunnerAuthenticator = () =>
+  new AgentRunnerAuthenticator(getAgentRunnerRepo(), agentRunnerLimiters, getAgentRunnerRevocation());
+
+export const getGetAgentRunnersInteractor = () => new GetAgentRunnersInteractor(getAgentRunnerRepo(), getUserRepo());
+export const getCreateAgentRunnerInteractor = () =>
+  new CreateAgentRunnerInteractor(getAgentRunnerRepo(), getWorkspacePlanService(), { baseUrl: env.BASE_URL });
+export const getRevokeAgentRunnerInteractor = () =>
+  new RevokeAgentRunnerInteractor(getAgentRunnerRepo(), getAgentRunnerRevocation());
+export const getAgentRunnerAdmission = () => new AgentRunnerAdmission(getAgentRunnerAuthenticator());
+export const getStartAgentJobInteractor = () => new StartAgentJobInteractor(getAgentJobRunnerRepo());
+export const getAdmitAgentJobCredentialInteractor = () =>
+  new AdmitAgentJobCredentialInteractor(getAgentJobRunnerRepo());
+export const getHeartbeatAgentRunnerInteractor = () => new HeartbeatAgentRunnerInteractor(getAgentRunnerRepo());
+export const getClaimAgentJobInteractor = () =>
+  new ClaimAgentJobInteractor(getAgentRunnerRepo(), getAgentJobRunnerRepo(), getAgentJobCredentials());
+export const getAppendAgentJobEventsInteractor = () => new AppendAgentJobEventsInteractor(getAgentJobRunnerRepo());
+export const getFinishAgentJobInteractor = () =>
+  new FinishAgentJobInteractor(getAgentJobRunnerRepo(), getAgentJobCredentials());
+export const getNotifyRunnerOfflineInteractor = () =>
+  new NotifyRunnerOfflineInteractor(getAgentRunnerRepo(), getNotificationService(), async (locale) => {
+    const t = await getTranslator(locale, "Runners.offline");
+    return { title: t("title"), body: t("body") };
+  });

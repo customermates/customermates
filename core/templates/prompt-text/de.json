@@ -1,0 +1,86 @@
+{
+  "anchorFields": {
+    "channels": "Kontaktdaten",
+    "price": "Preis",
+    "value": "Wert"
+  },
+  "availability": {
+    "routine": "eine Assistenten-Routine nach Zeitplan",
+    "rule": "eine Automatisierungsregel",
+    "unavailable": "noch nicht verfügbar, nicht einrichten"
+  },
+  "defaultView": {
+    "marker": "Standardansicht",
+    "rule": "Eine als Standardansicht markierte Ansicht ist die eingebaute Ansicht der Liste, die alle Datensätze zeigt: Richte sie dort ein, statt eine zweite Ansicht anzulegen, und wähle sie am Ende aus, damit die Liste damit öffnet."
+  },
+  "due": {
+    "afterDays": {
+      "one": "fällig nach {days} Tag",
+      "other": "fällig nach {days} Tagen"
+    },
+    "sameDay": "am selben Tag fällig"
+  },
+  "fieldTypes": {
+    "address": "Adresse",
+    "boolean": "Ja oder Nein",
+    "channels": "Kontaktkanäle: E-Mail, Telefon und soziale Profile",
+    "currency": "Betrag",
+    "date": "Datum",
+    "dateRange": "Datumsbereich",
+    "dateTime": "Datum und Uhrzeit",
+    "file": "Datei",
+    "member": "Teammitglied",
+    "number": "Zahl",
+    "richText": "formatierter Text",
+    "select": "Auswahl",
+    "text": "Text",
+    "url": "Link"
+  },
+  "groupedBy": "gruppiert nach {field}",
+  "headings": {
+    "beforeYouWrite": "Bevor du etwas schreibst",
+    "dashboardWidgets": "Dashboard-Widgets",
+    "followUpRoutines": "Folgeroutinen",
+    "getWorkspace": "Workspace anlegen",
+    "knowledgePages": "Seiten der Wissensdatenbank (nur Gliederungen, mit meinen eigenen Fakten zu füllen)",
+    "listsAndFields": "Listen und Felder",
+    "questions": "Fragen an mich",
+    "relationships": "Beziehungen",
+    "rules": "Regeln",
+    "thisWorkspace": "Dieser Workspace",
+    "views": "Ansichten",
+    "yourWorkspace": "Dein Workspace"
+  },
+  "layouts": {
+    "board": "Board",
+    "table": "Tabelle"
+  },
+  "nameOnly": "nur der Name",
+  "procedure": {
+    "askQuestions": "Stelle zuerst die Fragen am Ende. Lass alles Unbekannte leer, statt zu raten.",
+    "describePlan": "Beschreibe den Plan unten in einfachen Worten, angepasst an meine Antworten, und warte auf meine Freigabe, bevor du etwas änderst.",
+    "readContext": "Rufe get_workspace_context auf und lies den Betriebsleitfaden sowie die vorhandenen Listen, Felder, Ansichten und Seiten der Wissensdatenbank.",
+    "reuse": "Nutze, was schon da ist. Lege nie eine zweite Liste für etwas an, das der Workspace bereits erfasst."
+  },
+  "relationship": "{source} sind mit {target} verknüpft (angezeigt als {sourceLabel} bei {source} und {targetLabel} bei {target})",
+  "roadRules": {
+    "neverInvent": "Erfinde nie Preise, Beträge, Daten oder Namen. Lass sie leer, bis ich es dir sage.",
+    "noSamples": "Lege keine Beispiel-, Demo- oder Platzhalterdatensätze an.",
+    "readBack": "Lies nach dem Aufbau das Ergebnis zurück und sag mir, was es gibt und was du ausgelassen hast.",
+    "sendNothing": "Sende nichts: keine E-Mails, Nachrichten, Einladungen oder Beiträge. Nur Entwürfe, und nur wenn ich darum bitte.",
+    "sensitiveData": "Halte sensible personenbezogene Daten aus dem Workspace heraus, es sei denn, ich verlange es."
+  },
+  "routineAllowance": {
+    "limited": "Das Kontingent deines Tarifs für Assistenten-Routinen beträgt {count} pro Nutzer, weitere werden abgelehnt. Lege nur die ersten {count} der nummerierten Routinen unten an, in dieser Reihenfolge, denn die nützlichsten stehen vorn. Führe die übrigen als optional auf, ohne sie anzulegen, und lösche nichts, um Platz zu schaffen.",
+    "none": "Dein Tarif enthält keine Assistenten-Routinen. Lege keine der Routinen unten an und führe alle als optional auf.",
+    "optional": "optional"
+  },
+  "routinesIntro": "Schlage diese als Gesamtpaket vor. Richte nur die als verfügbar markierten ein und sag mir Bescheid über den Rest.",
+  "workspace": {
+    "cloud": "Lege unter {url} einen Customermates-Workspace an und verbinde deinen Assistenten damit. Die Vorlage ist dort vorausgewählt.",
+    "connected": "Du bist bereits mit dem Customermates-Workspace verbunden, der diese Vorlage aufnehmen soll. Arbeite darin und lege keinen weiteren an.",
+    "connectedAt": "Dieser Workspace existiert bereits, und du bist über MCP unter {mcpUrl} mit ihm verbunden. Arbeite in diesem Workspace und in keinem anderen.",
+    "existsAt": "Dieser Workspace existiert bereits, aber dein Assistent ist noch nicht mit ihm verbunden. Verbinde ihn über MCP unter {mcpUrl}, mit einem API-Schlüssel aus Einstellungen, API-Schlüssel & Konnektoren. Solange die Verbindung fehlt, bitte mich, sie abzuschließen, bevor du etwas änderst. Arbeite danach in diesem Workspace und in keinem anderen.",
+    "selfHosted": "Nutze deine eigene Customermates-Instanz. Verbinde deinen Assistenten mit ihrem MCP-Endpunkt unter <Adresse deiner Instanz>/api/v1/mcp, mit einem API-Schlüssel aus Einstellungen, API-Schlüssel & Konnektoren. Nichts hier hängt von der gehosteten Cloud ab."
+  }
+}

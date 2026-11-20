@@ -32,9 +32,24 @@ else
     echo "migrating over the DATABASE_URL endpoint. If that is a transaction pooler," >&2
     echo "the advisory lock this takes can time out (P1002)." >&2
   fi
-  npx --no-install prisma migrate deploy
   if [[ "${VERCEL_ENV:-}" == "preview" ]]; then
+    # A branch that amends its own unreleased migration leaves the preview database with a migration recorded as
+    # failed, and every later preview build then stops at P3009. The preview database holds seed data only, so in
+    # exactly that case it is rebuilt from scratch, over the direct endpoint for the reason given above. Any other
+    # migration error fails the build. Production never takes this path, and neither does a custom environment,
+    # which also reports VERCEL_ENV=preview but may hold real data: only the standard preview target is rebuilt.
+    migrate_log="$(mktemp)"
+    if ! npx --no-install prisma migrate deploy 2>&1 | tee "$migrate_log"; then
+      if grep -q "P3009" "$migrate_log" && [[ "${VERCEL_TARGET_ENV:-}" == "preview" && -n "${DIRECT_URL:-}" ]]; then
+        echo "Preview database has a failed migration on record (P3009); rebuilding it from the migrations."
+        npx --no-install prisma migrate reset --force
+      else
+        exit 1
+      fi
+    fi
     npx --no-install tsx prisma/seed.ts
+  else
+    npx --no-install prisma migrate deploy
   fi
 fi
 # fumadocs' lastModified() plugin derives content dates from Git history. Blog posts use
@@ -64,5 +79,7 @@ fi
 # live), so the Vercel heap is 6 GiB again; that still leaves about 2 GB of the 8 GB machine for the OS and workers.
 # 2026-11-11, eight content locales: 6 GiB plus two static workers was killed at 8 GB; with one static worker and no
 # webpack cache (next.config.ts) a 4.5 GiB heap builds with a 6.5 GB peak, while 4 GiB is too small for the compile.
-export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-4608}"
+# 2026-11-18, templates, automations and connections: the compile ran out of a 4.5 GiB heap on Vercel and on ws-test with
+# the same settings; a 5 GiB heap builds with a 6.4 GB peak of the largest process (5.5 GiB: 6.5 GB), inside the 8 GB machine.
+export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-5120}"
 yarn build

@@ -3,6 +3,8 @@ import { relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { AUTOMATION_DISABLED_REASON_OWNER_INACTIVE } from "@/features/automation-rules/automation-disabled-reason";
+
 import { REPO_ROOT, walkFiles } from "./walk";
 
 // A routine may only run as an active owner. That invariant used to be a plpgsql BEFORE trigger on
@@ -58,5 +60,16 @@ describe("routine owner release", () => {
     const interactor = readFileSync(`${REPO_ROOT}/ee/routines/prisma-routine.repository.ts`, "utf8");
 
     expect(interactor).toContain("disabledReason: ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE");
+  });
+
+  it("switches off the owner's automation rules in the same release, with the reason the rule list renders", () => {
+    const release = readFileSync(`${REPO_ROOT}/ee/routines/release-owner-routines.interactor.ts`, "utf8");
+    const english = JSON.parse(readFileSync(`${REPO_ROOT}/i18n/locales/en.json`, "utf8")) as {
+      AutomationRules: { disabledReason: Record<string, string> };
+    };
+
+    expect(release).toContain("this.rules.disableOwnerRulesUnscoped(");
+    expect(release).toContain("AUTOMATION_DISABLED_REASON_OWNER_INACTIVE");
+    expect(Object.keys(english.AutomationRules.disabledReason)).toContain(AUTOMATION_DISABLED_REASON_OWNER_INACTIVE);
   });
 });

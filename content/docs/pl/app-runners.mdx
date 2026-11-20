@@ -1,0 +1,115 @@
+---
+title: "Runnery: agenci z Twoim własnym Claude Code lub Codex"
+description: "Runner uruchamia Twoje kroki agenta z Twoim własnym Claude Code, Codex lub Gemini CLI na Twojej maszynie: start, zasięg, limity czasu i unieważnienie."
+---
+
+Runner sprawia, że Twoje kroki agenta działają z Twoim własnym Claude Code, Codex lub Gemini CLI na Twojej własnej maszynie. To mały program, `customermates-runner`, który pyta Twoją przestrzeń roboczą o Twoje zadania agenta, uruchamia CLI, w którym masz aktywne logowanie, odsyła to, co robi CLI, jako transkrypcję i zgłasza wynik. Twoje logowanie do CLI zostaje na Twojej maszynie: Customermates nigdy go nie otrzymuje. Runnery działają w Customermates Cloud i na instancjach self-hosted.
+
+Runnerami zarządzasz w **Ustawieniach**, **Agenci**, na karcie **Runnery**. Dodanie i unieważnienie runnera wymaga tego samego dostępu roli co [klucze API](/docs/api-keys).
+
+## Co robi runner? [#what-does-a-runner-do]
+
+Co 60 sekund podaje przestrzeni roboczej nazwę swojej maszyny i listę CLI, które może uruchomić, wraz z wersjami. W przerwach trzyma otwarte żądanie przez maksymalnie 25 sekund, aby odebrać następne zadanie z kolejki, i od razu pyta ponownie. Runner wykonuje tylko zadania członka, który go dodał: kroki agenta automatyzacji, których ten członek jest właścicielem. Potwierdza każde zadanie przestrzeni roboczej, zanim uruchomi CLI. Dla zadania zapisuje tymczasową konfigurację MCP z adresem Twojej przestrzeni roboczej i kluczem tego zadania, uruchamia CLI z promptem zadania w pustym folderze tymczasowym, odsyła każdy krok pracy CLI jako zdarzenie transkrypcji i usuwa konfigurację, gdy CLI skończy. Potem czeka na kolejne zadanie.
+
+CLI działa jako Ty, czyli członek, który dodał runnera, z Twoimi uprawnieniami w tej przestrzeni roboczej. Używa narzędzi Twojej przestrzeni roboczej przez [MCP](/docs/mcp) za pomocą klucza, który należy tylko do tego jednego zadania. Klucz działa wyłącznie pod adresem MCP Twojej przestrzeni roboczej i tylko wtedy, gdy zadanie trwa. Pozwala na najwyżej 25 wywołań narzędzi i odrzuca wywołania, które w czacie wymagałyby Twojej zgody, takie jak usuwanie rekordów lub zmiana ról. Odrzuca też tworzenie, zmienianie i usuwanie stron bazy wiedzy. Gdy polecenie kroku zawiera tekst spoza przestrzeni roboczej, odrzuca również wysyłanie e-maili i wiadomości czatu, wysyłanie zaproszeń do kontaktów oraz tworzenie, zmienianie i uruchamianie webhooków i rutyn, jak opisano w części [Co może zrobić krok agenta?](/docs/app-agents#what-may-an-agent-step-do).
+
+## Czego potrzebuje? [#what-does-it-need]
+
+- Node 24 albo Docker.
+- Claude Code, Codex lub Gemini CLI, zainstalowanego i zalogowanego na tej maszynie. Bez CLI runner nie zgłasza żadnego i nie bierze zadań. Dopóki żaden z Twoich runnerów nie zgłosił CLI, krok agenta, który działa na Twoim własnym runnerze, nie czeka: od razu kończy się błędem „Nie masz jeszcze gotowego runnera. Runnery są osobiste: każdy członek dodaje własny.”
+- Połączenia sieciowego z tej maszyny z adresem Twojego Customermates. Runner wysyła tylko żądania wychodzące: działa za zaporą i nie potrzebuje otwartego portu.
+
+## Jak dodać i uruchomić runnera? [#how-do-i-add-a-runner]
+
+1. Otwórz **Ustawienia**, **Agenci** i kliknij **Dodaj runnera**. Nadaj mu nazwę, po której poznasz maszynę.
+2. Skopiuj token. Jest pokazywany tylko raz i zaczyna się od `cmr_`. Traktuj go jak hasło: każdy, kto go ma, może pobierać Twoje zadania runnera w tej przestrzeni roboczej.
+3. Uruchom runnera na tej maszynie, z Node:
+
+```bash
+CUSTOMERMATES_RUNNER_TOKEN=cmr_... npx customermates-runner --url https://crm.example.com
+```
+
+albo z Dockerem, montując folder logowania Twojego CLI, aby pozostało zalogowane:
+
+```bash
+docker run -d --restart unless-stopped \
+  -e CUSTOMERMATES_URL=https://crm.example.com \
+  -e CUSTOMERMATES_RUNNER_TOKEN=cmr_... \
+  -v "$HOME/.claude:/home/node/.claude" \
+  -v "$HOME/.claude.json:/home/node/.claude.json" \
+  ghcr.io/customermates/runner
+```
+
+Adres to ten, pod którym otwierasz Customermates; na instancji self-hosted jest to Twój własny `BASE_URL`. Może też pochodzić z `CUSTOMERMATES_URL`. Podaj runnerowi token w zmiennej `CUSTOMERMATES_RUNNER_TOKEN` albo w pliku, który może czytać tylko Twoje konto, wskazanym przez `--token-file` lub `CUSTOMERMATES_RUNNER_TOKEN_FILE`. Nie przekazuj go jako argumentu: wiersz poleceń widzi każdy użytkownik maszyny. W systemie macOS Claude Code przechowuje logowanie w Pęku kluczy, więc zamontowany folder nie przenosi logowania do kontenera: przekaż `ANTHROPIC_API_KEY` albo token z `claude setup-token` w `CLAUDE_CODE_OAUTH_TOKEN`. Przydatne opcje:
+
+- `--client claude`, `codex` lub `gemini` wybiera CLI, które wykonuje zadania. Domyślnie jest to pierwsze znalezione.
+- `--workdir <folder>` uruchamia CLI w tym folderze. Domyślnie każde zadanie dostaje pusty folder tymczasowy.
+- `--permission-mode <tryb>`, `--allowed-tools <narzędzia>` i `--setting-sources <lista>` ustalają, co Claude Code może robić bez pytania. Domyślnie dozwolone są tylko narzędzia Twojej przestrzeni roboczej, a Twoje własne ustawienia Claude Code nie są wczytywane.
+- `--allow-shell` pozwala Codexowi uruchamiać polecenia powłoki w jego piaskownicy tylko do odczytu. Domyślnie Codex nie ma powłoki.
+
+Runner zapisuje logi na standardowym wyjściu i nigdy nie wypisuje swojego tokenu.
+
+## Co serwer wysyła, a czego nigdy nie wysyła? [#what-is-sent]
+
+Serwer wysyła prompt zadania, informację, czy osoby z zewnątrz mogą wpływać na ten prompt, adres MCP Twojej przestrzeni roboczej oraz klucz zadania. Gdy runner potwierdzi zadanie, serwer podaje mu, jak długo zadanie może trwać. Nigdy nie wysyła sekretu przestrzeni roboczej, klucza dostawcy ani zadania innego członka. Klucz sięga tylko tej przestrzeni roboczej, tylko jako Ty i tylko wtedy, gdy zadanie trwa: serwer odrzuca go, zanim runner potwierdzi zadanie, oraz od chwili, gdy zadanie zostało zakończone, przeterminowane lub anulowane.
+
+Runner nigdy nie wysyła Twojego logowania do CLI, Twoich plików ani Twojego środowiska. Wysyła nazwę maszyny, CLI, które może uruchomić, zdarzenia transkrypcji (to, co napisał agent, każde wywołanie narzędzia z krótkim skrótem jego argumentów i każdy wynik narzędzia, bez tokenów) i wynik. Transkrypcje są zapisywane razem z zadaniem, więc nie pozwól, aby CLI wypisywało sekrety, które nie powinny być widoczne. Przestrzeń robocza przechowuje ostatnie 200 zdarzeń zadania, więc dłuższe uruchomienie pokazuje swoje najnowsze kroki.
+
+Prompt, na który mogą wpływać osoby z zewnątrz, na przykład taki z wysłanym formularzem, przychodzącym webhookiem lub nazwą rekordu, jest w zadaniu oznaczony. Runner opakowuje go w te same ramy, których używa serwer MCP: tekst to dane, nie instrukcje, a zawarta w nim prośba o zmianę zachowania agenta jest zgłaszana, a nie wykonywana.
+
+## Do czego CLI ma dostęp na mojej maszynie? [#what-can-it-reach]
+
+CLI działa na koncie, które uruchomiło runnera. Przedstawienie tekstu jako danych zmniejsza ryzyko, że model się do niego zastosuje, ale go nie usuwa. To, co mogłoby zrobić wprowadzone w błąd CLI, ogranicza opisany wyżej klucz zadania oraz te ustawienia domyślne:
+
+- Claude Code może wywoływać tylko narzędzia Twojej przestrzeni roboczej, wczytuje tylko serwer MCP zadania i nie wczytuje Twoich własnych ustawień. Jego narzędzia plikowe pozostają w pustym folderze zadania.
+- Codex działa bez Twojej własnej konfiguracji i bez powłoki. Jeśli uruchomisz runnera z `--allow-shell`, polecenia działają w piaskownicy Codexa tylko do odczytu, która blokuje zapis, ale nie odczyt: polecenie może odczytać każdy plik, który może odczytać Twoje konto, a narzędzia Twojej przestrzeni roboczej mogą potem zapisać tę treść w rekordzie. Używaj tego tylko na maszynie, w kontenerze lub na koncie, które nie zawiera niczego innego.
+- Gemini CLI jest uruchamiane z dozwolonym wyłącznie serwerem MCP Twojej przestrzeni roboczej. Jego wbudowane narzędzia podlegają Twoim własnym ustawieniom Gemini.
+- Token runnera i Twoje logowania do CLI znajdują się na Twoim koncie na tej maszynie. CLI, któremu pozwolisz uruchamiać polecenia, może je odczytać. Aby ściśle je rozdzielić, uruchamiaj runnera w Dockerze albo na osobnym koncie użytkownika.
+
+## Co dzieje się z zadaniem? [#what-happens-to-a-job]
+
+Zadanie czeka w kolejce, aż przejmie je runner jego właściciela. Przejęcie, którego runner nie potwierdzi w ciągu minuty, na przykład dlatego, że został w tej chwili zatrzymany, wraca do kolejki w ciągu kilku minut. Zadanie, którego żaden runner nie odbierze w ciągu 15 minut, kończy się jako przeterminowane. Potwierdzone zadanie może trwać niecałe dziesięć minut; potem runner zatrzymuje CLI i wszystko, co ono uruchomiło, a zadanie kończy się jako przeterminowane. Potwierdzone zadanie nigdy nie jest wykonywane po raz drugi: jeśli runner zniknie w trakcie zadania, zadanie kończy się jako przeterminowane kilka minut po upływie jego dziesięciu minut. Jeśli CLI zawiedzie, zadanie kończy się jako nieudane, z podaniem powodu. Gdy runner zostaje unieważniony, jego zadania kończą się jako anulowane. Zadania już zakończonego, przeterminowanego lub anulowanego nie można zmienić późnym zgłoszeniem runnera, a runner zatrzymuje swoje CLI, gdy przestrzeń robocza mu o tym powie.
+
+W jednej przestrzeni roboczej może pracować kilka runnerów. Zadania członka trafiają do runnerów tego członka, a każde zadanie do dokładnie jednego z nich. Krok agenta, który wskazuje runnera, czeka na tego runnera.
+
+## Skąd wiem, że runner jest online? [#is-it-online]
+
+Karta **Runnery** pokazuje dla każdego runnera maszynę, CLI, które może uruchomić, i czas ostatniej aktywności, w jednym z czterech stanów: **Online**, jeśli był widziany w ciągu ostatnich dwóch minut, **Offline**, jeśli wcześniej, **Nigdy nie połączony**, jeśli jeszcze się nie zgłosił, oraz **Unieważniony**. Karta odświeża się sama co 30 sekund.
+
+Gdy Twoje zadania agenta czekają, a od 10 minut nie był widziany żaden Twój runner, który mógłby je podjąć, dostajesz powiadomienie rodzaju **Alerty automatyzacji**, raz za każdym razem, gdy runner zniknął, z linkiem do karty **Runnery**.
+
+## Jak unieważnić runnera? [#how-do-i-revoke-a-runner]
+
+Kliknij **Unieważnij** przy runnerze i potwierdź. Runner nie może już pobierać zadań: jego następne żądanie zostanie odrzucone, a program się zatrzyma. Zadania, które właśnie wykonuje, oraz te, które czekają właśnie na tego runnera, kończą się jako anulowane, a ich klucze od razu przestają działać. Unieważnienia nie można cofnąć. Aby znów użyć maszyny, dodaj nowego runnera i uruchom go z nowym tokenem. Unieważnij runnera od razu, jeśli jego token wycieknie. Runner zostaje unieważniony także wtedy, gdy członek, który go dodał, opuści przestrzeń roboczą lub zostanie dezaktywowany. Członek wstrzymany przez plan Free zachowuje swoje runnery: w czasie wstrzymania żądania runnera są odrzucane, a program się zatrzymuje, a gdy plan płatny przywróci członka, ten sam token znowu działa.
+
+## Dla agentów [#for-agents]
+
+Runnery komunikują się z przestrzenią roboczą przez REST z nagłówkiem `Authorization: Bearer cmr_...`, czyli tokenem pokazanym przy dodawaniu runnera. Token runnera sięga tylko tych pięciu punktów końcowych, opisanych w [dokumentacji API](/docs/openapi):
+
+- `POST /api/v1/runner/heartbeat` zgłasza maszynę i CLI, które runner może uruchomić.
+- `POST /api/v1/runner/jobs/claim` czeka do 25 sekund i odpowiada 200 z zadaniem członka runnera, numerem próby i danymi dostępu MCP albo 204, gdy żadne nie nadeszło.
+- `POST /api/v1/runner/jobs/{id}/start` potwierdza przejętą próbę, rozpoczyna zadanie i odpowiada, ile sekund może ono trwać.
+- `POST /api/v1/runner/jobs/{id}/events` dołącza zdarzenia transkrypcji tej próby i odpowiada 409, gdy zadanie jest zamknięte.
+- `POST /api/v1/runner/jobs/{id}/result` zgłasza `succeeded`, `failed` lub `timedOut` dla tej próby z odpowiedzią końcową oraz, jeśli CLI je podaje, liczbą zużytych tokenów.
+
+Unieważniony token, runner, którego członek opuścił przestrzeń roboczą, został dezaktywowany lub jest wstrzymany przez plan Free, oraz przestrzeń robocza w trakcie usuwania odpowiadają 401.
+
+## Najczęstsze pytania [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Czy Customermates otrzymuje moje logowanie do Claude Code, Codex lub Gemini?">
+Nie. Runner uruchamia CLI zainstalowane i zalogowane przez Ciebie na Twojej maszynie. Przestrzeń robocza wysyła mu tylko prompt i klucz do tego jednego zadania pod adresem MCP Twojej przestrzeni roboczej.
+</FaqItem>
+<FaqItem question="Czy ktoś spoza mojego zespołu może zmusić mojego runnera do czegoś?">
+Tylko przez prompt, który został skonfigurowany przez Ciebie. Jeśli prompt zawiera tekst osób z zewnątrz lub z rekordu, zadanie to oznacza, a runner przedstawia go jako dane, nie instrukcje. Model może mimo to dać się takiemu tekstowi wprowadzić w błąd. To, co mógłby wtedy zrobić, jest ograniczone: klucz zadania działa jako Ty, pozwala na najwyżej 25 wywołań narzędzi, odrzuca to, co wymaga Twojej zgody, i przestaje działać, gdy zadanie się kończy. Domyślnie Claude Code może używać tylko narzędzi Twojej przestrzeni roboczej, a Codex nie ma powłoki: rozszerzaj to tylko na maszynie, której ufasz.
+</FaqItem>
+<FaqItem question="Czy runner kolegi może wykonywać moje zadania?">
+Nie. Runner wykonuje tylko zadania członka, który go dodał, więc maszyna innego członka nigdy nie dostaje klucza, który działa jako Ty. Aby Twoje kroki agenta działały na runnerze, dodaj własnego.
+</FaqItem>
+<FaqItem question="Co, jeśli moja maszyna jest wyłączona?">
+Twoje zadania czekają w kolejce do 15 minut, a potem kończą się jako przeterminowane. Po 10 minutach bez żadnego Twojego runnera dostajesz powiadomienie.
+</FaqItem>
+<FaqItem question="Czy mogę uruchomić runnera na serwerze?">
+Tak. Działa każda maszyna z Node 24 lub Dockerem, zalogowanym CLI i połączeniem z adresem Twojego Customermates, na przykład stale włączona maszyna wirtualna.
+</FaqItem>
+</Faq>

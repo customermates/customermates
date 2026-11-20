@@ -52,6 +52,7 @@
       "disabledReason": "Reden van uitschakeling",
       "effectiveAt": "Geldig vanaf",
       "isNewCompany": "Eerste gebruiker in de werkruimte",
+      "leftAt": "Heeft de werkruimte verlaten",
       "markdown": "Markdown",
       "prompt": "Instructies",
       "publishSummary": "Gepubliceerde samenvatting",
@@ -62,6 +63,7 @@
       "putType": "Type",
       "recipientEmail": "Verzonden naar",
       "removalReason": "Reden van verwijdering",
+      "removedAt": "Verwijderd uit de werkruimte",
       "restore": "Hersteld",
       "timezone": "Tijdzone",
       "triggerEvents": "Triggergebeurtenissen",
@@ -93,6 +95,10 @@
         "routines": {
           "configure": "Klaar om de routine te pauzeren of uit te voeren",
           "delete": "Klaar om de routine en de bijbehorende geschiedenis naar de prullenbak te verplaatsen"
+        },
+        "rules": {
+          "create": "Klaar om de automatiseringsregel aan te maken",
+          "manage": "Klaar om een automatiseringsregel te wijzigen"
         },
         "support": {
           "escalate": "Klaar om je verzoek per e-mail naar de support te sturen"
@@ -132,6 +138,13 @@
         "routineDelete": "De geselecteerde routine en de bijbehorende uitvoeringsgeschiedenis naar de prullenbak verplaatsen, waar je deze 30 dagen kunt herstellen",
         "routinePause": "De geselecteerde routine pauzeren",
         "routineRun": "De geselecteerde routine nu uitvoeren",
+        "ruleDelete": "De geselecteerde regel en de uitvoeringsgeschiedenis definitief verwijderen",
+        "ruleDisable": "De geselecteerde regel uitschakelen",
+        "ruleDraft": "Opgeslagen als concept, niet actief",
+        "ruleEnable": "De geselecteerde regel inschakelen",
+        "ruleLive": "Gaat meteen live",
+        "ruleSummary": "Wanneer {when}, dan {then}",
+        "ruleUpdate": "De geselecteerde regel wijzigen",
         "salesListSave": "De geselecteerde prospect toevoegen aan een Sales Navigator-lijst",
         "salesListSaveTarget": "{target} toevoegen aan Sales Navigator-lijst {list}",
         "socialAccept": "Het geselecteerde verbindingsverzoek accepteren",
@@ -159,9 +172,12 @@
       },
       "contextMore": "{labels} (+{count})",
       "contextual": "{action} · {context}",
-      "countedRecordInResource": "1 record in {resource}",
-      "countedResource": "{count} {resource}",
-      "countedSingular": "1 {resource}",
+      "counted": {
+        "messages": "{count, plural, one {# gesprek} other {# gesprekken}}",
+        "records": "{count, plural, one {# record} other {# records}}",
+        "widgets": "{count, plural, one {# dashboardwidget} other {# dashboardwidgets}}",
+        "wiki": "{count, plural, one {# Kennisbankpagina} other {# Kennisbankpagina’s}}"
+      },
       "defaultRecords": "records",
       "label": {
         "preview": "Voorbeeld",
@@ -173,10 +189,23 @@
         "widgets": "dashboardwidgets",
         "wiki": "Kennisbankpagina’s"
       },
-      "resourceSingular": {
-        "messages": "gesprek",
-        "widgets": "dashboardwidget",
-        "wiki": "Kennisbankpagina"
+      "rule": {
+        "effect": {
+          "callWebhook": "een webhook aanroepen",
+          "createRecord": "het record “{title}” aanmaken",
+          "notify": "de melding “{title}” sturen",
+          "setField": "een veldwaarde instellen"
+        },
+        "trigger": {
+          "bookingChanged": "een boeking wordt geannuleerd of verplaatst",
+          "dateReached": "een datum wordt bereikt",
+          "fieldChanged": "een veld verandert",
+          "formSubmitted": "een formulier wordt verzonden",
+          "messageReceived": "een bericht binnenkomt",
+          "recordCreated": "een record wordt aangemaakt",
+          "recordUpdated": "een record wordt bijgewerkt",
+          "webhookReceived": "een webhook binnenkomt"
+        }
       },
       "state": {
         "accounts": {
@@ -352,6 +381,18 @@
             "done": "De routine bijgewerkt",
             "error": "Kon de routine niet bijwerken",
             "running": "De routine bijwerken"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "De automatiseringsregel aangemaakt",
+            "error": "Kon de automatiseringsregel niet aanmaken",
+            "running": "De automatiseringsregel aanmaken"
+          },
+          "manage": {
+            "done": "De automatiseringsregel gewijzigd",
+            "error": "Kon de automatiseringsregel niet wijzigen",
+            "running": "De automatiseringsregel wijzigen"
           }
         },
         "support": {
@@ -815,8 +856,119 @@
       "workingOnRequest": "Bezig met je verzoek…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+  "AgentJobs": {
+    "credits": "Verbruikte credits: {credits}",
+    "description": "Wat je agents deden, met de tools die ze aanriepen.",
+    "empty": "Er is nog geen agent uitgevoerd.",
+    "errors": {
+      "contextLimit": "De taak had meer context nodig dan in één uitvoering past",
+      "creditLimit": "Gestopt toen de credits van deze uitvoering op waren",
+      "creditsExhausted": "Niet genoeg AI-credits",
+      "hostedAiUnavailable": "De gehoste AI was niet beschikbaar",
+      "keyUnreadable": "De sleutel van de aanbieder kan niet worden gelezen met het geheim van deze server: sla hem opnieuw op",
+      "modelRequired": "Kies een model voor deze stap: de werkruimte heeft meer dan één sleutel van een aanbieder",
+      "modelUnavailable": "Geen sleutel van een aanbieder biedt dit model",
+      "noKey": "Geen sleutel van een aanbieder voor deze uitvoering",
+      "ownerApiAccess": "De rol van de eigenaar van de automatisering staat geen API-toegang toe",
+      "ownerInactive": "De eigenaar van de automatisering is niet meer actief",
+      "planApiAccess": "Het abonnement van de werkruimte bevat geen API-toegang",
+      "planRequired": "Agents op je eigen sleutel draaien zit niet in het huidige pakket",
+      "provider": "De aanbieder gaf een fout terug ({code})",
+      "queueExpired": "Geen runner of agent heeft de uitvoering binnen 15 minuten opgepakt",
+      "ruleInactive": "De automatisering is uitgezet of verwijderd voordat de uitvoering begon",
+      "runnerFailed": "De CLI op de runner is mislukt",
+      "runnerFailedDetail": "De CLI op de runner is mislukt: {detail}",
+      "runnerRevoked": "De runner is ingetrokken",
+      "runnerStopped": "De runner is tijdens de uitvoering gestopt",
+      "timedOut": "De uitvoering duurde te lang",
+      "timeLimit": "Gestopt bij de tijdslimiet",
+      "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
+    },
+    "loadFailed": "De agentuitvoeringen konden niet worden geladen. Probeer het opnieuw.",
+    "rule": "Automatisering: {name}",
+    "status": {
+      "cancelled": "Geannuleerd",
+      "claimed": "Wordt gestart",
+      "failed": "Mislukt",
+      "queued": "In de wachtrij",
+      "running": "Bezig",
+      "succeeded": "Afgerond",
+      "timedOut": "Time-out"
+    },
+    "title": "Recente agentuitvoeringen",
+    "tokens": "{input} in, {output} uit",
+    "transcript": {
+      "assistant": "Agent",
+      "called": "{name} aangeroepen",
+      "empty": "Er zijn geen stappen vastgelegd.",
+      "finish": {
+        "cancelled": "Geannuleerd",
+        "creditLimit": "Gestopt toen de credits op waren",
+        "error": "Mislukt",
+        "stop": "Afgerond",
+        "timeLimit": "Gestopt bij de tijdslimiet",
+        "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
+      },
+      "label": "Transcript van de uitvoering",
+      "modelFallback": "Het standaardmodel {saved} van deze sleutel wordt niet meer aangeboden. Deze uitvoering gebruikte {used}.",
+      "restricted": "Alleen de eigenaar van deze uitvoering en beheerders zien de stappen en het resultaat ervan.",
+      "result": "Resultaat van {name}",
+      "resultFailed": "{name} is niet voltooid",
+      "untrusted": "De opdracht van deze uitvoering bevat tekst van buiten de werkruimte of uit een record, daarom behandelde de agent die tekst als gegevens en niet als opdracht.",
+      "user": "Opdracht"
+    }
+  },
+  "AgentKeys": {
+    "add": "Sleutel toevoegen",
+    "checkedAt": "Laatst gecontroleerd",
+    "endsIn": "Eindigt op {last4}",
+    "fields": {
+      "apiKey": "API-sleutel",
+      "apiKeyDescription": "Plak de sleutel uit de console van je aanbieder. Hij wordt bij de aanbieder gecontroleerd, versleuteld opgeslagen en nooit meer getoond.",
+      "defaultModel": "Standaardmodel",
+      "defaultModelDescription": "Gebruikt wanneer een agentstap geen model noemt.",
+      "label": "Label",
+      "labelPlaceholder": "Productie",
+      "provider": "Aanbieder"
+    },
+    "intro": "Agents voeren de agentstappen van je automatiseringen uit. Ze kunnen draaien op Mate, op je eigen AI-sleutel of op een runner op je eigen machine. Sleutels worden versleuteld opgeslagen en nooit meer getoond.",
+    "keysDescription": "Je eigen API-sleutel van Anthropic, OpenAI of Google. Agentstappen die op je eigen sleutel staan, draaien daarop en de aanbieder rekent direct met je af.",
+    "keysEmpty": "Nog geen sleutel van een aanbieder.",
+    "keysTitle": "Sleutels van aanbieders",
+    "lastUsedAt": "Laatst gebruikt",
+    "modalTitle": "Sleutel van een aanbieder toevoegen",
+    "planRequired": "Agents uitvoeren op je eigen sleutel zit in de betaalde pakketten.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Een sleutel voor een aanbieder die er al een heeft, vervangt die.",
+    "test": "Testen",
+    "testSucceeded": "De aanbieder heeft deze sleutel geaccepteerd.",
+    "unverifiedNote": "De aanbieder liet deze sleutel zijn modellen niet opvragen, dus de sleutel kon niet worden gecontroleerd. Een agentuitvoering laat zien of hij werkt."
+  },
+  "AgentRuntime": {
+    "available": "Beschikbaar",
+    "description": "Agentstappen kunnen op elk van deze opties draaien zodra die in deze werkruimte beschikbaar is.",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Je eigen sleutel",
+      "runner": "Je eigen runner"
+    },
+    "reasons": {
+      "noKey": "Voeg een sleutel van een aanbieder toe",
+      "noRunner": "Geen runner online",
+      "notConfigured": "Niet beschikbaar",
+      "plan": "Niet in je pakket",
+      "selfHosted": "Heeft de cloud nodig"
+    },
+    "summary": {
+      "mate": "De gehoste agent van Customermates, betaald met je AI-credits.",
+      "ownKey": "Een agent in onze cloud die de sleutel van je aanbieder gebruikt. De aanbieder rekent met je af.",
+      "runner": "Claude Code of Codex op je eigen machine, met je eigen login."
+    },
+    "title": "Waar agents draaien"
   },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",
@@ -867,6 +1019,545 @@
     "unableToLinkAccount": "Het socialemedia-account kon niet aan je account worden gekoppeld.",
     "userCreationFailed": "Je account kon niet worden aangemaakt. Probeer het opnieuw.",
     "userInfoIsMissing": "De aanbieder heeft je profiel niet teruggegeven. Probeer het opnieuw."
+  },
+  "AutomationRules": {
+    "active": "{name} aan- of uitzetten",
+    "automate": "Deze lijst automatiseren",
+    "builder": {
+      "after": "na",
+      "anyField": "Elk veld",
+      "assignToOwner": "Aan mij toewijzen",
+      "atHour": "Om uur (0 tot 23)",
+      "before": "voor",
+      "body": "Details (optioneel)",
+      "bookingChange": "Wijziging",
+      "bookingChangeAny": "Elke wijziging",
+      "bookingChangeCancelled": "Geannuleerd",
+      "bookingChangeRescheduled": "Verplaatst",
+      "boolean": {
+        "false": "Nee",
+        "true": "Ja"
+      },
+      "channel": "Kanaal",
+      "channelAny": "Elk kanaal",
+      "channelChat": "Chat",
+      "channelEmail": "E-mail",
+      "choose": "Kies…",
+      "dateField": "Datumveld",
+      "days": "Dagen",
+      "daysFromToday": "Dagen vanaf vandaag",
+      "direction": "Voor of na",
+      "dueDays": "Verloopt over dagen",
+      "dueField": "Veld voor de deadline",
+      "event": "Gebeurtenis",
+      "field": "Veld",
+      "fixConditions": "Vul elke voorwaarde in of verwijder haar.",
+      "fixEffect": "Vul deze actie in.",
+      "fixTrigger": "Vul de trigger in: kies een veld en een geldige waarde.",
+      "incomplete": "Deze automatisering is nog niet compleet.",
+      "keptCondition": "Deze voorwaarde is buiten de editor ingesteld. Ze kan hier niet worden bewerkt en blijft zoals ze is.",
+      "keptEffect": "Deze actie ({kind}) is buiten de editor ingesteld. Ze kan hier niet worden bewerkt en blijft zoals ze is.",
+      "keptTrigger": "Deze trigger is buiten de editor ingesteld. Hij kan hier niet worden bewerkt en blijft zoals hij is.",
+      "keptTriggerReplace": "Een andere trigger kiezen",
+      "linkTo": "Koppelen aan het startende record als",
+      "list": "Lijst",
+      "name": "Naam",
+      "namePlaceholder": "Bijvoorbeeld: herinner me voordat een deal sluit",
+      "noDueDate": "Geen deadline",
+      "noLink": "Niet koppelen",
+      "notificationKind": "Verschijnt in de bel als",
+      "operator": "Voorwaarde",
+      "placeholders": "In titels en details wordt {recordName} vervangen door de naam van het record en {ruleName} door de naam van deze automatisering.",
+      "timezone": "Tijdzone",
+      "title": "Titel",
+      "titleEdit": "Automatisering bewerken",
+      "titleField": "Titelveld",
+      "titleNew": "Nieuwe automatisering",
+      "toAssignees": "De toegewezen personen op de hoogte stellen",
+      "toOwner": "Mij op de hoogte stellen",
+      "toValue": "Naar waarde (optioneel)",
+      "value": "Waarde"
+    },
+    "deleteMessage": "“{name}” en de geschiedenis verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "deleteTitle": "Automatisering verwijderen",
+    "detail": {
+      "agentJobRefused": "De agent kon niet worden gestart.",
+      "agentModelUnavailable": "Het gekozen model is niet meer beschikbaar.",
+      "agentNoRunner": "De eigenaar van de automatisering had geen runner die klaar was.",
+      "agentRunnerUnavailable": "De gekozen runner is niet meer beschikbaar.",
+      "noRecipients": "Er was niemand om te informeren.",
+      "previousEffectFailed": "Een eerdere stap is mislukt, dus deze is niet uitgevoerd.",
+      "recordMissing": "Het record is weg of niet leesbaar voor de eigenaar.",
+      "ruleInvalid": "De automatisering is niet meer geldig. Open haar, controleer de stappen en sla haar opnieuw op.",
+      "runAbandoned": "De uitvoering kon niet binnen 30 minuten worden gestart en is opgegeven.",
+      "unexpectedError": "Er ging iets mis aan onze kant.",
+      "webhookDisabled": "De webhook is uitgeschakeld.",
+      "webhookMissing": "De webhook bestaat niet meer.",
+      "webhookNotSubscribed": "De webhook heeft de gebeurtenis voor automatiseringen niet geselecteerd."
+    },
+    "disabledReason": {
+      "disabledByUser": "Uitgezet.",
+      "ownerInactive": "Uitgezet omdat de eigenaar geen actief lid meer is.",
+      "ownerMissing": "Uitgezet omdat ze geen eigenaar heeft.",
+      "planPaused": "Uitgezet omdat het abonnement minder actieve regels toestaat. Ze gaat weer aan zodra het abonnement dat toelaat."
+    },
+    "edit": "Bewerken",
+    "effect": {
+      "agent": "Een agent vragen",
+      "callWebhook": "Een webhook aanroepen",
+      "createRecord": "Een record aanmaken",
+      "notify": "Melden",
+      "setField": "Een veld instellen"
+    },
+    "emptyBody": "Herinner jezelf voordat een deal sluit, maak een opvolgtaak als een record verandert of laat je team weten dat er een formulier binnenkomt.",
+    "emptyTitle": "Nog geen automatiseringen",
+    "history": {
+      "empty": "Nog geen uitvoeringen",
+      "loadFailed": "De uitvoeringen konden niet worden geladen.",
+      "open": "Geschiedenis",
+      "record": "Record openen",
+      "title": "Uitvoeringen van “{name}”"
+    },
+    "lastRun": "Laatst uitgevoerd {time}",
+    "neverRun": "Nog niet uitgevoerd",
+    "new": "Nieuwe automatisering",
+    "notificationKind": {
+      "dueToday": "Vandaag aan de beurt",
+      "replyReceived": "Antwoord ontvangen",
+      "ruleAlert": "Melding van een automatisering"
+    },
+    "operator": {
+      "after": "ligt na vandaag plus",
+      "afterDate": "ligt na",
+      "before": "ligt voor vandaag plus",
+      "beforeDate": "ligt voor",
+      "empty": "is leeg",
+      "equals": "is",
+      "in": "is een van",
+      "notEmpty": "is niet leeg",
+      "notEquals": "is niet",
+      "notIn": "is geen van"
+    },
+    "outcome": {
+      "applied": "uitgevoerd",
+      "failed": "mislukt",
+      "skipped": "overgeslagen"
+    },
+    "reason": {
+      "conditionsNotMet": "De voorwaarden waren niet vervuld.",
+      "dateChanged": "De datum is gewijzigd of leeggemaakt voordat de automatisering liep.",
+      "ownerChanged": "De eigenaar is gewijzigd.",
+      "ownerInactive": "De eigenaar is geen actief lid meer.",
+      "ownerMissing": "De automatisering heeft geen eigenaar.",
+      "ownerNotPermitted": "De eigenaar heeft geen toegang meer tot automatiseringen.",
+      "recordUnavailable": "Het record bestaat niet meer of is niet leesbaar voor de eigenaar.",
+      "ruleChanged": "De automatisering is gewijzigd nadat deze gebeurtenis haar had gestart.",
+      "ruleDisabled": "De automatisering stond uit."
+    },
+    "remindBefore": "Herinner me aan {field}",
+    "status": {
+      "applied": "Voltooid",
+      "failed": "Mislukt",
+      "queued": "In de wachtrij",
+      "running": "Bezig",
+      "skipped": "Overgeslagen"
+    },
+    "summary": {
+      "bookingChanged": "{change, select, cancelled {Wanneer een boeking wordt geannuleerd} rescheduled {Wanneer een boeking wordt verplaatst} other {Wanneer een boeking wordt geannuleerd of verplaatst}}",
+      "dateReached": "{direction, select, before {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag voor {field} in {list}} other {# dagen voor {field} in {list}}}} other {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag na {field} in {list}} other {# dagen na {field} in {list}}}}}",
+      "fieldChanged": "Wanneer {field} verandert in {list}",
+      "formSubmitted": "Wanneer een formulier wordt verstuurd",
+      "messageReceived": "Wanneer er een bericht binnenkomt",
+      "recordCreated": "Wanneer in {list} een record wordt aangemaakt",
+      "recordUpdated": "Wanneer een record in {list} wordt bijgewerkt",
+      "webhookReceived": "Wanneer een inkomende webhook gegevens aanlevert"
+    },
+    "title": "Automatiseringen",
+    "trigger": {
+      "bookingChanged": "Een boeking wordt geannuleerd of verplaatst",
+      "dateReached": "Een datum is bereikt",
+      "fieldChanged": "Een veld verandert",
+      "formSubmitted": "Er wordt een formulier verstuurd",
+      "messageReceived": "Er komt een bericht binnen",
+      "recordCreated": "Er wordt een record aangemaakt",
+      "recordUpdated": "Een record wordt bijgewerkt",
+      "webhookReceived": "Er komt een webhook binnen"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "Een willekeurige online runner",
+      "askAdmin": "Een beheerder kan dit instellen onder Instellingen, Agents.",
+      "defaultModel": "Standaardmodel van de sleutel",
+      "model": "Model",
+      "openSettings": "Instellingen, Agents openen",
+      "ownerRunner": "Draait op een runner van de eigenaar van de automatisering. Runners zijn persoonlijk, dus die van jou staan hier niet.",
+      "prompt": "Wat moet de agent doen?",
+      "promptPlaceholder": "Bijvoorbeeld: schrijf een korte, vriendelijke reactie en bewaar die ter controle.",
+      "reason": {
+        "noKey": "Voor deze werkruimte is nog geen sleutel van een aanbieder opgeslagen.",
+        "noRunner": "Je hebt nog geen runner die klaar is. Runners zijn persoonlijk: elk lid voegt een eigen runner toe.",
+        "notConfigured": "Deze manier om een agent uit te voeren is nog niet ingesteld.",
+        "plan": "Je abonnement bevat deze manier om een agent uit te voeren niet.",
+        "selfHosted": "Mate is een Cloud-functie en niet beschikbaar als je Customermates zelf host."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (niet verbonden)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "Je eigen sleutel",
+        "runner": "Je eigen runner"
+      },
+      "runtimeHint": {
+        "mate": "Draait bij Customermates en gebruikt AI-tegoed.",
+        "ownKey": "Draait met je eigen sleutel van de aanbieder.",
+        "runner": "Draait op een machine die jij beheert."
+      },
+      "runtimeLabel": "Waar de agent draait",
+      "unavailable": "Nog niet beschikbaar"
+    },
+    "builder": {
+      "active": "Actief",
+      "addStep": "Stap toevoegen",
+      "anyList": "Elke lijst",
+      "composedNotice": "Mate heeft dit uit je zin opgesteld. Er wordt niets opgeslagen tot je het inschakelt.",
+      "if": "Als",
+      "needsStep": "Voeg minstens één stap toe die iets doet.",
+      "panesLabel": "Voorbeeld en uitvoeringen",
+      "paused": "Gepauzeerd",
+      "previewTab": "Voorbeeld",
+      "readOnlyAdminPause": "Als beheerder kun je haar nog wel pauzeren met de schakelaar.",
+      "readOnlyNoOwner": "Deze automatisering heeft geen eigenaar meer, dus niemand kan haar wijzigen.",
+      "readOnlyOwner": "Alleen de eigenaar, {owner}, kan deze automatisering wijzigen.",
+      "readOnlyRole": "Met je rol kun je deze automatisering en de uitvoeringen bekijken, maar niet wijzigen.",
+      "removeStep": "Stap verwijderen",
+      "runsTab": "Uitvoeringen",
+      "switchOn": "Inschakelen",
+      "then": "Dan",
+      "webhook": "Webhook",
+      "webhookNoneSubscribed": "Nog geen webhook heeft de gebeurtenis voor automatiseringen geselecteerd. Selecteer die in de instellingen van een webhook.",
+      "webhookRestricted": "Je rol mag de webhooks van deze werkruimte niet zien, dus deze stap behoudt de webhook die hij heeft.",
+      "when": "Wanneer"
+    },
+    "columns": {
+      "enabled": "Actief",
+      "runs30d": "Uitvoeringen, 30 dagen",
+      "runsOn": "Draait op",
+      "sentence": "Wat het doet"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Routine",
+        "rule": "Automatisering"
+      },
+      "status": {
+        "active": "Actief",
+        "paused": "Gepauzeerd"
+      }
+    },
+    "kind": {
+      "routine": "Routine"
+    },
+    "neverRun": "Nog niet uitgevoerd",
+    "new": {
+      "automation": "Automatisering",
+      "routine": "Routine (Mate volgens een schema)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Geef een agent een taak in gewone woorden",
+        "title": "Een agent vragen"
+      },
+      "callWebhook": {
+        "hint": "Het record naar een andere tool sturen",
+        "restricted": "Je rol mag de webhooks van deze werkruimte niet zien.",
+        "title": "Een webhook aanroepen"
+      },
+      "condition": {
+        "hint": "Alleen doorgaan als een waarde past",
+        "title": "Als een veld past"
+      },
+      "createRecord": {
+        "hint": "Een taak, een klant, een deal of een contact",
+        "title": "Een record aanmaken"
+      },
+      "empty": "Geen stap past bij je zoekopdracht.",
+      "groups": {
+        "agent": "Agent",
+        "condition": "Voorwaarde",
+        "integrations": "Integraties",
+        "people": "Mensen",
+        "record": "Record"
+      },
+      "notify": {
+        "hint": "Bel en e-mail, zoals die persoon het heeft ingesteld",
+        "title": "Iemand waarschuwen"
+      },
+      "search": "Stappen zoeken",
+      "setField": {
+        "hint": "Een waarde in het record wijzigen",
+        "title": "Een veld instellen"
+      },
+      "title": "Een stap toevoegen"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# record is al uitgevoerd} other {# records zijn al uitgevoerd}}",
+      "incomplete": "Maak de trigger compleet om te zien wat deze automatisering zou doen.",
+      "note": "Gebaseerd op je huidige records. Er is niets gewijzigd.",
+      "record": "Een passend record openen",
+      "title": "Voorbeeld",
+      "truncated": "Dit voorbeeld heeft maar een deel van de betrokken records gecontroleerd, dus het werkelijke aantal kan hoger zijn.",
+      "unsupported": "Een voorbeeld is er voor herinneringen op een datum. De andere triggers werken wanneer er iets gebeurt, dus er valt nog niets terug te kijken.",
+      "wouldRun": "{count, plural, =0 {Zou niet zijn uitgevoerd} one {Zou # keer zijn uitgevoerd} other {Zou # keer zijn uitgevoerd}} in de afgelopen {days} dagen"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "Laat je agent bij een verstuurd formulier een antwoord in jouw toon opstellen en je waarschuwen om het te controleren.",
+        "effects": {
+          "agent": "Stel een antwoord aan {record} op in mijn toon. Beantwoord de gestelde vraag, hou het kort en vriendelijk en bewaar het als concept ter controle. Verstuur niets.",
+          "notify": "Het antwoord aan {record} controleren"
+        },
+        "title": "Nieuwe aanvragen beantwoorden"
+      },
+      "bookingCancelled": {
+        "description": "Als een boeking wordt geannuleerd, jou waarschuwen zodat je kunt opvolgen of de tijd kunt vrijgeven.",
+        "effects": {
+          "notify": "Boeking geannuleerd: {record}"
+        },
+        "title": "Mij waarschuwen als een boeking wordt geannuleerd"
+      },
+      "chaseDocuments": {
+        "description": "7 dagen na een aanvraagdatum een taak aanmaken om de documenten na te vragen en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "De documenten van {record} nabellen",
+          "notify": "Documenten ontbreken nog: {record}"
+        },
+        "title": "Ontbrekende documenten nabellen"
+      },
+      "followUpAfterOffer": {
+        "description": "Als de fase verandert, een opvolgtaak over 3 dagen aanmaken en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "Opvolgen bij {record}",
+          "notify": "Offerte verstuurd: {record}"
+        },
+        "title": "Opvolgen na een offerte"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 dagen voor het einde van een contract een verlengingstaak aanmaken en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "Verlenging: {record}",
+          "notify": "Verlenging komt eraan: {record}"
+        },
+        "title": "Herinneren voor een verlenging"
+      },
+      "weeklyReview": {
+        "description": "Elke maandag om 8:00 Mate vragen klanten zonder gedateerde volgende stap op te sommen en jou waarschuwen.",
+        "effects": {
+          "agent": "Som de klanten op die geen gedateerde volgende stap hebben. Noem bij elke klant de klant, het laatste contact en een voorgestelde volgende stap. Waarschuw me met de lijst."
+        },
+        "title": "Wekelijkse terugblik"
+      },
+      "welcomeSubmission": {
+        "description": "Bij een verstuurd formulier een welkomsttaak voor morgen aanmaken en de verantwoordelijke waarschuwen.",
+        "effects": {
+          "action": "{record} welkom heten",
+          "notify": "Nieuwe inzending: {record}"
+        },
+        "title": "Een formulierinzending welkom heten"
+      },
+      "wonOrLostReason": {
+        "description": "Als de fase zonder reden wordt ingesteld, de verantwoordelijke waarschuwen om er een toe te voegen.",
+        "effects": {
+          "notify": "Een reden toevoegen aan {record}"
+        },
+        "title": "Reden van gewonnen of verloren"
+      }
+    },
+    "rowActions": {
+      "history": "Uitvoeringsgeschiedenis",
+      "pause": "Pauzeren",
+      "resume": "Hervatten"
+    },
+    "runs": {
+      "agentRun": "Uitvoering van de agent tonen",
+      "unsaved": "Uitvoeringen verschijnen hier zodra de automatisering is opgeslagen en ingeschakeld."
+    },
+    "runs30d": "{count, plural, one {# uitvoering} other {# uitvoeringen}}",
+    "runsOn": {
+      "free": "Gratis",
+      "mate": "Mate",
+      "ownKey": "Eigen sleutel",
+      "runner": "Eigen runner"
+    },
+    "sentence": {
+      "aField": "een veld",
+      "aList": "een lijst",
+      "effect": {
+        "agent": "je agent vragen om {prompt}",
+        "callWebhook": "een webhook aanroepen",
+        "createRecord": "een item aanmaken in {list}",
+        "kept": "een ongewijzigde stap uitvoeren",
+        "notifyAssignees": "de toegewezen mensen waarschuwen",
+        "notifyBoth": "de verantwoordelijke en de toegewezen mensen waarschuwen",
+        "notifyOwner": "de verantwoordelijke waarschuwen",
+        "setField": "{field} instellen"
+      },
+      "if": "als {condition}",
+      "otherTrigger": "Wanneer er iets anders gebeurt",
+      "routineEvent": "Wanneer {event}, Mate vragen om {prompt}",
+      "routineSchedule": "{schedule}, Mate vragen om {prompt}",
+      "somethingForYou": "iets voor je te doen"
+    },
+    "start": {
+      "compose": "Opstellen",
+      "composerLabel": "Vertel Mate wat er moet gebeuren wanneer …",
+      "composerNote": "Mate stelt de stappen op. Er wordt niets opgeslagen tot je het inschakelt.",
+      "composerPlaceholder": "… er een nieuwe aanvraag binnenkomt, herinner me de volgende ochtend eraan om te antwoorden",
+      "exact": "Exacte stappen, geen AI",
+      "noAgent": "Er is nog geen manier ingesteld om een agent uit te voeren, dus agentstappen draaien niet.",
+      "recipesBody": "Elk recept is een complete keten. Pas aan wat je wilt, geef het een naam en schakel het in.",
+      "recipesTitle": "Beginnen met een recept",
+      "refusal": {
+        "credits": "Je Mate-credits zijn voor deze periode op. Kies een recept of begin helemaal opnieuw.",
+        "invalid": "Het concept paste niet bij je werkruimte. Probeer de lijst of het veld te noemen.",
+        "rateLimited": "Je hebt het afgelopen uur veel samengesteld. Probeer het straks opnieuw of kies een recept.",
+        "unavailable": "Mate is nu niet beschikbaar. Kies een recept of begin helemaal opnieuw.",
+        "unclear": "Mate begreep niet wat er moet gebeuren. Zeg wat het in gang zet en wat het moet doen.",
+        "unsupported": "Dat kan een automatisering nog niet. Beschrijf het als een trigger en exacte stappen."
+      },
+      "scratch": "Helemaal opnieuw beginnen",
+      "scratchBody": "Een lege keten. Kies een trigger en voeg dan stappen toe.",
+      "usesAgent": "Gebruikt een agent"
+    },
+    "truncated": "Deze lijst bevat hoogstens {rules} automatiseringen en {routines} routines, en je werkruimte heeft er meer. De niet getoonde blijven gewoon lopen.",
+    "unavailable": {
+      "blockedStep": "“{step}” gebruikt iets dat niet meer beschikbaar is. Kies een vervanging of verwijder de stap.",
+      "blockedTrigger": "De trigger gebruikt iets dat niet meer beschikbaar is. Kies een vervanging.",
+      "field": "Een veld dat hier wordt gebruikt, is niet meer beschikbaar. Kies een ander veld.",
+      "item": "Niet meer beschikbaar",
+      "list": "De lijst die hier wordt gebruikt, is niet meer beschikbaar. Kies een andere lijst.",
+      "model": "Het model dat hier is gekozen, is niet meer beschikbaar. Kies een ander model.",
+      "option": "Een optie die hier wordt gebruikt, is niet meer beschikbaar. Kies een andere optie.",
+      "runner": "De runner die hier is gekozen, is niet meer beschikbaar. Kies een andere runner.",
+      "webhook": "De webhook die hier is gekozen, is uitgeschakeld of bestaat niet meer. Kies een andere webhook.",
+      "webhookEvent": "De webhook die hier is gekozen, heeft de gebeurtenis voor automatiseringen niet geselecteerd, dus deze stap zou worden overgeslagen. Selecteer de gebeurtenis bij de webhook of kies een andere webhook."
+    }
+  },
+  "Booking": {
+    "busyTimeIncomplete": "Je agenda kon niet volledig worden gelezen: er staan te veel items in, of een terugkerend item dat niet kan worden berekend. Je boekingspagina’s bieden op de betrokken dagen geen tijden aan.",
+    "chooseCalendar": "Agenda kiezen",
+    "closed": "Gesloten",
+    "days": "{days, plural, one {# dag} other {# dagen}}",
+    "demoNote": "Boekingspagina's hebben een gekoppelde agenda nodig en zijn niet beschikbaar in de demowerkruimte.",
+    "description": "Met een boekingspagina kan iedereen zonder account een afspraak boeken in je gekoppelde agenda. Bezoekers zien je vrije tijden, en elke boeking maakt de afspraak in de agenda, de persoon en een record in je CRM aan.",
+    "edit": "Bewerken",
+    "editTitle": "Boekingspagina bewerken",
+    "empty": "Nog geen boekingspagina's",
+    "fields": {
+      "buffer": "Buffer tussen afspraken",
+      "calendar": "Agenda",
+      "description": "Beschrijving",
+      "duration": "Duur van de afspraak",
+      "enabled": "Boekingen accepteren",
+      "from": "Van",
+      "horizon": "Vooruit boekbaar",
+      "hosts": "Hosts",
+      "inviteeChanges": "Bezoekers kunnen annuleren en verplaatsen",
+      "minNotice": "Minimale aanlooptijd",
+      "none": "Geen",
+      "personList": "Bezoeker zoeken of aanmaken in",
+      "personRelationship": "Record en bezoeker koppelen via",
+      "questions": "Vragen aan de bezoeker",
+      "recordList": "Voor elke boeking een record aanmaken in",
+      "required": "Verplicht",
+      "startField": "Begintijd van de afspraak opslaan in",
+      "successMessage": "Bericht na het boeken",
+      "timeZone": "Tijdzone",
+      "title": "Titel",
+      "to": "Tot",
+      "withVideo": "Videolink toevoegen",
+      "workingHours": "Werktijden"
+    },
+    "hostActions": {
+      "cancelConfirm": "Boeking annuleren",
+      "cancelled": "Boeking geannuleerd. {name} krijgt een e-mail.",
+      "cancelReason": "Reden voor {name} (optioneel)",
+      "cancelText": "De afspraak wordt uit de agenda verwijderd en {name} krijgt een e-mail.",
+      "cancelTitle": "Boeking met {name} annuleren?",
+      "keep": "Boeking houden",
+      "loadFailed": "Vrije tijden konden niet worden geladen.",
+      "noSlots": "Deze pagina heeft geen andere vrije tijden.",
+      "reschedule": "Verplaatsen",
+      "rescheduleConfirm": "Boeking verplaatsen",
+      "rescheduled": "Boeking verplaatst. {name} krijgt een e-mail.",
+      "rescheduleTitle": "Nieuwe tijd voor {name}"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} heeft een afspraak geboekt",
+      "cancelledTitle": "{name} heeft een afspraak geannuleerd",
+      "reason": "Reden: {reason}",
+      "rescheduledTitle": "{name} heeft een afspraak verplaatst"
+    },
+    "minutes": "{minutes} min",
+    "new": "Nieuwe boekingspagina",
+    "newTitle": "Nieuwe boekingspagina",
+    "noCalendar": "De agenda van deze pagina is er niet meer, bijvoorbeeld omdat het account is losgekoppeld. Bezoekers zien de pagina als niet beschikbaar totdat er een agenda is gekozen. Boekingen die al zijn gemaakt, blijven staan.",
+    "notice": "{hours, plural, =0 {Geen minimale aanlooptijd} one {# uur vooraf} other {# uur vooraf}}",
+    "open": "Pagina openen",
+    "pagePreviewHint": "Zo zien bezoekers deze pagina. De tijden volgen je werktijden; bezette tijden in je agenda gelden pas op de echte pagina.",
+    "pagePreviewLabel": "Voorbeeld",
+    "pagePreviewTitle": "Jouw boekingspagina",
+    "panelActive": "Actief",
+    "panelClose": "Boekingspagina's sluiten",
+    "panelLocked": "Boekingspagina's vereisen een abonnement met berichten en toegang tot de inbox.",
+    "panelOwner": "Boekingspagina's van {owner}",
+    "panelTitle": "Boekingspagina's",
+    "panelUnavailable": "Niet beschikbaar",
+    "panelYours": "Jouw boekingspagina's",
+    "paused": "Gepauzeerd",
+    "removeQuestion": "Vraag verwijderen",
+    "roundRobin": "Deze pagina delen met collega's (round robin)",
+    "roundRobinChip": "Hosts: {count}",
+    "roundRobinHint": "Er wordt een tijd aangeboden als minstens één host vrij is. Elke boeking gaat naar de vrije host met de minste aankomende boekingen, in de gekoppelde agenda van die host. Jij bent altijd ook host.",
+    "saved": "Boekingspagina opgeslagen",
+    "selfHostedNote": "Boekingspagina's gebruiken de gehoste agendaverbinding en zijn niet beschikbaar bij zelf hosten.",
+    "unavailableField": "Veld niet meer beschikbaar",
+    "upcoming": "{count, plural, =0 {Geen aankomende boekingen} one {# aankomende boeking} other {# aankomende boekingen}}",
+    "weekdays": {
+      "friday": "Vrijdag",
+      "monday": "Maandag",
+      "saturday": "Zaterdag",
+      "sunday": "Zondag",
+      "thursday": "Donderdag",
+      "tuesday": "Dinsdag",
+      "wednesday": "Woensdag"
+    }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} heeft je boeking van {page} geannuleerd.",
+    "cancelledIntroInvitee": "Je boeking van {page} met {host} is geannuleerd, zoals je vroeg.",
+    "cancelledSubject": "Geannuleerd: {page} op {date}",
+    "cancelledTitle": "Boeking geannuleerd",
+    "confirmedIntro": "Je boeking van {page} met {host} is bevestigd. De agenda-uitnodiging komt in een aparte e-mail.",
+    "confirmedSubject": "Bevestigd: {page} op {date}",
+    "confirmedTitle": "Boeking bevestigd",
+    "footer": "Je krijgt deze e-mail omdat met dit adres een tijd bij {workspace} is geboekt.",
+    "greeting": "Hallo {name},",
+    "greetingNoName": "Hallo,",
+    "labelHost": "Met",
+    "labelNewWhen": "Nieuwe tijd",
+    "labelPrevious": "Vorige tijd",
+    "labelReason": "Reden",
+    "labelWhen": "Wanneer",
+    "manage": "Annuleren of verplaatsen",
+    "reminderIntro": "Een herinnering aan je boeking van {page} met {host}.",
+    "reminderSubject": "Herinnering: {page} op {date}",
+    "reminderTitle": "Je afspraak komt eraan",
+    "rescheduledIntroHost": "{host} heeft je boeking van {page} naar een nieuwe tijd verplaatst.",
+    "rescheduledIntroInvitee": "Je boeking van {page} met {host} is verplaatst naar de nieuwe tijd die je koos.",
+    "rescheduledSubject": "Verplaatst: {page} op {date}",
+    "rescheduledTitle": "Boeking verplaatst"
   },
   "BrowserFrame": {
     "open": "Openen in nieuw tabblad"
@@ -942,12 +1633,14 @@
         "themeSystem": "automatisch thema, systeem volgen"
       },
       "page": {
-        "calendar": "planner, agenda, planning, vergaderingen, meetings, afspraken, evenementen",
+        "automations": "regels, automatiseringsregels, herinneringen, wanneer als dan, triggers, meldingen, datumherinneringen",
+        "calendar": "planner, agenda, planning, vergaderingen, meetings, afspraken, evenementen, boekingspagina, boekingslink, afspraak boeken, afsprakenlink, Calendly, beschikbaarheid, werktijden, openbare agenda",
         "configure": "datamodel, schema, lijsten, velden, relaties, configureren, aangepaste velden, objecten",
         "dashboard": "home, overzicht, start, widgets, grafieken, rapporten, analyses, KPI's, statistieken",
         "documentation": "docs, help, handleiding, gids",
         "inbox": "berichten, e-mail, mail, gesprekken, chats, gezamenlijke inbox, DM's, LinkedIn-berichten, WhatsApp",
         "knowledgeBase": "wiki, notities, pagina's, artikelen, docs, playbook, handboek, werkinstructies, bedrijfsinformatie",
+        "notifications": "meldingen, bel, herinneringen, ongelezen, als gelezen markeren, nieuws",
         "routines": "automatiseringen, schema's, terugkerende taken, workflows, triggers, automatiseringsregels",
         "settings": "voorkeuren, opties, account, werkruimte",
         "trash": "verwijderde items, prullenbak, herstellen, verwijderen ongedaan maken"
@@ -990,10 +1683,12 @@
       },
       "settings": {
         "activity": "auditlog, geschiedenis, wijzigingen, logboek, activiteit, auditlog, wie heeft wat gewijzigd",
+        "agents": "agents, agentstap, AI-sleutel, eigen sleutel, Anthropic, OpenAI, Google, runner, Claude Code, Codex, agentuitvoeringen, sleutels van aanbieders",
         "api-keys": "tokens, API, MCP, ontwikkelaar, toegangssleutels, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP-server, n8n, integratie",
         "billing": "abonnement, facturen, betaling, prijzen, upgraden, bon",
         "channels": "gekoppelde accounts, e-mailaccounts, LinkedIn, WhatsApp, integraties, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agenda's, inboxsynchronisatie, agendasynchronisatie, e-mailsynchronisatie, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "werkruimtenaam, werkruimte hernoemen, werkruimte verlaten",
+        "incoming-webhooks": "inkomende webhooks, gegevens ontvangen, geheim adres, webhook-URL, JSON versturen, records aanmaken vanuit andere tools, formuliertool, Zapier, Make, n8n",
         "members": "team, gebruikers, personen, collega's, uitnodigen, licenties",
         "profile": "account, voorkeuren, persoonlijk, naam",
         "roles": "rechten, toegang, machtigingen, beheerder, rechtensets",
@@ -1139,8 +1834,20 @@
       "addressLookupUnavailable": "Adres zoeken is momenteel niet beschikbaar. Voer het adres zelf in of probeer het later opnieuw.",
       "agentApprovalUnavailable": "Dit goedkeuringsverzoek is niet beschikbaar of verlopen.",
       "agentConversationNotFound": "Dit gesprek is niet gevonden of niet meer toegankelijk.",
+      "agentJobClosed": "Deze taak is al afgerond, verlopen of geannuleerd.",
+      "agentJobCursorInvalid": "Die paginalink voor de agentuitvoeringen is niet meer geldig. Laad de uitvoeringen opnieuw en probeer het nogmaals.",
+      "agentJobNotFound": "De ID van deze agentuitvoering is niet gevonden of niet toegankelijk.",
       "agentLimitReached": "Er zijn niet genoeg AI-credits over om nog een verzoek te starten.",
       "agentModelUnavailable": "Dat model van de Assistent is niet beschikbaar.",
+      "agentOwnKeyPlanRequired": "Agents uitvoeren met je eigen AI-sleutel zit in de betaalde pakketten. Upgrade je pakket om een sleutel toe te voegen.",
+      "agentProviderKeyInvalid": "De aanbieder heeft deze sleutel niet geaccepteerd. Controleer of je de hele sleutel hebt gekopieerd en of hij actief is.",
+      "agentProviderKeyNotFound": "Deze AI-sleutel is niet gevonden in deze werkruimte.",
+      "agentProviderKeyUnreachable": "De aanbieder kon niet worden bereikt om deze sleutel te controleren. Probeer het zo meteen opnieuw.",
+      "agentProviderKeyUnreadable": "Deze sleutel kan niet worden gelezen met het geheim van deze server. Sla hem opnieuw op.",
+      "agentProviderKeyUnverified": "De aanbieder laat deze sleutel zijn modellen niet opvragen, dus hij kan hier niet worden gecontroleerd. Een agentuitvoering laat zien of hij werkt.",
+      "agentProviderModelInvalid": "Dat model wordt niet aangeboden voor deze aanbieder.",
+      "agentRunnerNotFound": "Deze runner is niet gevonden in deze werkruimte.",
+      "agentRuntimeUnavailable": "Deze manier om agents uit te voeren is nu niet beschikbaar voor deze werkruimte.",
       "agentServiceUnavailable": "Gehoste AI is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
       "agentTurnAlreadyRunning": "Er loopt al een ander verzoek van de Assistent.",
       "apiKeyMaxExpiration": "De verlooptermijn van een API-sleutel mag niet meer dan 365 dagen zijn.",
@@ -1148,12 +1855,31 @@
       "apiKeyNameLength": "Namen van API-sleutels moeten tussen 1 en 255 tekens lang zijn.",
       "apiKeyNotFound": "Deze API-sleutel is niet gevonden in deze werkruimte.",
       "apiRateLimitReached": "Deze werkruimte heeft de limiet voor API- en MCP-verzoeken van het Free-pakket bereikt. Wacht en probeer het opnieuw, of upgrade naar Starter om de limiet op te heffen.",
+      "automationRuleAdminRequired": "Alleen de eigenaar van een automatisering of een beheerder kan deze uitzetten of verwijderen.",
+      "automationRuleEditNotOwner": "Alleen de eigenaar van een automatisering kan deze wijzigen of aanzetten.",
+      "automationRuleInvalid": "Deze automatisering past niet bij de werkruimte: een lijst, veld of relatie die ze gebruikt ontbreekt of past niet bij de trigger of de acties.",
+      "automationRuleLimitReached": "Je pakket bevat {limit} actieve automatiseringen. Upgrade je pakket (vanaf {price} per gebruiker per maand) of zet een andere automatisering uit.",
+      "automationRuleNotFound": "Automatiserings-ID niet gevonden of niet toegankelijk.",
+      "automationRuleOwnerIneligible": "De eigenaar van een automatisering moet een actief lid van deze werkruimte zijn.",
+      "automationRuleRunCursorInvalid": "Die paginalink voor de uitvoeringsgeschiedenis is niet meer geldig. Laad de geschiedenis opnieuw en probeer het nogmaals.",
       "billingPortalUnavailable": "Het factureringsportaal is niet beschikbaar voor deze werkruimte. Neem contact op met support om wijzigingen aan te brengen.",
+      "bookingAnswerInvalid": "Een antwoord ontbreekt of is ongeldig.",
+      "bookingHostsNotAllowed": "Alleen een beheerder kan andere leden als hosts toevoegen.",
+      "bookingHostWithoutCalendar": "Dit lid heeft geen gekoppelde agenda en kan geen host van een boekingspagina zijn.",
+      "bookingLinkHasUpcomingBookings": "Deze boekingspagina heeft nog aankomende boekingen ({count}). Pauzeer de pagina met de schakelaar of annuleer eerst deze boekingen.",
+      "bookingLinkLimitReached": "Je kunt maximaal {limit} boekingspagina's hebben. Verwijder er een om een nieuwe te maken.",
+      "bookingLinkNotFound": "ID van boekingspagina niet gevonden of niet toegankelijk.",
+      "bookingListInvalid": "Deze lijst of dit veld kan niet voor boekingen worden gebruikt.",
+      "bookingRateLimited": "Te veel boekingspogingen. Probeer het later opnieuw.",
+      "bookingSlotTaken": "Dit tijdstip is niet meer beschikbaar. Kies een ander tijdstip.",
+      "bookingUnavailable": "Deze boekingspagina is op dit moment niet beschikbaar.",
       "calendarEventNotFound": "ID van agenda-afspraak niet gevonden of niet toegankelijk.",
       "calendarExportIncomplete": "Deze periode heeft meer items dan in één export passen. Kies een kortere periode of strengere bronfilters.",
+      "calendarNeedsReconnect": "Koppel je Google- of Microsoft-account opnieuw onder Kanalen & agenda's om agendawijzigingen toe te staan en probeer het daarna opnieuw.",
       "calendarNotFound": "Agenda-ID niet gevonden of niet toegankelijk.",
       "calendarSubscriptionLimitReached": "Je kunt maximaal {limit} agenda-abonnementen hebben. Trek er een in om een nieuwe te maken.",
       "calendarSubscriptionNotFound": "Dit agenda-abonnement bestaat niet meer.",
+      "calendarWriteUnavailable": "Er is geen gekoppelde Google- of Microsoft-agenda die kan worden gewijzigd. Koppel eerst een agenda onder Kanalen & agenda's.",
       "channelAlreadyLinked": "Dit telefoonnummer, e-mailadres of profiel is al gekoppeld aan een ander record.",
       "chatThreadRequired": "Dit is een e-mailgesprek. Stuur een e-mail om erop te antwoorden in plaats van een chatbericht.",
       "connectedAccountEmailChangeRequired": "Geef een handtekening, e-mailinstellingen of beide mee.",
@@ -1189,6 +1915,8 @@
       "enterpriseCheckoutUnavailable": "Enterprise-werkruimtes worden handmatig gefactureerd en kunnen geen zelfbediende checkout starten.",
       "filterBetweenInvalidArrayLength": "De operator 'between' vereist een array met precies 2 elementen.",
       "generic": "Er is een fout opgetreden.",
+      "incomingWebhookMappingInvalid": "Controleer de veldtoewijzing: elk toegewezen veld moet een veld van deze lijst zijn dat een webhook kan vullen, en upsert heeft een toegewezen koppelveld nodig.",
+      "incomingWebhookNotFound": "Deze inkomende webhook is niet gevonden.",
       "inmailSignatureRequired": "Voeg een handtekening toe voor de Recruiter-InMail.",
       "inmailSubjectRequired": "Voeg een onderwerp toe voor de InMail.",
       "insufficientPermissions": "Voor het gebruik van API-sleutels of MCP-verbindingen heeft je rol leestoegang Alles op API en webhooks nodig. Vraag een werkruimtebeheerder om dit toe te kennen.",
@@ -1215,6 +1943,7 @@
       "notAuthenticated": "Log in om deze actie te gebruiken.",
       "notesExceedsMaxLength": "De inhoud van de notities overschrijdt de maximale lengte.",
       "notesInvalidFormat": "Ongeldig notitieformaat. Moet geldige Tiptap-JSON of markdowntekst zijn.",
+      "notificationPauseDateInvalid": "De pauze moet eindigen op een dag na vandaag en binnen een jaar.",
       "operatorAllowanceMissing": "Deze werkruimte heeft nog geen contractueel Enterprise-contingent, dus credits kunnen niet worden gecorrigeerd. Stel eerst het contingent in op de lijst Werkruimtes.",
       "operatorConflict": "Die wijziging is geweigerd. Mogelijk is het record gewijzigd sinds het laden van de lijst, of staat de werkruimte het nu niet toe. Laad opnieuw en controleer de huidige status.",
       "operatorConnectedAccountsActive": "Deze werkruimte heeft nog verbonden berichtenaccounts. Ontkoppel ze eerst zodat de provideraccounts worden vrijgegeven, en verwijder daarna de werkruimte.",
@@ -1233,6 +1962,9 @@
       "planSeatSwapUnavailable": "De actieve plek kan alleen worden overgedragen zolang deze werkruimte op Free staat en de persoon door het pakket is gepauzeerd.",
       "planWebhooksNotIncluded": "Webhooks en n8n zijn niet inbegrepen in het Free-pakket. Upgrade naar Starter ({price} per gebruiker per maand) om webhooks aan te maken.",
       "privacyAcknowledgementRequired": "Bevestig dat je het privacybeleid hebt gelezen.",
+      "publicFormConfigurationInvalid": "Controleer het formulier: elke vraag moet een veld van deze lijst zijn, en een gekoppelde persoon heeft een lijst met contactgegevens en een relatie met deze lijst nodig.",
+      "publicFormExists": "Deze lijst heeft al een formulier. Werk het in plaats daarvan bij.",
+      "publicFormNotFound": "Dit formulier is niet gevonden.",
       "publicLinkExpiryInPast": "De einddatum moet vandaag of later zijn.",
       "recordAddressCandidateInvalid": "Deze adressuggestie is niet meer geldig. Zoek het adres opnieuw op.",
       "recordAddressCountryInvalid": "In {field} is {country} geen landcode.",
@@ -1399,12 +2131,23 @@
       "workspaceSlugTaken": "Een andere werkruimte gebruikt deze URL al. Kies een andere."
     },
     "events": {
+      "automation": {
+        "rule": {
+          "fired": "Automatiseringsregel geactiveerd"
+        }
+      },
+      "booking": {
+        "changed": "Boeking gewijzigd"
+      },
       "connected_account": {
         "created": "Account verbonden",
         "deleted": "Account losgekoppeld",
         "reconnected": "Account opnieuw verbonden",
         "resynced": "Account opnieuw gesynchroniseerd",
         "updated": "Zichtbaarheid van account gewijzigd"
+      },
+      "form": {
+        "submitted": "Formulier verzonden"
       },
       "legal": {
         "documents_accepted": "Juridische documenten geaccepteerd",
@@ -1477,6 +2220,7 @@
       "webhook": {
         "created": "Webhook aangemaakt",
         "deleted": "Webhook verwijderd",
+        "received": "Webhook ontvangen",
         "updated": "Webhook bijgewerkt"
       },
       "wiki_page": {
@@ -1495,6 +2239,9 @@
       "fields": {
         "adProvider": "Advertentieaanbieder",
         "auditSource": "Bron",
+        "automationKind": "Soort",
+        "automationRunsOn": "Draait op",
+        "automationStatus": "Status",
         "calendarId": "Agenda",
         "connectedAccountId": "Kanaal",
         "createdAt": "Aangemaakt op",
@@ -1575,6 +2322,7 @@
       },
       "searchFields": {
         "inbox": "Onderwerp, bericht of deelnemer",
+        "incomingWebhooks": "Naam",
         "members": "Naam",
         "operatorAudit": "Actie",
         "operatorUsers": "Naam of e-mailadres",
@@ -1979,6 +2727,17 @@
     "visibilityShared": "Gedeeld",
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
   },
+  "ConnectedApps": {
+    "connect": "AI-app koppelen",
+    "connectedSince": "Gekoppeld sinds",
+    "description": "AI-apps zoals Claude of ChatGPT die je met je login aan deze werkruimte hebt gekoppeld. Elke app werkt met jouw rechten.",
+    "disconnectDescription": "{name} verliest direct de toegang tot deze werkruimte. Koppel de app opnieuw en keur de toegang goed om hem weer te gebruiken.",
+    "disconnectTitle": "Deze app ontkoppelen?",
+    "empty": "Er is nog geen AI-app gekoppeld. Koppel Claude, ChatGPT of een andere AI-app om van daaruit met deze werkruimte te werken.",
+    "lastActive": "Laatst actief",
+    "title": "Gekoppelde AI-apps",
+    "toastDisconnected": "App ontkoppeld"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Openen in inbox",
     "calendarAllDay": "Hele dag",
@@ -2374,6 +3133,9 @@
       "savedRoles": "Gedeeld met de geselecteerde rollen",
       "savedWorkspace": "Gedeeld met iedereen in deze werkruimte",
       "sharedBy": "Gedeeld door {name}",
+      "tabForm": "Formulier",
+      "tabShare": "Weergave delen",
+      "tabsLabel": "Deelopties",
       "title": "“{name}” delen",
       "withEveryone": "Met iedereen · alleen {name} kan hem bewerken",
       "withRoles": "Met geselecteerde rollen · alleen {name} kan hem bewerken",
@@ -2388,12 +3150,13 @@
       "allTab": {
         "activity": "Alle activiteit",
         "auditEntries": "Alle vermeldingen",
+        "automations": "Alle automatiseringen",
         "conversations": "Alle gesprekken",
         "deliveries": "Alle leveringen",
+        "incomingWebhooks": "Alle inkomende webhooks",
         "members": "Alle leden",
         "records": "Alle {list}",
         "roles": "Alle rollen",
-        "routines": "Alle routines",
         "users": "Alle gebruikers",
         "webhooks": "Alle webhooks",
         "workspaces": "Alle werkruimtes"
@@ -2459,7 +3222,9 @@
   },
   "DocsSidebar": {
     "apiKeys": "API-sleutels",
+    "appAgents": "Agents",
     "appAssistant": "Assistent",
+    "appAutomations": "Automatiseringen",
     "appCalendar": "Agenda",
     "appCompany": "Bedrijf",
     "appDashboard": "Dashboard",
@@ -2469,11 +3234,13 @@
     "appProfile": "Profiel",
     "appRecords": "Records",
     "appRoutines": "Routines",
+    "appRunners": "Runners",
     "appSearch": "Globaal zoeken",
     "appTrash": "Prullenbak",
     "appWorkspaces": "Werkruimtes",
     "architectureSecurity": "Architectuur en beveiliging",
     "changelog": "Changelog",
+    "compareEditions": "Edities vergelijken",
     "concepts": "Kernconcepten",
     "connectCli": "CLI en editors",
     "connectConnector": "Eigen connector",
@@ -2484,6 +3251,9 @@
     "goBack": "Terug",
     "integrations": "Integraties",
     "introduction": "Introductie",
+    "licence": "Licentie",
+    "licenceFaq": "Licentie-FAQ",
+    "licensing": "Licenties",
     "mcp": "MCP",
     "messagingRateLimits": "Limieten",
     "n8n": "N8N",
@@ -2530,7 +3300,7 @@
     "invalid": "Bevat fouten"
   },
   "EmailLayout": {
-    "tagline": "De open-source CRM voor het opvolgen van klanten"
+    "tagline": "De source-available CRM voor het opvolgen van klanten"
   },
   "EmailVerification": {
     "notVerified": "E-mailadres niet geverifieerd",
@@ -2735,7 +3505,7 @@
       "cancelAnytime": "Op elk moment opzegbaar",
       "gdpr": "Database in een EU-regio; geen certificeringsclaim",
       "noLimits": "Transparante abonnementen",
-      "openSource": "Open core"
+      "openSource": "Source available"
     },
     "eyebrow": "Prijzen",
     "selfHosted": {
@@ -2745,12 +3515,12 @@
       "featureN8n": "Interfaces voor een aparte n8n-instantie",
       "featureRecords": "Kern-CRM-records",
       "featureUsers": "Gebruikers van de werkruimte",
-      "period": "onder AGPL",
-      "price": "Gratis kern",
-      "tag": "Draai de AGPL-kernapp en PostgreSQL met Docker Compose op je eigen server in de omvang van Starter, zonder de inbox en gehoste AI. Externe diensten blijven apart.",
+      "period": "Community Edition",
+      "price": "Gratis",
+      "tag": "Draai de source-available Community Edition en PostgreSQL met Docker Compose op je eigen server in de omvang van Starter, gratis voor intern gebruik, zonder de inbox en gehoste AI. Externe diensten blijven apart.",
       "title": "Zelf gehost"
     },
-    "subtitle": "Transparante abonnementen, geen verborgen kosten. Host de AGPL-kern gratis zelf; externe diensten blijven apart. Of begin met een gratis proefperiode in de Cloud, zonder creditcard.",
+    "subtitle": "Transparante abonnementen, geen verborgen kosten. Host de gratis Community Edition zelf voor je eigen bedrijf; externe diensten blijven apart. Of begin met een gratis proefperiode in de Cloud, zonder creditcard.",
     "title": "Eenvoudig, eerlijk, Europees"
   },
   "HomepageWorkspacePrompt": {
@@ -2762,6 +3532,8 @@
     "body": "Zodra je toegang weer actief is, ververs je deze pagina om verder te gaan.",
     "otherWorkspaces": "Je andere werkruimtes blijven zoals ze zijn. Wissel in het werkruimtemenu naar een van die werkruimtes.",
     "subtitle": "Een beheerder van deze werkruimte kan de toegang opnieuw activeren",
+    "supportBody": "De toegang van alle leden van deze werkruimte is gedeactiveerd, ook die van alle beheerders, bijvoorbeeld omdat het abonnement is beëindigd. Niemand kan vanuit de werkruimte het abonnement verlengen of leden opnieuw activeren. Neem contact op met ons supportteam om de toegang te herstellen en ververs daarna deze pagina.",
+    "supportSubtitle": "Alleen ons supportteam kan de toegang herstellen",
     "title": "Je toegang tot {workspace} is niet actief"
   },
   "Inbox": {
@@ -2928,6 +3700,59 @@
       "seek": "Afspeelpositie wijzigen"
     },
     "youPrefix": "Jij:"
+  },
+  "IncomingWebhooks": {
+    "add": "Inkomende webhook toevoegen",
+    "addRow": "Veld toevoegen",
+    "clearSecret": "Ondertekeningsgeheim verwijderen",
+    "deleted": "Inkomende webhook verwijderd",
+    "deliveries": "Leveringen",
+    "deliveriesTitle": "Leveringen van {name}",
+    "editTitle": "Inkomende webhook bewerken",
+    "emptyBody": "Maak een eindpunt voor een lijst, wijs de velden van de JSON-body toe en plak het adres in het andere systeem.",
+    "emptyTitle": "Nog geen inkomende webhooks",
+    "enabled": "Accepteert verzoeken",
+    "field": "Veld",
+    "list": "Lijst",
+    "loading": "Laden",
+    "mapping": "Veldtoewijzing",
+    "matchField": "Bestaand record vinden via",
+    "mode": "Wanneer een verzoek binnenkomt",
+    "modeCreate": "Altijd een record aanmaken",
+    "modeUpsert": "Het passende record bijwerken, anders er een aanmaken",
+    "name": "Naam",
+    "neverReceived": "Nog geen verzoek",
+    "newTitle": "Nieuwe inkomende webhook",
+    "noDeliveries": "Nog geen verzoeken ontvangen.",
+    "noLists": "Maak eerst een lijst. Elk eindpunt vult één lijst.",
+    "outcomes": {
+      "created": "Record aangemaakt",
+      "failed": "Mislukt",
+      "rejected_limit": "Geweigerd: te groot",
+      "rejected_payload": "Geweigerd: ongeldige body",
+      "rejected_plan": "Geweigerd: niet in je abonnement",
+      "rejected_signature": "Geweigerd: verkeerde handtekening",
+      "updated": "Record bijgewerkt"
+    },
+    "path": "JSON-pad",
+    "previewCreate": "Zou een record aanmaken",
+    "previewInvalid": "Ongeldig",
+    "previewMissing": "Ontbreekt",
+    "previewRefused": "Zou worden geweigerd",
+    "previewUpdate": "Zou het passende record bijwerken",
+    "removeRow": "Veld verwijderen",
+    "rotate": "Geheim adres vervangen",
+    "rotated": "Adres vervangen. Werk het bij in het andere systeem.",
+    "sample": "Voorbeeld-body (JSON)",
+    "sampleInvalid": "Het voorbeeld is geen geldig JSON-object.",
+    "saved": "Inkomende webhook opgeslagen",
+    "security": "Handtekeningcontrole",
+    "signatureHeader": "Handtekening-header",
+    "signatureHelp": "Met een ondertekeningsgeheim moet elk verzoek in deze header de hex-HMAC-SHA256 van de ruwe body meesturen. Bodies groter dan 256 KB worden geweigerd.",
+    "signingSecret": "Ondertekeningsgeheim (optioneel)",
+    "test": "Opslaan en testen met het voorbeeld",
+    "url": "Geheim adres",
+    "urlAfterSave": "Het geheime adres verschijnt na het opslaan."
   },
   "InvitationCard": {
     "inviter": "Uitnodiging van {inviterName}",
@@ -3152,24 +3977,28 @@
     "addPickerDescription": "Kies het type record dat je wilt aanmaken.",
     "addPickerTitle": "Nieuw aanmaken…",
     "affiliate": "Affiliateprogramma",
+    "automations": "Automatiseringen",
     "dashboard": "Dashboard",
     "data": "Data",
     "docs": "Documentatie",
     "features": "Functies",
     "inbox": "Inbox",
+    "notifications": "Meldingen",
     "operator": "Operatorconsole",
     "overview": "Overzicht",
     "pricing": "Prijzen",
     "public": {
       "agenciesAndVas": "Bureaus en VA's",
       "agenticCrm": "Agentic CRM",
+      "aiAgents": "AI-agents",
       "allFeatures": "Alle functies",
       "allIntegrations": "Alle integraties",
       "allTeams": "Alle teams",
       "articlesAndGuides": "Artikelen en gidsen",
-      "blog": "Blog",
       "byJob": "Per taak",
       "byTeam": "Per team",
+      "claudeCrm": "CRM voor Claude",
+      "claudeLinkedIn": "Claude met LinkedIn",
       "clientManagement": "Klantbeheer",
       "cloudVsSelfHosted": "Cloud of zelf hosten",
       "compare": "Vergelijkingen",
@@ -3185,9 +4014,7 @@
       "mcpDocs": "MCP-documentatie",
       "n8n": "n8n-automatisering",
       "openExampleWorkspace": "Open deze voorbeeldwerkruimte",
-      "openSourceCrm": "Open-source CRM",
-      "pillarAgents": "Agents",
-      "pillarAgentsDescription": "Mate, Claude of ChatGPT, aan het werk in je CRM",
+      "openSourceCrm": "Source-available CRM",
       "pillarData": "Data",
       "pillarDataDescription": "Klanten, deals en lijsten die je zelf vormgeeft",
       "pillarInbox": "Inbox",
@@ -3199,20 +4026,13 @@
       "product": "Product",
       "professionalServices": "Zakelijke dienstverlening",
       "providerChatGPT": "ChatGPT",
-      "providerClaude": "Claude",
       "providerCodex": "Codex",
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
-      "providerGmail": "Gmail",
       "providerGrok": "Grok Bot",
-      "providerImap": "E-mail / IMAP",
-      "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",
       "providerOutlook": "Outlook",
       "providerSlack": "Slack via n8n",
-      "providerTelegram": "Telegram",
-      "providerWhatsApp": "WhatsApp",
-      "resources": "Bronnen",
       "selfHosted": "Zelf gehost",
       "smallBusiness": "Kleine bedrijven",
       "solutions": "Oplossingen",
@@ -3228,6 +4048,7 @@
         "whatsappCrm": "WhatsApp-chats gekoppeld aan klanten"
       },
       "startups": "Startups",
+      "templates": "Sjablonen",
       "whatsappCrm": "WhatsApp CRM"
     },
     "routines": "Routines",
@@ -3242,6 +4063,70 @@
     "documentTitle": "Pagina niet gevonden | Customermates",
     "subtitle": "Deze pagina is op vakantie gegaan zonder het ons te vertellen",
     "title": "Oeps! Je bent in de leegte beland"
+  },
+  "NotificationEmail": {
+    "cta": "Customermates openen",
+    "digestIntro": "Dit nieuws wacht op je in Customermates:",
+    "digestMore": "{count, plural, one {en nog # melding} other {en nog # meldingen}}",
+    "digestSubject": "Nieuws in Customermates",
+    "footerReason": "{count, plural, one {Je krijgt deze e-mail omdat {sources} je een melding heeft gestuurd.} other {Je krijgt deze e-mail omdat {sources} je een melding hebben gestuurd.}}",
+    "greeting": "Hallo {firstName},",
+    "instantIntro": "In Customermates heeft iets je aandacht nodig:",
+    "manageNotifications": "Meldingen beheren",
+    "title": "Nieuws uit je werkruimte",
+    "turnOffKind": "Deze soort uitzetten",
+    "turnOffNamedKind": "{kind} uitzetten"
+  },
+  "Notifications": {
+    "dayToday": "Vandaag",
+    "dayYesterday": "Gisteren",
+    "emailMode": {
+      "digest": "Dagelijkse samenvatting",
+      "instant": "Direct per e-mail",
+      "off": "Geen e-mail"
+    },
+    "empty": "Je bent helemaal bij.",
+    "emptyDescription": "Herinneringen, antwoorden en meldingen van automatiseringen verschijnen hier.",
+    "emptyFiltered": "Nog geen meldingen van deze soort.",
+    "filterAll": "Alle",
+    "filtersLabel": "Filteren op soort",
+    "kindHelp": {
+      "dueToday": "Herinneringen voor datums die vandaag aanbreken.",
+      "replyReceived": "Wanneer een bericht binnenkomt waar je op wachtte.",
+      "ruleAlert": "Wanneer een van je automatiseringen je iets meldt."
+    },
+    "kinds": {
+      "dueToday": "Vandaag aan de beurt",
+      "replyReceived": "Ontvangen antwoorden",
+      "ruleAlert": "Meldingen van automatiseringen"
+    },
+    "markAllRead": "Alles als gelezen markeren",
+    "preferences": {
+      "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort uit deze werkruimte je ook per e-mail bereikt.",
+      "emailNotConfigured": "Op deze server is geen e-mailverzending ingesteld, dus meldingen bereiken je alleen op de pagina Meldingen. Wie de server beheert, kan e-mailverzending instellen.",
+      "kind": "Soort",
+      "kindOffNotice": "E-mails over “{kind}” staan uit.",
+      "modeLabel": "E-mail voor {kind}",
+      "pause": "E-mails uit deze werkruimte pauzeren tot",
+      "pauseDate": "Datum tot wanneer e-mails gepauzeerd zijn",
+      "pauseHelp": "Zolang het gepauzeerd is, bereikt geen melding uit deze werkruimte je per e-mail, op geen enkel apparaat. Andere werkruimtes waarvan je lid bent, blijven ongemoeid. Je keuzes hierboven blijven staan en gelden vanaf die dag weer.",
+      "pauseOff": "Je e-mailkeuzes zijn terug.",
+      "pauseOn": "E-mails uit deze werkruimte zijn gepauzeerd tot {date}.",
+      "title": "E-mails over meldingen"
+    },
+    "turnOff": {
+      "body": "{email} krijgt dan geen e-mails meer over “{kind}” uit {workspace}. Onder Profiel & voorkeuren zijn ze weer aan te zetten.",
+      "confirm": "E-mails uitzetten",
+      "doneBody": "{email} krijgt geen e-mails meer over “{kind}” uit {workspace}. Meld je aan om ze onder Profiel & voorkeuren weer aan te zetten.",
+      "doneTitle": "Deze e-mails staan uit",
+      "expiredBody": "Links in meldingsmails werken 30 dagen. Open de link uit een nieuwere e-mail, of meld je aan en pas je e-mails aan onder Profiel & voorkeuren.",
+      "expiredTitle": "Deze link is verlopen",
+      "invalidBody": "Open de link uit de meldingsmail opnieuw, of meld je aan en pas je e-mails aan onder Profiel & voorkeuren.",
+      "invalidTitle": "Deze link is niet geldig",
+      "openSettings": "Profiel & voorkeuren openen",
+      "title": "Deze e-mails uitzetten?"
+    },
+    "unread": "Ongelezen"
   },
   "OnboardingChoice": {
     "create": {
@@ -3383,8 +4268,17 @@
           }
         }
       },
+      "other": {
+        "description": "Plak deze URL waar je client een externe MCP-server of een eigen connector toevoegt. Er opent een inlogpagina waar je de toegang goedkeurt.",
+        "keyNote": "Heeft je client een API-sleutel nodig in plaats van inloggen? <guide>De MCP-handleiding</guide> laat zien welke header je meestuurt.",
+        "stepsTitle": "Voeg Customermates toe als externe MCP-server",
+        "subtitle": "Elke client die een externe MCP-server kan toevoegen, werkt met deze URL.",
+        "title": "Andere MCP-client",
+        "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL."
+      },
       "providers": {
-        "ariaLabel": "AI-clients"
+        "ariaLabel": "AI-clients",
+        "more": "Meer:"
       },
       "savedKey": "Je hebt al een API-sleutel gemaakt voor deze installatie. Je kunt de onboarding afronden. Heb je de sleutelwaarde opnieuw nodig, maak dan een nieuwe sleutel.",
       "screen": {
@@ -3403,11 +4297,39 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Voeg nog een kanaal toe als je klanten je ook ergens anders schrijven.",
+      "connected": "Gekoppeld",
+      "connectedLabel": "Gekoppelde kanalen",
+      "emailDescription": "Koppel de mailbox waar je klanten naartoe schrijven. Je e-mails komen binnen en zijn standaard alleen voor jou zichtbaar.",
+      "emailTitle": "E-mail",
+      "finishing": "De koppeling wordt afgerond. Je account verschijnt hier binnen enkele seconden.",
+      "later": "WhatsApp, Telegram en meer kanalen vind je na de inrichting in de instellingen.",
+      "skip": "Voorlopig overslaan"
+    },
+    "connect": {
+      "checkAgain": "Opnieuw controleren",
+      "connected": "Verbonden. Je agent heeft deze werkruimte bereikt.",
+      "failed": "We konden de verbinding niet controleren. Probeer het zo opnieuw.",
+      "skip": "Later verbinden",
+      "statusLabel": "Verbindingsstatus",
+      "waiting": "Wachten op de eerste aanroep van {agent}. Het vinkje verschijnt vanzelf zodra {agent} is verbonden.",
+      "waitingGeneric": "Wachten op de eerste aanroep van je agent. Het vinkje verschijnt vanzelf zodra je agent is verbonden."
+    },
+    "continue": "Doorgaan",
     "finish": "Afronden",
     "goal": {
       "agent": {
-        "description": "Gebruik Claude, ChatGPT of een CLI-client met je werkruimte via MCP.",
-        "title": "Mijn eigen AI-agent koppelen"
+        "description": "Koppel hem aan Customermates, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
+        "descriptionSelfHosted": "Koppel hem aan deze instantie, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
+        "steps": {
+          "approve": "Plak en keur het plan goed",
+          "connect": "Koppel je agent",
+          "template": "Kies een sjabloon"
+        },
+        "stepsLabel": "Zo werkt het",
+        "title": "Gebruik de AI-agent die je al hebt",
+        "worksWith": "Werkt met Claude, ChatGPT, Cursor, Gemini en elke andere MCP-client."
       },
       "channelsHint": {
         "action": "Dashboard openen",
@@ -3426,15 +4348,22 @@
         "salesNavigator": "Gebruik je Sales Navigator? Koppel LinkedIn dan met Sales Navigator",
         "title": "Koppel eerst LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate draait in Customermates Cloud. Je eerste in aanmerking komende cloudwerkruimte krijgt {days} dagen Pro, zonder kaart. Opent een aparte cloudwerkruimte.",
+        "opened": "We hebben Customermates Cloud in een nieuw tabblad geopend. Er is niets van deze instantie naartoe gestuurd. Je kunt hier verder inrichten.",
+        "title": "Liever Mate? Probeer de beheerde cloud"
+      },
       "followup": {
         "description": "Kies een playbook, koppel LinkedIn en zie wie op een antwoord wacht.",
         "title": "Klantgesprekken opvolgen"
       },
       "optionsLabel": "Eerste stappen",
+      "recommended": "Aanbevolen",
       "suggested": "Voorgesteld",
       "workspace": {
-        "description": "Beantwoord een paar vragen. Wij bouwen je lijsten, weergaven en dashboard.",
-        "title": "Mijn klantwerkruimte inrichten"
+        "description": "Kies een sjabloon en onze ingebouwde agent bouwt de werkruimte hier. Niets om te koppelen.",
+        "title": "Laat Mate het voor me inrichten"
       }
     },
     "invite": {
@@ -3455,11 +4384,14 @@
     },
     "milestones": {
       "ai": "AI-tools",
-      "goal": "Doel",
+      "channel": "Kanaal",
+      "connect": "Koppelen",
+      "goal": "Inrichting",
       "invite": "Team",
       "playbook": "Playbook",
       "profile": "Jij",
-      "setup": "Werkruimte"
+      "setup": "Werkruimte",
+      "template": "Sjabloon"
     },
     "next": "Volgende",
     "playbook": {
@@ -3470,19 +4402,73 @@
       "writesTitle": "Drie kennisbankpagina's, klaar om te bewerken"
     },
     "profile": {
+      "teamSize": {
+        "label": "Hoeveel mensen gaan deze werkruimte gebruiken?",
+        "large": "Meer dan 20",
+        "medium": "6 tot 20",
+        "required": "Kies een antwoord om door te gaan.",
+        "small": "2 tot 5",
+        "solo": "Alleen ik"
+      },
       "websitePlaceholder": "voorbeeld.nl"
     },
     "progress": "Stap {current} van {total}",
     "progressLabel": "Voortgang van de onboarding",
     "progressOpen": "Stap {current}",
+    "prompt": {
+      "changed": "Je agent is begonnen met bouwen. Open je werkruimte om mee te kijken.",
+      "copied": "Gekopieerd",
+      "copy": "Prompt kopiëren",
+      "copyFailed": "Kopiëren werkte hier niet. De prompt is geselecteerd: kopieer hem met Ctrl+C of Cmd+C.",
+      "failed": "We konden de prompt niet laden.",
+      "go": "Naar mijn werkruimte",
+      "loading": "Je prompt wordt voorbereid…",
+      "openIn": "Openen in {agent}",
+      "promptLabel": "Sjabloonprompt",
+      "retry": "Opnieuw proberen",
+      "steps": {
+        "approve": "Keur het plan goed dat hij toont",
+        "copy": "Kopieer de prompt",
+        "paste": "Plak hem in een nieuwe chat met {agent}",
+        "pasteGeneric": "Plak hem in een nieuwe chat met je agent"
+      },
+      "stepsLabel": "Volgende stappen",
+      "watching": "We letten op de eerste wijziging van je agent. Hier zie je meteen wanneer hij begint te bouwen."
+    },
+    "source": {
+      "choices": {
+        "advertisement": "Een advertentie",
+        "aiAssistant": "Een AI-assistent (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Een artikel of video",
+        "directory": "Een directory of overzichtssite",
+        "other": "Ergens anders",
+        "recommendation": "Een aanbeveling",
+        "searchEngine": "Een zoekmachine",
+        "socialMedia": "Sociale media"
+      },
+      "detailLabel": "Waar heb je ons gevonden?",
+      "detailPlaceholder": "Waar was dat? (optioneel)",
+      "optionsLabel": "Hoe je Customermates hebt gevonden",
+      "skip": "Overslaan"
+    },
     "steps": {
       "ai": {
         "subtitle": "Kies een AI-tool om te koppelen met je werkruimte en de bijbehorende kennis. Koppel er nu een, voeg later andere toe of sla deze stap over.",
         "title": "Koppel de AI die je al gebruikt"
       },
+      "channel": {
+        "subtitle": "Je gesprekken staan dan bij elke klant, klaar voor concepten en opvolging. Er wordt niets verstuurd zonder jou, en je kunt deze stap overslaan.",
+        "title": "Koppel het kanaal waarop je klanten je schrijven"
+      },
+      "connect": {
+        "subtitle": "Welke agent gebruik je? We laten de exacte stappen ervoor zien.",
+        "title": "Koppel je agent"
+      },
       "goal": {
-        "subtitle": "Kies er één om mee te beginnen. De rest kun je op elk moment doen.",
-        "title": "Wat wil je het eerst doen?"
+        "subtitle": "Kies wie de werkruimte inricht. Je controleert elke wijziging voordat die wordt toegepast.",
+        "subtitleSelfHosted": "Je gegevens blijven op je eigen server. Je eigen agent koppelt via MCP en bouwt de werkruimte uit een sjabloon.",
+        "title": "Hoe richten we je werkruimte in?",
+        "titleSelfHosted": "Hoe richten we deze instantie in?"
       },
       "invite": {
         "subtitle": "Nodig collega's uit met een gedeelde link of met individuele e-mailuitnodigingen. Je kunt ook eerst alleen verder en later mensen uitnodigen.",
@@ -3498,6 +4484,11 @@
         "subtitle": "Voeg je naam toe zodat je teamgenoten je herkennen en kies de taal die je wilt gebruiken. Je kunt beide later wijzigen in je profiel.",
         "title": "Maak deze werkruimte van jou"
       },
+      "prompt": {
+        "subtitle": "{template}: je agent stelt een paar vragen en toont dan het plan ter goedkeuring.",
+        "title": "Plak dit in {agent}",
+        "titleGeneric": "Plak dit in je agent"
+      },
       "setup": {
         "planningSubtitle": "Je antwoorden zijn opgeslagen. Mate maakt er een plan voor je werkruimte van dat je controleert voordat er iets wordt gebouwd.",
         "startSubtitle": "Wij bouwen je lijsten, stappen, dashboard en een paar kennisbankpagina's. Je kunt alles later wijzigen.",
@@ -3505,7 +4496,48 @@
         "subtitle": "Wat we op je website hebben gelezen is al ingevuld. Controleer het en pas aan wat niet klopt.",
         "title": "Je werkruimte inrichten",
         "withoutWebsiteSubtitle": "Een paar korte vragen over wat je wilt bijhouden. De meeste beantwoord je met één klik."
+      },
+      "source": {
+        "subtitle": "Eén optionele vraag. Ze helpt ons alleen om te zien welke kanalen werken, en je kunt haar overslaan.",
+        "title": "Hoe heb je ons gevonden?"
+      },
+      "template": {
+        "subtitle": "Je agent past het op jou aan en toont het plan voordat er iets verandert.",
+        "subtitleMate": "Mate past het op jou aan en toont het plan voordat er iets wordt gebouwd.",
+        "title": "Kies een sjabloon"
       }
+    },
+    "template": {
+      "browseAll": "Alle {count} sjablonen bekijken",
+      "connected": "{agent} verbonden",
+      "connectedGeneric": "Agent verbonden",
+      "counts": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}} · {rules, plural, one {# opvolgregel} other {# opvolgregels}}",
+      "countsNoRules": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}}",
+      "empty": "Geen sjabloon past bij je zoekopdracht.",
+      "families": {
+        "clients": "Klanten",
+        "community": "Community",
+        "content": "Content",
+        "custom": "Op maat",
+        "intake": "Aanvragen",
+        "investing": "Beleggen",
+        "operations": "Operatie",
+        "professional-services": "Zakelijke dienstverlening",
+        "property": "Vastgoed",
+        "recruiting": "Werving",
+        "sales": "Verkoop",
+        "trades": "Ambachten"
+      },
+      "filterAll": "Alle",
+      "filtersLabel": "Soorten sjablonen",
+      "none": "Geen sjabloon",
+      "optionsLabel": "Sjablonen",
+      "recommended": "Aanbevolen",
+      "searchLabel": "Sjablonen zoeken",
+      "searchPlaceholder": "Sjablonen zoeken",
+      "showFewer": "Minder tonen",
+      "suggested": "Voorgesteld voor jou",
+      "use": "{name} gebruiken"
     }
   },
   "OperatorAudit": {
@@ -3740,7 +4772,11 @@
       "events": {
         "agentConnected": "Agent gekoppeld",
         "channelConnected": "Kanaal gekoppeld",
+        "channelSkipped": "Kanaal overgeslagen",
+        "inviteAccepted": "Lid toegetreden",
+        "inviteSent": "Uitnodiging verstuurd",
         "jobSelected": "Doel gekozen",
+        "paid": "Betaald",
         "setupCompleted": "Inrichting voltooid"
       },
       "jobs": {
@@ -3896,6 +4932,151 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Langlopende API-sleutels voor programmatische toegang."
+  },
+  "PublicBooking": {
+    "bookAgain": "Een nieuwe tijd boeken",
+    "cancel": "Boeking annuleren",
+    "cancelledText": "De boeking is geannuleerd en de agenda-uitnodiging is ingetrokken.",
+    "cancelReason": "Reden (optioneel)",
+    "changesOff": "Neem contact op met {host} om deze boeking te wijzigen.",
+    "confirm": "Boeking bevestigen",
+    "confirmedText": "Je ontvangt een agenda-uitnodiging per e-mail.",
+    "confirmedTitle": "Je afspraak is geboekt",
+    "email": "E-mail",
+    "honeypot": "Laat dit veld leeg",
+    "joinLink": "Deelnemen aan het videogesprek",
+    "keep": "Boeking behouden",
+    "loadFailed": "De beschikbare tijden konden niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
+    "loadingMore": "Meer tijden laden",
+    "manage": "Annuleren of verplaatsen",
+    "manageFailed": "De wijziging kon niet worden doorgevoerd. Probeer het zo meteen opnieuw.",
+    "manageLine": "Annuleren of verplaatsen:",
+    "manageNotAllowed": "Deze boeking kan hier niet meer worden gewijzigd.",
+    "manageTitle": "Jouw boeking",
+    "minutes": "{minutes} min",
+    "name": "Je naam",
+    "noOtherSlots": "Er zijn de komende weken geen andere vrije tijden.",
+    "noSlots": "Er zijn de komende weken geen vrije tijden.",
+    "pageTitle": "Een afspraak boeken",
+    "problem": {
+      "rateLimited": "Te veel pogingen. Probeer het later opnieuw.",
+      "slotTaken": "Dit tijdstip is net geboekt. Kies een ander tijdstip.",
+      "unavailable": "De boeking kon niet worden voltooid. Probeer het opnieuw of kies een ander tijdstip."
+    },
+    "rateLimited": "Te veel verzoeken. Probeer het over een paar minuten opnieuw.",
+    "reschedule": "Verplaatsen",
+    "rescheduleConfirm": "Verplaatsen naar deze tijd",
+    "rescheduledText": "De boeking is verplaatst. Je ontvangt een bijgewerkte agenda-uitnodiging.",
+    "rescheduleTitle": "Kies een nieuwe tijd",
+    "stateCancelled": "Deze boeking is geannuleerd.",
+    "stateCancelledByHost": "{host} heeft deze boeking geannuleerd.",
+    "stateCancelledByHostReason": "{host} heeft deze boeking geannuleerd. Reden: {reason}",
+    "statePast": "Deze afspraak heeft al plaatsgevonden.",
+    "timeZone": "Tijden worden getoond in {timeZone}",
+    "unavailable": "Deze boekingspagina is niet beschikbaar.",
+    "video": "Videogesprek",
+    "with": "Met {host}"
+  },
+  "PublicForm": {
+    "afterSubmit": {
+      "add": "Automatisering toevoegen",
+      "createRecord": "Een record maken in {list}",
+      "noRules": "Nog geen automatisering reageert op dit formulier.",
+      "notify": "{who} op de hoogte brengen",
+      "paused": "Gepauzeerd",
+      "person": "De persoon in {list} zoeken of aanmaken",
+      "recipientAssignees": "de toegewezen personen",
+      "recipientMembers": "{count, plural, one {# lid} other {# leden}}",
+      "rules": "{count, plural, one {# automatisering reageert op dit formulier:} other {# automatiseringen reageren op dit formulier:}}",
+      "title": "Zodra het formulier is verzonden"
+    },
+    "badge": "Gemaakt met Customermates",
+    "blockedBody": "Je bericht kon niet worden verzonden. Probeer het later opnieuw.",
+    "builder": {
+      "badgeNote": "Formulieren in het Free-abonnement tonen “Gemaakt met Customermates”.",
+      "blockingFields": "De lijst vereist {fields}, waar een formulier niet om kan vragen. Geef het een standaardwaarde of maak het optioneel. Tot die tijd zien bezoekers het formulier als niet beschikbaar en kan het niet worden opgeslagen.",
+      "consentAdd": "Toestemmingsregel toevoegen",
+      "consentClear": "Toestemmingsregel verwijderen",
+      "consentDefault": "Ik ga ermee akkoord dat mijn gegevens worden opgeslagen om mijn verzoek te beantwoorden.",
+      "consentEvidence": "Elke inzending bewaart als bewijs de toestemmingstekst, de versie, het tijdstip en een gehasht IP-adres.",
+      "consentText": "Toestemmingstekst",
+      "defaultEmailLabel": "E-mail",
+      "defaultNameLabel": "Naam",
+      "defaultSubmit": "Verzenden",
+      "defaultSuccess": "Bedankt. We hebben je bericht ontvangen.",
+      "duplicateOpenRecord": "Bestaand record openen",
+      "duplicatesIntro": "In de laatste 30 dagen {count, plural, one {kwam # inzending} other {kwamen # inzendingen}} van een e-mailadres dat al een record in deze lijst heeft. Er is geen tweede record aangemaakt. De nieuwste antwoorden staan hier.",
+      "duplicatesTitle": "Inzendingen van mensen die al in de lijst staan",
+      "emailLabel": "Label van het e-mailadres",
+      "embed": "Insluiten op je website",
+      "enabled": "Inzendingen accepteren",
+      "failedSubmissions": "In de laatste 30 dagen {count, plural, one {kon # inzending niet als record worden opgeslagen, op {date}} other {konden # inzendingen niet als record worden opgeslagen, de laatste op {date}}}.",
+      "helpText": "Helptekst",
+      "include": "{field} opnemen",
+      "incomplete": "Om op te slaan heb je een titel, een knoplabel, een label voor elke vraag en een succesbericht nodig. Met toestemming aan komen daar de toestemmingstekst en een link naar je privacyverklaring bij.",
+      "intro": "Laat iedereen vanaf een webpagina een record aan {list} toevoegen, zonder in te loggen. Elke inzending maakt een record aan dat het formulier als bron toont.",
+      "language": "Taal",
+      "languageAuto": "De browser van de bezoeker",
+      "link": "Openbare link",
+      "loading": "Formulier laden",
+      "moveDown": "Omlaag",
+      "moveUp": "Omhoog",
+      "nameLabel": "Label van de naam",
+      "noFields": "Deze lijst heeft geen velden die een formulier kan gebruiken.",
+      "pageDescription": "Beschrijving",
+      "pageTitle": "Titel",
+      "permissionDenied": "Je rol mag geen formulieren voor deze lijst publiceren.",
+      "personEnabled": "Een persoon zoeken of aanmaken via e-mail",
+      "personList": "Lijst met personen",
+      "personNameField": "Veld voor de naam",
+      "personRelationship": "Relatie",
+      "personUnavailable": "Om inzendingen aan een persoon te koppelen heb je een lijst met contactgegevens en een relatie met deze lijst nodig.",
+      "privacyUrl": "Link naar je privacyverklaring",
+      "questionLabel": "Vraag",
+      "redirectUrl": "In plaats daarvan doorsturen naar dit adres (optioneel)",
+      "repairsAdded": "De lijst vereist nu {fields}, dus het formulier vraagt erom.",
+      "repairsDropped": "Niet meer in de lijst en uit het formulier verwijderd: {fields}.",
+      "repairsPersonAdjusted": "De koppeling met de personenlijst is veranderd. Controleer het onderdeel Persoon.",
+      "repairsPersonDropped": "De personenlijst van dit formulier voldoet niet meer, dus het zoeken of aanmaken van een persoon staat uit.",
+      "repairsSave": "Sla op om dit toe te passen. Tot die tijd zien bezoekers het formulier als niet beschikbaar.",
+      "required": "Verplicht",
+      "requiredByList": "Verplicht volgens de lijst",
+      "saved": "Formulier opgeslagen",
+      "sectionConsent": "Toestemming",
+      "sectionFields": "Vragen",
+      "sectionPage": "Pagina",
+      "sectionPerson": "Persoon",
+      "sectionPreview": "Voorbeeld",
+      "sectionPreviewDone": "Slotbericht",
+      "sectionPreviewForm": "Formulier",
+      "sectionPreviewMode": "Voorbeeld van",
+      "sectionSuccess": "Na het verzenden",
+      "submitLabel": "Knoplabel",
+      "successMessage": "Succesbericht",
+      "usageLimited": "Inzendingen deze maand: {count} van {limit}.",
+      "usageUnlimited": "Inzendingen deze maand: {count}.",
+      "workspaceDisabled": "Openbare links en formulieren zijn uitgeschakeld in de instellingen van deze werkruimte."
+    },
+    "byline": "Verzonden naar {workspace}",
+    "errors": {
+      "consent": "Ga akkoord om door te gaan.",
+      "email": "Voer een geldig e-mailadres in.",
+      "invalid": "Controleer dit antwoord.",
+      "required": "Dit veld is verplicht.",
+      "summary": "Sommige antwoorden vragen je aandacht."
+    },
+    "honeypot": "Laat dit veld leeg",
+    "pageTitle": "Formulier",
+    "privacyNotice": "Privacyverklaring",
+    "rateLimitedBody": "Er kwamen te veel verzoeken van deze verbinding. Wacht even en probeer het opnieuw.",
+    "rateLimitedSubtitle": "Even geduld",
+    "rateLimitedTitle": "Te veel verzoeken",
+    "sending": "Verzenden…",
+    "sentTitle": "Bedankt",
+    "toHome": "Naar customermates.com",
+    "unavailableBody": "Het formulier is mogelijk uitgezet of de link is verkeerd getypt. Vraag degene die hem deelde om een nieuwe.",
+    "unavailableSubtitle": "Deze pagina kan niet worden geopend",
+    "unavailableTitle": "Formulier niet beschikbaar"
   },
   "PublicLink": {
     "byline": "Gedeeld door {workspace}",
@@ -4256,6 +5437,7 @@
         "parentAccess": "{source} krijgt toegang via {target}.",
         "requiresRestore": "Herstel eerst {target}, {source} hoort erbij.",
         "routine": "De routine {source} reageert op {target}.",
+        "rule": "De automatiseringsregel {source} reageert op {target}.",
         "snapshotTrigger": "{source} slaat zijn waarde op wanneer {target} verandert.",
         "webhook": "De webhook {source} verstuurt wijzigingen van {target}.",
         "widget": "De widget {source} meet {target}."
@@ -4536,6 +5718,7 @@
     "linkedType": "Koppelen aan",
     "linkRecord": "Record koppelen",
     "listActions": "Lijstacties",
+    "listCount": "{count} {label}",
     "listCounts": "{fields, plural, one {# veld} other {# velden}} · {relationships, plural, one {# relatie} other {# relaties}}",
     "listUnavailable": "Deze lijst is niet beschikbaar. Kies een andere lijst.",
     "member": "Lid",
@@ -4786,6 +5969,7 @@
     "noRecordsInPeriod": "Geen records",
     "notes": "Over deze cijfers",
     "numberContextAverage": "{count, number} {label} · gem. {average}",
+    "numberContextAverageList": "{count, number} {label} · gem. {average}",
     "numberRecords": "{count, plural, one {record} other {records}}",
     "overall": "Totaal: {value}",
     "previewFailed": "Het voorbeeld kon niet worden geladen. Probeer het opnieuw.",
@@ -4827,6 +6011,7 @@
     "resize": "Formaat van {before} en {after} aanpassen. Sleep of gebruik de pijltjestoetsen om het formaat te wijzigen; dubbeltik of druk op Enter om te resetten."
   },
   "RoleModal": {
+    "automationsResource": "Automatiseringen",
     "create": "Aanmaken",
     "dataModelNote": "Maak en wijzig lijsten, velden en relaties in het Gegevensmodel.",
     "edit": "Bewerken",
@@ -4846,7 +6031,7 @@
       "dataModel": "Gegevensmodel",
       "inboxMessages": "Inboxberichten",
       "publicLinks": "Openbare links",
-      "routines": "Routines",
+      "routines": "Routines en automatiseringen",
       "users": "Gebruikers & rollen",
       "wiki": "Kennisbank"
     },
@@ -5031,14 +6216,96 @@
     "tuesday": "Dinsdag",
     "wednesday": "Woensdag"
   },
+  "Runners": {
+    "add": "Runner toevoegen",
+    "addDescription": "Geef de machine op waarop de runner draait. Je krijgt het token één keer; de runner gebruikt het om jouw agenttaken in deze werkruimte op te halen.",
+    "addTitle": "Een runner toevoegen",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "Gevonden CLI’s",
+    "description": "Met een runner draaien jouw agentstappen met je eigen Claude Code, Codex of Gemini CLI op je machine. Hij haalt de taken op van de automatiseringen waarvan jij de eigenaar bent, voert de CLI uit waarin je bent ingelogd en meldt het resultaat terug. Customermates ontvangt nooit je CLI-login.",
+    "dockerDescription": "Draait dezelfde runner in een container. Koppel de loginmap van je CLI zodat die ingelogd blijft. Op macOS bewaart Claude Code de login in de Sleutelhanger: geef daar de API-sleutel of het token als variabele mee.",
+    "dockerTitle": "Draaien met Docker",
+    "empty": "Je hebt nog geen runner. Voeg er een toe om agentstappen met je eigen CLI uit te voeren.",
+    "installDescription": "Vereist Node 24 en Claude Code, Codex of Gemini CLI, ingelogd op die machine.",
+    "installTitle": "Draaien met Node",
+    "lastSeen": "Laatst gezien",
+    "machine": "Machine",
+    "noClients": "Geen CLI gevonden",
+    "offline": {
+      "body": "Jouw agenttaken wachten, en de afgelopen 10 minuten heeft zich geen runner van jou verbonden die ze kan oppakken. Start je runner of controleer de machine waarop hij draait. Een taak die langer dan 15 minuten wacht, eindigt met een time-out.",
+      "title": "Je runner is offline"
+    },
+    "owner": "Toegevoegd door",
+    "revoke": "Intrekken",
+    "revokeDescription": "{name} kan geen taken meer ophalen, en de taken die hij uitvoert of die op hem wachten eindigen als geannuleerd. Dit kan niet ongedaan worden gemaakt. Voeg een nieuwe runner toe om de machine opnieuw te verbinden.",
+    "revokeTitle": "Deze runner intrekken?",
+    "status": {
+      "neverSeen": "Nooit verbonden",
+      "offline": "Offline",
+      "online": "Online",
+      "revoked": "Ingetrokken"
+    },
+    "title": "Runners",
+    "toastRevoked": "Runner ingetrokken",
+    "tokenCreated": "Runner toegevoegd. Kopieer het token nu, het wordt maar één keer getoond.",
+    "tokenLabel": "Runner-token",
+    "tokenWarning": "Iedereen met dit token kan jouw runnertaken in deze werkruimte ophalen. Trek de runner in als het token uitlekt.",
+    "withheld": "Je rol mag runners niet zien, dus hier staan er geen."
+  },
+  "ScheduleMeeting": {
+    "action": "Afspraak plannen",
+    "attendeesPlaceholder": "Voeg een e-mailadres toe en druk op Enter",
+    "blocked": {
+      "needsReconnect": "Je Google- of Microsoft-account moet opnieuw worden gekoppeld onder Kanalen & agenda's voordat er afspraken kunnen worden gemaakt.",
+      "noCalendar": "Koppel een Google- of Microsoft-agenda onder Kanalen & agenda's om afspraken te plannen."
+    },
+    "created": "Afspraak gepland",
+    "defaultTitle": "Afspraak met {name}",
+    "duration": "{minutes} min",
+    "fields": {
+      "attendees": "Deelnemers",
+      "calendar": "Agenda",
+      "date": "Datum",
+      "description": "Beschrijving",
+      "duration": "Duur",
+      "followUp": "Een vervolgtaak aanmaken in",
+      "followUpDate": "Begintijd van de afspraak opslaan in",
+      "location": "Locatie",
+      "sendInvites": "Uitnodigingen naar de deelnemers sturen",
+      "time": "Begintijd",
+      "title": "Titel",
+      "videoLink": "Videolink toevoegen"
+    },
+    "followUpNone": "Geen vervolgtaak",
+    "freeSlots": "Vrije tijden ({timeZone})",
+    "loadFailed": "De agenda-opties konden niet worden geladen. Sluit dit venster en probeer het opnieuw.",
+    "newMeeting": "Nieuwe afspraak",
+    "noFreeSlots": "Geen vrije tijden op deze dag. Je kunt nog steeds een begintijd invoeren.",
+    "partial": "De afspraak is aangemaakt, maar het koppelen of het aanmaken van de vervolgtaak is niet gelukt.",
+    "title": "Afspraak plannen",
+    "unavailable": {
+      "demo": "Afspraken plannen vereist een gekoppelde agenda en is niet beschikbaar in de demowerkruimte.",
+      "selfHosted": "Afspraken plannen vereist de gehoste agendakoppeling en is niet beschikbaar bij zelf hosten."
+    },
+    "upsell": {
+      "detail": "Maak vanuit elk record afspraken in je Google- of Microsoft-agenda.",
+      "title": "Afspraken plannen vanaf {plan}"
+    }
+  },
   "SettingsNav": {
     "account": "Account",
     "activity": "Auditlog",
+    "agents": "Agents",
     "apiKeys": "API-sleutels & connectoren",
     "billing": "Facturering",
     "channels": "Kanalen & agenda's",
     "deliveries": "Webhooklog",
     "general": "Algemeen",
+    "incomingWebhooks": "Inkomende webhooks",
     "members": "Leden",
     "profile": "Profiel & voorkeuren",
     "roles": "Rollen",
@@ -5124,6 +6391,9 @@
       "pitchBoard": "Pitchbord"
     }
   },
+  "SourceBadge": {
+    "label": "Source available"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Alle functies",
@@ -5180,6 +6450,7 @@
       "freeCurrent": "Free · huidig abonnement",
       "freeSummary": "{members, plural, one {Eén persoon} other {# personen}} en maximaal {records} records. API en MCP met een aanvraaglimiet.",
       "hostedAiUsage": "{multiplier}x Mate-gebruik per actieve gebruiker / maand",
+      "keepsAccounts": "Je hebt maximaal {connected} verbonden accounts per gebruiker. Dit abonnement behoudt er {kept}; de nieuwste worden bij betaling losgekoppeld.",
       "perUserMonth": "per gebruiker / maand",
       "recommendedForYou": "Aanbevolen voor jou",
       "routinesPerUser": "{routines, plural, one {# routine per gebruiker} other {# routines per gebruiker}}",
@@ -5238,6 +6509,155 @@
     "subject": "Je account is inactief: we helpen je graag de toegang te herstellen",
     "subjectNamed": "Je toegang tot “{workspace}” is inactief: we helpen je graag die te herstellen",
     "title": "Abonnement geïnactiveerd"
+  },
+  "TemplatePages": {
+    "breadcrumbHome": "Home",
+    "breadcrumbTemplates": "Sjablonen",
+    "copied": "Gekopieerd. Plak het in je agent.",
+    "copy": "Prompt kopiëren",
+    "copyFailed": "Kopiëren is mislukt. Selecteer de tekst en kopieer hem met de hand.",
+    "copyPrompt": "Prompt kopiëren",
+    "countFields": "{count, plural, one {# veld} other {# velden}}",
+    "countLists": "{count, plural, one {# lijst} other {# lijsten}}",
+    "countRules": "{count, plural, one {# opvolgregel} other {# opvolgregels}}",
+    "countViews": "{count, plural, one {# weergave} other {# weergaven}}",
+    "countWidgets": "{count, plural, one {# dashboardwidget} other {# dashboardwidgets}}",
+    "createsLead": "Lijsten, velden, fasen, weergaven en dashboardwidgets, als het plan dat je agent voorstelt. Je kunt elk onderdeel hernoemen of weglaten.",
+    "createsTitle": "Wat de agent aanmaakt",
+    "ctaAction": "Begin vandaag met {name}",
+    "ctaDescription": "Start een gratis proefperiode, plak de prompt en keur het plan goed.",
+    "ctaPricing": "Bekijk de prijzen",
+    "demoLink": "Open de live demo",
+    "families": {
+      "clients": "Klanten",
+      "community": "Verenigingen en clubs",
+      "content": "Content",
+      "custom": "Je eigen CRM",
+      "intake": "Intake van klanten",
+      "investing": "Beleggen",
+      "operations": "Bedrijfsvoering",
+      "professional-services": "Zakelijke dienstverlening",
+      "property": "Vastgoed",
+      "recruiting": "Werving",
+      "sales": "Verkoop en CRM",
+      "trades": "Ambachten en bouw"
+    },
+    "faqTitle": "Veelgestelde vragen",
+    "filterAll": "Alle",
+    "filterLabel": "Filter op vakgebied",
+    "hubCtaAction": "Weet je niet welk sjabloon past?",
+    "hubCtaDescription": "Start een gratis proefperiode, koppel je agent en beschrijf je werk. Hij stelt een opzet voor en jij keurt die goed voordat er iets wordt geschreven.",
+    "hubEyebrow": "Gratis CRM-sjablonen voor AI-agents",
+    "hubLede": "Kant-en-klare opzetten voor jouw werk. Kopieer er een in Claude, ChatGPT of Codex en je agent bouwt je lijsten, fasen en opvolging op ter goedkeuring.",
+    "hubMetaDescription": "Kant-en-klare CRM-sjablonen voor klantenbestand, verkooppijplijn en meer. Kopieer er een in Claude, ChatGPT of Codex en je agent bouwt lijsten en opvolging.",
+    "hubMetaTitle": "Gratis CRM-sjablonen voor AI-agents",
+    "hubSteps": {
+      "approve": "Keur het plan goed",
+      "paste": "Plak het in je agent",
+      "pick": "Kies een sjabloon"
+    },
+    "hubTitle": "Plak een sjabloon. Je AI-agent bouwt het CRM.",
+    "knowledgeLead": "Opzetten voor je eigen kennisbank, ingevuld met jouw gegevens. Het zijn beginpunten, geen kant-en-klare richtlijnen.",
+    "knowledgeTitle": "Kennispagina's die worden aangemaakt",
+    "limitsLead": "Ken de grenzen voordat je begint.",
+    "limitsTitle": "Wat het sjabloon niet doet",
+    "moreFields": "+{count} meer",
+    "noResults": "Geen sjabloon past. Wis de zoekopdracht of kies een ander vakgebied.",
+    "pairedBody": "Dit sjabloon hoort bij onze pagina over {name}.",
+    "pairedLink": "Lees meer over {name}",
+    "pairedTitle": "Onderdeel van een bredere oplossing",
+    "promptCloud": "Cloud",
+    "promptLead": "Eén zelfstandige prompt. Kies waar je werkruimte draait en kopieer hem dan.",
+    "promptSelfHosted": "Zelf gehost",
+    "promptSwitch": "Waar je werkruimte draait",
+    "promptTitle": "De prompt",
+    "proofLead": "Kopieer deze opzet in je AI-agent en hij bouwt hem in je CRM op ter goedkeuring.",
+    "proofOpen": "Open het sjabloon",
+    "proofSetsUp": "Maakt aan",
+    "proofTitle": "Begin met een kant-en-klaar sjabloon",
+    "relatedTitle": "Meer sjablonen op dit gebied",
+    "routineLead": "Het sjabloon bouwt de routine na die dit werk al heeft, zodat die na de opzet blijft draaien.",
+    "ruleAgent": "Draait via je agent",
+    "ruleDueAfter": "{days, plural, one {Vervalt na # dag} other {Vervalt na # dagen}}",
+    "ruleDueSame": "Vervalt dezelfde dag",
+    "ruleEngine": "Automatiseringsregel",
+    "rulesTitle": "Opvolgregels",
+    "searchLabel": "Zoek sjablonen",
+    "searchPlaceholder": "Zoek op taak of beroep",
+    "sourceChecked": "Gecontroleerd op {date}",
+    "sourcesLead": "De praktijk achter dit sjabloon komt van deze pagina's.",
+    "sourcesTitle": "Bronnen",
+    "stagesTitle": "Fasen",
+    "startFree": "Start gratis",
+    "step1Body": "Maak een gratis Customermates-werkruimte met dit sjabloon alvast gekozen, of gebruik je eigen zelf gehoste instantie.",
+    "step1Link": "Start gratis",
+    "step1Title": "Zorg voor een werkruimte",
+    "step2Body": "Kopieer de prompt hieronder in Claude, ChatGPT of Codex, gekoppeld aan je werkruimte. De agent leest eerst je werkruimte en stelt de opzet in gewone woorden voor.",
+    "step2Title": "Plak de prompt in je AI-agent",
+    "step3Body": "Er wordt niets geschreven voordat je ja zegt. De agent maakt geen voorbeeldrecords aan, verstuurt niets en vertelt je aan het eind wat er bestaat.",
+    "step3Title": "Keur het plan goed",
+    "stepsTitle": "Zo werkt het",
+    "switchKit": {
+      "checked": "Exportstappen gecontroleerd op {date}.",
+      "cta": "Start gratis",
+      "exportLabel": "Zo exporteer je",
+      "movesLabel": "Wat meegaat",
+      "note": "Je agent past het hulpmiddel dat je achterlaat nooit aan. Hij leest je export, laat zien hoe de kolommen overeenkomen, wacht op je bevestiging en importeert één lijst tegelijk. De import leest .xlsx- en CSV-bestanden tot 10 MB en vijfduizend rijen per blad, en het Free-abonnement bevat [[commercial.limit.free.maxRecords]] records.",
+      "replacesLabel": "Vervangt",
+      "sectionLead": "Je agent leest een export van het hulpmiddel dat je nu gebruikt en bouwt dezelfde gegevens op in je werkruimte. Elke kit zegt wat meegaat, hoe je exporteert en wat achterblijft.",
+      "sectionTitle": "Neem je gegevens mee: overstapkits",
+      "staysLabel": "Wat niet meegaat",
+      "templateLabel": "Sjabloon",
+      "title": "Overstapkit: {tool}",
+      "tools": {
+        "airtable": {
+          "export": "Open het weergavemenu en kies Download CSV. Elke tabel wordt apart gedownload en filters in de weergave beperken de rijen. Bijlagevelden worden geëxporteerd als links die na ongeveer twee uur verlopen, dus download de bestanden snel.",
+          "moves": "Eén CSV per tabel wordt één lijst. Enkele keuze wordt een keuzeveld, medewerkers worden teamleden en kolommen met gekoppelde records worden relaties die de agent na de import aanmaakt. Formule- en rollupkolommen komen als waarden.",
+          "name": "Airtable",
+          "replaces": "Een base zoals een verkoop-CRM met accounts, contacten, interacties en kansen.",
+          "stays": "Weergaven, interfaces, automatiseringen, formulieren, formules als logica en de bijlagebestanden zelf gaan niet mee."
+        },
+        "clickup": {
+          "export": "Gebruik Export Items in de instellingen van de werkruimte voor een CSV van alle taken, of exporteer een lijst- of tabelweergave als CSV of Excel. Menunamen veranderen, dus controleer ze in de huidige app.",
+          "moves": "Taaknamen worden namen van deals of bedrijven, afhankelijk van het CRM-itemtype, waarmee de agent één export over meerdere lijsten verdeelt. De vele statussen worden samengevoegd tot de vier tot zes fasen uit je interview.",
+          "name": "ClickUp",
+          "replaces": "Een CRM-lijst met veel statussen en eigen velden voor contactnaam, e-mail, verkoopfase en dienst.",
+          "stays": "Weergaven, dashboards, automatiseringen, documenten, tijdregistratie, afhankelijkheden en Gantt-diagrammen gaan niet mee."
+        },
+        "notion": {
+          "export": "Open de database, kies het menu met drie puntjes, dan Exporteren en vervolgens Markdown en CSV. Je krijgt een ZIP met de CSV en één Markdown-bestand per pagina. Relaties worden als platte tekst geëxporteerd, dus de agent herstelt de koppelingen door titels te vergelijken en noemt wat hij niet kon koppelen.",
+          "moves": "Titels worden namen, status wordt fase-opties, selectie en meervoudige selectie worden keuzevelden, personen worden teamleden, getallen en datums worden velden. De inhoud van pagina's gaat alleen mee als je erom vraagt.",
+          "name": "Notion",
+          "replaces": "Een CRM in een of meer databases, met eigenschappen voor status, selectie, persoon, getal en relatie.",
+          "stays": "Weergaven, relaties als koppelingen, rollups en formules als logica, sjablonen en automatiseringen gaan niet mee. Notion zegt niet of geüploade bestanden in de export zitten."
+        },
+        "sheets": {
+          "export": "Open in Google Sheets het menu Bestand en sla de werkmap op als Microsoft Excel (.xlsx). Houd in Excel het .xlsx-bestand of sla op als CSV UTF-8. Customermates leest .xlsx rechtstreeks, dus een werkmap met één blad per lijst is de schoonste invoer.",
+          "moves": "Eén blad per lijst: organisaties, contacten en deals worden lijsten, fasetekst wordt fase-opties, waarden en datums worden velden. Interactierijen worden acties met een datum of notities, zoals je kiest.",
+          "name": "Google Sheets en Excel",
+          "replaces": "Een CRM in een werkmap, met bladen voor organisaties, contacten, deals en interacties, of één platte lijst.",
+          "stays": "Formules komen alleen als waarden mee. Voorwaardelijke opmaak, grafieken, dashboards, validatielijsten en macro's gaan niet mee."
+        },
+        "smartsheet": {
+          "export": "Sla het blad via het bestandsmenu op als Excel-werkmap. Eigenaren, beheerders en bewerkers kunnen dit doen in de betaalde abonnementen. Opmerkingen en de bladsamenvatting komen op aparte tabbladen.",
+          "moves": "Het geëxporteerde blad wordt een lijst, dropdowntekst wordt keuze-opties en contactkolommen worden teamleden of contactnamen. Gegroepeerde bovenliggende en onderliggende rijen worden platgeslagen, waar de agent je naar vraagt.",
+          "name": "Smartsheet",
+          "replaces": "Een klantenoverzicht of CRM-blad met een dropdown voor de verkoopfase.",
+          "stays": "Formules, groepering, samenvattingsrijen, bijlagen, dashboards en workflows gaan niet mee."
+        },
+        "trello": {
+          "export": "Elk lid van een bord kan het exporteren naar JSON, dat ook de recentste opmerkingen bevat. CSV vereist een Premium-werkruimte en laat opmerkingen weg. Geen van beide formaten kun je terug in Trello importeren.",
+          "moves": "Lijstnamen worden fase-opties, kaartnamen worden dealnamen, labels worden keuzes, vervaldatums worden datums voor de volgende stap, beschrijvingen worden notities en leden worden teamleden. Je agent vraagt eerst wat een kaart is: een persoon, een bedrijf of een deal.",
+          "name": "Trello",
+          "replaces": "Een bord waarop lijsten fasen zijn en kaarten leads of deals.",
+          "stays": "Butler-automatiseringen, power-ups, omslagafbeeldingen en sjabloonkaarten gaan niet mee."
+        }
+      }
+    },
+    "trialHint": "Geen creditcard nodig. De eerste [[commercial.trial.days]] dagen zijn gratis.",
+    "viewsTitle": "Weergaven",
+    "widgetsTitle": "Dashboard",
+    "worksWith": "Werkt met Claude, ChatGPT, Codex"
   },
   "Trash": {
     "bannerDeleted": "Verwijderd op {date}. {count, plural, =0 {Wordt vandaag permanent verwijderd} one {Wordt over # dag permanent verwijderd} other {Wordt over # dagen permanent verwijderd}}.",
@@ -5400,9 +6820,11 @@
       "items": {
         "accounts": "{count, plural, one {# gekoppeld account} other {# gekoppelde accounts}}",
         "drafts": "{count, plural, one {# openstaand concept} other {# openstaande concepten}}",
+        "forms": "{count, plural, one {# formulierinzending boven de maandlimiet} other {# formulierinzendingen boven de maandlimiet}}",
         "mate": "Mate ({count, plural, one {# verzoek} other {# verzoeken}})",
         "members": "{count, plural, one {# extra persoon} other {# extra personen}}",
         "routines": "{count, plural, one {# actieve routine} other {# actieve routines}}",
+        "rules": "{count, plural, one {# automatisering boven de limiet} other {# automatiseringen boven de limiet}}",
         "webhooks": "{count, plural, one {# actieve webhook} other {# actieve webhooks}}"
       },
       "lead": "Op Free stopt dit:"
@@ -5741,6 +7163,19 @@
     "apiKeysScope": "Deze sleutels geven alleen toegang tot deze werkruimte.",
     "apiKeysScopeNamed": "Deze sleutels geven alleen toegang tot de werkruimte {name}.",
     "billingNote": "Elke werkruimte heeft een eigen abonnement en eigen plekken. De eerste werkruimte die je aanmaakt bevat de gratis proefperiode en gaat daarna naar het Free-abonnement; elke volgende werkruimte start met het kiezen van een abonnement.",
+    "branding": {
+      "accentLabel": "Accentkleur",
+      "accentPicker": "Accentkleur kiezen",
+      "description": "Je logo en accentkleur staan op je boekingspagina's en openbare formulieren. Het logo vervangt ook de initialen van de werkruimte in de app.",
+      "logoEmpty": "Geen logo",
+      "logoHint": "PNG, JPEG of WebP, maximaal 512 kB.",
+      "logoLabel": "Logo",
+      "logoTooLarge": "De afbeelding is groter dan 512 kB.",
+      "logoUnsupported": "Kies een PNG-, JPEG- of WebP-afbeelding.",
+      "logoUpload": "Logo uploaden",
+      "saved": "Huisstijl opgeslagen",
+      "title": "Huisstijl"
+    },
     "create": "Werkruimte aanmaken",
     "createDescription": "Een nieuwe werkruimte begint leeg, met eigen records, Kennisbank, leden en verbindingen.",
     "current": "Huidig",
@@ -5767,6 +7202,10 @@
     "leaveConfirmDescription": "Je verliest de toegang tot de records, Kennisbank en verbindingen, en je API-sleutels en MCP-verbindingen ervoor werken niet meer. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
     "leaveConfirmTitle": "{name} verlaten?",
     "leaveDescription": "Verwijder jezelf uit deze werkruimte. Je andere werkruimtes blijven zoals ze zijn.",
+    "leaveInactiveConfirmDescription": "Je toegang tot deze werkruimte is gedeactiveerd, en een beheerder van deze werkruimte kan die opnieuw activeren. Verlaten is definitief: een latere heractivering brengt je niet terug. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
+    "leaveNamed": "{name} verlaten",
+    "leaveNoAdminConfirmDescription": "Het abonnement van deze werkruimte is beëindigd en de toegang van alle leden is gedeactiveerd. Alleen ons supportteam kan die herstellen. Verlaten is definitief: herstelde toegang brengt je niet terug. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen heb je een uitnodigingslink nodig en een beheerder die je verzoek goedkeurt, en deze werkruimte heeft op dit moment geen actieve beheerder.",
+    "leavePausedConfirmDescription": "Je toegang is alleen gepauzeerd en komt terug zodra deze werkruimte een betaald abonnement kiest. Verlaten is definitief: een latere upgrade brengt je niet terug. Je API-sleutels en MCP-verbindingen ervoor worden verwijderd. Om terug te komen kun je met een uitnodigingslink opnieuw vragen om deel te nemen, en een beheerder moet je verzoek goedkeuren.",
     "leaveShort": "Verlaten",
     "listDescription": "Elke werkruimte waar je bij hoort. Elk heeft eigen records, leden, API-sleutels en verbindingen.",
     "memberCount": "{count, plural, one {# lid} other {# leden}}",

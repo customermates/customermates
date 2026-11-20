@@ -1,0 +1,262 @@
+{
+  "locale": "pl",
+  "name": "Przyjęcie klienta i onboarding",
+  "summary": "Przyjmuj nowych klientów bez ręcznego gonienia za ankietami, dokumentami i umowami. Jedno przyjęcie na zlecenie, z datowanym krokiem na każdym etapie i zapisanym powodem, gdy odmawiasz.",
+  "description": "Nowi klienci milkną między pierwszym zapytaniem a pierwszym dniem pracy: ankieta nie wróciła, brakuje dokumentu, umowa wciąż czeka na podpis. Szablon zakłada jedno przyjęcie na zlecenie z dziewięcioma etapami od zapytania do spotkania startowego, dokumenty od klienta, datowany krok na każdym etapie, odpowiedź w ciągu doby i powód odmowy, gdy rezygnujesz z klienta. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, sprawdził konflikt interesów i ocenił ryzyko, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji tożsamości KYC/AML ani płatności.",
+  "lists": {
+    "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby u każdego klienta: główny kontakt, rozliczenia, osoba podpisująca." },
+    "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Firmy, jednoosobowe działalności i osoby prywatne, które przyjmujesz." },
+    "intakes": { "label": "Przyjęcie", "pluralLabel": "Przyjęcia", "description": "Jedno przyjęcie na zlecenie, od zapytania do wdrożonego lub odrzuconego." },
+    "document_requests": { "label": "Dokument", "pluralLabel": "Dokumenty", "description": "Jeden wiersz na dokument, o który prosisz klienta." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Etap",
+      "options": {
+        "enquiry": "Zapytanie",
+        "screening": "Wstępna kwalifikacja",
+        "form_sent": "Ankieta wysłana",
+        "review_checks": "Weryfikacja",
+        "agreement_sent": "Umowa wysłana",
+        "ready_to_start": "Gotowe do startu",
+        "kickoff_scheduled": "Spotkanie startowe",
+        "onboarded": "Wdrożone",
+        "declined": "Odrzucone"
+      }
+    },
+    "contacts.job_title": { "label": "Stanowisko" },
+    "contacts.contact_role": {
+      "label": "Rola",
+      "options": { "primary": "Główny kontakt", "billing": "Rozliczenia", "signatory": "Osoba podpisująca", "technical": "Kontakt techniczny", "other": "Inna" }
+    },
+    "contacts.language": { "label": "Język" },
+    "contacts.privacy_notice_sent_on": { "label": "Data wysłania klauzuli informacyjnej" },
+    "clients.client_type": {
+      "label": "Rodzaj klienta",
+      "options": { "company": "Firma", "sole_trader": "Jednoosobowa działalność", "individual": "Osoba prywatna", "organisation": "Stowarzyszenie lub organizacja" }
+    },
+    "clients.owner": { "label": "Opiekun" },
+    "clients.website": { "label": "Strona internetowa" },
+    "clients.address": { "label": "Adres" },
+    "clients.registration_id": { "label": "NIP, REGON lub KRS" },
+    "clients.source": {
+      "label": "Źródło",
+      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt wychodzący", "partner": "Partner", "other": "Inne" }
+    },
+    "intakes.owner": { "label": "Osoba odpowiedzialna" },
+    "intakes.service": { "label": "Usługa" },
+    "intakes.received_on": { "label": "Data otrzymania" },
+    "intakes.first_response_on": { "label": "Data pierwszej odpowiedzi" },
+    "intakes.form_sent_on": { "label": "Data wysłania ankiety" },
+    "intakes.form_received_on": { "label": "Data otrzymania ankiety" },
+    "intakes.agreement_sent_on": { "label": "Data wysłania umowy" },
+    "intakes.agreement_signed_on": { "label": "Data podpisania umowy" },
+    "intakes.kickoff_on": { "label": "Data spotkania startowego" },
+    "intakes.fee_model": {
+      "label": "Model wynagrodzenia",
+      "options": { "fixed": "Ryczałt", "hourly": "Za godzinę", "retainer": "Abonament miesięczny", "other": "Inny" }
+    },
+    "intakes.deposit_required": { "label": "Wymagana zaliczka" },
+    "intakes.deposit_received_on": { "label": "Data otrzymania zaliczki" },
+    "intakes.identity_verified_on": { "label": "Data weryfikacji tożsamości" },
+    "intakes.identity_verified_by": { "label": "Kto zweryfikował tożsamość" },
+    "intakes.conflict_check": {
+      "label": "Sprawdzenie konfliktu interesów",
+      "options": { "not_required": "Niewymagane", "pending": "W toku", "clear": "Brak konfliktu", "conflict_found": "Wykryto konflikt" }
+    },
+    "intakes.risk_rating": {
+      "label": "Ocena ryzyka",
+      "options": { "not_assessed": "Nieocenione", "low": "Niskie", "standard": "Standardowe", "high": "Wysokie" }
+    },
+    "intakes.decline_reason": {
+      "label": "Powód odmowy",
+      "options": {
+        "conflict": "Konflikt interesów",
+        "not_a_fit": "Brak dopasowania",
+        "no_capacity": "Brak mocy przerobowych",
+        "no_response": "Brak odpowiedzi",
+        "client_withdrew": "Klient się wycofał",
+        "risk": "Ryzyko",
+        "other": "Inny"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Data wysłania odmowy" },
+    "intakes.next_step": { "label": "Następny krok" },
+    "intakes.next_step_due": { "label": "Termin następnego kroku" },
+    "intakes.days_to_first_response": { "label": "Dni do pierwszej odpowiedzi" },
+    "intakes.days_to_kickoff": { "label": "Dni do spotkania startowego" },
+    "document_requests.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "identity": "Dokument tożsamości",
+        "proof_of_address": "Potwierdzenie adresu",
+        "company_register": "Odpis z rejestru",
+        "prior_year_return": "Zeznanie podatkowe za poprzedni rok",
+        "contract": "Umowa",
+        "questionnaire": "Ankieta",
+        "access_credentials": "Dane dostępowe",
+        "other": "Inny"
+      }
+    },
+    "document_requests.status": {
+      "label": "Status",
+      "options": { "requested": "Oczekiwany", "partial": "Otrzymany częściowo", "received": "Otrzymany", "needs_correction": "Wymaga poprawy", "not_needed": "Niepotrzebny" }
+    },
+    "document_requests.requested_on": { "label": "Data prośby" },
+    "document_requests.needed_by": { "label": "Termin" },
+    "document_requests.received_on": { "label": "Data otrzymania" },
+    "document_requests.where_stored": { "label": "Miejsce przechowywania" },
+    "document_requests.owner": { "label": "Osoba odpowiedzialna" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "reply": "Odpowiedź",
+        "chase_form": "Ponaglić ankietę",
+        "chase_document": "Ponaglić dokument",
+        "review": "Przegląd",
+        "check": "Kontrola",
+        "send_agreement": "Wysłać umowę",
+        "chase_signature": "Ponaglić podpis",
+        "kickoff": "Spotkanie startowe",
+        "decline_letter": "Pismo z odmową",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klient", "targetLabel": "Osoby kontaktowe" },
+    "intake_client": { "sourceLabel": "Klient", "targetLabel": "Przyjęcia" },
+    "intake_contact": { "sourceLabel": "Główny kontakt", "targetLabel": "Przyjęcia" },
+    "document_request_intake": { "sourceLabel": "Przyjęcie", "targetLabel": "Dokumenty" },
+    "action_intake": { "sourceLabel": "Przyjęcie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "intakes_all": { "name": "Wszystkie przyjęcia" },
+    "intakes_board": { "name": "Przyjęcia wg etapu" },
+    "awaiting_signature": { "name": "Czeka na podpis" },
+    "no_first_response": { "name": "Bez pierwszej odpowiedzi" },
+    "declined_intakes": { "name": "Odrzucone" },
+    "document_requests_all": { "name": "Wszystkie dokumenty" },
+    "documents_outstanding": { "name": "Czeka na dokumenty" },
+    "clients_all": { "name": "Wszyscy klienci" },
+    "contacts_all": { "name": "Wszystkie osoby kontaktowe" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Otwarte przyjęcia wg etapu" },
+    "open_intakes_by_owner": { "title": "Otwarte przyjęcia wg osoby odpowiedzialnej" },
+    "enquiries_without_reply": { "title": "Zapytania bez pierwszej odpowiedzi" },
+    "documents_outstanding": { "title": "Brakujące dokumenty" },
+    "awaiting_signature_count": { "title": "Czeka na podpis" },
+    "average_days_to_reply": { "title": "Średnia liczba dni do pierwszej odpowiedzi" },
+    "average_days_to_kickoff": { "title": "Średnia liczba dni do spotkania startowego" },
+    "decline_reasons": { "title": "Powody odmów" },
+    "new_intakes_per_month": { "title": "Nowe przyjęcia w poszczególnych miesiącach" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Proces przyjęcia klienta",
+      "sections": ["Dziewięć etapów i co zamyka każdy z nich", "Kto odpowiada, kto kwalifikuje, kto podpisuje", "Ramy czasowe: odpowiedź w ciągu doby, ponaglenie po 3 i po 7 dniach"]
+    },
+    "intake_questionnaire": {
+      "title": "Ankieta wg rodzaju klienta",
+      "sections": ["Firma, jednoosobowa działalność, osoba prywatna, stowarzyszenie", "Pytania rozstrzygające o dopasowaniu", "O co nigdy nie pytasz"]
+    },
+    "document_requests_guide": {
+      "title": "Lista dokumentów i wiadomości ponaglające",
+      "sections": ["Standardowa lista dla usługi", "Pierwsza prośba i przypomnienia", "Gdy dokument wymaga poprawy"]
+    },
+    "agreement_checklist": {
+      "title": "Lista kontrolna umowy",
+      "sections": ["Zakres, model wynagrodzenia i zaliczka", "Kto podpisuje i w jakim narzędziu", "Co robić, gdy umowa pozostaje niepodpisana"]
+    },
+    "regulated_checks": {
+      "title": "Weryfikacja tożsamości, konfliktu i ryzyka w zawodach regulowanych",
+      "sections": ["Zapisz, kto i kiedy sprawdził, ale nigdy samego dokumentu", "Sprawdzenie konfliktów przed rozpoczęciem pracy", "Ocena ryzyka i kiedy odmówić"]
+    },
+    "privacy_at_intake": {
+      "title": "Prywatność: co zbieramy przy przyjęciu i dlaczego",
+      "sections": ["Cel i podstawa prawna", "Co zostaje poza przestrzenią roboczą", "Przechowywanie i wnioski o usunięcie"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Odpowiedz na zapytanie", "description": "Nowe przyjęcie dostaje zadanie odpowiedzi z terminem na następny dzień." },
+    "chase_form": { "title": "Ponagl ankietę", "description": "Trzy dni po wysłaniu ankiety przypada zadanie ponaglenia." },
+    "chase_document": { "title": "Ponagl brakujący dokument", "description": "Gdy upływa termin otwartego dokumentu, powstaje zadanie ponaglenia." },
+    "review_received_document": { "title": "Sprawdź otrzymany dokument", "description": "Gdy dokument zostanie oznaczony jako otrzymany, zadanie kontroli przypada następnego dnia." },
+    "chase_signature": { "title": "Ponagl podpis", "description": "Siedem dni po wysłaniu umowy przypada zadanie ponaglenia." },
+    "decline_letter": { "title": "Wyślij pismo z odmową", "description": "Odrzucone przyjęcie dostaje zadanie pisma z terminem na następny dzień. Napisz, że zlecenie nie istnieje, i wskaż zbliżające się terminy." },
+    "kickoff_event": { "title": "Wpisz spotkanie startowe do kalendarza", "description": "Gdy ustawisz datę spotkania, wydarzenie trafia do kalendarza osoby odpowiedzialnej." },
+    "first_value_check": { "title": "Sprawdź pierwszy efekt", "description": "Czternaście dni po wdrożeniu powstaje zadanie kontrolne: czy klient zobaczył pierwszy efekt." },
+    "stalled_intake": { "title": "Przejrzyj przyjęcie, które utknęło", "description": "Otwarte przyjęcie, które przez 7 dni stoi na tym samym etapie, dostaje zadanie przeglądu." },
+    "intake_form_records": { "title": "Utwórz klienta, osobę kontaktową i przyjęcie z formularza", "description": "Publiczny formularz przyjęcia tworzy klienta, osobę kontaktową i przyjęcie na etapie Zapytanie." },
+    "intake_form_notice": { "title": "Powiadom właściciela o nowym przyjęciu", "description": "Właściciel przestrzeni roboczej dostaje powiadomienie o każdym zgłoszeniu." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde przyjęcie ma jeden z dziewięciu etapów.",
+    "first_response_field": "Każde przyjęcie zapisuje, kiedy pierwszy raz odpowiedziano.",
+    "document_requests_list": "Dokumenty są śledzone na własnej liście.",
+    "intakes_board_view": "Listę przyjęć można zobaczyć jako tablicę wg etapów.",
+    "chase_signature_rule": "Wysłana umowa dostaje zadanie ponaglenia po 7 dniach.",
+    "process_page": "Baza wiedzy zawiera proces przyjęcia."
+  },
+  "page": {
+    "metaTitle": "Karta klienta wzór: przyjęcie klienta i onboarding w CRM",
+    "metaDescription": "Karta klienta wzór i onboarding w jednym procesie: agent AI buduje w CRM prośby o dokumenty, datowane kroki i powód odmowy. Plan zatwierdzasz Ty.",
+    "headline": "Karta klienta wzór bez gonienia za dokumentami: proces, który agent AI buduje w Twoim CRM",
+    "answer": "Karta klienta zbiera dane potrzebne do przyjęcia klienta, ale prawdziwa praca to ściganie dokumentów i podpisanej umowy. Ten szablon konfiguruje jedno przyjęcie na zlecenie z dziewięcioma etapami od zapytania do spotkania startowego, prośby o dokumenty i datowany krok na każdym etapie. Wklej go do swojego agenta AI, a on zbuduje proces w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda przyjęć klientów",
+      "steps": [
+        "Odpowiedz na każde nowe zapytanie. Domyślnie odpowiedź wychodzi w ciągu doby, a każde zapytanie kończy się następnym krokiem albo odmową.",
+        "Przypomnij o ankietach wysłanych 3 dni temu i o dokumentach po terminie.",
+        "Sprawdź dokumenty, które dotarły, spisz braki i ponaglij umowy wysłane 7 dni temu.",
+        "Zajrzyj do przyjęć, które od 7 dni stoją w miejscu: ustal termin albo odmów z podanym powodem i krótkim pisemnym zawiadomieniem, że nie powstaje żadna relacja, ze wskazaniem znanych terminów.",
+        "Zapytaj klientów przyjętych 14 dni temu, czy pierwszy rezultat już dotarł."
+      ]
+    },
+    "limits": [
+      "Nie zbiera podpisów. Podpisanie odbywa się w Twoim narzędziu do podpisu elektronicznego lub księgowości; przyjęcie zachowuje daty i link.",
+      "To nie jest narzędzie do weryfikacji tożsamości ani przeciwdziałania praniu pieniędzy, ani rejestr konfliktów interesów. Zawody regulowane zapisują, kto, kiedy i jak zweryfikował tożsamość; dokumenty i właściwy rejestr zostają w Twoim systemie branżowym lub KYC.",
+      "Nie przyjmuje płatności i nie wystawia faktur. Zaliczki i przedpłaty zostają w banku lub w programie księgowym.",
+      "W Customermates nie ma dziś portalu klienta ani publicznego formularza do przesyłania dokumentów. Ankieta wychodzi jako dokument albo przez zewnętrzny formularz, który zapisuje dane w Customermates przez API lub n8n.",
+      "Nie zapisuj w nim numerów ani skanów dokumentów tożsamości, danych o zdrowiu, terapii, religii ani danych bankowych. Nie nadaje się do kart klienta salonów kosmetycznych, klinik i trenerów personalnych, które zbierają dane o zdrowiu.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Co powinna zawierać karta klienta?",
+        "answer": "Dane kontaktowe i firmy, czego klient oczekuje, zakres, termin i budżet, kto decyduje, jakich dostępów potrzebujesz oraz kwestie prawne lub zgodności. W praktyce karta to pomoc pamięciowa przed pierwszą rozmową, a nie test prawny; dla osób prywatnych zrób ją krótszą."
+      },
+      {
+        "question": "Jakie są etapy onboardingu klienta?",
+        "answer": "Kolejność jest podobna w różnych zawodach: pierwsza odpowiedź, wstępna kwalifikacja, ankieta i dokumenty, weryfikacje tam, gdzie wymaga ich Twój zawód, umowa na piśmie, ewentualna zaliczka, potem spotkanie startowe. Terminy utrzymują tempo: przewodniki dostawców podają odpowiedź w 24 godziny i ponaglenie do podpisu po 7 dniach. Traktuj te liczby jako ustawienia domyślne, nie normę."
+      },
+      {
+        "question": "Czy muszę odmówić klientowi na piśmie?",
+        "answer": "Pisemna odmowa pomaga obu stronom. Przewodnik dla kancelarii zaleca wpisać w niej, że nie powstała żadna relacja, i wskazać zbliżający się termin. Szablon zapisuje powód odmowy i tworzy datowane zadanie wysłania zawiadomienia. To nie jest porada prawna."
+      },
+      {
+        "question": "Jakie dane klientów nie powinny trafiać do CRM?",
+        "answer": "Numery i skany dokumentów tożsamości, osobiste numery podatkowe, data urodzenia ponad to, czego wymaga weryfikacja, dane o zdrowiu, religii i dane dostępowe do banku. Dla zawodu regulowanego szablon zapisuje tylko, że tożsamość zweryfikowano, kto to zrobił i kiedy. RODO każe zbierać tylko te dane, których naprawdę potrzebujesz."
+      },
+      {
+        "question": "Czy klient może wypełnić ankietę online?",
+        "answer": "Nie przez publiczny formularz w Customermates, na dziś. Ankieta wychodzi jako dokument przygotowany przez Twojego agenta albo przez zewnętrzny formularz zapisujący dane w Customermates przez API lub n8n. Wysyłasz ją Ty."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Nowi klienci odpadają między pierwszym zapytaniem a pierwszym dniem pracy, bo zapominam wysłać ankietę albo ponaglić o dokumenty. Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+    "questions": [
+      "Co sprzedajesz i jacy są Twoi klienci: firmy, jednoosobowe działalności czy osoby prywatne?",
+      "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",
+      "Czy wykonujesz zawód regulowany, w którym trzeba zapisywać weryfikację tożsamości, konflikt interesów lub ocenę ryzyka? W jakim kraju?",
+      "O jakie dokumenty zawsze prosisz i gdzie je przechowujesz? Tutaj zapisujemy tylko link.",
+      "Gdzie klienci podpisują umowę? Umowa zostaje tam, a tutaj zapisujemy tylko daty."
+    ]
+  }
+}

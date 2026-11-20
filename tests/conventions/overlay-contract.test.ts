@@ -335,6 +335,15 @@ describe("overlay contract", () => {
     }
   });
 
+  it("lets pointers reach what a tooltip covers", () => {
+    const globals = readFileSync(join(REPO_ROOT, "styles/globals.css"), "utf8");
+    const rule = globals.slice(globals.indexOf('[data-radix-popper-content-wrapper]:has(> [data-slot="tooltip-content"])'));
+    expect(rule.slice(0, rule.indexOf("}"))).toContain("pointer-events: none;");
+    const tooltip = readFileSync(join(REPO_ROOT, "components/ui/tooltip.tsx"), "utf8");
+    expect(tooltip).toContain("pointer-events-none");
+    expect(tooltip).toContain('data-slot="tooltip-content"');
+  });
+
   it("keeps AppModal actions in the shared top-right action row", () => {
     const sources = sourceFiles().map((absolute) => ({
       file: relative(REPO_ROOT, absolute),

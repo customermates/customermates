@@ -1,4 +1,5 @@
-import type { AgentUsageRepo } from "./agent-usage.repo";
+import type { AgentUsageRepo, AgentUsageReservationExtension, AgentUsageReservationOutcome } from "./agent-usage.repo";
+import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { z } from "zod";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
@@ -45,7 +46,13 @@ type AgentRetrievalReservation = {
 export type WorkspaceIndexingPurpose = "wikiIndexing" | "fileIndexing";
 
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | WorkspaceIndexingPurpose | "wikiSynthesis" | "calculationDraft" | "commandResolve";
+  purpose:
+    | "wikiRetrieval"
+    | WorkspaceIndexingPurpose
+    | "wikiSynthesis"
+    | "calculationDraft"
+    | "commandResolve"
+    | "automationCompose";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -349,7 +356,12 @@ export class AgentUsageService {
   async prepareRetrieval(
     userId: string,
     now = new Date(),
-    purpose: "wikiRetrieval" | "wikiSynthesis" | "calculationDraft" | "commandResolve" = "wikiRetrieval",
+    purpose:
+      | "wikiRetrieval"
+      | "wikiSynthesis"
+      | "calculationDraft"
+      | "commandResolve"
+      | "automationCompose" = "wikiRetrieval",
   ): Promise<AgentRetrievalGrant | null> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;
@@ -553,6 +565,96 @@ export class AgentUsageService {
     return args.creditState
       ? this.repo.reserveUsageEventUnscoped(event, args.creditState)
       : this.repo.reserveUsageEventUnscoped(event);
+  }
+
+  async reserveAgentJobUsage(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    reservation: AgentTurnCreditReservation;
+  }): Promise<AgentUsageReservationOutcome> {
+    return this.repo.reserveAgentJobUsageEventUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      sessionId: args.reservationId,
+      reservedMicrocents: args.reservation.reservedMicrocents,
+      planSnapshot: args.reservation.planSnapshot,
+      subscriptionStatusSnapshot: args.reservation.subscriptionStatusSnapshot,
+      allowanceMicrocentsSnapshot: args.reservation.allowanceMicrocentsSnapshot,
+      periodStart: args.reservation.periodStart,
+      periodEnd: args.reservation.periodEnd,
+    });
+  }
+
+  async settleReservation(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    settlement: AgentUsageSettlement;
+    now?: Date;
+  }): Promise<boolean> {
+    return this.repo.settleUsageReservationUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      settlement: args.settlement,
+      settledAt: args.now ?? new Date(),
+    });
+  }
+
+  async extendAgentJobReservation(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    requiredMicrocents: number;
+    ceilingMicrocents: number;
+  }): Promise<AgentUsageReservationExtension> {
+    return this.repo.extendAgentJobUsageReservationUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      requiredMicrocents: args.requiredMicrocents,
+      ceilingMicrocents: args.ceilingMicrocents,
+    });
+  }
+
+  async admitAgentJobProviderRound(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    now?: Date;
+  }): Promise<boolean> {
+    return this.repo.admitAgentJobProviderRoundUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async closeInterruptedAgentJobReservation(args: {
+    reservationId: string;
+    companyId: string;
+    userId: string;
+    model: string;
+    now?: Date;
+  }): Promise<"retained" | "released" | "none"> {
+    return this.repo.closeInterruptedAgentJobUsageUnscoped({
+      id: args.reservationId,
+      companyId: args.companyId,
+      userId: args.userId,
+      model: args.model,
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async findAbandonedAgentJobReservations(args: {
+    reservedBefore: Date;
+    limit: number;
+  }): Promise<Array<{ reservationId: string; companyId: string; userId: string }>> {
+    const abandoned = await this.repo.findAbandonedAgentJobUsageUnscoped(args);
+    return abandoned.map(({ id, companyId, userId }) => ({ reservationId: id, companyId, userId }));
   }
 
   async releaseReservation(args: { reservationId: string; companyId: string; userId: string; now?: Date }) {

@@ -5,11 +5,11 @@ description: "Rutyny uruchamiają Mate według harmonogramu albo po zmianie reko
 
 Rutyna to zapisana instrukcja plus wyzwalacz. Gdy wyzwalacz zadziała, Customermates otwiera nową rozmowę z asystentem, wysyła Twoją instrukcję i pozwala Mate pracować samodzielnie. Rutyny istnieją tylko w Customermates Cloud, ponieważ zużywają miesięczny limit Mate właściciela.
 
-To, kto widzi rutyny, wynika z wiersza **Rutyny** w jego roli w sekcji [Role](app:settings/roles): **Dostęp do odczytu** ustawiony na **Wszystkie** pokazuje wszystkie rutyny w przestrzeni roboczej, **Przypisane** tylko własne, a **Brak** ukrywa [Rutyny](app:routines). Tworzenie wymaga uprawnienia **Tworzenie**, edycja własnych rutyn uprawnienia **Edycja**. Każdy, kto widzi rutynę, widzi podsumowania jej uruchomień; pełna transkrypcja pozostaje przy osobie, jako którą uruchomienie zostało wykonane.
+To, kto widzi rutyny, wynika z wiersza **Rutyny i automatyzacje** w jego roli w sekcji [Role](app:settings/roles): **Dostęp do odczytu** ustawiony na **Wszystkie** pokazuje wszystkie rutyny w przestrzeni roboczej, **Przypisane** tylko własne, a **Brak** ukrywa [Rutyny](app:automations). Tworzenie wymaga uprawnienia **Tworzenie**, edycja własnych rutyn uprawnienia **Edycja**. Każdy, kto widzi rutynę, widzi podsumowania jej uruchomień; pełna transkrypcja pozostaje przy osobie, jako którą uruchomienie zostało wykonane.
 
 ## Jak utworzyć rutynę albo automatyzację? [#how-do-i-create-a-routine]
 
-Otwórz [Rutyny](app:routines) i kliknij [Dodaj](app:routines?focus=add). Wpisz **Nazwa** i **Instrukcje**, wybierz wyzwalacz i kliknij **Zapisz**. Rutyna jest zapisywana jako **Aktywna**, chyba że najpierw przełączysz ją na **Wstrzymana**. Możesz też poprosić Mate o jej utworzenie; Mate zapisuje ją jako wstrzymaną, chyba że poprosisz o aktywną. Istniejące rutyny znajdziesz, wyszukując albo filtrując w [Filtry](app:routines?focus=filter), a między tabelą a tablicą przełączasz się w [Wygląd](app:routines?focus=display-options).
+Rutyny znajdują się teraz na liście [Automatyzacje](app:automations), obok automatyzacji, a dawna strona Rutyny przekierowuje tam. Otwórz Automatyzacje, otwórz menu **Nowa automatyzacja** i wybierz **Rutyna (Mate według harmonogramu)**. Wpisz **Nazwa** i **Instrukcje**, wybierz wyzwalacz i kliknij **Zapisz**. Rutyna jest zapisywana jako **Aktywna**, chyba że najpierw przełączysz ją na **Wstrzymana**. Możesz też poprosić Mate o jej utworzenie; Mate zapisuje ją jako wstrzymaną, chyba że poprosisz o aktywną. Istniejące rutyny znajdziesz, wyszukując albo filtrując w [Filtry](app:automations?focus=filter), a między tabelą a tablicą przełączasz się w [Wygląd](app:automations?focus=display-options).
 
 ## Z czego składa się rutyna? [#what-is-a-routine-made-of]
 
@@ -44,7 +44,7 @@ Każde uruchomienie rutyny zaczyna od podstawowych narzędzi CRM i w razie potrz
 
 ## Harmonogramy: jak uruchamiać rutynę każdego ranka albo w każdy poniedziałek? [#how-do-schedules-work]
 
-W [Rutyny](app:routines) otwórz rutynę albo kliknij [Dodaj](app:routines?focus=add), a potem w polu **Powtarza się** wybierz **Co 15 minut**, **Co 30 minut**, **Co godzinę**, **Codziennie**, **Co tydzień** albo **Co miesiąc**, a tam, gdzie trzeba, także dzień tygodnia, dzień miesiąca (od 1 do 28) lub godzinę w krokach co pięć minut. Domyślnie jest to codziennie o 09:00. Dla ustawień godzinowych i dłuższych harmonogram jest wypisany poniżej słowami, a następnie pojawia się napis **Godziny są wyświetlane w strefie czasowej** i strefa czasowa, która pochodzi z przeglądarki, w której utworzono rutynę (UTC, jeśli jest nieznana).
+W [Rutyny](app:automations) otwórz rutynę albo kliknij [Dodaj](app:automations?focus=add), a potem w polu **Powtarza się** wybierz **Co 15 minut**, **Co 30 minut**, **Co godzinę**, **Codziennie**, **Co tydzień** albo **Co miesiąc**, a tam, gdzie trzeba, także dzień tygodnia, dzień miesiąca (od 1 do 28) lub godzinę w krokach co pięć minut. Domyślnie jest to codziennie o 09:00. Dla ustawień godzinowych i dłuższych harmonogram jest wypisany poniżej słowami, a następnie pojawia się napis **Godziny są wyświetlane w strefie czasowej** i strefa czasowa, która pochodzi z przeglądarki, w której utworzono rutynę (UTC, jeśli jest nieznana).
 
 Harmonogram, który nie pasuje do żadnego gotowego ustawienia, na przykład tylko dni robocze, oraz inną strefę czasową można ustawić wyłącznie przez Mate, klienta MCP albo REST API; okno pokazuje wtedy **Ta rutyna używa niestandardowego harmonogramu** z przyciskiem **Przełącz na gotowy harmonogram**. Planista sprawdza co pięć minut, więc uruchomienie może ruszyć z kilkuminutowym opóźnieniem, a uruchomienie, które po dwóch minutach nadal czeka w kolejce, jest wysyłane ponownie.
 
@@ -61,7 +61,7 @@ Zostaw oba puste, aby rutyna uruchamiała się przy każdym pasującym zdarzeniu
 
 Mate dostaje informację o tym, co się stało, jeszcze przed Twoimi instrukcjami: zdarzenie, rodzaj rekordu i jego ID, zmienione pola przy aktualizacji, a przy zdarzeniu ze skrzynki odbiorczej wątek. Stamtąd może odczytać rekord, ale nie dostaje poprzednich wartości.
 
-## Co oznaczają uruchomienia i ich statusy? [#what-do-the-runs-and-their-statuses-mean]
+## Co oznaczają uruchomienia w historii rutyny i ich statusy? [#what-do-the-runs-and-their-statuses-mean]
 
 Otwórz rutynę, aby zobaczyć jej **Uruchomienia**, od najnowszego: obok konfiguracji na szerokim ekranie albo pod przełącznikiem **Szczegóły** i **Uruchomienia** na wąskim. Kliknij uruchomienie, aby zobaczyć **Szczegóły uruchomienia**: **Uruchomiona jako** z nazwą właściciela, jaką część miesięcznego limitu Mate właściciela zużyto (dokładny koszt u dostawcy, pokazany jako procent), wyzwalacz (**Rekord**, **Zmienione pola**, **Rozmowa**) oraz, gdy uruchomienie zatrzymało się wcześniej, powód. Gdy uruchomienie zaproponowało zmiany w Bazie wiedzy, podaje ich liczbę i oferuje **Przejrzyj**. Tylko osoba, jako którą zostało wykonane, może otworzyć pełną transkrypcję, a po zakończeniu uruchomienia może odpowiedzieć pod nią, aby kontynuować rozmowę z Mate, co zużywa jej limit.
 

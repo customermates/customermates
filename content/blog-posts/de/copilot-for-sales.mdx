@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - KI-Vertrieb
     - CRM
-    - Open Source
+    - Self-Hosting
 ---
 
 # Copilot im Vertrieb: Sales Agent, Lizenzen und Kosten
@@ -112,7 +112,7 @@ Lohnt sich das? Der Sales Agent rechnet sich, wenn Ihr Vertrieb ohnehin überwie
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen und Agenturen. Es ist eine Option für die letzte Zeile der Tabelle. Für ein Unternehmen, das Dynamics 365 nutzt und Kundengespräche in Teams aufzeichnet, ersetzt es den Sales Agent nicht.
+Customermates ist ein KI-CRM mit einsehbarem Quellcode aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen und Agenturen. Es ist eine Option für die letzte Zeile der Tabelle. Für ein Unternehmen, das Dynamics 365 nutzt und Kundengespräche in Teams aufzeichnet, ersetzt es den Sales Agent nicht.
 
 So sieht eine typische Einrichtung für ein Team mit fünf Personen aus:
 
@@ -122,7 +122,7 @@ So sieht eine typische Einrichtung für ein Team mit fünf Personen aus:
 - **Eine Routine, in Customermates Cloud.** Auslöser „Wenn sich etwas ändert", Ereignis „Datensatz aktualisiert" für Deals, unter „Geänderte Felder" das Feld Phase. Anweisungen: „Wechselt ein Deal in die Phase Angebot: den letzten Verlauf mit dem Kontakt lesen und einen Antwortentwurf speichern. Nichts senden." Die Routine läuft im Namen ihres Eigentümers und nutzt dessen Kanäle. Siehe [Routinen](/docs/app-routines).
 - **Ihr eigener KI-Client.** Nutzt Ihr Team bereits Claude oder ChatGPT, verbinden Sie ihn per MCP über den [benutzerdefinierten Connector](/docs/connect-custom-connector). Microsoft dokumentiert, dass Agenten in Copilot Studio sich mit einem bestehenden MCP-Server verbinden können. Für diesen Client gibt es von Customermates noch keine Anleitung, testen Sie also zuerst einen Lesezugriff.
 
-**Kosten.** Fünf Nutzer auf Pro kosten [[commercial.price.pro.monthly.seats.5]] im Monat bei monatlicher Zahlung, inklusive Posteingang und monatlicher gehosteter KI-Credits pro aktivem Nutzer ([siehe Preise](/pricing)). Starter für [[commercial.price.starter.monthly]] pro Nutzer hat keinen Posteingang. Der selbst gehostete AGPL-Kern ist lizenzkostenfrei und bietet REST, Webhooks und MCP, aber keinen Posteingang und kein Mate.
+**Kosten.** Fünf Nutzer auf Pro kosten [[commercial.price.pro.monthly.seats.5]] im Monat bei monatlicher Zahlung, inklusive Posteingang und monatlicher gehosteter KI-Credits pro aktivem Nutzer ([siehe Preise](/pricing)). Starter für [[commercial.price.starter.monthly]] pro Nutzer hat keinen Posteingang. Die selbst gehostete Community Edition ist für Ihr eigenes Unternehmen lizenzkostenfrei und bietet REST, Webhooks und MCP, aber keinen Posteingang und kein Mate.
 
 Für diesen Platz bekommt ein kleines Team Nachfassen ohne Microsoft-Umgebung: Verläufe am Kundendatensatz, einen Antwortentwurf und den nächsten Schritt von Mate oder Ihrem eigenen KI-Client, und Sie prüfen und senden. Um es mit Ihrem eigenen Postfach oder LinkedIn auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 

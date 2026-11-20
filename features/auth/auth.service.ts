@@ -14,10 +14,15 @@ import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import {
+  apiKeyRequestsNamed,
   auth,
   bindApiKeyToCompany,
+  countApiKeyRequest,
   deleteApiKeysForIdentities,
+  issueExpiringApiKey,
+  revokeApiKeysNamed,
   revokeMembershipCredentials,
+  revokeOauthClientTokens,
 } from "@/core/auth/better-auth";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { prisma } from "@/prisma/db";
@@ -32,9 +37,14 @@ import {
 import { requestedWorkspaceSlug } from "@/core/navigation/workspace-request-header";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { eventVia, type EventVia } from "@/features/event/event-via";
+import {
+  parseAgentJobCredentialMetadata,
+  type AgentJobCredentialMarker,
+} from "@/features/agent-runners/agent-job-credential-marker";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { isCompanySignup, type NewWorkspaceSignup } from "@/features/acquisition/new-workspace-signup";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 type AuthUser = {
@@ -51,7 +61,12 @@ export type AuthenticatedSession = Pick<Session, "session" | "user">;
 export type CredentialWorkspace =
   | { kind: "integration"; companyId: string | null }
   | { kind: "session"; sessionId: string; workspaceSlug: string | null };
-export type McpCredentialWorkspace = { credential: "apiKey" | "bearer"; companyId: string | null };
+export type AgentJobApiKey = AgentJobCredentialMarker & { keyId: string; companyId: string | null };
+export type McpCredentialWorkspace = {
+  credential: "apiKey" | "bearer";
+  companyId: string | null;
+  agentJobKey: AgentJobApiKey | null;
+};
 type CreateApiKeyError =
   | CustomErrorCode.apiKeyMinExpiration
   | CustomErrorCode.apiKeyMaxExpiration
@@ -86,6 +101,17 @@ export class AuthService {
   async revokeOauthConsents(userId: string): Promise<number> {
     const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
     return consents.count;
+  }
+
+  async revokeOauthClientAccess(args: { authUserId: string; companyId: string; clientId: string }): Promise<number> {
+    const tokens = await revokeOauthClientTokens(args);
+    const elsewhere = await prisma.oauthAccessToken.count({
+      where: { userId: args.authUserId, clientId: args.clientId },
+    });
+    if (elsewhere === 0)
+      await prisma.oauthConsent.deleteMany({ where: { userId: args.authUserId, clientId: args.clientId } });
+
+    return tokens;
   }
 
   async getSession() {
@@ -170,8 +196,53 @@ export class AuthService {
     return null;
   }
 
+  async getAgentJobApiKey(session: AuthenticatedSession, headersList?: Headers): Promise<AgentJobApiKey | null> {
+    const requestHeaders = headersList ?? (await headers());
+    if (!requestHeaders.has("x-api-key")) return null;
+
+    const key = await prisma.apikey.findUnique({
+      where: { id: session.session.id },
+      select: { id: true, referenceId: true, companyId: true, metadata: true },
+    });
+    if (!key || key.referenceId !== session.user.id) return null;
+    const marker = parseAgentJobCredentialMetadata(key.metadata);
+    return marker ? { ...marker, keyId: key.id, companyId: key.companyId } : null;
+  }
+
   async revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
     return revokeMembershipCredentials(authUserId, companyId);
+  }
+
+  async createExpiringApiKey(args: {
+    ownerEmail: string;
+    companyId: string;
+    name: string;
+    expiresAt: Date;
+    metadata?: string;
+  }): Promise<{ id: string; key: string } | null> {
+    const identity = await runWithoutTenant(() =>
+      prisma.authUser.findFirst({ where: { email: args.ownerEmail.toLowerCase() }, select: { id: true } }),
+    );
+    if (!identity) return null;
+    return issueExpiringApiKey({
+      authUserId: identity.id,
+      companyId: args.companyId,
+      name: args.name,
+      expiresAt: args.expiresAt,
+      ...(args.metadata === undefined ? {} : { metadata: args.metadata }),
+    });
+  }
+
+  revokeApiKeysNamed(companyId: string, name: string): Promise<number> {
+    return revokeApiKeysNamed(companyId, name);
+  }
+
+  apiKeyRequestsNamed(companyId: string, name: string): Promise<number> {
+    return apiKeyRequestsNamed(companyId, name);
+  }
+
+  countApiKeyRequest(keyId: string, limit: number): Promise<boolean> {
+    return countApiKeyRequest(keyId, limit);
   }
 
   async signInWithEmail(args: {
@@ -318,6 +389,8 @@ export class AuthService {
     provider: "google" | "microsoft";
     callbackURL?: string;
     errorCallbackURL?: string;
+    signupLastPage?: string | null;
+    signupCampaign?: string | null;
   }) {
     const requestHeaders = await headers();
     const requestOrigin = requestHeaders.get("origin") ?? env.BASE_URL;
@@ -334,6 +407,14 @@ export class AuthService {
         provider: args.provider,
         callbackURL: args.callbackURL ?? "/",
         errorCallbackURL: args.errorCallbackURL ?? "/auth/signin",
+        ...(args.signupLastPage || args.signupCampaign
+          ? {
+              additionalData: {
+                ...(args.signupLastPage ? { signupLastPage: args.signupLastPage } : {}),
+                ...(args.signupCampaign ? { signupCampaign: args.signupCampaign } : {}),
+              },
+            }
+          : {}),
       },
     });
 
@@ -345,16 +426,24 @@ export class AuthService {
     (await cookies()).delete(SESSION_HINT_COOKIE_NAME);
   }
 
-  async sendNewUserNotificationEmail(args: { email: string; name: string; provider?: string }): Promise<void> {
+  async sendNewUserNotificationEmail(args: {
+    email: string;
+    name: string;
+    provider?: string;
+    signup?: NewWorkspaceSignup;
+  }): Promise<void> {
+    const company = args.signup ? isCompanySignup(args.signup) : false;
     await this.emailService.send({
       to: env.RESEND_OPERATOR_EMAIL,
-      subject: "New User Registration",
+      subject: company ? "New Company Signup" : "New User Registration",
       react: React.createElement(NewUserNotification, {
         email: args.email,
         layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
         locale: DEFAULT_LOCALE,
         name: args.name,
         provider: args.provider,
+        signup: args.signup,
+        company,
       }),
     });
   }
@@ -406,7 +495,9 @@ export class AuthService {
       ? await prisma.apikey.findMany({ where: { id: { in: ids }, companyId }, select: { id: true } })
       : [];
     const boundIds = new Set(bound.map((key) => key.id));
-    return result.apiKeys.filter((key) => boundIds.has(key.id));
+    return result.apiKeys.filter(
+      (key) => boundIds.has(key.id) && parseAgentJobCredentialMetadata(key.metadata) === null,
+    );
   }
 
   async resolveApiKeyReferences(
@@ -597,6 +688,7 @@ export class AuthService {
       return {
         credential: key ? "apiKey" : "bearer",
         companyId: binding.kind === "integration" ? binding.companyId : null,
+        agentJobKey: key ? await this.getAgentJobApiKey(session, headersList) : null,
       };
     } catch {
       return null;

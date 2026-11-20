@@ -18,6 +18,15 @@ import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter
 import { exemptCurrentRequestFromIntegrationLimit } from "@/ee/subscription/integration-request-limiter";
 import { MCP_ENDPOINT_PATH, mcpProtectedResourceMetadataUrl } from "@/features/auth/mcp-resource";
 import { AGENT_RECORD_WRITE_TOOLS } from "@/features/onboarding-funnel/record-agent-connected.interactor";
+import { runInCausation } from "@/core/decorators/causation-context";
+import { agentJobToolRefusal } from "@/features/agent-runners/agent-job-tool-gate";
+import {
+  agentJobRequestCausation,
+  currentAgentJobRequest,
+  runAsAgentJobRequest,
+  type AgentJobRequest,
+} from "@/features/agent-runners/agent-job-request-context";
+import type { AgentJobApiKey } from "@/features/auth/auth.service";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 const UNEXPECTED_FAILURE_MESSAGE = "The operation could not be completed because of an unexpected server error.";
@@ -57,6 +66,26 @@ async function recordAgentConnected(toolName: string): Promise<void> {
   }
 }
 
+async function countAgentJobToolCall(keyId: string, limit: number): Promise<boolean> {
+  const { getAuthService } = await import("@/core/di");
+  return getAuthService().countApiKeyRequest(keyId, limit);
+}
+
+async function admitAgentJobKey(key: AgentJobApiKey): Promise<AgentJobRequest | null> {
+  const { getAdmitAgentJobCredentialInteractor } = await import("@/core/di");
+  return getAdmitAgentJobCredentialInteractor().invoke(key);
+}
+
+async function recordAgentFirstCall(): Promise<void> {
+  if (env.APP_MODE === "demo") return;
+  try {
+    const { getRecordAgentFirstCallInteractor } = await import("@/core/di");
+    await getRecordAgentFirstCallInteractor().invoke();
+  } catch (error) {
+    ErrorReporter.captureException(redactUnexpectedError(error, "The first agent call could not be recorded."));
+  }
+}
+
 function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0], tools: McpTool[]) {
   for (const tool of tools) {
     server.registerTool(
@@ -70,7 +99,13 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
       },
       async (...args: unknown[]) => {
         try {
-          const result = await executeMcpTool(tool, args);
+          const job = currentAgentJobRequest();
+          const refused = job ? await agentJobToolRefusal(job, tool, args[0], countAgentJobToolCall) : null;
+          const result =
+            refused ??
+            (job
+              ? await runInCausation(agentJobRequestCausation(job), () => executeMcpTool(tool, args))
+              : await executeMcpTool(tool, args));
           if (!result.ok) {
             return {
               ...createTextContent(result.result, true),
@@ -186,20 +221,24 @@ async function isMcpRequestAuthorized(request: Request): Promise<boolean> {
     : getAuthService().isMcpBearerValid(request.headers);
 }
 
-async function workspaceCredentialRefusal(
+type WorkspaceCredential = { refusal: Response } | { refusal: null; agentJobKey: AgentJobApiKey | null };
+
+async function workspaceCredential(
   request: Request,
   workspaceId: string,
   resourceMetadataUrl: string,
-): Promise<Response | null> {
+): Promise<WorkspaceCredential> {
   const { apiKey, bearer } = credentialHeaders(request);
-  if (!apiKey && !bearer) return unauthorizedChallenge(resourceMetadataUrl);
+  if (!apiKey && !bearer) return { refusal: unauthorizedChallenge(resourceMetadataUrl) };
 
   const { getAuthService } = await import("@/core/di");
   const bound = await getAuthService().resolveMcpCredentialWorkspace(request.headers);
-  if (!bound) return unauthorizedChallenge(resourceMetadataUrl);
-  if (bound.companyId === workspaceId) return null;
+  if (!bound) return { refusal: unauthorizedChallenge(resourceMetadataUrl) };
+  if (bound.companyId === workspaceId) return { refusal: null, agentJobKey: bound.agentJobKey ?? null };
 
-  return bound.credential === "bearer" ? foreignTokenChallenge(resourceMetadataUrl) : foreignApiKey();
+  return {
+    refusal: bound.credential === "bearer" ? foreignTokenChallenge(resourceMetadataUrl) : foreignApiKey(),
+  };
 }
 
 function insufficientPermissions() {
@@ -427,23 +466,34 @@ export function createMcpRoute(
     return handlerFor(toolsets.key, false)(request);
   }
 
-  return async (request: Request, workspaceId?: string) => {
-    const resourceMetadataUrl = mcpProtectedResourceMetadataUrl(env.BASE_URL, workspaceId);
-    if (workspaceId) {
-      const foreign = await workspaceCredentialRefusal(request, workspaceId, resourceMetadataUrl);
-      if (foreign) return foreign;
-    } else if (!(await isMcpRequestAuthorized(request))) {
-      const { apiKey, bearer } = credentialHeaders(request);
-      if (!apiKey && !bearer && (await isPublicDiscoveryRequest(request))) return anonymousDiscovery(request);
-      return unauthorizedChallenge(resourceMetadataUrl);
-    }
+  async function serve(request: Request, workspaceId: string | undefined, resourceMetadataUrl: string) {
     const toolCall = await readMcpToolCall(request);
     if (!toolCall.toolCall) await exemptCurrentRequestFromIntegrationLimit();
     const refused = await mcpAccessRefusal(resourceMetadataUrl, toolCall);
     if (refused) return refused;
+    await recordAgentFirstCall();
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
     const operator = await isOperatorRequest(operatorTools);
     return handlerFor(toolsets.key, operator)(workspaceId ? await atEndpoint(request, endpoint) : request);
+  }
+
+  return async (request: Request, workspaceId?: string) => {
+    const resourceMetadataUrl = mcpProtectedResourceMetadataUrl(env.BASE_URL, workspaceId);
+    if (!workspaceId) {
+      if (!(await isMcpRequestAuthorized(request))) {
+        const { apiKey, bearer } = credentialHeaders(request);
+        if (!apiKey && !bearer && (await isPublicDiscoveryRequest(request))) return anonymousDiscovery(request);
+        return unauthorizedChallenge(resourceMetadataUrl);
+      }
+      return serve(request, workspaceId, resourceMetadataUrl);
+    }
+    const credential = await workspaceCredential(request, workspaceId, resourceMetadataUrl);
+    if (credential.refusal) return credential.refusal;
+    if (!credential.agentJobKey) return serve(request, workspaceId, resourceMetadataUrl);
+
+    const job = await admitAgentJobKey(credential.agentJobKey);
+    if (!job) return unauthorizedChallenge(resourceMetadataUrl);
+    return runAsAgentJobRequest(job, () => serve(request, workspaceId, resourceMetadataUrl));
   };
 }

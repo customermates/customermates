@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
+import { createTestAutomationRuleRepo, createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -22,6 +22,18 @@ describeDatabase("releasing the routines of an unavailable owner", () => {
   const runningRunId = randomUUID();
   const finishedRunId = randomUUID();
   const otherRunId = randomUUID();
+  const foreignCompanyId = randomUUID();
+  const ownedRuleId = randomUUID();
+  const otherRuleId = randomUUID();
+  const foreignRuleId = randomUUID();
+
+  async function insertRule(id: string, owner: string, company = companyId) {
+    await client.query(
+      `INSERT INTO "AutomationRule" ("id", "companyId", "ownerUserId", "name", "triggerKind", "trigger", "effects", "updatedAt")
+       VALUES ($1, $2, $3, 'Rule', 'messageReceived'::"AutomationTriggerKind", '{"kind":"messageReceived","channel":"any"}', '[]', CURRENT_TIMESTAMP)`,
+      [id, company, owner],
+    );
+  }
 
   async function insertRoutine(id: string, owner: string) {
     await client.query(
@@ -44,7 +56,10 @@ describeDatabase("releasing the routines of an unavailable owner", () => {
 
   beforeAll(async () => {
     await client.connect();
-    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [companyId]);
+    await client.query(
+      'INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP), ($2, CURRENT_TIMESTAMP)',
+      [companyId, foreignCompanyId],
+    );
     for (const id of [ownerId, otherOwnerId]) {
       await client.query(
         'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
@@ -59,20 +74,37 @@ describeDatabase("releasing the routines of an unavailable owner", () => {
     await insertRun(finishedRunId, ownedRoutineId, ownerId, "succeeded");
     await insertRun(otherRunId, otherRoutineId, otherOwnerId, "queued");
 
+    await insertRule(ownedRuleId, ownerId);
+    await insertRule(otherRuleId, otherOwnerId);
+    await insertRule(foreignRuleId, ownerId, foreignCompanyId);
+
     const repo = createTestRoutineRepo();
-    await new ReleaseOwnerRoutinesInteractor(repo, new ReconcileRoutineRunsInteractor(repo)).invoke({
+    await new ReleaseOwnerRoutinesInteractor(
+      repo,
+      new ReconcileRoutineRunsInteractor(repo),
+      createTestAutomationRuleRepo(),
+      { revokeOfMember: () => Promise.resolve(0) },
+    ).invoke({
       companyId,
       ownerUserId: ownerId,
     });
   });
 
   afterAll(async () => {
+    await client.query('DELETE FROM "AutomationRule" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "RoutineRun" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "Routine" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "User" WHERE "companyId" = $1', [companyId]);
-    await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
+    await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.end();
   });
+
+  async function rule(id: string) {
+    const { rows } = await client.query('SELECT "enabled", "disabledReason" FROM "AutomationRule" WHERE "id" = $1', [
+      id,
+    ]);
+    return rows[0];
+  }
 
   async function routine(id: string) {
     const { rows } = await client.query(
@@ -107,5 +139,14 @@ describeDatabase("releasing the routines of an unavailable owner", () => {
   it("touches nothing belonging to another owner", async () => {
     expect(await routine(otherRoutineId)).toMatchObject({ enabled: true, disabledReason: null });
     expect(await run(otherRunId)).toEqual({ status: "queued", error: null });
+  });
+
+  it("switches off the owner's automation rules and records why", async () => {
+    expect(await rule(ownedRuleId)).toEqual({ enabled: false, disabledReason: "ownerInactive" });
+  });
+
+  it("leaves the automation rules of another owner and of another workspace alone", async () => {
+    expect(await rule(otherRuleId)).toEqual({ enabled: true, disabledReason: null });
+    expect(await rule(foreignRuleId)).toEqual({ enabled: true, disabledReason: null });
   });
 });

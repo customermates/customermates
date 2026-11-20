@@ -11,9 +11,11 @@ const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
 const APPROVED_MODEL_CALL_FILES = [
   "ee/agent-chat/structured-model-call.ts",
+  "ee/agent-runtime/run-agent-job-loop.ts",
   "ee/wiki-retrieval/wiki-embedding-model.ts",
   "workflows/agent-turn.ts",
 ];
+const APPROVED_PROVIDER_FACTORY_FILES = ["ee/agent-runtime/create-own-key-model.ts"];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -53,8 +55,45 @@ describe("agent model budget boundary", () => {
     expect(workflow).toContain("agentAuxiliaryCharge(auxiliaryCharges).costMicrocents");
   });
 
-  it("never constructs a provider instance, so no api key can reach a durable step argument", () => {
-    expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual([]);
+  it("constructs a provider instance only for a workspace's own key, so no api key can reach a durable step argument", () => {
+    expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual(APPROVED_PROVIDER_FACTORY_FILES);
+
+    const importers = matchingProductionFiles(/create-own-key-model/).filter(
+      (path) => !APPROVED_PROVIDER_FACTORY_FILES.includes(path),
+    );
+    expect(importers).toEqual(["core/di.ts", "ee/agent-runtime/run-agent-job.interactor.ts"]);
+
+    const workflow = readFileSync(`${REPO_ROOT}/workflows/run-agent-job.ts`, "utf8");
+    const payload = /export type RunAgentJobWorkflowPayload = \{([^}]*)\}/.exec(workflow)?.[1] ?? "";
+    expect(payload.match(/^\s*(\w+)\??:/gm)?.map((field) => field.trim()) ?? []).toEqual([
+      "jobId:",
+      "companyId:",
+      "ownerUserId:",
+      "tenant?:",
+    ]);
+    expect(workflow).not.toMatch(/apiKey|keyCiphertext|openSecret/);
+  });
+
+  it("settles every hosted agent job run through a credit reservation and never calls a provider without one", () => {
+    const interactor = readFileSync(`${REPO_ROOT}/ee/agent-runtime/run-agent-job.interactor.ts`, "utf8");
+
+    expect(interactor).toContain("this.credits.reserve(");
+    expect(interactor).toContain("this.credits.settle(");
+    expect(interactor).toContain("this.credits.release(");
+    expect(interactor).toContain("new MateJobBudget(this.credits,");
+    expect(interactor).toContain("limits: budget.limits, admitRound: budget.admitRound");
+
+    const budget = readFileSync(`${REPO_ROOT}/ee/agent-runtime/mate-agent-job-budget.ts`, "utf8");
+    expect(budget).toContain("this.credits.admitRound(");
+    expect(budget).toContain("this.credits.extend(");
+    expect(budget).toContain("maxOutputTokens: budget.maxOutputTokens");
+    expect(budget).toContain("maxContextBytes: budget.maxContextBytes");
+
+    const loop = readFileSync(`${REPO_ROOT}/ee/agent-runtime/run-agent-job-loop.ts`, "utf8");
+    expect(loop).toContain("maxOutputTokens: input.limits.maxOutputTokens");
+    expect(loop).toContain("reasoning: input.limits.reasoning");
+    expect(loop).toContain("await input.admitRound(");
+    expect(loop).not.toContain("extends Error");
   });
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {

@@ -1,0 +1,174 @@
+{
+  "locale": "de",
+  "name": "Handwerker-Aufträge",
+  "summary": "Jedes Angebot nachfassen, jeden Auftrag im Blick behalten, vom ersten Anruf bis zur Zahlung. Besichtigung, Angebot, Ausführung von geplant bis bezahlt, dazu Widerrufs-, Gewährleistungs- und Wartungstermine.",
+  "description": "In einem Handwerksbetrieb geht Geld verloren, wenn ein Angebot rausgeht und niemand nachfragt, und wenn Gewährleistungs- und Wartungstermine nirgends stehen. Diese Vorlage begleitet einen Auftrag vom ersten Anruf bis zur Schlussrechnung: Kunden und die Objekte, an denen Sie arbeiten, Aufträge mit einer Vertriebsphase und einem eigenen Ausführungsstatus, Bindefrist des Angebots, Besichtigung und Termin, Widerrufsfrist bei Verbraucherverträgen, Gewährleistungsende und Wartungsverträge, die Folgeaufträge bringen. Sie hält Auftrag, Termine und Nachfassen fest. Kein Werkzeug für Angebote und Rechnungen, keine Einsatzplanung und keine Zeiterfassung. Rechtliche Fristen sind Felder, die Sie selbst bestätigen, keine Rechtsberatung.",
+  "lists": {
+    "customers": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Eigentümer, Vermieter, Hausverwaltungen und Firmen, für die du arbeitest." },
+    "sites": { "label": "Objekt", "pluralLabel": "Objekte", "description": "Die Adresse der Baustelle, die vom Kunden abweichen kann." },
+    "jobs": { "label": "Auftrag", "pluralLabel": "Aufträge", "description": "Eine Arbeit, von der Anfrage bis Auftrag oder Verloren, danach durch die Ausführung." },
+    "agreements": { "label": "Wartungsvertrag", "pluralLabel": "Wartungsverträge", "description": "Wiederkehrende Wartung eines Objekts mit nächstem Termin und Verlängerungsdatum." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Art",
+      "options": { "private": "Privatkunde", "landlord": "Vermieter", "property_manager": "Hausverwaltung", "commercial": "Gewerbekunde", "builder_contractor": "Bauunternehmen" }
+    },
+    "customers.marketing_ok": { "label": "Einwilligung zu Werbung" },
+    "sites.address": { "label": "Adresse" },
+    "sites.access_notes": { "label": "Hinweise zum Zugang" },
+    "jobs.stage": {
+      "label": "Phase",
+      "options": { "enquiry": "Anfrage", "assessment": "Besichtigung", "to_quote": "Angebot erstellen", "quote_sent": "Angebot versendet", "negotiating": "Nachverhandlung", "won": "Auftrag", "lost": "Verloren" }
+    },
+    "jobs.work_status": {
+      "label": "Ausführung",
+      "options": { "not_scheduled": "Nicht terminiert", "scheduled": "Terminiert", "in_progress": "In Arbeit", "completed": "Fertiggestellt", "invoiced": "Abgerechnet", "paid": "Bezahlt" }
+    },
+    "jobs.work_type": {
+      "label": "Art der Arbeit",
+      "options": { "repair": "Reparatur", "installation": "Einbau", "renovation": "Sanierung", "maintenance": "Wartung", "inspection": "Prüfung", "emergency": "Notfall" }
+    },
+    "jobs.visit_at": { "label": "Besichtigung" },
+    "jobs.quote_valid_until": { "label": "Angebot gültig bis" },
+    "jobs.withdrawal_ends": { "label": "Widerrufsfrist bis" },
+    "jobs.scheduled_start": { "label": "Arbeitsbeginn" },
+    "jobs.completed_on": { "label": "Fertiggestellt am" },
+    "jobs.warranty_ends": { "label": "Gewährleistung bis" },
+    "jobs.payment_due": { "label": "Zahlungsziel" },
+    "jobs.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "price": "Preis", "timing": "Zeitpunkt", "chose_competitor": "Anderer Anbieter gewählt", "no_response": "Keine Rückmeldung", "job_cancelled": "Auftrag abgesagt", "other": "Sonstiger" }
+    },
+    "agreements.interval": { "label": "Turnus", "options": { "monthly": "Monatlich", "quarterly": "Vierteljährlich", "twice_yearly": "Halbjährlich", "yearly": "Jährlich" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Aktiv", "paused": "Pausiert", "ended": "Beendet" } },
+    "agreements.next_due": { "label": "Nächster Termin" },
+    "agreements.renewal_on": { "label": "Verlängerung am" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "call_back": "Zurückrufen",
+        "book_visit": "Besichtigung vereinbaren",
+        "send_quote": "Angebot senden",
+        "follow_up_quote": "Angebot nachfassen",
+        "confirm_schedule": "Termin bestätigen",
+        "handover": "Übergeben und Abnahme festhalten",
+        "check_payment": "Zahlung prüfen",
+        "warranty_check": "Zum Gewährleistungsende nach Mängeln fragen",
+        "book_service": "Wartungstermin vereinbaren",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Kunde", "targetLabel": "Objekte" },
+    "job_customer": { "sourceLabel": "Kunde", "targetLabel": "Aufträge" },
+    "job_site": { "sourceLabel": "Objekt", "targetLabel": "Aufträge" },
+    "agreement_site": { "sourceLabel": "Objekt", "targetLabel": "Wartungsverträge" },
+    "action_job": { "sourceLabel": "Auftrag", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "jobs_board": { "name": "Aufträge nach Phase" },
+    "jobs_all": { "name": "Alle Aufträge" },
+    "open_quotes": { "name": "Offene Angebote" },
+    "work_in_progress": { "name": "Terminiert und in Arbeit" },
+    "customers_all": { "name": "Alle Kunden" },
+    "sites_all": { "name": "Alle Objekte" },
+    "agreements_all": { "name": "Alle Wartungsverträge" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Aufträge nach Phase" },
+    "open_quotes_value": { "title": "Wert der offenen Angebote" },
+    "visits_coming": { "title": "Anstehende Besichtigungen" },
+    "jobs_by_work_status": { "title": "Erteilte Aufträge nach Ausführung" },
+    "lost_reasons": { "title": "Warum Aufträge verloren gingen" },
+    "warranties_ending": { "title": "Auslaufende Gewährleistungen" },
+    "services_due": { "title": "Fällige Wartungstermine" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Von der Anfrage zum Auftrag", "sections": ["Antwort, Besichtigung und Angebot: wer was wie schnell erledigt", "Wöchentliche Durchsicht offener Angebote, abzurechnender Aufträge und offener Rechnungen"] },
+    "quote_checklist": { "title": "Checkliste fürs Angebot", "sections": ["Leistungsumfang, Ausschlüsse, Preis, Bindefrist und Anzahlung", "Beginn, Zahlungsziel und Nachfass-Nachrichten"] },
+    "withdrawal_and_acceptance": { "title": "Widerruf, Übergabe und Abnahme", "sections": ["Verbraucherwiderruf bei Verträgen beim Kunden und Notfallarbeiten", "Checkliste für Übergabe und Abnahme"] },
+    "warranty_and_service": { "title": "Gewährleistung, Mängel und Wartungsverträge", "sections": ["Wie ein Mangel bearbeitet wird", "Wartungsvertrag anbieten und verlängern"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Kunde, Objekt und Auftrag anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "call_back_new": { "title": "Eine neue Anfrage am selben Tag zurückrufen" },
+    "quote_after_visit": { "title": "Das Angebot binnen 2 Tagen nach der Besichtigung senden" },
+    "quote_follow_up": { "title": "3 Tage nach dem Versand eines Angebots nachfassen" },
+    "quote_expiring": { "title": "3 Tage vor Ablauf der Bindefrist nachfassen" },
+    "withdrawal_clock": {
+      "title": "Das Ende der 14-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird",
+      "variants": {
+        "BR": {
+          "title": "Das Ende der 7-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird (Brasilien)",
+          "description": "Nach dem brasilianischen Verbraucherschutzgesetz (CDC, Art. 49) kann ein Kunde binnen 7 Tagen widerrufen, wenn der Vertrag außerhalb der Geschäftsräume zustande kam, etwa bei ihm zu Hause."
+        }
+      }
+    },
+    "payment_check": { "title": "Einen abgerechneten Auftrag 3 Tage nach dem Zahlungsziel prüfen" },
+    "warranty_check": { "title": "30 Tage vor Ende der Gewährleistung nach Mängeln fragen" },
+    "service_due": { "title": "Den Wartungstermin 30 Tage vor Fälligkeit vereinbaren" },
+    "visit_calendar": { "title": "Die Besichtigung in den Kalender eintragen, wenn ein Auftrag die Besichtigungsphase erreicht" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jeder Auftrag hat eine Vertriebsphase.",
+    "work_status_field": "Jeder Auftrag hat einen eigenen Ausführungsstatus.",
+    "warranty_field": "Jeder Auftrag hält fest, bis wann die Gewährleistung gilt.",
+    "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase."
+  },
+  "page": {
+    "metaTitle": "Handwerker CRM Vorlage: Angebote und Gewährleistung",
+    "metaDescription": "Handwerker CRM: jedes Angebot nachfassen, jeden Auftrag bis zur Zahlung begleiten, Widerrufs- und Gewährleistungstermine. Vorlage im KI-Agenten einfügen.",
+    "headline": "Ein Handwerker CRM, das jedes Angebot nachfasst und Gewährleistungstermine kennt, aufgebaut von Ihrem KI-Agenten",
+    "answer": "Ein CRM für einen kleinen Handwerksbetrieb begleitet jeden Auftrag vom ersten Anruf bis zur letzten Rechnung: Besichtigung, Angebot mit Nachfassen, Ausführung von geplant bis bezahlt und die Termine, auf die es ankommt, etwa Bindefrist, Widerruf, Gewährleistung und Wartung. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Rechtliche Fristen sind Felder, die Sie bestätigen, keine Rechtsberatung.",
+    "routine": {
+      "title": "Die wöchentliche Durchsicht von Angeboten und Aufträgen",
+      "steps": [
+        "Rufen Sie jede neue Anfrage am selben Tag zurück und senden Sie binnen zwei Tagen nach jeder Besichtigung das Angebot.",
+        "Fassen Sie Angebote nach, die vor drei Tagen versendet wurden oder in drei Tagen ablaufen. Entscheiden Sie nach einem zweiten Versuch: Angebot offen halten oder mit Grund schließen.",
+        "Prüfen Sie die Aufträge dieser Woche und bestätigen Sie den Termin beim Kunden. Halten Sie bei jedem fertigen Auftrag Übergabe und Abnahme fest und fordern Sie die Rechnung bei der Buchhaltung an.",
+        "Sehen Sie sich abgerechnete Aufträge nach dem Zahlungsziel an und prüfen Sie, ob bezahlt wurde.",
+        "Schauen Sie 30 Tage voraus: Gewährleistungen, die enden, Wartungstermine zu buchen und Wartungsverträge zu erneuern."
+      ]
+    },
+    "limits": [
+      "Es ist kein Werkzeug für Angebote, Kalkulation oder Rechnungen. Positionen ergeben einen Auftragswert, aber kein Dokument mit Umsatzsteuerzeilen, Nummerierung und Pflichtangaben. Angebote und Rechnungen bleiben in Ihrer Handwerkersoftware oder Buchhaltung.",
+      "Es ist kein Werkzeug für elektronische Signatur oder Zahlung und kein System für Disposition, Routen, GPS oder Zeiterfassung.",
+      "Es ist keine native mobile App für die Baustelle. Die Web-App läuft auf dem Telefon, eine eigene App gibt es nicht.",
+      "Es stellt keine Bescheinigungen aus. Prüfprotokolle und Abnahmeprotokolle bleiben in Ihrem Dokumentenwerkzeug, das CRM speichert Datum und Referenz.",
+      "SMS ist kein Kanal: WhatsApp, E-Mail und LinkedIn sind es. Eine rechtliche Instanz für Widerruf, Gewährleistung oder Bindefrist ist es auch nicht."
+    ],
+    "faq": [
+      {
+        "question": "Wie schnell sollte ein Handwerksbetrieb ein Angebot schicken?",
+        "answer": "Ein Ratgeber für Dachdecker empfiehlt ein Angebot binnen 24 bis 48 Stunden nach der Besichtigung und den Rückruf auf eine Online-Anfrage binnen Minuten. Jobber rät zu einem ersten Nachfassen zwei bis drei Tage nach dem Angebot und einem zweiten einige Tage später, dann weiterzuziehen. Die Vorlage legt das als terminierte Wiedervorlagen an, die Abstände stellen Sie selbst ein."
+      },
+      {
+        "question": "Was ist der Unterschied zwischen Kostenvoranschlag und Angebot?",
+        "answer": "Nach gängigen Ratgebern begründet eine Anfrage noch keinen Vertrag, ein Kostenvoranschlag ist kein verbindliches Angebot, und eine Auftragsbestätigung ist freiwillig; weicht sie von der Anfrage ab, gilt sie als neues Angebot. Die Vorlage speichert, bis wann Ihr Angebot gilt (Bindefrist), und legt drei Tage vorher eine Wiedervorlage an. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Können Verbraucher einen Vertrag widerrufen, der bei ihnen zu Hause geschlossen wurde?",
+        "answer": "Bei Verträgen außerhalb der Geschäftsräume haben Verbraucher in der Regel ein Widerrufsrecht von 14 Tagen, das aber nur mit ordnungsgemäßer Belehrung zu laufen beginnt; fehlt sie, kann es 12 Monate und 14 Tage dauern. Für dringende Reparaturen, die der Kunde ausdrücklich wünscht, gibt es eine Ausnahme. Die Vorlage setzt das Ende der 14 Tage, wenn ein Auftrag erteilt wird; prüfen Sie Regel und Belehrung für Ihren Fall."
+      },
+      {
+        "question": "Welche Termine muss ein Handwerksbetrieb im Blick behalten?",
+        "answer": "Bindefrist des Angebots, Ende der Widerrufsfrist, Abnahme (sie macht die Vergütung fällig und beginnt die Gewährleistung), Ende der Gewährleistung und Wartungstermine, an die Fachleute 30 bis 45 Tage vorher erinnern. Die Gewährleistungsdauer hängt vom Vertrag ab, deshalb speichert die Vorlage das Enddatum, das Sie aus dem Vertrag setzen, und berechnet es nie."
+      },
+      {
+        "question": "Schreibt der Agent meinen Kunden?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ich führe einen kleinen Handwerksbetrieb, Angebote gehen ohne Nachfassen raus, und Aufträge, Besichtigungen und Gewährleistungstermine stehen nur in meinem Kopf. Richte in meinem Customermates-Workspace eine Auftragspipeline für den Handwerksbetrieb ein: Kunden, Objekte, Aufträge mit Vertriebsphase und Ausführungsstatus, Bindefrist, Besichtigungs- und Bautermine, Gewährleistungsende und Wartungsverträge, mit terminierten Folgeaufgaben.",
+    "questions": [
+      "Welche Arbeiten führst du aus, und für wen: Eigentümer, Vermieter oder Firmen?",
+      "Wie schnell beantwortest du eine Anfrage und sendest nach der Besichtigung ein Angebot?",
+      "Wie lange sind deine Angebote bindend, und wie lang ist deine Gewährleistung?",
+      "Verkaufst du Wartungsverträge für Folgeaufträge?"
+    ]
+  }
+}

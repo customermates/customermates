@@ -245,7 +245,9 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         tooltip={column.label}
         variant={recordLinkColor(linkColors, typeId)}
       >
-        <ChipLabel name={name}>{count === 1 ? title : `${count} ${list?.pluralLabel ?? column.label}`}</ChipLabel>
+        <ChipLabel name={name}>
+          {count === 1 ? title : t("RecordModel.listCount", { count, label: list?.pluralLabel ?? column.label })}
+        </ChipLabel>
       </AppChip>
     );
   }

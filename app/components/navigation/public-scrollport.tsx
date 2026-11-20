@@ -17,6 +17,7 @@ type Props = {
   onboardingIntent?: string;
   onSignedOut?: () => void;
   profile?: MarketingAccountProfile | null;
+  templatesInNav?: boolean;
 };
 
 export function PublicScrollport({
@@ -27,6 +28,7 @@ export function PublicScrollport({
   onboardingIntent,
   onSignedOut,
   profile,
+  templatesInNav,
 }: Props) {
   const pathname = usePathname();
   const scrollportRef = useRef<HTMLDivElement>(null);
@@ -48,6 +50,7 @@ export function PublicScrollport({
           hasValidSession={hasValidSession}
           onboardingIntent={onboardingIntent}
           profile={profile}
+          templatesInNav={templatesInNav}
           onSignedOut={onSignedOut}
         />
       </header>

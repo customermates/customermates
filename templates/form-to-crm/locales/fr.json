@@ -1,0 +1,138 @@
+{
+  "locale": "fr",
+  "name": "Du formulaire au CRM",
+  "summary": "Faites en sorte qu’aucune demande de formulaire web ne reste sans réponse. Chaque envoi devient une demande avec sa source et une réponse à donner, passe de nouveau à converti, et les demandes sans suite et le spam restent à part.",
+  "description": "Les demandes de votre formulaire de contact, de devis ou d’accueil arrivent dans une boîte où elles sont traitées tard ou pas du tout, et vous ne savez pas d’où viennent les bonnes. Ce modèle transforme chaque envoi en demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, une demande restée sans réponse est signalée, et le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui vous écrivent par un formulaire." },
+    "requests": { "label": "Demande", "pluralLabel": "Demandes", "description": "Un envoi de formulaire, de nouveau à converti, sans suite ou spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Entreprise" },
+    "contacts.language": { "label": "Langue" },
+    "contacts.marketing_consent": { "label": "Consentement aux e-mails commerciaux" },
+    "contacts.marketing_consent_on": { "label": "Consentement donné le" },
+    "requests.stage": {
+      "label": "Étape",
+      "options": { "new": "Nouveau", "contacted": "Contacté", "qualified": "Qualifié", "converted": "Converti", "not_a_fit": "Sans suite", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formulaire", "options": { "contact": "Formulaire de contact", "quote_request": "Demande de devis", "intake": "Formulaire d’accueil", "callback": "Demande de rappel", "other": "Autre" } },
+    "requests.owner": { "label": "Responsable" },
+    "requests.service_interest": { "label": "Prestation souhaitée" },
+    "requests.needed_by": {
+      "label": "Besoin avant le",
+      "options": { "asap": "Dès que possible", "within_a_month": "Dans le mois", "within_three_months": "Dans les trois mois", "just_looking": "Simple renseignement", "no_answer": "Sans réponse" }
+    },
+    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Sans réponse", "low": "Faible", "medium": "Moyen", "high": "Élevé" } },
+    "requests.submitted_at": { "label": "Reçue le" },
+    "requests.first_response_at": { "label": "Première réponse" },
+    "requests.utm_source": { "label": "Provenance du visiteur" },
+    "requests.landing_page": { "label": "Page du formulaire" },
+    "requests.repeat_submission": { "label": "A déjà écrit" },
+    "requests.not_a_fit_reason": {
+      "label": "Motif du classement sans suite",
+      "options": { "out_of_area": "Hors de notre zone", "no_budget": "Pas de budget", "wrong_service": "Mauvaise prestation", "no_response": "Sans réponse", "duplicate": "Doublon", "other": "Autre" }
+    },
+    "requests.closed_on": { "label": "Clôturée le" },
+    "requests.data_review_on": { "label": "Revoir les données le" },
+    "requests.days_to_close": { "label": "Jours entre l’envoi et la clôture" },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre", "qualify_call": "Appel de qualification", "send_quote": "Envoyer un devis", "convert": "Passer au pipeline", "chase": "Relancer", "data_review": "Revoir les données", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contact", "targetLabel": "Demandes" },
+    "action_request": { "sourceLabel": "Demande", "targetLabel": "Actions" }
+  },
+  "views": {
+    "requests_all": { "name": "Toutes les demandes" },
+    "requests_board": { "name": "Board des demandes" },
+    "new_requests": { "name": "Nouvelles demandes" },
+    "closed_without_deal": { "name": "Sans suite ou spam" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Demandes par étape" },
+    "requests_per_week": { "title": "Demandes par semaine" },
+    "requests_by_form": { "title": "Demandes par formulaire" },
+    "new_requests_count": { "title": "Nouvelles demandes" },
+    "not_a_fit_reasons": { "title": "Motifs des demandes sans suite" },
+    "average_days_to_close": { "title": "Nombre moyen de jours avant clôture" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Guide du formulaire au CRM", "sections": ["Quels formulaires nous utilisons et qui répond", "En combien de temps nous répondons"] },
+    "privacy_notice": { "title": "Mentions d’information des formulaires", "sections": ["Ce que nous indiquons au niveau du formulaire", "Durée de conservation d’une demande"] },
+    "spam_and_duplicates": { "title": "Spam et envois répétés", "sections": ["Ce qui compte comme du spam", "Ce que nous faisons quand la même personne écrit à nouveau"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le contact et la demande quand le formulaire de demande est envoyé" },
+    "reply_task": { "title": "Créer une tâche de réponse pour le lendemain quand une demande est créée" },
+    "first_response_missed": { "title": "Prévenir le responsable quand une demande est encore nouvelle un jour après sa réception" },
+    "chase_contacted": { "title": "Relancer une demande contactée qui n’a pas bougé depuis 3 jours" },
+    "converted_task": { "title": "Passer la demande au pipeline quand elle est convertie" },
+    "review_date_not_a_fit": { "title": "Fixer la revue des données à un an quand une demande est sans suite" },
+    "data_review": { "title": "Revoir les données quand la date de revue arrive" },
+    "external_form_records": { "title": "Créer le contact et la demande quand un autre outil de formulaire transmet un envoi" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque demande a une étape.",
+    "submitted_field": "Chaque demande indique quand elle a été reçue.",
+    "requests_board_view": "Les demandes s’ouvrent en board par étape."
+  },
+  "page": {
+    "metaTitle": "Formulaire en ligne relié au CRM : aucune demande oubliée",
+    "metaDescription": "Formulaire en ligne qui alimente votre CRM : collez ce modèle dans Claude, ChatGPT ou Codex, et chaque demande reçoit un responsable et une réponse due.",
+    "headline": "Un formulaire en ligne relié à votre CRM : chaque demande a un responsable et une réponse à donner",
+    "answer": "Un formulaire en ligne ne sert que si chaque envoi reçoit une réponse. Ce modèle transforme chaque envoi en demande liée à un contact, avec le formulaire d’origine, une réponse à donner dès le lendemain et une étape de nouveau à converti. Collez-le dans votre agent IA : il construit la liste des demandes dans Customermates et le chemin depuis votre formulaire, et vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La première réponse à chaque demande",
+      "steps": [
+        "Répondez aux nouvelles demandes le jour même. Le modèle crée une action de réponse due le lendemain et signale une demande encore nouvelle après un jour.",
+        "Envoyez une courte confirmation qui reprend la demande avec les mots de la personne et dit quand viendra la réponse ou le devis.",
+        "Posez la ou les deux questions qui décident du prix ou de la personne qui traite la demande, au lieu d’exiger un long formulaire d’emblée.",
+        "Relancez une demande contactée après 3 jours. Si les relances restent sans réponse, classez-la « Sans suite » en notant l’absence de réponse comme motif.",
+        "Marquez le spam et les demandes sans suite et laissez courir leur date de revue des données, pour que les anciennes demandes soient revues ou supprimées à temps.",
+        "Transmettez chaque demande qui devient une affaire à votre pipeline commercial et passez-la à « Converti » ici."
+      ]
+    },
+    "limits": [
+      "Le formulaire public reste simple, sans être un constructeur complet : ni paiements, ni quiz, ni calculateurs, ni envoi de fichiers, ni signature électronique. Typeform, Tally ou Jotform restent préférables pour cela, et un webhook entrant amène leurs réponses ici.",
+      "Gardez les documents sensibles hors du formulaire. Demandez-les par un canal à accès contrôlé.",
+      "Il n’envoie rien tout seul. Les confirmations et les réponses sont des brouillons que vous relisez et envoyez.",
+      "Ce n’est pas un outil d’emailing. Il enregistre un consentement marketing, mais les séquences et les newsletters demandent un outil d’emailing, car Customermates n’a ni séquences ni envoi en masse.",
+      "Les textes sur la vie privée sont des points de départ, pas un avis juridique. Adaptez la mention, la formule de consentement et les durées de conservation à votre pays avec votre conseil."
+    ],
+    "faq": [
+      {
+        "question": "Que doit demander un formulaire de demande de devis ?",
+        "answer": "Seulement ce qui change le prix ou décide qui répond : en général quatre à sept questions, comme ce dont vous avez besoin, pour quand et une fourchette de budget. Gardez les détails pour le premier échange. Le modèle conserve le formulaire, la page et la source de chaque demande, pour voir d’où viennent les bonnes."
+      },
+      {
+        "question": "En combien de temps répondre à une demande reçue par un formulaire web ?",
+        "answer": "Aussi vite que vous pouvez le promettre et le tenir : le jour même au plus tard, en indiquant sur le formulaire quand la personne aura de vos nouvelles. Les guides d’éditeurs de formulaires recommandent un premier message qui confirme la demande et annonce quand arrive le devis. Le modèle crée une action de réponse due le lendemain et signale une demande que personne n’a traitée après un jour."
+      },
+      {
+        "question": "Faut-il une case de consentement sur un formulaire de demande de devis ?",
+        "answer": "Pas automatiquement. Selon le RGPD, une demande de devis est en général traitée pour y répondre : ce que vous devez à la personne sur le formulaire, c’est une information sur qui vous êtes, pourquoi vous utilisez ses données, sur quelle base, combien de temps vous les gardez et quels sont ses droits. La prospection demande un consentement distinct, non pré-coché, que vous pouvez prouver ; une case pré-cochée ne compte pas. Le modèle enregistre le consentement et une date de revue des données, et la case de consentement facultative du formulaire conserve votre texte, sa version et l’heure à chaque soumission. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "Est-ce compatible avec Typeform, Tally ou Jotform ?",
+        "answer": "Oui, avec tout outil de formulaire capable d’envoyer un webhook, comme Typeform, Tally ou Jotform. Un webhook entrant donne à une liste une adresse secrète, et chaque soumission envoyée à cette adresse crée ou met à jour une fiche. Le modèle contient une règle qui crée le contact et la demande quand un autre outil de formulaire envoie une soumission, et votre agent met en place, pendant l’entretien, l’adresse et la correspondance des champs. Les webhooks entrants demandent la formule Starter ou supérieure sur Customermates Cloud et n’ont aucune limite en auto-hébergement. Un formulaire de votre propre site fonctionne de la même façon, ou vous utilisez le formulaire public de Customermates."
+      },
+      {
+        "question": "L’agent contacte-t-il les personnes qui remplissent mon formulaire ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Les demandes de mes formulaires web sont traitées tard ou pas du tout, et je ne vois pas d’où viennent les bonnes. Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
+    "questions": [
+      "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
+      "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
+      "Que dites-vous aux personnes, dans le formulaire, sur l’usage de leurs données ?",
+      "Utilisez-vous un autre outil de formulaire comme Typeform, Tally ou Jotform ?"
+    ]
+  }
+}

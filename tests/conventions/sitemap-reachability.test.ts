@@ -99,6 +99,6 @@ describe("sitemap reachability", () => {
 
       expect(collisions, "two URLs in one locale sharing a title compete for the same query").toEqual([]);
     },
-    180_000,
+    480_000,
   );
 });

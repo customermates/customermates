@@ -59,6 +59,7 @@ describe("commercial plan catalog", () => {
     });
     expect(getPlanDefinition("starter").entitlements).toEqual({
       agentChat: true,
+      agentOwnKey: true,
       messaging: false,
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 1,
@@ -67,10 +68,14 @@ describe("commercial plan catalog", () => {
       hostedAiCreditsPerActiveUser: 100,
       fileStorageBytesPerActiveUser: 1024 ** 3,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: 20,
       usageLimits: null,
     });
     expect(getPlanDefinition("max").entitlements).toEqual({
       agentChat: true,
+      agentOwnKey: true,
       messaging: true,
       includedAccountsPerUser: 10,
       includedRoutinesPerUser: "unlimited",
@@ -79,6 +84,9 @@ describe("commercial plan catalog", () => {
       hostedAiCreditsPerActiveUser: 2_000,
       fileStorageBytesPerActiveUser: 50 * 1024 ** 3,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     });
     expect(getPlanDefinition("pro").entitlements.includedAccountsPerUser).toBe(1);
@@ -95,12 +103,40 @@ describe("commercial plan catalog", () => {
     expect(getPlanDefinition("enterprise").entitlements.fileStorageBytesPerActiveUser).toBe("contract");
   });
 
+  it("owns the form and automation allowances: Free is capped and badged, Starter caps automations, Pro and up are open", () => {
+    const allowances = PLAN_IDS.map((plan) => {
+      const { formSubmissionsPerMonth, formBadge, activeAutomationRules } = getPlanDefinition(plan).entitlements;
+      return [plan, formSubmissionsPerMonth, formBadge, activeAutomationRules];
+    });
+
+    expect(allowances).toEqual([
+      ["free", 50, true, 3],
+      ["starter", "unlimited", false, 20],
+      ["pro", "unlimited", false, "unlimited"],
+      ["business", "unlimited", false, "unlimited"],
+      ["max", "unlimited", false, "unlimited"],
+      ["enterprise", "unlimited", false, "unlimited"],
+    ]);
+  });
+
+  it("lets every paid plan run agents on the workspace's own provider key and keeps Free off it", () => {
+    expect(PLAN_IDS.map((plan) => [plan, getPlanDefinition(plan).entitlements.agentOwnKey])).toEqual([
+      ["free", false],
+      ["starter", true],
+      ["pro", true],
+      ["business", true],
+      ["max", true],
+      ["enterprise", true],
+    ]);
+  });
+
   it("owns the owner-approved Free plan: not purchasable, no paid features, per-workspace limits", () => {
     expect(PURCHASABLE_PLAN_IDS).not.toContain("free");
     expect(getCommercialOffer("free", "monthly")).toBeNull();
     expect(getPlanDefinition("free")).toMatchObject({ availability: "free", offers: {} });
     expect(getPlanDefinition("free").entitlements).toEqual({
       agentChat: false,
+      agentOwnKey: false,
       messaging: false,
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 0,
@@ -109,6 +145,9 @@ describe("commercial plan catalog", () => {
       hostedAiCreditsPerActiveUser: null,
       fileStorageBytesPerActiveUser: null,
       webhooks: false,
+      formSubmissionsPerMonth: 50,
+      formBadge: true,
+      activeAutomationRules: 3,
       usageLimits: {
         maxMembers: 1,
         maxRecords: 250,

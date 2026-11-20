@@ -30,6 +30,7 @@ vi.mock("@/core/di", () => ({
     isMcpApiKeyValid: interactors.isMcpApiKeyValid,
   }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+  getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),
 }));
 
 import {

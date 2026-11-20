@@ -45,8 +45,14 @@ export class StartWorkspaceSetupInteractor extends AuthenticatedInteractor<
     if (data.websiteUrl && !homepage) return fail(CustomErrorCode.invalidUrl, ["websiteUrl"]);
     const websiteUrl = homepage?.url ?? null;
 
+    const templateSlug = data.templateSlug ?? null;
     const existing = await this.repo.findCurrent();
-    if (existing && REUSABLE.has(existing.status) && existing.websiteUrl === websiteUrl)
+    if (
+      existing &&
+      REUSABLE.has(existing.status) &&
+      existing.websiteUrl === websiteUrl &&
+      existing.interview.templateSlug === templateSlug
+    )
       return { ok: true, data: { setupId: existing.id } };
     if (existing && existing.status !== "failed" && existing.status !== "interview")
       return failConflict(CustomErrorCode.workspaceSetupConflict);
@@ -54,12 +60,12 @@ export class StartWorkspaceSetupInteractor extends AuthenticatedInteractor<
     const answers = await this.workspaceNameAnswer();
     let setupId: string;
     if (existing) {
-      if (!(await this.repo.restart(existing.id, { websiteUrl, answers })))
+      if (!(await this.repo.restart(existing.id, { websiteUrl, answers, templateSlug })))
         return failConflict(CustomErrorCode.workspaceSetupConflict);
       if (existing.crawlId) await this.repo.stopCrawl(existing.crawlId);
       setupId = existing.id;
     } else {
-      const created = await this.repo.create({ websiteUrl, answers });
+      const created = await this.repo.create({ websiteUrl, answers, templateSlug });
       if (!created) return failConflict(CustomErrorCode.workspaceSetupConflict);
       setupId = created.id;
     }

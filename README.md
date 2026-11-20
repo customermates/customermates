@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<p align="center">Follow up on every client conversation. The open-source CRM with LinkedIn and email beside every client, replies drafted by Mate or your own AI agent through MCP, and self-hosting under the AGPL.</p>
+<p align="center">Follow up on every client conversation. The source-available CRM with LinkedIn and email beside every client, replies drafted by Mate or your own AI agent through MCP, and a self-hostable Community Edition.</p>
 
 <p align="center">
   <a href="https://customermates.com">Website</a> |
@@ -52,6 +52,7 @@ Docs entry points:
 - [Self-Hosting (install, manage, cloud vs self-host)](https://customermates.com/docs/self-hosting)
 - [Connect your AI (Claude)](https://customermates.com/docs/mcp-connect-claude)
 - [Webhooks](https://customermates.com/docs/webhooks)
+- [Licence](https://customermates.com/docs/licence), [Licence FAQ](https://customermates.com/docs/licence-faq) and [Compare editions](https://customermates.com/docs/compare-editions)
 
 ## ⭐ Key Features
 
@@ -74,7 +75,7 @@ Customermates supports both cloud and self-hosted deployment models.
 
 | Criterion | Cloud | Self-Hosted |
 | --- | --- | --- |
-| Pricing | [monthly per-seat plans](https://customermates.com/pricing) | free core + infra costs |
+| Pricing | [monthly per-seat plans](https://customermates.com/pricing) | free Community Edition + infra costs |
 | Setup Time | 2 minutes | ~15 minutes |
 | Maintenance Required | None | Docker, Postgres, proxy, TLS, backups |
 | Updates | Automatic | `docker compose pull && docker compose up -d` |
@@ -183,14 +184,15 @@ Start here: [customermates.com/docs](https://customermates.com/docs)
 
 ## 📄 License
 
-Customermates uses an open-core licensing model, described in [`LICENSING.md`](./LICENSING.md).
+Customermates is source-available and fair-code, distributed under the [Sustainable Use License](./LICENSE.md) and the [Customermates Enterprise License](./ee/LICENSE.md).
 
-The Community Edition (all first-party code outside `ee/`) is licensed under [AGPL-3.0-only](./LICENSE).
+- Source available: the source code is always visible, and you can change it for your own use.
+- Self-hostable: run it on your own infrastructure for your own business, free of charge.
 
-Other first-party files in `ee/` are source-available under the [Customermates Commercial License](./ee/LICENSE.md), subject to its AGPL client-material exception. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
+Enterprise licences are available for additional features and support. The code in `ee/` and every Enterprise Feature needs one. What you may and may not do, with examples, is in [`LICENSING.md`](./LICENSING.md).
 
-The official Community image at `ghcr.io/customermates/customermates` is built from the shared codebase and contains compiled Commercial Software. The limited Community Build permission allows anyone to run its unmodified commercial support components where documented `APP_MODE=self-hosted` operation necessarily executes them; it does not license Enterprise Feature use.
+The official Community image at `ghcr.io/customermates/customermates` is built from the shared codebase and contains compiled commercial support code. The limited Community Build permission in [`ee/LICENSE.md`](./ee/LICENSE.md) allows you to run it where documented `APP_MODE=self-hosted` operation necessarily executes it; it does not license Enterprise Feature use.
 
-Contributor terms are available in [`.github/CLA.md`](./.github/CLA.md).
+Contributor terms are in [`.github/CLA.md`](./.github/CLA.md). The name and logo are covered by the [trademark policy](./TRADEMARK.md).
 
-Third-party data keeps its own license: the address formats from Google libaddressinput that ship with Customermates and the postal codes it downloads from GeoNames are licensed under CC BY 4.0, see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
+Third-party components keep their own licenses, listed in [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md) and [`NOTICE`](./NOTICE). The address formats from Google libaddressinput that ship with Customermates and the postal codes it downloads from GeoNames are licensed under CC BY 4.0, see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).

@@ -187,11 +187,16 @@ describe("resolvePublicNavGroups", () => {
       "/features/contact-management",
       "/features/unified-inbox",
       "/features/integrations",
-      "/docs/mcp",
       "/features/open-source-crm",
       "/features/self-hosted",
       "/features/all",
     ]);
+  });
+
+  it("keeps the templates hub out of the dropdown menus, since it is a top-level link", () => {
+    const hrefs = resolvePublicNavGroups(translate, "en").flatMap((group) => group.links.map((link) => link.href));
+
+    expect(hrefs).not.toContain("/templates");
   });
 
   it("lists solutions by job first, then by team", () => {

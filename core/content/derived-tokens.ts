@@ -1,6 +1,7 @@
 import {
   WEBHOOK_EVENT_COUNT,
   WEBHOOK_MESSAGING_EVENT_COUNT,
+  WEBHOOK_OTHER_EVENT_COUNT,
   WEBHOOK_RECORD_EVENT_COUNT,
 } from "@/features/webhook/webhook-event-registry";
 
@@ -22,6 +23,7 @@ const DERIVED_FACTS = {
   "webhooks.events.total": WEBHOOK_EVENT_COUNT,
   "webhooks.events.records": WEBHOOK_RECORD_EVENT_COUNT,
   "webhooks.events.messaging": WEBHOOK_MESSAGING_EVENT_COUNT,
+  "webhooks.events.other": WEBHOOK_OTHER_EVENT_COUNT,
 } as const;
 
 type DerivedFactToken = keyof typeof DERIVED_FACTS;

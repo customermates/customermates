@@ -28,7 +28,7 @@ relatedHrefs:
 
 O que é MCP? MCP é a sigla de Model Context Protocol (Protocolo de Contexto de Modelo), um padrão aberto que permite que aplicativos de IA como o Claude, o ChatGPT ou o Cursor se conectem a outros sistemas do mesmo jeito, sem uma integração sob medida para cada um. Um servidor MCP é o programa que fica na frente de um desses sistemas, seja uma pasta de arquivos, um banco de dados ou um CRM, e oferece à IA ferramentas, dados e templates de prompt, decidindo o que ela pode ver e fazer ali.
 
-A Anthropic apresentou o MCP em 25 de novembro de 2024 como um padrão aberto para conectar assistentes de IA aos sistemas onde os dados vivem. Desde então, os principais clientes de IA passaram a oferecer suporte, e muitos fornecedores de software operam os próprios servidores. Este guia explica as peças em termos simples e depois percorre um servidor real para dados de negócio: o servidor MCP embutido no Customermates, o CRM de código aberto que publica este artigo.
+A Anthropic apresentou o MCP em 25 de novembro de 2024 como um padrão aberto para conectar assistentes de IA aos sistemas onde os dados vivem. Desde então, os principais clientes de IA passaram a oferecer suporte, e muitos fornecedores de software operam os próprios servidores. Este guia explica as peças em termos simples e depois percorre um servidor real para dados de negócio: o servidor MCP embutido no Customermates, o CRM com hospedagem própria e código-fonte disponível que publica este artigo.
 
 Para uma integração fixa e um cliente de IA, compare [MCP versus API na mesma tarefa com registros de clientes](/blog/mcp-vs-api). A descoberta de ferramentas muda a forma como o cliente encontra uma operação; autenticação e permissões continuam valendo.
 
@@ -156,13 +156,13 @@ Se você decidir construir o seu, o caminho para um caso simples é curto:
 
 ## O MCP é de código aberto? [#mcp-open-source]
 
-O protocolo é aberto: a especificação é pública e qualquer pessoa pode implementar um cliente ou um servidor. Isso não significa que todo servidor seja de código aberto. O servidor de um fornecedor pode ter código fechado, e os servidores da comunidade costumam ter o código aberto, o que permite lê-lo antes de rodar. No Customermates os dois se somam: o [endpoint MCP](/docs/mcp) faz parte da edição de código aberto que você [hospeda por conta própria](/features/self-hosted).
+O protocolo é aberto: a especificação é pública e qualquer pessoa pode implementar um cliente ou um servidor. Isso não significa que todo servidor seja de código aberto. O servidor de um fornecedor pode ter código fechado, e os servidores da comunidade costumam ter o código aberto, o que permite lê-lo antes de rodar. No Customermates os dois se somam: o [endpoint MCP](/docs/mcp) faz parte da edição Community que você [hospeda por conta própria](/features/self-hosted).
 
 ## Um servidor MCP de negócios de verdade, de ponta a ponta
 
 A maioria das explicações para em uma ferramenta de previsão do tempo. Aqui está como é um servidor de produção para dados de clientes, usando o Customermates como exemplo. Todos os detalhes abaixo vêm da [referência pública do MCP](/docs/mcp).
 
-**O endpoint.** O Customermates opera um servidor remoto em `/api/v1/mcp` no endereço que você usa para o app, além de uma URL específica do espaço de trabalho com as mesmas ferramentas travadas nesse espaço de trabalho. Ele fala Streamable HTTP. O endpoint faz parte de todos os planos Cloud e das instalações com hospedagem própria; quando você hospeda por conta própria a edição de código aberto, ele continua sendo um servidor remoto, só que na sua própria infraestrutura.
+**O endpoint.** O Customermates opera um servidor remoto em `/api/v1/mcp` no endereço que você usa para o app, além de uma URL específica do espaço de trabalho com as mesmas ferramentas travadas nesse espaço de trabalho. Ele fala Streamable HTTP. O endpoint faz parte de todos os planos Cloud e das instalações com hospedagem própria; quando você hospeda por conta própria a edição Community, ele continua sendo um servidor remoto, só que na sua própria infraestrutura.
 
 **A conexão.** No Claude e no ChatGPT, você adiciona a URL como conector personalizado, faz login e aprova ([configuração do conector personalizado](/docs/connect-custom-connector)). Claude Code, Codex, Cursor e Gemini CLI se conectam com uma chave de API no cabeçalho `x-api-key` ([configuração da CLI](/docs/connect-cli)). De qualquer forma, o cliente age como exatamente um usuário em exatamente um espaço de trabalho, e conectar exige acesso de leitura a API e webhooks na função desse usuário.
 
@@ -180,7 +180,7 @@ A maioria das explicações para em uma ferramenta de previsão do tempo. Aqui e
 
 **Para que serve.** Para um time que atende clientes, o trabalho útil é o follow-up: com LinkedIn e e-mail conectados no Customermates Cloud a partir do Pro, o seu próprio Claude ou ChatGPT lê a conversa no registro do cliente e prepara o rascunho da resposta e do próximo passo para você revisar e enviar. Para experimentar, [inicie o seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
 
-O Customermates é a escolha errada se você só quer conectar uma IA ao CRM que já usa; nesse caso, use o servidor do próprio CRM. Ele serve quando você está escolhendo um CRM e quer o servidor MCP, os dados e o [código aberto](/features/open-source-crm) em um único produto.
+O Customermates é a escolha errada se você só quer conectar uma IA ao CRM que já usa; nesse caso, use o servidor do próprio CRM. Ele serve quando você está escolhendo um CRM e quer o servidor MCP, os dados e o [código-fonte disponível](/features/open-source-crm) em um único produto.
 
 ## Quais são os riscos de segurança dos servidores MCP?
 

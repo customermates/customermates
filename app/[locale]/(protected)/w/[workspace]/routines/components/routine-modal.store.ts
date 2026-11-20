@@ -59,6 +59,10 @@ const EMPTY_ROUTINE_FORM: RoutineModalForm = {
   triggerKind: RoutineTriggerKind.schedule,
   timezone: DEFAULT_ROUTINE_TIMEZONE,
   triggerEvents: [],
+  recordTrigger: null,
+  recordSources: null,
+  expectedSchemaRevision: undefined,
+  debounceSeconds: undefined,
   schedulePreset: DEFAULT_ROUTINE_SCHEDULE.preset,
   scheduleHour: String(DEFAULT_ROUTINE_SCHEDULE.hour),
   scheduleMinute: String(DEFAULT_ROUTINE_SCHEDULE.minute),
@@ -258,10 +262,12 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     return generation === this.runsSessionGeneration && routineId === this.runsRoutineId;
   }
 
-  openForCreate = async () => {
+  openForCreate = async (seed?: { name?: string; prompt?: string; cron?: string }) => {
     const generation = this.beginRunsSession(null);
     await this.loadFilterFields();
     if (generation !== this.runsSessionGeneration) return;
+
+    const schedule = seed?.cron ? scheduleFromCron(seed.cron) : null;
 
     runInAction(() => {
       this.activeTab = "details";
@@ -269,6 +275,18 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       this.openWith({
         ...EMPTY_ROUTINE_FORM,
         timezone: localTimeZone(),
+        ...(seed?.name ? { name: seed.name } : {}),
+        ...(seed?.prompt ? { prompt: seed.prompt } : {}),
+        ...(schedule
+          ? {
+              schedulePreset: schedule.preset,
+              scheduleHour: String(schedule.hour),
+              scheduleMinute: String(schedule.minute),
+              scheduleWeekday: String(schedule.weekday),
+              scheduleDayOfMonth: String(schedule.dayOfMonth),
+              cronExpression: schedule.expression,
+            }
+          : {}),
       });
     });
   };
@@ -629,7 +647,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   };
 
   private applyRoutine = async (routine: RoutineDto) => {
-    await this.rootStore.routinesStore.upsertItem(routine);
     runInAction(() => {
       this.disabledReason = routine.enabled ? null : routine.disabledReason;
       this.onInitOrRefresh(routineFormFor(routine));
@@ -639,7 +656,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   private refreshRoutineList = async (): Promise<void> => {
     try {
-      await this.rootStore.routinesStore.refresh();
+      await this.rootStore.automationsStore.refresh();
     } catch (error) {
       reportApplicationError(error);
     }
@@ -721,7 +738,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       return false;
     }
 
-    await this.rootStore.routinesStore.removeItem(res.data.id);
     if (this.form.id === id) this.close();
     await this.refreshRoutineList();
     return { trashBatchId: res.data.trashBatchId };
@@ -736,7 +752,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       const res = await upsertRoutineAction(this.payload);
 
       if (res.ok) {
-        await this.rootStore.routinesStore.upsertItem(res.data);
         this.close();
         await this.refreshRoutineList();
       } else this.setError(res.error);

@@ -50,7 +50,7 @@ useCases:
 
 Um CRM para SaaS é o CRM de uma empresa que vende software por assinatura: ele acompanha cada conta que faz trial, assina, expande ou cancela, com as pessoas, os negócios e as conversas dela. Em relação a um CRM genérico, o que muda é o ciclo de vida da conta (trial, pagante, em risco, cancelado) e a ligação com os dados do produto, como plano, MRR e última atividade. No Customermates, o ciclo de vida é um campo que você define, e os dados do produto entram pela API.
 
-Um trial de SaaS costuma esfriar em vez de terminar em um “não”: a última mensagem do champion no LinkedIn fica sem resposta enquanto o time lança produto, e ninguém escreve no dia em que o trial acaba. Um CRM para SaaS mantém em um só lugar cada conta que faz trial, compra, expande ou cancela, com as pessoas dentro dela, os negócios ao redor e as conversas por trás. O Customermates é um CRM de código aberto, nativo de IA e feito na Alemanha para times de SaaS orientados a produto que moldam as próprias listas e conectam o próprio produto por uma API REST, webhooks e n8n. No Customermates Cloud, a partir do Pro, as conversas do LinkedIn e do e-mail ficam na conta, e o Mate ou o seu próprio cliente de IA por MCP redige a resposta e a próxima etapa para você revisar, editar e enviar. Ele não tem sincronização nativa de cobrança nem de análise de produto.
+Um trial de SaaS costuma esfriar em vez de terminar em um “não”: a última mensagem do champion no LinkedIn fica sem resposta enquanto o time lança produto, e ninguém escreve no dia em que o trial acaba. Um CRM para SaaS mantém em um só lugar cada conta que faz trial, compra, expande ou cancela, com as pessoas dentro dela, os negócios ao redor e as conversas por trás. O Customermates é um CRM com hospedagem própria, código-fonte disponível e nativo de IA, feito na Alemanha para times de SaaS orientados a produto que moldam as próprias listas e conectam o próprio produto por uma API REST, webhooks e n8n. No Customermates Cloud, a partir do Pro, as conversas do LinkedIn e do e-mail ficam na conta, e o Mate ou o seu próprio cliente de IA por MCP redige a resposta e a próxima etapa para você revisar, editar e enviar. Ele não tem sincronização nativa de cobrança nem de análise de produto.
 
 “CRM SaaS” também significa um CRM que é entregue como serviço em nuvem, e o Customermates também é isso, então a primeira seção abaixo separa os dois sentidos.
 
@@ -98,7 +98,7 @@ A expressão tem dois sentidos, e os resultados de busca os misturam.
 | Um CRM entregue como SaaS | Qualquer CRM que você usa no navegador sem operar servidores, ao contrário de um software que você instala por conta própria | [CRM em nuvem](/features/cloud-crm) explica cloud versus hospedagem própria e como escolher |
 | Um CRM para empresas de SaaS | Um CRM que se encaixa em um negócio que vende assinaturas: contas com vários usuários, trials, planos, renovações e uso | O resto desta página |
 
-O Customermates cobre os dois. Ele roda como Customermates Cloud, um serviço hospedado com planos pagos cobrados mensalmente por usuário e um plano Free para uma pessoa, e como instalação com hospedagem própria do núcleo de código aberto. O que ele não faz é entender assinaturas por conta própria. Não há um modelo embutido de assinatura, trial ou cobrança, então você os define como campos e listas e decide como os dados do produto chegam até eles.
+O Customermates cobre os dois. Ele roda como Customermates Cloud, um serviço hospedado com planos pagos cobrados mensalmente por usuário e um plano Free para uma pessoa, e como instalação com hospedagem própria da edição Community. O que ele não faz é entender assinaturas por conta própria. Não há um modelo embutido de assinatura, trial ou cobrança, então você os define como campos e listas e decide como os dados do produto chegam até eles.
 
 ## O que uma empresa de SaaS precisa de um CRM?
 
@@ -255,7 +255,7 @@ Análise de produto, cobrança e gestão de assinaturas, centrais de suporte e m
 
 ## Uma empresa de SaaS deve hospedar o próprio CRM?
 
-Alguns times de SaaS preferem rodar o CRM junto da própria infraestrutura. O Customermates é open core, e uma [instalação com hospedagem própria](/features/self-hosted) roda com Docker Compose sobre PostgreSQL 16. Ela tem os recursos do Starter com REST, webhooks e MCP, mas não tem caixa de entrada, Mate nem configuração do espaço de trabalho por IA, e você opera o servidor, os backups e as atualizações. Hospedar por conta própria não é, por si só, uma garantia de conformidade.
+Alguns times de SaaS preferem rodar o CRM junto da própria infraestrutura. O Customermates tem o código-fonte disponível, e uma [instalação com hospedagem própria](/features/self-hosted) roda com Docker Compose sobre PostgreSQL 16. Ela tem os recursos do Starter com REST, webhooks e MCP, mas não tem caixa de entrada, Mate nem configuração do espaço de trabalho por IA, e você opera o servidor, os backups e as atualizações. Hospedar por conta própria não é, por si só, uma garantia de conformidade.
 
 No Customermates Cloud, o banco de dados primário está na região AWS de Frankfurt. Os suboperadores, entre eles provedores dos EUA, estão na [página de suboperadores](/subprocessors), e um [acordo de tratamento de dados](/dpa) está disponível. O Customermates não tem certificações como ISO 27001 ou SOC 2, o que importa quando o questionário de segurança de um cliente pergunta sobre os seus fornecedores.
 
@@ -282,7 +282,7 @@ A divisão mais comum fala em CRM operacional, que automatiza o dia a dia de ven
 </FaqItem>
 
 <FaqItem question="Existe um CRM gratuito para empresas SaaS?">
-Sim, com limites. O Customermates Cloud tem um plano Free para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate, rotinas nem webhooks; a API REST e o MCP estão incluídos, e o teste do Pro dura [[commercial.trial.days]] dias. A tabela acima lista os planos gratuitos que o HubSpot e o Attio informam em seus sites. O núcleo de código aberto também pode ser hospedado por conta própria, sem custo de licença.
+Sim, com limites. O Customermates Cloud tem um plano Free para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate, rotinas nem webhooks; a API REST e o MCP estão incluídos, e o teste do Pro dura [[commercial.trial.days]] dias. A tabela acima lista os planos gratuitos que o HubSpot e o Attio informam em seus sites. A edição Community também pode ser hospedada por conta própria, para uso interno, sem custo de licença.
 </FaqItem>
 
 <FaqItem question="O Customermates acompanha os usuários em trial por mim?">
@@ -310,6 +310,6 @@ Não. A API REST e o MCP estão em todos os planos e na edição com hospedagem 
 </FaqItem>
 
 <FaqItem question="O próprio Customermates é um CRM SaaS?">
-Sim, no sentido de nuvem: o Customermates Cloud é um serviço hospedado com um plano Free para uma pessoa e planos pagos cobrados mensalmente por usuário, e a [página do CRM em nuvem](/features/cloud-crm) explica o que isso significa. Você também pode hospedar por conta própria o núcleo de código aberto, sem a caixa de entrada e sem o Mate.
+Sim, no sentido de nuvem: o Customermates Cloud é um serviço hospedado com um plano Free para uma pessoa e planos pagos cobrados mensalmente por usuário, e a [página do CRM em nuvem](/features/cloud-crm) explica o que isso significa. Você também pode hospedar por conta própria a edição Community, sem a caixa de entrada e sem o Mate.
 </FaqItem>
 </Faq>

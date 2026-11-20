@@ -50,6 +50,7 @@ import {
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { PLAN_IDS } from "@/core/commercial/plan-catalog";
+import { TEMPLATE_FAMILIES } from "@/core/templates/template-spec.schema";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
 import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
@@ -228,6 +229,7 @@ const ACTIVITY_FIELD_KEYS = [
   "ActivityDetail.fields.disabledReason",
   "ActivityDetail.fields.effectiveAt",
   "ActivityDetail.fields.isNewCompany",
+  "ActivityDetail.fields.leftAt",
   "ActivityDetail.fields.markdown",
   "ActivityDetail.fields.prompt",
   "ActivityDetail.fields.publishSummary",
@@ -238,6 +240,7 @@ const ACTIVITY_FIELD_KEYS = [
   "ActivityDetail.fields.putType",
   "ActivityDetail.fields.recipientEmail",
   "ActivityDetail.fields.removalReason",
+  "ActivityDetail.fields.removedAt",
   "ActivityDetail.fields.restore",
   "ActivityDetail.fields.timezone",
   "ActivityDetail.fields.triggerEvents",
@@ -390,12 +393,30 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
-  (step) => `OnboardingWizard.steps.${step}.title`,
-);
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
-  (step) => `OnboardingWizard.steps.${step}.subtitle`,
-);
+const ONBOARDING_STEP_TITLE_KEYS = [
+  "profile",
+  "goal",
+  "playbook",
+  "setup",
+  "invite",
+  "channel",
+  "ai",
+  "template",
+  "prompt",
+  "source",
+].map((step) => `OnboardingWizard.steps.${step}.title`);
+const ONBOARDING_STEP_SUBTITLE_KEYS = [
+  "profile",
+  "goal",
+  "playbook",
+  "setup",
+  "invite",
+  "channel",
+  "ai",
+  "template",
+  "prompt",
+  "source",
+].map((step) => `OnboardingWizard.steps.${step}.subtitle`);
 const ONBOARDING_CHOICE_KEYS = [
   "chatgpt",
   "claude",
@@ -408,6 +429,9 @@ const ONBOARDING_CHOICE_KEYS = [
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
+const ONBOARDING_TEMPLATE_FAMILY_KEYS = TEMPLATE_FAMILIES.map(
+  (family) => `OnboardingWizard.template.families.${family}`,
+);
 const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
   ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
@@ -435,10 +459,11 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
   "AgentChat.suggestions.readOnly.tour",
 ];
 
-const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
-  "AgentChat.activity.resourceSingular.messages",
-  "AgentChat.activity.resourceSingular.widgets",
-  "AgentChat.activity.resourceSingular.wiki",
+const AGENT_ACTIVITY_COUNTED_KEYS = [
+  "AgentChat.activity.counted.messages",
+  "AgentChat.activity.counted.records",
+  "AgentChat.activity.counted.widgets",
+  "AgentChat.activity.counted.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_COPY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
@@ -611,6 +636,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.openai.methods.${*}.meta", onboardingOpenAiMethodKeys("meta")],
   ["OnboardingWizard.ai.openai.methods.${*}.note", onboardingOpenAiMethodKeys("note")],
   ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
+  ["OnboardingWizard.template.families.${*}", ONBOARDING_TEMPLATE_FAMILY_KEYS],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["WorkspaceSetup.suggestedSteps.${*}", SETUP_STEP_SUGGESTION_KEYS],
@@ -624,7 +650,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
   ["documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
-  ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
+  ["AgentChat.activity.counted.${*}", AGENT_ACTIVITY_COUNTED_KEYS],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
   ["AgentChat.activity.state.${*}.${*}", AGENT_ACTIVITY_STATE_KEYS],
   ["AgentChat.activity.approval.${*}", AGENT_ACTIVITY_APPROVAL_KEYS],
@@ -635,6 +661,94 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.suggestions.readOnly.${*}.label", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.label`)],
   ["AgentChat.suggestions.readOnly.${*}.prompt", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
 ]);
+
+const AUTOMATIONS_DIRECTORY = "app/[locale]/(protected)/w/[workspace]/automations/components";
+const NOTIFICATION_SETTINGS_FILE =
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/notification-preferences-card.tsx";
+const NOTIFICATIONS_PAGE_VIEW_FILE =
+  "app/[locale]/(protected)/w/[workspace]/notifications/components/notifications-page-view.tsx";
+const AUTOMATION_KEYS = (group: string, names: readonly string[]) =>
+  names.map((name) => `AutomationRules.${group}.${name}`);
+const NOTIFICATION_KEYS = (group: string, names: readonly string[]) =>
+  names.map((name) => `Notifications.${group}.${name}`);
+const AUTOMATIONS_KEYS = (group: string, names: readonly string[]) =>
+  names.map((name) => `Automations.${group}.${name}`);
+const AUTOMATION_RUNTIME_NAMES = ["mate", "ownKey", "runner"] as const;
+const AUTOMATION_EFFECT_KINDS = ["agent", "callWebhook", "createRecord", "notify", "setField"] as const;
+const AUTOMATION_RUN_STATUSES = ["applied", "failed", "queued", "running", "skipped"] as const;
+const AUTOMATION_TRIGGER_KINDS = [
+  "dateReached",
+  "fieldChanged",
+  "messageReceived",
+  "recordCreated",
+  "recordUpdated",
+] as const;
+const NOTIFICATION_KIND_NAMES = ["dueToday", "replyReceived", "ruleAlert"] as const;
+const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  [`${AUTOMATIONS_DIRECTORY}/automation-builder-fields.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.reason.\${reason}`,
+    AUTOMATIONS_KEYS("agent.reason", ["noKey", "noRunner", "notConfigured", "plan", "selfHosted"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.runtime.\${runtime}`,
+    AUTOMATIONS_KEYS("agent.runtime", AUTOMATION_RUNTIME_NAMES),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.runtimeHint.\${runtime}`,
+    AUTOMATIONS_KEYS("agent.runtimeHint", AUTOMATION_RUNTIME_NAMES),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/use-automation-columns.tsx :: t :: runsOn.\${row.original.runsOn}`,
+    AUTOMATIONS_KEYS("runsOn", ["free", ...AUTOMATION_RUNTIME_NAMES]),
+  ],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: filters.kind.${kind}",
+    AUTOMATIONS_KEYS("filters.kind", ["routine", "rule"]),
+  ],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: filters.status.${status}",
+    AUTOMATIONS_KEYS("filters.status", ["active", "paused"]),
+  ],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: runsOn.${runsOn}",
+    AUTOMATIONS_KEYS("runsOn", ["free", ...AUTOMATION_RUNTIME_NAMES]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-effect-editors.tsx :: t :: notificationKind.\${kind}`,
+    AUTOMATION_KEYS("notificationKind", ["dueToday", "replyReceived", "ruleAlert"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-condition-fields.tsx :: t :: operator.\${operator}`,
+    AUTOMATION_KEYS("operator", ["after", "before", "empty", "equals", "notEmpty", "notEquals"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-draft-sentence.ts :: t :: operator.\${condition.operator}`,
+    AUTOMATION_KEYS("operator", ["after", "before", "empty", "equals", "notEmpty", "notEquals"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-trigger-editor.tsx :: t :: trigger.\${kind}`,
+    AUTOMATION_KEYS("trigger", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived", "bookingChanged"]),
+  ],
+  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
+  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-builder-modal.tsx :: t :: disabledReason.\${disabledReason}`,
+    AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing", "planPaused"]),
+  ],
+  [`${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`, NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"])],
+  [`${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`, NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES)],
+  [`${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  [`${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: kinds.\${item.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  [`${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: kinds.\${option}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+];
+const AUTOMATION_QUALIFIED_SITES: ReadonlyArray<readonly [string, readonly string[]]> = AUTOMATION_SITE_CONSUMERS.map(
+  ([site, keys]) => {
+    const [file, body] = site.split(" :: t :: ");
+    return [`${file} :: t :: ${keys[0]?.split(".")[0]}.${body}`, keys] as const;
+  },
+);
 
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
   [
@@ -657,6 +771,7 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
   ],
   ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
+  ...AUTOMATION_QUALIFIED_SITES,
 ]);
 
 const ENFORCED = true;
@@ -688,6 +803,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/upsell/upsell-cta.tsx :: t :: Subscription.planNames.${plan}",
   "features/record-files/record-file-upload.service.ts :: t :: Subscription.planNames.${upgradePlan}",
   "app/components/navigation/trial-sidebar-card.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
+  "app/components/schedule-meeting/schedule-meeting-modal.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/components/upsell/free-plan-feature-overlay.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/plan-paused-banner.tsx :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(public)/auth/paused/plan-paused-card.tsx :: t :: Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}",
@@ -697,6 +813,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/upsell/plan-upsell-notice.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/payment-failed-banner.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/routine-allowance-notice.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/routines-paused-notice.tsx :: t :: Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}",
   "app/components/app-sidebar.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/contact-compose-popover.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
@@ -743,6 +860,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${s}",
+  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-copy.ts :: t :: OnboardingWizard.template.families.${family}",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.subtitle",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.title",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
@@ -786,8 +904,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-runs-pane.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-runs-pane.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns.tsx :: t :: Common.userStatuses.${owner.status}",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns.tsx :: t :: Common.userStatuses.${owner.status}",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns.tsx :: t :: RoutineRunStatus.${lastRunStatus}",
   "app/[locale]/(public)/auth/error/error-page-content.tsx :: t :: ErrorCard.${errorKey}",
   "app/[locale]/(public)/auth/social-error-toast.tsx :: t :: AuthSocialErrors.${key}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.badgeKey}",
@@ -853,6 +971,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
+  "components/public-form/public-form-settings.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t.raw :: WorkspaceSetup.suggestedSteps.${suggestion}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",
@@ -860,7 +979,7 @@ export const DYNAMIC_KEY_SITES = [
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
-  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.counted.${key}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${copyKind}.${name}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
@@ -895,6 +1014,7 @@ export const DYNAMIC_KEY_SITES = [
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.columnLabel",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.options.${option.key}",
   "features/records/workspace-record-preset.ts :: t :: RecordModel.priceModes.${option.id}",
+  ...AUTOMATION_QUALIFIED_SITES.map(([site]) => site),
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([

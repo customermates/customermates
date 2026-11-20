@@ -4,13 +4,14 @@ import { useMemo, type MouseEvent } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
-import { Check, Maximize2, RotateCcw, Settings2, Trash2 } from "lucide-react";
+import { CalendarPlus, Check, Maximize2, RotateCcw, Settings2, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { canOfferScheduleMeeting } from "./record-offers";
 import {
   RecordDetailLayoutStatus,
   useRecordDetailLayout,
@@ -76,6 +77,21 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
   const customizing = layout?.isPersonalizing === true;
   const actions: AppModalActionProps[] = [
     ...(askAi && !customizing ? [askAi] : []),
+    ...(record && !customizing && !store.trash && canOfferScheduleMeeting(store.rootStore.appMode)
+      ? [
+          {
+            id: "schedule-meeting",
+            icon: CalendarPlus,
+            label: t("ScheduleMeeting.action"),
+            disabled: store.isBusy,
+            onClick: () =>
+              store.rootStore.scheduleMeetingModalStore.start({
+                record: record.ref,
+                title: t("ScheduleMeeting.defaultTitle", { name }),
+              }),
+          },
+        ]
+      : []),
     ...(layout
       ? [
           {

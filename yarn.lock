@@ -6,6 +6,14 @@
   version "0.0.0"
   uid ""
 
+"@ai-sdk/anthropic@4.0.41":
+  version "4.0.41"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/anthropic/-/anthropic-4.0.41.tgz#9cdfb0e69f5bbed1753672f10839dabff56318f0"
+  integrity sha512-So62as8fexWMmXMIxvrWVaDLjLRe6EG2+5mmRc1KCPBoyyyFx6zbTcCvxJkViSUHhsGMBDryAm+mfs91n7Jl8g==
+  dependencies:
+    "@ai-sdk/provider" "4.0.7"
+    "@ai-sdk/provider-utils" "5.0.29"
+
 "@ai-sdk/gateway@4.0.76", "@ai-sdk/gateway@4.0.80":
   version "4.0.80"
   resolved "https://registry.yarnpkg.com/@ai-sdk/gateway/-/gateway-4.0.80.tgz#78da86a75f0b6427f19f0e25fec0bef9597bee59"
@@ -14,6 +22,14 @@
     "@ai-sdk/provider" "4.0.14"
     "@ai-sdk/provider-utils" "5.0.40"
     "@vercel/oidc" "3.2.0"
+
+"@ai-sdk/google@4.0.50":
+  version "4.0.50"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/google/-/google-4.0.50.tgz#57e95305d2a4c3c973f9e37b7f0fc878c7f15655"
+  integrity sha512-n7aMmqw6ZGVNBDAiv89fZkuZp3ahfzwZTXsdW27WugXdFSIuLTlYBZ+FlKGRdk1pRMPrdIGT2GPL2Ra0Gc2Tkg==
+  dependencies:
+    "@ai-sdk/provider" "4.0.7"
+    "@ai-sdk/provider-utils" "5.0.29"
 
 "@ai-sdk/mcp@2.0.36":
   version "2.0.36"

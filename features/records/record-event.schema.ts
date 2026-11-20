@@ -87,6 +87,13 @@ const RecordEventCauseSchema = z
     kind: z.enum(["mutation", "configuration", "system"]),
     operationId: z.uuid().optional(),
     routineDepth: z.number().int().nonnegative().optional(),
+    ruleChain: z.array(z.uuid()).max(5).optional(),
+    untrustedOrigin: z
+      .literal(true)
+      .optional()
+      .describe(
+        "Present when an agent run wrote the record and its instruction carried text from outside the workspace.",
+      ),
   })
   .strict();
 

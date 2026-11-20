@@ -1,10 +1,29 @@
-import type { FunnelEventInput, OnboardingFunnelRepo, OnboardingJobChoice } from "./onboarding-funnel.repo";
+import type {
+  FunnelEventInput,
+  OnboardingFunnelRepo,
+  OnboardingJobChoice,
+  OnboardingTemplateChoice,
+} from "./onboarding-funnel.repo";
+import type { OnboardingAgentStatus, OnboardingAgentStatusRepo } from "./onboarding-agent.repo";
 import type { OnboardingJob } from "./onboarding-job";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { parseTeamSize } from "./team-size";
 
-export class PrismaOnboardingFunnelRepo extends TenantRepository implements OnboardingFunnelRepo {
+export class PrismaOnboardingFunnelRepo
+  extends TenantRepository
+  implements OnboardingFunnelRepo, OnboardingAgentStatusRepo
+{
+  async findOnboardingAgentStatus(): Promise<OnboardingAgentStatus> {
+    const { companyId } = this.user;
+    const [company, schema] = await Promise.all([
+      this.prisma.company.findUnique({ where: { id: companyId }, select: { agentFirstCallAt: true } }),
+      this.prisma.recordSchemaState.findUnique({ where: { companyId }, select: { revision: true } }),
+    ]);
+    return { connected: Boolean(company?.agentFirstCallAt), schemaRevision: schema?.revision ?? 0 };
+  }
+
   recordFunnelEvent(event: FunnelEventInput) {
     return this.insertOnce(this.user.companyId, event);
   }
@@ -16,11 +35,41 @@ export class PrismaOnboardingFunnelRepo extends TenantRepository implements Onbo
 
   async findOnboardingJobChoice(): Promise<OnboardingJobChoice> {
     const { companyId } = this.user;
-    const [selectedJob, source] = await Promise.all([
+    const [selectedJob, source, company] = await Promise.all([
       this.selectedJob(companyId),
       this.prisma.companySignupSource.findFirst({ where: { companyId }, select: { job: true, landingPath: true } }),
+      this.prisma.company.findUnique({
+        where: { id: companyId },
+        select: { discoveryAnsweredAt: true, createdByAuthUserId: true, teamSize: true },
+      }),
     ]);
-    return { selectedJob, signupJob: source?.job ?? null, signupLandingPath: source?.landingPath ?? null };
+    const discoveryResolved =
+      Boolean(company?.discoveryAnsweredAt) ||
+      (company?.createdByAuthUserId != null && (await this.hasAnsweredDiscoveryUnscoped(company.createdByAuthUserId)));
+    return {
+      selectedJob,
+      signupJob: source?.job ?? null,
+      signupLandingPath: source?.landingPath ?? null,
+      discoveryResolved,
+      teamSize: parseTeamSize(company?.teamSize),
+    };
+  }
+
+  @BypassTenantGuard
+  async hasAnsweredDiscoveryUnscoped(authUserId: string): Promise<boolean> {
+    const answered = await this.prisma.company.count({
+      where: { createdByAuthUserId: authUserId, discoveryAnsweredAt: { not: null } },
+    });
+    return answered > 0;
+  }
+
+  async findOnboardingTemplateChoice(): Promise<OnboardingTemplateChoice> {
+    const { companyId } = this.user;
+    const [company, source] = await Promise.all([
+      this.prisma.company.findUnique({ where: { id: companyId }, select: { signupTemplate: true } }),
+      this.prisma.companySignupSource.findFirst({ where: { companyId }, select: { landingPath: true } }),
+    ]);
+    return { signupTemplate: company?.signupTemplate ?? null, signupLandingPath: source?.landingPath ?? null };
   }
 
   private async insertOnce(companyId: string, { type, occurredAt, job }: FunnelEventInput): Promise<boolean> {

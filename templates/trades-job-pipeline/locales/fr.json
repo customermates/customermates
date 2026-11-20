@@ -1,0 +1,174 @@
+{
+  "locale": "fr",
+  "name": "Dossiers d’artisan",
+  "summary": "Relancez chaque devis et gardez chaque chantier sous contrôle, du premier appel au paiement. Visite, devis, puis les travaux de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
+  "description": "Dans une entreprise de travaux, on perd de l’argent quand un devis part sans que personne rappelle, et quand les dates de garantie et d’entretien ne sont notées nulle part. Ce modèle suit un dossier du premier appel à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d’entretien qui ramènent du travail. Il conserve le dossier, les dates et la relance. Ce n’est ni un outil de devis et de facturation, ni un système de planification d’équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
+  "lists": {
+    "customers": { "label": "Client", "pluralLabel": "Clients", "description": "Particuliers, bailleurs, syndics et entreprises pour lesquels vous travaillez." },
+    "sites": { "label": "Chantier", "pluralLabel": "Chantiers", "description": "L’adresse où le travail a lieu, qui peut différer de celle du client." },
+    "jobs": { "label": "Dossier", "pluralLabel": "Dossiers", "description": "Un travail, de la demande à accepté ou perdu, puis tout au long de l’exécution." },
+    "agreements": { "label": "Contrat d’entretien", "pluralLabel": "Contrats d’entretien", "description": "Entretien récurrent d’un chantier, avec la prochaine intervention et la date de reconduction." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Type",
+      "options": { "private": "Particulier", "landlord": "Bailleur", "property_manager": "Syndic ou gestionnaire", "commercial": "Professionnel", "builder_contractor": "Entreprise du bâtiment" }
+    },
+    "customers.marketing_ok": { "label": "Accepte les messages commerciaux" },
+    "sites.address": { "label": "Adresse" },
+    "sites.access_notes": { "label": "Consignes d’accès" },
+    "jobs.stage": {
+      "label": "Étape",
+      "options": { "enquiry": "Demande", "assessment": "Visite et relevé", "to_quote": "Devis à établir", "quote_sent": "Devis envoyé", "negotiating": "Négociation", "won": "Accepté", "lost": "Perdu" }
+    },
+    "jobs.work_status": {
+      "label": "Statut des travaux",
+      "options": { "not_scheduled": "Non planifié", "scheduled": "Planifié", "in_progress": "En cours", "completed": "Terminé", "invoiced": "Facturé", "paid": "Payé" }
+    },
+    "jobs.work_type": {
+      "label": "Nature des travaux",
+      "options": { "repair": "Réparation", "installation": "Installation", "renovation": "Rénovation", "maintenance": "Entretien", "inspection": "Contrôle", "emergency": "Urgence" }
+    },
+    "jobs.visit_at": { "label": "Visite" },
+    "jobs.quote_valid_until": { "label": "Devis valable jusqu’au" },
+    "jobs.withdrawal_ends": { "label": "Fin du délai de rétractation" },
+    "jobs.scheduled_start": { "label": "Début des travaux" },
+    "jobs.completed_on": { "label": "Terminé le" },
+    "jobs.warranty_ends": { "label": "Garantie jusqu’au" },
+    "jobs.payment_due": { "label": "Échéance de paiement" },
+    "jobs.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "price": "Prix", "timing": "Délai", "chose_competitor": "A choisi un concurrent", "no_response": "Sans réponse", "job_cancelled": "Projet annulé", "other": "Autre" }
+    },
+    "agreements.interval": { "label": "Périodicité", "options": { "monthly": "Mensuelle", "quarterly": "Trimestrielle", "twice_yearly": "Semestrielle", "yearly": "Annuelle" } },
+    "agreements.status": { "label": "Statut", "options": { "active": "Actif", "paused": "En pause", "ended": "Terminé" } },
+    "agreements.next_due": { "label": "Prochaine intervention" },
+    "agreements.renewal_on": { "label": "Reconduction le" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "call_back": "Rappeler",
+        "book_visit": "Fixer une visite",
+        "send_quote": "Envoyer le devis",
+        "follow_up_quote": "Relancer le devis",
+        "confirm_schedule": "Confirmer le planning",
+        "handover": "Livrer et noter la réception des travaux",
+        "check_payment": "Vérifier le paiement",
+        "warranty_check": "Demander s’il y a des défauts",
+        "book_service": "Fixer la visite d’entretien",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Client", "targetLabel": "Chantiers" },
+    "job_customer": { "sourceLabel": "Client", "targetLabel": "Dossiers" },
+    "job_site": { "sourceLabel": "Chantier", "targetLabel": "Dossiers" },
+    "agreement_site": { "sourceLabel": "Chantier", "targetLabel": "Contrats d’entretien" },
+    "action_job": { "sourceLabel": "Dossier", "targetLabel": "Actions" }
+  },
+  "views": {
+    "jobs_board": { "name": "Dossiers par étape" },
+    "jobs_all": { "name": "Tous les dossiers" },
+    "open_quotes": { "name": "Devis en cours" },
+    "work_in_progress": { "name": "Planifiés et en cours" },
+    "customers_all": { "name": "Tous les clients" },
+    "sites_all": { "name": "Tous les chantiers" },
+    "agreements_all": { "name": "Tous les contrats d’entretien" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Dossiers par étape" },
+    "open_quotes_value": { "title": "Montant des devis en cours" },
+    "visits_coming": { "title": "Visites à venir" },
+    "jobs_by_work_status": { "title": "Dossiers acceptés par statut des travaux" },
+    "lost_reasons": { "title": "Motifs de perte des dossiers" },
+    "warranties_ending": { "title": "Garanties qui se terminent" },
+    "services_due": { "title": "Interventions d’entretien à prévoir" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "De la demande au dossier accepté", "sections": ["Réponse, visite et devis : qui fait quoi et en combien de temps", "Revue hebdomadaire des devis en cours, des dossiers à facturer et des factures impayées"] },
+    "quote_checklist": { "title": "Liste de contrôle du devis", "sections": ["Travaux, exclusions, prix, validité et acompte", "Date de début, conditions de paiement et messages de relance"] },
+    "withdrawal_and_acceptance": { "title": "Rétractation, livraison et réception", "sections": ["Rétractation du consommateur pour les contrats conclus à domicile et travaux d’urgence", "Liste de contrôle de la livraison et de la réception"] },
+    "warranty_and_service": { "title": "Garantie, défauts et contrats d’entretien", "sections": ["Comment un défaut est traité", "Proposer et reconduire un contrat d’entretien"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le client, le chantier et le dossier quand le formulaire de demande est envoyé" },
+    "call_back_new": { "title": "Rappeler une nouvelle demande le jour même" },
+    "quote_after_visit": { "title": "Envoyer le devis dans les 2 jours suivant la visite" },
+    "quote_follow_up": { "title": "Relancer 3 jours après l’envoi d’un devis" },
+    "quote_expiring": { "title": "Relancer 3 jours avant l’expiration d’un devis" },
+    "withdrawal_clock": {
+      "title": "Fixer la fin du délai de rétractation de 14 jours quand un dossier est accepté",
+      "variants": {
+        "BR": {
+          "title": "Fixer la fin du délai de rétractation de 7 jours quand un dossier est accepté (Brésil)",
+          "description": "Selon le code brésilien de la consommation (CDC, art. 49), le client peut se rétracter sous 7 jours quand le contrat est conclu hors de l’établissement, par exemple à son domicile."
+        }
+      }
+    },
+    "payment_check": { "title": "Vérifier un dossier facturé 3 jours après l’échéance de paiement" },
+    "warranty_check": { "title": "Demander s’il y a des défauts 30 jours avant la fin de la garantie" },
+    "service_due": { "title": "Fixer la visite d’entretien 30 jours avant son échéance" },
+    "visit_calendar": { "title": "Ajouter la visite à l’agenda quand un dossier atteint l’étape de visite" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque dossier a une étape commerciale.",
+    "work_status_field": "Chaque dossier a un statut de travaux distinct.",
+    "warranty_field": "Chaque dossier indique jusqu’à quand court sa garantie.",
+    "jobs_board_view": "Les dossiers s’ouvrent en board par étape."
+  },
+  "page": {
+    "metaTitle": "Logiciel artisan : modèle pour devis, chantiers et garanties",
+    "metaDescription": "Logiciel artisan : relancez chaque devis, suivez chaque chantier de la visite au paiement, gardez les dates de garantie. Collez le modèle dans votre agent IA.",
+    "headline": "Un logiciel d’artisan qui relance chaque devis et connaît les dates de garantie, construit par votre agent IA",
+    "answer": "Un logiciel pour une petite entreprise de travaux suit chaque dossier du premier appel à la dernière facture : la visite, le devis et sa relance, les travaux de planifié à payé et les dates qui comptent, comme la validité du devis, la rétractation, la garantie et le renouvellement de l’entretien. Collez ce modèle dans votre agent IA et il construit le pipeline dans Customermates. Vous validez le plan avant toute construction. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
+    "routine": {
+      "title": "La revue hebdomadaire des devis et des chantiers",
+      "steps": [
+        "Rappelez chaque nouvelle demande le jour même et envoyez le devis dans les deux jours suivant chaque visite.",
+        "Relancez les devis envoyés il y a trois jours et ceux qui expirent dans trois jours. Après une seconde relance, décidez : garder le devis ouvert ou le clore avec un motif.",
+        "Vérifiez les chantiers de la semaine et confirmez le planning avec chaque client. Pour chaque chantier terminé, notez la remise et la réception et demandez la facture à la comptabilité.",
+        "Regardez les dossiers facturés dont l’échéance de paiement est passée et vérifiez s’ils ont été payés.",
+        "Regardez 30 jours devant vous : garanties qui se terminent, visites d’entretien à planifier et contrats d’entretien à renouveler."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un outil de devis, de chiffrage ou de facturation. Les lignes donnent une valeur de dossier, pas un document avec lignes de TVA, numérotation et mentions légales. Gardez devis et factures dans votre outil de devis ou de comptabilité.",
+      "Ce n’est ni un outil de signature électronique ou de paiement, ni un système de dispatch, d’itinéraires, de GPS ou de suivi du temps.",
+      "Ce n’est pas une application mobile native pour le chantier. L’application web fonctionne sur un téléphone, mais il n’y a pas d’appli dédiée.",
+      "Il n’établit aucune attestation. Les procès-verbaux de réception et l’attestation décennale restent dans votre outil de documents ; le CRM garde la date et une référence.",
+      "Le SMS n’est pas un canal : WhatsApp, l’e-mail et LinkedIn le sont. Et ce n’est pas une autorité juridique sur la rétractation, la garantie ou la validité d’un devis."
+    ],
+    "faq": [
+      {
+        "question": "En combien de temps un artisan doit-il envoyer un devis ?",
+        "answer": "Un guide pour couvreurs conseille un chiffrage dans les 24 à 48 heures suivant la visite et un rappel en quelques minutes pour une demande en ligne. Jobber recommande une première relance deux à trois jours après le devis, une seconde quelques jours plus tard, puis de passer à autre chose. Le modèle les programme en actions datées ; les délais sont à régler vous-même."
+      },
+      {
+        "question": "Combien de temps un devis est-il valable ?",
+        "answer": "Il n’y a pas de règle unique : en pratique, un devis est souvent valable trois mois, et l’on y mentionne la date, la validité, s’il est gratuit ou payant, les dates de début et de fin des travaux et l’attestation décennale jointe. Le modèle enregistre une date de validité et crée une relance trois jours avant. Ce n’est pas un conseil juridique."
+      },
+      {
+        "question": "Un client peut-il se rétracter d’un contrat signé chez lui ?",
+        "answer": "Cela dépend du pays et de la situation : en Allemagne, par exemple, un consommateur dispose de 14 jours pour un contrat conclu hors établissement, délai qui ne court qu’avec une information correcte. Il existe une exception pour les réparations urgentes demandées par le client. Le modèle fixe la fin du délai de 14 jours quand un dossier est accepté ; confirmez la règle applicable en France et votre information au client."
+      },
+      {
+        "question": "Quelles dates un artisan doit-il suivre ?",
+        "answer": "La validité du devis, la fin de tout délai de rétractation, la réception des travaux, la fin des garanties (parfait achèvement, biennale, décennale) et le renouvellement des contrats d’entretien, que les professionnels rappellent 30 à 45 jours avant. Les durées dépendent du contrat et de la loi : le modèle garde la date de fin que vous fixez et ne la calcule jamais."
+      },
+      {
+        "question": "L’agent contacte-t-il mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple. Des brouillons n’existent que si vous les demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Je dirige une petite entreprise de travaux : des devis partent sans relance et les chantiers, les visites et les dates de garantie restent dans ma tête. Mets en place dans mon espace de travail Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d’entretien, avec des relances datées.",
+    "questions": [
+      "Quels travaux réalisez-vous, et pour qui : particuliers, bailleurs ou entreprises ?",
+      "En combien de temps répondez-vous à une demande et envoyez-vous un devis après la visite ?",
+      "Quelle est la durée de validité de vos devis, et la durée de votre garantie ?",
+      "Vendez-vous des contrats d’entretien pour du travail récurrent ?"
+    ]
+  }
+}

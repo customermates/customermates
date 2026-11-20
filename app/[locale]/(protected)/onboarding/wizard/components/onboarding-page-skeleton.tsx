@@ -8,17 +8,15 @@ export function OnboardingPageSkeleton({ animated = true }: { animated?: boolean
   return (
     <OnboardingSkeletonSurface animated={animated}>
       <div data-onboarding-profile-skeleton className="flex min-h-0 flex-1 flex-col gap-4 p-6">
-        <Shape animated={animated} className="h-36 w-full rounded-xl sm:h-40" />
+        <Shape animated={animated} className="h-8 w-full rounded-full" />
+
+        <Shape animated={animated} className="h-32 w-full rounded-xl sm:h-40" />
 
         <div className="flex flex-col gap-1">
-          <Shape animated={animated} className="h-3 w-20" />
-
           <Shape breathe animated={animated} className="h-7 w-1/2" motionPhase={1} />
 
           <Shape animated={animated} className="h-3 w-4/5" motionPhase={2} />
         </div>
-
-        <Shape animated={animated} className="h-1 w-full rounded-full" motionPhase={2} />
 
         <div className="flex flex-col gap-3">
           <OnboardingField animated={animated} />

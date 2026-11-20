@@ -1,0 +1,159 @@
+{
+  "locale": "en",
+  "name": "Agency client pipeline",
+  "summary": "Win agency clients and keep them past the first project. Opportunities run from first conversation to signed deal with a pitch go/no-go, and live retainers carry a renewal date and a quarterly review.",
+  "description": "Agencies win a client and then get surprised when the retainer comes up for renewal, because pitches and live work are tracked in different places. This template sets up opportunities through conversation, qualification, brief or pitch, proposal and negotiation, a win that starts a five-step onboarding, and engagements for the retainers and projects that follow, with monthly fee, renewal date, notice period and the next quarterly review. Budgets are recorded when the client states them, never guessed, and logins, brand assets and ad-account access never go in the workspace. It fits marketing, communication, creative and digital agencies; project management, time tracking and billing stay in your own tools.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Decision makers, marketing leads, procurement and day-to-day contacts." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, former clients and partners." },
+    "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "A possible piece of work, from the first conversation to won or lost." },
+    "engagements": { "label": "Engagement", "pluralLabel": "Retainers and projects", "description": "A live retainer or project with its fee, renewal date, notice period and health." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Role", "options": { "decision_maker": "Decision maker", "marketing_lead": "Marketing lead", "procurement": "Procurement", "day_to_day": "Day-to-day contact", "referrer": "Referrer" } },
+    "contacts.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "phone": "Phone", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack or chat" } },
+    "clients.relationship": { "label": "Relationship", "options": { "prospect": "Prospect", "client": "Client", "former_client": "Former client", "partner": "Partner" } },
+    "clients.website": { "label": "Website" },
+    "opportunities.stage": {
+      "label": "Stage",
+      "options": { "prospect": "Prospect", "conversation": "Conversation", "qualified": "Qualified", "brief_or_pitch": "Brief or pitch", "proposal_sent": "Proposal sent", "negotiation": "Negotiation", "won": "Won", "lost": "Lost" }
+    },
+    "opportunities.opportunity_type": { "label": "Type", "options": { "retainer": "Retainer", "project": "Project", "audit_or_workshop": "Audit or workshop", "one_off": "One-off" } },
+    "opportunities.services": {
+      "label": "Services",
+      "options": { "seo": "SEO", "paid_media": "Paid media", "social": "Social", "content": "Content", "web": "Web", "branding": "Branding", "pr": "PR" }
+    },
+    "opportunities.source": { "label": "Source", "options": { "referral": "Referral", "inbound": "Inbound", "outbound": "Outbound", "existing_client": "Existing client", "event": "Event", "marketplace": "Marketplace" } },
+    "opportunities.competitive_pitch": { "label": "Competitive pitch" },
+    "opportunities.pitch_date": { "label": "Pitch date" },
+    "opportunities.monthly_fee": { "label": "Monthly fee" },
+    "opportunities.decision_expected": { "label": "Decision expected" },
+    "opportunities.next_step_due": { "label": "Next step due" },
+    "opportunities.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "chose_other_agency": "Chose another agency", "in_house": "Doing it in-house", "budget_cut": "Budget cut", "no_decision": "No decision", "scope_mismatch": "Scope mismatch", "no_response": "No response" }
+    },
+    "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Active", "at_risk": "At risk", "paused": "Paused", "ended": "Ended" } },
+    "engagements.health": { "label": "Health", "options": { "green": "Green", "amber": "Amber", "red": "Red" } },
+    "engagements.start_date": { "label": "Start date" },
+    "engagements.renewal_date": { "label": "Renewal date" },
+    "engagements.notice_days": { "label": "Notice period (days)" },
+    "engagements.monthly_fee": { "label": "Monthly fee" },
+    "engagements.next_qbr_on": { "label": "Next quarterly review" },
+    "engagements.account_manager": { "label": "Account manager" },
+    "engagements.ended_reason": {
+      "label": "Why it ended",
+      "options": { "client_ended": "Client ended it", "agency_ended": "Agency ended it", "project_completed": "Project completed", "budget": "Budget", "in_house": "Moved in-house", "moved_agency": "Moved to another agency" }
+    },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "call": "Call", "email": "Email", "proposal": "Proposal or pitch work", "onboarding": "Onboarding step", "report": "Report", "qbr": "Quarterly review", "renewal": "Renewal", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "opportunity_client": { "sourceLabel": "Client", "targetLabel": "Opportunities" },
+    "engagement_client": { "sourceLabel": "Client", "targetLabel": "Retainers and projects" },
+    "engagement_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Retainers and projects" },
+    "action_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Actions" },
+    "action_engagement": { "sourceLabel": "Engagement", "targetLabel": "Actions" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Opportunities by stage" },
+    "opportunities_all": { "name": "All opportunities" },
+    "engagements_all": { "name": "All retainers and projects" },
+    "at_risk_engagements": { "name": "Amber and red engagements" },
+    "clients_all": { "name": "All clients" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Opportunities by stage" },
+    "recurring_revenue": { "title": "Monthly recurring revenue" },
+    "pipeline_fees": { "title": "Monthly fees in the pipeline" },
+    "renewals_coming": { "title": "Renewals coming up" },
+    "qbrs_coming": { "title": "Quarterly reviews coming up" },
+    "health_split": { "title": "Engagement health" },
+    "pitches_coming": { "title": "Pitches coming up" },
+    "lost_reasons": { "title": "Why opportunities were lost" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the agency pipeline runs", "sections": ["Stages and who owns them", "Qualification questions: goals, urgency, budget, decision makers"] },
+    "pitch_go_no_go": { "title": "Pitch go/no-go checklist", "sections": ["Cost of pitching, number of agencies and pitch fee", "Criteria and who decides"] },
+    "onboarding_checklist": { "title": "Onboarding in five steps", "sections": ["Welcome and payment, assets and timeline", "Kickoff within five days and the delivery workflow"] },
+    "renewal_playbook": { "title": "Renewal and quarterly review playbook", "sections": ["Review with results and expansion options", "Notice window and the renewal proposal"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Create the contact and the opportunity when the brief form is submitted" },
+    "respond_to_brief": { "title": "Respond to a new opportunity within a day" },
+    "qualify_check": { "title": "Confirm the budget range and the decision maker 2 days after qualification" },
+    "pitch_go_no_go": { "title": "Decide go or no-go the day an opportunity reaches brief or pitch" },
+    "pitch_rehearsal": { "title": "Remind the owner 3 days before a pitch" },
+    "proposal_follow_up": { "title": "Call 2 days after a proposal is sent" },
+    "onboarding_set": { "title": "Start the onboarding steps the day after a deal is won" },
+    "lost_feedback": { "title": "Ask for feedback 2 days after an opportunity is lost" },
+    "renewal_review": { "title": "Review the renewal 90 days before an engagement renews" },
+    "renewal_notice": { "title": "Notify the owner 45 days before renewal to confirm the client's intention" },
+    "qbr_due": { "title": "Prepare the quarterly review on its date" },
+    "health_red": { "title": "Notify the lead when an engagement turns red" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every opportunity has a stage.",
+    "renewal_date_field": "Every engagement records its renewal date.",
+    "notice_days_field": "Every engagement records its notice period.",
+    "opportunities_board_view": "The opportunities open as a board by stage."
+  },
+  "page": {
+    "metaTitle": "Agency Client Pipeline: Pitches, Retainers and Renewals",
+    "metaDescription": "Paste this agency client pipeline into Claude, ChatGPT or Codex: pitch go/no-go, five-step onboarding and retainers with a renewal date and quarterly review.",
+    "headline": "Win clients and see every renewal coming: an agency pipeline your AI agent builds in your CRM",
+    "answer": "An agency client pipeline tracks two things in one place: new business from first conversation to a signed deal, and the retainers and projects that follow, each with a renewal date and a quarterly review. Paste this template into your AI agent and it builds both in Customermates, with a pitch go/no-go, a five-step onboarding after a win and a notice period on every engagement. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly agency round",
+      "steps": [
+        "Open every opportunity without a next step and either add one with a date or close it.",
+        "Decide go or no-go for each new brief or pitch invitation: what the pitch costs, how many agencies take part, and who pitches and who delivers.",
+        "Check the engagements that renew in the next 90 days and the notice dates that close in the coming weeks.",
+        "Look at retainers with no contact for 30 days and at engagements whose health turned red, and plan the check-in or the partner call."
+      ]
+    },
+    "limits": [
+      "It is not agency software for projects, time tracking, resource planning or billing. Those stay in your own tools; this is the sales and retainer layer beside them.",
+      "It is not a client portal or an approval workflow, and it does not report on campaign results.",
+      "Never store client logins, brand assets or ad-account access in the workspace. Keep them in a password manager and your asset library.",
+      "It does not write proposals or collect e-signatures. Proposals and contracts live in your document tool and are linked to the deal.",
+      "It is not an outreach or sequence tool. Every follow-up is a dated Action and a draft that you review and send yourself.",
+      "It records a budget only when the client states it and has no default notice period: you enter the one in each contract."
+    ],
+    "faq": [
+      {
+        "question": "How is an agency pipeline different from a normal sales pipeline?",
+        "answer": "Agencies have fewer, larger opportunities with several stakeholders and long decisions, and most revenue comes from clients who stay and grow. So this template adds a pitch go/no-go, a five-step onboarding after a win and engagements with renewal dates, instead of stopping at won."
+      },
+      {
+        "question": "Should an agency take part in every pitch?",
+        "answer": "No. A pitch costs a lot of time and money, so advisers recommend checking first whether it is needed at all: is there a clear brief with a budget range, how many agencies take part, is there a pitch fee, and who pitches and who delivers. The template asks for that decision on the day an opportunity reaches the brief or pitch stage."
+      },
+      {
+        "question": "How long should a retainer notice period be?",
+        "answer": "No law gives one answer. Thirty days in writing is the common convention, and an auto-renewal with a 90-day notice favours the agency. The template stores the notice period on each engagement and assumes none. It creates a renewal review 90 days before renewal and a reminder 45 days before to confirm the client's intention."
+      },
+      {
+        "question": "What happens after a deal is won?",
+        "answer": "A win starts a five-step onboarding: welcome and kickoff confirmation, collecting assets, communicating the timeline, the kickoff itself and confirming the delivery workflow. Many agencies tie the kickoff to payment. After that the client continues as an engagement with its renewal date and quarterly review."
+      },
+      {
+        "question": "Does the agent contact my clients or prospects?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "We win new clients but lose track of pitches in progress and of when retainers renew. Set up an agency client pipeline in my Customermates workspace: opportunities with a pitch go/no-go, engagements for retainers and projects with renewal date, notice period, quarterly review and a health flag, and dated follow-ups. Never store client logins or brand assets.",
+    "questions": [
+      "Which services do you sell, and do you work on retainers, projects or both?",
+      "How do you decide whether to join a competitive pitch?",
+      "What is the usual notice period and contract length?",
+      "How often do you review results with a client?"
+    ]
+  }
+}

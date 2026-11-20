@@ -1,0 +1,115 @@
+---
+title: "Runners: Run Agents With Your Own Claude Code or Codex"
+description: "A runner runs your agent steps with your own Claude Code, Codex or Gemini CLI on your machine: setup, what it can reach, timeouts and revoking."
+---
+
+A runner lets your agent steps run with your own Claude Code, Codex or Gemini CLI on your own machine. It is a small program, `customermates-runner`, that asks your workspace for your agent jobs, starts the CLI you are signed in to, sends what the CLI does back as a transcript and reports the result. Your CLI login stays on your machine: Customermates never receives it. Runners work on Customermates Cloud and on self-hosted instances.
+
+You manage runners under **Settings**, **Agents**, in the **Runners** card. Adding and revoking a runner needs the same role access as [API keys](/docs/api-keys).
+
+## What does a runner do? [#what-does-a-runner-do]
+
+Every 60 seconds it tells the workspace its machine name and which CLIs it can start, with their versions. Between those reports it holds a request open for up to 25 seconds to pick up the next queued job, and it asks again straight away. A runner runs only the jobs of the member who added it: the agent steps of the automations that member owns. It confirms each job to the workspace before it starts the CLI. For a job it writes a temporary MCP configuration with the address of your workspace and the key of that job, starts the CLI with the job's prompt in an empty temporary folder, sends each step of the CLI's work back as a transcript event, and deletes the configuration when the CLI is done. Then it goes idle until the next job.
+
+The CLI works as you, the member who added the runner, with your permissions in this workspace. It uses the tools of your workspace over [MCP](/docs/mcp) through a key that belongs to that one job. The key works only on your workspace's MCP address and only while the job runs. It allows at most 25 tool calls and refuses the calls that would need your approval in the chat, such as deleting records or changing roles. It also refuses to create, change or delete Knowledge Base pages. When the instruction of the step contains text from outside the workspace, it also refuses to send emails or chat messages, to send connection invitations and to create, change or start webhooks and routines, as described under [What may an agent step do?](/docs/app-agents#what-may-an-agent-step-do).
+
+## What does it need? [#what-does-it-need]
+
+- Node 24, or Docker.
+- One of Claude Code, Codex or Gemini CLI, installed and signed in on that machine. Without a CLI the runner reports none and takes no jobs. As long as none of your runners has reported a CLI, an agent step that runs on your own runner does not wait: it fails at once with "You have no runner that is ready yet. Runners are personal: each member adds their own."
+- A network connection from that machine to your Customermates address. The runner only makes outgoing requests, so it works behind a firewall and needs no open port.
+
+## How do I add and start a runner? [#how-do-i-add-a-runner]
+
+1. Open **Settings**, **Agents** and click **Add runner**. Give it a name that tells you which machine it is.
+2. Copy the token. It is shown once and starts with `cmr_`. Keep it like a password: anyone with it can pick up your runner jobs in this workspace.
+3. Start the runner on that machine, either with Node:
+
+```bash
+CUSTOMERMATES_RUNNER_TOKEN=cmr_... npx customermates-runner --url https://crm.example.com
+```
+
+or with Docker, mounting the login folder of your CLI so it stays signed in:
+
+```bash
+docker run -d --restart unless-stopped \
+  -e CUSTOMERMATES_URL=https://crm.example.com \
+  -e CUSTOMERMATES_RUNNER_TOKEN=cmr_... \
+  -v "$HOME/.claude:/home/node/.claude" \
+  -v "$HOME/.claude.json:/home/node/.claude.json" \
+  ghcr.io/customermates/runner
+```
+
+The address is the one you open Customermates at; on a self-hosted instance it is your own `BASE_URL`. It can also come from `CUSTOMERMATES_URL`. Give the runner its token in the variable `CUSTOMERMATES_RUNNER_TOKEN`, or in a file that only your account can read, named with `--token-file` or `CUSTOMERMATES_RUNNER_TOKEN_FILE`. Do not pass it as an argument: a command line is visible to every user of the machine. On macOS Claude Code keeps its login in the Keychain, so the mounted folder carries no login into the container: pass `ANTHROPIC_API_KEY`, or a token from `claude setup-token` in `CLAUDE_CODE_OAUTH_TOKEN`. Useful options:
+
+- `--client claude`, `codex` or `gemini` picks the CLI that runs the jobs. By default it is the first one found.
+- `--workdir <folder>` runs the CLI in that folder. By default every job gets an empty temporary folder.
+- `--permission-mode <mode>`, `--allowed-tools <tools>` and `--setting-sources <list>` set what Claude Code may do without asking. By default only the tools of your workspace are allowed and your own Claude Code settings are not loaded.
+- `--allow-shell` lets Codex run shell commands in its read-only sandbox. By default Codex has no shell.
+
+The runner logs to its standard output and never prints its token.
+
+## What does the server send, and what does it never send? [#what-is-sent]
+
+The server sends the prompt of the job, whether outsiders can influence that prompt, the MCP address of your workspace and the key of the job. When the runner confirms the job, the server tells it how long the job may run. It never sends a workspace secret, a provider key or a job of another member. The key only reaches this workspace, only as you, and only while the job runs: the server refuses it before the runner confirmed the job and from the moment the job is finished, timed out or cancelled.
+
+The runner never sends your CLI login, your files or your environment. It sends the machine name, the CLIs it can start, the transcript events (what the agent wrote, each tool call with a short digest of its arguments and each tool result, with tokens removed) and the result. Transcripts are stored with the job, so do not let a CLI print secrets it should not show. The workspace keeps the last 200 events of a job, so a longer run shows its latest steps.
+
+A prompt that outsiders can influence, for example one that carries a form submission, an incoming webhook or the name of a record, is marked in the job. The runner wraps it in the same framing as the MCP server uses: the text is data, not instructions, and a request inside it to change what the agent does is reported, not followed.
+
+## What can the CLI reach on my machine? [#what-can-it-reach]
+
+The CLI runs as the account that started the runner. Framing a text as data lowers the chance that a model follows it, it does not remove it. What a misled CLI could do is bounded by the job's key, described above, and by these defaults:
+
+- Claude Code may call only the tools of your workspace, loads only the MCP server of the job and does not load your own settings. Its file tools stay inside the empty job folder.
+- Codex runs without your own configuration and without a shell. If you start the runner with `--allow-shell`, commands run in Codex's read-only sandbox, which stops writes but not reads: a command can read every file your account can read, and the tools of your workspace can then write that content into a record. Use it only on a machine, in a container or under an account that holds nothing else.
+- Gemini CLI is started with only the MCP server of your workspace allowed. Its built-in tools follow your own Gemini settings.
+- The runner token and your CLI logins sit in your account on that machine. A CLI that you allow to run commands can read them. For strict separation run the runner with Docker or under its own user account.
+
+## What happens to a job? [#what-happens-to-a-job]
+
+A job waits in the queue until a runner of its owner claims it. A claim that the runner does not confirm within a minute, for example because the runner was stopped at that moment, goes back to the queue within a few minutes. A job that no runner picks up within 15 minutes ends as timed out. A confirmed job may run for just under ten minutes; then the runner stops the CLI and everything the CLI started, and the job ends as timed out. A confirmed job is never run a second time: if the runner goes away while the job runs, the job ends as timed out a few minutes after its ten minutes have passed. If the CLI fails, the job ends as failed with the reason. When a runner is revoked, its jobs end as cancelled. A job that is already finished, timed out or cancelled cannot be changed by a late report from a runner, and the runner stops its CLI when the workspace tells it so.
+
+Several runners can work in one workspace. Each member's jobs go to that member's own runners, and each job to exactly one of them. An agent step that names a runner waits for that runner.
+
+## How do I know that a runner is online? [#is-it-online]
+
+The **Runners** card shows each runner's machine, the CLIs it can start and when it was last seen, with one of four states: **Online** when it was seen in the last two minutes, **Offline** when it was seen earlier, **Never connected** when it has not reported yet, and **Revoked**. The card updates by itself every 30 seconds.
+
+When your agent jobs are waiting and none of your runners that could take them has been seen for 10 minutes, you get a notification of the kind **Automation alerts**, once for each time the runner went away, with a link to the **Runners** card.
+
+## How do I revoke a runner? [#how-do-i-revoke-a-runner]
+
+Click **Revoke** on the runner and confirm. The runner cannot pick up jobs any more: its next request is refused, and the program stops. The jobs it is running, and the jobs that wait for exactly this runner, end as cancelled, and their keys stop working at once. Revoking cannot be undone. To use the machine again, add a new runner and start it with the new token. Revoke a runner at once if its token leaks. A runner is also revoked when the member who added it leaves the workspace or is deactivated. A member the Free plan paused keeps their runners: during the pause the runner's requests are refused and the program stops, and once a paid plan brings the member back, the same token works again.
+
+## For agents [#for-agents]
+
+Runners talk to the workspace over REST with `Authorization: Bearer cmr_...`, the token shown when the runner was added. A runner token only reaches these five endpoints, described in the [API reference](/docs/openapi):
+
+- `POST /api/v1/runner/heartbeat` reports the machine and the CLIs the runner can start.
+- `POST /api/v1/runner/jobs/claim` waits up to 25 seconds and answers 200 with a job of the runner's member, its attempt number and its MCP credentials, or 204 when none arrived.
+- `POST /api/v1/runner/jobs/{id}/start` confirms the claimed attempt, starts the job and answers how many seconds it may run.
+- `POST /api/v1/runner/jobs/{id}/events` appends transcript events of that attempt and answers 409 once the job is closed.
+- `POST /api/v1/runner/jobs/{id}/result` reports `succeeded`, `failed` or `timedOut` for that attempt with the final answer and, when the CLI reports them, tokens.
+
+A revoked token, a runner whose member left the workspace, was deactivated or is paused by the Free plan, and a workspace that is being deleted answer 401.
+
+## Frequently asked questions [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Does Customermates get my Claude Code, Codex or Gemini login?">
+No. The runner starts the CLI you installed and signed in yourself, on your machine. The workspace only sends it the prompt and a key for that one job on your workspace's MCP address.
+</FaqItem>
+<FaqItem question="Can someone outside my team make my runner do something?">
+Only through a prompt you set up. If a prompt carries text from outsiders or from a record, the job marks it and the runner frames it as data, not instructions. A model can still be misled by such text. What it could do then is limited: the job's key acts as you, allows at most 25 tool calls, refuses what needs your approval and stops working when the job ends. By default Claude Code may use only your workspace's tools and Codex has no shell, so widen that only on a machine you trust.
+</FaqItem>
+<FaqItem question="Can a colleague's runner run my jobs?">
+No. A runner runs only the jobs of the member who added it, so no other member's machine ever receives a key that acts as you. To run your agent steps on a runner, add your own.
+</FaqItem>
+<FaqItem question="What if my machine is switched off?">
+Your jobs wait in the queue for up to 15 minutes and then end as timed out. After 10 minutes without one of your runners, you get a notification.
+</FaqItem>
+<FaqItem question="Can I run the runner on a server?">
+Yes. Any machine with Node 24 or Docker, one signed-in CLI and a connection to your Customermates address works, for example an always-on virtual machine.
+</FaqItem>
+</Faq>

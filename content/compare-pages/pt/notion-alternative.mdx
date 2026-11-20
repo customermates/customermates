@@ -87,8 +87,8 @@ comparison:
         competitor: true
   - title: Licença, hospedagem e acesso
     features:
-      - name: Licença de código aberto
-        source: Núcleo AGPL-3.0
+      - name: Código-fonte disponível
+        source: Sustainable Use License; ee/ sob uma licença comercial separada
         competitor: false
       - name: Hospedagem própria
         source: Docker Compose (CRM essencial sem caixa de entrada nem Mate)
@@ -125,7 +125,7 @@ cta:
 | Você precisa de tipos de registro próprios, como investidores, imóveis ou candidatos, com fórmulas e rollups | Attio, Twenty, Airtable ou Customermates | O Customermates começa sem listas; você cria as suas (contatos, negócios ou qualquer outra coisa) com campos calculados |
 | Os clientes escrevem por e-mail, LinkedIn e WhatsApp e você quer essas conversas no contato | Customermates Pro ou Business | Todos esses canais chegam em uma só caixa de entrada, vinculados aos contatos |
 | Você quer o valor do negócio vezes a probabilidade da etapa sem precisar montar isso | Customermates, qualquer plano | O campo de etapa com probabilidades existe desde o cadastro |
-| Você precisa de hospedagem na UE sem contrato Enterprise, ou quer hospedar o CRM por conta própria | Customermates | Banco de dados em nuvem configurado na região AWS de Frankfurt em todos os planos; núcleo AGPL para hospedagem própria, sem caixa de entrada nem Mate |
+| Você precisa de hospedagem na UE sem contrato Enterprise, ou quer hospedar o CRM por conta própria | Customermates | Banco de dados em nuvem configurado na região AWS de Frankfurt em todos os planos; edição Community para hospedagem própria, sem caixa de entrada nem Mate |
 | Você precisa de SSO SAML ou de aplicativos móveis nativos | Notion Business | O Notion tem os dois; o Customermates não tem SSO nem aplicativo nativo |
 
 ## Para quem o Notion é uma boa escolha como CRM
@@ -182,7 +182,7 @@ No Notion, você monta o CRM por conta própria e cola as conversas nele. No Cus
 
 **A IA mantém os registros em dia.** No Customermates Cloud, o Mate resume conversas, redige respostas, atualiza registros e cria visualizações, usando créditos de IA hospedados com uma franquia mensal por usuário ativo (veja os [preços](/pricing)). Ele pede uma nova aprovação antes de cada exclusão, mas envia mensagens sem pedir, então diga a ele para salvar rascunhos quando quiser conferir antes. As rotinas executam uma instrução salva em um horário agendado ou quando um registro muda: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro. Prefere o Claude ou o ChatGPT? Conecte-o ao [servidor MCP](/docs/mcp), que oferece [[derived.mcp.tools.total]] ferramentas em todos os planos; as chamadas ao modelo rodam então no seu próprio provedor de IA.
 
-**Você escolhe a hospedagem.** O banco de dados em nuvem é configurado na região AWS de Frankfurt; há um contrato de processamento de dados (DPA) disponível, e os subprocessadores, incluindo provedores dos EUA, estão listados. O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose, incluindo REST, webhooks e MCP, mas uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada nem Mate. O Customermates não possui nenhuma certificação de conformidade.
+**Você escolhe a hospedagem.** O banco de dados em nuvem é configurado na região AWS de Frankfurt; há um contrato de processamento de dados (DPA) disponível, e os subprocessadores, incluindo provedores dos EUA, estão listados. A edição Community roda no seu próprio servidor, para uso interno, com Docker Compose, incluindo REST, webhooks e MCP, mas uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada nem Mate. O Customermates não possui nenhuma certificação de conformidade.
 
 ## Onde o Customermates é a escolha errada
 
@@ -222,6 +222,8 @@ Cada consultor salva um quadro dos seus próprios negócios agrupados por etapa,
   <Step title="Traga notas e visualizações">As notas de reunião estão nos arquivos Markdown, não na tabela. Cole no campo de notas de cada registro as que você precisa, ou peça a um cliente de IA que as escreva por MCP. Depois, refaça suas visualizações e compartilhe as que a equipe toda precisa.</Step>
 </Steps>
 
+<SwitchKit tool="notion" />
+
 ## Outras alternativas ao Notion CRM que valem a pena
 
 O Customermates publica esta lista. Os detalhes vêm da página de preços de cada fornecedor, verificada em 8 de outubro de 2026.
@@ -258,11 +260,11 @@ Sim. Os dois têm API REST e webhooks, e o n8n tem nós para ambos, então um fl
 </FaqItem>
 
 <FaqItem question="Existe uma alternativa de código aberto ao Notion para CRM?">
-Sim. O Twenty é de código aberto com objetos personalizados, a opção mais próxima de um esquema flexível do Notion. O Customermates tem um núcleo AGPL-3.0 que você pode hospedar com Docker Compose; a caixa de entrada e o Mate existem apenas no Customermates Cloud. O [guia de CRM de código aberto](/blog/open-source-crm) compara mais opções de hospedagem própria.
+Sim. O Twenty é de código aberto com objetos personalizados, a opção mais próxima de um esquema flexível do Notion. O Customermates não é de código aberto, mas tem o código-fonte disponível sob a Sustainable Use License e uma edição Community que você pode hospedar com Docker Compose, para uso interno; a caixa de entrada e o Mate existem apenas no Customermates Cloud. O [guia de CRM de código aberto](/blog/open-source-crm) compara mais opções de hospedagem própria.
 </FaqItem>
 
 <FaqItem question="Existe uma alternativa gratuita ao Notion para CRM?">
-Sim, com limites. O próprio Notion tem o plano Free, voltado a indivíduos. O Attio tem um plano Free para até 3 usuários e 50.000 registros, e o Airtable também tem um plano Free. O núcleo de código aberto do Twenty e o núcleo AGPL-3.0 do Customermates podem ser hospedados por conta própria sem taxa de licença; o do Customermates não tem caixa de entrada nem Mate. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas, além de um teste de [[commercial.trial.days]] dias. O [guia de CRM gratuito](/blog/free-crm) mostra onde os planos gratuitos terminam.
+Sim, com limites. O próprio Notion tem o plano Free, voltado a indivíduos. O Attio tem um plano Free para até 3 usuários e 50.000 registros, e o Airtable também tem um plano Free. O núcleo de código aberto do Twenty e a edição Community do Customermates podem ser hospedados por conta própria sem taxa de licença; o do Customermates não tem caixa de entrada nem Mate. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas, além de um teste de [[commercial.trial.days]] dias. O [guia de CRM gratuito](/blog/free-crm) mostra onde os planos gratuitos terminam.
 </FaqItem>
 
 <FaqItem question="Onde o Notion armazena os dados do meu CRM?">

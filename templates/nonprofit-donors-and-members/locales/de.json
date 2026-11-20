@@ -1,0 +1,198 @@
+{
+  "locale": "de",
+  "name": "Mitglieder- und Spendenverwaltung",
+  "summary": "Wissen, wer Mitglied ist, wer noch einen Dank braucht und wessen Mitgliedschaft als Nächstes fällig ist. Ein Register für Mitgliedschaften, Spenden mit Zuwendungsbestätigung, Großspenden und Förderanträge.",
+  "description": "Vereine, gemeinnützige Organisationen und Kirchengemeinden verlieren Mitglieder und Wohlwollen, wenn Verlängerungen verpasst werden und Spenden ohne Dank bleiben, weil die Listen bei verschiedenen Ehrenamtlichen liegen. Diese Vorlage richtet Unterstützer ein, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen. Sie passt zu Vereinen, gemeinnützigen Organisationen und Kirchengemeinden, die ein Register statt mehrerer wollen. Das Register stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+  "lists": {
+    "supporters": { "label": "Unterstützer", "pluralLabel": "Unterstützer", "description": "Mitglieder, Spender, Ehrenamtliche, Gäste und Vorstand." },
+    "memberships": { "label": "Mitgliedschaft", "pluralLabel": "Mitgliedschaften", "description": "Eine Mitgliedschaft mit Beitrag und Fälligkeit." },
+    "gifts": { "label": "Spende", "pluralLabel": "Spenden", "description": "Jede Spende mit Dank und Zuwendungsbestätigung." },
+    "gift_opportunities": { "label": "Spendenvorhaben", "pluralLabel": "Spendenvorhaben", "description": "Großspenden, Förderungen und Sponsoring in Arbeit." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Status",
+      "options": { "applied": "Aufnahmeantrag", "active": "Aktiv", "grace_period": "Beitragsverzug", "lapsed": "Erloschen", "resigned": "Austritt" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Phase",
+      "options": { "identified": "Erkannt", "qualified": "Qualifiziert", "cultivation": "Beziehungspflege", "ask_made": "Bitte gestellt", "pledged": "Zugesagt", "received": "Eingegangen", "declined": "Abgelehnt" }
+    },
+    "supporters.member_number": { "label": "Mitgliedsnummer" },
+    "supporters.supporter_types": {
+      "label": "Art der Unterstützung",
+      "options": { "member": "Mitglied", "donor": "Spender", "volunteer": "Ehrenamtliche", "guest": "Gast", "board_member": "Vorstand" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Beziehung",
+      "options": { "prospect": "Interessent", "active": "Aktiv", "lapsed": "Ruhend", "former": "Ehemalig", "do_not_contact": "Nicht kontaktieren" }
+    },
+    "supporters.joined_on": { "label": "Eintritt am" },
+    "supporters.relationship_owner": { "label": "Betreuer" },
+    "supporters.contact_consent": { "label": "Einwilligung zur Kontaktaufnahme", "options": { "granted": "Erteilt", "not_granted": "Nicht erteilt", "unknown": "Unbekannt" } },
+    "supporters.consent_date": { "label": "Datum der Einwilligung" },
+    "supporters.last_contact_on": { "label": "Letzter Kontakt" },
+    "memberships.level": {
+      "label": "Beitragsart",
+      "options": { "regular": "Regulär", "reduced": "Ermäßigt", "family": "Familie", "youth": "Jugend", "supporting": "Fördermitglied", "honorary": "Ehrenmitglied" }
+    },
+    "memberships.fee": { "label": "Beitrag" },
+    "memberships.billing_cycle": {
+      "label": "Zahlweise",
+      "options": { "yearly": "Jährlich", "quarterly": "Vierteljährlich", "monthly": "Monatlich", "one_off": "Einmalig", "none": "Keine" }
+    },
+    "memberships.fee_status": {
+      "label": "Beitragsstatus",
+      "options": { "open": "Offen", "paid": "Bezahlt", "reminded": "Erinnert", "overdue": "Überfällig", "waived": "Erlassen" }
+    },
+    "memberships.mandate_on_file": { "label": "SEPA-Lastschriftmandat vorhanden" },
+    "memberships.started_on": { "label": "Beginn am" },
+    "memberships.renewal_due": { "label": "Fälligkeit" },
+    "memberships.end_reason": {
+      "label": "Austrittsgrund",
+      "options": { "moved_away": "Umzug", "cost": "Kosten", "lost_interest": "Kein Interesse mehr", "dissatisfied": "Unzufrieden", "unpaid_fees": "Unbezahlte Beiträge", "other": "Sonstiges" }
+    },
+    "gifts.received_on": { "label": "Eingegangen am" },
+    "gifts.amount": { "label": "Betrag" },
+    "gifts.gift_type": {
+      "label": "Spendenart",
+      "options": { "one_off": "Einmalspende", "recurring": "Dauerspende", "pledge_payment": "Zahlung auf Zusage", "in_kind": "Sachspende", "legacy": "Nachlass" }
+    },
+    "gifts.fund": {
+      "label": "Verwendungszweck",
+      "options": { "unrestricted": "Ohne Zweckbindung", "restricted_project": "Projektbezogen", "appeal": "Spendenaufruf", "event": "Veranstaltung", "in_memory": "Zum Gedenken" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Dank",
+      "options": { "to_acknowledge": "Dank offen", "acknowledged": "Bedankt", "not_needed": "Nicht nötig" }
+    },
+    "gifts.receipt_status": {
+      "label": "Zuwendungsbestätigung",
+      "options": { "not_needed": "Nicht nötig", "to_issue": "Auszustellen", "issued": "Ausgestellt", "annual_summary_sent": "Sammelbestätigung gesendet" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Art",
+      "options": { "major_gift": "Großspende", "grant": "Förderung", "sponsorship": "Unternehmenssponsoring", "legacy": "Nachlass", "campaign_pledge": "Zusage zu einer Kampagne" }
+    },
+    "gift_opportunities.solicitor": { "label": "Angefragt von" },
+    "gift_opportunities.ask_date": { "label": "Datum der Anfrage" },
+    "gift_opportunities.decision_on": { "label": "Entscheidung am" },
+    "gift_opportunities.report_due": { "label": "Bericht fällig am" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "thank_donor": "Spender danken",
+        "issue_receipt": "Zuwendungsbestätigung ausstellen",
+        "welcome_member": "Mitglied begrüßen",
+        "renewal_notice": "Beitragsankündigung",
+        "chase_fee": "Beitrag anmahnen",
+        "ask": "Anfrage",
+        "report_to_funder": "Bericht an Geldgeber",
+        "call_or_visit": "Anruf oder Besuch",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Mitglied", "targetLabel": "Mitgliedschaften" },
+    "gift_supporter": { "sourceLabel": "Spender", "targetLabel": "Spenden" },
+    "opportunity_supporter": { "sourceLabel": "Interessent", "targetLabel": "Spendenvorhaben" },
+    "action_supporter": { "sourceLabel": "Unterstützer", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "supporters_all": { "name": "Alle Unterstützer" },
+    "memberships_all": { "name": "Alle Mitgliedschaften" },
+    "memberships_board": { "name": "Mitgliedschaften nach Status" },
+    "fees_to_chase": { "name": "Zu mahnende Beiträge" },
+    "gifts_all": { "name": "Alle Spenden" },
+    "receipts_to_issue": { "name": "Auszustellende Zuwendungsbestätigungen" },
+    "opportunities_board": { "name": "Spendenvorhaben" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Mitgliedschaften nach Status" },
+    "gifts_per_month": { "title": "Spenden pro Monat" },
+    "gifts_by_fund": { "title": "Spenden nach Verwendungszweck" },
+    "open_pipeline_value": { "title": "Offene Spendenpipeline" },
+    "renewals_coming": { "title": "Anstehende Beitragsfälligkeiten" },
+    "receipts_to_issue_count": { "title": "Auszustellende Zuwendungsbestätigungen" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Was das Register enthält und was draußen bleibt", "sections": ["Zweck und Rechtsgrundlage", "Pflichtangaben und freiwillige Angaben", "Einwilligung und Aufbewahrung"] },
+    "renewals_and_fees": { "title": "Beitragsfälligkeit und Mahnungen", "sections": ["Ankündigung 60 und 30 Tage vorher", "Beitragsverzug und Ende der Mitgliedschaft nach Satzung"] },
+    "receipts_and_thanks": { "title": "Dank und Zuwendungsbestätigungen", "sections": ["Binnen zwei Tagen danken", "Wann eine Zuwendungsbestätigung zulässig ist und in welchem Muster"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Dem Spender danken, wenn eine Spende erfasst ist" },
+    "issue_receipt": { "title": "Zuwendungsbestätigung ausstellen, wenn eine Spende dafür markiert ist" },
+    "welcome_member": { "title": "Das Mitglied begrüßen, wenn ein Aufnahmeantrag eingeht" },
+    "renewal_notice": { "title": "60 Tage vor der Fälligkeit einer aktiven Mitgliedschaft den Beitrag ankündigen" },
+    "renewal_reminder": { "title": "Ein Mitglied mit offenem Beitrag 30 Tage vor der Fälligkeit erinnern" },
+    "expiry_notice": { "title": "Am Tag der Fälligkeit den unbezahlten Beitrag anmahnen" },
+    "report_to_funder": { "title": "Den Bericht an den Geldgeber zwei Wochen vor der Frist vorbereiten" },
+    "join_form_records": { "title": "Unterstützer und Mitgliedschaft aus einem Beitrittsformular anlegen" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jede Mitgliedschaft hat einen Status.",
+    "renewal_field": "Jede Mitgliedschaft hat ein Fälligkeitsdatum.",
+    "receipt_field": "Jede Spende zeigt, ob eine Zuwendungsbestätigung fällig ist."
+  },
+  "page": {
+    "metaTitle": "Software für Vereine: Mitglieder, Spenden und Beiträge",
+    "metaDescription": "Software für Vereine: Vorlage in Claude, ChatGPT oder Codex einfügen, und Ihr KI-Agent baut ein Register für Mitglieder, Spenden, Dank und Beiträge auf.",
+    "headline": "Software für Vereine, die keine Verlängerung und keinen Dank vergisst: ein Register, das Ihr KI-Agent aufbaut",
+    "answer": "Software für einen Verein beginnt mit einem Register statt mehrerer Listen bei verschiedenen Ehrenamtlichen: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut das Register in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es zieht keine Beiträge ein und stellt keine Zuwendungsbestätigungen aus, es zeigt, welche fällig sind.",
+    "routine": {
+      "title": "Die wöchentliche Routine für Mitglieder und Spenden",
+      "steps": [
+        "Danken Sie jeder neuen Spende innerhalb von zwei Tagen, per Anruf oder mit einem persönlichen Schreiben.",
+        "Begrüßen Sie die Mitglieder, deren Aufnahmeantrag diese Woche eingegangen ist, und kündigen Sie den Beitrag für Mitgliedschaften an, die in etwa 60 Tagen fällig werden.",
+        "Erinnern Sie Mitglieder mit offenem Beitrag 30 Tage vor der Fälligkeit und mahnen Sie die Beiträge von Mitgliedschaften an, die unbezahlt erloschen sind.",
+        "Sehen Sie sich die Spenden an, bei denen eine Zuwendungsbestätigung fällig ist, und stellen Sie sie in Ihrem Buchhaltungsprogramm im amtlichen Muster aus.",
+        "Prüfen Sie die Pipeline für Großspenden und Förderungen: den nächsten Schritt je Vorhaben und die Berichtstermine, die Förderer erwarten."
+      ]
+    },
+    "limits": [
+      "Es zieht keine Beiträge ein, führt keine Lastschriften aus und ersetzt keine Buchhaltung. Ihr Buchhaltungsprogramm oder Vereinsprogramm führt die Konten; hier steht der Beitragsstatus, nicht das Geld.",
+      "Es stellt keine Zuwendungsbestätigungen aus. Sie entstehen im Muster, das Ihr Finanzamt verlangt, mit Ihrem Buchhaltungsprogramm; das Register hält nur fest, dass eine fällig ist.",
+      "Es ist keine Spendenseite im Netz. Spenden werden über eine Zahlungsplattform eingesammelt, und Sie erfassen die Spende hier.",
+      "Für Kirchengemeinden deckt es Besuchernachfassung und Mitgliedschaft ab, nicht Check-in-Stationen, Dienstpläne, Anwesenheit oder Spendenbescheinigungen. Seelsorgliche Notizen und Schutzkonzepte gehören nie hierher.",
+      "Halten Sie Gesundheitsdaten, Angaben zu Kindern, Bankdaten und alles, was die Mitgliedschaft nicht braucht, aus dem Register heraus. Customermates hat keine Berechtigungen auf Feldebene.",
+      "Es macht kein Wealth Screening, keine Dauerspenden-Abwicklung und keine Massen-Newsletter. Es ist das Register einer kleinen Organisation, keine Plattform zur Spenderanalyse."
+    ],
+    "faq": [
+      {
+        "question": "Ist ein Mitgliedsbeitrag steuerlich eine Spende?",
+        "answer": "In der Regel nicht. In Deutschland stellen nur steuerbegünstigte Körperschaften eine Zuwendungsbestätigung im amtlichen Muster aus, und die Beiträge der meisten Sportvereine sind nicht abziehbar. In Frankreich berechtigt ein Beitrag, der Zugang zu Aktivitäten gibt, nicht zu einer Spendenquittung, nur eine Spende ohne Gegenleistung an eine berechtigte Organisation. Die Regeln unterscheiden sich je Land, fragen Sie also Ihre Steuerberatung oder das Finanzamt. Das Register hält den Status der Zuwendungsbestätigung fest und stellt keine aus."
+      },
+      {
+        "question": "Wie schnell sollte ich einem Spender danken?",
+        "answer": "Innerhalb von 48 Stunden ist der übliche Rat in Fundraising-Ratgebern, am besten per Anruf oder mit einem persönlichen Schreiben. Die Vorlage legt eine Aufgabe zum Danken an, sobald eine Spende erfasst ist, damit der Dank nicht vom Gedächtnis einer einzelnen Person im Ehrenamt abhängt."
+      },
+      {
+        "question": "Wann sollte ich Mitglieder an die Verlängerung erinnern?",
+        "answer": "Ratgeber für Vereine empfehlen mehrere Kontakte vor dem Stichtag, oft ab etwa 90 Tagen bis zum Tag selbst, und einen danach. Die Vorlage legt 60 Tage vor der Fälligkeit einer aktiven Mitgliedschaft eine Aufgabe an, den Beitrag anzukündigen, 30 Tage vorher eine Aufgabe zum Erinnern bei offenem Beitrag und am Tag der Fälligkeit eine zum Anmahnen, wenn der Beitrag unbezahlt ist."
+      },
+      {
+        "question": "Welche Mitglieder- und Spenderdaten darf ich speichern?",
+        "answer": "Nur, was die Mitgliedschaft oder die Spende braucht. Nach der DSGVO sollen Daten, die für die Mitgliedschaft nicht nötig sind, nicht erfasst werden; der Aufnahmeantrag soll zeigen, welche Felder Pflicht und welche freiwillig sind, und für Fotos braucht es eine Einwilligung. Gesundheitsdaten, Angaben zu Kindern und Bankdaten bleiben aus dem Register heraus. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Eignet es sich für eine Kirchengemeinde oder einen Sportverein?",
+        "answer": "Ja für die Registerseite: Unterstützer, Mitgliedschaften, Spenden und die Nachfassung von Mitgliedern und Besuchern an einem Ort. Es ersetzt weder ein Gemeindeverwaltungsprogramm für Check-in, Dienstpläne oder Spendenbescheinigungen noch ein Vereinsprogramm für Lastschriften und Beitragseinzug."
+      },
+      {
+        "question": "Schreibt der Agent meine Mitglieder und Spender an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Unsere Mitglieder, Spender und Ehrenamtlichen stehen in mehreren Listen, und Verlängerungen und Dankesschreiben gehen unter. Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
+    "questions": [
+      "Führst du einen Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen hast du?",
+      "Welche Beitragsarten und Beiträge nutzt du, und wie werden sie eingezogen?",
+      "In welchem Land bist du eingetragen, und welche Zuwendungsbestätigung stellst du dort aus?",
+      "Welche Software führt Zahlungen oder Buchhaltung? Hier wird nur ein Verweis gespeichert."
+    ]
+  }
+}

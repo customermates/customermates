@@ -1,0 +1,182 @@
+{
+  "locale": "de",
+  "name": "Steuerkanzlei",
+  "summary": "Mandate, laufende Arbeiten und Fristen im Griff behalten. Ein Mandat über Identifizierung und Mandatsvertrag gewinnen, wiederkehrende Vorgänge je Mandant führen und ein Fristenregister, das eine zweite Person verifiziert.",
+  "description": "In einer Steuerkanzlei oder einem Buchhaltungsbüro füllt sich der Kalender mit dem Warten auf Unterlagen der Mandanten, und jede Frist braucht ein zweites Augenpaar. Diese Vorlage führt zwei Abläufe: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, und wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen. Ein Fristenregister hält eine Vorfrist und die Person fest, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei deinen Mandanten, die Unterlagen schicken und unterschreiben." },
+    "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die du tätig bist." },
+    "mandates": { "label": "Mandat", "pluralLabel": "Mandate", "description": "Ein Auftrag von der Anfrage bis aktiv oder abgelehnt." },
+    "jobs": { "label": "Vorgang", "pluralLabel": "Vorgänge", "description": "Wiederkehrende Arbeit für einen Mandanten und Zeitraum, etwa Monatsabschluss oder Umsatzsteuer-Voranmeldung." },
+    "deadlines": { "label": "Frist", "pluralLabel": "Fristen", "description": "Ein gesetzlicher oder behördlicher Termin mit Quelle, Vorfrist und der Person, die ihn verifiziert hat." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Bevorzugter Kanal", "options": { "email": "E-Mail", "phone": "Telefon", "portal": "Portal", "whatsapp": "WhatsApp", "post": "Post" } },
+    "clients.client_type": { "label": "Art", "options": { "individual": "Privatperson", "sole_trader": "Einzelunternehmer", "company": "Gesellschaft", "association": "Verein" } },
+    "clients.vat_frequency": { "label": "Umsatzsteuer-Voranmeldung", "options": { "monthly": "Monatlich", "quarterly": "Vierteljährlich", "annual": "Jährlich", "not_applicable": "Entfällt" } },
+    "clients.authorisation_on": { "label": "Vollmacht liegt vor seit" },
+    "clients.aml_risk": {
+      "label": "Geldwäscherisiko",
+      "options": { "not_assessed": "Nicht bewertet", "low": "Gering", "standard": "Normal", "enhanced": "Erhöht", "declined": "Abgelehnt" }
+    },
+    "clients.aml_next_review": { "label": "Nächste Risikoprüfung" },
+    "mandates.stage": {
+      "label": "Phase",
+      "options": { "inquiry": "Anfrage", "intro_call": "Erstgespräch", "proposal_sent": "Angebot", "aml_check": "Identifizierung (GwG)", "engagement_letter_out": "Mandatsvertrag versendet", "active": "Aktiv", "declined": "Abgelehnt", "not_going_ahead": "Nicht zustande gekommen" }
+    },
+    "mandates.services": {
+      "label": "Leistungen",
+      "options": { "bookkeeping": "Buchhaltung", "payroll": "Lohn und Gehalt", "vat_returns": "Umsatzsteuer", "annual_accounts": "Jahresabschluss", "tax_returns": "Steuererklärungen", "advisory": "Beratung" }
+    },
+    "mandates.fee_model": { "label": "Vergütung", "options": { "fixed_monthly": "Monatspauschale", "hourly": "Nach Zeitaufwand", "per_filing": "Je Erklärung", "value_based": "Wertbasiert" } },
+    "mandates.next_step_due": { "label": "Nächster Schritt bis" },
+    "mandates.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "capacity": "Keine Kapazität", "risk_declined": "Wegen Risiko abgelehnt", "scope_mismatch": "Umfang passt nicht", "price": "Preis", "chose_other_advisor": "Anderen Berater gewählt", "no_response": "Keine Rückmeldung" }
+    },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "planned": "Geplant", "waiting_for_documents": "Wartet auf Unterlagen", "in_preparation": "In Bearbeitung", "in_review": "In Prüfung", "client_approval": "Wartet auf Freigabe des Mandanten", "submitted": "Eingereicht", "waiting_for_authority": "Wartet auf das Finanzamt", "done": "Erledigt" }
+    },
+    "jobs.job_type": {
+      "label": "Art des Vorgangs",
+      "options": { "monthly_bookkeeping": "Laufende Buchhaltung", "payroll_run": "Lohnabrechnung", "vat_return": "Umsatzsteuer-Voranmeldung", "annual_accounts": "Jahresabschluss", "tax_return": "Steuererklärung", "year_end": "Jahresabschlussarbeiten" }
+    },
+    "jobs.period": { "label": "Zeitraum" },
+    "jobs.documents_due": { "label": "Unterlagen bis" },
+    "jobs.internal_due": { "label": "Interner Termin" },
+    "jobs.reviewer": { "label": "Geprüft von" },
+    "jobs.notice_received_on": { "label": "Bescheid eingegangen am" },
+    "deadlines.kind": {
+      "label": "Art",
+      "options": { "vat_return": "Umsatzsteuer-Voranmeldung", "vat_payment": "Umsatzsteuerzahlung", "payroll_report": "Lohnsteuer-Anmeldung", "annual_accounts": "Jahresabschluss", "tax_return": "Steuererklärung", "appeal": "Einspruchsfrist", "payment": "Zahlung", "aml_review": "Risikoprüfung", "other": "Sonstiges" }
+    },
+    "deadlines.due_date": { "label": "Fällig am" },
+    "deadlines.pre_deadline": { "label": "Vorfrist" },
+    "deadlines.source_ref": { "label": "Quelle des Termins" },
+    "deadlines.verified_by": { "label": "Verifiziert von" },
+    "deadlines.status": { "label": "Status", "options": { "open": "Offen", "in_progress": "In Arbeit", "filed": "Eingereicht", "extended": "Verlängert", "cancelled": "Entfallen" } },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "request_documents": "Unterlagen anfordern",
+        "chase_documents": "Unterlagen nachfordern",
+        "chase_approval": "Freigabe oder Unterschrift nachfassen",
+        "review": "Prüfen",
+        "reply": "Antworten",
+        "aml": "Identifizierung und Risikoeinstufung",
+        "filing": "Einreichung",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Mandant", "targetLabel": "Ansprechpartner" },
+    "mandate_client": { "sourceLabel": "Mandant", "targetLabel": "Mandate" },
+    "job_client": { "sourceLabel": "Mandant", "targetLabel": "Vorgänge" },
+    "deadline_client": { "sourceLabel": "Mandant", "targetLabel": "Fristen" },
+    "action_job": { "sourceLabel": "Vorgang", "targetLabel": "Aufgaben" },
+    "action_client": { "sourceLabel": "Mandant", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "mandates_board": { "name": "Mandate nach Phase" },
+    "mandates_all": { "name": "Alle Mandate" },
+    "jobs_board": { "name": "Vorgänge nach Status" },
+    "jobs_waiting_documents": { "name": "Wartet auf Unterlagen" },
+    "deadlines_all": { "name": "Alle Fristen" },
+    "unverified_deadlines": { "name": "Fristen ohne Verifizierung" },
+    "clients_all": { "name": "Alle Mandanten" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Anstehende Fristen" },
+    "unverified_count": { "title": "Offene Fristen ohne Verifizierung" },
+    "jobs_by_status": { "title": "Offene Vorgänge nach Status" },
+    "documents_waiting": { "title": "Vorgänge, die auf Unterlagen warten" },
+    "jobs_waiting_on_client": { "title": "Vorgänge, die auf die Freigabe des Mandanten warten" },
+    "mandates_funnel": { "title": "Mandate nach Phase" },
+    "aml_reviews": { "title": "Fällige Risikoprüfungen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "So läuft die Kanzlei", "sections": ["Die zwei Abläufe: Mandat gewinnen und Arbeit erledigen", "Wer welche Phase verantwortet und die Regel einer terminierten Aufgabe je offenem Vorgang"] },
+    "onboarding_and_aml": { "title": "Aufnahme und Identifizierung", "sections": ["Mandant und wirtschaftlich Berechtigten identifizieren, Risikoeinstufung", "Checkliste Mandatsvertrag (Ausweiskopien werden hier nicht gespeichert)"] },
+    "deadline_control": { "title": "Fristenkontrolle", "sections": ["Wie ein Termin mit Quelle erfasst und von einer zweiten Person verifiziert wird", "Vorfristprüfung und Entscheidung über eine Verlängerung"] },
+    "document_checklists": { "title": "Unterlagenanforderung je Leistung", "sections": ["Was wir je Leistung anfordern und bis wann", "Erinnerungen und was passiert, wenn Unterlagen fehlen"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Drei Tage nach dem Versand eines Angebots nachfassen" },
+    "aml_identification": { "title": "Binnen 2 Tagen identifizieren, wenn ein Mandat die Identifizierungsphase erreicht" },
+    "onboarding_set": { "title": "Vollmacht und erste Unterlagen anfordern, wenn ein Mandat aktiv wird" },
+    "recontact_not_going_ahead": { "title": "Den nächsten Schritt auf 90 Tage setzen, wenn ein Mandat nicht zustande kommt" },
+    "documents_chase": { "title": "Unterlagen 3 Tage vor dem Termin nachfordern" },
+    "documents_overdue_notice": { "title": "Den Zuständigen informieren, wenn Unterlagen fällig und noch nicht da sind" },
+    "pre_deadline_check": { "title": "Den Zuständigen zur Vorfrist einer offenen Frist informieren" },
+    "due_date_escalation": { "title": "Die Leitung 2 Tage vor einer offenen Frist informieren" },
+    "approval_chase": { "title": "Die Freigabe des Mandanten nach 5 Tagen Wartezeit nachfassen" },
+    "notice_check": { "title": "Einen Bescheid binnen 3 Tagen nach Eingang prüfen" },
+    "aml_review": { "title": "Die Risikoeinstufung prüfen, wenn die nächste Prüfung ansteht" },
+    "monthly_close_jobs": { "title": "Zu Monatsbeginn die monatlichen Vorgänge anlegen" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Jedes Mandat hat eine Phase.",
+    "job_status_field": "Jeder Vorgang hat einen Status, auch Wartet auf Unterlagen.",
+    "deadline_due_field": "Jede Frist hält ihr Fälligkeitsdatum fest.",
+    "deadline_verifier_field": "Jede Frist hält fest, wer sie verifiziert hat.",
+    "deadline_control_page": "Die Wissensdatenbank enthält eine Seite zur Fristenkontrolle."
+  },
+  "page": {
+    "metaTitle": "Steuerberater Software Vorlage: Mandate und Fristenregister",
+    "metaDescription": "Steuerberater Software: Mandate, Vorgänge, Unterlagen und Fristenregister mit Vorfrist. Vorlage in Claude, ChatGPT oder Codex einfügen und aufbauen lassen.",
+    "headline": "Steuerberatersoftware, die jede Frist und jede fehlende Unterlage im Blick hält, aufgebaut von Ihrem KI-Agenten",
+    "answer": "Eine Steuerkanzlei führt zwei Abläufe nebeneinander: ein Mandat über Identifizierung und Mandatsvertrag gewinnen und die wiederkehrende Arbeit je Mandant und Zeitraum erledigen, während man auf Unterlagen wartet. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beides in Customermates auf, mit einem Fristenregister, das Vorfrist und die Person festhält, die jede Frist verifiziert hat. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Es ergänzt Ihre Kanzleisoftware und ersetzt sie nicht.",
+    "routine": {
+      "title": "Die wöchentliche Durchsicht der Kanzlei",
+      "steps": [
+        "Öffnen Sie das Board der Vorgänge und sehen Sie, wer am Zug ist: Wartet auf Unterlagen, wartet auf Freigabe des Mandanten oder wartet auf das Finanzamt.",
+        "Fordern Sie Unterlagen nach, die in drei Tagen fällig sind, und entscheiden Sie bei den nach dem Termin noch fehlenden: verlängern, teilweise bearbeiten oder an den Partner eskalieren.",
+        "Prüfen Sie das Fristenregister: Jede offene Frist hat eine Quelle, eine Vorfrist und eine zweite Person, die das Datum verifiziert hat.",
+        "Tragen Sie jeden in dieser Woche eingegangenen Bescheid mit Einspruchsfrist und Quelle ein, und lassen Sie das Datum von einer zweiten Person verifizieren.",
+        "Geben Sie jedem aktiven Vorgang ohne offene Wiedervorlage einen nächsten Schritt, oder halten Sie fest, warum er ruht.",
+        "Prüfen Sie Angebote, die vor mehr als drei Tagen versendet wurden, und Mandate in der Identifizierungsphase, damit keine Arbeit vor der Identifizierung des Mandanten beginnt."
+      ]
+    },
+    "limits": [
+      "Es ist nicht Ihre Kanzlei- oder Abgabesoftware. Abgabe, Buchführung, Lohn und die Berechnung gesetzlicher Fristen bleiben in Werkzeugen wie DATEV, Karbon oder TaxDome, und die Vorlage sagt nie, dass eine Erklärung fristgerecht ist.",
+      "Es berechnet keine gesetzlichen Fristen. Eine Frist ist ein Datensatz mit Quelle, Vorfrist und einer benannten Person, die sie verifiziert hat; das Datum selbst kommt von Ihnen.",
+      "Es ist kein Werkzeug für Zeiterfassung oder Rechnungen und hat weder Mandantenportal noch elektronische Signatur. Ein unterschriebener Mandatsvertrag ist ein Link auf die unterschriebene Datei.",
+      "Ausweiskopien, Steuernummern und besonders schützenswerte Daten gehören nicht hinein, denn es gibt keine Rechte auf Feldebene. Sie gehören in Ihr Dokumentensystem mit seinen Aufbewahrungsregeln.",
+      "Eingescannte Belege werden gespeichert, aber nicht gelesen, denn es gibt keine Texterkennung."
+    ],
+    "faq": [
+      {
+        "question": "Was ist die beste Software für Steuerberater?",
+        "answer": "Das hängt davon ab, was Sie brauchen. Werkzeuge wie DATEV, Addison oder TaxDome decken Abgabe, Buchführung, Abrechnung und ein Mandantenportal ab. Customermates ist die Schicht für Beziehung, Fristennachweis und Wiedervorlage daneben: Mandate, Vorgänge, die auf Unterlagen warten, und ein Fristenregister. Wer ein einziges Werkzeug für alles will, findet es hier nicht."
+      },
+      {
+        "question": "Wozu ein eigenes Fristenregister?",
+        "answer": "Die Rechtsprechung zur Berufshaftung verlangt, dass eine Kanzlei die Fristenkontrolle belegen kann; für die Wiedereinsetzung nach einer versäumten Frist (§ 110 AO) genügt die Behauptung nicht, Fristen seien geprüft worden. Ein Register mit Quelle, Vorfrist und Verifizierung lässt Sie diese Kontrolle später zeigen. Die Vorlage hält die Kontrolle fest und berechnet das Datum nie."
+      },
+      {
+        "question": "Kommt die Identifizierung nach dem GwG vor dem Mandatsvertrag?",
+        "answer": "Die Praxis ist uneinheitlich. Die Vorlage macht die Identifizierung zu einer eigenen Phase vor dem Mandatsvertrag, weil sie eine Reihenfolge nicht erzwingen kann und der vorsichtige Standard Arbeit vor der Identifizierung vermeidet. Zur Identifizierung gehören der Mandant, die handelnde Person und der wirtschaftlich Berechtigte, dazu eine Risikoeinstufung. Ein festes Prüfintervall nennt keine Quelle, das legen Sie selbst fest. Ausweiskopien gehören in Ihr Dokumentensystem."
+      },
+      {
+        "question": "Wie höre ich auf, Unterlagen von Hand nachzufordern?",
+        "answer": "Setzen Sie bei jeder Unterlagenanforderung ein Datum, bis zu dem die Unterlagen da sein müssen. Die Vorlage legt dann drei Tage vorher eine Wiedervorlage zum Nachfordern an und informiert den Zuständigen, wenn die Unterlagen fällig und noch nicht da sind. Wartet auf Unterlagen, wartet auf Freigabe des Mandanten und wartet auf das Finanzamt sind drei getrennte Status, so zeigt das Board, wer am Zug ist."
+      },
+      {
+        "question": "Schreibt der Agent meine Mandanten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ich führe eine Steuerkanzlei und muss sehen, welche Mandate offen sind, welche Vorgänge auf Unterlagen warten und welche Fristen geprüft wurden. Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
+    "questions": [
+      "Welche Leistungen bietest du an, und welche wiederkehrenden Vorgänge führst du je Mandant?",
+      "In welchem Land arbeitest du, und welche Fristen verfolgst du?",
+      "Wer bereitet vor, wer prüft, und wer verifiziert eine Frist?",
+      "Wie identifizierst du neue Mandanten, und wie oft prüfst du deren Risikoeinstufung?"
+    ]
+  }
+}

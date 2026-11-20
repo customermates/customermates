@@ -1,0 +1,3873 @@
+{
+  "spec": {
+    "id": "tpl_client_support_desk",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "client-support-desk",
+    "family": "operations",
+    "kind": "tracker",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "customers",
+        "role": "people",
+        "icon": "headset"
+      },
+      {
+        "key": "accounts",
+        "icon": "building"
+      },
+      {
+        "key": "tickets",
+        "icon": "ticket"
+      },
+      {
+        "key": "known_issues",
+        "icon": "bug"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "customers.preferred_channel",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "email"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "form"
+          },
+          {
+            "key": "phone"
+          }
+        ]
+      },
+      {
+        "key": "customers.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "accounts.support_plan",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "standard"
+          },
+          {
+            "key": "priority",
+            "color": "info"
+          },
+          {
+            "key": "none"
+          }
+        ]
+      },
+      {
+        "key": "accounts.contract_end",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tickets.priority",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "urgent",
+            "color": "destructive"
+          },
+          {
+            "key": "high",
+            "color": "warning"
+          },
+          {
+            "key": "normal"
+          },
+          {
+            "key": "low",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "tickets.type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "question"
+          },
+          {
+            "key": "problem"
+          },
+          {
+            "key": "request"
+          },
+          {
+            "key": "complaint",
+            "color": "warning"
+          },
+          {
+            "key": "data_request",
+            "color": "info"
+          }
+        ]
+      },
+      {
+        "key": "tickets.channel",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "email"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "form"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "webhook"
+          }
+        ]
+      },
+      {
+        "key": "tickets.assignee",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tickets.first_response_due",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tickets.resolution_due",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tickets.solved_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tickets.rating",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "known_issues.workaround",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "known_issues.fixed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "nudge_customer"
+          },
+          {
+            "key": "send_survey"
+          },
+          {
+            "key": "close_ticket"
+          },
+          {
+            "key": "tell_customer_fixed"
+          },
+          {
+            "key": "verify_identity"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "tickets.status",
+        "items": [
+          {
+            "key": "new",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "open",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "pending_customer",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "on_hold",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "solved",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "closed",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "spam_or_duplicate",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "known_issues.status",
+        "items": [
+          {
+            "key": "investigating",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "workaround_available",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "fixed",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "wont_fix",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "customer_account",
+        "source": "customers",
+        "target": "accounts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "ticket_customer",
+        "source": "tickets",
+        "target": "customers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "ticket_known_issue",
+        "source": "tickets",
+        "target": "known_issues",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_ticket",
+        "source": "actions",
+        "target": "tickets",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "tickets_all",
+        "list": "tickets",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "tickets.first_response_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "tickets.status",
+          "tickets.priority",
+          "tickets.type",
+          "tickets.assignee",
+          "tickets.first_response_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "tickets_board",
+        "list": "tickets",
+        "default": false,
+        "layout": "board",
+        "groupBy": "tickets.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "waiting_on_us",
+        "list": "tickets",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "new",
+              "open"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "known_issues_all",
+        "list": "known_issues",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "known_issues.status",
+          "known_issues.fixed_on"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "customers_all",
+        "list": "customers",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "customers.preferred_channel",
+          "customers.language"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "accounts_all",
+        "list": "accounts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "accounts.support_plan",
+          "accounts.contract_end"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "tickets_by_status",
+        "list": "tickets",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "tickets.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_by_priority",
+        "list": "tickets",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "tickets.priority"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "new",
+              "open",
+              "pending_customer",
+              "on_hold"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "waiting_on_us_count",
+        "list": "tickets",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "new",
+              "open"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "responses_due",
+        "list": "tickets",
+        "layout": "upcoming",
+        "dateField": "tickets.first_response_due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "new"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "average_rating",
+        "list": "tickets",
+        "aggregation": "average",
+        "valueField": "tickets.rating",
+        "groupBy": null,
+        "filters": [],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "tickets_by_type",
+        "list": "tickets",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "tickets.type"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "how_we_run_support",
+        "kind": "overview"
+      },
+      {
+        "key": "triage_and_replies",
+        "kind": "processes"
+      },
+      {
+        "key": "data_requests",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "ticket_created",
+        "trigger": {
+          "kind": "record_created",
+          "list": "tickets"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "tickets"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "first_response_missed",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "tickets.first_response_due",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "new"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "nudge_customer",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "tickets.status",
+          "days": 3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "pending_customer"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "nudge_customer",
+          "assignee": "record_owner",
+          "about": "tickets"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "send_survey",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "tickets.status",
+          "to": "solved"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "send_survey",
+          "assignee": "record_owner",
+          "about": "tickets"
+        },
+        "dueOffsetDays": 1,
+        "needs": "forms"
+      },
+      {
+        "key": "close_solved",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "tickets.status",
+          "days": 4
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "tickets.status",
+            "options": [
+              "solved"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "close_ticket",
+          "assignee": "record_owner",
+          "about": "tickets"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "data_request_clock",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "tickets.type",
+          "to": "data_request"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "tickets.resolution_due",
+              "offsetDays": 30
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules",
+        "variants": {
+          "BR": {
+            "action": {
+              "kind": "set_dates",
+              "dates": [
+                {
+                  "field": "tickets.resolution_due",
+                  "offsetDays": 15
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "key": "known_issue_fixed",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "known_issues.status",
+          "to": "fixed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "tell_customer_fixed",
+          "assignee": "record_owner",
+          "about": "known_issues"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "ticket_from_webhook",
+        "trigger": {
+          "kind": "webhook_received",
+          "source": "monitoring"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "tickets"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "incomingWebhooks"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "tickets.status"
+      },
+      {
+        "key": "first_response_field",
+        "kind": "field_exists",
+        "ref": "tickets.first_response_due"
+      },
+      {
+        "key": "tickets_board_view",
+        "kind": "view_exists",
+        "ref": "tickets_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://support.freshdesk.com/support/solutions/articles/37626-setting-up-sla-policies-and-reminders",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.zendesk.com/hc/en-us/articles/4408886879258-About-ticket-statuses",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.helpscout.com/blog/customer-service-metrics/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://blog.invgate.com/pt/gestao-de-chamados",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://clickup.com/p/templates/project-management/technical-support-task-management-template",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.hubspot.com/products/service/ticketing-system",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://smartsheet.com/solutions/help-desk-ticket-tracker-and-form",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.freshworks.com/de/ticketing-system/free/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.edpb.europa.eu/system/files/2023-04/edpb_guidelines_202201_data_subject_rights_access_v2_en.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2022/Decreto/D11034.htm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "publication": {
+      "en": "noindex",
+      "de": "noindex",
+      "fr": "noindex",
+      "it": "noindex",
+      "es": "noindex",
+      "pt": "noindex",
+      "pl": "noindex",
+      "nl": "noindex"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Kundensupport",
+      "summary": "Jeden Kunden rechtzeitig beantworten, ohne großes Helpdesk-System. Tickets mit Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung.",
+      "description": "Wenn Kunden über mehrere Wege schreiben, gehen Fragen unter, und niemand weiß, welche überfällig sind. Diese Vorlage richtet Tickets ein mit Status, Priorität, Typ und Zuständigem, der Zeit, bis zu der Sie eine erste Antwort und eine Lösung schulden, und bekannten Problemen, die viele Tickets einer Ursache zuordnen, damit Sie allen Bescheid geben können, sobald es behoben ist. Die Monatsfrist einer DSGVO-Anfrage bleibt im Blick. Gedacht für einige Dutzend Tickets pro Woche in einem Unternehmen oder einer Agentur mit ein bis acht Personen. Kein Telefonsystem, kein Live-Chat, kein Kundenportal und kein Kalender mit Geschäftszeiten.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "customers": {
+          "label": "Kunde",
+          "pluralLabel": "Kunden",
+          "description": "Die Personen, die sich mit einer Frage an dich wenden."
+        },
+        "accounts": {
+          "label": "Konto",
+          "pluralLabel": "Konten",
+          "description": "Die Unternehmen hinter deinen Kunden, mit ihrem Supportvertrag."
+        },
+        "tickets": {
+          "label": "Ticket",
+          "pluralLabel": "Tickets",
+          "description": "Eine Anfrage, von der ersten Nachricht bis zur Lösung."
+        },
+        "known_issues": {
+          "label": "Bekanntes Problem",
+          "pluralLabel": "Bekannte Probleme",
+          "description": "Eine Ursache hinter vielen Tickets, mit Umgehungslösung und Behebungsdatum."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Bevorzugter Kanal",
+          "options": {
+            "email": "E-Mail",
+            "whatsapp": "WhatsApp",
+            "form": "Anfrageformular",
+            "phone": "Telefon"
+          }
+        },
+        "customers.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Supportvertrag",
+          "options": {
+            "standard": "Standard",
+            "priority": "Priorität",
+            "none": "Keiner"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Vertragsende",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Status",
+          "options": {
+            "new": "Neu",
+            "open": "Offen",
+            "pending_customer": "Wartet auf Kunden",
+            "on_hold": "Wartet auf Dritte",
+            "solved": "Gelöst",
+            "closed": "Geschlossen",
+            "spam_or_duplicate": "Spam oder Duplikat"
+          }
+        },
+        "tickets.priority": {
+          "label": "Priorität",
+          "options": {
+            "urgent": "Dringend",
+            "high": "Hoch",
+            "normal": "Normal",
+            "low": "Niedrig"
+          }
+        },
+        "tickets.type": {
+          "label": "Typ",
+          "options": {
+            "question": "Frage",
+            "problem": "Problem",
+            "request": "Anfrage",
+            "complaint": "Beschwerde",
+            "data_request": "Auskunftsersuchen"
+          }
+        },
+        "tickets.channel": {
+          "label": "Kanal",
+          "options": {
+            "email": "E-Mail",
+            "whatsapp": "WhatsApp",
+            "form": "Anfrageformular",
+            "phone": "Telefon",
+            "webhook": "Meldung eines anderen Systems"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Reaktionszeit bis",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Lösung bis",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Gelöst am",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Bewertung",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Status",
+          "options": {
+            "investigating": "In Analyse",
+            "workaround_available": "Umgehungslösung vorhanden",
+            "fixed": "Behoben",
+            "wont_fix": "Wird nicht behoben"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Umgehungslösung",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Behoben am",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Antworten",
+            "nudge_customer": "Kunden erinnern",
+            "send_survey": "Zufriedenheitsumfrage senden",
+            "close_ticket": "Ticket schließen",
+            "tell_customer_fixed": "Kunden über die Behebung informieren",
+            "verify_identity": "Identität prüfen",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Konto",
+          "targetLabel": "Kunden"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Tickets"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Bekanntes Problem",
+          "targetLabel": "Tickets"
+        },
+        "action_ticket": {
+          "sourceLabel": "Ticket",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "tickets_all": {
+          "name": "Alle Tickets"
+        },
+        "tickets_board": {
+          "name": "Ticket-Board"
+        },
+        "waiting_on_us": {
+          "name": "Wartet auf uns"
+        },
+        "known_issues_all": {
+          "name": "Alle bekannten Probleme"
+        },
+        "customers_all": {
+          "name": "Alle Kunden"
+        },
+        "accounts_all": {
+          "name": "Alle Konten"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "tickets_by_status": {
+          "title": "Tickets nach Status"
+        },
+        "open_by_priority": {
+          "title": "Offene Tickets nach Priorität"
+        },
+        "waiting_on_us_count": {
+          "title": "Tickets, die auf uns warten"
+        },
+        "responses_due": {
+          "title": "Fällige Erstantworten"
+        },
+        "average_rating": {
+          "title": "Durchschnittliche Bewertung"
+        },
+        "tickets_by_type": {
+          "title": "Tickets nach Typ"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "So läuft unser Support",
+          "sections": [
+            "Status und Prioritäten",
+            "Ziele für Erstantwort und Lösung",
+            "Wer Dienst hat"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Einordnung und Standardantworten",
+          "sections": [
+            "Typ, Priorität und Zuständiger",
+            "Erstantwort, Rückfrage, behoben, keine Antwort"
+          ]
+        },
+        "data_requests": {
+          "title": "Auskunftsersuchen nach DSGVO",
+          "sections": [
+            "Identität prüfen, erfassen, binnen der gesetzlichen Frist antworten (ein Monat nach DSGVO, 15 Tage nach LGPD)",
+            "Wer entscheidet"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Antwortaufgabe anlegen, wenn ein Ticket entsteht",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Leitung informieren, wenn die Erstantwort überfällig ist",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Kunden nach 3 Tagen Wartezeit erinnern",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Am Tag nach der Lösung die Zufriedenheitsumfrage senden",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Ticket schließen, das 4 Tage lang gelöst blieb",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Lösung auf 30 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Lösung auf 15 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird (Brasilien, LGPD)",
+              "description": "Nach Art. 19 LGPD ist eine vollständige Antwort auf ein Auskunfts- oder Bestätigungsersuchen binnen 15 Tagen fällig."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Kunden informieren, wenn ein bekanntes Problem behoben ist",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Ticket anlegen, wenn ein anderes System eine Meldung schickt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jedes Ticket hat einen Status.",
+        "first_response_field": "Jedes Ticket hält fest, bis wann die Erstantwort fällig ist.",
+        "tickets_board_view": "Die Tickets öffnen sich als Board nach Status."
+      },
+      "page": {
+        "metaTitle": "Ticketsystem kostenlos starten: Support-Desk im CRM",
+        "metaDescription": "Ticketsystem kostenlos starten: Ihr KI-Agent baut im CRM Tickets mit Priorität und Fristen, bekannte Probleme und eine Zufriedenheitsbewertung auf.",
+        "headline": "Ticketsystem für kleine Teams: Ihr KI-Agent baut Tickets, Fristen und bekannte Probleme in Ihrem CRM auf",
+        "answer": "Ein leichtes Ticketsystem gibt jeder Kundennachricht ein Ticket mit Zuständigem, Priorität und einer Frist, bis zu der Sie antworten müssen. Diese Vorlage richtet Tickets, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung ein. Fügen Sie sie in Ihren KI-Agenten ein, und er baut den Support-Desk in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Gedacht ist sie für ein Unternehmen oder eine Agentur mit ein bis acht Personen, nicht für ein großes Support-Team.",
+        "routine": {
+          "title": "Die wöchentliche Support-Durchsicht",
+          "steps": [
+            "Beginnen Sie mit den Tickets, deren erste Antwort oder Lösung überfällig ist, danach mit denen, die seit mehr als zwei Tagen auf Sie warten.",
+            "Erinnern Sie Kunden, die seit 3 Tagen nicht geantwortet haben, und setzen Sie Tickets nach 7 Tagen Schweigen auf gelöst, mit dem Vermerk, dass keine Antwort kam.",
+            "Sehen Sie sich wieder geöffnete Tickets und gelöste Tickets ohne Bewertung an, und fassen Sie bei jeder Bewertung von 1 oder 2 nach.",
+            "Prüfen Sie die offenen bekannten Probleme: Ist eines behoben, informieren Sie jeden Kunden mit verknüpftem Ticket, und halten Sie die häufigsten Kategorien der Woche fest."
+          ]
+        },
+        "limits": [
+          "Es ist keine Telefon- oder SMS-Anlage und kein Live-Chat-Widget. Tickets entstehen aus E-Mail-, WhatsApp-, LinkedIn-, Instagram- und Telegram-Nachrichten im Postfach oder durch Ihren Agenten.",
+          "Ein Kundenportal und ein öffentliches Ticketformular gibt es in Customermates heute nicht. Kunden können sich nicht anmelden, um ein Ticket zu verfolgen.",
+          "Es berechnet keine Geschäftszeiten und keine Feiertage. Fristen stammen aus der Tabelle der Supportpläne in Ihrer Wissensdatenbank und werden von einer Regel oder Ihrem Agenten gesetzt.",
+          "Es ist kein ITIL-Change- oder Asset-Manager, keine Statusseite und kein Massenversand, und es hat kein SSO. Für hohes Ticketaufkommen und Konzernbedarf passen Zendesk, Freshdesk oder Zammad besser.",
+          "Antworten sind Entwürfe, die Sie prüfen und senden. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt; die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+          "Kartennummern, Passwörter, Ausweiskopien und Gesundheitsdaten gehören nicht in Tickets. Bei einem Auskunftsersuchen wird die Identitätsprüfung als Ja oder Nein mit Datum festgehalten, nicht als Kopie.",
+          "Für die Anbindung von E-Mail oder WhatsApp an das CRM brauchen Sie einen Tarif mit Postfach, für ein Postfach des ganzen Teams einen Tarif mit geteilten Konten. Welcher Tarif was enthält, zeigt die Preisseite."
+        ],
+        "faq": [
+          {
+            "question": "Welches Ticketsystem reicht für ein kleines Team kostenlos?",
+            "answer": "Für wenige Dutzend Tickets pro Woche genügt eine Liste mit einem Zuständigen je Ticket, Status, Priorität und zwei Fristen: erste Antwort und Lösung. Wer ein eigenes System betreiben will, findet Open-Source-Lösungen wie Zammad, GLPI oder osTicket. Customermates hat einen kostenlosen Tarif, aber ohne Postfachanbindung; was in welchem Tarif steckt, zeigt die Preisseite."
+          },
+          {
+            "question": "Welche Status braucht ein Support-Ticket?",
+            "answer": "Üblich sind Neu, Offen, Wartet, Gelöst und Geschlossen. Diese Vorlage nutzt Neu, Offen, Wartet auf Kunden, Wartet auf Dritte, Gelöst und Geschlossen, dazu Spam oder Duplikat. Anbieter sind sich uneinig, ob ein Warte-Status die Uhr anhält; die Hausregel der Vorlage lautet: Warten auf den Kunden pausiert sie, Warten auf Dritte nicht. Sie können das ändern."
+          },
+          {
+            "question": "Welche Reaktionszeiten soll ich zusagen?",
+            "answer": "Einen allgemeinen Richtwert gibt es nicht. Anbieter nennen als Beispiele kritische Probleme innerhalb von 4 Stunden und kleine Anfragen innerhalb von 72 Stunden, bei einem Ausfall 1 Stunde bis zur ersten Antwort und 4 Stunden bis zur Lösung. Beginnen Sie mit solchen Werten in der Tabelle der Supportpläne und ersetzen Sie sie durch das, was Sie halten können."
+          },
+          {
+            "question": "Wie gehe ich mit einem Auskunftsersuchen nach DSGVO um, das als Ticket eintrifft?",
+            "answer": "Ein Auskunftsersuchen ist unverzüglich, spätestens innerhalb eines Monats zu beantworten. Bei Bedarf verlängert sich die Frist um bis zu zwei weitere Monate, wenn Sie den Grund innerhalb des ersten Monats mitteilen. Die Vorlage legt dafür den Typ Auskunftsersuchen mit sichtbarer Monatsfrist an. Das ist keine Rechtsberatung; beziehen Sie Ihre Datenschutzbeauftragte oder Ihren Datenschutzbeauftragten ein."
+          },
+          {
+            "question": "Kann das Zendesk oder Freshdesk ersetzen?",
+            "answer": "Für ein Team mit wenigen Dutzend Tickets pro Woche, das terminierte Wiedervorlagen und eine Zufriedenheitsbewertung will: ja. Für großes Ticketaufkommen, viele Kanäle oder Konzernbedarf bleiben Zendesk, Freshdesk, Zammad, Help Scout oder Front die bessere Wahl, mit SLA-Engines, Makros, Geschäftszeitenkalendern und Portalen, die diese Vorlage bewusst weglässt."
+          },
+          {
+            "question": "Antwortet der Agent meinen Kunden?",
+            "answer": "Der Agent entwirft Antworten aus der verknüpften Unterhaltung, Sie prüfen und senden sie. Der Prompt weist ihn an, nichts zu versenden und keine Beispieldaten anzulegen."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Ich bekomme Kundenfragen per E-Mail und Chat und sehe nicht, welche noch auf eine Antwort warten. Richte in meinem Customermates-Workspace einen Kundensupport ein: Tickets mit Status, Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme mit Verknüpfung zu Tickets, eine Zufriedenheitsbewertung und terminierte Folgeaufgaben.",
+        "questions": [
+          "Wie viele Tickets bearbeitest du pro Woche, und über welche Kanäle kommen sie?",
+          "Wie schnell versprichst du Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",
+          "Wer antwortet, und wer erfährt, wenn ein Ticket zu spät ist?",
+          "Erhältst du Auskunftsersuchen oder Meldungen anderer Systeme, die zu Tickets werden sollen?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Client support desk",
+      "summary": "Answer every customer on time without a heavy helpdesk. Tickets with a priority, a first-reply time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
+      "description": "When customers and clients write in from several places, questions get lost and nobody knows which ones are overdue. This template sets up tickets with a status, a priority, a type and an owner, the time by which you owe a first reply and a solution, and known issues that link many tickets to one cause so you can tell everyone when it is fixed. The one-month clock of a data request stays visible. It is built for a few dozen tickets a week in a business or agency of one to eight people. It is not a phone system, a live chat, a customer portal or a business-hours calendar.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "customers": {
+          "label": "Customer",
+          "pluralLabel": "Customers",
+          "description": "The people who write to you for help."
+        },
+        "accounts": {
+          "label": "Account",
+          "pluralLabel": "Accounts",
+          "description": "The companies behind your customers, with their support plan."
+        },
+        "tickets": {
+          "label": "Ticket",
+          "pluralLabel": "Tickets",
+          "description": "One request for help, from first message to solved."
+        },
+        "known_issues": {
+          "label": "Known issue",
+          "pluralLabel": "Known issues",
+          "description": "One cause behind many tickets, with its workaround and fix date."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Preferred channel",
+          "options": {
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "form": "Request form",
+            "phone": "Phone"
+          }
+        },
+        "customers.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Support plan",
+          "options": {
+            "standard": "Standard",
+            "priority": "Priority",
+            "none": "None"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Contract ends",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Status",
+          "options": {
+            "new": "New",
+            "open": "Open",
+            "pending_customer": "Waiting for the customer",
+            "on_hold": "Waiting for a third party",
+            "solved": "Solved",
+            "closed": "Closed",
+            "spam_or_duplicate": "Spam or duplicate"
+          }
+        },
+        "tickets.priority": {
+          "label": "Priority",
+          "options": {
+            "urgent": "Urgent",
+            "high": "High",
+            "normal": "Normal",
+            "low": "Low"
+          }
+        },
+        "tickets.type": {
+          "label": "Type",
+          "options": {
+            "question": "Question",
+            "problem": "Problem",
+            "request": "Request",
+            "complaint": "Complaint",
+            "data_request": "Data request"
+          }
+        },
+        "tickets.channel": {
+          "label": "Channel",
+          "options": {
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "form": "Request form",
+            "phone": "Phone",
+            "webhook": "Alert from another system"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Assigned to",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "First reply due",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Solution due",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Solved on",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Satisfaction rating",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Status",
+          "options": {
+            "investigating": "Investigating",
+            "workaround_available": "Workaround available",
+            "fixed": "Fixed",
+            "wont_fix": "Will not fix"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Workaround",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Fixed on",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply",
+            "nudge_customer": "Nudge the customer",
+            "send_survey": "Send the satisfaction survey",
+            "close_ticket": "Close the ticket",
+            "tell_customer_fixed": "Tell the customer it is fixed",
+            "verify_identity": "Verify identity",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Account",
+          "targetLabel": "Customers"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Customer",
+          "targetLabel": "Tickets"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Known issue",
+          "targetLabel": "Tickets"
+        },
+        "action_ticket": {
+          "sourceLabel": "Ticket",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "tickets_all": {
+          "name": "All tickets"
+        },
+        "tickets_board": {
+          "name": "Ticket board"
+        },
+        "waiting_on_us": {
+          "name": "Waiting on us"
+        },
+        "known_issues_all": {
+          "name": "All known issues"
+        },
+        "customers_all": {
+          "name": "All customers"
+        },
+        "accounts_all": {
+          "name": "All accounts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "tickets_by_status": {
+          "title": "Tickets by status"
+        },
+        "open_by_priority": {
+          "title": "Open tickets by priority"
+        },
+        "waiting_on_us_count": {
+          "title": "Tickets waiting on us"
+        },
+        "responses_due": {
+          "title": "First replies due"
+        },
+        "average_rating": {
+          "title": "Average satisfaction rating"
+        },
+        "tickets_by_type": {
+          "title": "Tickets by type"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "How we run support",
+          "sections": [
+            "Statuses and priorities",
+            "Reply and solution targets",
+            "Who is on duty"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Triage and standard replies",
+          "sections": [
+            "Type, priority and owner",
+            "First reply, need more information, fixed, no response"
+          ]
+        },
+        "data_requests": {
+          "title": "Data requests",
+          "sections": [
+            "Verify identity, log, answer within the statutory deadline (one month under the GDPR, 15 days under the LGPD)",
+            "Who decides"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Create a reply task when a ticket is created",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Notify the lead when the first reply is overdue",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Nudge the customer after 3 days of waiting",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Send the satisfaction survey the day after a ticket is solved",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Close a ticket that stayed solved for 4 days",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Set the solution date to 30 days out when a ticket becomes a data request",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Set the solution date to 15 days out when a ticket becomes a data request (Brazil, LGPD)",
+              "description": "Under LGPD art. 19, a full answer to a data subject's access or confirmation request is due within 15 days."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Tell the customers when a known issue is fixed",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Create a ticket when another system sends an alert",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every ticket has a status.",
+        "first_response_field": "Every ticket records when the first reply is due.",
+        "tickets_board_view": "The tickets open as a board by status."
+      },
+      "page": {
+        "metaTitle": "Help Desk Software Template: Tickets and Due Times",
+        "metaDescription": "Light help desk software your AI agent builds in your CRM: tickets with priorities and reply due times, known issues and a satisfaction score.",
+        "headline": "Help desk software for a few dozen tickets a week, built by your AI agent in your CRM",
+        "answer": "A light help desk gives every customer message a ticket with an owner, a priority and a time by which you owe a reply. This template sets up tickets, known issues that link many tickets to one cause, and a satisfaction score. Paste it into your AI agent and it builds the desk in Customermates, and you approve the plan before anything is built. It is made for a business or agency of one to eight people, not for a large support team.",
+        "routine": {
+          "title": "The weekly support review",
+          "steps": [
+            "Start with the tickets whose first reply or solution is overdue, then those that have been waiting on you for more than two days.",
+            "Nudge customers who have not answered for 3 days, and set tickets that stayed silent for 7 days to solved with a note that no reply came.",
+            "Look at reopened tickets and solved tickets without a rating, and follow up on every rating of 1 or 2.",
+            "Check the open known issues: when one is fixed, tell each customer with a linked ticket, and note the top categories of the week."
+          ]
+        },
+        "limits": [
+          "It is not a phone or SMS system and not a live-chat widget. Tickets come from email, WhatsApp, LinkedIn, Instagram and Telegram messages in the inbox, or from your agent.",
+          "There is no customer portal and no public ticket form in Customermates today. Customers cannot sign in to follow a ticket.",
+          "It does not compute business hours or holidays. Due times come from the support plan table in your knowledge base, set by a rule or by your agent.",
+          "It is not an ITIL change or asset manager, a status page or a bulk messaging tool, and it has no SSO. Zendesk, Freshdesk or Zammad suit high-volume and enterprise support better.",
+          "Replies are drafts you review and send. Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule; the template proposes them and you decide which ones to switch on.",
+          "Keep card numbers, passwords, ID scans and health data out of tickets. A data request keeps its identity check as a yes or no with a date, not as copies of documents.",
+          "Connecting email or WhatsApp to the CRM needs a plan with the inbox, and a mailbox shared by the whole team needs a plan with shared accounts. The pricing page shows which plan has what."
+        ],
+        "faq": [
+          {
+            "question": "What is the simplest help desk for a small business?",
+            "answer": "A list of tickets with one owner each, a status, a priority and two due times: first reply and solution. Add a list of known issues and a satisfaction rating, and review it once a week. That is enough for a few dozen tickets a week; beyond that, a dedicated tool earns its cost."
+          },
+          {
+            "question": "What statuses should a support ticket have?",
+            "answer": "Common sets are new, open, pending, solved and closed. This template uses New, Open, Waiting on customer, On hold, Solved and Closed, plus Spam or duplicate. Vendors disagree on whether a waiting status stops the clock; the template's house rule is that waiting on the customer pauses it and waiting on a third party does not, and you can change that."
+          },
+          {
+            "question": "What response times should I promise?",
+            "answer": "There is no general benchmark. Vendor examples are critical problems answered within 4 hours and small requests within 72 hours, with an outage getting 1 hour to a first response and 4 hours to a solution. Start from values like these in the support plan table and replace them with what you can keep."
+          },
+          {
+            "question": "How do I handle a data request that arrives as a ticket?",
+            "answer": "Under the GDPR a request for access to personal data must be answered as soon as possible and within one month. Where necessary the period can be extended by two further months, with notice and reasons inside the first month. The template adds a data request type with the one-month due date visible. This is not legal advice; involve your data protection contact."
+          },
+          {
+            "question": "Can it replace Zendesk or Freshdesk?",
+            "answer": "For a team that answers a few dozen tickets a week and wants dated follow-ups and a satisfaction score, yes. For high-volume, multi-channel or enterprise support, Zendesk, Freshdesk, Zammad, Help Scout or Front keep the job: they carry SLA engines, macros, business-hours calendars and portals that this template deliberately leaves out."
+          },
+          {
+            "question": "Does the agent answer my customers?",
+            "answer": "The agent drafts replies from the linked conversation, and you review and send them. The prompt tells it to send nothing and to create no sample records."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Customer questions come in by email and chat and I cannot tell which ones are still waiting for an answer. Set up a client support desk in my Customermates workspace: tickets with a status, a priority, a first-reply time and a solution time, known issues linked to tickets, a satisfaction rating and dated follow-ups.",
+        "questions": [
+          "How many tickets do you handle a week, and through which channels do they arrive?",
+          "How fast do you promise a first reply and a solution, by priority or support plan?",
+          "Who answers, and who is told when a ticket is late?",
+          "Do you get data requests or alerts from other systems that should become tickets?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Soporte al cliente",
+      "summary": "Responde a cada cliente a tiempo sin un helpdesk pesado. Tickets con prioridad, primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y valoración de satisfacción.",
+      "description": "Cuando los clientes escriben desde varios sitios, las consultas se pierden y nadie sabe cuáles van con retraso. Esta plantilla prepara tickets con un estado, una prioridad, un tipo y un responsable, la fecha límite de la primera respuesta y de la solución, e incidencias conocidas que unen varios tickets a una causa para avisar a todos cuando se resuelva. El plazo de un mes de una solicitud de datos queda siempre a la vista. Está pensada para unas decenas de tickets por semana en una empresa o agencia de una a ocho personas. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "customers": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Las personas que te escriben para pedir ayuda."
+        },
+        "accounts": {
+          "label": "Cuenta",
+          "pluralLabel": "Cuentas",
+          "description": "Las empresas detrás de tus clientes, con su plan de soporte."
+        },
+        "tickets": {
+          "label": "Ticket",
+          "pluralLabel": "Tickets",
+          "description": "Una solicitud de ayuda, del primer mensaje a la resolución."
+        },
+        "known_issues": {
+          "label": "Incidencia conocida",
+          "pluralLabel": "Incidencias conocidas",
+          "description": "Una causa detrás de varios tickets, con su solución provisional y su fecha de corrección."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "Correo electrónico",
+            "whatsapp": "WhatsApp",
+            "form": "Formulario de solicitud",
+            "phone": "Teléfono"
+          }
+        },
+        "customers.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Plan de soporte",
+          "options": {
+            "standard": "Estándar",
+            "priority": "Prioritario",
+            "none": "Ninguno"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Fin del contrato",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Estado",
+          "options": {
+            "new": "Nuevo",
+            "open": "Abierto",
+            "pending_customer": "Esperando al cliente",
+            "on_hold": "En espera de terceros",
+            "solved": "Resuelto",
+            "closed": "Cerrado",
+            "spam_or_duplicate": "Spam o duplicado"
+          }
+        },
+        "tickets.priority": {
+          "label": "Prioridad",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Alta",
+            "normal": "Normal",
+            "low": "Baja"
+          }
+        },
+        "tickets.type": {
+          "label": "Tipo",
+          "options": {
+            "question": "Pregunta",
+            "problem": "Problema",
+            "request": "Solicitud",
+            "complaint": "Queja",
+            "data_request": "Solicitud de datos"
+          }
+        },
+        "tickets.channel": {
+          "label": "Canal",
+          "options": {
+            "email": "Correo electrónico",
+            "whatsapp": "WhatsApp",
+            "form": "Formulario de solicitud",
+            "phone": "Teléfono",
+            "webhook": "Alerta de otro sistema"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Asignado a",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Primera respuesta antes de",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Resolución antes de",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Resuelto el",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Valoración",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Estado",
+          "options": {
+            "investigating": "En análisis",
+            "workaround_available": "Solución provisional disponible",
+            "fixed": "Corregida",
+            "wont_fix": "No se corregirá"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Solución provisional",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Corregida el",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "nudge_customer": "Recordar al cliente",
+            "send_survey": "Enviar la encuesta de satisfacción",
+            "close_ticket": "Cerrar el ticket",
+            "tell_customer_fixed": "Avisar al cliente de que está resuelto",
+            "verify_identity": "Verificar la identidad",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Cuenta",
+          "targetLabel": "Clientes"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Tickets"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Incidencia conocida",
+          "targetLabel": "Tickets"
+        },
+        "action_ticket": {
+          "sourceLabel": "Ticket",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "tickets_all": {
+          "name": "Todos los tickets"
+        },
+        "tickets_board": {
+          "name": "Tablero de tickets"
+        },
+        "waiting_on_us": {
+          "name": "Esperando nuestra respuesta"
+        },
+        "known_issues_all": {
+          "name": "Todas las incidencias conocidas"
+        },
+        "customers_all": {
+          "name": "Todos los clientes"
+        },
+        "accounts_all": {
+          "name": "Todas las cuentas"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "tickets_by_status": {
+          "title": "Tickets por estado"
+        },
+        "open_by_priority": {
+          "title": "Tickets abiertos por prioridad"
+        },
+        "waiting_on_us_count": {
+          "title": "Tickets esperando nuestra respuesta"
+        },
+        "responses_due": {
+          "title": "Primeras respuestas pendientes"
+        },
+        "average_rating": {
+          "title": "Valoración media"
+        },
+        "tickets_by_type": {
+          "title": "Tickets por tipo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "Cómo gestionamos el soporte",
+          "sections": [
+            "Estados y prioridades",
+            "Objetivos de primera respuesta y de resolución",
+            "Quién está de guardia"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Clasificación y respuestas tipo",
+          "sections": [
+            "Tipo, prioridad y responsable",
+            "Primera respuesta, pedir más información, resuelto, sin respuesta"
+          ]
+        },
+        "data_requests": {
+          "title": "Solicitudes de datos (RGPD)",
+          "sections": [
+            "Verificar la identidad, registrar, responder dentro del plazo legal (un mes según el RGPD, 15 días según la LGPD)",
+            "Quién decide"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Crear una tarea de respuesta cuando se crea un ticket",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Avisar al responsable cuando la primera respuesta va con retraso",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Recordar al cliente tras 3 días de espera",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Enviar la encuesta de satisfacción al día siguiente de resolver",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Cerrar un ticket que lleva 4 días resuelto",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Fijar la resolución a 30 días cuando un ticket pasa a ser una solicitud de datos",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fijar la resolución a 15 días cuando un ticket pasa a ser una solicitud de datos (Brasil, LGPD)",
+              "description": "Según el art. 19 de la LGPD, la respuesta completa a una solicitud de acceso o de confirmación debe darse en 15 días."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Avisar a los clientes cuando se corrige una incidencia conocida",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Crear un ticket cuando otro sistema envía una alerta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada ticket tiene un estado.",
+        "first_response_field": "Cada ticket indica cuándo vence la primera respuesta.",
+        "tickets_board_view": "Los tickets se abren como tablero por estado."
+      },
+      "page": {
+        "metaTitle": "Sistema de tickets: atención al cliente en tu CRM",
+        "metaDescription": "Sistema de tickets ligero que tu agente de IA crea en tu CRM: prioridad y plazos de respuesta, incidencias conocidas y valoración de satisfacción.",
+        "headline": "Un sistema de tickets para unas pocas decenas de tickets a la semana, creado por tu agente de IA en tu CRM",
+        "answer": "Un sistema de tickets ligero da a cada mensaje de un cliente un ticket con responsable, prioridad y un plazo en el que debes responder. Esta plantilla configura tickets, incidencias conocidas que unen varios tickets a una misma causa y una valoración de satisfacción. Pégala en tu agente de IA y él construye la atención en Customermates; tú apruebas el plan antes de que se cree nada. Está pensada para una empresa o agencia de una a ocho personas, no para un gran equipo de soporte.",
+        "routine": {
+          "title": "La revisión semanal del soporte",
+          "steps": [
+            "Empieza por los tickets con primera respuesta o solución vencida y sigue con los que llevan más de dos días esperándote.",
+            "Recuerda a los clientes que no responden desde hace 3 días y marca como resueltos los tickets en silencio durante 7 días, anotando que no llegó respuesta.",
+            "Mira los tickets reabiertos y los resueltos sin valoración, y contacta de nuevo a quien puntuó 1 o 2.",
+            "Revisa las incidencias conocidas abiertas: cuando una se corrige, avisa a cada cliente con un ticket vinculado y anota las categorías más frecuentes de la semana."
+          ]
+        },
+        "limits": [
+          "No es un sistema telefónico ni de SMS ni un widget de chat en vivo. Los tickets salen de mensajes de correo, WhatsApp, LinkedIn, Instagram y Telegram en la bandeja de entrada, o de tu agente.",
+          "Hoy Customermates no tiene portal de clientes ni formulario público de tickets. Los clientes no pueden iniciar sesión para seguir un ticket.",
+          "No calcula horarios laborables ni festivos. Los plazos salen de la tabla de planes de soporte de tu base de conocimiento, fijados por una regla o por tu agente.",
+          "No es un gestor ITIL de cambios o activos, ni una página de estado, ni una herramienta de envío masivo, y no tiene SSO. Para mucho volumen o grandes empresas encajan mejor Zendesk, Freshdesk o Zammad.",
+          "Las respuestas son borradores que revisas y envías tú. Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario; la plantilla los propone y tú decides cuáles activar.",
+          "Deja fuera de los tickets números de tarjeta, contraseñas, copias de documentos de identidad y datos de salud. Una solicitud de acceso guarda la verificación de identidad como sí o no con una fecha, no como copias.",
+          "Conectar el correo o WhatsApp al CRM requiere un plan con bandeja de entrada, y un buzón compartido por todo el equipo, un plan con cuentas compartidas. La página de precios muestra qué incluye cada plan."
+        ],
+        "faq": [
+          {
+            "question": "¿Cuál es el sistema de tickets más sencillo para una pequeña empresa?",
+            "answer": "Una lista de tickets con un responsable cada uno, un estado, una prioridad y dos plazos: primera respuesta y solución. Añade una lista de incidencias conocidas y una valoración de satisfacción y revísala cada semana. Basta para unas pocas decenas de tickets a la semana; más allá compensa una herramienta específica."
+          },
+          {
+            "question": "¿Qué estados debe tener un ticket de soporte?",
+            "answer": "Los conjuntos habituales son nuevo, abierto, pendiente, resuelto y cerrado. Esta plantilla usa Nuevo, Abierto, Esperando al cliente, En espera de terceros, Resuelto y Cerrado, más Spam o duplicado. Los proveedores no coinciden en si un estado de espera detiene el reloj; la regla de la casa de la plantilla: esperar al cliente lo pausa, esperar a un tercero no. Puedes cambiarla."
+          },
+          {
+            "question": "¿Qué tiempos de respuesta debo prometer?",
+            "answer": "No hay una referencia general. Algunos proveedores dan como ejemplo los problemas críticos en 4 horas y las peticiones pequeñas en 72 horas, con 1 hora hasta la primera respuesta y 4 horas hasta la solución en una caída del servicio. Parte de valores así en la tabla de planes de soporte y sustitúyelos por lo que puedas cumplir."
+          },
+          {
+            "question": "¿Cómo trato una solicitud de acceso del RGPD que llega como ticket?",
+            "answer": "Una solicitud de acceso debe responderse sin demora y como máximo en un mes; el plazo puede ampliarse dos meses más si es necesario, informando de los motivos dentro del primer mes. La plantilla añade un tipo solicitud de acceso con el plazo de un mes a la vista. No es asesoramiento jurídico; implica a tu contacto de protección de datos."
+          },
+          {
+            "question": "¿Puede sustituir a Zendesk o Freshdesk?",
+            "answer": "Para un equipo de unas pocas decenas de tickets a la semana que quiere seguimientos con fecha y una valoración de satisfacción, sí. Para mucho volumen, muchos canales o grandes empresas siguen siendo más adecuados Zendesk, Freshdesk, Zammad, Help Scout o Front, con motores de SLA, macros, calendarios de horario laboral y portales que esta plantilla deja fuera a propósito."
+          },
+          {
+            "question": "¿El agente responde a mis clientes?",
+            "answer": "El agente redacta respuestas a partir de la conversación vinculada, y tú las revisas y las envías. El prompt le indica que no envíe nada y que no cree datos de ejemplo."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Las consultas de los clientes llegan por correo y por chat y no sé cuáles siguen esperando respuesta. Configura en mi espacio de trabajo de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
+        "questions": [
+          "¿Cuántos tickets gestionas por semana y por qué canales llegan?",
+          "¿Qué plazos prometes para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",
+          "¿Quién responde y a quién se avisa cuando un ticket va con retraso?",
+          "¿Recibes solicitudes de datos o alertas de otros sistemas que deban convertirse en tickets?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Support client",
+      "summary": "Répondez à chaque client à temps sans outil de support lourd. Tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
+      "description": "Quand vos clients écrivent de plusieurs côtés, des questions se perdent et personne ne sait lesquelles sont en retard. Ce modèle met en place des tickets avec un statut, une priorité, un type et un responsable, les échéances de première réponse et de résolution, et des problèmes connus qui relient plusieurs tickets à une même cause, pour prévenir tout le monde quand elle est corrigée. Le délai d’un mois d’une demande RGPD reste bien visible. Il est prévu pour quelques dizaines de tickets par semaine dans une entreprise ou une agence d’une à huit personnes. Ce n’est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d’heures ouvrées.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "customers": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Les personnes qui vous écrivent pour obtenir de l’aide."
+        },
+        "accounts": {
+          "label": "Compte",
+          "pluralLabel": "Comptes",
+          "description": "Les entreprises derrière vos clients, avec leur formule de support."
+        },
+        "tickets": {
+          "label": "Ticket",
+          "pluralLabel": "Tickets",
+          "description": "Une demande d’aide, du premier message à la résolution."
+        },
+        "known_issues": {
+          "label": "Problème connu",
+          "pluralLabel": "Problèmes connus",
+          "description": "Une cause derrière plusieurs tickets, avec son contournement et sa date de correction."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Canal préféré",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Formulaire de demande",
+            "phone": "Téléphone"
+          }
+        },
+        "customers.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Formule de support",
+          "options": {
+            "standard": "Standard",
+            "priority": "Prioritaire",
+            "none": "Aucune"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Fin du contrat",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Statut",
+          "options": {
+            "new": "Nouveau",
+            "open": "Ouvert",
+            "pending_customer": "En attente du client",
+            "on_hold": "En attente d’un tiers",
+            "solved": "Résolu",
+            "closed": "Fermé",
+            "spam_or_duplicate": "Spam ou doublon"
+          }
+        },
+        "tickets.priority": {
+          "label": "Priorité",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Haute",
+            "normal": "Normale",
+            "low": "Basse"
+          }
+        },
+        "tickets.type": {
+          "label": "Type",
+          "options": {
+            "question": "Question",
+            "problem": "Problème",
+            "request": "Demande",
+            "complaint": "Réclamation",
+            "data_request": "Demande RGPD"
+          }
+        },
+        "tickets.channel": {
+          "label": "Canal",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Formulaire de demande",
+            "phone": "Téléphone",
+            "webhook": "Alerte d’un autre système"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Assigné à",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Première réponse avant",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Résolution avant",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Résolu le",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Note de satisfaction",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Statut",
+          "options": {
+            "investigating": "En analyse",
+            "workaround_available": "Contournement disponible",
+            "fixed": "Corrigé",
+            "wont_fix": "Ne sera pas corrigé"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Contournement",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Corrigé le",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Répondre",
+            "nudge_customer": "Relancer le client",
+            "send_survey": "Envoyer l’enquête de satisfaction",
+            "close_ticket": "Fermer le ticket",
+            "tell_customer_fixed": "Prévenir le client que c’est corrigé",
+            "verify_identity": "Vérifier l’identité",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Compte",
+          "targetLabel": "Clients"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Client",
+          "targetLabel": "Tickets"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Problème connu",
+          "targetLabel": "Tickets"
+        },
+        "action_ticket": {
+          "sourceLabel": "Ticket",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "tickets_all": {
+          "name": "Tous les tickets"
+        },
+        "tickets_board": {
+          "name": "Board des tickets"
+        },
+        "waiting_on_us": {
+          "name": "En attente de notre réponse"
+        },
+        "known_issues_all": {
+          "name": "Tous les problèmes connus"
+        },
+        "customers_all": {
+          "name": "Tous les clients"
+        },
+        "accounts_all": {
+          "name": "Tous les comptes"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "tickets_by_status": {
+          "title": "Tickets par statut"
+        },
+        "open_by_priority": {
+          "title": "Tickets ouverts par priorité"
+        },
+        "waiting_on_us_count": {
+          "title": "Tickets en attente de notre réponse"
+        },
+        "responses_due": {
+          "title": "Premières réponses à donner"
+        },
+        "average_rating": {
+          "title": "Note de satisfaction moyenne"
+        },
+        "tickets_by_type": {
+          "title": "Tickets par type"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "Comment fonctionne notre support",
+          "sections": [
+            "Statuts et priorités",
+            "Objectifs de première réponse et de résolution",
+            "Qui est de permanence"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Tri et réponses types",
+          "sections": [
+            "Type, priorité et responsable",
+            "Première réponse, demande d’informations, corrigé, sans réponse"
+          ]
+        },
+        "data_requests": {
+          "title": "Demandes RGPD",
+          "sections": [
+            "Vérifier l’identité, consigner, répondre dans le délai légal (un mois selon le RGPD, 15 jours selon la LGPD)",
+            "Qui décide"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Créer une tâche de réponse quand un ticket est créé",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Prévenir le responsable quand la première réponse est en retard",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Relancer le client après 3 jours d’attente",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Envoyer l’enquête de satisfaction le lendemain de la résolution",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Fermer un ticket resté résolu pendant 4 jours",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Fixer la résolution à 30 jours quand un ticket devient une demande RGPD",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fixer la résolution à 15 jours quand un ticket devient une demande LGPD (Brésil)",
+              "description": "Selon l’art. 19 de la LGPD, la réponse complète à une demande d’accès ou de confirmation est due sous 15 jours."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Prévenir les clients quand un problème connu est corrigé",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Créer un ticket quand un autre système envoie une alerte",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Chaque ticket a un statut.",
+        "first_response_field": "Chaque ticket indique avant quand la première réponse est due.",
+        "tickets_board_view": "Les tickets s’ouvrent en board par statut."
+      },
+      "page": {
+        "metaTitle": "Outil ticketing : support client léger dans votre CRM",
+        "metaDescription": "Outil ticketing léger que votre agent IA construit dans votre CRM : tickets avec priorité et échéances de réponse, problèmes connus et note de satisfaction.",
+        "headline": "Un outil ticketing pour quelques dizaines de tickets par semaine, construit par votre agent IA dans votre CRM",
+        "answer": "Un outil de ticketing léger donne à chaque message client un ticket avec un responsable, une priorité et une échéance pour votre réponse. Ce modèle met en place des tickets, des problèmes connus qui relient plusieurs tickets à une même cause et une note de satisfaction. Collez-le dans votre agent IA : il construit le support dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé. Il est pensé pour une entreprise ou une agence de une à huit personnes, pas pour une grande équipe de support.",
+        "routine": {
+          "title": "La revue hebdomadaire du support",
+          "steps": [
+            "Commencez par les tickets dont la première réponse ou la résolution est en retard, puis par ceux qui attendent votre réponse depuis plus de deux jours.",
+            "Relancez les clients qui n’ont pas répondu depuis 3 jours, et passez en résolu les tickets restés silencieux 7 jours, avec la mention qu’aucune réponse n’est venue.",
+            "Regardez les tickets rouverts et les tickets résolus sans note, et reprenez contact après chaque note de 1 ou 2.",
+            "Passez en revue les problèmes connus ouverts : quand l’un est corrigé, prévenez chaque client dont le ticket y est lié, et notez les catégories les plus fréquentes de la semaine."
+          ]
+        },
+        "limits": [
+          "Ce n’est ni un système téléphonique ou SMS, ni un widget de chat en direct. Les tickets viennent de messages e-mail, WhatsApp, LinkedIn, Instagram et Telegram reçus dans la boîte de réception, ou de votre agent.",
+          "Il n’y a aujourd’hui dans Customermates ni portail client ni formulaire de ticket public. Les clients ne peuvent pas se connecter pour suivre un ticket.",
+          "Il ne calcule ni heures ouvrées ni jours fériés. Les échéances viennent du tableau des plans de support de votre base de connaissances, posées par une règle ou par votre agent.",
+          "Ce n’est ni un gestionnaire de changements ou d’actifs ITIL, ni une page de statut, ni un outil d’envoi en masse, et il n’a pas de SSO. Zendesk, Freshdesk ou Zammad conviennent mieux à un gros volume ou à une grande entreprise.",
+          "Les réponses sont des brouillons que vous relisez et envoyez. Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier ; le modèle les propose, vous choisissez lesquels activer.",
+          "Gardez hors des tickets numéros de carte, mots de passe, copies de pièces d’identité et données de santé. Une demande d’accès conserve la vérification d’identité sous forme de oui ou non avec une date, pas de copies.",
+          "Relier l’e-mail ou WhatsApp au CRM demande une offre avec la boîte de réception, et une boîte partagée par toute l’équipe une offre avec comptes partagés. La page des tarifs indique ce que contient chaque offre."
+        ],
+        "faq": [
+          {
+            "question": "Quel est l’outil de ticketing le plus simple pour une petite entreprise ?",
+            "answer": "Une liste de tickets avec un responsable chacun, un statut, une priorité et deux échéances : première réponse et résolution. Ajoutez une liste de problèmes connus et une note de satisfaction, puis passez-la en revue chaque semaine. C’est suffisant pour quelques dizaines de tickets par semaine ; au-delà, un outil dédié se justifie."
+          },
+          {
+            "question": "Quels statuts pour un ticket de support ?",
+            "answer": "Les jeux courants sont nouveau, ouvert, en attente, résolu et fermé. Ce modèle utilise Nouveau, Ouvert, En attente du client, En attente d’un tiers, Résolu et Fermé, plus Spam ou doublon. Les éditeurs ne s’accordent pas sur le fait qu’un statut d’attente arrête le chronomètre ; la règle maison du modèle : l’attente du client le met en pause, l’attente d’un tiers non. Vous pouvez la changer."
+          },
+          {
+            "question": "Quels délais de réponse promettre ?",
+            "answer": "Il n’existe pas de référence générale. Des éditeurs donnent en exemple les problèmes critiques sous 4 heures et les petites demandes sous 72 heures, avec pour une panne 1 heure avant la première réponse et 4 heures avant la résolution. Partez de valeurs de ce type dans le tableau des plans de support et remplacez-les par ce que vous pouvez tenir."
+          },
+          {
+            "question": "Comment traiter une demande d’accès RGPD reçue sous forme de ticket ?",
+            "answer": "Une demande d’accès doit recevoir une réponse dans les meilleurs délais et au plus tard dans un mois ; ce délai peut être prolongé de deux mois si nécessaire, à condition d’en informer la personne avec les motifs dans le premier mois. Le modèle ajoute un type demande d’accès avec l’échéance d’un mois visible. Ce n’est pas un conseil juridique ; associez votre contact en protection des données."
+          },
+          {
+            "question": "Peut-il remplacer Zendesk ou Freshdesk ?",
+            "answer": "Pour une équipe de quelques dizaines de tickets par semaine qui veut des relances datées et une note de satisfaction : oui. Pour un gros volume, de nombreux canaux ou une grande entreprise, Zendesk, Freshdesk, Zammad, Help Scout ou Front restent plus adaptés, avec des moteurs de SLA, des macros, des calendriers d’heures ouvrées et des portails que ce modèle laisse volontairement de côté."
+          },
+          {
+            "question": "L’agent répond-il à mes clients ?",
+            "answer": "L’agent rédige des réponses à partir de la conversation liée, et vous les relisez et les envoyez. Le prompt lui demande de ne rien envoyer et de ne créer aucune donnée d’exemple."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Les questions de mes clients arrivent par e-mail et par chat, et je ne vois pas lesquelles attendent encore une réponse. Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
+        "questions": [
+          "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
+          "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",
+          "Qui répond, et qui est prévenu quand un ticket est en retard ?",
+          "Recevez-vous des demandes RGPD ou des alertes d’autres systèmes qui doivent devenir des tickets ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Assistenza clienti",
+      "summary": "Rispondi a ogni cliente in tempo, senza un helpdesk pesante. Ticket con priorità, tempo di prima risposta e scadenza, problemi noti che collegano molti ticket a un'unica causa e una valutazione di soddisfazione.",
+      "description": "Quando i clienti scrivono da più canali, le domande si perdono e nessuno sa quali sono in ritardo. Questo modello imposta ticket con stato, priorità, tipo e responsabile, la scadenza entro cui devi una prima risposta e una soluzione, e problemi noti che collegano molti ticket a un'unica causa, così puoi avvisare tutti quando il problema è risolto. Il termine di un mese per una richiesta GDPR resta sempre visibile. Pensato per qualche decina di ticket a settimana in un'azienda o un'agenzia da una a otto persone. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "customers": {
+          "label": "Cliente",
+          "pluralLabel": "Clienti",
+          "description": "Le persone che ti scrivono per chiedere aiuto."
+        },
+        "accounts": {
+          "label": "Account",
+          "pluralLabel": "Account",
+          "description": "Le aziende dietro i tuoi clienti, con il loro piano di assistenza."
+        },
+        "tickets": {
+          "label": "Ticket",
+          "pluralLabel": "Ticket",
+          "description": "Una richiesta di aiuto, dal primo messaggio alla risoluzione."
+        },
+        "known_issues": {
+          "label": "Problema noto",
+          "pluralLabel": "Problemi noti",
+          "description": "Una causa dietro più ticket, con soluzione temporanea e data di correzione."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Canale preferito",
+          "options": {
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "form": "Modulo di richiesta",
+            "phone": "Telefono"
+          }
+        },
+        "customers.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Piano di assistenza",
+          "options": {
+            "standard": "Standard",
+            "priority": "Prioritario",
+            "none": "Nessuno"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Fine contratto",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Stato",
+          "options": {
+            "new": "Nuovo",
+            "open": "Aperto",
+            "pending_customer": "In attesa del cliente",
+            "on_hold": "In attesa di terzi",
+            "solved": "Risolto",
+            "closed": "Chiuso",
+            "spam_or_duplicate": "Spam o duplicato"
+          }
+        },
+        "tickets.priority": {
+          "label": "Priorità",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Alta",
+            "normal": "Normale",
+            "low": "Bassa"
+          }
+        },
+        "tickets.type": {
+          "label": "Tipo",
+          "options": {
+            "question": "Domanda",
+            "problem": "Problema",
+            "request": "Richiesta",
+            "complaint": "Reclamo",
+            "data_request": "Richiesta GDPR"
+          }
+        },
+        "tickets.channel": {
+          "label": "Canale",
+          "options": {
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "form": "Modulo di richiesta",
+            "phone": "Telefono",
+            "webhook": "Segnalazione di un altro sistema"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Assegnato a",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Prima risposta entro",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Risoluzione entro",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Risolto il",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Valutazione",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Stato",
+          "options": {
+            "investigating": "In analisi",
+            "workaround_available": "Soluzione temporanea disponibile",
+            "fixed": "Corretto",
+            "wont_fix": "Non verrà corretto"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Soluzione temporanea",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Corretto il",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Rispondere",
+            "nudge_customer": "Sollecitare il cliente",
+            "send_survey": "Inviare il sondaggio di soddisfazione",
+            "close_ticket": "Chiudere il ticket",
+            "tell_customer_fixed": "Avvisare il cliente che è risolto",
+            "verify_identity": "Verificare l'identità",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Account",
+          "targetLabel": "Clienti"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Ticket"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Problema noto",
+          "targetLabel": "Ticket"
+        },
+        "action_ticket": {
+          "sourceLabel": "Ticket",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "tickets_all": {
+          "name": "Tutti i ticket"
+        },
+        "tickets_board": {
+          "name": "Board dei ticket"
+        },
+        "waiting_on_us": {
+          "name": "In attesa di una nostra risposta"
+        },
+        "known_issues_all": {
+          "name": "Tutti i problemi noti"
+        },
+        "customers_all": {
+          "name": "Tutti i clienti"
+        },
+        "accounts_all": {
+          "name": "Tutti gli account"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "tickets_by_status": {
+          "title": "Ticket per stato"
+        },
+        "open_by_priority": {
+          "title": "Ticket aperti per priorità"
+        },
+        "waiting_on_us_count": {
+          "title": "Ticket in attesa di una nostra risposta"
+        },
+        "responses_due": {
+          "title": "Prime risposte in scadenza"
+        },
+        "average_rating": {
+          "title": "Valutazione media"
+        },
+        "tickets_by_type": {
+          "title": "Ticket per tipo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "Come gestiamo l'assistenza",
+          "sections": [
+            "Stati e priorità",
+            "Obiettivi di prima risposta e di risoluzione",
+            "Chi è di turno"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Smistamento e risposte standard",
+          "sections": [
+            "Tipo, priorità e responsabile",
+            "Prima risposta, richiesta di informazioni, risolto, nessuna risposta"
+          ]
+        },
+        "data_requests": {
+          "title": "Richieste GDPR",
+          "sections": [
+            "Verificare l'identità, registrare, rispondere entro il termine di legge (un mese secondo il GDPR, 15 giorni secondo la LGPD)",
+            "Chi decide"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Creare un'attività di risposta quando nasce un ticket",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Avvisare il responsabile quando la prima risposta è in ritardo",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Sollecitare il cliente dopo 3 giorni di attesa",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Inviare il sondaggio di soddisfazione il giorno dopo la risoluzione",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Chiudere un ticket rimasto risolto per 4 giorni",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Fissare la risoluzione a 30 giorni quando un ticket diventa una richiesta GDPR",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fissare la risoluzione a 15 giorni quando un ticket diventa una richiesta LGPD (Brasile)",
+              "description": "Secondo l'art. 19 della LGPD, la risposta completa a una richiesta di accesso o di conferma va data entro 15 giorni."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Avvisare i clienti quando un problema noto è corretto",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Creare un ticket quando un altro sistema invia una segnalazione",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Ogni ticket ha uno stato.",
+        "first_response_field": "Ogni ticket indica entro quando è dovuta la prima risposta.",
+        "tickets_board_view": "I ticket si aprono come board per stato."
+      },
+      "page": {
+        "metaTitle": "Ticket software: assistenza clienti leggera nel tuo CRM",
+        "metaDescription": "Ticket software leggero che il tuo agente IA costruisce nel CRM: ticket con priorità e scadenze di risposta, problemi noti e valutazione di soddisfazione.",
+        "headline": "Ticket software per qualche decina di ticket a settimana, costruito dal tuo agente IA nel CRM",
+        "answer": "Un ticket software leggero dà a ogni messaggio dei clienti un ticket con un responsabile, una priorità e una scadenza entro cui devi rispondere. Questo modello imposta ticket, problemi noti che collegano molti ticket a un'unica causa e una valutazione di soddisfazione. Incollalo nel tuo agente IA: costruisce l'assistenza in Customermates e tu approvi il piano prima che venga creato qualcosa. È pensato per un'azienda o un'agenzia da una a otto persone, non per un grande team di supporto.",
+        "routine": {
+          "title": "La revisione settimanale dell'assistenza",
+          "steps": [
+            "Parti dai ticket con prima risposta o soluzione in ritardo, poi da quelli che aspettano te da più di due giorni.",
+            "Sollecita i clienti che non rispondono da 3 giorni e segna come risolti i ticket rimasti in silenzio per 7 giorni, con la nota che non è arrivata risposta.",
+            "Guarda i ticket riaperti e quelli risolti senza valutazione, e ricontatta chi ha dato 1 o 2.",
+            "Controlla i problemi noti aperti: quando uno è risolto, avvisa ogni cliente con un ticket collegato e annota le categorie più frequenti della settimana."
+          ]
+        },
+        "limits": [
+          "Non è un sistema telefonico o SMS e non è un widget di chat dal vivo. I ticket nascono da messaggi email, WhatsApp, LinkedIn, Instagram e Telegram nella casella di posta, oppure dal tuo agente.",
+          "In Customermates oggi non esistono né un portale clienti né un modulo pubblico per i ticket. I clienti non possono accedere per seguire un ticket.",
+          "Non calcola orari di lavoro né festività. Le scadenze vengono dalla tabella dei piani di supporto nella tua base di conoscenza, impostate da una regola o dal tuo agente.",
+          "Non è un gestionale ITIL di modifiche o asset, né una pagina di stato né uno strumento di invio massivo, e non ha SSO. Per grandi volumi e imprese strutturate vanno meglio Zendesk, Freshdesk o Zammad.",
+          "Le risposte sono bozze che rivedi e invii tu. I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti; il modello li propone e tu decidi quali attivare.",
+          "Tieni fuori dai ticket numeri di carta, password, copie di documenti d'identità e dati sanitari. Una richiesta di accesso conserva la verifica dell'identità come sì o no con una data, non come copie.",
+          "Collegare email o WhatsApp al CRM richiede un piano con la casella di posta, e una casella condivisa da tutto il team un piano con account condivisi. La pagina dei prezzi mostra cosa include ogni piano."
+        ],
+        "faq": [
+          {
+            "question": "Qual è il ticket software più semplice per una piccola azienda?",
+            "answer": "Un elenco di ticket con un responsabile ciascuno, uno stato, una priorità e due scadenze: prima risposta e soluzione. Aggiungi un elenco di problemi noti e una valutazione di soddisfazione e rivedilo ogni settimana. Basta per qualche decina di ticket a settimana; oltre, uno strumento dedicato si ripaga."
+          },
+          {
+            "question": "Quali stati deve avere un ticket di assistenza?",
+            "answer": "Gli insiemi più comuni sono nuovo, aperto, in attesa, risolto e chiuso. Questo modello usa Nuovo, Aperto, In attesa del cliente, In attesa di terzi, Risolto e Chiuso, più Spam o duplicato. I fornitori non concordano se uno stato di attesa fermi il cronometro; la regola della casa nel modello: l'attesa del cliente lo mette in pausa, quella di terzi no. Puoi cambiarla."
+          },
+          {
+            "question": "Quali tempi di risposta posso promettere?",
+            "answer": "Non esiste un riferimento generale. Alcuni fornitori portano come esempio i problemi critici entro 4 ore e le piccole richieste entro 72 ore, con 1 ora per la prima risposta e 4 ore per la soluzione in caso di blocco totale. Parti da valori simili nella tabella dei piani di supporto e sostituiscili con ciò che riesci a mantenere."
+          },
+          {
+            "question": "Come tratto una richiesta di accesso GDPR che arriva come ticket?",
+            "answer": "Una richiesta di accesso va evasa senza ritardo e al più tardi entro un mese; il termine può essere prorogato di altri due mesi se necessario, comunicando i motivi entro il primo mese. Il modello aggiunge un tipo richiesta di accesso con la scadenza di un mese ben visibile. Non è consulenza legale; coinvolgi il tuo referente per la protezione dei dati."
+          },
+          {
+            "question": "Può sostituire Zendesk o Freshdesk?",
+            "answer": "Per un team da qualche decina di ticket a settimana che vuole solleciti datati e una valutazione di soddisfazione, sì. Per grandi volumi, molti canali o esigenze aziendali restano più adatti Zendesk, Freshdesk, Zammad, Help Scout o Front, con motori SLA, macro, calendari degli orari di lavoro e portali che questo modello lascia fuori di proposito."
+          },
+          {
+            "question": "L'agente risponde ai miei clienti?",
+            "answer": "L'agente prepara le risposte dalla conversazione collegata e tu le rivedi e le invii. Il prompt gli dice di non inviare nulla e di non creare dati di esempio."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "I clienti mi scrivono per e-mail e in chat e non riesco a vedere quali aspettano ancora una risposta. Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
+        "questions": [
+          "Quanti ticket gestisci a settimana e da quali canali arrivano?",
+          "Che tempi prometti per la prima risposta e la risoluzione, per priorità o piano di assistenza?",
+          "Chi risponde e chi viene avvisato quando un ticket è in ritardo?",
+          "Ricevi richieste GDPR o segnalazioni da altri sistemi che devono diventare ticket?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Klantenservice",
+      "summary": "Beantwoord elke klant op tijd, zonder zwaar helpdesksysteem. Tickets met een prioriteit, een tijd voor de eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
+      "description": "Als klanten via meerdere kanalen schrijven, raken vragen zoek en weet niemand welke te laat zijn. Dit sjabloon zet tickets op met een status, een prioriteit, een type en een eigenaar, de uiterste datum voor een eerste reactie en een oplossing, en bekende problemen die meerdere tickets aan één oorzaak koppelen, zodat je iedereen kunt laten weten wanneer het is opgelost. De termijn van één maand van een AVG-verzoek blijft in beeld. Bedoeld voor enkele tientallen tickets per week in een bedrijf of bureau van één tot acht personen. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "customers": {
+          "label": "Klant",
+          "pluralLabel": "Klanten",
+          "description": "De mensen die je om hulp vragen."
+        },
+        "accounts": {
+          "label": "Account",
+          "pluralLabel": "Accounts",
+          "description": "De bedrijven achter je klanten, met hun supportplan."
+        },
+        "tickets": {
+          "label": "Ticket",
+          "pluralLabel": "Tickets",
+          "description": "Eén hulpvraag, van het eerste bericht tot de oplossing."
+        },
+        "known_issues": {
+          "label": "Bekend probleem",
+          "pluralLabel": "Bekende problemen",
+          "description": "Eén oorzaak achter meerdere tickets, met tijdelijke oplossing en hersteldatum."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Voorkeurskanaal",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Aanvraagformulier",
+            "phone": "Telefoon"
+          }
+        },
+        "customers.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Supportplan",
+          "options": {
+            "standard": "Standaard",
+            "priority": "Prioriteit",
+            "none": "Geen"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Einde contract",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Status",
+          "options": {
+            "new": "Nieuw",
+            "open": "Open",
+            "pending_customer": "Wacht op klant",
+            "on_hold": "Wacht op een derde",
+            "solved": "Opgelost",
+            "closed": "Gesloten",
+            "spam_or_duplicate": "Spam of dubbel"
+          }
+        },
+        "tickets.priority": {
+          "label": "Prioriteit",
+          "options": {
+            "urgent": "Urgent",
+            "high": "Hoog",
+            "normal": "Normaal",
+            "low": "Laag"
+          }
+        },
+        "tickets.type": {
+          "label": "Type",
+          "options": {
+            "question": "Vraag",
+            "problem": "Probleem",
+            "request": "Verzoek",
+            "complaint": "Klacht",
+            "data_request": "AVG-verzoek"
+          }
+        },
+        "tickets.channel": {
+          "label": "Kanaal",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Aanvraagformulier",
+            "phone": "Telefoon",
+            "webhook": "Melding van een ander systeem"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Toegewezen aan",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Eerste reactie uiterlijk",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Oplossing uiterlijk",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Opgelost op",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Beoordeling",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Status",
+          "options": {
+            "investigating": "In onderzoek",
+            "workaround_available": "Tijdelijke oplossing beschikbaar",
+            "fixed": "Opgelost",
+            "wont_fix": "Wordt niet opgelost"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Tijdelijke oplossing",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Opgelost op",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Reageren",
+            "nudge_customer": "Klant een herinnering sturen",
+            "send_survey": "Tevredenheidsenquête versturen",
+            "close_ticket": "Ticket sluiten",
+            "tell_customer_fixed": "Klant laten weten dat het is opgelost",
+            "verify_identity": "Identiteit controleren",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Account",
+          "targetLabel": "Klanten"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Tickets"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Bekend probleem",
+          "targetLabel": "Tickets"
+        },
+        "action_ticket": {
+          "sourceLabel": "Ticket",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "tickets_all": {
+          "name": "Alle tickets"
+        },
+        "tickets_board": {
+          "name": "Ticketbord"
+        },
+        "waiting_on_us": {
+          "name": "Wacht op ons"
+        },
+        "known_issues_all": {
+          "name": "Alle bekende problemen"
+        },
+        "customers_all": {
+          "name": "Alle klanten"
+        },
+        "accounts_all": {
+          "name": "Alle accounts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "tickets_by_status": {
+          "title": "Tickets per status"
+        },
+        "open_by_priority": {
+          "title": "Open tickets per prioriteit"
+        },
+        "waiting_on_us_count": {
+          "title": "Tickets die op ons wachten"
+        },
+        "responses_due": {
+          "title": "Openstaande eerste reacties"
+        },
+        "average_rating": {
+          "title": "Gemiddelde tevredenheidsscore"
+        },
+        "tickets_by_type": {
+          "title": "Tickets per type"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "Hoe wij onze klantenservice organiseren",
+          "sections": [
+            "Statussen en prioriteiten",
+            "Doelen voor eerste reactie en oplossing",
+            "Wie dienst heeft"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Triage en standaardantwoorden",
+          "sections": [
+            "Type, prioriteit en eigenaar",
+            "Eerste reactie, meer informatie nodig, opgelost, geen reactie"
+          ]
+        },
+        "data_requests": {
+          "title": "AVG-verzoeken",
+          "sections": [
+            "Identiteit controleren, registreren, binnen de wettelijke termijn antwoorden (een maand volgens de AVG, 15 dagen volgens de LGPD)",
+            "Wie beslist"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Maak een actie om te reageren aan zodra een ticket binnenkomt",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Waarschuw de leiding als de eerste reactie te laat is",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Stuur de klant een herinnering na 3 dagen wachten",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Verstuur de dag na het oplossen de tevredenheidsenquête",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Sluit een ticket dat 4 dagen opgelost bleef",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Zet de oplostermijn op 30 dagen als een ticket een AVG-verzoek wordt",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Zet de oplostermijn op 15 dagen als een ticket een LGPD-verzoek wordt (Brazilië)",
+              "description": "Volgens art. 19 LGPD is een volledig antwoord op een inzage- of bevestigingsverzoek binnen 15 dagen verschuldigd."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Informeer klanten als een bekend probleem is opgelost",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Maak een ticket aan als een ander systeem een melding stuurt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Elk ticket heeft een status.",
+        "first_response_field": "Elk ticket legt vast wanneer de eerste reactie uiterlijk moet komen.",
+        "tickets_board_view": "De tickets openen als bord per status."
+      },
+      "page": {
+        "metaTitle": "Ticketsysteem: lichte klantenservice in je CRM",
+        "metaDescription": "Een licht ticketsysteem dat je AI-agent in je CRM bouwt: tickets met prioriteit en reactietermijnen, bekende problemen en een tevredenheidsscore.",
+        "headline": "Een ticketsysteem voor enkele tientallen tickets per week, gebouwd door je AI-agent in je CRM",
+        "answer": "Een licht ticketsysteem geeft elk klantbericht een ticket met een eigenaar, een prioriteit en een termijn waarbinnen je moet antwoorden. Dit template richt tickets in, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore. Plak het in je AI-agent en die bouwt de klantenservice in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt. Het is bedoeld voor een bedrijf of bureau van één tot acht mensen, niet voor een groot supportteam.",
+        "routine": {
+          "title": "De wekelijkse supportreview",
+          "steps": [
+            "Begin met de tickets waarvan de eerste reactie of de oplossing te laat is, en ga dan naar de tickets die al langer dan twee dagen op jou wachten.",
+            "Stuur klanten die al 3 dagen niet reageerden een herinnering, en zet tickets na 7 dagen stilte op opgelost met de notitie dat er geen antwoord kwam.",
+            "Bekijk heropende tickets en opgeloste tickets zonder beoordeling, en neem opnieuw contact op na elke beoordeling van 1 of 2.",
+            "Loop de openstaande bekende problemen langs: is er een opgelost, laat het dan elke klant met een gekoppeld ticket weten, en noteer de meest voorkomende categorieën van de week."
+          ]
+        },
+        "limits": [
+          "Het is geen telefoon- of sms-systeem en geen livechatwidget. Tickets ontstaan uit e-mail-, WhatsApp-, LinkedIn-, Instagram- en Telegram-berichten in de inbox, of via je agent.",
+          "Een klantportaal en een openbaar ticketformulier bestaan vandaag niet in Customermates. Klanten kunnen niet inloggen om een ticket te volgen.",
+          "Het rekent geen kantooruren of feestdagen uit. Termijnen komen uit de tabel met supportplannen in je kennisbank, gezet door een regel of door je agent.",
+          "Het is geen ITIL-beheerder voor wijzigingen of assets, geen statuspagina en geen tool voor massaverzending, en het heeft geen SSO. Voor veel tickets of grote bedrijven passen Zendesk, Freshdesk of Zammad beter.",
+          "Antwoorden zijn concepten die je nakijkt en zelf verstuurt. Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert; het template stelt ze voor en jij beslist welke je aanzet.",
+          "Houd kaartnummers, wachtwoorden, kopieën van identiteitsbewijzen en gezondheidsgegevens buiten tickets. Een inzageverzoek bewaart de identiteitscontrole als ja of nee met een datum, niet als kopieën.",
+          "E-mail of WhatsApp koppelen aan het CRM vraagt een plan met de inbox, en een mailbox die het hele team deelt een plan met gedeelde accounts. De prijzenpagina laat zien wat elk plan bevat."
+        ],
+        "faq": [
+          {
+            "question": "Wat is het eenvoudigste ticketsysteem voor een klein bedrijf?",
+            "answer": "Een lijst met tickets met elk één eigenaar, een status, een prioriteit en twee termijnen: eerste reactie en oplossing. Voeg een lijst met bekende problemen en een tevredenheidsscore toe en loop het eens per week door. Dat is genoeg voor enkele tientallen tickets per week; daarboven loont een speciale tool."
+          },
+          {
+            "question": "Welke statussen hoort een supportticket te hebben?",
+            "answer": "Gangbare sets zijn nieuw, open, in afwachting, opgelost en gesloten. Dit template gebruikt Nieuw, Open, Wacht op klant, Wacht op derde, Opgelost en Gesloten, plus Spam of dubbel. Aanbieders zijn het niet eens over de vraag of een wachtstatus de klok stopt; de huisregel van het template: wachten op de klant pauzeert hem, wachten op een derde niet. Je kunt dat aanpassen."
+          },
+          {
+            "question": "Welke reactietijden moet ik beloven?",
+            "answer": "Er is geen algemene norm. Aanbieders noemen als voorbeeld kritieke problemen binnen 4 uur en kleine verzoeken binnen 72 uur, bij een storing 1 uur tot de eerste reactie en 4 uur tot de oplossing. Begin met zulke waarden in de tabel met supportplannen en vervang ze door wat je kunt waarmaken."
+          },
+          {
+            "question": "Hoe ga ik om met een AVG-inzageverzoek dat als ticket binnenkomt?",
+            "answer": "Een inzageverzoek moet zo snel mogelijk worden beantwoord en uiterlijk binnen een maand; die termijn kan met nog twee maanden worden verlengd als dat nodig is, waarbij je binnen de eerste maand de redenen meldt. Het template voegt een type inzageverzoek toe met de maandtermijn in beeld. Dit is geen juridisch advies; betrek je contactpersoon voor gegevensbescherming."
+          },
+          {
+            "question": "Kan dit Zendesk of Freshdesk vervangen?",
+            "answer": "Voor een team met enkele tientallen tickets per week dat opvolging met datum en een tevredenheidsscore wil: ja. Voor veel tickets, veel kanalen of grote bedrijven blijven Zendesk, Freshdesk, Zammad, Help Scout of Front beter passen, met SLA-engines, macro's, kantooruurkalenders en portalen die dit template bewust weglaat."
+          },
+          {
+            "question": "Antwoordt de agent mijn klanten?",
+            "answer": "De agent schrijft antwoorden op basis van het gekoppelde gesprek, en jij leest ze na en verstuurt ze. De prompt zegt hem niets te versturen en geen voorbeeldgegevens aan te maken."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Klantvragen komen binnen via e-mail en chat en ik kan niet zien welke nog op antwoord wachten. Richt in mijn Customermates-werkruimte een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
+        "questions": [
+          "Hoeveel tickets behandel je per week en via welke kanalen komen ze binnen?",
+          "Welke termijnen beloof je voor de eerste reactie en de oplossing, per prioriteit of supportplan?",
+          "Wie antwoordt en wie wordt gewaarschuwd als een ticket te laat is?",
+          "Krijg je AVG-verzoeken of meldingen van andere systemen die tickets moeten worden?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Obsługa klienta",
+      "summary": "Odpowiadaj każdemu klientowi na czas, bez ciężkiego helpdesku. Zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
+      "description": "Gdy klienci piszą z kilku miejsc, pytania giną i nikt nie wie, które są po terminie. Szablon zakłada zgłoszenia ze statusem, priorytetem, typem i osobą odpowiedzialną, z terminem pierwszej odpowiedzi i terminem rozwiązania, oraz znane problemy, które łączą wiele zgłoszeń z jedną przyczyną, żeby można było poinformować wszystkich o naprawie. Miesięczny termin na odpowiedź na wniosek RODO jest cały czas widoczny. Sprawdzi się przy kilkudziesięciu zgłoszeniach tygodniowo w firmie lub agencji liczącej od jednej do ośmiu osób. To nie jest centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "customers": {
+          "label": "Klient",
+          "pluralLabel": "Klienci",
+          "description": "Osoby, które piszą do Ciebie z prośbą o pomoc."
+        },
+        "accounts": {
+          "label": "Konto",
+          "pluralLabel": "Konta",
+          "description": "Firmy stojące za klientami, z ich planem wsparcia."
+        },
+        "tickets": {
+          "label": "Zgłoszenie",
+          "pluralLabel": "Zgłoszenia",
+          "description": "Jedna prośba o pomoc, od pierwszej wiadomości do rozwiązania."
+        },
+        "known_issues": {
+          "label": "Znany problem",
+          "pluralLabel": "Znane problemy",
+          "description": "Jedna przyczyna wielu zgłoszeń, z obejściem i datą naprawy."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Preferowany kanał",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Formularz zgłoszeniowy",
+            "phone": "Telefon"
+          }
+        },
+        "customers.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Plan wsparcia",
+          "options": {
+            "standard": "Standardowy",
+            "priority": "Priorytetowy",
+            "none": "Brak"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Data zakończenia umowy",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Status",
+          "options": {
+            "new": "Nowe",
+            "open": "Otwarte",
+            "pending_customer": "Oczekuje na klienta",
+            "on_hold": "Oczekuje na stronę trzecią",
+            "solved": "Rozwiązane",
+            "closed": "Zamknięte",
+            "spam_or_duplicate": "Spam lub duplikat"
+          }
+        },
+        "tickets.priority": {
+          "label": "Priorytet",
+          "options": {
+            "urgent": "Pilny",
+            "high": "Wysoki",
+            "normal": "Normalny",
+            "low": "Niski"
+          }
+        },
+        "tickets.type": {
+          "label": "Typ",
+          "options": {
+            "question": "Pytanie",
+            "problem": "Problem",
+            "request": "Prośba",
+            "complaint": "Reklamacja",
+            "data_request": "Wniosek RODO"
+          }
+        },
+        "tickets.channel": {
+          "label": "Kanał",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Formularz zgłoszeniowy",
+            "phone": "Telefon",
+            "webhook": "Alert z innego systemu"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Przypisano do",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Termin pierwszej odpowiedzi",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Termin rozwiązania",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Data rozwiązania",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Ocena zadowolenia",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Status",
+          "options": {
+            "investigating": "W analizie",
+            "workaround_available": "Jest obejście",
+            "fixed": "Naprawiony",
+            "wont_fix": "Nie będzie naprawiony"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Obejście",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Data naprawy",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedzieć",
+            "nudge_customer": "Przypomnieć klientowi",
+            "send_survey": "Wysłać ankietę zadowolenia",
+            "close_ticket": "Zamknąć zgłoszenie",
+            "tell_customer_fixed": "Poinformować klienta o naprawie",
+            "verify_identity": "Zweryfikować tożsamość",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Konto",
+          "targetLabel": "Klienci"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Zgłoszenia"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Znany problem",
+          "targetLabel": "Zgłoszenia"
+        },
+        "action_ticket": {
+          "sourceLabel": "Zgłoszenie",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "tickets_all": {
+          "name": "Wszystkie zgłoszenia"
+        },
+        "tickets_board": {
+          "name": "Tablica zgłoszeń"
+        },
+        "waiting_on_us": {
+          "name": "Czeka na nas"
+        },
+        "known_issues_all": {
+          "name": "Wszystkie znane problemy"
+        },
+        "customers_all": {
+          "name": "Wszyscy klienci"
+        },
+        "accounts_all": {
+          "name": "Wszystkie konta"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "tickets_by_status": {
+          "title": "Zgłoszenia według statusu"
+        },
+        "open_by_priority": {
+          "title": "Otwarte zgłoszenia według priorytetu"
+        },
+        "waiting_on_us_count": {
+          "title": "Zgłoszenia czekające na nas"
+        },
+        "responses_due": {
+          "title": "Pierwsze odpowiedzi do udzielenia"
+        },
+        "average_rating": {
+          "title": "Średnia ocena zadowolenia"
+        },
+        "tickets_by_type": {
+          "title": "Zgłoszenia według typu"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "Jak prowadzimy obsługę klienta",
+          "sections": [
+            "Statusy i priorytety",
+            "Cele pierwszej odpowiedzi i rozwiązania",
+            "Kto ma dyżur"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Sortowanie i gotowe odpowiedzi",
+          "sections": [
+            "Typ, priorytet i osoba odpowiedzialna",
+            "Pierwsza odpowiedź, prośba o informacje, naprawione, brak odpowiedzi"
+          ]
+        },
+        "data_requests": {
+          "title": "Wnioski RODO",
+          "sections": [
+            "Zweryfikować tożsamość, zapisać, odpowiedzieć w ustawowym terminie (miesiąc według RODO, 15 dni według LGPD)",
+            "Kto decyduje"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Utwórz zadanie odpowiedzi, gdy powstaje zgłoszenie",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Powiadom osobę prowadzącą obsługę, gdy minie termin pierwszej odpowiedzi",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Przypomnij klientowi po 3 dniach oczekiwania",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Wyślij ankietę zadowolenia dzień po rozwiązaniu zgłoszenia",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Zamknij zgłoszenie, które pozostaje rozwiązane od 4 dni",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Ustaw termin rozwiązania na 30 dni, gdy zgłoszenie staje się wnioskiem RODO",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Ustaw termin rozwiązania na 15 dni, gdy zgłoszenie staje się wnioskiem LGPD (Brazylia)",
+              "description": "Zgodnie z art. 19 LGPD pełna odpowiedź na wniosek o dostęp lub potwierdzenie przetwarzania jest należna w ciągu 15 dni."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Poinformuj klientów, gdy znany problem zostanie naprawiony",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Utwórz zgłoszenie, gdy inny system wyśle alert",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Każde zgłoszenie ma status.",
+        "first_response_field": "Każde zgłoszenie zapisuje termin pierwszej odpowiedzi.",
+        "tickets_board_view": "Zgłoszenia otwierają się jako tablica według statusu."
+      },
+      "page": {
+        "metaTitle": "System ticketowy: obsługa klienta w Twoim CRM",
+        "metaDescription": "Lekki system ticketowy, który Twój agent AI buduje w CRM: zgłoszenia z priorytetem i terminami odpowiedzi, znane problemy oraz ocena zadowolenia klienta.",
+        "headline": "System ticketowy na kilkadziesiąt zgłoszeń tygodniowo, zbudowany przez Twojego agenta AI w CRM",
+        "answer": "Lekki system ticketowy nadaje każdej wiadomości klienta zgłoszenie z osobą odpowiedzialną, priorytetem i terminem, do którego musisz odpowiedzieć. Ten szablon konfiguruje zgłoszenia, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocenę zadowolenia. Wklej go do swojego agenta AI, a on zbuduje obsługę klienta w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Szablon jest dla firmy lub agencji z jedną do ośmiu osób, nie dla dużego zespołu wsparcia.",
+        "routine": {
+          "title": "Cotygodniowy przegląd obsługi klienta",
+          "steps": [
+            "Zacznij od zgłoszeń z przeterminowaną pierwszą odpowiedzią lub rozwiązaniem, potem od tych, które czekają na Ciebie dłużej niż dwa dni.",
+            "Przypomnij klientom, którzy nie odpowiadają od 3 dni, a zgłoszenia milczące od 7 dni oznacz jako rozwiązane z notatką, że odpowiedzi nie było.",
+            "Przejrzyj zgłoszenia otwarte ponownie oraz rozwiązane bez oceny i odezwij się do każdego, kto dał 1 lub 2.",
+            "Sprawdź otwarte znane problemy: gdy któryś naprawiono, powiadom każdego klienta z powiązanym zgłoszeniem i zapisz najczęstsze kategorie tygodnia."
+          ]
+        },
+        "limits": [
+          "To nie jest centrala telefoniczna ani system SMS, ani widżet czatu na żywo. Zgłoszenia powstają z wiadomości e-mail, WhatsApp, LinkedIn, Instagram i Telegram w skrzynce odbiorczej albo od Twojego agenta.",
+          "W Customermates nie ma dziś portalu klienta ani publicznego formularza zgłoszeń. Klienci nie mogą się zalogować, żeby śledzić zgłoszenie.",
+          "Nie liczy godzin pracy ani dni wolnych. Terminy pochodzą z tabeli planów wsparcia w Twojej bazie wiedzy i ustawia je reguła lub Twój agent.",
+          "To nie jest menedżer zmian i zasobów ITIL, strona statusu ani narzędzie do masowej wysyłki, i nie ma SSO. Przy dużym wolumenie i w dużych firmach lepiej sprawdzą się Zendesk, Freshdesk lub Zammad.",
+          "Odpowiedzi to szkice, które sprawdzasz i wysyłasz Ty. Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu; szablon je proponuje, a Ty decydujesz, które włączyć.",
+          "Nie trzymaj w zgłoszeniach numerów kart, haseł, kopii dokumentów tożsamości ani danych o zdrowiu. Żądanie dostępu do danych zapisuje weryfikację tożsamości jako tak lub nie z datą, bez kopii.",
+          "Podłączenie e-maila lub WhatsAppa do CRM wymaga planu ze skrzynką odbiorczą, a skrzynka wspólna dla całego zespołu planu ze wspólnymi kontami. Strona z cennikiem pokazuje, co zawiera każdy plan."
+        ],
+        "faq": [
+          {
+            "question": "Jaki jest najprostszy system ticketowy dla małej firmy?",
+            "answer": "Lista zgłoszeń z jedną osobą odpowiedzialną, statusem, priorytetem i dwoma terminami: pierwszej odpowiedzi i rozwiązania. Dodaj listę znanych problemów i ocenę zadowolenia i przeglądaj to raz w tygodniu. Wystarczy to na kilkadziesiąt zgłoszeń tygodniowo; powyżej warto sięgnąć po dedykowane narzędzie."
+          },
+          {
+            "question": "Jakie statusy powinno mieć zgłoszenie w obsłudze klienta?",
+            "answer": "Typowe zestawy to nowe, otwarte, oczekujące, rozwiązane i zamknięte. Ten szablon używa statusów Nowe, Otwarte, Oczekuje na klienta, Oczekuje na stronę trzecią, Rozwiązane i Zamknięte oraz Spam lub duplikat. Dostawcy nie są zgodni, czy status oczekiwania zatrzymuje zegar; domowa reguła szablonu: oczekiwanie na klienta go wstrzymuje, oczekiwanie na stronę trzecią nie. Możesz to zmienić."
+          },
+          {
+            "question": "Jakie czasy odpowiedzi obiecywać?",
+            "answer": "Nie ma ogólnego wzorca. Dostawcy podają jako przykład problemy krytyczne w 4 godziny i drobne prośby w 72 godziny, przy awarii 1 godzinę do pierwszej odpowiedzi i 4 godziny do rozwiązania. Zacznij od takich wartości w tabeli planów wsparcia i zastąp je tym, czego możesz dotrzymać."
+          },
+          {
+            "question": "Jak postąpić z żądaniem dostępu do danych z RODO, które przychodzi jako zgłoszenie?",
+            "answer": "Na żądanie dostępu odpowiada się bez zbędnej zwłoki, najpóźniej w ciągu miesiąca; w razie potrzeby termin można przedłużyć o kolejne dwa miesiące, informując o powodach w pierwszym miesiącu. Szablon dodaje typ żądanie dostępu z widocznym terminem miesiąca. To nie jest porada prawna; zaangażuj osobę odpowiedzialną za ochronę danych."
+          },
+          {
+            "question": "Czy to może zastąpić Zendesk lub Freshdesk?",
+            "answer": "Dla zespołu z kilkudziesięcioma zgłoszeniami tygodniowo, który chce datowanych ponagleń i oceny zadowolenia: tak. Przy dużym wolumenie, wielu kanałach i wymaganiach dużych firm lepiej zostać przy Zendesk, Freshdesk, Zammad, Help Scout lub Front, z silnikami SLA, makrami, kalendarzami godzin pracy i portalami, które ten szablon celowo pomija."
+          },
+          {
+            "question": "Czy agent odpowiada moim klientom?",
+            "answer": "Agent przygotowuje odpowiedzi na podstawie powiązanej rozmowy, a Ty je sprawdzasz i wysyłasz. Prompt każe mu niczego nie wysyłać i nie tworzyć przykładowych danych."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Pytania klientów przychodzą e-mailem i na czacie, a ja nie wiem, które nadal czekają na odpowiedź. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
+        "questions": [
+          "Ile zgłoszeń obsługujesz tygodniowo i jakimi kanałami do Ciebie docierają?",
+          "Jakie terminy obiecujesz na pierwszą odpowiedź i rozwiązanie, według priorytetu lub planu wsparcia?",
+          "Kto odpowiada i kogo informujesz, gdy zgłoszenie jest spóźnione?",
+          "Czy dostajesz wnioski RODO lub alerty z innych systemów, które mają stać się zgłoszeniami?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Atendimento ao cliente",
+      "summary": "Responda a cada cliente no prazo, sem um helpdesk pesado. Chamados com prioridade, prazo de primeira resposta e de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
+      "description": "Quando os clientes escrevem por vários canais, as perguntas se perdem e ninguém sabe quais estão atrasadas. Este modelo monta chamados com status, prioridade, tipo e responsável, o prazo em que você deve a primeira resposta e a solução, e problemas conhecidos que ligam vários chamados a uma causa, para avisar a todos quando ela for corrigida. O prazo de uma solicitação de titular da LGPD fica à vista. Pensado para algumas dezenas de chamados por semana em uma empresa ou agência de uma a oito pessoas. Não é uma central telefônica, um chat ao vivo, um portal do cliente nem um calendário de horário comercial.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "customers": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "As pessoas que escrevem para você pedindo ajuda."
+        },
+        "accounts": {
+          "label": "Conta",
+          "pluralLabel": "Contas",
+          "description": "As empresas por trás dos seus clientes, com o plano de suporte."
+        },
+        "tickets": {
+          "label": "Chamado",
+          "pluralLabel": "Chamados",
+          "description": "Um pedido de ajuda, da primeira mensagem até a resolução."
+        },
+        "known_issues": {
+          "label": "Problema conhecido",
+          "pluralLabel": "Problemas conhecidos",
+          "description": "Uma causa por trás de vários chamados, com solução alternativa e data de correção."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "customers.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Formulário de solicitação",
+            "phone": "Telefone"
+          }
+        },
+        "customers.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "accounts.support_plan": {
+          "label": "Plano de suporte",
+          "options": {
+            "standard": "Padrão",
+            "priority": "Prioritário",
+            "none": "Nenhum"
+          }
+        },
+        "accounts.contract_end": {
+          "label": "Fim do contrato",
+          "options": {}
+        },
+        "tickets.status": {
+          "label": "Status",
+          "options": {
+            "new": "Novo",
+            "open": "Aberto",
+            "pending_customer": "Aguardando cliente",
+            "on_hold": "Aguardando terceiros",
+            "solved": "Resolvido",
+            "closed": "Fechado",
+            "spam_or_duplicate": "Spam ou duplicado"
+          }
+        },
+        "tickets.priority": {
+          "label": "Prioridade",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Alta",
+            "normal": "Normal",
+            "low": "Baixa"
+          }
+        },
+        "tickets.type": {
+          "label": "Tipo",
+          "options": {
+            "question": "Dúvida",
+            "problem": "Problema",
+            "request": "Solicitação",
+            "complaint": "Reclamação",
+            "data_request": "Solicitação LGPD"
+          }
+        },
+        "tickets.channel": {
+          "label": "Canal",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "form": "Formulário de solicitação",
+            "phone": "Telefone",
+            "webhook": "Alerta de outro sistema"
+          }
+        },
+        "tickets.assignee": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "tickets.first_response_due": {
+          "label": "Primeira resposta até",
+          "options": {}
+        },
+        "tickets.resolution_due": {
+          "label": "Resolução até",
+          "options": {}
+        },
+        "tickets.solved_on": {
+          "label": "Resolvido em",
+          "options": {}
+        },
+        "tickets.rating": {
+          "label": "Avaliação",
+          "options": {}
+        },
+        "known_issues.status": {
+          "label": "Status",
+          "options": {
+            "investigating": "Em investigação",
+            "workaround_available": "Solução alternativa disponível",
+            "fixed": "Corrigido",
+            "wont_fix": "Não será corrigido"
+          }
+        },
+        "known_issues.workaround": {
+          "label": "Solução alternativa",
+          "options": {}
+        },
+        "known_issues.fixed_on": {
+          "label": "Corrigido em",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "nudge_customer": "Lembrar o cliente",
+            "send_survey": "Enviar a pesquisa de satisfação",
+            "close_ticket": "Fechar o chamado",
+            "tell_customer_fixed": "Avisar o cliente de que foi corrigido",
+            "verify_identity": "Verificar a identidade",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "customer_account": {
+          "sourceLabel": "Conta",
+          "targetLabel": "Clientes"
+        },
+        "ticket_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Chamados"
+        },
+        "ticket_known_issue": {
+          "sourceLabel": "Problema conhecido",
+          "targetLabel": "Chamados"
+        },
+        "action_ticket": {
+          "sourceLabel": "Chamado",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "tickets_all": {
+          "name": "Todos os chamados"
+        },
+        "tickets_board": {
+          "name": "Quadro de chamados"
+        },
+        "waiting_on_us": {
+          "name": "Aguardando nossa resposta"
+        },
+        "known_issues_all": {
+          "name": "Todos os problemas conhecidos"
+        },
+        "customers_all": {
+          "name": "Todos os clientes"
+        },
+        "accounts_all": {
+          "name": "Todas as contas"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "tickets_by_status": {
+          "title": "Chamados por status"
+        },
+        "open_by_priority": {
+          "title": "Chamados abertos por prioridade"
+        },
+        "waiting_on_us_count": {
+          "title": "Chamados aguardando nossa resposta"
+        },
+        "responses_due": {
+          "title": "Primeiras respostas a dar"
+        },
+        "average_rating": {
+          "title": "Avaliação média"
+        },
+        "tickets_by_type": {
+          "title": "Chamados por tipo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_run_support": {
+          "title": "Como funciona o nosso atendimento",
+          "sections": [
+            "Status e prioridades",
+            "Metas de primeira resposta e de resolução",
+            "Quem está de plantão"
+          ]
+        },
+        "triage_and_replies": {
+          "title": "Triagem e respostas padrão",
+          "sections": [
+            "Tipo, prioridade e responsável",
+            "Primeira resposta, pedido de informações, corrigido, sem retorno"
+          ]
+        },
+        "data_requests": {
+          "title": "Solicitações de titulares (LGPD)",
+          "sections": [
+            "Verificar a identidade, registrar e responder dentro do prazo legal (um mês pelo GDPR, 15 dias pela LGPD)",
+            "Quem decide"
+          ]
+        }
+      },
+      "rules": {
+        "ticket_created": {
+          "title": "Criar uma tarefa de resposta quando um chamado é aberto",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Avisar o responsável quando a primeira resposta está atrasada",
+          "description": ""
+        },
+        "nudge_customer": {
+          "title": "Lembrar o cliente após 3 dias de espera",
+          "description": ""
+        },
+        "send_survey": {
+          "title": "Enviar a pesquisa de satisfação no dia seguinte à resolução",
+          "description": ""
+        },
+        "close_solved": {
+          "title": "Fechar um chamado que ficou resolvido por 4 dias",
+          "description": ""
+        },
+        "data_request_clock": {
+          "title": "Definir a resolução em 30 dias quando um chamado vira solicitação de dados",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Definir a resolução em 15 dias quando um chamado vira solicitação LGPD",
+              "description": "Pelo art. 19 da LGPD, a resposta completa a um pedido de acesso ou de confirmação é devida em até 15 dias."
+            }
+          }
+        },
+        "known_issue_fixed": {
+          "title": "Avisar os clientes quando um problema conhecido é corrigido",
+          "description": ""
+        },
+        "ticket_from_webhook": {
+          "title": "Abrir um chamado quando outro sistema envia um alerta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Todo chamado tem um status.",
+        "first_response_field": "Todo chamado registra o prazo da primeira resposta.",
+        "tickets_board_view": "Os chamados abrem como quadro por status."
+      },
+      "page": {
+        "metaTitle": "Sistema de chamados: atendimento ao cliente no seu CRM",
+        "metaDescription": "Sistema de chamados leve que seu agente de IA monta no seu CRM: chamados com prioridade e prazos de resposta, problemas conhecidos e nota de satisfação.",
+        "headline": "Um sistema de chamados para algumas dezenas de chamados por semana, montado pelo seu agente de IA no CRM",
+        "answer": "Um sistema de chamados leve dá a cada mensagem de cliente um chamado com responsável, prioridade e um prazo em que você deve responder. Este modelo configura chamados, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação. Cole-o no seu agente de IA e ele monta o atendimento no Customermates; você aprova o plano antes de qualquer coisa ser criada. Ele serve a uma empresa ou agência de uma a oito pessoas, não a uma grande equipe de suporte.",
+        "routine": {
+          "title": "A revisão semanal do atendimento",
+          "steps": [
+            "Comece pelos chamados com primeira resposta ou solução atrasada e siga com os que esperam por você há mais de dois dias.",
+            "Cobre os clientes que não respondem há 3 dias e marque como resolvidos os chamados em silêncio há 7 dias, anotando que não veio resposta.",
+            "Olhe os chamados reabertos e os resolvidos sem nota, e fale de novo com quem deu 1 ou 2.",
+            "Revise os problemas conhecidos abertos: quando um é corrigido, avise cada cliente com chamado ligado a ele e anote as categorias mais frequentes da semana."
+          ]
+        },
+        "limits": [
+          "Não é um sistema de telefonia ou SMS nem um widget de chat ao vivo. Os chamados nascem de mensagens de e-mail, WhatsApp, LinkedIn, Instagram e Telegram na caixa de entrada, ou do seu agente.",
+          "Hoje o Customermates não tem portal do cliente nem formulário público de chamados. Os clientes não podem entrar para acompanhar um chamado.",
+          "Ele não calcula horário comercial nem feriados. Os prazos vêm da tabela de planos de suporte na sua base de conhecimento, definidos por uma regra ou pelo seu agente.",
+          "Não é um gestor ITIL de mudanças ou ativos, nem uma página de status, nem uma ferramenta de envio em massa, e não tem SSO. Para alto volume ou grandes empresas, Zendesk, Freshdesk ou Zammad servem melhor.",
+          "As respostas são rascunhos que você revisa e envia. Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado; o modelo os propõe e você decide quais ligar.",
+          "Deixe fora dos chamados números de cartão, senhas, cópias de documentos de identidade e dados de saúde. Uma solicitação de acesso guarda a verificação de identidade como sim ou não com uma data, não como cópias.",
+          "Conectar o e-mail ou o WhatsApp ao CRM exige um plano com caixa de entrada, e uma caixa compartilhada por toda a equipe exige um plano com contas compartilhadas. A página de preços mostra o que cada plano inclui."
+        ],
+        "faq": [
+          {
+            "question": "Qual é o sistema de chamados mais simples para uma pequena empresa?",
+            "answer": "Uma lista de chamados com um responsável cada um, um status, uma prioridade e dois prazos: primeira resposta e solução. Some uma lista de problemas conhecidos e uma nota de satisfação e revise tudo toda semana. Basta para algumas dezenas de chamados por semana; acima disso, vale uma ferramenta dedicada."
+          },
+          {
+            "question": "Que status um chamado de suporte deve ter?",
+            "answer": "Os conjuntos comuns são novo, aberto, pendente, resolvido e fechado. Este modelo usa Novo, Aberto, Aguardando cliente, Aguardando terceiros, Resolvido e Fechado, mais Spam ou duplicado. Os fornecedores divergem sobre se um status de espera para o relógio; a regra da casa do modelo é que esperar o cliente o pausa e esperar terceiros não. Você pode mudar isso."
+          },
+          {
+            "question": "Que prazos de resposta devo prometer?",
+            "answer": "Não há referência geral. Fornecedores citam como exemplo problemas críticos em 4 horas e pedidos pequenos em 72 horas, com 1 hora até a primeira resposta e 4 horas até a solução numa queda total. Comece com valores assim na tabela de planos de suporte e troque-os pelo que você consegue cumprir."
+          },
+          {
+            "question": "Preciso seguir o prazo do SAC e guardar o protocolo?",
+            "answer": "Depende do setor. O Decreto 11.034/2022 manda tratar as demandas do SAC em até 7 dias corridos do registro e guardar o número de protocolo por pelo menos dois anos, mas vale para fornecedores de serviços regulados pelo governo federal, não para toda empresa. Não é aconselhamento jurídico; confirme o que vale para o seu setor."
+          },
+          {
+            "question": "Ele pode substituir o Zendesk ou o Freshdesk?",
+            "answer": "Para uma equipe de algumas dezenas de chamados por semana que quer retornos com data e uma nota de satisfação, sim. Para alto volume, muitos canais ou grandes empresas, Zendesk, Freshdesk, Zammad, Help Scout ou Front seguem mais adequados, com motores de SLA, macros, calendários de horário comercial e portais que este modelo deixa de fora de propósito."
+          },
+          {
+            "question": "O agente responde aos meus clientes?",
+            "answer": "O agente redige respostas a partir da conversa ligada, e você as revisa e envia. O prompt manda que ele não envie nada e não crie dados de exemplo."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Eu recebo perguntas de clientes por e-mail e chat e não sei quais ainda esperam uma resposta. Configure no meu espaço de trabalho do Customermates um atendimento ao cliente: chamados com status, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
+        "questions": [
+          "Quantos chamados você atende por semana e por quais canais eles chegam?",
+          "Que prazos você promete para a primeira resposta e a resolução, por prioridade ou plano de suporte?",
+          "Quem responde e quem é avisado quando um chamado está atrasado?",
+          "Você recebe solicitações da LGPD ou alertas de outros sistemas que devem virar chamados?"
+        ]
+      }
+    }
+  }
+}

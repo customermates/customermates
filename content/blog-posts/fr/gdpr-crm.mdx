@@ -35,7 +35,7 @@ Ce guide présente les obligations qui comptent pour un CRM avec leurs articles,
   <SummaryItem label="La règle">Pour les données personnelles de votre CRM, vous êtes le responsable du traitement et l’éditeur du CRM est votre sous-traitant. Le RGPD vous rend responsable de la base légale, du contrat et des demandes, pas le logiciel.</SummaryItem>
   <SummaryItem label="Avant de signer">Un DPA qui reprend le contenu de l’art. 28, par. 3, la liste des sous-traitants de l’éditeur, le lieu du traitement et le mécanisme de transfert qui couvre tout prestataire hors de l’UE.</SummaryItem>
   <SummaryItem label="Au quotidien">Des accès restreints, peu de champs, un moyen de retrouver, corriger, exporter et supprimer les données d’une personne, et une revue de conservation que vous faites vraiment.</SummaryItem>
-  <SummaryItem label="Customermates">Un DPA pour le cloud géré, une liste publique de sous-traitants qui comprend des prestataires américains, la base de production principale configurée dans la région AWS de Francfort (un paramètre choisi, pas une garantie), aucune certification de conformité et un cœur open source que vous pouvez auto-héberger.</SummaryItem>
+  <SummaryItem label="Customermates">Un DPA pour le cloud géré, une liste publique de sous-traitants qui comprend des prestataires américains, la base de production principale configurée dans la région AWS de Francfort (un paramètre choisi, pas une garantie), aucune certification de conformité et une Community Edition source-available que vous pouvez auto-héberger.</SummaryItem>
   <SummaryItem label="Transparence">Customermates publie ce guide. Le droit est cité d’après EUR-Lex et la Commission européenne.</SummaryItem>
 </ArticleSummary>
 
@@ -150,7 +150,7 @@ Offert, d’après la documentation produit et les textes juridiques :
 - des rôles par liste, un interrupteur pour désactiver les membres et une séparation des tenants par compte d’entreprise ;
 - la recherche globale par adresse e-mail ou numéro de téléphone, la correction sur place, l’export Excel et JSON par liste et une corbeille avec suppression définitive ;
 - un journal d’activité des modifications des fiches CRM et de la configuration de l’espace de travail, lisible par les rôles qui y ont accès ; et
-- un cœur open source sous AGPL que vous pouvez [auto-héberger](/features/self-hosted).
+- une Community Edition source-available (Sustainable Use License) que vous pouvez [auto-héberger](/features/self-hosted).
 
 Non offert, demandez-le donc ailleurs si vous en avez besoin :
 
@@ -158,7 +158,7 @@ Non offert, demandez-le donc ailleurs si vous en avez besoin :
 - il n’a pas de permissions au niveau du champ ni d’export d’un compte entier en une seule étape ;
 - son journal d’activité ne couvre ni les connexions, ni les clés API, ni le contenu de la boîte de réception, et il n’a pas de bouton d’export.
 
-L’auto-hébergement déplace la responsabilité. Le cœur AGPL tourne avec Docker et PostgreSQL sur votre infrastructure, et le DPA ne couvre que le service géré : vous choisissez l’hébergement et les prestataires et vous détenez vos propres contrats au titre de l’art. 28 et vos garanties de transfert. TLS et chiffrement au repos sont à votre charge. L’auto-hébergement utilise l’ensemble de fonctions Starter, sans boîte de réception et sans Mate, et il n’est pas isolé du réseau : à la première saisie d’adresse pour un pays, l’instance télécharge le fichier public des codes postaux de ce pays depuis GeoNames, sauf si vous réglez `POSTAL_CODE_DATA_URL` sur `off` ou sur un miroir. Le [guide d’auto-hébergement](/docs/self-hosting) donne les détails, et la [page sur le CRM open source](/features/open-source-crm) explique la limite de licence.
+L’auto-hébergement déplace la responsabilité. La Community Edition tourne avec Docker et PostgreSQL sur votre infrastructure, et le DPA ne couvre que le service géré : vous choisissez l’hébergement et les prestataires et vous détenez vos propres contrats au titre de l’art. 28 et vos garanties de transfert. TLS et chiffrement au repos sont à votre charge. L’auto-hébergement utilise l’ensemble de fonctions Starter, sans boîte de réception et sans Mate, et il n’est pas isolé du réseau : à la première saisie d’adresse pour un pays, l’instance télécharge le fichier public des codes postaux de ce pays depuis GeoNames, sauf si vous réglez `POSTAL_CODE_DATA_URL` sur `off` ou sur un miroir. Le [guide d’auto-hébergement](/docs/self-hosting) donne les détails, et la [page sur le CRM open source](/features/open-source-crm) explique la limite de licence.
 
 <AcquisitionCallout title="Là où Customermates ne convient pas" variant="boundary">
   Si une liste d’achat exige une certification reconnue, une garantie contractuelle de traitement dans la seule UE ou des permissions au niveau du champ, Customermates ne peut pas cocher ces cases aujourd’hui. Demandez-les par écrit à chaque éditeur que vous comparez et lisez les réponses à côté de leurs listes de sous-traitants. La [comparaison des meilleurs logiciels CRM](/blog/best-crm-software) et le [guide pour choisir un CRM](/blog/how-to-choose-crm) traitent les autres critères.
@@ -188,7 +188,7 @@ Le RGPD ne fixe pas de durée. L’art. 5, par. 1, point e, exige que les donné
 En principe, oui. Les art. 13 et 14 exigent une politique de confidentialité. Si vous n’avez pas collecté les données auprès de la personne, par exemple à partir d’une liste importée, vous devez l’informer dans un délai raisonnable et au plus tard dans un délai d’un mois.
 </FaqItem>
 <FaqItem question="Puis-je garder toutes les données du CRM sur mon propre serveur ?">
-Avec le cœur open source, oui : vous l’exploitez avec Docker et PostgreSQL sur l’infrastructure de votre choix. Il utilise l’ensemble de fonctions Starter, sans boîte de réception et sans Mate, et vous êtes responsable de vos propres contrats d’hébergement et de la sécurité.
+Avec la Community Edition, oui : vous l’exploitez avec Docker et PostgreSQL sur l’infrastructure de votre choix. Il utilise l’ensemble de fonctions Starter, sans boîte de réception et sans Mate, et vous êtes responsable de vos propres contrats d’hébergement et de la sécurité.
 </FaqItem>
 <FaqItem question="Que deviennent mes données si je résilie ?">
 Selon le DPA de Customermates, vous disposez de 30 jours après la fin du service pour choisir la suppression ou la restitution. Les données sont ensuite supprimées des systèmes propres de Customermates, des sauvegardes au plus tard sous 90 jours, et les sous-traitants ultérieurs suppriment selon leurs propres contrats.

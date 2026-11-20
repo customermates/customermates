@@ -1,0 +1,198 @@
+{
+  "locale": "pl",
+  "name": "Rezerwacje dla twórców",
+  "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: miej pod kontrolą każde zapytanie, termin i zaliczkę, od pierwszej wiadomości po rezerwację, przekazanie materiałów i życzenia w rocznicę.",
+  "description": "Termin zostaje obiecany bez zaliczki, a o przekazaniu materiałów łatwo zapomnieć, gdy zapytania toną w czatach i kalendarzu. Szablon daje każdej rezerwacji jeden wiersz z dwoma etapami: sprzedaż, od zapytania do zarezerwowanego, i przekazanie materiałów, od zrobionej sesji do przekazanych zdjęć lub filmu. Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdym przekazaniu materiałów prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tutaj zapisujemy tylko linki.",
+  "lists": {
+    "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Klienci, partnerzy klientów, organizatorzy i osoby kontaktowe w lokalach." },
+    "partners": { "label": "Partner", "pluralLabel": "Partnerzy", "description": "Lokale, organizatorzy, cateringi i inni dostawcy, z którymi pracujesz." },
+    "bookings": { "label": "Rezerwacja", "pluralLabel": "Rezerwacje", "description": "Jedno zlecenie od zapytania do przekazania materiałów." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Etap",
+      "options": { "inquiry": "Zapytanie", "consultation": "Rozmowa wstępna", "proposal_sent": "Oferta wysłana", "date_on_hold": "Termin zablokowany", "booked": "Zarezerwowane", "lost": "Utracone" }
+    },
+    "bookings.delivery": {
+      "label": "Przekazanie materiałów",
+      "options": { "not_started": "Nie rozpoczęto", "preparing": "Przygotowania", "shoot_done": "Sesja zrobiona", "editing": "Obróbka", "client_review": "Akceptacja klienta", "delivered": "Przekazane", "cancelled": "Odwołane lub przełożone" }
+    },
+    "people.contact_role": {
+      "label": "Rola",
+      "options": { "client": "Klient", "partner_of_client": "Partner klienta", "payer": "Rodzic lub płatnik", "planner": "Organizator", "venue_contact": "Kontakt w lokalu", "referrer": "Polecający" }
+    },
+    "people.preferred_channel": {
+      "label": "Preferowany kanał",
+      "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefon", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Rocznica" },
+    "people.portfolio_consent": { "label": "Zgoda na użycie wizerunku w portfolio", "options": { "granted": "Udzielona", "declined": "Odmówiona", "not_asked": "Nie pytano" } },
+    "people.consent_date": { "label": "Data zgody" },
+    "partners.partner_type": {
+      "label": "Rodzaj",
+      "options": { "venue": "Lokal", "planner": "Organizator", "caterer": "Catering", "florist": "Florysta", "band_or_dj": "Zespół lub DJ", "other": "Inny" }
+    },
+    "partners.website": { "label": "Strona internetowa" },
+    "partners.preferred": { "label": "Partner preferowany" },
+    "bookings.service_type": {
+      "label": "Usługa",
+      "options": { "wedding": "Ślub", "portrait": "Portret lub rodzina", "event": "Wydarzenie", "corporate": "Firmowe lub portrety biznesowe", "commercial": "Reklamowe", "video": "Wideo", "planning": "Organizacja" }
+    },
+    "bookings.package": { "label": "Pakiet" },
+    "bookings.event_date": { "label": "Data wydarzenia" },
+    "bookings.location": { "label": "Miejsce" },
+    "bookings.source": {
+      "label": "Źródło",
+      "options": { "referral": "Polecenie", "instagram": "Instagram", "google_search": "Wyszukiwarka Google", "venue_or_planner": "Lokal lub organizator", "wedding_fair": "Targi ślubne", "past_client": "Dawny klient", "other": "Inne" }
+    },
+    "bookings.date_hold_until": { "label": "Termin zablokowany do" },
+    "bookings.contract_status": {
+      "label": "Umowa",
+      "options": { "not_sent": "Niewysłana", "sent": "Wysłana", "signed": "Podpisana", "cancelled": "Anulowana" }
+    },
+    "bookings.deposit_amount": { "label": "Kwota zaliczki" },
+    "bookings.deposit_status": {
+      "label": "Zaliczka",
+      "options": { "not_due": "Niewymagana", "requested": "Do wpłaty", "paid": "Wpłacona", "refunded": "Zwrócona", "kept": "Zatrzymana" }
+    },
+    "bookings.balance_due_on": { "label": "Termin dopłaty" },
+    "bookings.balance_status": {
+      "label": "Dopłata",
+      "options": { "not_due": "Niewymagana", "requested": "Do wpłaty", "paid": "Wpłacona", "overdue": "Zaległa" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Ankieta",
+      "options": { "not_sent": "Niewysłana", "sent": "Wysłana", "received": "Otrzymana" }
+    },
+    "bookings.delivery_due_on": { "label": "Termin przekazania materiałów" },
+    "bookings.delivered_on": { "label": "Data przekazania materiałów" },
+    "bookings.gallery_url": { "label": "Link do galerii" },
+    "bookings.usage_rights": {
+      "label": "Prawa do wykorzystania",
+      "options": { "private_use": "Użytek prywatny", "portfolio_and_social": "Portfolio i media społecznościowe", "commercial_licence": "Licencja komercyjna", "not_decided": "Do ustalenia" }
+    },
+    "bookings.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "date_taken": "Termin zajęty", "price": "Cena", "chose_another": "Klient wybrał innego twórcę", "cancelled_or_postponed": "Wydarzenie odwołane lub przełożone", "no_response": "Brak odpowiedzi", "style_mismatch": "Styl nie pasuje" }
+    },
+    "bookings.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "reply": "Odpowiedzieć na zapytanie",
+        "consult": "Rozmowa wstępna",
+        "send_proposal": "Wysłać ofertę",
+        "send_contract": "Wysłać umowę",
+        "chase_payment": "Ponaglić płatność",
+        "send_questionnaire": "Wysłać ankietę",
+        "build_timeline": "Przygotować harmonogram dnia",
+        "shoot_day": "Dzień sesji",
+        "edit": "Obróbka",
+        "deliver": "Przekazanie materiałów",
+        "request_review": "Poprosić o opinię",
+        "anniversary": "Życzenia rocznicowe",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Klient", "targetLabel": "Rezerwacje" },
+    "booking_venue": { "sourceLabel": "Lokal lub organizator", "targetLabel": "Rezerwacje" },
+    "action_booking": { "sourceLabel": "Rezerwacja", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "bookings_board": { "name": "Rezerwacje wg etapu" },
+    "bookings_all": { "name": "Wszystkie rezerwacje wg daty" },
+    "delivery_board": { "name": "Przekazanie materiałów wg stanu" },
+    "payments_due": { "name": "Dopłaty do ponaglenia" },
+    "people_all": { "name": "Wszystkie osoby" },
+    "partners_all": { "name": "Wszyscy partnerzy" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Otwarte zapytania wg etapu" },
+    "shoots_coming": { "title": "Zarezerwowane terminy" },
+    "deposits_outstanding": { "title": "Zaliczki do wpłaty" },
+    "balances_coming": { "title": "Nadchodzące dopłaty" },
+    "booked_per_month": { "title": "Zarezerwowana wartość wg miesiąca wydarzenia" },
+    "lost_reasons": { "title": "Powody utraty zapytań" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Przebieg rezerwacji", "sections": ["Od zapytania do rezerwacji: odpowiedź w ciągu doby, blokada terminu, podpis, zaliczka", "Od sesji do przekazania materiałów: obróbka, akceptacja, galeria"] },
+    "contract_checklist": { "title": "Lista kontrolna umowy i płatności", "sections": ["Co obejmuje pakiet, a czego nie", "Zaliczka, dopłata i odwołanie", "Prawa do wykorzystania i zgoda na wizerunek"] },
+    "delivery_and_usage": { "title": "Przekazanie materiałów, podgląd i prośba o opinię", "sections": ["Termin przekazania i podgląd", "Gdzie jest galeria", "Poproś o opinię"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Odpowiedz na nowe zapytanie w ciągu doby" },
+    "send_contract": { "title": "Wyślij umowę, gdy termin zostaje zablokowany" },
+    "chase_payment_after_signing": { "title": "Ponagl zaliczkę trzy dni po podpisaniu umowy" },
+    "questionnaire_before_event": { "title": "Wyślij ankietę 45 dni przed zarezerwowanym wydarzeniem" },
+    "balance_reminder": { "title": "Ponagl dopłatę tydzień przed terminem" },
+    "edit_after_shoot": { "title": "Zacznij obróbkę po zakończeniu sesji" },
+    "request_review": { "title": "Poproś o opinię dwa tygodnie po przekazaniu materiałów" },
+    "anniversary_note": { "title": "Napisz życzenia w dniu rocznicy" },
+    "inquiry_form_records": { "title": "Utwórz osobę i rezerwację z formularza zapytania" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda rezerwacja ma etap sprzedaży.",
+    "event_date_field": "Każda rezerwacja ma datę wydarzenia.",
+    "bookings_board_view": "Rezerwacje otwierają się jako tablica według etapów."
+  },
+  "page": {
+    "metaTitle": "Rezerwacje dla fotografów i filmowców w Twoim CRM",
+    "metaDescription": "Rezerwacje dla fotografów, filmowców i organizatorów: zapytania, zablokowane terminy, zaliczki i przekazanie materiałów, budowane przez agenta AI w CRM.",
+    "headline": "Rezerwacje dla fotografów i organizatorów wydarzeń: każdy termin, zaliczka i przekazanie materiałów pod kontrolą",
+    "answer": "Obsługa rezerwacji fotografa, filmowca lub organizatora wydarzeń to blokowanie terminu tylko do chwili podpisania umowy i wpłaty zaliczki, a potem prowadzenie zlecenia aż do przekazania materiałów. Ten szablon daje każdej rezerwacji jeden wiersz z etapem sprzedaży i etapem przekazania, terminem dopłaty, ankietą przed wydarzeniem i prośbą o opinię po nim. Wklej go do swojego agenta AI, a on zbuduje wszystko w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda rezerwacji",
+      "steps": [
+        "Odpowiedz na każde czekające zapytanie. Domyślnie odpowiedź wychodzi w ciągu 24 godzin i pyta o datę, miejsce, rodzaj zlecenia i budżet.",
+        "Sprawdź zablokowane terminy: ponagl umowę i zaliczkę albo zwolnij termin.",
+        "Przejrzyj wydarzenia z najbliższych 14 dni: czy ankieta wróciła, czy plan dnia jest potwierdzony, czy dopłata wpłynęła?",
+        "Sprawdź zbliżające się przekazania materiałów i wcześnie uprzedź klienta, gdy termin się przesuwa. Dwa tygodnie po przekazaniu poproś o opinię."
+      ]
+    },
+    "limits": [
+      "Nie przygotowuje ani nie podpisuje umów, nie wystawia faktur i nie przyjmuje płatności. To zostaje w Twoich narzędziach do umów, fakturowania i płatności; rezerwacja zachowuje status, daty i link.",
+      "To nie jest narzędzie do galerii, wyboru zdjęć ani sprzedaży odbitek, ani do projektowania albumów, edycji czy zarządzania mediami. Rezerwacja zachowuje link.",
+      "Publiczna strona rezerwacji ani sprzedaż mini sesji nie jest dziś częścią Customermates. Zapytania docierają jako e-maile oraz wiadomości WhatsApp lub Instagram do podłączonej skrzynki, a agent przygotowuje odpowiedź.",
+      "To nie jest porada prawna. Strony wiedzy to listy kontrolne; poproś prawnika o sprawdzenie umowy i sformułowania praw do wizerunku i wykorzystania.",
+      "Nie trzymaj w nim danych o zdrowiu, diecie ani religii, numerów kart, dokumentów tożsamości, twarzy jako plików graficznych ani list gości. Zapisuj tylko status i datę zgody na użycie w portfolio.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Co powinien robić system rezerwacji dla fotografa?",
+        "answer": "Prowadzić zlecenie od zapytania przez rezerwację do przekazania materiałów: zapisać datę, rodzaj i budżet, zablokować termin, potwierdzić go podpisaną umową i zaliczką, obsłużyć ankietę i plan dnia, przekazać materiały i poprosić o opinię. Umowy, faktury i galerie zostają w Twoich własnych narzędziach."
+      },
+      {
+        "question": "Kiedy termin jest naprawdę zarezerwowany?",
+        "answer": "W praktyce bez zaliczki termin nie jest potwierdzony. Szablon uznaje zlecenie za zarezerwowane dopiero po podpisaniu umowy i wpłacie zaliczki, w osobnych polach, z zablokowanym terminem pomiędzy. Wysokość zaliczki określa Twoja umowa: jeden przewodnik po umowach ślubnych podaje, że niemal wszyscy fotografowie biorą 50% przy podpisaniu, inne wzory używają 30%, więc szablon nie ustawia kwoty domyślnej. W polskim prawie zadatek i zaliczka to co innego, dlatego poproś prawnika o nazwanie wpłaty w umowie."
+      },
+      {
+        "question": "Czym jest zablokowany termin?",
+        "answer": "Blokada wyłącza termin z Twojej dostępności na kilka dni bez zobowiązywania klienta. Szablon zapisuje datę, do której termin jest zablokowany, tworzy krok wysłania umowy w chwili blokady i drugi, by ponaglić zaliczkę trzy dni po podpisaniu."
+      },
+      {
+        "question": "Co CRM powinien zapisywać o prawach do wizerunku i zgodzie?",
+        "answer": "Tylko status i datę zgody na użycie w portfolio, bez zdjęć i bez szczególnych kategorii danych, takich jak religia, orientacja czy zdrowie, które wesela i sesje rodzinne mogą ujawnić. Prawa autorskie domyślnie zostają przy twórcy; prawa do wykorzystania należą do umowy, a jej sformułowanie powinien sprawdzić prawnik. To nie jest porada prawna."
+      },
+      {
+        "question": "Kiedy wysłać ankietę?",
+        "answer": "Szablon tworzy krok wysłania ankiety 45 dni przed zarezerwowanym wydarzeniem, co możesz zmienić. Fotografowie i filmowcy często proszą też o plan dnia na około dwa tygodnie wcześniej i robią w ostatnim tygodniu przegląd planu, miejsc i numerów telefonów."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Prowadzę firmę fotograficzną, filmową lub eventową i gubię się, które terminy są zablokowane, które zaliczki zostały wpłacone i co jeszcze trzeba przekazać. Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
+    "questions": [
+      "Co fotografujesz, filmujesz lub organizujesz i ile rezerwacji masz w roku?",
+      "Przez jakie kroki przechodzi klient od zapytania do rezerwacji i kiedy blokujesz termin?",
+      "Jak przyjmujesz zaliczki i dopłaty? Faktury zostają w Twoim narzędziu.",
+      "Gdzie udostępniasz galerie? Tutaj zapisujemy tylko link."
+    ]
+  }
+}

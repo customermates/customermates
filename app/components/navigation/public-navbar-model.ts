@@ -2,22 +2,7 @@ import type { AccountState } from "@/features/auth/account-state";
 import type { PublicNavGroup } from "./public-navbar-menu";
 import type { useTranslations } from "next-intl";
 
-import {
-  BookOpen,
-  Bot,
-  Boxes,
-  Cable,
-  FileText,
-  GitCompareArrows,
-  Github,
-  HardDrive,
-  Inbox,
-  Newspaper,
-  Plug,
-  Server,
-  Users,
-  UsersRound,
-} from "lucide-react";
+import { BookOpen, Bot, Boxes, Cable, HardDrive, Inbox, Linkedin, Plug, Server, Users, UsersRound } from "lucide-react";
 
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
@@ -111,16 +96,9 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, lo
           description: t("NavigationBar.public.pillarInboxDescription"),
         },
         {
-          icon: Bot,
+          icon: Plug,
           href: "/features/integrations",
-          title: t("NavigationBar.public.pillarAgents"),
-          description: t("NavigationBar.public.pillarAgentsDescription"),
-        },
-        {
-          activeMatch: false,
-          icon: Cable,
-          href: "/docs/mcp",
-          title: t("NavigationBar.public.mcpDocs"),
+          title: t("NavigationBar.public.integrations"),
         },
         {
           icon: Server,
@@ -150,16 +128,20 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, lo
       title: t("NavigationBar.public.solutions"),
     },
     {
-      activeHref: "/features/integrations",
+      activeHref: "/features/claude-crm",
       columns: 3,
-      icon: Plug,
-      id: "integrations",
+      icon: Bot,
+      id: "ai-agents",
       links: [
         {
-          activeMatch: false,
-          href: "/docs/connect-custom-connector#claude",
+          href: "/features/claude-crm",
           mark: { kind: "agent", provider: "claude" },
-          title: t("NavigationBar.public.providerClaude"),
+          title: t("NavigationBar.public.claudeCrm"),
+        },
+        {
+          icon: Linkedin,
+          href: "/features/claude-linkedin",
+          title: t("NavigationBar.public.claudeLinkedIn"),
         },
         {
           activeMatch: false,
@@ -192,89 +174,18 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, lo
           title: t("NavigationBar.public.providerGrok"),
         },
         {
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "gmail" },
-          title: t("NavigationBar.public.providerGmail"),
-        },
-        {
-          href: "/features/outlook-integration",
-          mark: { kind: "channel", provider: "outlook" },
-          title: t("NavigationBar.public.providerOutlook"),
-        },
-        {
-          href: "/features/linkedin-integration",
-          mark: { kind: "channel", provider: "linkedin" },
-          title: t("NavigationBar.public.providerLinkedIn"),
-        },
-        {
           activeMatch: false,
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "whatsapp" },
-          title: t("NavigationBar.public.providerWhatsApp"),
-        },
-        {
-          activeMatch: false,
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "instagram" },
-          title: t("NavigationBar.public.providerInstagram"),
-        },
-        {
-          activeMatch: false,
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "telegram" },
-          title: t("NavigationBar.public.providerTelegram"),
-        },
-        {
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "imap" },
-          title: t("NavigationBar.public.providerImap"),
-        },
-        {
-          href: "/docs/n8n",
-          mark: { kind: "provider", provider: "slack" },
-          title: t("NavigationBar.public.providerSlack"),
-        },
-        {
-          href: "/n8n-crm",
-          mark: { kind: "automation", provider: "n8n" },
-          title: t("NavigationBar.public.n8n"),
-        },
-      ],
-      title: t("NavigationBar.public.integrations"),
-    },
-    {
-      activeHref: "/blog",
-      columns: 2,
-      icon: BookOpen,
-      id: "resources",
-      links: [
-        {
-          icon: FileText,
-          href: "/docs",
-          title: t("NavigationBar.docs"),
-        },
-        {
-          icon: Newspaper,
-          href: "/blog",
-          title: t("NavigationBar.public.blog"),
-        },
-        {
-          icon: GitCompareArrows,
-          href: "/compare",
-          title: t("NavigationBar.public.compare"),
+          icon: Cable,
+          href: "/docs/mcp",
+          title: t("NavigationBar.public.mcpDocs"),
         },
         {
           icon: Bot,
           href: "/blog/agentic-crm",
           title: t("NavigationBar.public.agenticCrm"),
         },
-        {
-          icon: Github,
-          href: "/blog/open-source-crm",
-          title: t("NavigationBar.public.openSourceCrm"),
-        },
       ],
-      title: t("NavigationBar.public.resources"),
+      title: t("NavigationBar.public.aiAgents"),
     },
   ];
 }

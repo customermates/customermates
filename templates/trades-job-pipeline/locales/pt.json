@@ -1,0 +1,174 @@
+{
+  "locale": "pt",
+  "name": "Obras e serviços",
+  "summary": "Retorne cada orçamento e mantenha cada serviço no prazo, da primeira ligação ao pagamento. Visita técnica, orçamento e execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
+  "description": "Em uma empresa de obras e serviços, o dinheiro se perde quando um orçamento sai e ninguém liga de volta, e quando as datas de garantia e de manutenção não estão anotadas em lugar nenhum. Este modelo acompanha um serviço da primeira ligação à última nota: clientes e as obras onde você atua, serviços com uma etapa comercial e um status da obra separado, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarda o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+  "lists": {
+    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Moradores, proprietários, administradoras de condomínio e empresas para quem você trabalha." },
+    "sites": { "label": "Obra", "pluralLabel": "Obras", "description": "O endereço onde o trabalho acontece, que pode ser diferente do cliente." },
+    "jobs": { "label": "Serviço (OS)", "pluralLabel": "Serviços (OS)", "description": "Um trabalho, da solicitação a aprovado ou perdido, e depois ao longo da execução." },
+    "agreements": { "label": "Contrato de manutenção", "pluralLabel": "Contratos de manutenção", "description": "Manutenção recorrente de uma obra, com a próxima visita e a data de renovação." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Tipo",
+      "options": { "private": "Pessoa física", "landlord": "Proprietário", "property_manager": "Administradora de imóveis", "commercial": "Empresa", "builder_contractor": "Construtora" }
+    },
+    "customers.marketing_ok": { "label": "Aceita mensagens de marketing" },
+    "sites.address": { "label": "Endereço" },
+    "sites.access_notes": { "label": "Observações de acesso" },
+    "jobs.stage": {
+      "label": "Etapa",
+      "options": { "enquiry": "Solicitação", "assessment": "Visita técnica", "to_quote": "Orçamento a elaborar", "quote_sent": "Orçamento enviado", "negotiating": "Negociação", "won": "Aprovado", "lost": "Perdido" }
+    },
+    "jobs.work_status": {
+      "label": "Status da obra",
+      "options": { "not_scheduled": "Sem data", "scheduled": "Agendada", "in_progress": "Em andamento", "completed": "Concluída", "invoiced": "Faturada", "paid": "Paga" }
+    },
+    "jobs.work_type": {
+      "label": "Tipo de serviço",
+      "options": { "repair": "Reparo", "installation": "Instalação", "renovation": "Reforma", "maintenance": "Manutenção", "inspection": "Inspeção", "emergency": "Emergência" }
+    },
+    "jobs.visit_at": { "label": "Visita técnica" },
+    "jobs.quote_valid_until": { "label": "Validade do orçamento" },
+    "jobs.withdrawal_ends": { "label": "Fim do prazo de arrependimento" },
+    "jobs.scheduled_start": { "label": "Início da obra" },
+    "jobs.completed_on": { "label": "Entrega da obra em" },
+    "jobs.warranty_ends": { "label": "Garantia até" },
+    "jobs.payment_due": { "label": "Vencimento do pagamento" },
+    "jobs.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "price": "Preço", "timing": "Prazo", "chose_competitor": "Escolheu a concorrência", "no_response": "Sem resposta", "job_cancelled": "Serviço cancelado", "other": "Outro" }
+    },
+    "agreements.interval": { "label": "Periodicidade", "options": { "monthly": "Mensal", "quarterly": "Trimestral", "twice_yearly": "Semestral", "yearly": "Anual" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Ativo", "paused": "Pausado", "ended": "Encerrado" } },
+    "agreements.next_due": { "label": "Próxima visita" },
+    "agreements.renewal_on": { "label": "Renovação em" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call_back": "Retornar a ligação",
+        "book_visit": "Marcar uma visita",
+        "send_quote": "Enviar o orçamento",
+        "follow_up_quote": "Acompanhar o orçamento",
+        "confirm_schedule": "Confirmar o cronograma",
+        "handover": "Entregar e registrar o aceite",
+        "check_payment": "Conferir o pagamento",
+        "warranty_check": "Perguntar sobre defeitos no fim da garantia",
+        "book_service": "Marcar a visita de manutenção",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Cliente", "targetLabel": "Obras" },
+    "job_customer": { "sourceLabel": "Cliente", "targetLabel": "Serviços (OS)" },
+    "job_site": { "sourceLabel": "Obra", "targetLabel": "Serviços (OS)" },
+    "agreement_site": { "sourceLabel": "Obra", "targetLabel": "Contratos de manutenção" },
+    "action_job": { "sourceLabel": "Serviço (OS)", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "jobs_board": { "name": "Serviços por etapa" },
+    "jobs_all": { "name": "Todos os serviços" },
+    "open_quotes": { "name": "Orçamentos em aberto" },
+    "work_in_progress": { "name": "Agendados e em andamento" },
+    "customers_all": { "name": "Todos os clientes" },
+    "sites_all": { "name": "Todas as obras" },
+    "agreements_all": { "name": "Todos os contratos de manutenção" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Serviços por etapa" },
+    "open_quotes_value": { "title": "Valor dos orçamentos em aberto" },
+    "visits_coming": { "title": "Visitas próximas" },
+    "jobs_by_work_status": { "title": "Serviços aprovados por status da obra" },
+    "lost_reasons": { "title": "Por que serviços são perdidos" },
+    "warranties_ending": { "title": "Garantias terminando" },
+    "services_due": { "title": "Visitas de manutenção a fazer" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Da solicitação ao serviço aprovado", "sections": ["Resposta, visita e orçamento: quem faz o quê e em quanto tempo", "Revisão semanal de orçamentos em aberto, serviços a faturar e notas em atraso"] },
+    "quote_checklist": { "title": "Checklist do orçamento", "sections": ["Escopo, exclusões, preço, validade e sinal", "Data de início, condições de pagamento e mensagens de retorno"] },
+    "withdrawal_and_acceptance": { "title": "Arrependimento, entrega e aceite", "sections": ["Direito de arrependimento do consumidor em contratos fora do estabelecimento (7 dias, CDC, art. 49)", "Checklist de entrega e aceite"] },
+    "warranty_and_service": { "title": "Garantia, defeitos e contratos de manutenção", "sections": ["Como um defeito é tratado", "Oferecer e renovar um contrato de manutenção"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Criar o cliente, a obra e o serviço quando o formulário de solicitação for enviado" },
+    "call_back_new": { "title": "Retornar uma solicitação nova no mesmo dia" },
+    "quote_after_visit": { "title": "Enviar o orçamento em até 2 dias depois da visita" },
+    "quote_follow_up": { "title": "Fazer o retorno 3 dias depois de enviar um orçamento" },
+    "quote_expiring": { "title": "Fazer o retorno 3 dias antes de um orçamento vencer" },
+    "withdrawal_clock": {
+      "title": "Definir o fim do prazo de arrependimento de 14 dias quando um serviço é aprovado",
+      "variants": {
+        "BR": {
+          "title": "Definir o fim do prazo de arrependimento de 7 dias quando um serviço é aprovado",
+          "description": "Pelo Código de Defesa do Consumidor (art. 49), o cliente pode desistir em até 7 dias quando o contrato foi feito fora do estabelecimento, por exemplo na casa dele."
+        }
+      }
+    },
+    "payment_check": { "title": "Conferir um serviço faturado 3 dias depois do vencimento do pagamento" },
+    "warranty_check": { "title": "Perguntar sobre defeitos 30 dias antes do fim da garantia" },
+    "service_due": { "title": "Marcar a visita de manutenção 30 dias antes do vencimento" },
+    "visit_calendar": { "title": "Colocar a visita na agenda quando um serviço chega à etapa de visita" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Todo serviço tem uma etapa comercial.",
+    "work_status_field": "Todo serviço tem um status da obra próprio.",
+    "warranty_field": "Todo serviço registra até quando vai a garantia.",
+    "jobs_board_view": "Os serviços abrem como quadro por etapa."
+  },
+  "page": {
+    "metaTitle": "CRM para obras e serviços: modelo de orçamentos e garantia",
+    "metaDescription": "CRM para obras e serviços: dê retorno a cada orçamento e acompanhe cada serviço da visita ao pagamento, com garantias. Cole o modelo no seu agente de IA.",
+    "headline": "Um CRM para obras e serviços que dá retorno a cada orçamento e lembra as garantias, montado pelo seu agente de IA",
+    "answer": "Um CRM para uma pequena empresa de obras e serviços acompanha cada serviço da primeira ligação à última nota fiscal: a visita técnica, o orçamento e o retorno, a execução de agendada a paga e as datas que importam, como validade do orçamento, arrependimento, garantia e renovação da manutenção. Cole este modelo no seu agente de IA e ele monta o funil no Customermates. Você aprova o plano antes de qualquer coisa ser construída. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+    "routine": {
+      "title": "A revisão semanal de orçamentos e serviços",
+      "steps": [
+        "Ligue de volta para cada solicitação nova no mesmo dia e envie o orçamento em até dois dias depois de cada visita.",
+        "Dê retorno aos orçamentos enviados há três dias e aos que vencem em três dias. Depois de uma segunda tentativa, decida: manter o orçamento aberto ou encerrá-lo com um motivo.",
+        "Confira os serviços da semana e confirme a agenda com cada cliente. Em cada serviço concluído, registre a entrega e o aceite e peça a nota fiscal à contabilidade.",
+        "Olhe os serviços faturados que passaram da data de pagamento e confira se foram pagos.",
+        "Olhe 30 dias à frente: garantias perto do fim, visitas de manutenção para marcar e contratos de manutenção para renovar."
+      ]
+    },
+    "limits": [
+      "Não é uma ferramenta de orçamento, levantamento de custos ou faturamento. Os itens dão um valor ao serviço, não um documento com linhas de impostos, numeração e menções legais. Guarde orçamentos e notas fiscais na sua ferramenta de orçamentos ou de contabilidade.",
+      "Não é uma ferramenta de assinatura eletrônica nem de pagamento, nem um sistema de despacho, rotas, GPS ou controle de horas.",
+      "Não é um aplicativo móvel nativo para o campo. O aplicativo web funciona no celular, mas não existe um app próprio.",
+      "Não emite certificados. Ordens de serviço assinadas e termos de entrega ficam na sua ferramenta de documentos; o CRM guarda a data e uma referência.",
+      "SMS não é um canal: WhatsApp, e-mail e LinkedIn são. E não é uma autoridade jurídica sobre arrependimento, garantia ou validade do orçamento."
+    ],
+    "faq": [
+      {
+        "question": "Em quanto tempo uma empresa de obras deve enviar um orçamento?",
+        "answer": "Um guia para telhadistas sugere um orçamento em 24 a 48 horas depois da inspeção e retornar em poucos minutos a uma solicitação online. A Jobber recomenda um primeiro retorno dois a três dias depois do orçamento e um segundo alguns dias mais tarde, e depois seguir em frente. O modelo agenda isso como tarefas com data; os intervalos você ajusta."
+      },
+      {
+        "question": "Por quanto tempo um orçamento deve valer?",
+        "answer": "Não há uma regra única. As condições holandesas para consumidores usam 30 dias e a prática francesa costuma usar três meses. Defina a validade em cada orçamento: o modelo guarda uma data de validade e cria um retorno três dias antes. Isso não é aconselhamento jurídico."
+      },
+      {
+        "question": "O cliente pode desistir de um contrato assinado em casa?",
+        "answer": "Depende do país e da situação: na Alemanha, por exemplo, o consumidor tem 14 dias para um contrato fechado fora do estabelecimento, prazo que só corre com uma informação correta. Há uma exceção para reparos urgentes pedidos pelo cliente. O modelo marca o fim dos 14 dias quando um serviço é aprovado; confirme a regra que vale no Brasil e a sua informação ao cliente."
+      },
+      {
+        "question": "Quais datas uma empresa de obras precisa acompanhar?",
+        "answer": "A validade do orçamento, o fim de qualquer prazo de arrependimento, a entrega da obra, o fim da garantia e as renovações de manutenção, que profissionais lembram 30 a 45 dias antes. Fontes de orientação citam, por exemplo, 90 dias para vício aparente no Código de Defesa do Consumidor e cinco anos de solidez e segurança da obra no Código Civil; confirme com seu advogado. O modelo guarda a data de fim que você define e nunca a calcula, e a ordem de serviço ajuda a provar quando os prazos começaram."
+      },
+      {
+        "question": "O agente entra em contato com meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Eu tenho uma pequena empresa de obras e serviços, e os orçamentos saem sem retorno enquanto serviços, visitas e datas de garantia ficam só na minha cabeça. Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
+    "questions": [
+      "Quais serviços você executa e para quem: pessoas físicas, proprietários ou empresas?",
+      "Em quanto tempo você responde a uma solicitação e envia o orçamento depois da visita?",
+      "Qual a validade dos seus orçamentos e a duração da sua garantia?",
+      "Você vende contratos de manutenção para serviços recorrentes?"
+    ]
+  }
+}

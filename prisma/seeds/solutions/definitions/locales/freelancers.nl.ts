@@ -3,7 +3,6 @@ import type { Strings } from "../freelancers";
 export const nl: Strings = {
   countryCode: "nl",
   company: "Veldmark Productontwerp",
-  workspaceName: "Freelancers",
   website: "https://veldmark-ontwerp.example",
   phones: { mobile: { templates: ["+31 6 0000 0###"], start: 300 } },
   selfTitle: "Freelance UX- en productontwerper",

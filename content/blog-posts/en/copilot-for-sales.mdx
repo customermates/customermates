@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - Sales AI
     - CRM
-    - Open Source
+    - Self-Hosting
 ---
 
 # Copilot for Sales: Sales Agent, Licensing and Cost
@@ -112,7 +112,7 @@ On "is it worth it": Sales agent pays off when sellers already spend the day in 
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams such as consultancies and agencies, built in Germany. It is one option for the last row of the table, and it is not a Sales agent replacement for a company that runs Dynamics 365 and records customer calls in Teams.
+Customermates is a source-available, AI-native CRM for small client-facing teams such as consultancies and agencies, built in Germany. It is one option for the last row of the table, and it is not a Sales agent replacement for a company that runs Dynamics 365 and records customer calls in Teams.
 
 A typical setup for a five-person team:
 
@@ -122,7 +122,7 @@ A typical setup for a five-person team:
 - **A routine, in Customermates Cloud.** Trigger "When something changes", event "Record updated" for Deals, under "Changed fields" the Stage field. Instructions: "When a deal moves to Proposal, read the last thread with the contact and save a reply draft. Do not send anything." The routine runs as its owner, with that owner's channels. See [routines](/docs/app-routines).
 - **Your own AI client.** If your team already uses Claude or ChatGPT, connect it over MCP with the [custom connector](/docs/connect-custom-connector). Microsoft documents that Copilot Studio agents can connect to an existing MCP server; Customermates has no published guide for that client yet, so test one read before relying on it.
 
-**Cost.** Five users on Pro cost [[commercial.price.pro.monthly.seats.5]] a month, billed monthly, including the inbox and monthly hosted AI credits per active user ([see pricing](/pricing)). Starter at [[commercial.price.starter.monthly]] per user has no inbox. Self-hosting the AGPL core is free of license fees and keeps REST, webhooks and MCP, but has no inbox and no Mate.
+**Cost.** Five users on Pro cost [[commercial.price.pro.monthly.seats.5]] a month, billed monthly, including the inbox and monthly hosted AI credits per active user ([see pricing](/pricing)). Starter at [[commercial.price.starter.monthly]] per user has no inbox. Self-hosting the Community Edition is free of license fees for your own business and keeps REST, webhooks and MCP, but has no inbox and no Mate.
 
 What a small team gets for that seat is follow-up without a Microsoft stack: threads on the client record, a reply draft and next step prepared by Mate or your own AI client, and you review and send. To try it with your own mailbox or LinkedIn, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 

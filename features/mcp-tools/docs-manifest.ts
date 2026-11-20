@@ -1,7 +1,5 @@
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import rawManifest from "@/generated/raw-docs-manifest.json";
-
 import { stripMarkdownHeadingIds } from "@/core/utils/markdown-headings";
 
 import { env } from "@/env";
@@ -10,13 +8,17 @@ import { resolvePublicAppLinks } from "@/features/docs/app-links";
 import { DOCS_API_KEY_PLACEHOLDER, getMcpInstallSnippet, type McpTool } from "@/features/docs/mcp-install-snippet";
 
 import { splitSections, unwrapDocsComponents, type DocsSection } from "./docs-sections";
+import { rawDocsManifest, type RawDocsPage } from "./raw-docs-manifest";
 
-type ManifestPage = { title: string; description: string; content: string };
+type ManifestPage = RawDocsPage;
 export type DocsSource = "docs" | "api";
 export type DocsLocale = ContentLocale;
 type Manifest = Record<DocsSource, Record<DocsLocale, Record<string, ManifestPage>>>;
 
-const manifest = rawManifest as Manifest;
+function manifest(): Manifest {
+  return rawDocsManifest<Manifest>();
+}
+
 const pageCache = new Map<string, string>();
 const sectionCache = new Map<string, DocsSection[]>();
 
@@ -74,7 +76,7 @@ function pageSections(source: DocsSource, locale: DocsLocale, slug: string, page
 }
 
 function docsManifestPages(source: DocsSource, locale: DocsLocale): Array<[string, ManifestPage]> {
-  return Object.entries(manifest[source]?.[locale] ?? {});
+  return Object.entries(manifest()[source]?.[locale] ?? {});
 }
 
 export function docsCorpusSections(source: DocsSource, locale: DocsLocale): DocsSection[] {
@@ -101,7 +103,7 @@ export function normalizeSlug(slug: string): string {
 }
 
 export function listDocsSlugs(locale: DocsLocale, source: DocsSource): string[] {
-  return Object.keys(manifest[source]?.[locale] ?? {}).sort();
+  return Object.keys(manifest()[source]?.[locale] ?? {}).sort();
 }
 
 export function getDocsPageRaw(
@@ -110,7 +112,7 @@ export function getDocsPageRaw(
   source: DocsSource,
 ): { slug: string; title: string; description: string; url: string; markdown: string } | null {
   const normalized = normalizeSlug(slug);
-  const pages = manifest[source]?.[locale];
+  const pages = manifest()[source]?.[locale];
   const page = pages && Object.hasOwn(pages, normalized) ? pages[normalized] : undefined;
   if (!page) return null;
 

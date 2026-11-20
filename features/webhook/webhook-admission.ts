@@ -5,9 +5,18 @@ import type { RecordRecipientReader } from "@/features/records/record-recipient-
 import type { WebhookAdmissionRepo } from "./webhook-admission.repo";
 import type { WebhookDeliveryAdmissionRepo } from "./webhook-delivery-admission.repo";
 
+import { AutomationRuleFiredPayloadSchema } from "@/features/automation-rules/automation-rule-fired";
+import { DomainEvent } from "@/features/event/domain-events";
+
 export type WebhookPlanGate = { deliversWebhooks(companyId: string): Promise<boolean> };
 
 const OPEN_WEBHOOK_PLAN_GATE: WebhookPlanGate = { deliversWebhooks: () => Promise.resolve(true) };
+
+function targetedWebhookIds(event: EventLog): string[] | undefined {
+  if ((event.kind as DomainEvent) !== DomainEvent.AUTOMATION_RULE_FIRED) return undefined;
+  const payload = AutomationRuleFiredPayloadSchema.safeParse(event.payload);
+  return payload.success ? [payload.data.webhookId] : [];
+}
 
 export class WebhookAdmission implements EventAdmission {
   constructor(
@@ -21,7 +30,7 @@ export class WebhookAdmission implements EventAdmission {
   async admit(event: EventLog): Promise<void> {
     if (!(await this.plans.deliversWebhooks(event.companyId))) return;
     if (event.subjectKind !== "record") {
-      for (const webhook of await this.webhooks.findEventWebhooksUnscoped(event))
+      for (const webhook of await this.webhooks.findEventWebhooksUnscoped(event, targetedWebhookIds(event)))
         await this.deliver(event, webhook, null);
       return;
     }

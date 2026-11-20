@@ -112,7 +112,7 @@ import {
 } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { runInRoutineContext } from "@/core/decorators/routine-context";
+import { runInCausation } from "@/core/decorators/causation-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 import { reportFailure, reportWarning, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
@@ -149,6 +149,7 @@ export type AgentTurnWorkflowPayload = {
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   schemaDigest?: string | null;
+  templateRules?: string | null;
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
@@ -339,7 +340,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
       runAsBackgroundTenant(payload.userId, () => {
         if (getTenantUser().companyId !== payload.companyId)
           throw new Error("Agent tenant changed during tool execution.");
-        return runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run);
+        return runInCausation(payload.surface === "routine" ? { routineDepth: 1 } : null, run);
       }),
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
@@ -1063,6 +1064,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         surface,
         loadedToolsets: [...toolsets],
         schemaDigest: payload.schemaDigest ?? null,
+        templateRules: payload.templateRules ?? null,
         triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
         wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
         webSearchEnabled: payload.webSearchEnabled,

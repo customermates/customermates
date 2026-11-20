@@ -41,7 +41,7 @@ export const WorkspaceSwitcherItems = observer(({ onSwitch, onCreate }: Props) =
               if (!workspace.isCurrent) onSwitch(workspace.companyId);
             }}
           >
-            <WorkspaceAvatar companyId={workspace.companyId} name={name} size="sm" />
+            <WorkspaceAvatar companyId={workspace.companyId} logoUrl={workspace.logoUrl} name={name} size="sm" />
 
             <span className="min-w-0 flex-1 truncate">{name}</span>
 

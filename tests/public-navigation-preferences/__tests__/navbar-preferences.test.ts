@@ -9,15 +9,12 @@ import {
   Cable,
   Compass,
   Database,
-  FileText,
-  GitCompareArrows,
-  Github,
   Handshake,
   Inbox,
   Laptop,
+  Linkedin,
   Megaphone,
   MessageSquareReply,
-  Newspaper,
   Plug,
   Presentation,
   HardDrive,
@@ -126,14 +123,12 @@ describe("public navigation preferences", () => {
     expect(groupShape).toEqual([
       ["product", "/features", 3, Boxes, "NavigationBar.public.product"],
       ["solutions", "/for", 2, UsersRound, "NavigationBar.public.solutions"],
-      ["integrations", "/features/integrations", 3, Plug, "NavigationBar.public.integrations"],
-      ["resources", "/blog", 2, BookOpen, "NavigationBar.public.resources"],
+      ["ai-agents", "/features/claude-crm", 3, Bot, "NavigationBar.public.aiAgents"],
     ]);
 
     const hrefs = publicNavGroups.flatMap((group) => group.links.map((link) => link.href));
     for (const href of [
       "/blog/agentic-crm",
-      "/blog/open-source-crm",
       "/features/follow-up",
       "/features/integrations",
       "/features/knowledge-base",
@@ -145,12 +140,6 @@ describe("public navigation preferences", () => {
     ]) {
       expect(hrefs, `${href} is missing from the sitewide navigation`).toContain(href);
     }
-    const integrationHrefs = publicNavGroups
-      .filter((group) => group.id === "integrations")
-      .flatMap((group) => group.links.map((link) => link.href));
-    expect(integrationHrefs, "the integrations group lists providers, not its hub page").not.toContain(
-      "/features/integrations",
-    );
 
     for (const group of publicNavGroups) {
       expect(["activeHref", "columns", "icon", "id", "links", "sections", "title"]).toEqual(
@@ -172,8 +161,7 @@ describe("public navigation preferences", () => {
       ["/features/knowledge-base", BookOpen],
       ["/features/contact-management", Users],
       ["/features/unified-inbox", Inbox],
-      ["/features/integrations", Bot],
-      ["/docs/mcp", Cable],
+      ["/features/integrations", Plug],
       ["/features/open-source-crm", Server],
       ["/features/self-hosted", HardDrive],
       ["/features/all", Boxes],
@@ -214,32 +202,25 @@ describe("public navigation preferences", () => {
         solutionLinks.map(([href]) => href).filter((href) => href === "/for" || isMarketingPathPublished(locale, href)),
       );
     }
-    expect(iconLinks("resources")).toEqual([
-      ["/docs", FileText],
-      ["/blog", Newspaper],
-      ["/compare", GitCompareArrows],
-      ["/blog/agentic-crm", Bot],
-      ["/blog/open-source-crm", Github],
-    ]);
-
-    const integrations = publicNavGroup("integrations").links;
-    expect(integrations.every((link) => link.icon === undefined)).toBe(true);
-    expect(integrations.map((link) => [link.mark, link.title])).toEqual([
-      [{ kind: "agent", provider: "claude" }, "NavigationBar.public.providerClaude"],
-      [{ kind: "agent", provider: "chatgpt" }, "NavigationBar.public.providerChatGPT"],
-      [{ kind: "agent", provider: "codex" }, "NavigationBar.public.providerCodex"],
-      [{ kind: "agent", provider: "gemini" }, "NavigationBar.public.providerGemini"],
-      [{ kind: "agent", provider: "cursor" }, "NavigationBar.public.providerCursor"],
-      [{ kind: "agent", provider: "grok" }, "NavigationBar.public.providerGrok"],
-      [{ kind: "channel", provider: "gmail" }, "NavigationBar.public.providerGmail"],
-      [{ kind: "channel", provider: "outlook" }, "NavigationBar.public.providerOutlook"],
-      [{ kind: "channel", provider: "linkedin" }, "NavigationBar.public.providerLinkedIn"],
-      [{ kind: "channel", provider: "whatsapp" }, "NavigationBar.public.providerWhatsApp"],
-      [{ kind: "channel", provider: "instagram" }, "NavigationBar.public.providerInstagram"],
-      [{ kind: "channel", provider: "telegram" }, "NavigationBar.public.providerTelegram"],
-      [{ kind: "channel", provider: "imap" }, "NavigationBar.public.providerImap"],
-      [{ kind: "provider", provider: "slack" }, "NavigationBar.public.providerSlack"],
-      [{ kind: "automation", provider: "n8n" }, "NavigationBar.public.n8n"],
+    const agents = publicNavGroup("ai-agents").links;
+    expect(agents.map((link) => [link.href, link.mark ?? link.icon, link.title])).toEqual([
+      ["/features/claude-crm", { kind: "agent", provider: "claude" }, "NavigationBar.public.claudeCrm"],
+      ["/features/claude-linkedin", Linkedin, "NavigationBar.public.claudeLinkedIn"],
+      [
+        "/docs/connect-custom-connector#chatgpt",
+        { kind: "agent", provider: "chatgpt" },
+        "NavigationBar.public.providerChatGPT",
+      ],
+      ["/docs/connect-cli#codex", { kind: "agent", provider: "codex" }, "NavigationBar.public.providerCodex"],
+      ["/docs/connect-cli#gemini-cli", { kind: "agent", provider: "gemini" }, "NavigationBar.public.providerGemini"],
+      ["/docs/connect-cli#cursor", { kind: "agent", provider: "cursor" }, "NavigationBar.public.providerCursor"],
+      [
+        "/docs/connect-custom-connector#grok-bot",
+        { kind: "agent", provider: "grok" },
+        "NavigationBar.public.providerGrok",
+      ],
+      ["/docs/mcp", Cable, "NavigationBar.public.mcpDocs"],
+      ["/blog/agentic-crm", Bot, "NavigationBar.public.agenticCrm"],
     ]);
   });
 
@@ -267,7 +248,6 @@ describe("public navigation preferences", () => {
     expect(menu).not.toMatch(/bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u);
 
     expect(navbar).not.toContain('href="/docs"');
-    expect(publicNavGroup("resources").links.filter((link) => link.href === "/docs")).toHaveLength(1);
     expect(navbar).toContain("group.links.map");
     expect(navbar).not.toContain("group.sections");
     expect(navbar).not.toContain("group.description");
@@ -297,11 +277,12 @@ describe("public navigation preferences", () => {
     expect(menu).not.toContain("mark-glow");
     expect(menu).toContain('href="/docs"');
 
-    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(2);
+    // Group summary, the templates link (shown while the hub is public) and pricing.
+    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(3);
     expect(mobile, "a group row has to look like the flat mobile links beside it").toMatch(
       /<summary\s+className=\{cn\(\s*mobileOverviewRowClassName/u,
     );
-    for (const href of ["/pricing"]) {
+    for (const href of ["/templates", "/pricing"]) {
       const hrefIndex = mobile.indexOf(`href="${href}"`);
       const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
       expect(mobile.slice(linkStart, hrefIndex)).toContain('appearance="unstyled"');

@@ -1,0 +1,198 @@
+{
+  "locale": "de",
+  "name": "Buchungen für Kreative",
+  "summary": "Für Fotografen, Videografen und Eventplaner: jede Anfrage, jeden Termin und jede Anzahlung im Griff, von der ersten Nachricht bis zu Buchung, Lieferung und Jahrestagsgruß.",
+  "description": "Termine werden zugesagt, ohne dass eine Anzahlung da ist, und Lieferungen werden vergessen, wenn Anfragen in Chats und im Kalender stehen. Diese Vorlage gibt jeder Buchung eine Zeile mit zwei Phasen: Vertrieb von der Anfrage bis gebucht und Lieferung vom erledigten Shooting bis geliefert. Ein Termin wird gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kunden, Partner der Kunden, Planer und Ansprechpartner der Location." },
+    "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Locations, Planer, Caterer und andere Dienstleister, mit denen du arbeitest." },
+    "bookings": { "label": "Buchung", "pluralLabel": "Buchungen", "description": "Ein Auftrag von der Anfrage bis zur Lieferung." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Phase",
+      "options": { "inquiry": "Anfrage", "consultation": "Beratungsgespräch", "proposal_sent": "Angebot gesendet", "date_on_hold": "Termin reserviert", "booked": "Gebucht", "lost": "Verloren" }
+    },
+    "bookings.delivery": {
+      "label": "Lieferung",
+      "options": { "not_started": "Nicht begonnen", "preparing": "In Vorbereitung", "shoot_done": "Shooting erledigt", "editing": "In Bearbeitung", "client_review": "Kunde prüft", "delivered": "Geliefert", "cancelled": "Abgesagt oder verschoben" }
+    },
+    "people.contact_role": {
+      "label": "Rolle",
+      "options": { "client": "Kunde", "partner_of_client": "Partner des Kunden", "payer": "Elternteil oder Zahler", "planner": "Planer", "venue_contact": "Ansprechpartner der Location", "referrer": "Empfehler" }
+    },
+    "people.preferred_channel": {
+      "label": "Bevorzugter Kanal",
+      "options": { "email": "E-Mail", "whatsapp": "WhatsApp", "phone": "Telefon", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Jahrestag" },
+    "people.portfolio_consent": { "label": "Einwilligung für das Portfolio", "options": { "granted": "Erteilt", "declined": "Abgelehnt", "not_asked": "Nicht gefragt" } },
+    "people.consent_date": { "label": "Datum der Einwilligung" },
+    "partners.partner_type": {
+      "label": "Art",
+      "options": { "venue": "Location", "planner": "Planer", "caterer": "Caterer", "florist": "Florist", "band_or_dj": "Band oder DJ", "other": "Sonstige" }
+    },
+    "partners.website": { "label": "Website" },
+    "partners.preferred": { "label": "Bevorzugter Partner" },
+    "bookings.service_type": {
+      "label": "Leistung",
+      "options": { "wedding": "Hochzeit", "portrait": "Porträt oder Familie", "event": "Veranstaltung", "corporate": "Business oder Bewerbungsfotos", "commercial": "Werbung", "video": "Video", "planning": "Planung" }
+    },
+    "bookings.package": { "label": "Paket" },
+    "bookings.event_date": { "label": "Termin des Events" },
+    "bookings.location": { "label": "Ort" },
+    "bookings.source": {
+      "label": "Herkunft",
+      "options": { "referral": "Empfehlung", "instagram": "Instagram", "google_search": "Google-Suche", "venue_or_planner": "Location oder Planer", "wedding_fair": "Hochzeitsmesse", "past_client": "Früherer Kunde", "other": "Sonstige" }
+    },
+    "bookings.date_hold_until": { "label": "Termin reserviert bis" },
+    "bookings.contract_status": {
+      "label": "Vertrag",
+      "options": { "not_sent": "Nicht gesendet", "sent": "Gesendet", "signed": "Unterschrieben", "cancelled": "Storniert" }
+    },
+    "bookings.deposit_amount": { "label": "Höhe der Anzahlung" },
+    "bookings.deposit_status": {
+      "label": "Anzahlung",
+      "options": { "not_due": "Nicht fällig", "requested": "Angefordert", "paid": "Bezahlt", "refunded": "Erstattet", "kept": "Einbehalten" }
+    },
+    "bookings.balance_due_on": { "label": "Restzahlung fällig am" },
+    "bookings.balance_status": {
+      "label": "Restzahlung",
+      "options": { "not_due": "Nicht fällig", "requested": "Angefordert", "paid": "Bezahlt", "overdue": "Überfällig" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Fragebogen",
+      "options": { "not_sent": "Nicht gesendet", "sent": "Gesendet", "received": "Erhalten" }
+    },
+    "bookings.delivery_due_on": { "label": "Lieferfrist" },
+    "bookings.delivered_on": { "label": "Geliefert am" },
+    "bookings.gallery_url": { "label": "Link zur Galerie" },
+    "bookings.usage_rights": {
+      "label": "Nutzungsrechte",
+      "options": { "private_use": "Private Nutzung", "portfolio_and_social": "Portfolio und Social Media", "commercial_licence": "Kommerzielle Lizenz", "not_decided": "Noch offen" }
+    },
+    "bookings.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "date_taken": "Termin vergeben", "price": "Preis", "chose_another": "Anderen Anbieter gewählt", "cancelled_or_postponed": "Event abgesagt oder verschoben", "no_response": "Keine Antwort", "style_mismatch": "Stil passt nicht" }
+    },
+    "bookings.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "reply": "Anfrage beantworten",
+        "consult": "Beratungsgespräch",
+        "send_proposal": "Angebot senden",
+        "send_contract": "Vertrag senden",
+        "chase_payment": "Zahlung nachfassen",
+        "send_questionnaire": "Fragebogen senden",
+        "build_timeline": "Ablaufplan erstellen",
+        "shoot_day": "Shooting-Tag",
+        "edit": "Bearbeitung",
+        "deliver": "Lieferung",
+        "request_review": "Bewertung erbitten",
+        "anniversary": "Jahrestags-Gruß",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Kunde", "targetLabel": "Buchungen" },
+    "booking_venue": { "sourceLabel": "Location oder Planer", "targetLabel": "Buchungen" },
+    "action_booking": { "sourceLabel": "Buchung", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "bookings_board": { "name": "Buchungen nach Phase" },
+    "bookings_all": { "name": "Alle Buchungen nach Datum" },
+    "delivery_board": { "name": "Lieferung nach Status" },
+    "payments_due": { "name": "Restzahlungen nachfassen" },
+    "people_all": { "name": "Alle Personen" },
+    "partners_all": { "name": "Alle Partner" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Offene Anfragen nach Phase" },
+    "shoots_coming": { "title": "Gebuchte Termine" },
+    "deposits_outstanding": { "title": "Angeforderte Anzahlungen" },
+    "balances_coming": { "title": "Anstehende Restzahlungen" },
+    "booked_per_month": { "title": "Gebuchter Wert nach Monat des Termins" },
+    "lost_reasons": { "title": "Warum Anfragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Ablauf einer Buchung", "sections": ["Von der Anfrage zur Buchung: binnen eines Tages antworten, Termin reservieren, Vertrag, Anzahlung", "Vom Shooting zur Lieferung: Bearbeitung, Prüfung, Galerie"] },
+    "contract_checklist": { "title": "Checkliste Vertrag und Zahlung", "sections": ["Was das Paket enthält und was nicht", "Anzahlung, Restzahlung und Stornierung", "Nutzungsrechte und Einwilligung der abgebildeten Personen"] },
+    "delivery_and_usage": { "title": "Lieferung, Vorschau und Bitte um Bewertung", "sections": ["Liefertermin und Vorschau", "Wo die Galerie liegt", "Um eine Bewertung bitten"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Eine neue Anfrage binnen eines Tages beantworten" },
+    "send_contract": { "title": "Den Vertrag senden, wenn der Termin reserviert wird" },
+    "chase_payment_after_signing": { "title": "Drei Tage nach der Unterschrift an die Anzahlung erinnern" },
+    "questionnaire_before_event": { "title": "45 Tage vor einem gebuchten Event den Fragebogen senden" },
+    "balance_reminder": { "title": "Eine Woche vor der Fälligkeit an die Restzahlung erinnern" },
+    "edit_after_shoot": { "title": "Die Bearbeitung beginnen, wenn das Shooting erledigt ist" },
+    "request_review": { "title": "Zwei Wochen nach der Lieferung um eine Bewertung bitten" },
+    "anniversary_note": { "title": "Am Jahrestag eine Nachricht schreiben" },
+    "inquiry_form_records": { "title": "Person und Buchung aus einem Anfrageformular anlegen" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Buchung hat eine Vertriebsphase.",
+    "event_date_field": "Jede Buchung hat einen Termin.",
+    "bookings_board_view": "Die Buchungen öffnen sich als Board nach Phase."
+  },
+  "page": {
+    "metaTitle": "Eventplanung Software: Buchungen, Anzahlung, Lieferung",
+    "metaDescription": "Eventplanung Software für Fotografen und Eventplaner: Anfragen, reservierte Termine, Anzahlungen und Lieferung, von Ihrem KI-Agenten im CRM aufgebaut.",
+    "headline": "Eventplanung Software für Fotografen und Planer: Termin, Anzahlung und Lieferung im Griff",
+    "answer": "Buchungsverwaltung für Fotografen, Videografen und Eventplaner heißt: einen Termin nur so lange reservieren, bis Vertrag und Anzahlung da sind, und den Auftrag dann bis zur Lieferung begleiten. Diese Vorlage gibt jeder Buchung eine Zeile mit Vertriebsphase und Lieferphase, einem Fälligkeitsdatum für die Restzahlung, einem Fragebogen vor dem Termin und einer Bitte um Bewertung danach. Fügen Sie sie in Ihren KI-Agenten ein, und er baut alles in Customermates auf. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Buchungsrunde",
+      "steps": [
+        "Beantworten Sie jede Anfrage, die wartet. Standard ist eine Antwort innerhalb von 24 Stunden, die nach Datum, Ort, Art des Auftrags und Budget fragt.",
+        "Prüfen Sie reservierte Termine: Fassen Sie bei Vertrag und Anzahlung nach oder geben Sie den Termin wieder frei.",
+        "Sehen Sie sich die Veranstaltungen der nächsten 14 Tage an: Ist der Fragebogen zurück, steht der Ablaufplan des Tages, ist die Restzahlung eingegangen?",
+        "Prüfen Sie fällige Lieferungen und sagen Sie dem Kunden früh Bescheid, wenn sich ein Termin verschiebt. Zwei Wochen nach der Lieferung bitten Sie um eine Bewertung."
+      ]
+    },
+    "limits": [
+      "Es entwirft und unterschreibt keine Verträge, versendet keine Rechnungen und nimmt keine Zahlungen an. Das bleibt in Ihren Vertrags-, Rechnungs- und Zahlungswerkzeugen; die Buchung hält Status, Termine und einen Link fest.",
+      "Es ist kein Werkzeug für Galerien, Bildauswahl oder Printverkauf und nicht für Albumgestaltung, Bildbearbeitung oder Medienverwaltung. Die Buchung hält den Link.",
+      "Eine öffentliche Buchungsseite oder der Verkauf von Mini-Sessions gehört heute nicht zu Customermates. Anfragen erreichen Sie als E-Mail, WhatsApp- oder Instagram-Nachricht im verbundenen Postfach, und Ihr Agent entwirft die Antwort.",
+      "Es ist keine Rechtsberatung. Die Wissensseiten sind Checklisten; lassen Sie Ihren Vertrag und die Formulierung der Bild- und Nutzungsrechte von einer Anwältin oder einem Anwalt prüfen.",
+      "Gesundheits-, Ernährungs- und Religionsangaben, Zahlungskartendaten, Ausweise, Gesichter als Bilddateien und Gästelisten gehören nicht hinein. Halten Sie nur Status und Datum der Einwilligung für die Portfolionutzung fest.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+    ],
+    "faq": [
+      {
+        "question": "Was muss eine Software für Eventplanung und Fotografen leisten?",
+        "answer": "Sie begleitet einen Auftrag von der Anfrage über die Buchung bis zur Lieferung: Datum, Art und Budget erfassen, den Termin reservieren, ihn mit unterschriebenem Vertrag und Anzahlung bestätigen, Fragebogen und Ablaufplan abwickeln, liefern und um eine Bewertung bitten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen."
+      },
+      {
+        "question": "Wann ist ein Termin wirklich gebucht?",
+        "answer": "In der Praxis gilt: Ohne Anzahlung ist der Termin nicht bestätigt. Die Vorlage zählt einen Auftrag erst als gebucht, wenn der Vertrag unterschrieben und die Anzahlung bezahlt ist, in getrennten Feldern, mit einer Terminreservierung dazwischen. Die Höhe der Anzahlung legt Ihr Vertrag fest: Anzahlungen von 30 bis 50 Prozent sind üblich, deshalb setzt die Vorlage keinen Standardbetrag."
+      },
+      {
+        "question": "Was ist eine Terminreservierung?",
+        "answer": "Eine Reservierung nimmt einen Termin für ein paar Tage aus Ihrer Verfügbarkeit, ohne den Kunden zu binden. Die Vorlage speichert das Datum, bis zu dem reserviert ist, legt beim Reservieren einen Schritt zum Versand des Vertrags an und drei Tage nach der Unterschrift einen weiteren, um die Anzahlung nachzufassen."
+      },
+      {
+        "question": "Was darf das CRM zu Bildrechten und Einwilligung speichern?",
+        "answer": "Nur Status und Datum der Einwilligung für die Portfolionutzung, keine Bilder und keine besonderen Kategorien wie Religion, sexuelle Orientierung oder Gesundheit, die Hochzeiten und Familienshootings offenlegen können. Das Urheberrecht liegt standardmäßig beim Urheber; Nutzungsrechte gehören in den Vertrag, und eine Anwältin oder ein Anwalt sollte die Formulierung prüfen. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Wann sollte der Fragebogen rausgehen?",
+        "answer": "Die Vorlage legt 45 Tage vor einer gebuchten Veranstaltung einen Schritt zum Versand des Fragebogens an; das lässt sich ändern. Fotografen und Videografen fragen außerdem häufig etwa zwei Wochen vorher nach dem Ablaufplan des Tages und halten in der letzten Woche eine Abstimmung zu Ablauf, Orten und Telefonnummern."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Ich betreibe ein Foto-, Video- oder Eventgeschäft und verliere den Überblick, welche Termine gesichert, welche Anzahlungen bezahlt und was noch zu liefern ist. Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
+    "questions": [
+      "Was fotografierst, filmst oder planst du, und wie viele Buchungen hast du im Jahr?",
+      "Welche Schritte durchläuft ein Kunde von der Anfrage bis zur Buchung, und wann reservierst du den Termin?",
+      "Wie nimmst du Anzahlungen und Restzahlungen entgegen? Rechnungen bleiben in deinem eigenen Werkzeug.",
+      "Wo lieferst du Galerien aus? Hier wird nur der Link gespeichert."
+    ]
+  }
+}

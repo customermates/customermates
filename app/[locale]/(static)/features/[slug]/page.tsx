@@ -10,9 +10,11 @@ import { LandingArticle } from "@/components/marketing/landing-article";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
+import { TemplateProofBlock } from "@/components/marketing/templates/template-proof-block";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
+import { featurePagesBodySource } from "@/core/fumadocs/body-sources/feature-pages";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
@@ -53,7 +55,7 @@ export default async function FeaturePage({ params }: Props) {
 
   const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
   const locale = marketingLocaleOrDefault(rawLocale);
-  const page = featurePagesSource.getPage([slug], locale);
+  const page = featurePagesBodySource.getPage([slug], locale);
 
   if (!page) notFound();
 
@@ -109,6 +111,8 @@ export default async function FeaturePage({ params }: Props) {
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
+
+      <TemplateProofBlock locale={locale} path={`/features/${slug}`} />
 
       <PageEnding
         cta={page.data.acquisition?.cta ?? page.data.cta}

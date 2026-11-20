@@ -1,6 +1,7 @@
 import type { EventLog, RecordEventMatch, RecordEventSubscription } from "@/generated/prisma";
 import type { RecordModel } from "./record-model.schema";
 import type { RecordAccessMap, RecordQuery } from "./record-query.schema";
+import type { RecordEventSubscriptionKind } from "./record-event-subscription.schema";
 import type { RecordActor } from "./record.repo";
 
 export type RecordQueryMatch = {
@@ -23,7 +24,7 @@ export abstract class RecordRecipientRepo {
   ): Promise<RecordEventMatchWithSubscription | null>;
   abstract findEventMatchesUnscoped(
     event: Pick<EventLog, "companyId" | "id">,
-    kind: "webhook" | "routine",
+    kind: RecordEventSubscriptionKind,
   ): Promise<RecordEventMatchWithSubscription[]>;
   abstract matchesRecordQueryUnscoped(args: RecordQueryMatch): Promise<boolean>;
 }

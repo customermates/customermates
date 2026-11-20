@@ -113,11 +113,11 @@ Microsoft indique que l’agent Sales dans Microsoft 365 Copilot deviendra la fa
 
 ## Customermates comme CRM IA native
 
-Customermates est un CRM open source développé en Allemagne pour les petites équipes en contact avec les clients : consultants, agences, autres entreprises de services et fondateurs. Les contacts, les organisations, les affaires, les services et les tâches vivent dans un même espace de travail ; à partir de Pro, les conversations par e-mail, LinkedIn et WhatsApp qui les concernent se trouvent à côté. L’IA accède à ces données de deux façons, et l’auto-hébergement change celles dont vous disposez.
+Customermates est un CRM source-available développé en Allemagne pour les petites équipes en contact avec les clients : consultants, agences, autres entreprises de services et fondateurs. Les contacts, les organisations, les affaires, les services et les tâches vivent dans un même espace de travail ; à partir de Pro, les conversations par e-mail, LinkedIn et WhatsApp qui les concernent se trouvent à côté. L’IA accède à ces données de deux façons, et l’auto-hébergement change celles dont vous disposez.
 
 | | Mate | Votre propre client IA via MCP | Auto-hébergé |
 |---|---|---|---|
-| Où il s’exécute | Customermates Cloud, toutes les formules payantes | Customermates Cloud sur toutes les formules, et en auto-hébergement | Votre serveur, avec le noyau AGPL |
+| Où il s’exécute | Customermates Cloud, toutes les formules payantes | Customermates Cloud sur toutes les formules, et en auto-hébergement | Votre serveur, avec la Community Edition |
 | Qui paie le modèle | Des crédits IA hébergés mensuels par utilisateur actif | Votre propre abonnement ou fournisseur d’IA ; les clients comprennent Claude, ChatGPT, Cursor, Codex et Gemini CLI | Votre propre fournisseur d’IA, via MCP |
 | Boîte de réception | Pro et supérieur | Outils de messagerie à partir de Pro, cloud uniquement | Pas de boîte de réception |
 | Exécutions sans surveillance | Routines | Seulement si votre client les planifie | Ni Mate ni routines |
@@ -168,7 +168,7 @@ Cette configuration, c’est le suivi en pratique : les fils LinkedIn et e-mail
 - Pas de séquences d’e-mails ni d’envoi en masse. Les routines n’ont ni listes de destinataires ni étapes de séquence, et Mate envoie des messages individuels.
 - Pas de prise de rendez-vous par calendrier. À partir de Pro, les calendriers connectés sont lus sans y écrire.
 - Pas d’application mobile native.
-- Ni boîte de réception, ni Mate, ni routines en auto-hébergement. L’auto-hébergement vous donne le noyau AGPL avec REST, les webhooks et MCP.
+- Ni boîte de réception, ni Mate, ni routines en auto-hébergement. L’auto-hébergement vous donne la Community Edition avec REST, les webhooks et MCP.
 
 Si vous voulez de l’IA pour du scoring prédictif dans une grande équipe commerciale, Customermates n’est pas adapté : regardez Zoho CRM avec Zia ou Salesforce, dont les propres pages décrivent des fonctions prédictives.
 
@@ -202,7 +202,7 @@ Pas l’enregistrement lui-même. Un modèle d’IA a besoin d’un endroit qui 
 </FaqItem>
 
 <FaqItem question="L’IA dans un CRM est-elle sûre pour les données clients au regard du RGPD ?">
-Cela dépend de l’endroit où le modèle s’exécute et de qui traite les données : demandez donc à chaque éditeur sa liste de sous-traitants et un accord de traitement des données. Dans Customermates Cloud, la base de données principale est configurée dans la région AWS de Francfort. La page des sous-traitants nomme Google Cloud Vertex AI, Exa et TypeSafe AI pour les travaux de modèle, de recherche web et de classement. La route principale du chat de Mate est fixée sur l’UE, mais les embeddings et d’autres traitements peuvent impliquer les États-Unis. Microsoft Azure ne sert aucune requête de Mate. Avec votre propre client IA via MCP, les données que le client lit vont au fournisseur d’IA que vous avez choisi. L’auto-hébergement du noyau open source garde les données du CRM sur vos propres serveurs.
+Cela dépend de l’endroit où le modèle s’exécute et de qui traite les données : demandez donc à chaque éditeur sa liste de sous-traitants et un accord de traitement des données. Dans Customermates Cloud, la base de données principale est configurée dans la région AWS de Francfort. La page des sous-traitants nomme Google Cloud Vertex AI, Exa et TypeSafe AI pour les travaux de modèle, de recherche web et de classement. La route principale du chat de Mate est fixée sur l’UE, mais les embeddings et d’autres traitements peuvent impliquer les États-Unis. Microsoft Azure ne sert aucune requête de Mate. Avec votre propre client IA via MCP, les données que le client lit vont au fournisseur d’IA que vous avez choisi. L’auto-hébergement de la Community Edition garde les données du CRM sur vos propres serveurs.
 </FaqItem>
 </Faq>
 

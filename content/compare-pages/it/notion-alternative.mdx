@@ -1,5 +1,5 @@
 ---
-title: "Notion CRM: alternativa open source con Posta in arrivo"
+title: "Notion CRM: alternativa con Posta in arrivo"
 description: "Notion CRM e l’alternativa a confronto: quando basta un database Notion, cosa aggiunge un CRM dedicato, i prezzi per cinque persone e come spostare i dati."
 competitorName: Notion
 
@@ -87,8 +87,8 @@ comparison:
         competitor: true
   - title: Licenza, hosting e accesso
     features:
-      - name: Licenza open source
-        source: Core AGPL-3.0
+      - name: Licenza
+        source: Source-available (Sustainable Use License)
         competitor: false
       - name: Self-hosting
         source: Docker Compose (CRM di base senza Posta in arrivo né Mate)
@@ -123,7 +123,7 @@ cta:
 | Ti servono tipi di record tuoi, come investitori, immobili o candidati, con formule e rollup | Attio, Twenty, Airtable o Customermates | Customermates parte senza liste; crei le tue (contatti, trattative o qualsiasi altra cosa) con campi calcolati |
 | I clienti scrivono via e-mail, LinkedIn e WhatsApp e vuoi quei thread sul contatto | Customermates Pro o Business | Tutti questi canali arrivano in un’unica casella, collegati ai contatti |
 | Vuoi il valore della trattativa per la probabilità di fase senza doverlo costruire | Customermates, qualsiasi piano | Il campo fase con le probabilità esiste fin dall’iscrizione |
-| Ti serve l’hosting nell’UE senza un contratto Enterprise, o vuoi ospitare il CRM da solo | Customermates | Database cloud configurato nella regione AWS di Francoforte su ogni piano; core AGPL per il self-hosting, senza Posta in arrivo né Mate |
+| Ti serve l’hosting nell’UE senza un contratto Enterprise, o vuoi ospitare il CRM da solo | Customermates | Database cloud configurato nella regione AWS di Francoforte su ogni piano; Community Edition per il self-hosting, senza Posta in arrivo né Mate |
 | Ti servono SSO SAML o app mobili native | Notion Business | Notion ha entrambi; Customermates non ha SSO né app nativa |
 
 ## Per chi usare Notion come CRM è una buona scelta
@@ -170,7 +170,7 @@ In Notion il CRM te lo costruisci tu e le conversazioni le incolli dentro. In Cu
 
 **L’IA tiene aggiornati i record.** In Customermates Cloud, Mate riassume i thread, scrive bozze di risposta, aggiorna i record e crea viste, con crediti IA ospitati e una quota mensile per ogni utente attivo (vedi i [prezzi](/pricing)). Chiede una nuova approvazione prima di ogni eliminazione ma invia i messaggi senza, quindi digli di salvare bozze quando vuoi controllare prima. Le routine eseguono un’istruzione salvata a intervalli prestabiliti o quando un record cambia: [[commercial.entitlement.starter.includedRoutinesPerUser]] per utente su Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] su Pro. Preferisci Claude o ChatGPT? Collegalo al [server MCP](/docs/mcp), che offre [[derived.mcp.tools.total]] strumenti su ogni piano; le chiamate al modello girano allora sul tuo provider IA.
 
-**La tua scelta di hosting.** Il database cloud è configurato nella regione AWS di Francoforte; è disponibile un DPA e i sub-responsabili, compresi i fornitori statunitensi, sono elencati. Il core AGPL-3.0 gira sul tuo server con Docker Compose, con REST, webhook e MCP inclusi, ma un’[installazione self-hosted](/features/self-hosted) non ha Posta in arrivo né Mate. Customermates non ha alcuna certificazione di conformità.
+**La tua scelta di hosting.** Il database cloud è configurato nella regione AWS di Francoforte; è disponibile un DPA e i sub-responsabili, compresi i fornitori statunitensi, sono elencati. La Community Edition gira sul tuo server con Docker Compose, con REST, webhook e MCP inclusi, ma un’[installazione self-hosted](/features/self-hosted) non ha Posta in arrivo né Mate. Customermates non ha alcuna certificazione di conformità.
 
 ## Dove Customermates è la scelta sbagliata
 
@@ -210,6 +210,8 @@ Ogni consulente salva una bacheca delle proprie trattative raggruppate per fase 
   <Step title="Porta con te note e viste">Gli appunti delle riunioni stanno nei file Markdown, non nella tabella. Incolla quelli che ti servono nelle note di ogni record, oppure fai scrivere a un client IA tramite MCP. Poi ricostruisci le tue viste e condividi quelle che servono a tutto il team.</Step>
 </Steps>
 
+<SwitchKit tool="notion" />
+
 ## Altre alternative a Notion CRM da guardare
 
 Customermates pubblica questo elenco. I dettagli provengono dalla pagina dei prezzi di ciascun fornitore, verificata l’8 ottobre 2026.
@@ -238,7 +240,7 @@ Sì. Entrambi hanno un’API REST e webhook e n8n ha nodi per entrambi, quindi u
 </FaqItem>
 
 <FaqItem question="Esiste un’alternativa open source a Notion per il CRM?">
-Sì. Twenty è open source con oggetti personalizzati, la corrispondenza più vicina a uno schema flessibile di Notion. Customermates ha un core AGPL-3.0 che puoi ospitare con Docker Compose; la Posta in arrivo e Mate esistono solo in Customermates Cloud.
+Sì. Twenty è open source con oggetti personalizzati, la corrispondenza più vicina a uno schema flessibile di Notion. Customermates è source-available, non open source in senso OSI: la sua Community Edition si ospita con Docker Compose; la Posta in arrivo e Mate esistono solo in Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="Dove conserva Notion i dati del mio CRM?">

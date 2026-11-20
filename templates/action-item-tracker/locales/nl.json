@@ -1,0 +1,155 @@
+{
+  "locale": "nl",
+  "name": "Actielijst",
+  "summary": "Zorg dat wat in een overleg is afgesproken ook echt gebeurt. Elke actie krijgt één eigenaar en een deadline, gekoppeld aan het besluit of project waaruit ze komt, met een wekelijkse controle.",
+  "description": "Afspraken uit overleggen, audits en klantgesprekken verdwijnen in notulen en chatberichten, en volgende week bespreek je hetzelfde punt opnieuw. Dit sjabloon zet één lijst met acties op: zes statussen, een prioriteit, één eigenaar, een deadline en een opvolgdatum, gekoppeld aan het overleg, besluit of project waaruit ze komen, plus een besluitenlijst en een effectiviteitscontrole na een corrigerende actie. Voor teams, projectleiders en kwaliteitsmanagers die één keer per week willen zien wat openstaat, te laat is of vastloopt. Herinneringen komen uit automatiseringsregels en meldingen die je zelf aanzet.",
+  "lists": {
+    "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Teamleden, partners, klanten en leveranciers." },
+    "meetings": { "label": "Overleg", "pluralLabel": "Overleggen", "description": "Waar acties en besluiten vandaan komen." },
+    "decisions": { "label": "Besluit", "pluralLabel": "Besluiten", "description": "De besluitenlijst met een controledatum." },
+    "projects": { "label": "Project", "pluralLabel": "Projecten", "description": "Het project waartoe een actie behoort." },
+    "actions": { "label": "Actie", "pluralLabel": "Acties", "description": "Eén eigenaar en één deadline per actie." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "Open", "in_progress": "In uitvoering", "blocked": "Geblokkeerd", "in_review": "Ter beoordeling", "done": "Afgerond", "cancelled": "Geannuleerd" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Gepland", "active": "Actief", "on_hold": "On hold", "done": "Afgerond" }
+    },
+    "people.person_role": {
+      "label": "Rol",
+      "options": { "team_member": "Teamlid", "external": "Externe partner", "customer": "Klant", "supplier": "Leverancier", "other": "Overig" }
+    },
+    "people.team": { "label": "Team" },
+    "meetings.meeting_type": {
+      "label": "Soort overleg",
+      "options": { "team": "Teamoverleg", "project": "Projectoverleg", "steering": "Stuurgroep", "customer": "Klantgesprek", "audit": "Audit of review" }
+    },
+    "meetings.held_at": { "label": "Gehouden op" },
+    "meetings.agenda_url": { "label": "Link naar agenda" },
+    "meetings.minutes_url": { "label": "Link naar notulen" },
+    "meetings.minutes_sent_on": { "label": "Notulen verstuurd op" },
+    "meetings.next_meeting_on": { "label": "Volgend overleg op" },
+    "decisions.decision_text": { "label": "Besluit" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Geldig", "superseded": "Vervangen", "revoked": "Ingetrokken" } },
+    "decisions.decided_on": { "label": "Besloten op" },
+    "decisions.review_on": { "label": "Controle op" },
+    "projects.owner": { "label": "Eigenaar" },
+    "projects.start_date": { "label": "Start" },
+    "projects.end_date": { "label": "Einde" },
+    "actions.priority": { "label": "Prioriteit", "options": { "high": "Hoog", "medium": "Gemiddeld", "low": "Laag" } },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "action": "Actie", "follow_up": "Opvolging", "review": "Controle", "corrective": "Corrigerende actie", "preventive": "Preventieve actie", "customer_request": "Klantverzoek" }
+    },
+    "actions.source": {
+      "label": "Bron",
+      "options": { "meeting": "Overleg", "email": "E-mail", "project_plan": "Projectplan", "audit": "Audit of inspectie", "complaint": "Klacht", "incident": "Incident" }
+    },
+    "actions.owner": { "label": "Eigenaar" },
+    "actions.due": { "label": "Deadline" },
+    "actions.follow_up_on": { "label": "Opvolgen op" },
+    "actions.done_on": { "label": "Afgerond op" },
+    "actions.blocker_note": { "label": "Wat blokkeert" },
+    "actions.proof_url": { "label": "Link naar bewijs" },
+    "actions.outcome": { "label": "Resultaat" },
+    "actions.days_late": { "label": "Dagen te laat" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Overleg", "targetLabel": "Acties" },
+    "action_project": { "sourceLabel": "Project", "targetLabel": "Acties" },
+    "decision_meeting": { "sourceLabel": "Overleg", "targetLabel": "Besluiten" }
+  },
+  "views": {
+    "actions_all": { "name": "Alle acties" },
+    "actions_board": { "name": "Acties per status" },
+    "blocked_actions": { "name": "Geblokkeerd" },
+    "overdue_list": { "name": "Achterstallig" },
+    "meetings_all": { "name": "Alle overleggen" },
+    "decisions_all": { "name": "Besluitenlijst" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Acties per status" },
+    "overdue_count": { "title": "Achterstallige acties" },
+    "blocked_count": { "title": "Geblokkeerde acties" },
+    "due_soon": { "title": "Deadline nadert" },
+    "open_by_owner": { "title": "Open acties per eigenaar" },
+    "done_per_month": { "title": "Afgerond per maand" },
+    "actions_by_source": { "title": "Acties per bron" },
+    "average_days_late": { "title": "Gemiddeld aantal dagen te laat" },
+    "activity_timeline": { "title": "Recente activiteit" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "Hoe we een actie opschrijven", "sections": ["Eén werkwoord, één eigenaar, één datum", "Hoe een afgeronde actie eruitziet"] },
+    "weekly_action_review": { "title": "Wekelijkse actiecontrole van 15 minuten", "sections": ["Geblokkeerd, vertraagd, zonder volgende stap", "Verzetten, delegeren of annuleren"] },
+    "closing_with_proof": { "title": "Een actie afsluiten met bewijs", "sections": ["Het bewijs koppelen", "Effectiviteitscontrole bij corrigerende acties"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Stuur na een overleg de notulen en de actielijst" },
+    "unblock_action": { "title": "Benoem wie een geblokkeerde actie kan losmaken" },
+    "due_reminder": { "title": "Herinner de eigenaar twee dagen voor de deadline" },
+    "overdue_notice": { "title": "Waarschuw de eigenaar de dag nadat de deadline is verstreken" },
+    "follow_up_date": { "title": "Bekijk de actie opnieuw op de opvolgdatum" },
+    "effectiveness_check": { "title": "Controleer na 30 dagen de effectiviteit van een corrigerende of preventieve actie" },
+    "weekly_action_review": { "title": "Houd elke maandag de wekelijkse actiecontrole" },
+    "decision_review": { "title": "Beoordeel een besluit op de controledatum" },
+    "request_form_action": { "title": "Maak een actie aan uit een verzoek via een formulier" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke actie heeft een van de zes statussen.",
+    "due_field": "Elke actie heeft een eigenaar en een deadline.",
+    "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
+  },
+  "page": {
+    "metaTitle": "Actiepuntenlijst sjabloon: één eigenaar en een deadline",
+    "metaDescription": "Actiepuntenlijst voor Claude, ChatGPT of Codex: elke afspraak uit een overleg krijgt één eigenaar, een deadline en een wekelijkse controle op wat openstaat.",
+    "headline": "Zorg dat afspraken ook gebeuren: een actiepuntenlijst die je AI-agent in je CRM opbouwt",
+    "answer": "Een actiepuntenlijst is één lijst met acties, elk met één eigenaar, een deadline en een status, gekoppeld aan het overleg of besluit waaruit ze komen, zodat wat is afgesproken ook echt gebeurt. Plak dit sjabloon in je AI-agent en die bouwt de lijst op in Customermates, met overleggen, besluiten, projecten, een besluitenlijst en een wekelijkse controle op wat openstaat, te laat is of vastloopt. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse actiecontrole van 15 minuten",
+      "steps": [
+        "Kijk alleen naar de uitzonderingen: geblokkeerde acties, acties die hun deadline overschrijden en acties zonder volgende stap.",
+        "Benoem bij elke geblokkeerde actie wie hem kan losmaken en zet een datum om er opnieuw naar te kijken.",
+        "Beslis bij elke actie die te laat is samen met de eigenaar: nieuwe deadline, overdragen aan iemand anders of annuleren.",
+        "Bevestig wijzigingen van data in het overleg, niet achteraf, en sluit een actie alleen af met bewijs, zoals een link, een bestand of een bericht."
+      ]
+    },
+    "limits": [
+      "Het is geen projectmanagementpakket. Er zijn geen afhankelijkheden tussen taken, geen tijdlijn of Gantt-weergave, geen sprints en geen tijdregistratie. Die taken blijven in je projecttool.",
+      "Het is geen gevalideerd kwaliteitssysteem. Gereguleerde corrigerende acties, bijvoorbeeld bij medische hulpmiddelen of in de luchtvaart, vragen om elektronische handtekeningen en gevalideerde audittrails. Het sjabloon geeft een klein bedrijf overzicht en een effectiviteitscontrole, meer niet.",
+      "Houd zorgplannen en alle gezondheidsgegevens erbuiten.",
+      "Niemand wordt automatisch herinnerd. De wekelijkse controle en het dashboard laten zien wat aan de beurt is; herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert, en jij bepaalt welke je aanzet.",
+      "Een weergave kan te late en geblokkeerde acties niet tegelijk tonen, daarom heeft het sjabloon voor elk een eigen weergave."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een actiepunt?",
+        "answer": "Een titel die met een werkwoord begint en uit minder dan tien woorden bestaat, één genoemde eigenaar, een concrete datum in plaats van een termijn als volgende week en een status. Praktijkmensen voegen een prioriteit toe en de koppeling aan het overleg of besluit waaruit de actie komt. Het sjabloon houdt dit alles in één lijst, zodat een actie zonder eigenaar of datum meteen opvalt."
+      },
+      {
+        "question": "Welke statussen moet een actie hebben?",
+        "answer": "Praktijkgidsen gebruiken open, in uitvoering, geblokkeerd, ter beoordeling en afgerond, en sommige voegen geannuleerd toe. Dit sjabloon heeft er zes: open, in uitvoering, geblokkeerd, ter beoordeling, afgerond en geannuleerd. Escaleer bij geblokkeerd, niet bij de deadline: een geblokkeerde actie benoemt wie hem kan losmaken en krijgt een opvolgdatum."
+      },
+      {
+        "question": "Wanneer is een actie echt afgesloten?",
+        "answer": "Als er bewijs is en niet alleen het woord afgerond: een link, een bestand of een bericht, plus de werkelijke einddatum. Een corrigerende of preventieve actie is pas afgesloten als de effectiviteit is gecontroleerd; het sjabloon maakt die controle 30 dagen nadat de actie klaar is, en je kunt de termijn aanpassen."
+      },
+      {
+        "question": "Verstuurt de agent notulen of herinneringen?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Wat we in overleggen afspreken blijft liggen, en niemand kan zeggen wie wat wanneer oppakt. Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
+    "questions": [
+      "Waar komen je acties vandaan: overleggen, projecten, audits, klanten?",
+      "Wie is eigenaar van acties en wie beslist wanneer er een wordt verzet of geannuleerd?",
+      "Heb je corrigerende en preventieve acties met effectiviteitscontrole nodig, zoals in ISO 9001?",
+      "Bewaar je notulen elders? Hier wordt alleen een link bewaard."
+    ]
+  }
+}

@@ -7,7 +7,7 @@ import { DocsPageHeader } from "./components/docs-page-header";
 
 import { env } from "@/env";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
-import { docsSource } from "@/core/fumadocs/source";
+import { docsBodySource } from "@/core/fumadocs/body-sources/docs";
 import { getDocsMDXComponents } from "@/core/fumadocs/mdx-components";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { docNavI18nKey } from "@/features/docs/docs-nav";
@@ -27,7 +27,7 @@ export default async function DocsOverviewPage({ params }: StaticLocaleProps) {
   await enableStaticLocale(params);
 
   const locale = await getLocale();
-  const page = docsSource.getPage(["intro-page"], locale);
+  const page = docsBodySource.getPage(["intro-page"], locale);
 
   if (!page) notFound();
 

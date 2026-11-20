@@ -23,6 +23,7 @@ import {
   isPlanId,
   MIB,
   totalPriceAmountMinor,
+  type PlanEntitlements,
   type PlanUsageLimits,
 } from "./plan-catalog";
 
@@ -106,7 +107,12 @@ function resolvePriceToken(parts: string[], locale: string): string {
   return formatCommercialAmount(amountMinor, locale, offer.currency);
 }
 
-const COUNTED_ENTITLEMENTS = ["includedAccountsPerUser", "includedRoutinesPerUser"] as const;
+const COUNTED_ENTITLEMENTS = [
+  "includedAccountsPerUser",
+  "includedRoutinesPerUser",
+  "activeAutomationRules",
+  "formSubmissionsPerMonth",
+] as const satisfies readonly (keyof PlanEntitlements)[];
 
 type CountedEntitlement = (typeof COUNTED_ENTITLEMENTS)[number];
 
@@ -120,7 +126,7 @@ function resolveEntitlementToken(parts: string[], locale: string): string {
     throw new Error(`Invalid commercial entitlement token: ${parts.join(".")}`);
 
   const value = getPlanDefinition(rawPlan).entitlements[entitlement];
-  return value === "unlimited" ? localizedUnlimited(locale) : String(value);
+  return value === "unlimited" ? localizedUnlimited(locale) : new Intl.NumberFormat(locale).format(value);
 }
 
 function resolveStorageToken(parts: string[], locale: string): string {

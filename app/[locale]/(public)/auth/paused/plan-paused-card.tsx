@@ -2,7 +2,10 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { Status } from "@/generated/prisma";
 
+import { LeaveInactiveWorkspaceDialog } from "@/app/components/workspaces/leave-inactive-workspace-dialog";
 import { workspaceDisplayName, workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { AppCard } from "@/components/card/app-card";
@@ -21,8 +24,11 @@ type Props = {
 const PlanPausedCardContent = observer(function PlanPausedCard({ ownerName }: Props) {
   const t = useTranslations();
   const { workspacesStore } = useRootStore();
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
   const fallback = t("Workspaces.fallbackName");
-  const workspace = workspaceDisplayName(workspacesStore.current?.name, fallback);
+  const current = workspacesStore.current;
+  const canLeave = current?.status === Status.inactive;
+  const workspace = workspaceDisplayName(current?.name, fallback);
   const others = workspacesStore.others;
   const plan = t(`Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}`);
 
@@ -55,7 +61,7 @@ const PlanPausedCardContent = observer(function PlanPausedCard({ ownerName }: Pr
                       variant="secondary"
                       onClick={() => workspacesStore.requestSwitch(other.companyId)}
                     >
-                      <WorkspaceAvatar companyId={other.companyId} name={name} size="sm" />
+                      <WorkspaceAvatar companyId={other.companyId} logoUrl={other.logoUrl} name={name} size="sm" />
 
                       <span className="min-w-0 flex-1 truncate text-left">{name}</span>
                     </Button>
@@ -67,11 +73,31 @@ const PlanPausedCardContent = observer(function PlanPausedCard({ ownerName }: Pr
         ) : null}
       </AppCardBody>
 
-      <AppCardFooter>
+      <AppCardFooter className="flex-col gap-2">
         <Button className="w-full" variant="ink" onClick={() => window.location.reload()}>
           {t("Common.actions.refresh")}
         </Button>
+
+        {canLeave ? (
+          <Button
+            className="w-full"
+            id="plan-paused-leave"
+            variant="ghostDestructive"
+            onClick={() => setConfirmingLeave(true)}
+          >
+            {t("Workspaces.leave")}
+          </Button>
+        ) : null}
       </AppCardFooter>
+
+      <LeaveInactiveWorkspaceDialog
+        anchorScope="plan-paused-leave-confirm"
+        companyId={current?.companyId ?? null}
+        name={workspace}
+        open={confirmingLeave}
+        reason="pausedByPlan"
+        onClose={() => setConfirmingLeave(false)}
+      />
     </AppCard>
   );
 });

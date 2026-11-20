@@ -16,6 +16,8 @@ model AuthUser {
   image              String?
   companyId          String?
   trialConsumedAt    DateTime?
+  signupLastPage     String?            @db.VarChar(512)
+  signupCampaign     String?            @db.VarChar(1024)
   /// Platform operator access belongs to the login, not to one of its workspace memberships.
   isPlatformOperator Boolean            @default(false)
   createdAt          DateTime           @default(now())
@@ -201,16 +203,28 @@ model User {
   dataViews                       DataView[]
   hiddenDataViews                 DataViewHidden[]
   publicViewLinks                 PublicViewLink[]
+  publicForms                     PublicForm[]
+  incomingWebhooks                IncomingWebhook[]
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
   ownedRoutines                   Routine[]
+  automationRules                 AutomationRule[]
+  notifications                   Notification[]
+  notificationPreferences         NotificationPreference[]
+  notificationPauses              NotificationPause[]
   agentCreditAdjustments          AgentCreditAdjustment[]
   adAttributions                  AdAttribution[]
   recordAssignments               RecordAssignment[]
   recordEventSubscriptions        RecordEventSubscription[]
   uploadedRecordFiles             RecordFile[]
   calendarSubscriptions           CalendarSubscription[]
+  bookingLinks                    BookingLink[]
+  bookingLinkHosts                BookingLinkHost[]
+  hostedBookings                  Booking[]              @relation("BookingHost")
+  agentProviderKeys               AgentProviderKey[]
+  agentRunners                    AgentRunner[]
+  agentJobs                       AgentJob[]
 
   @@unique([companyId, id])
   @@unique([companyId, email])
@@ -230,6 +244,16 @@ model Company {
   updatedAt                   DateTime                         @updatedAt
   tags                        String[]                         @default([])
   allowPublicLinks            Boolean                          @default(true)
+  signupTemplate              String?                          @db.VarChar(64)
+  agentFirstCallAt            DateTime?
+  signupLastPage              String?                          @db.VarChar(512)
+  discoveryChoice             String?                          @db.VarChar(32)
+  discoveryDetail             String?                          @db.VarChar(200)
+  discoveryUserId             String?
+  discoveryAnsweredAt         DateTime?
+  signupCampaign              Json?
+  teamSize                    String?                          @db.VarChar(16)
+  agentLastCallAt             DateTime?
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
@@ -247,6 +271,11 @@ model Company {
   dataViewRoleShares          DataViewRoleShare[]
   hiddenDataViews             DataViewHidden[]
   publicViewLinks             PublicViewLink[]
+  brand                       CompanyBrand?
+  publicForms                 PublicForm[]
+  publicFormSubmissions       PublicFormSubmission[]
+  incomingWebhooks            IncomingWebhook[]
+  incomingWebhookDeliveries   IncomingWebhookDelivery[]
   webhooks                    Webhook[]
   webhookDeliveries           WebhookDelivery[]
   connectedAccounts           ConnectedAccount[]
@@ -258,6 +287,10 @@ model Company {
   accountActivities           AccountActivity[]
   calendars                   Calendar[]
   calendarEvents              CalendarEvent[]
+  calendarEventRecordLinks    CalendarEventRecordLink[]
+  bookingLinks                BookingLink[]
+  bookingLinkHosts            BookingLinkHost[]
+  bookings                    Booking[]
   subscription                Subscription?
   agentConversations          AgentConversation[]
   agentRunLeases              AgentRunLease[]
@@ -271,6 +304,14 @@ model Company {
   agentUiCommandResults       AgentUiCommandResult[]
   routines                    Routine[]
   routineRuns                 RoutineRun[]
+  automationRules             AutomationRule[]
+  automationRuleRuns          AutomationRuleRun[]
+  notifications               Notification[]
+  notificationPreferences     NotificationPreference[]
+  notificationPauses          NotificationPause[]
+  agentProviderKeys           AgentProviderKey[]
+  agentRunners                AgentRunner[]
+  agentJobs                   AgentJob[]
   recordTypes                 RecordTypeDefinition[]
   recordFields                RecordFieldDefinition[]
   recordRelationships         RecordRelationshipDefinition[]
@@ -797,6 +838,106 @@ model PublicViewLink {
 
   @@index([companyId, viewId])
   @@index([createdById])
+}
+
+/// The logo and accent colour a workspace shows on its booking pages and public forms. Its own table so the logo bytes are never read together with the workspace row; logoKey is the public address of the image and changes with every upload.
+model CompanyBrand {
+  companyId   String   @id
+  accentColor String?  @db.VarChar(7)
+  logo        Bytes?
+  logoType    String?  @db.VarChar(32)
+  logoKey     String?  @unique @db.VarChar(64)
+  updatedAt   DateTime @updatedAt
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model PublicForm {
+  id              String                 @id @default(uuid())
+  companyId       String
+  typeId          String
+  name            String
+  createdById     String
+  enabled         Boolean                @default(true)
+  config          Json
+  consentVersion  Int                    @default(1)
+  submissionCount Int                    @default(0)
+  lastSubmittedAt DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  company         Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type            RecordTypeDefinition   @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  /// The member whose access the form uses. A form belongs to its list, so removing the member row is refused while it still owns a form; the hand-over moves forms to an admin first.
+  createdBy       User                   @relation(fields: [companyId, createdById], references: [companyId, id], onDelete: Restrict)
+  submissions     PublicFormSubmission[]
+
+  @@unique([companyId, typeId])
+  @@index([createdById])
+}
+
+model PublicFormSubmission {
+  id             String     @id @default(uuid())
+  companyId      String
+  formId         String
+  outcome        String
+  recordId       String?
+  personRecordId String?
+  ipHash         String?
+  locale         String?
+  /// Only for the outcome duplicate: what the visitor answered, because no record was created from it.
+  answers        Json?
+  consentText    String?
+  consentVersion Int?
+  consentedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  company        Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  form           PublicForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId, createdAt])
+  @@index([companyId, createdAt])
+  @@index([formId, ipHash, createdAt])
+  @@index([createdAt])
+}
+
+model IncomingWebhook {
+  id              String                    @id @default(uuid())
+  companyId       String
+  typeId          String
+  name            String
+  createdById     String
+  enabled         Boolean                   @default(true)
+  tokenVersion    Int                       @default(1)
+  signingSecret   String?
+  signatureHeader String                    @default("x-signature")
+  mapping         Json
+  samplePayload   Json?
+  lastReceivedAt  DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  company         Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type            RecordTypeDefinition      @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  createdBy       User                      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  deliveries      IncomingWebhookDelivery[]
+
+  @@index([companyId, typeId])
+  @@index([createdById])
+}
+
+model IncomingWebhookDelivery {
+  id           String          @id @default(uuid())
+  companyId    String
+  webhookId    String
+  outcome      String
+  statusCode   Int
+  message      String?
+  recordId     String?
+  payloadBytes Int
+  payload      Json?
+  createdAt    DateTime        @default(now())
+  company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  webhook      IncomingWebhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, createdAt])
+  @@index([companyId, createdAt])
 }
 
 model InviteToken {
@@ -1575,19 +1716,21 @@ model Calendar {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   events             CalendarEvent[]
+  bookingLinks       BookingLink[]
+  bookingLinkHosts   BookingLinkHost[]
 
   @@unique([connectedAccountId, unipileCalendarId])
   @@index([companyId])
 }
 
 model CalendarEvent {
-  id                 String              @id @default(uuid())
+  id                 String                    @id @default(uuid())
   companyId          String
-  company            Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company            Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   connectedAccountId String
-  connectedAccount   ConnectedAccount    @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  connectedAccount   ConnectedAccount          @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
   calendarId         String
-  calendar           Calendar            @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  calendar           Calendar                  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   unipileEventId     String
   title              String
   description        String?
@@ -1595,17 +1738,20 @@ model CalendarEvent {
   conferenceUrl      String?
   startsAt           DateTime
   endsAt             DateTime
-  allDay             Boolean             @default(false)
+  allDay             Boolean                   @default(false)
   timezone           String?
   recurrenceRule     String?
-  status             CalendarEventStatus @default(confirmed)
+  status             CalendarEventStatus       @default(confirmed)
   visibility         String?
-  attendees          Json                @default("[]")
+  transparency       String?
+  attendees          Json                      @default("[]")
   organizer          Json?
   attendeeEmails     String[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  recordLinks        CalendarEventRecordLink[]
 
+  @@unique([companyId, id])
   @@unique([connectedAccountId, unipileEventId])
   @@index([companyId, startsAt])
   @@index([attendeeEmails], type: Gin)
@@ -1614,6 +1760,139 @@ model CalendarEvent {
 enum CalendarEventStatus {
   confirmed
   cancelled
+}
+
+model CalendarEventRecordLink {
+  companyId       String
+  calendarEventId String
+  typeId          String
+  recordId        String
+  createdAt       DateTime      @default(now())
+  event           CalendarEvent @relation(fields: [companyId, calendarEventId], references: [companyId, id], onDelete: Cascade)
+  record          CrmRecord     @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, calendarEventId, typeId, recordId])
+  @@index([companyId, typeId, recordId])
+}
+
+enum BookingStatus {
+  reserved
+  confirmed
+  cancelled
+}
+
+enum BookingAssignment {
+  single
+  roundRobin
+}
+
+enum BookingActor {
+  invitee
+  host
+}
+
+model BookingLink {
+  id                   String    @id @default(uuid())
+  companyId            String
+  userId               String
+  /// Null once the calendar is gone (account disconnected or calendar deleted); the page is then unavailable until the owner picks one.
+  calendarId           String?
+  token                String    @unique
+  title                String
+  description          String?
+  durationMinutes      Int
+  bufferMinutes        Int       @default(0)
+  minNoticeMinutes     Int       @default(240)
+  horizonDays          Int       @default(30)
+  timeZone             String
+  workingHours         Json
+  withVideo            Boolean   @default(false)
+  personTypeId         String?
+  personRelationshipId String?
+  recordTypeId         String?
+  startFieldId         String?
+  questions            Json      @default("[]")
+  successMessage       String?
+  enabled              Boolean   @default(true)
+  /// single books the owner; roundRobin offers a time when any host is free and books the host with the fewest upcoming bookings.
+  assignment           BookingAssignment @default(single)
+  /// Whether the visitor may cancel or move the booking through the private link they receive.
+  inviteeChanges       Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  company              Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                 User      @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
+  calendar             Calendar? @relation(fields: [calendarId], references: [id], onDelete: SetNull)
+  bookings             Booking[]
+  hosts                BookingLinkHost[]
+
+  @@unique([companyId, id])
+  @@index([companyId, userId])
+  @@index([calendarId])
+}
+
+/// A further host of a round robin booking page. The owner of the page is always a host through BookingLink.calendarId.
+model BookingLinkHost {
+  bookingLinkId String
+  companyId     String
+  userId        String
+  /// Null once the calendar is gone; this host is then skipped until a calendar is chosen again.
+  calendarId    String?
+  position      Int         @default(0)
+  createdAt     DateTime    @default(now())
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  link          BookingLink @relation(fields: [companyId, bookingLinkId], references: [companyId, id], onDelete: Cascade)
+  user          User        @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
+  calendar      Calendar?   @relation(fields: [calendarId], references: [id], onDelete: SetNull)
+
+  @@id([bookingLinkId, userId])
+  @@index([companyId, userId])
+  @@index([calendarId])
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  companyId       String
+  bookingLinkId   String
+  calendarEventId String?
+  slotKey         String?
+  status          BookingStatus @default(reserved)
+  inviteeName     String
+  inviteeEmail    String
+  startsAt        DateTime
+  endsAt          DateTime
+  timeZone        String
+  answers         Json          @default("{}")
+  personTypeId    String?
+  personRecordId  String?
+  recordTypeId    String?
+  recordId        String?
+  ipHash          String?
+  /// The member whose calendar holds the meeting: the owner of the page, or the host a round robin page chose.
+  hostUserId      String
+  /// Opens the private page on which the visitor cancels or moves the booking.
+  manageToken     String        @unique
+  cancelledBy     BookingActor?
+  cancelReason    String?
+  cancelledAt     DateTime?
+  rescheduledAt   DateTime?
+  /// The language of the visitor's booking page, used for the emails to the visitor.
+  locale          String?       @db.VarChar(8)
+  /// When the reminder about 24 hours before the start was sent, or when the booking was made or moved to a start less than 24 hours away, which needs none; null while a reminder is still due.
+  reminderSentAt  DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  link            BookingLink   @relation(fields: [companyId, bookingLinkId], references: [companyId, id], onDelete: Cascade)
+  host            User          @relation("BookingHost", fields: [companyId, hostUserId], references: [companyId, id], onDelete: Cascade)
+
+  @@unique([bookingLinkId, slotKey])
+  @@index([companyId, hostUserId, startsAt])
+  @@index([companyId, bookingLinkId, startsAt])
+  @@index([companyId, inviteeEmail])
+  @@index([endsAt])
+  @@index([status, reminderSentAt, startsAt])
 }
 
 model MessagingFolderPassMessage {
@@ -1753,6 +2032,7 @@ enum AgentUsagePurpose {
   calculationDraft
   commandResolve
   fileIndexing
+  automationCompose
 }
 
 enum AgentUsageCostSource {
@@ -2026,6 +2306,143 @@ model RoutineRun {
   @@index([conversationId])
 }
 
+enum AutomationTriggerKind {
+  recordCreated
+  recordUpdated
+  fieldChanged
+  dateReached
+  messageReceived
+  formSubmitted
+  webhookReceived
+  bookingChanged
+}
+
+enum AutomationRunStatus {
+  queued
+  running
+  applied
+  skipped
+  failed
+}
+
+model AutomationRule {
+  id             String                @id @default(uuid())
+  companyId      String
+  ownerUserId    String?
+  name           String
+  enabled        Boolean               @default(true)
+  triggerKind    AutomationTriggerKind
+  typeId         String?
+  trigger        Json
+  conditions     Json                  @default("[]")
+  effects        Json
+  disabledReason String?
+  lastRunAt      DateTime?
+  lastRunStatus  AutomationRunStatus?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  company        Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner          User?                 @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+  runs           AutomationRuleRun[]
+
+  @@unique([companyId, id])
+  @@index([companyId, enabled, triggerKind, typeId])
+  @@index([enabled, triggerKind])
+  @@index([ownerUserId])
+}
+
+model AutomationRuleRun {
+  id            String                @id @default(uuid())
+  companyId     String
+  ruleId        String
+  occurrenceKey String
+  status        AutomationRunStatus   @default(queued)
+  triggerKind   AutomationTriggerKind
+  typeId        String?
+  recordId      String?
+  payload       Json?
+  outcome       Json?
+  error         String?
+  depth         Int                   @default(0)
+  scheduledFor  DateTime
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  company       Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  rule          AutomationRule        @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, occurrenceKey])
+  @@index([companyId, ruleId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum NotificationKind {
+  dueToday
+  ruleAlert
+  replyReceived
+}
+
+enum NotificationEmailMode {
+  instant
+  digest
+  off
+}
+
+model Notification {
+  id               String           @id @default(uuid())
+  companyId        String
+  userId           String
+  kind             NotificationKind
+  title            String
+  body             String?
+  href             String?
+  sourceRuleId     String?
+  dedupeKey        String?
+  readAt           DateTime?
+  /// Set when the row needs no further email: mailed, or created while the kind was off or the member paused.
+  emailedAt        DateTime?
+  /// True only when an instant email for this row was accepted; the hourly instant cap counts these.
+  emailedInstantly Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId, dedupeKey])
+  @@index([companyId, userId, readAt, createdAt])
+  @@index([companyId, userId, createdAt])
+  @@index([emailedAt, createdAt])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  companyId String
+  userId    String
+  kind      NotificationKind
+  emailMode NotificationEmailMode
+  updatedAt DateTime              @updatedAt
+  company   Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, userId, kind])
+  @@index([userId])
+}
+
+model NotificationPause {
+  companyId String
+  userId    String
+  until     DateTime
+  /// IANA zone the member chose the end day in; `until` is the start of that day there.
+  timeZone  String
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, userId])
+  @@index([userId])
+}
+
 enum WikiPageProposalAction {
   create
   update
@@ -2133,6 +2550,10 @@ enum CompanyFunnelEventType {
   setupCompleted
   channelConnected
   agentConnected
+  channelSkipped
+  inviteSent
+  inviteAccepted
+  paid
 }
 
 model CompanyFunnelEvent {
@@ -2241,6 +2662,8 @@ model RecordTypeDefinition {
   incoming           RecordRelationshipDefinition[] @relation("RecordRelationshipTarget")
   grants             RecordTypeGrant[]
   eventSubscriptions RecordEventSubscription[]
+  publicForms        PublicForm[]
+  incomingWebhooks   IncomingWebhook[]
 
   @@id([companyId, id])
   @@index([companyId, archived, position])
@@ -2286,24 +2709,25 @@ model RecordRelationshipDefinition {
 }
 
 model CrmRecord {
-  companyId   String
-  typeId      String
-  id          String                      @default(uuid())
-  version     Int                         @default(1)
-  systemData  Json?
-  rank        String?
-  deletedAt   DateTime?
-  trashItemId String?
-  createdAt   DateTime                    @default(now())
-  updatedAt   DateTime                    @updatedAt
-  company     Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  type        RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
-  values      RecordValue[]
-  outgoing    RecordLink[]                @relation("RecordLinkSource")
-  incoming    RecordLink[]                @relation("RecordLinkTarget")
-  assignments RecordAssignment[]
-  identities  RecordIdentityLink[]
-  threads     MessagingThreadRecordLink[]
+  companyId      String
+  typeId         String
+  id             String                      @default(uuid())
+  version        Int                         @default(1)
+  systemData     Json?
+  rank           String?
+  deletedAt      DateTime?
+  trashItemId    String?
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+  company        Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type           RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  values         RecordValue[]
+  outgoing       RecordLink[]                @relation("RecordLinkSource")
+  incoming       RecordLink[]                @relation("RecordLinkTarget")
+  assignments    RecordAssignment[]
+  identities     RecordIdentityLink[]
+  threads        MessagingThreadRecordLink[]
+  calendarEvents CalendarEventRecordLink[]
 
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])
@@ -2700,4 +3124,107 @@ model CalendarSubscription {
   user                  User     @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
 
   @@index([companyId, userId])
+}
+
+enum AgentProvider {
+  anthropic
+  openai
+  google
+}
+
+enum AgentRuntime {
+  mate
+  ownKey
+  runner
+}
+
+enum AgentJobStatus {
+  queued
+  claimed
+  running
+  succeeded
+  failed
+  timedOut
+  cancelled
+}
+
+model AgentProviderKey {
+  id            String        @id @default(uuid())
+  companyId     String
+  provider      AgentProvider
+  label         String
+  keyCiphertext String
+  keyLast4      String
+  defaultModel  String?
+  createdById   String
+  validatedAt   DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy     User          @relation(fields: [companyId, createdById], references: [companyId, id], onDelete: Cascade)
+
+  @@unique([companyId, provider])
+  @@index([companyId, createdById])
+}
+
+model AgentRunner {
+  id          String     @id @default(uuid())
+  companyId   String
+  name        String
+  tokenHash   String     @unique
+  machine     String?
+  clients     Json       @default("[]")
+  lastSeenAt  DateTime?
+  revokedAt   DateTime?
+  createdById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy   User       @relation(fields: [companyId, createdById], references: [companyId, id], onDelete: Cascade)
+  jobs        AgentJob[]
+
+  @@unique([companyId, id])
+  @@index([companyId, revokedAt])
+}
+
+model AgentJob {
+  id              String         @id @default(uuid())
+  companyId       String
+  runtime         AgentRuntime
+  status          AgentJobStatus @default(queued)
+  sourceKind      String
+  sourceId        String?
+  idempotencyKey  String?
+  ruleChain       String[]       @default([])
+  ownerUserId     String
+  prompt          String
+  promptUntrusted Boolean        @default(false)
+  model           String?
+  pinnedRunnerId  String?
+  runnerId        String?
+  attempts        Int            @default(0)
+  startedAttempts Int            @default(0)
+  queuedAt        DateTime       @default(now())
+  claimedAt       DateTime?
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  timeoutAt       DateTime?
+  result          Json?
+  transcript      Json?
+  inputTokens     Int?
+  outputTokens    Int?
+  costMicrocents  BigInt?
+  error           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  company         Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner           User           @relation(fields: [companyId, ownerUserId], references: [companyId, id], onDelete: Cascade)
+  runner          AgentRunner?   @relation(fields: [runnerId], references: [id], onDelete: SetNull)
+
+  @@unique([companyId, idempotencyKey])
+  @@index([companyId, status, createdAt])
+  @@index([companyId, runnerId, status])
+  @@index([status, timeoutAt])
+  @@index([status, queuedAt])
 }

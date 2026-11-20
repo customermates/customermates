@@ -2,6 +2,7 @@
 
 import type { SubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 import type { CheckoutState } from "@/ee/subscription/checkout-state";
+import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-refusal";
 import type { WorkspaceDeleteRefusal } from "@/features/workspace/workspace-deletion-refusal";
 
 import { observer } from "mobx-react-lite";
@@ -27,12 +28,18 @@ import {
   DeleteWorkspaceDialog,
   DeleteWorkspaceReason,
 } from "@/app/components/workspaces/delete-workspace-dialog";
+import {
+  LeaveWorkspaceButton,
+  LeaveWorkspaceDialog,
+  LeaveWorkspaceReason,
+} from "@/app/components/workspaces/leave-workspace-dialog";
 
 type Props = {
   recoveryPath: SubscriptionRecoveryPath;
   firstPlan: boolean;
   checkout: CheckoutState;
   deleteRefusal?: WorkspaceDeleteRefusal | null;
+  leaveRefusal: WorkspaceLeaveRefusal | null;
 };
 
 function currentDeleteRefusal(
@@ -43,9 +50,12 @@ function currentDeleteRefusal(
   return checkout === "pending" ? "checkoutPending" : null;
 }
 
-const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, checkout, deleteRefusal }: Props) => {
+const SubscriptionExpiredViewContent = observer((props: Props) => {
+  const { recoveryPath, firstPlan, checkout, deleteRefusal, leaveRefusal } = props;
   const t = useTranslations();
-  const { subscriptionExpiredStore, loadingOverlayStore, workspacesStore } = useRootStore();
+  const { appMode, subscriptionExpiredStore, loadingOverlayStore, workspacesStore } = useRootStore();
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const canLeave = appMode !== "demo";
   const workspaceName = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
   const selfServiceCheckout = recoveryPath === "selfServiceCheckout";
   const choosingFirstPlan = firstPlan && selfServiceCheckout;
@@ -114,6 +124,22 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, chec
           {t("SubscriptionExpiredView.contactSupportCta")}
         </Button>
 
+        {canLeave ? (
+          <div className="flex w-full flex-col items-center">
+            <LeaveWorkspaceButton
+              fullWidth
+              id="subscription-expired-leave"
+              label={t("Workspaces.leave")}
+              refusal={leaveRefusal}
+              size="default"
+              variant="ghostDestructive"
+              onClick={() => setConfirmingLeave(true)}
+            />
+
+            <LeaveWorkspaceReason className="mt-1 text-center" id="subscription-expired-leave" refusal={leaveRefusal} />
+          </div>
+        ) : null}
+
         {deletion === undefined ? null : (
           <div className="flex w-full flex-col items-center">
             <DeleteWorkspaceButton
@@ -129,6 +155,15 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, chec
           </div>
         )}
       </AppCardFooter>
+
+      {canLeave ? (
+        <LeaveWorkspaceDialog
+          anchorScope="subscription-expired-leave-confirm"
+          name={workspaceName}
+          open={confirmingLeave}
+          onClose={() => setConfirmingLeave(false)}
+        />
+      ) : null}
 
       {deletion === undefined ? null : (
         <DeleteWorkspaceDialog

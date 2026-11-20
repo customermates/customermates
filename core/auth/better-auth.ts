@@ -4,7 +4,7 @@ import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
 import { z } from "zod";
-import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
+import { APIError, createAuthMiddleware, getOAuthState, getSessionFromCtx } from "better-auth/api";
 import * as ErrorReporter from "@/core/observability/server";
 
 import { prisma } from "@/prisma/db";
@@ -12,6 +12,8 @@ import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { env } from "@/env";
 import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
+import { SignupLastPageSchema } from "@/features/acquisition/signup-last-page";
+import { EncodedSignupCampaignSchema } from "@/features/acquisition/signup-campaign";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api-key/api-key-name";
@@ -70,6 +72,8 @@ const VERIFIED_LANDING_PATH = "/auth/verify-email?verified=1";
 
 const CHANGE_PASSWORD_PATH = "/change-password";
 
+const API_KEY_HEADER = "x-api-key";
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: env.AUTH_ALLOWED_HOSTS,
@@ -86,6 +90,13 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.request && (ctx.request.headers.has(API_KEY_HEADER) || ctx.headers?.has(API_KEY_HEADER))) {
+        throw new APIError("FORBIDDEN", {
+          code: "API_KEY_NOT_ACCEPTED",
+          message: "API keys are not accepted on the auth endpoints",
+        });
+      }
+
       if (ctx.path === CHANGE_PASSWORD_PATH) return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
 
       const apiKeyAction = apiKeyRouteAction(ctx.path);
@@ -198,6 +209,23 @@ export const auth = betterAuth({
   }),
 
   databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const state = await getOAuthState();
+          const lastPage = SignupLastPageSchema.safeParse(state?.signupLastPage);
+          const campaign = EncodedSignupCampaignSchema.safeParse(state?.signupCampaign);
+          if (!lastPage.success && !campaign.success) return undefined;
+          return {
+            data: {
+              ...user,
+              ...(lastPage.success ? { signupLastPage: lastPage.data } : {}),
+              ...(campaign.success ? { signupCampaign: campaign.data } : {}),
+            },
+          };
+        },
+      },
+    },
     session: {
       create: {
         after: async (session) => {
@@ -246,6 +274,20 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null,
         input: false,
+      },
+      signupLastPage: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+        returned: false,
+      },
+      signupCampaign: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+        returned: false,
       },
     },
   },
@@ -316,6 +358,7 @@ export const auth = betterAuth({
   plugins: [
     ...(oauthProxy ? [oauthProxy] : []),
     apiKey({
+      apiKeyHeaders: API_KEY_HEADER,
       rateLimit: {
         enabled: false,
       },
@@ -351,6 +394,49 @@ export async function bindApiKeyToCompany(keyId: string, authUserId: string, com
   return bound.count === 1;
 }
 
+export async function issueExpiringApiKey(args: {
+  authUserId: string;
+  companyId: string;
+  name: string;
+  expiresAt: Date;
+  metadata?: string;
+}): Promise<{ id: string; key: string }> {
+  const created = await auth.api.createApiKey({
+    body: { name: args.name, userId: args.authUserId, expiresIn: API_KEY_MIN_EXPIRATION_DAYS * 24 * 60 * 60 },
+  });
+  const bound = await prisma.apikey.updateMany({
+    where: { id: created.id, referenceId: args.authUserId, companyId: null },
+    data: {
+      companyId: args.companyId,
+      expiresAt: args.expiresAt,
+      ...(args.metadata === undefined ? {} : { metadata: args.metadata }),
+    },
+  });
+  if (bound.count !== 1) {
+    await prisma.apikey.deleteMany({ where: { id: created.id } });
+    throw new Error("API key could not be bound to its workspace");
+  }
+  return { id: created.id, key: created.key };
+}
+
+export async function revokeApiKeysNamed(companyId: string, name: string): Promise<number> {
+  const removed = await prisma.apikey.deleteMany({ where: { companyId, name } });
+  return removed.count;
+}
+
+export async function apiKeyRequestsNamed(companyId: string, name: string): Promise<number> {
+  const used = await prisma.apikey.aggregate({ where: { companyId, name }, _sum: { requestCount: true } });
+  return used._sum.requestCount ?? 0;
+}
+
+export async function countApiKeyRequest(keyId: string, limit: number): Promise<boolean> {
+  const counted = await prisma.apikey.updateMany({
+    where: { id: keyId, requestCount: { lt: limit } },
+    data: { requestCount: { increment: 1 } },
+  });
+  return counted.count === 1;
+}
+
 export async function revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
   const apiKeys = await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
     where: { referenceId: authUserId, companyId },
@@ -359,6 +445,21 @@ export async function revokeMembershipCredentials(authUserId: string, companyId:
     where: { userId: authUserId, companyId },
   });
   return apiKeys.count + tokens.count;
+}
+
+export async function revokeOauthClientTokens(args: {
+  authUserId: string;
+  companyId: string;
+  clientId: string;
+}): Promise<number> {
+  const tokens = await (getTransactionClient<typeof prisma>() ?? prisma).oauthAccessToken.deleteMany({
+    where: {
+      userId: args.authUserId,
+      clientId: args.clientId,
+      OR: [{ companyId: args.companyId }, { companyId: null }],
+    },
+  });
+  return tokens.count;
 }
 
 export async function deleteApiKeysForIdentities(identityIds: string[]): Promise<void> {

@@ -12,14 +12,14 @@ import VerifyEmail from "../verify-email";
 import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
 const EXPECTED_LAYOUT_COPY = {
-  de: { country: "Deutschland", tagline: "Das Open-Source-CRM zum Nachfassen" },
-  en: { country: "Germany", tagline: "The open-source CRM for client follow-up" },
-  es: { country: "Alemania", tagline: "El CRM de código abierto para el seguimiento de clientes" },
-  fr: { country: "Allemagne", tagline: "Le CRM open source pour relancer vos clients" },
-  it: { country: "Germania", tagline: "Il CRM open source per seguire ogni cliente" },
-  nl: { country: "Duitsland", tagline: "De open-source CRM voor het opvolgen van klanten" },
-  pl: { country: "Niemcy", tagline: "CRM open source do pilnowania kontaktu z klientami" },
-  pt: { country: "Alemanha", tagline: "O CRM de código aberto para o acompanhamento de clientes" },
+  de: { country: "Deutschland", tagline: "Das CRM zum Nachfassen mit einsehbarem Quellcode" },
+  en: { country: "Germany", tagline: "The source-available CRM for client follow-up" },
+  es: { country: "Alemania", tagline: "El CRM autoalojable para el seguimiento de clientes" },
+  fr: { country: "Allemagne", tagline: "Le CRM source-available pour relancer vos clients" },
+  it: { country: "Germania", tagline: "Il CRM source-available per seguire ogni cliente" },
+  nl: { country: "Duitsland", tagline: "De source-available CRM voor het opvolgen van klanten" },
+  pl: { country: "Niemcy", tagline: "CRM source-available do pilnowania kontaktu z klientami" },
+  pt: { country: "Alemanha", tagline: "O CRM com hospedagem própria para o acompanhamento de clientes" },
 } satisfies Record<AppLocale, { country: string; tagline: string }>;
 
 const verifyEmailCopy = {

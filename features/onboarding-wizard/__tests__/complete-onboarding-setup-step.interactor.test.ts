@@ -29,6 +29,29 @@ describe("CompleteOnboardingSetupStepInteractor", () => {
     expect(repo.markOnboardingSetupStepCompleted).toHaveBeenCalledExactlyOnceWith({ userId: owner.id });
   });
 
+  it("records the goal event of the empty workspace path, which no other step writes, and never twice", async () => {
+    const funnel = { recordFunnelEvent: vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false) };
+    const withFunnel = new CompleteOnboardingSetupStepInteractor(repo as never, routeGuardService as never, funnel);
+
+    await expect(withFunnel.invoke()).resolves.toEqual({ ok: true, data: { completed: true } });
+    await expect(withFunnel.invoke()).resolves.toEqual({ ok: true, data: { completed: true } });
+
+    expect(funnel.recordFunnelEvent).toHaveBeenCalledTimes(2);
+    expect(funnel.recordFunnelEvent).toHaveBeenCalledWith({ type: "jobSelected", occurredAt: expect.any(Date) });
+  });
+
+  it("writes no event for an invited member", async () => {
+    const funnel = { recordFunnelEvent: vi.fn() };
+    routeGuardService.resolveAccountState.mockResolvedValue({
+      state: "onboarding",
+      user: createMockUserWithPermissions([]),
+    });
+
+    await new CompleteOnboardingSetupStepInteractor(repo as never, routeGuardService as never, funnel).invoke();
+
+    expect(funnel.recordFunnelEvent).not.toHaveBeenCalled();
+  });
+
   it("redirects invited members without writing", async () => {
     routeGuardService.resolveAccountState.mockResolvedValue({
       state: "onboarding",

@@ -56,7 +56,7 @@ export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<LeaveWorks
         if (!(await this.repo.leaveCompanyWide(userId)))
           return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
         try {
-          await this.departure.announce(member);
+          await this.departure.announce(member, "left");
         } catch (error) {
           return unwoundFailure(error);
         }

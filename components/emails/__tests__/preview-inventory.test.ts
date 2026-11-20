@@ -6,18 +6,21 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
 
 import { render } from "@react-email/render";
+import { createTranslator } from "next-intl";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import AccountAccessRevoked from "../account-access-revoked";
 import AccountsRemovedNotice from "../accounts-removed-notice";
 import BillingWebhookAlert from "../billing-webhook-alert";
+import BookingEmail from "../booking-email";
 import CompanyInvite from "../company-invite";
 import ContactInquiry from "../contact-inquiry";
 import Feedback from "../feedback";
 import LegalDocumentNoticeContract from "../legal-document-notice-contract";
 import LegalDocumentNoticeInformation from "../legal-document-notice-information";
 import NewUserNotification from "../new-user-notification";
+import NotificationEmail from "../notification-email";
 import PlanPauseNotice from "../plan-pause-notice";
 import ResetPassword from "../reset-password";
 import SubscriptionInactivationNotice from "../subscription-inactivation-notice";
@@ -387,6 +390,67 @@ const EMAIL_PREVIEW_CASES = [
     },
   },
   {
+    key: "notification-email",
+    sendSite: "notification-email",
+    audience: "recipient-localized",
+    sourcePath: "features/notifications/email-notification-mailer.ts",
+    templatePath: "components/emails/notification-email.tsx",
+    template: NotificationEmail,
+    expectedText: (locale) => catalog(locale).NotificationEmail.title,
+    render: (locale) => {
+      const copy = catalog(locale).NotificationEmail;
+      return createElement(NotificationEmail, {
+        ...previewLayoutProps(locale),
+        greeting: withFirstName(copy.greeting),
+        intro: copy.digestIntro,
+        items: [{ title: "Hoffmann Consulting", body: "Follow-up" }],
+        cta: copy.cta,
+        href: `${PREVIEW_BASE_URL}/records`,
+        footerReason: createTranslator({
+          locale,
+          messages: catalog(locale),
+          namespace: "NotificationEmail",
+        })("footerReason", { count: 1, sources: "Hoffmann Consulting" }),
+        turnOffLinks: [
+          { label: copy.turnOffKind, href: `${PREVIEW_BASE_URL}/api/notifications/unsubscribe?token=preview` },
+        ],
+        manage: { label: copy.manageNotifications, href: `${PREVIEW_BASE_URL}/settings/profile` },
+        subject: copy.digestSubject,
+        title: copy.title,
+      });
+    },
+  },
+  {
+    key: "booking-email",
+    sendSite: "booking-email",
+    audience: "recipient-localized",
+    sourcePath: "ee/calendar/booking-mailer.ts",
+    templatePath: "components/emails/booking-email.tsx",
+    template: BookingEmail,
+    expectedText: (locale) => catalog(locale).BookingEmail.confirmedTitle,
+    render: (locale) => {
+      const copy = catalog(locale).BookingEmail;
+      const when = localizedDate(locale, "2026-11-20T09:00:00.000Z");
+      const named = (value: string) =>
+        value.replace("{page}", "Intro call").replace("{host}", "Anna Müller").replace("{date}", when);
+      return createElement(BookingEmail, {
+        ...previewLayoutProps(locale),
+        brandName: "Hoffmann Consulting",
+        subject: named(copy.confirmedSubject),
+        title: copy.confirmedTitle,
+        greeting: copy.greeting.replace("{name}", PREVIEW_FIRST_NAME),
+        intro: named(copy.confirmedIntro),
+        details: [
+          { label: copy.labelWhen, value: when },
+          { label: copy.labelHost, value: "Anna Müller" },
+        ],
+        manage: { label: copy.manage, href: `${PREVIEW_BASE_URL}/book/manage/synthetic-preview-token` },
+        accent: null,
+        footer: withWorkspace(copy.footer),
+      });
+    },
+  },
+  {
     key: "legal-document-notice-contract",
     sendSite: "legal-document-notice",
     audience: "recipient-localized",
@@ -490,11 +554,11 @@ const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
 );
 
 describe("transactional email preview inventory", () => {
-  it("maps all 15 production send sites onto 16 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(16);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(16);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(15);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(16);
+  it("maps all 17 production send sites onto 18 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(18);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(18);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(17);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(18);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -523,11 +587,11 @@ describe("transactional email preview inventory", () => {
   });
 
   it("keeps recipient localization and internal English explicit", () => {
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(12);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(14);
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(4);
   });
 
-  it("discovers all 16 top-level production templates", () => {
+  it("discovers all 18 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -553,7 +617,7 @@ describe("transactional email preview inventory", () => {
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(100);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(116);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(
@@ -589,7 +653,7 @@ describe("transactional email preview rendering", () => {
     async (definition) => {
       const html = await render(definition.render(DEFAULT_LOCALE));
       expect(html).toMatch(/<html[^>]*\blang="en"/i);
-      expect(html).toContain("The open-source CRM for client follow-up");
+      expect(html).toContain("The source-available CRM for client follow-up");
     },
   );
 

@@ -1,5 +1,5 @@
 ---
-title: "Alternativa ao HubSpot: CRM open source para equipes"
+title: "Alternativa ao HubSpot: CRM self-hosted para equipes"
 description: "Alternativa ao HubSpot para equipes pequenas: preços e onboarding verificados em 13 de novembro de 2026 e onde Customermates, Pipedrive, Zoho e Twenty entram."
 competitorName: HubSpot
 
@@ -16,7 +16,7 @@ sections:
     - title: "Respostas redigidas, sem cobrança por excedente"
       description: "No Customermates Cloud, o Mate resume conversas, redige respostas e atualiza registros dentro de uma franquia mensal de créditos de IA hospedados por usuário ativo, sem cobrança por excedente."
     - title: "Preços mensais, sem taxa de onboarding"
-      description: "Starter, Pro e Business são de autoatendimento e cobrados por mês, sem taxa de onboarding. O núcleo AGPL-3.0 também roda no seu próprio servidor."
+      description: "Starter, Pro e Business são de autoatendimento e cobrados por mês, sem taxa de onboarding. A edição Community também roda no seu próprio servidor, para uso interno."
   switchSteps: true
 
 hero:
@@ -96,8 +96,8 @@ comparison:
         competitor: "Podem ser comprados (€ 0,010 por crédito)"
   - title: Licença, hospedagem e acesso
     features:
-      - name: Licença open source
-        source: Núcleo AGPL-3.0
+      - name: Código-fonte disponível
+        source: Sustainable Use License; ee/ sob uma licença comercial separada
         competitor: false
       - name: Hospedagem própria
         source: Docker Compose (CRM básico sem caixa de entrada e sem Mate)
@@ -122,14 +122,14 @@ cta:
   hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
 ---
 
-> A alternativa ao HubSpot certa depende do que está afastando você. Se você precisa principalmente de um pipeline de vendas e quer pular o salto para o HubSpot Professional, compare Pipedrive e Zoho CRM. Se você quer software open source no seu próprio servidor, olhe o Twenty ou o Customermates. Se os seus clientes escrevem no WhatsApp e no LinkedIn tanto quanto por e-mail, o Customermates coloca essas conversas ao lado dos seus negócios a partir do plano Pro. Se você depende das campanhas, dos formulários, do help desk ou das chamadas do HubSpot, fique. O Customermates publica esta comparação; os preços e os detalhes do HubSpot foram verificados nas páginas do próprio HubSpot em 13 de novembro de 2026.
+> A alternativa ao HubSpot certa depende do que está afastando você. Se você precisa principalmente de um pipeline de vendas e quer pular o salto para o HubSpot Professional, compare Pipedrive e Zoho CRM. Se você quer software open source no seu próprio servidor, olhe o Twenty; se basta o código-fonte disponível, olhe o Customermates. Se os seus clientes escrevem no WhatsApp e no LinkedIn tanto quanto por e-mail, o Customermates coloca essas conversas ao lado dos seus negócios a partir do plano Pro. Se você depende das campanhas, dos formulários, do help desk ou das chamadas do HubSpot, fique. O Customermates publica esta comparação; os preços e os detalhes do HubSpot foram verificados nas páginas do próprio HubSpot em 13 de novembro de 2026.
 
 ## Qual alternativa ao HubSpot combina com qual motivo?
 
 | Seu motivo para sair | Olhe para | Por quê |
 |---|---|---|
 | Você só usa o CRM, e o preço do Professional ou o onboarding obrigatório é o problema | Pipedrive ou Zoho CRM | Os dois vendem um CRM de vendas sozinho, por licença; o Zoho tem uma edição gratuita para três usuários |
-| Você quer uma licença open source ou o seu próprio servidor | Twenty ou Customermates | O HubSpot vende apenas planos hospedados |
+| Você quer uma licença open source ou o seu próprio servidor | Twenty (open source) ou Customermates (código-fonte disponível) | O HubSpot vende apenas planos hospedados |
 | Você precisa de tipos de registro próprios, como imóveis ou fundos | Twenty, HubSpot Professional ou Customermates | O Customermates começa sem listas; você cria as suas (contatos, negócios ou qualquer outra coisa) |
 | Clientes falam com você no WhatsApp, LinkedIn, Instagram ou Telegram | Customermates Pro ou Business | Todos chegam a uma só caixa de entrada ao lado do negócio |
 | Você faz campanhas de e-mail, formulários, landing pages ou help desk | Fique no HubSpot | Nenhuma alternativa aqui substitui tudo isso |
@@ -195,13 +195,13 @@ Não publicamos nenhuma nota de facilidade de uso e não conseguimos medi-la par
 
 ## Onde o Customermates se encaixa (nosso produto)
 
-Se os custos ou os limites de canais do HubSpot são o que você quer deixar para trás, o Customermates é um CRM menor, construído em torno do acompanhamento: a partir do Pro, conversas no registro do cliente, uma resposta e um próximo passo redigidos pelo Mate ou pelo seu próprio agente de IA, e você revisa, edita e envia. É open source e feito na Alemanha.
+Se os custos ou os limites de canais do HubSpot são o que você quer deixar para trás, o Customermates é um CRM menor, construído em torno do acompanhamento: a partir do Pro, conversas no registro do cliente, uma resposta e um próximo passo redigidos pelo Mate ou pelo seu próprio agente de IA, e você revisa, edita e envia. Tem o código-fonte disponível e é feito na Alemanha.
 
 **Conversas ao lado do negócio.** A partir do Pro, a [caixa de entrada unificada](/features/unified-inbox) reúne caixas do Gmail, do Outlook e IMAP, LinkedIn (incluindo Sales Navigator e Recruiter), WhatsApp, Instagram e Telegram em uma só lista. Você conecta a sua própria conta do WhatsApp com um QR code, vincula participantes a contatos e responde pelo canal original. O Starter não tem caixa de entrada; o teste funciona como o Pro.
 
 **IA que faz o trabalho do CRM.** No Customermates Cloud, o Mate resume conversas, redige respostas e atualiza registros, usando créditos de IA hospedados com uma franquia mensal por usuário ativo (veja os [preços](/pricing)); não há cobrança por excedente. O Mate pede aprovação antes de cada exclusão, mas envia mensagens sem isso, então diga a ele para salvar rascunhos quando quiser revisar antes. As Rotinas executam uma instrução salva em um horário definido ou quando um registro muda: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro. Se você prefere o Claude, o ChatGPT ou outro cliente, conecte-o ao [servidor MCP](/docs/mcp) com [[derived.mcp.tools.total]] ferramentas em todos os planos; as chamadas do modelo rodam no seu próprio provedor de IA.
 
-**Open source, com escolha de hospedagem.** O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose, incluindo REST, webhooks e MCP. Uma [instalação auto-hospedada](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, um DPA está disponível e os subprocessadores, incluindo provedores dos EUA, estão listados. O Customermates não tem nenhuma certificação de conformidade. Starter, Pro e Business são de autoatendimento, sem taxa de onboarding.
+**Código-fonte disponível, com escolha de hospedagem.** A edição Community (Sustainable Use License, fair-code) roda no seu próprio servidor para uso interno com Docker Compose, incluindo REST, webhooks e MCP. Uma [instalação auto-hospedada](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, um DPA está disponível e os subprocessadores, incluindo provedores dos EUA, estão listados. O Customermates não tem nenhuma certificação de conformidade. Starter, Pro e Business são de autoatendimento, sem taxa de onboarding.
 
 ## Onde o Customermates não é a escolha certa
 
@@ -264,11 +264,11 @@ No Professional e no Enterprise, sim: o FAQ de preços do HubSpot diz que esses 
 </FaqItem>
 
 <FaqItem question="Existe uma alternativa gratuita ao HubSpot?">
-Para dois usuários, o HubSpot Free é difícil de superar. A edição gratuita do Zoho CRM cobre três. Se você consegue manter um servidor, o Twenty e o núcleo AGPL-3.0 do Customermates podem ser hospedados por conta própria sem taxa de licença, embora o Customermates auto-hospedado não tenha caixa de entrada nem Mate.
+Para dois usuários, o HubSpot Free é difícil de superar. A edição gratuita do Zoho CRM cobre três. Se você consegue manter um servidor, o Twenty e a edição Community do Customermates podem ser hospedados por conta própria sem taxa de licença, embora o Customermates auto-hospedado não tenha caixa de entrada nem Mate.
 </FaqItem>
 
 <FaqItem question="Quais são as alternativas open source ao HubSpot?">
-O Twenty, com objetos personalizados e fluxos de trabalho próprios, e o Customermates, cuja versão na nuvem acrescenta a caixa de entrada unificada e o Mate ao seu núcleo AGPL-3.0. Nenhum dos dois substitui as ferramentas de marketing do HubSpot.
+O Twenty, com objetos personalizados e fluxos de trabalho próprios, é open source. O Customermates não é, mas tem o código-fonte disponível e uma edição Community com hospedagem própria; a versão na nuvem acrescenta a caixa de entrada unificada e o Mate. Nenhum dos dois substitui as ferramentas de marketing do HubSpot.
 </FaqItem>
 
 <FaqItem question="Zoho ou HubSpot: qual é melhor para uma equipe pequena?">

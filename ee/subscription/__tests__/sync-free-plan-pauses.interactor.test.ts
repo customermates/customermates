@@ -59,7 +59,7 @@ describe("syncing Free plan pauses", () => {
 
     expect(result).toEqual({ workspaces: 3, paused: 2, resumed: 1, notified: 1 });
     expect(syncUnscoped).toHaveBeenCalledTimes(3);
-    expect(findWorkspacesOverFreePlanUnscoped).toHaveBeenCalledWith(NOW, 1);
+    expect(findWorkspacesOverFreePlanUnscoped).toHaveBeenCalledWith(NOW, 1, 3);
     expect(send).toHaveBeenCalledOnce();
     expect(send.mock.calls[0]?.[0]).toMatchObject({
       to: "u-1@example.test",

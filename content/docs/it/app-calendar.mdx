@@ -36,6 +36,84 @@ I calendari collegati richiedono il diritto alla messaggistica già esistente e 
 
 Copia l’URL quando viene creato: viene mostrato una sola volta. Chiunque lo possieda può leggere gli eventi selezionati finché mantieni l’accesso. Ogni aggiornamento verifica l’appartenenza attiva e i permessi attuali. **Revoca abbonamento** interrompe subito i recuperi futuri; le app di calendario possono conservare gli eventi già scaricati. Le modifiche vanno da Customermates all’app di calendario. Modificare un evento importato non aggiorna il suo record del CRM; non è una connessione di calendario bidirezionale.
 
+## Come pianifico una riunione? [#schedule-meetings]
+
+Clicca **Pianifica riunione** nell’intestazione di qualsiasi record, per esempio una persona, un’organizzazione o una trattativa. Nel [Calendario](app:calendar) fai doppio clic su una fascia oraria libera nella vista settimana o mese (oppure usa **+** su un giorno del mese) e scegli **Nuova riunione**; la voce compare accanto alla creazione di un record quando lo consente una fonte basata su una lista. Entrambi i modi aprono la stessa finestra.
+
+### Che cosa posso impostare? [#schedule-meeting-options]
+
+La finestra contiene questi campi:
+
+- Titolo, data, ora di inizio e durata (da 15 a 120 minuti).
+- Gli orari liberi di quel giorno, ricavati dai tuoi calendari sincronizzati entro l’orario di lavoro (da lunedì a venerdì, dalle 9:00 alle 17:00 nel tuo fuso orario). Puoi comunque digitare qualsiasi ora di inizio.
+- Il calendario, mostrato solo se hai più di un calendario collegato.
+- I partecipanti: gli indirizzi e-mail vengono suggeriti dal record e dalle persone collegate, e puoi digitarne altri.
+- Luogo, descrizione e, se vuoi, un link per la videochiamata: Google Meet per i calendari Google, Microsoft Teams per Outlook.
+- Un interruttore per inviare gli inviti. Li invia Google o Microsoft.
+- Un seguito facoltativo: scegli una lista e uno dei suoi campi data o data e ora, e l’app crea un record in quella lista all’inizio della riunione, collegato al record.
+
+### Che cosa succede dopo il salvataggio? [#schedule-meeting-result]
+
+L’evento viene creato nel tuo calendario Google o Microsoft collegato. Compare nel [Calendario](app:calendar) e nella cronologia delle attività dei record a cui appartiene e delle persone il cui indirizzo e-mail è tra i partecipanti. Si può scrivere solo nei tuoi calendari collegati. Se l’account collegato ha perso il permesso di accesso al calendario, l’app ti chiede di ricollegarlo in [Canali e calendari](app:settings/channels).
+
+### Che cosa serve per pianificare riunioni? [#schedule-meeting-requirements]
+
+Un account Google o Microsoft collegato e il piano richiesto dalla [Posta in arrivo](/docs/app-inbox#who-can-use-the-inbox): Pro o superiore. La pianificazione delle riunioni non è disponibile in self-hosting, perché la connessione al calendario passa dal servizio ospitato, e nemmeno nello spazio di lavoro demo.
+
+### Un agente può pianificare riunioni? [#schedule-meeting-agents]
+
+Sì, con lo strumento MCP `schedule_meeting`, le cui azioni sono `options`, `slots`, `create`, `update` e `cancel`. `slots` trova gli orari liberi; `create`, `update` e `cancel` modificano le riunioni nel calendario collegato di chi chiama. Come gli altri strumenti di messaggistica richiede Pro o superiore e Customermates Cloud. Gli schemi esatti sono nel [catalogo MCP](/docs/mcp#tool-catalog).
+
+## Come permetto agli altri di prenotare una riunione con me? [#booking-pages]
+
+Una pagina di prenotazione è un link pubblico che chiunque può aprire senza account, come una piccola pagina di appuntamenti tutta tua. I visitatori scelgono un orario libero dal tuo calendario e ogni prenotazione crea un evento di calendario, una persona e un record nel tuo CRM. Ogni utente può avere fino a 10 pagine di prenotazione.
+
+Gestiscile nel [Calendario](app:calendar): il pulsante **Pagine di prenotazione** nella barra in alto apre un pannello con una riga per pagina. Una riga mostra il nome, la durata della riunione, il link pubblico con un pulsante per copiarlo, l’interruttore **Accetta prenotazioni** e **Modifica**; **Nuova pagina di prenotazione** ne crea una. Il calendario che riceve le prenotazioni si collega in [Canali e calendari](app:settings/channels). La vecchia voce Pagine di prenotazione nelle impostazioni non esiste più e il suo vecchio link apre questo pannello. Gli amministratori vedono anche le pagine di tutti i membri dello spazio di lavoro, raggruppate per titolare; possono aprirle e copiarle, ma solo il titolare modifica una pagina. Mentre modifichi una pagina, un’anteprima accanto ai campi mostra ciò che vedono i visitatori, con gli orari liberi calcolati dal tuo orario di lavoro (su uno schermo stretto l’anteprima si trova in una sezione sotto i campi). Gli impegni del tuo calendario valgono solo sulla pagina pubblicata.
+
+Il logo e il colore di accento dello spazio di lavoro compaiono su ogni pagina di prenotazione, sulla pagina in cui i visitatori annullano o spostano l’appuntamento e nell’anteprima. Si impostano una volta sotto **Identità visiva** in [Generale](app:settings/general): si carica un’immagine PNG, JPEG o WebP fino a 512 KB e si sceglie un colore. Senza di essi la pagina mostra le iniziali e i colori standard.
+
+### Che cosa posso impostare su una pagina di prenotazione? [#booking-page-settings]
+
+- Titolo, descrizione e il calendario che riceve gli eventi.
+- La durata della riunione (da 15 a 120 minuti), la pausa tra le riunioni, il preavviso minimo e quanti giorni in anticipo si può prenotare (fino a 90).
+- Il fuso orario, l’orario di lavoro per ogni giorno della settimana e, se vuoi, un link per la videochiamata.
+- La lista in cui la persona del visitatore viene trovata o creata (una persona per indirizzo e-mail), la lista che riceve un record per ogni prenotazione e il campo di quella lista che riceve l’inizio della riunione.
+- Fino a 8 domande. Ogni domanda è un campo della lista delle prenotazioni (testo, link, scelta singola, numero, sì/no o data) e può essere obbligatoria.
+- Un messaggio mostrato dopo la prenotazione.
+- **I visitatori possono annullare e riprogrammare**, attivo per impostazione predefinita.
+- **Condividi questa pagina con i colleghi (round robin)** e i colleghi che sono organizzatori insieme a te, se sei amministratore.
+- L’interruttore **Accetta prenotazioni**.
+
+Disattiva **Accetta prenotazioni** per mettere in pausa una pagina senza eliminarla. Eliminare una pagina ne rimuove il link e lo storico delle prenotazioni; le riunioni già prenotate restano nel calendario.
+
+### Che cosa succede quando qualcuno prenota? [#booking-page-visitors]
+
+Il visitatore vede gli orari liberi del tuo calendario sincronizzato, nel proprio fuso orario. Il calendario arriva fin dove la pagina lo consente, e i mesi successivi si caricano quando il visitatore va avanti. Il tempo occupato nasconde gli orari e due prenotazioni non possono sovrapporsi, perché un orario viene riservato per primo. Una voce che il tuo calendario mostra come libera non nasconde orari, e una voce di un giorno intero mostrata come occupata nasconde tutta la sua giornata. Tra le voci sincronizzate prima di questa distinzione, una voce con orario vale come occupata e una di un giorno intero non nasconde nulla. Contano solo i calendari dei tuoi account collegati, non un account che un collega ha condiviso con lo spazio di lavoro. Una prenotazione, e una riunione pianificata qui e collegata a un record, vale sempre come occupata, anche se il tuo calendario la mostra come libera. Se il tuo calendario non può essere letto per intero, perché contiene troppe voci o una voce ricorrente che non si riesce a calcolare, la pagina non offre orari nei giorni interessati e il pannello **Pagine di prenotazione** te lo segnala. Il visitatore inserisce nome e indirizzo e-mail, risponde alle tue domande e conferma. L’app crea quindi l’evento di calendario con il visitatore come partecipante (l’invito lo invia Google o Microsoft), trova o crea la persona in base all’indirizzo e-mail, crea il record della prenotazione e collega l’evento a entrambi. Ogni prenotazione produce anche l’evento `form.submitted` con la prenotazione come contenuto, a cui le regole possono reagire. Ricevi una notifica per ogni nuova prenotazione, e la riga della pagina nel pannello **Pagine di prenotazione** elenca le sue prossime prenotazioni.
+
+Le pagine di prenotazione si proteggono da sole: limiti di richieste per visitatore e per link, un campo trappola nascosto (honeypot), al massimo 3 prenotazioni future per indirizzo e-mail e per pagina, al massimo 50 prenotazioni per pagina in 24 ore e limiti alla dimensione dei dati inseriti. L’invito contiene il titolo della pagina, il nome del visitatore senza link e l’indirizzo e-mail; le risposte restano nel record della prenotazione.
+
+### I visitatori possono annullare o riprogrammare una prenotazione? [#booking-page-changes]
+
+Sì, a meno che tu non disattivi **I visitatori possono annullare e riprogrammare** sulla pagina. Dopo la prenotazione il visitatore vede un pulsante **Annulla o riprogramma**, e lo stesso link privato è nell’invito del calendario. Su quella pagina il visitatore può, fino all’inizio della riunione, spostarla a un altro orario libero dello stesso organizzatore oppure annullarla indicando, se vuole, un motivo. L’app aggiorna o annulla l’evento di calendario (Google o Microsoft lo comunica al visitatore), sposta l’inizio nel record della prenotazione e ti avvisa. Una pagina in pausa permette ancora ai visitatori di annullare, ma non di riprogrammare.
+
+Se sposti o elimini l’evento nel tuo calendario, la prenotazione lo segue: un evento spostato sposta la prenotazione, un evento eliminato o annullato la annulla. Ogni prenotazione annullata o spostata produce l’evento `booking.changed`, che dice che cosa è cambiato e chi lo ha fatto, così che un’[automazione](/docs/app-automations) possa reagire, ad esempio con una notifica o un’attività di follow-up.
+
+Puoi anche modificare tu una prenotazione. Nel pannello **Pagine di prenotazione**, ogni prenotazione in arrivo ha **Riprogramma** e **Annulla prenotazione**: spostala a un altro orario libero della stessa pagina oppure annullala indicando, se vuoi, un motivo. Possono farlo l’organizzatore della prenotazione, il proprietario della pagina e gli amministratori. Funziona come la modifica fatta dal visitatore: l’evento di calendario viene aggiornato, viene prodotto `booking.changed` e il visitatore viene avvisato.
+
+Il visitatore riceve un’e-mail dopo la prenotazione, dopo ogni spostamento e dopo un annullamento, chiunque abbia fatto la modifica, e un promemoria circa 24 ore prima della riunione. Queste e-mail mostrano il logo e il colore di accento del tuo spazio di lavoro, sono scritte nella lingua in cui il visitatore ha prenotato e contengono il link **Annulla o riprogramma** quando la pagina lo consente. Le risposte arrivano all’organizzatore.
+
+### Come funziona una pagina di prenotazione con round robin? [#booking-page-round-robin]
+
+Un amministratore può attivare **Condividi questa pagina con i colleghi (round robin)** e scegliere i colleghi che hanno un calendario collegato. La pagina offre allora un orario quando almeno un organizzatore è libero. Ogni prenotazione va all’organizzatore libero con meno prenotazioni in arrivo di questa pagina, nel suo calendario, e il visitatore vede con chi è la riunione. Il titolare della pagina è sempre anche organizzatore. Un organizzatore la cui connessione del calendario o il cui accesso tramite il piano termina viene saltato finché non funziona di nuovo, e una pagina può avere fino a 10 organizzatori.
+
+### Che cosa serve per le pagine di prenotazione? [#booking-page-requirements]
+
+Le stesse condizioni della pianificazione di riunioni: un account Google o Microsoft collegato, il piano richiesto dalla [Posta in arrivo](/docs/app-inbox#who-can-use-the-inbox) (Pro o superiore) e Customermates Cloud. Le pagine di prenotazione non sono disponibili in self-hosting né nello spazio di lavoro demo. Se il piano o la connessione al calendario di chi possiede una pagina termina, la pagina mostra che non è disponibile. Se il calendario stesso non c’è più, ad esempio dopo che il suo account è stato scollegato, la pagina e le sue prenotazioni restano: il pannello segnala la pagina come non disponibile finché non le scegli di nuovo un calendario, e il suo link resta lo stesso.
+
+### Un agente può gestire le pagine di prenotazione? [#booking-page-agents]
+
+Sì, con lo strumento MCP `manage_booking_links`, le cui azioni sono `list`, `get`, `save` e `delete`. Come gli altri strumenti di messaggistica richiede Pro o superiore e Customermates Cloud. Gli schemi esatti sono nel [catalogo MCP](/docs/mcp#tool-catalog).
+
 ## Per gli agenti [#tips-for-agents]
 
 Modifica il calendario di una persona con `manage_calendar` invece di pilotare la pagina; cambia solo il calendario di chi chiama. Chiama prima `options`: elenca le liste con campi data, i loro campi a scelta per i colori e, dove è disponibile la messaggistica collegata, i calendari collegati di chi chiama, tutti tramite ID stabile. `read` restituisce la configurazione e `saved`, che resta false finché vale l’impostazione predefinita. `update` accetta un `config` con solo le chiavi da cambiare: `sources` e `calendarIds` sostituiscono l’intero elenco, e i `filters` di una fonte usano i campi filtro del `config` di `manage_data_views` per la superficie della lista. Passa `timeZone` con il primo aggiornamento, perché il valore predefinito è UTC. `reset` torna all’impostazione predefinita. `subscriptions` elenca gli URL di abbonamento e `revoke` ne revoca uno tramite `id`; la creazione di un URL di abbonamento resta nell’app. Non esiste un endpoint REST per il calendario. Gli schemi esatti sono nel [catalogo MCP](/docs/mcp#tool-catalog).

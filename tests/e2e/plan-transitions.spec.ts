@@ -1357,16 +1357,19 @@ test.describe("self-hosted installs", () => {
     test.setTimeout(240_000);
     const errors = collectPageErrors(page);
     const slug = workspace.slug;
-    for (const path of ["/settings/billing", "/inbox", "/routines", "/settings/channels"]) {
+    for (const path of ["/settings/billing", "/inbox", "/settings/channels"]) {
       await page.goto(appPath(slug, path));
       await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard$"));
     }
+    await page.goto(appPath(slug, "/routines"));
+    await expect(page).toHaveURL(appUrlPattern(slug, "/automations\\?filters=automationKind%3Ain%3Aroutine$"));
     await page.goto(appPath(slug, "/dashboard?agentChat=open"));
     await page.waitForLoadState("networkidle");
     await openSidebar(page);
+    // Automations (rules) are part of every install; only the Inbox and Mate are cloud-only.
+    await expect(page.locator("#nav-automations")).toHaveCount(1);
     for (const selector of [
       "#nav-inbox",
-      "#nav-routines",
       "#nav-assistant",
       "[data-nav-plan-tag]",
       "[data-trial-card]",

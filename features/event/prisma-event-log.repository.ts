@@ -10,6 +10,7 @@ import { type EventLog, Prisma, RoutineTriggerKind } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { LegalAcceptanceAuditPayloadSchema, LegalNoticeAuditPayloadSchema } from "@/features/legal/legal-audit.schema";
+import { subscribedRuleKinds } from "@/features/automation-rules/automation-event";
 import { DomainEvent } from "./domain-events";
 import { subjectKindOf } from "./event-envelope";
 import { EVENT_ADMISSION_ABANDONED, wakeEventOutbox } from "./event-outbox.repo";
@@ -46,7 +47,8 @@ export class PrismaEventLogRepo
 
   @BypassTenantGuard
   async hasSubscribersUnscoped(companyId: string, kind: string): Promise<boolean> {
-    const [webhook, routine] = await Promise.all([
+    const ruleKinds = subscribedRuleKinds(kind);
+    const [webhook, routine, rule] = await Promise.all([
       this.prisma.webhook.findFirst({
         where: { companyId, enabled: true, events: { has: kind } },
         select: { id: true },
@@ -61,8 +63,14 @@ export class PrismaEventLogRepo
         },
         select: { id: true },
       }),
+      ruleKinds.length
+        ? this.prisma.automationRule.findFirst({
+            where: { companyId, enabled: true, triggerKind: { in: ruleKinds } },
+            select: { id: true },
+          })
+        : null,
     ]);
-    return Boolean(webhook || routine);
+    return Boolean(webhook || routine || rule);
   }
 
   @BypassTenantGuard

@@ -15,8 +15,8 @@ sections:
       description: "Desde Pro, la bandeja de entrada unificada reúne buzones de Gmail, Outlook e IMAP, LinkedIn, WhatsApp, Instagram y Telegram en una sola lista vinculada a tus contactos, y respondes por el canal original."
     - title: "Respuestas redactadas, registros al día"
       description: "En Customermates Cloud, Mate resume hilos, redacta respuestas y actualiza registros para que los revises. Tu propio Claude o ChatGPT puede trabajar por MCP."
-    - title: "Código abierto"
-      description: "El núcleo AGPL-3.0 se ejecuta en tu propio servidor con Docker Compose, con REST, webhooks y MCP incluidos, pero sin la bandeja de entrada ni Mate."
+    - title: "Código fuente disponible"
+      description: "La edición Community se ejecuta en tu propio servidor para uso interno con Docker Compose, con REST, webhooks y MCP incluidos, pero sin la bandeja de entrada ni Mate."
   switchSteps: true
 
 hero:
@@ -92,8 +92,8 @@ comparison:
       competitor2: Servidores MCP alojados para organizaciones Enterprise Edition y superiores
   - title: Alojamiento y licencia
     features:
-    - name: Licencia de código abierto
-      source: Núcleo AGPL-3.0
+    - name: Código fuente disponible
+      source: Sustainable Use License; ee/ con una licencia comercial aparte
       competitor: false
       competitor2: false
     - name: Autoalojamiento
@@ -126,7 +126,7 @@ cta:
 | Automatizaciones basadas en reglas y secuencias de correo en un plan cerrado | Pipedrive Growth o superior | Ambas empiezan en Growth, con de 50 a 250 automatizaciones y de 5 a 50 secuencias según el plan |
 | Ventas, servicio y marketing en una sola plataforma, con presupuestos y previsión | Salesforce Pro Suite o superior | Pro Suite añade presupuestos, previsión, más personalización y apps de AppExchange; se factura anualmente y exige contrato |
 | Agentforce for Sales incluido en el precio por usuario | Salesforce Max | Max incluye Agentforce for Sales y Agentforce Coworker; para Core y superiores, Salesforce dice que se puede añadir IA |
-| Los clientes escriben por LinkedIn o WhatsApp tanto como por correo, o quieres un CRM de código abierto | Customermates | Consulta la tercera opción más abajo |
+| Los clientes escriben por LinkedIn o WhatsApp tanto como por correo, o quieres un CRM con el código fuente disponible | Customermates | Consulta la tercera opción más abajo |
 
 ## Diferencias entre Pipedrive y Salesforce
 
@@ -192,11 +192,11 @@ Pipedrive [se aloja en AWS](https://support.pipedrive.com/en/article/how-secure-
 
 ## Una tercera opción: Customermates
 
-Customermates publica esta página, así que lee esta sección como un proveedor que describe su propio producto. Customermates es un CRM de código abierto y nativo de IA para equipos pequeños que trabajan de cara al cliente, como consultoras, agencias y fundadores, creado en Alemania y pensado para hacer seguimiento de cada conversación con los clientes: desde Pro están en la ficha del cliente, y Mate o tu propio agente de IA redacta la respuesta y el siguiente paso. Por alcance, se parece más a Pipedrive que a Salesforce: un espacio de trabajo nuevo empieza sin listas, tú creas las listas y los campos que necesitas (contactos, organizaciones, oportunidades o los tuyos), y los planes de pago no tienen tope de registros. Se diferencia de ambos en cuatro puntos:
+Customermates publica esta página, así que lee esta sección como un proveedor que describe su propio producto. Customermates es un CRM autoalojable, con el código fuente disponible y nativo de IA, para equipos pequeños que trabajan de cara al cliente, como consultoras, agencias y fundadores, creado en Alemania y pensado para hacer seguimiento de cada conversación con los clientes: desde Pro están en la ficha del cliente, y Mate o tu propio agente de IA redacta la respuesta y el siguiente paso. Por alcance, se parece más a Pipedrive que a Salesforce: un espacio de trabajo nuevo empieza sin listas, tú creas las listas y los campos que necesitas (contactos, organizaciones, oportunidades o los tuyos), y los planes de pago no tienen tope de registros. Se diferencia de ambos en cuatro puntos:
 
 - **Conversaciones junto a la oportunidad.** Desde Pro, la [bandeja de entrada unificada](/features/unified-inbox) reúne buzones de Gmail, Outlook e IMAP, LinkedIn, WhatsApp, Instagram y Telegram en una sola lista vinculada a tus contactos, y respondes por el canal original. Pro incluye [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter no tiene bandeja de entrada.
 - **IA que hace el trabajo del CRM.** En Customermates Cloud, Mate resume hilos, redacta respuestas y actualiza registros. Usa créditos de IA alojados, una asignación mensual por usuario activo que figura en la [página de precios](/pricing). Las rutinas ejecutan una instrucción guardada con una programación o cuando cambia un registro. Claude, ChatGPT u otro cliente pueden usar el [servidor MCP](/docs/mcp) con [[derived.mcp.tools.total]] herramientas en todos los planes, que factura tu propio proveedor de IA.
-- **Código abierto.** El núcleo AGPL-3.0 [se ejecuta en tu propio servidor](/features/self-hosted) con Docker Compose, con REST, webhooks y MCP incluidos, pero sin la bandeja de entrada ni Mate. En Customermates Cloud, la base de datos está configurada en la región AWS de Fráncfort, los demás proveedores, incluidos los estadounidenses, figuran en la [página de subencargados](/subprocessors) y hay un [DPA](/dpa) disponible.
+- **Código fuente disponible.** La edición Community [se ejecuta en tu propio servidor](/features/self-hosted) para uso interno con Docker Compose, con REST, webhooks y MCP incluidos, pero sin la bandeja de entrada ni Mate. En Customermates Cloud, la base de datos está configurada en la región AWS de Fráncfort, los demás proveedores, incluidos los estadounidenses, figuran en la [página de subencargados](/subprocessors) y hay un [DPA](/dpa) disponible.
 - **Precios mensuales por usuario.** La mensual es el único ciclo de facturación. Cinco personas pagan [[commercial.price.starter.monthly.seats.5]] al mes en Starter o [[commercial.price.pro.monthly.seats.5]] en Pro.
 
 Una consultora de cinco personas lo configuraría así. Primero crea las ofertas como servicios, porque el valor de una oportunidad es la suma de sus partidas, cada una un servicio por su cantidad. En el Modelo de datos de Oportunidades, abre el campo Etapa y da a sus opciones probabilidades como Lead 10%, Propuesta enviada 50%, Negociación 75%, Ganada 100% y Perdida 0%; Customermates muestra entonces el valor ponderado de cada oportunidad, y un widget de gráfico del Panel puede sumarlos. Es aritmética sobre tus propias cifras y no predice nada. Añade un campo de selección única «Origen» con Recomendación, LinkedIn y Web. Cada persona guarda un tablero con sus oportunidades asignadas, agrupadas por etapa, y puede compartirlo con el equipo. En Customermates Cloud, cada socio puede tener una rutina como esta, que se ejecuta como su propietario y usa créditos de IA alojados:

@@ -5,6 +5,7 @@ import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-del
 import { createTestRecordEventSubscriptionRepo, createTestRecordRepo } from "./record-repository";
 import { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import { PrismaRecordRecipientRepo } from "@/features/records/prisma-record-recipient.repository";
+import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
@@ -26,6 +27,9 @@ export const createTestRoutineRepo = (access?: RoutineEventAccess): PrismaRoutin
   );
   return routines;
 };
+
+export const createTestAutomationRuleRepo = (companyId?: string) =>
+  new PrismaAutomationRuleRepo(createTestRecordEventSubscriptionRepo(companyId), companyId);
 
 export const createTestWebhookRepo = () =>
   new PrismaWebhookRepo(

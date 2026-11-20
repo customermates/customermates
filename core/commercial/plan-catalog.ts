@@ -14,6 +14,7 @@ export type OfferId = `${PurchasablePlanId}:${AvailableBillingCadence}`;
 
 export type PlanEntitlements = {
   agentChat: boolean;
+  agentOwnKey: boolean;
   messaging: boolean;
   includedAccountsPerUser: number | "unlimited";
   includedRoutinesPerUser: number | "unlimited";
@@ -22,6 +23,9 @@ export type PlanEntitlements = {
   hostedAiCreditsPerActiveUser: number | "contract" | null;
   fileStorageBytesPerActiveUser: number | "contract" | null;
   webhooks: boolean;
+  formSubmissionsPerMonth: number | "unlimited";
+  formBadge: boolean;
+  activeAutomationRules: number | "unlimited";
   usageLimits: PlanUsageLimits | null;
 };
 
@@ -102,6 +106,7 @@ export const PLAN_CATALOG = {
     availability: "free",
     entitlements: {
       agentChat: false,
+      agentOwnKey: false,
       messaging: false,
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 0,
@@ -110,6 +115,9 @@ export const PLAN_CATALOG = {
       hostedAiCreditsPerActiveUser: null,
       fileStorageBytesPerActiveUser: null,
       webhooks: false,
+      formSubmissionsPerMonth: 50,
+      formBadge: true,
+      activeAutomationRules: 3,
       usageLimits: {
         maxMembers: 1,
         maxRecords: 250,
@@ -125,6 +133,7 @@ export const PLAN_CATALOG = {
     availability: "self-serve",
     entitlements: {
       agentChat: true,
+      agentOwnKey: true,
       messaging: false,
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 1,
@@ -132,6 +141,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(1),
       fileStorageBytesPerActiveUser: Number(GIB),
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: 20,
       usageLimits: null,
     },
     offers: {
@@ -152,6 +164,7 @@ export const PLAN_CATALOG = {
     availability: "self-serve",
     entitlements: {
       agentChat: true,
+      agentOwnKey: true,
       messaging: true,
       includedAccountsPerUser: 1,
       includedRoutinesPerUser: 5,
@@ -159,6 +172,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(3),
       fileStorageBytesPerActiveUser: 5 * GIB,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {
@@ -179,6 +195,7 @@ export const PLAN_CATALOG = {
     availability: "self-serve",
     entitlements: {
       agentChat: true,
+      agentOwnKey: true,
       messaging: true,
       includedAccountsPerUser: 3,
       includedRoutinesPerUser: "unlimited",
@@ -186,6 +203,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(10),
       fileStorageBytesPerActiveUser: 20 * GIB,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {
@@ -206,6 +226,7 @@ export const PLAN_CATALOG = {
     availability: "self-serve",
     entitlements: {
       agentChat: true,
+      agentOwnKey: true,
       messaging: true,
       includedAccountsPerUser: 10,
       includedRoutinesPerUser: "unlimited",
@@ -213,6 +234,9 @@ export const PLAN_CATALOG = {
       ...hostedAiUsage(20),
       fileStorageBytesPerActiveUser: 50 * GIB,
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {
@@ -233,6 +257,7 @@ export const PLAN_CATALOG = {
     availability: "sales-led",
     entitlements: {
       agentChat: true,
+      agentOwnKey: true,
       messaging: true,
       includedAccountsPerUser: "unlimited",
       includedRoutinesPerUser: "unlimited",
@@ -241,6 +266,9 @@ export const PLAN_CATALOG = {
       hostedAiCreditsPerActiveUser: "contract",
       fileStorageBytesPerActiveUser: "contract",
       webhooks: true,
+      formSubmissionsPerMonth: "unlimited",
+      formBadge: false,
+      activeAutomationRules: "unlimited",
       usageLimits: null,
     },
     offers: {},

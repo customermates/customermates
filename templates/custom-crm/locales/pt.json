@@ -1,0 +1,143 @@
+{
+  "locale": "pt",
+  "name": "CRM personalizado",
+  "summary": "Troque a planilha ou a ferramenta antiga por um CRM sem montar um projeto de migração. Contatos, empresas, negócios e tarefas com data do seu jeito, com importação dos seus dados e uma revisão semanal.",
+  "description": "Seus dados de clientes estão espalhados por uma planilha, uma página do Notion ou uma ferramenta antiga, e ninguém quer começar um projeto de migração. Este modelo parte das quatro listas de que todo CRM precisa, contatos, empresas, negócios e tarefas, e o seu agente ajusta etapas, campos e visualizações ao jeito como você trabalha. Depois importa os seus dados e anota de onde cada registro veio. Pensado para quem está saindo de uma planilha, do Notion, do Airtable ou do Trello.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas com quem você lida." },
+    "organizations": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Empresas e outras entidades." },
+    "opportunities": { "label": "Negócio", "pluralLabel": "Negócios", "description": "Um negócio do lead até ganho ou perdido." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Etapa",
+      "options": { "lead": "Lead", "qualified": "Qualificado", "proposal": "Proposta", "negotiation": "Negociação", "won": "Ganho", "lost": "Perdido" }
+    },
+    "contacts.job_title": { "label": "Cargo" },
+    "contacts.contact_role": {
+      "label": "Papel",
+      "options": { "decision_maker": "Decisor", "influencer": "Influenciador", "user": "Usuário", "billing": "Financeiro", "other": "Outro" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.last_contact": { "label": "Último contato" },
+    "contacts.consent": { "label": "Consentimento para contato" },
+    "organizations.relationship": {
+      "label": "Relacionamento",
+      "options": { "prospect": "Prospect", "customer": "Cliente", "former_customer": "Ex-cliente", "partner": "Parceiro", "other": "Outro" }
+    },
+    "organizations.owner": { "label": "Responsável" },
+    "organizations.source": {
+      "label": "Origem",
+      "options": { "referral": "Indicação", "website": "Site", "event": "Evento", "outbound": "Prospecção ativa", "import": "Importação", "other": "Outra" }
+    },
+    "organizations.website": { "label": "Site" },
+    "organizations.address": { "label": "Endereço" },
+    "organizations.imported_from": { "label": "Importado de" },
+    "opportunities.owner": { "label": "Responsável" },
+    "opportunities.expected_close": { "label": "Previsão de fechamento" },
+    "opportunities.next_step": { "label": "Próximo passo" },
+    "opportunities.next_step_due": { "label": "Data do próximo passo" },
+    "opportunities.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "price": "Preço", "competitor": "Concorrente", "no_decision": "Sem decisão", "timing": "Momento", "no_response": "Sem resposta", "not_a_fit": "Sem aderência", "other": "Outro" }
+    },
+    "opportunities.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Ligação", "email": "E-mail", "meeting": "Reunião", "follow_up": "Retorno", "review": "Revisão", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Empresa", "targetLabel": "Contatos" },
+    "opportunity_organization": { "sourceLabel": "Empresa", "targetLabel": "Negócios" },
+    "action_opportunity": { "sourceLabel": "Negócio", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Funil" },
+    "opportunities_all": { "name": "Todos os negócios" },
+    "no_next_step": { "name": "Sem próximo passo" },
+    "organizations_all": { "name": "Todas as empresas" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Negócios abertos por etapa" },
+    "open_value": { "title": "Valor aberto" },
+    "open_weighted_value": { "title": "Valor ponderado aberto" },
+    "lost_reasons": { "title": "Motivos da perda" },
+    "deals_without_next_step": { "title": "Negócios sem próximo passo" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "Como usamos este CRM", "sections": ["O que entra e quem atualiza", "Etapas e quando um negócio avança"] },
+    "data_entry_rules": { "title": "Regras de entrada de dados", "sections": ["Nomes, e-mails e um registro por pessoa", "Um próximo passo com data em cada negócio aberto"] },
+    "import_notes": { "title": "Notas de importação: o que veio de onde", "sections": ["Ferramenta de origem e data da exportação", "O que não veio e por quê"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Criar uma tarefa de retorno quando um negócio muda de etapa" },
+    "set_a_next_step": { "title": "Pedir um próximo passo em cada negócio aberto que não tem" },
+    "next_step_notice": { "title": "Avisar o responsável quando um próximo passo vence" },
+    "expected_close_passed": { "title": "Revisar um negócio aberto no dia seguinte à previsão de fechamento" },
+    "weekly_review": { "title": "Fazer a revisão semanal toda sexta-feira" },
+    "enquiry_form_records": { "title": "Criar contato, empresa e negócio a partir de um formulário de solicitação" },
+    "webhook_upsert": { "title": "Criar ou atualizar registros da ferramenta antiga por um webhook de entrada" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada negócio tem uma etapa.",
+    "board_view": "O funil abre como quadro por etapa, com totais.",
+    "how_we_use_page": "A base de conhecimento explica como a equipe usa o CRM."
+  },
+  "page": {
+    "metaTitle": "Como criar um CRM: alternativa ao Excel e a planilhas",
+    "metaDescription": "Como criar um CRM sem projeto de migração: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o CRM e importa seus dados.",
+    "headline": "Como criar um CRM no lugar da planilha: seu agente de IA monta no Customermates e importa seus dados",
+    "answer": "Se seus clientes e negócios estão em uma planilha, em uma página do Notion ou em uma ferramenta antiga, um CRM personalizado assume o lugar deles sem projeto de migração: contatos, empresas, negócios e tarefas com data, moldados ao seu jeito de vender. Cole este modelo no seu agente de IA. Ele pergunta como você trabalha, monta o CRM no Customermates e importa seus dados. Você aprova o plano antes de qualquer coisa ser construída.",
+    "routine": {
+      "title": "A revisão do CRM de sexta-feira",
+      "steps": [
+        "Abra o funil como quadro e olhe cada etapa: o que andou esta semana e o que não andou.",
+        "Abra os negócios sem próximo passo e dê a cada um um próximo passo com data, ou encerre-o.",
+        "Confira os negócios com fechamento previsto para o mês que vem e mude as datas que ficaram para trás.",
+        "Esvazie as tarefas atrasadas: faça, adie ou descarte.",
+        "Corrija o que a importação deixou: contatos duplicados, um responsável faltando, um registro sem próximo passo."
+      ]
+    },
+    "limits": [
+      "Não é um construtor de aplicativos sem código. Não há telas sob medida, portais de clientes nem scripts: você tem listas, vínculos, visualizações em tabela, quadro e calendário, painéis e o seu agente. Se precisa de um construtor de aplicativos, use um.",
+      "Não é um espaço de trabalho livre. Notion e Airtable continuam melhores para páginas, wikis e dados que nada têm a ver com clientes.",
+      "Não há sincronização nos dois sentidos com a sua ferramenta antiga nem como desfazer uma importação. A importação é uma cópia em um só sentido, feita depois que você confere o mapeamento; nada na origem é alterado ou apagado.",
+      "Não há gráficos de Gantt, planejamento de recursos nem linhas do tempo. Isso continua com as ferramentas de projetos.",
+      "Não há permissões por campo. Se algumas colunas precisam ficar ocultas dos colegas, coloque-as em uma lista separada com acesso próprio.",
+      "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em horários definidos. O modelo os propõe e você decide quais ligar."
+    ],
+    "faq": [
+      {
+        "question": "Como migrar do Google Sheets ou do Excel para um CRM?",
+        "answer": "Diga ao agente quais colunas você realmente usa. Ele propõe listas e campos, confere uma amostra de linhas em busca de duplicados e valores desconhecidos e importa depois que você aprova o mapeamento. O Customermates importa arquivos Excel e CSV por um assistente de mapeamento de colunas, e o seu agente pode importar registros por MCP. A importação é uma cópia: sua planilha continua como está até você decidir deixar de usá-la."
+      },
+      {
+        "question": "Quando uma planilha deixa de bastar para clientes e negócios?",
+        "answer": "Guias de fornecedores de CRM apontam o limite entre 25 e 200 contatos, ou o momento em que várias pessoas editam o mesmo arquivo ou ninguém mais é lembrado de um acompanhamento. Aí um CRM ajuda: os contatos ficam ligados a empresas e negócios, os próximos passos são tarefas com data e as conversas ficam junto de cada registro."
+      },
+      {
+        "question": "Preciso desenhar o CRM sozinho?",
+        "answer": "Não. O agente começa entrevistando você: o que você vende, as etapas reais do primeiro contato até o fechamento, o que você olha toda manhã e toda sexta, quem mais usa, onde seus dados estão hoje e o que fica em outra ferramenta. Ele propõe o modelo e monta depois da sua aprovação. Etapas, campos e visualizações você muda depois, só pedindo."
+      },
+      {
+        "question": "O que não vem da minha ferramenta antiga?",
+        "answer": "A importação copia registros. Automações, formulários, visualizações, comentários e anexos não vão junto, e os vínculos que a ferramenta antiga exportou como texto simples precisam ser refeitos. O agente anota de onde veio cada registro importado, para você poder rastrear depois."
+      },
+      {
+        "question": "Qual a diferença para um CRM sob medida feito por uma agência?",
+        "answer": "Agências que desenvolvem um CRM sob medida falam em vários meses de projeto. Aqui o CRM já existe, com papéis e acesso por lista, e só o conteúdo é seu: as etapas, os campos e as visualizações. Um primeiro funil funcionando pode sair de uma única conversa, e você mesmo confere antes de confiar nele."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Meus clientes e negócios estão em uma planilha ou em uma ferramenta antiga, e eu quero um CRM que funcione do meu jeito. Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
+    "questions": [
+      "De qual ferramenta ou planilha vêm os seus registros e dá para exportar?",
+      "Por quais etapas um negócio passa no seu trabalho?",
+      "Quais campos você realmente usa hoje e quais pode deixar para trás?",
+      "Quem trabalha no CRM e quem é responsável por quais registros?"
+    ]
+  }
+}

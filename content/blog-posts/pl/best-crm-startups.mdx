@@ -49,7 +49,7 @@ Większość list „najlepszych CRM” układa narzędzia według funkcji, któ
 | Sprzedaż B2B prowadzona przez założycieli, od jednego do pięciu handlowców | Pipedrive, Attio | Pipedrive określa się jako CRM do pipeline'u sprzedaży; Attio ma plan darmowy dla 3 stanowisk | Sekwencje w Pipedrive zaczynają się od Growth |
 | Sprzedaż wychodząca przez telefon | Close | Połączenia i SMS-y w każdym planie | Power Dialer i automatyczne przepływy pracy zaczynają się od Growth |
 | Inwestorzy, partnerzy, społeczność | folk | Nacisk na sprzedaż opartą na bliskim kontakcie, rozszerzenie LinkedIn w każdym planie | Szanse sprzedaży i sekwencje e-mail zaczynają się od Premium |
-| Startup usługowy (agencja, firma doradcza, studio) z transakcjami w wątkach e-mail, LinkedIn i WhatsApp | Customermates (wydawca) | Ujednolicona skrzynka odbiorcza od Pro wzwyż; Mate w Customermates Cloud (hostowane kredyty AI) albo Twój własny klient AI przez MCP; rdzeń open source | Brak telefonii, sekwencji i aplikacji mobilnej, darmowy plan hostowany tylko dla [[commercial.limit.free.maxMembers]] osoby |
+| Startup usługowy (agencja, firma doradcza, studio) z transakcjami w wątkach e-mail, LinkedIn i WhatsApp | Customermates (wydawca) | Ujednolicona skrzynka odbiorcza od Pro wzwyż; Mate w Customermates Cloud (hostowane kredyty AI) albo Twój własny klient AI przez MCP; Community Edition self-hosted | Brak telefonii, sekwencji i aplikacji mobilnej, darmowy plan hostowany tylko dla [[commercial.limit.free.maxMembers]] osoby |
 
 Jeśli pasują do Ciebie dwa wiersze, wybierz ten, który opisuje, jak zamkną się Twoje najbliższe dziesięć transakcji, a nie ten, który chcesz, żeby był prawdziwy za dwa lata.
 
@@ -110,7 +110,7 @@ Przed podjęciem decyzji przetestuj jeden kontakt, jedną organizację, jedną s
 
 ## Gdzie pasuje Customermates?
 
-*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to open source'owy CRM stworzony z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami: firm doradczych, agencji i innych firm usługowych, a także założycieli, którzy sprzedają przez rozmowy. Kontakty, organizacje, szanse sprzedaży i zadania żyją w tej samej przestrzeni roboczej co wątki z podłączonych kont e-mail, LinkedIn, WhatsApp, Instagram i Telegram, które zbiegają się w [ujednoliconej skrzynce odbiorczej](/features/unified-inbox). Skrzynka odbiorcza wymaga planu Pro lub wyższego; Starter jej nie ma.
+*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM source-available stworzony z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami: firm doradczych, agencji i innych firm usługowych, a także założycieli, którzy sprzedają przez rozmowy. Kontakty, organizacje, szanse sprzedaży i zadania żyją w tej samej przestrzeni roboczej co wątki z podłączonych kont e-mail, LinkedIn, WhatsApp, Instagram i Telegram, które zbiegają się w [ujednoliconej skrzynce odbiorczej](/features/unified-inbox). Skrzynka odbiorcza wymaga planu Pro lub wyższego; Starter jej nie ma.
 
 W Customermates Cloud Mate przygotowuje podsumowania i szkice odpowiedzi, korzystając z hostowanych kredytów AI, a rutyny wykonują zapisane instrukcje według harmonogramu albo gdy zmieni się rekord. Jeśli wolisz Claude, ChatGPT lub innego klienta, ten klient współpracuje z CRM przez [MCP](/docs/mcp), a wywołania modelu działają wtedy u Twojego własnego dostawcy AI. Dla startupu prowadzonego przez założycieli chodzi o to, żeby żadna rozmowa z potencjalnym klientem czy inwestorem nie ucichła: wątki leżą przy kontakcie, szkic odpowiedzi i następny krok czekają na Twoją ocenę, a wysyłasz je Ty.
 
@@ -158,7 +158,7 @@ Zostaw ostatnie zdanie jako instrukcję, a nie techniczną bramkę akceptacji. M
 | Pięć osób, CRM i MCP bez skrzynki odbiorczej | Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] |
 | Pięć osób ze skrzynką odbiorczą | Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
 
-Każdy płatny plan zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika; zobacz [cennik](/pricing). Twoja pierwsza przestrzeń robocza startuje z Pro za darmo na [[commercial.trial.days]] dni, bez karty kredytowej, więc [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup) z jednym kanałem i swoimi pięcioma najbliższymi rozmowami. Jeśli wolisz uruchomić oprogramowanie samodzielnie, rdzeń AGPL można [hostować samodzielnie](/features/self-hosted) z Docker Compose i PostgreSQL, zachowując REST, webhooki i MCP. W samodzielnym hostingu nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów, więc kroki ze skrzynką odbiorczą powyżej wymagają Customermates Cloud.
+Każdy płatny plan zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika; zobacz [cennik](/pricing). Twoja pierwsza przestrzeń robocza startuje z Pro za darmo na [[commercial.trial.days]] dni, bez karty kredytowej, więc [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup) z jednym kanałem i swoimi pięcioma najbliższymi rozmowami. Jeśli wolisz uruchomić oprogramowanie samodzielnie, Community Edition można [hostować samodzielnie](/features/self-hosted) z Docker Compose i PostgreSQL, zachowując REST, webhooki i MCP. W samodzielnym hostingu nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów, więc kroki ze skrzynką odbiorczą powyżej wymagają Customermates Cloud.
 
 Pod kątem RODO: w chmurze główna produkcyjna baza danych jest skonfigurowana w regionie AWS we Frankfurcie. To wybrane ustawienie, a nie umowna gwarancja miejsca przechowywania danych. [Podmioty podprzetwarzające](/subprocessors), w tym dostawcy z USA, są wymienione publicznie, a dostępna jest [umowa powierzenia przetwarzania danych](/dpa).
 
@@ -176,7 +176,7 @@ Przejście z arkusza do Customermates odbywa się jedna lista po drugiej. Zaimpo
 
 <Faq>
 <FaqItem question="Jaki jest najlepszy darmowy CRM dla startupów?">
-Dla dwojga założycieli HubSpot Free Tools obejmuje do 2 użytkowników za 0 USD. Darmowa edycja Zoho CRM i Attio Free obejmują po 3. Sprawdź ścieżkę awansu, zanim wyrobisz nawyki wokół jednego z nich: płatny plan, którego potrzebujesz po pierwszym zatrudnieniu, to prawdziwa cena. Customermates Cloud ma darmowy plan dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn; jego rdzeń AGPL można hostować samodzielnie bez opłaty licencyjnej, bez skrzynki odbiorczej i Mate.
+Dla dwojga założycieli HubSpot Free Tools obejmuje do 2 użytkowników za 0 USD. Darmowa edycja Zoho CRM i Attio Free obejmują po 3. Sprawdź ścieżkę awansu, zanim wyrobisz nawyki wokół jednego z nich: płatny plan, którego potrzebujesz po pierwszym zatrudnieniu, to prawdziwa cena. Customermates Cloud ma darmowy plan dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn; jego Community Edition można hostować samodzielnie bez opłaty licencyjnej (do użytku wewnętrznego), bez skrzynki odbiorczej i Mate.
 </FaqItem>
 
 <FaqItem question="Jakiego CRM używają startupy?">

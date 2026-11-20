@@ -1,6 +1,7 @@
 import type { OnboardingFunnelRepo } from "./onboarding-funnel.repo";
 import type { OnboardingJob } from "./onboarding-job";
 import type { OnboardingPlaybook } from "./onboarding-playbook";
+import type { TeamSize } from "./team-size";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { preselectedOnboardingJob } from "./onboarding-job";
@@ -11,6 +12,8 @@ export type OnboardingJobChoiceView = {
   signupJob: OnboardingJob | null;
   preselectedJob: OnboardingJob;
   suggestedPlaybook: OnboardingPlaybook | null;
+  discoveryResolved: boolean;
+  teamSize: TeamSize | null;
 };
 
 @TenantInteractor()

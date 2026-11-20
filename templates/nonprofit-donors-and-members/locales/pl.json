@@ -1,0 +1,198 @@
+{
+  "locale": "pl",
+  "name": "Członkowie i darczyńcy",
+  "summary": "Wiedz, kim są Twoi członkowie i sympatycy, kto czeka na podziękowanie i komu niedługo kończy się członkostwo. Jeden rejestr: członkostwa z terminem składki, darowizny z potwierdzeniem oraz duże darowizny i granty.",
+  "description": "Kluby, fundacje i parafie tracą członków i dobrą wolę, gdy terminy składek umykają, a darowizny zostają bez podziękowania, bo listy prowadzą różni wolontariusze. Szablon zakłada sympatyków, członkostwa ze składką i terminem, darowizny ze stanem podziękowania i potwierdzenia oraz lejek dużych darowizn i grantów. Pasuje do stowarzyszeń, klubów, fundacji i parafii, które chcą jednego rejestru zamiast kilku. Nie wystawia potwierdzeń darowizn ani nie pobiera składek, pokazuje tylko, co jest do zrobienia.",
+  "lists": {
+    "supporters": { "label": "Sympatyk", "pluralLabel": "Sympatycy", "description": "Członkowie, darczyńcy, wolontariusze, goście i zarząd." },
+    "memberships": { "label": "Członkostwo", "pluralLabel": "Członkostwa", "description": "Jedno członkostwo ze składką i terminem odnowienia." },
+    "gifts": { "label": "Darowizna", "pluralLabel": "Darowizny", "description": "Każda darowizna z podziękowaniem i potwierdzeniem." },
+    "gift_opportunities": { "label": "Szansa na darowiznę", "pluralLabel": "Szanse na darowizny", "description": "Duże darowizny, granty i sponsoring w toku." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Status",
+      "options": { "applied": "Deklaracja członkowska", "active": "Aktywne", "grace_period": "Zaległość w składce", "lapsed": "Wygasłe", "resigned": "Rezygnacja" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Etap",
+      "options": { "identified": "Zidentyfikowana", "qualified": "Zakwalifikowana", "cultivation": "Budowanie relacji", "ask_made": "Prośba złożona", "pledged": "Obiecana", "received": "Otrzymana", "declined": "Odrzucona" }
+    },
+    "supporters.member_number": { "label": "Numer członka" },
+    "supporters.supporter_types": {
+      "label": "Rodzaj wsparcia",
+      "options": { "member": "Członek", "donor": "Darczyńca", "volunteer": "Wolontariusz", "guest": "Gość", "board_member": "Członek zarządu" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relacja",
+      "options": { "prospect": "Potencjalny", "active": "Aktywny", "lapsed": "Nieaktywny", "former": "Były", "do_not_contact": "Nie kontaktować" }
+    },
+    "supporters.joined_on": { "label": "Data wstąpienia" },
+    "supporters.relationship_owner": { "label": "Opiekun" },
+    "supporters.contact_consent": { "label": "Zgoda na kontakt", "options": { "granted": "Udzielona", "not_granted": "Nieudzielona", "unknown": "Nieznana" } },
+    "supporters.consent_date": { "label": "Data zgody" },
+    "supporters.last_contact_on": { "label": "Ostatni kontakt" },
+    "memberships.level": {
+      "label": "Rodzaj członkostwa",
+      "options": { "regular": "Zwyczajne", "reduced": "Ulgowe", "family": "Rodzinne", "youth": "Młodzieżowe", "supporting": "Wspierające", "honorary": "Honorowe" }
+    },
+    "memberships.fee": { "label": "Składka" },
+    "memberships.billing_cycle": {
+      "label": "Okres rozliczeniowy",
+      "options": { "yearly": "Roczny", "quarterly": "Kwartalny", "monthly": "Miesięczny", "one_off": "Jednorazowy", "none": "Brak" }
+    },
+    "memberships.fee_status": {
+      "label": "Stan składki",
+      "options": { "open": "Do zapłaty", "paid": "Zapłacona", "reminded": "Po przypomnieniu", "overdue": "Zaległa", "waived": "Umorzona" }
+    },
+    "memberships.mandate_on_file": { "label": "Zgoda na polecenie zapłaty złożona" },
+    "memberships.started_on": { "label": "Data rozpoczęcia" },
+    "memberships.renewal_due": { "label": "Termin składki" },
+    "memberships.end_reason": {
+      "label": "Powód zakończenia",
+      "options": { "moved_away": "Przeprowadzka", "cost": "Koszt", "lost_interest": "Utrata zainteresowania", "dissatisfied": "Niezadowolenie", "unpaid_fees": "Niezapłacone składki", "other": "Inny" }
+    },
+    "gifts.received_on": { "label": "Data otrzymania" },
+    "gifts.amount": { "label": "Kwota" },
+    "gifts.gift_type": {
+      "label": "Rodzaj darowizny",
+      "options": { "one_off": "Jednorazowa", "recurring": "Cykliczna", "pledge_payment": "Wpłata z zobowiązania", "in_kind": "Rzeczowa", "legacy": "Zapis testamentowy" }
+    },
+    "gifts.fund": {
+      "label": "Przeznaczenie",
+      "options": { "unrestricted": "Cel dowolny", "restricted_project": "Konkretny projekt", "appeal": "Zbiórka", "event": "Wydarzenie", "in_memory": "Ku pamięci" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Podziękowanie",
+      "options": { "to_acknowledge": "Do podziękowania", "acknowledged": "Podziękowano", "not_needed": "Niepotrzebne" }
+    },
+    "gifts.receipt_status": {
+      "label": "Potwierdzenie darowizny",
+      "options": { "not_needed": "Niepotrzebne", "to_issue": "Do wystawienia", "issued": "Wystawione", "annual_summary_sent": "Zestawienie roczne wysłane" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Rodzaj",
+      "options": { "major_gift": "Duża darowizna", "grant": "Grant", "sponsorship": "Sponsoring firmowy", "legacy": "Zapis testamentowy", "campaign_pledge": "Zobowiązanie w kampanii" }
+    },
+    "gift_opportunities.solicitor": { "label": "Kto prosi o wsparcie" },
+    "gift_opportunities.ask_date": { "label": "Data prośby" },
+    "gift_opportunities.decision_on": { "label": "Data decyzji" },
+    "gift_opportunities.report_due": { "label": "Termin sprawozdania" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "thank_donor": "Podziękować darczyńcy",
+        "issue_receipt": "Wystawić potwierdzenie",
+        "welcome_member": "Powitać członka",
+        "renewal_notice": "Zawiadomienie o składce",
+        "chase_fee": "Ponaglić składkę",
+        "ask": "Prośba",
+        "report_to_funder": "Sprawozdanie dla grantodawcy",
+        "call_or_visit": "Telefon lub wizyta",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Członek", "targetLabel": "Członkostwa" },
+    "gift_supporter": { "sourceLabel": "Darczyńca", "targetLabel": "Darowizny" },
+    "opportunity_supporter": { "sourceLabel": "Potencjalny darczyńca", "targetLabel": "Szanse na darowizny" },
+    "action_supporter": { "sourceLabel": "Sympatyk", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "supporters_all": { "name": "Wszyscy sympatycy" },
+    "memberships_all": { "name": "Wszystkie członkostwa" },
+    "memberships_board": { "name": "Członkostwa wg statusu" },
+    "fees_to_chase": { "name": "Składki do ponaglenia" },
+    "gifts_all": { "name": "Wszystkie darowizny" },
+    "receipts_to_issue": { "name": "Potwierdzenia do wystawienia" },
+    "opportunities_board": { "name": "Szanse na darowizny" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Członkostwa wg statusu" },
+    "gifts_per_month": { "title": "Darowizny w poszczególnych miesiącach" },
+    "gifts_by_fund": { "title": "Darowizny wg przeznaczenia" },
+    "open_pipeline_value": { "title": "Duże darowizny w toku" },
+    "renewals_coming": { "title": "Nadchodzące terminy składek" },
+    "receipts_to_issue_count": { "title": "Potwierdzenia do wystawienia" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Co zawiera rejestr i co zostaje poza nim", "sections": ["Cel i podstawa prawna", "Pola obowiązkowe i dobrowolne", "Zgoda i przechowywanie"] },
+    "renewals_and_fees": { "title": "Składki i przypomnienia", "sections": ["Zawiadomienie po 60 i po 30 dniach", "Zaległość i skreślenie zgodnie ze statutem"] },
+    "receipts_and_thanks": { "title": "Podziękowania i potwierdzenia darowizn", "sections": ["Podziękuj w ciągu dwóch dni", "Kiedy potwierdzenie jest możliwe i w jakiej formie"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Podziękuj darczyńcy, gdy darowizna zostanie zapisana" },
+    "issue_receipt": { "title": "Wystaw potwierdzenie, gdy darowizna jest oznaczona do wystawienia" },
+    "welcome_member": { "title": "Powitaj członka, gdy wpłynie deklaracja" },
+    "renewal_notice": { "title": "Wyślij zawiadomienie o składce 60 dni przed terminem aktywnego członkostwa" },
+    "renewal_reminder": { "title": "Przypomnij członkowi z niezapłaconą składką 30 dni przed terminem" },
+    "expiry_notice": { "title": "Ponagl niezapłaconą składkę w dniu terminu" },
+    "report_to_funder": { "title": "Przygotuj sprawozdanie dla grantodawcy dwa tygodnie przed terminem" },
+    "join_form_records": { "title": "Utwórz sympatyka i członkostwo z formularza przystąpienia" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Każde członkostwo ma status.",
+    "renewal_field": "Każde członkostwo ma termin składki.",
+    "receipt_field": "Każda darowizna pokazuje, czy trzeba wystawić potwierdzenie."
+  },
+  "page": {
+    "metaTitle": "Program dla stowarzyszenia: członkowie, darczyńcy, składki",
+    "metaDescription": "Program dla stowarzyszenia: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje jeden rejestr członków, darowizn i terminów składek.",
+    "headline": "Program dla stowarzyszenia, który pamięta o składkach i podziękowaniach: rejestr budowany przez agenta AI",
+    "answer": "Program dla stowarzyszenia zaczyna się od jednego rejestru zamiast kilku list prowadzonych przez różnych wolontariuszy: sympatycy, członkostwa ze składką i terminem, darowizny ze stanem podziękowania i potwierdzenia oraz lejek dużych darowizn i grantów. Wklej ten szablon do swojego agenta AI, a zbuduje rejestr w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Nie pobiera składek i nie wystawia potwierdzeń darowizn, tylko pokazuje, co jest do zrobienia.",
+    "routine": {
+      "title": "Cotygodniowa rutyna członków i darowizn",
+      "steps": [
+        "Podziękuj za każdą nową darowiznę w ciągu dwóch dni, telefonem lub osobistym listem.",
+        "Powitaj członków, których deklaracje wpłynęły w tym tygodniu, i wyślij zawiadomienie o składce do członkostw, których termin przypada za około 60 dni.",
+        "Przypomnij członkom z niezapłaconą składką 30 dni przed terminem i ponagl składki członkostw wygasłych bez opłaty.",
+        "Sprawdź darowizny, dla których należy wystawić potwierdzenie, i wystaw je w swoim programie księgowym, w oficjalnym formacie obowiązującym w Twoim kraju.",
+        "Przejrzyj lejek dużych darowizn i grantów: następny krok dla każdej szansy i terminy sprawozdań, których oczekują darczyńcy instytucjonalni."
+      ]
+    },
+    "limits": [
+      "Nie pobiera składek, nie obsługuje poleceń zapłaty i nie prowadzi księgowości. Księgę prowadzi Twój program księgowy lub program dla organizacji; tu trzymasz stan składki, nie pieniądze.",
+      "Nie wystawia potwierdzeń darowizn. Powstają w formacie wymaganym przez urząd skarbowy, w Twoim programie księgowym; rejestr tylko zapisuje, że potwierdzenie jest do wystawienia.",
+      "To nie jest strona do zbierania darowizn online. Darowizny zbiera platforma płatnicza, a Ty zapisujesz darowiznę tutaj.",
+      "Dla parafii obejmuje kontakt z gośćmi i członkami, a nie rejestrację wejść, grafiki służb, obecność ani zestawienia ofiar. Notatki duszpasterskie, spowiedź i rejestry ochrony małoletnich nigdy nie należą tutaj.",
+      "Dane o zdrowiu, dane dzieci, dane bankowe i wszystko, czego nie wymaga członkostwo, zostaw poza rejestrem. Customermates nie ma uprawnień na poziomie pola.",
+      "Nie robi profilowania majątkowego darczyńców, cyklicznych darowizn z ponawianiem płatności ani masowych newsletterów. To rejestr małej organizacji, nie platforma analityczna dla fundraisera."
+    ],
+    "faq": [
+      {
+        "question": "Czy składka członkowska to darowizna do odliczenia?",
+        "answer": "Zwykle nie. We Francji składka dająca dostęp do działalności nie uprawnia do potwierdzenia podatkowego, uprawnia do niego tylko darowizna bez świadczenia wzajemnego na rzecz uprawnionej organizacji. W Niemczech potwierdzenie darowizny w urzędowym wzorze wystawiają tylko organizacje z ulgami podatkowymi, a składki większości klubów sportowych nie są odliczalne. Zasady różnią się w zależności od kraju, więc zapytaj księgowego lub urząd skarbowy. Rejestr śledzi stan potwierdzenia i żadnego nie wystawia."
+      },
+      {
+        "question": "Jak szybko dziękować darczyńcy?",
+        "answer": "W ciągu 48 godzin, to częsta rada poradników o fundraisingu, najlepiej telefonem lub osobistym listem. Szablon tworzy zadanie podziękowania, gdy tylko darowizna zostanie zapisana, żeby podziękowanie nie zależało od pamięci jednego wolontariusza."
+      },
+      {
+        "question": "Kiedy przypominać członkom o odnowieniu?",
+        "answer": "Poradniki dla stowarzyszeń sugerują kilka kontaktów przed terminem, często od około 90 dni do samego dnia, i jeden po nim. Szablon tworzy zadanie wysłania zawiadomienia o składce 60 dni przed terminem aktywnego członkostwa, zadanie przypomnienia członkom z niezapłaconą składką 30 dni przed terminem i zadanie ponaglenia składki w dniu, gdy członkostwo wygasa bez opłaty."
+      },
+      {
+        "question": "Jakie dane członków i darczyńców przechowywać?",
+        "answer": "Tylko to, czego wymaga członkostwo lub darowizna. Poradniki o RODO wskazują, że nie należy zapisywać informacji zbędnych dla członkostwa, że deklaracja członkowska powinna pokazywać, które pola są obowiązkowe, a które dobrowolne, i że zdjęcia wymagają zgody. Dane o zdrowiu, dane dzieci i dane bankowe zostają poza rejestrem. To nie jest porada prawna."
+      },
+      {
+        "question": "Czy to się nadaje dla parafii lub klubu?",
+        "answer": "Tak, w części rejestru: sympatycy, członkostwa, darowizny i kontakt z członkami i gośćmi w jednym miejscu. Nie zastępuje programu parafialnego do rejestracji wejść, grafików służb i zestawień ofiar ani narzędzia dla klubu do poleceń zapłaty i pobierania składek."
+      },
+      {
+        "question": "Czy agent pisze do moich członków i darczyńców?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Nasi członkowie, darczyńcy i wolontariusze są rozrzuceni po kilku listach, a przez to umykają nam składki i podziękowania. Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
+    "questions": [
+      "Czy prowadzisz stowarzyszenie, klub, fundację czy parafię? Masz członków, darczyńców, wolontariuszy?",
+      "Jakich rodzajów członkostwa i jakich składek używasz i jak są pobierane?",
+      "W jakim kraju jest zarejestrowana Twoja organizacja i jakie potwierdzenie darowizny tam wystawia?",
+      "Jaki program prowadzi płatności lub księgowość Twojej organizacji? Tutaj zapisujemy tylko link."
+    ]
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "locale": "nl",
+  "name": "Online afspraken maken",
+  "summary": "Houd elk gesprek, consult en elke bezichtiging op één plek bij, van aanvraag tot uitkomst. Afspraaktypes met duur en minimale termijn, een status en herinneringen bij elke boeking en een volgende stap na elke afspraak.",
+  "description": "Boekingen die alleen in een agenda en een inbox staan, raken zoek: klanten komen niet opdagen zonder herinnering en niemand legt vast wat een gesprek heeft opgeleverd. Dit sjabloon zet een paar afspraaktypes op met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Voor dienstverleners met gesprekken, consulten, sessies of bezichtigingen; het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+  "lists": {
+    "people": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die bij jou boeken." },
+    "appointment_types": { "label": "Afspraaktype", "pluralLabel": "Afspraaktypes", "description": "Een soort afspraak met duur, buffer, minimale termijn en prijs." },
+    "appointments": { "label": "Afspraak", "pluralLabel": "Afspraken", "description": "Eén boeking, van aangevraagd tot gehouden, niet verschenen of geannuleerd." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefoon" } },
+    "people.time_zone": { "label": "Tijdzone" },
+    "appointment_types.duration_minutes": { "label": "Duur (minuten)" },
+    "appointment_types.buffer_minutes": { "label": "Buffer erna (minuten)" },
+    "appointment_types.min_notice_hours": { "label": "Minimale termijn (uren)" },
+    "appointment_types.booking_window_days": { "label": "Boekbaar tot (dagen vooruit)" },
+    "appointment_types.daily_limit": { "label": "Limiet per dag" },
+    "appointment_types.location_type": {
+      "label": "Waar",
+      "options": { "video_call": "Videogesprek", "phone": "Telefoon", "office": "Op kantoor", "client_site": "Bij de klant" }
+    },
+    "appointment_types.price": { "label": "Prijs" },
+    "appointment_types.active": { "label": "Actief" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Aangevraagd", "confirmed": "Bevestigd", "rescheduled": "Verzet", "held": "Gehouden", "no_show": "Niet verschenen", "cancelled_by_client": "Geannuleerd door de klant", "cancelled_by_us": "Geannuleerd door ons" }
+    },
+    "appointments.start_at": { "label": "Begin" },
+    "appointments.source": { "label": "Bron", "options": { "booking_page": "Boekingspagina", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefoon", "manual": "Handmatig ingevoerd" } },
+    "appointments.meeting_url": { "label": "Meetinglink" },
+    "appointments.outcome": {
+      "label": "Uitkomst",
+      "options": { "not_decided": "Nog niet beslist", "qualified": "Gekwalificeerd", "second_call": "Tweede gesprek nodig", "proposal_needed": "Offerte nodig", "won": "Gewonnen in het gesprek", "not_a_fit": "Past niet" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Reden van annulering",
+      "options": { "schedule_conflict": "Agendaconflict", "other_provider": "Andere aanbieder gevonden", "no_longer_needed": "Niet meer nodig", "personal": "Persoonlijke reden", "other": "Overig" }
+    },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "confirm_booking": "Boeking bevestigen",
+        "send_reminder": "Herinnering sturen",
+        "prepare_call": "Afspraak voorbereiden",
+        "send_follow_up": "Opvolging sturen",
+        "offer_new_slot": "Nieuw tijdstip aanbieden",
+        "record_outcome": "Uitkomst vastleggen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contactpersoon", "targetLabel": "Afspraken" },
+    "appointment_type": { "sourceLabel": "Afspraaktype", "targetLabel": "Afspraken" },
+    "action_appointment": { "sourceLabel": "Afspraak", "targetLabel": "Acties" }
+  },
+  "views": {
+    "appointments_all": { "name": "Alle afspraken" },
+    "appointments_board": { "name": "Afsprakenbord" },
+    "missed_or_cancelled": { "name": "Gemist of geannuleerd" },
+    "appointment_types_all": { "name": "Alle afspraaktypes" },
+    "people_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Komende afspraken" },
+    "appointments_by_status": { "title": "Afspraken per status" },
+    "outcomes_of_held": { "title": "Uitkomsten van gehouden afspraken" },
+    "requests_waiting": { "title": "Aanvragen die op antwoord wachten" },
+    "no_shows": { "title": "Niet verschenen" },
+    "bookings_by_source": { "title": "Boekingen per bron" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Afspraaktypes en beschikbaarheid", "sections": ["Types, duur, buffers en minimale termijn", "Openingstijden en limieten per dag"] },
+    "reminder_policy": { "title": "Herinneringen en no-shows", "sections": ["Herinneringen 3 dagen en 1 dag van tevoren", "Wat we doen na een no-show"] },
+    "cancellation_policy": { "title": "Annuleren en verzetten", "sections": ["Tot wanneer een klant kan annuleren", "Hoe een nieuw tijdstip wordt aangeboden"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Maak een contactpersoon en een afspraak aan als het boekingsformulier is ingediend" },
+    "confirm_event": { "title": "Voeg een agenda-item toe als een afspraak wordt bevestigd" },
+    "notify_new_booking": { "title": "Waarschuw de eigenaar als er een boeking binnenkomt" },
+    "first_reminder": { "title": "Stuur 3 dagen voor een bevestigde afspraak een eerste herinnering" },
+    "second_reminder": { "title": "Stuur 1 dag voor een bevestigde afspraak een tweede herinnering" },
+    "record_outcome": { "title": "Leg de uitkomst vast nadat een bevestigde afspraak heeft plaatsgevonden" },
+    "no_show_new_slot": { "title": "Bied de dag na een no-show een nieuw tijdstip aan" },
+    "follow_up_held": { "title": "Stuur de dag na een gehouden afspraak de opvolging" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke afspraak heeft een status.",
+    "start_field": "Elke afspraak legt vast wanneer ze begint.",
+    "appointments_board_view": "De afspraken openen als bord per status."
+  },
+  "page": {
+    "metaTitle": "Online afspraken maken: boekingen met herinneringen",
+    "metaDescription": "Online afspraken maken met een systeem dat je AI-agent in je CRM bouwt: afspraaktypes, een status per boeking, herinneringen en de uitkomst van elk gesprek.",
+    "headline": "Online afspraken maken én vastleggen wat eruit kwam: een systeem dat je AI-agent in je CRM bouwt",
+    "answer": "Online afspraken maken betekent dat een gesprek, consult of bezichtiging van aanvraag naar een bevestigd tijdstip gaat, en dat je vastlegt wat eruit kwam. Dit template richt afspraaktypes in met duur, buffer en minimale termijn, een status per boeking, herinneringen vooraf en een uitkomst achteraf. Plak het in je AI-agent en die bouwt alles in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De wekelijkse afsprakenreview",
+      "steps": [
+        "Loop de afspraken van vorige week langs en leg bij elke afspraak die doorging een uitkomst vast: gekwalificeerd, tweede gesprek, voorstel nodig of geen match.",
+        "Bied zonder verwijt een nieuw tijdstip aan iedereen die niet kwam opdagen of afzegde.",
+        "Beantwoord aanvragen die langer dan een dag wachten en controleer de komende 14 dagen op lege plekken en nog te versturen herinneringen. Standaard is dat één herinnering 3 dagen en één 1 dag van tevoren.",
+        "Verander één ding: een buffer, een minimale termijn of een annuleringstermijn. Bekijk aan het begin van elk kwartaal beschikbaarheid en regels."
+      ]
+    },
+    "limits": [
+      "Het boekt alleen de tijd van mensen. Ruimtes, apparatuur, hotelovernachtingen, lessen met wachtlijst en evenementen met tickets vragen om een tool die daarvoor gebouwd is.",
+      "Het is geen afsprakensysteem voor zorg. Houd diagnoses en de reden van een medische, therapeutische of juridische afspraak buiten het formulier en vraag liever waarover iemand wil praten.",
+      "Het neemt geen betalingen aan en host geen gesprekken. De agenda-afspraak bevat de link van je videotool, en een eventuele aanbetaling blijft in je betaaltool.",
+      "Openbare boekingspagina's en het wegschrijven van afspraken in je Google- of Microsoft-agenda vragen Customermates Cloud met abonnement Pro of hoger, niet zelf hosten. Zonder die pagina's neemt een openbaar formulier aanvragen aan en voer je de bevestigde tijd hier in.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet. Customermates verstuurt geen sms."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een systeem voor online afspraken?",
+        "answer": "Elk afspraaktype met duur, buffer, minimale termijn en hoe ver vooruit mensen kunnen boeken; een kort formulier met naam, contactgegevens en alleen de vragen die de afspraak veranderen; een bevestiging en herinneringen; en een plek om vast te leggen of de afspraak doorging en wat erna kwam."
+      },
+      {
+        "question": "Hoeveel herinneringen verminderen no-shows?",
+        "answer": "In één onderzoek in de zorg bleef bij herinneringen 3 dagen en 1 dag van tevoren 4,4 procent van de afspraken onbenut, tegen 5,8 procent met alleen de herinnering na 3 dagen en 5,3 procent met alleen die van 1 dag. Een overzicht van gerandomiseerde onderzoeken vond geen significant verschil tussen herinneringen die 24, 48 of 72 uur van tevoren zijn verstuurd. De cijfers komen uit de zorg, dus zie 3 dagen en 1 dag als beginpunt."
+      },
+      {
+        "question": "Waar moet een boekingsformulier nooit naar vragen?",
+        "answer": "Beperk je tot wat de afspraak nodig heeft: naam, e-mail, eventueel telefoon en een of twee vragen die de afspraak veranderen. Vraag niet naar diagnoses, details van een zaak, betaalkaartgegevens, identiteitsbewijzen of iets wat gezondheid, geloof of geaardheid verraadt. Antwoorden in vrije tekst worden als gegevens bij het record opgeslagen, houd het formulier dus kort."
+      },
+      {
+        "question": "Kan ik afspraken aannemen zonder openbare boekingspagina?",
+        "answer": "Ja. Een openbaar formulier werkt in elk abonnement, in Free met een maandlimiet en een badge: het neemt de aanvraag aan en maakt de afspraak aan, gekoppeld aan een persoon die via het e-mailadres wordt gevonden of aangemaakt. Vraagt iemand per e-mail of WhatsApp om een afspraak, dan stelt je agent vrije tijdstippen voor uit je gekoppelde agenda en schrijft het antwoord, en jij leest het na en verstuurt het. In Customermates Cloud met het abonnement Pro of hoger zet het plannen van een afspraak vanaf een record die direct in je Google- of Microsoft-agenda, en met een openbare boekingspagina kiezen mensen zelf een vrij tijdstip."
+      },
+      {
+        "question": "Moet ik een aanbetaling of no-showvergoeding vragen?",
+        "answer": "Betalingen blijven in je betaaltool. Het template legt de prijs van elk afspraaktype vast en bevat een pagina met het annuleringsbeleid. We vonden geen onderzoek dat aantoont dat aanbetalingen of vergoedingen no-shows verminderen, dus het template beweert dat niet."
+      },
+      {
+        "question": "Schrijft de agent mijn klanten aan?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Klanten boeken gesprekken, consulten of bezichtigingen bij mij, en ik raak het overzicht kwijt van wie er geboekt heeft, wie heeft bevestigd en wat eruit kwam. Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+    "questions": [
+      "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
+      "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",
+      "Welke vragen moet een klant bij het boeken beantwoorden?",
+      "Hoe ga je nu om met no-shows en late annuleringen?"
+    ]
+  }
+}

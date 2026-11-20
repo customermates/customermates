@@ -69,7 +69,7 @@ function makeStore(): RoutineModalStore {
   return new RoutineModalStore({
     registerModalStore: vi.fn(),
     userStore: { user: { id: OWNER_ID, role: { isSystemRole: false } }, can: vi.fn(() => true) },
-    routinesStore: {
+    automationsStore: {
       upsertItem: vi.fn(() => Promise.resolve()),
       removeItem: vi.fn(() => Promise.resolve()),
       refresh: vi.fn(() => Promise.resolve()),

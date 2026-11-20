@@ -147,11 +147,12 @@ describe("AgentUiControlStore.navigate", () => {
 
     const selfHosted = controlStore({ appMode: "self-hosted" });
     selfHosted.registerNavigate(navigate);
-    for (const targetId of ["nav-inbox", "nav-routines", "nav-settings-channels", "nav-settings-billing"])
+    for (const targetId of ["nav-inbox", "nav-settings-channels", "nav-settings-billing"])
       await expect(selfHosted.navigate({ targetId }), targetId).resolves.toMatchObject({ ok: false });
     expect(navigate).not.toHaveBeenCalled();
 
     await expect(selfHosted.navigate({ targetId: "nav-dashboard" })).resolves.toMatchObject({ ok: true });
+    await expect(selfHosted.navigate({ targetId: "nav-automations" })).resolves.toMatchObject({ ok: true });
   });
 });
 
@@ -466,19 +467,19 @@ describe("AgentUiControlStore guided tour", () => {
       store.startGuidedTour([
         { targetId: "nav-dashboard", note: "Start here." },
         { targetId: "settings-webhooks-add", note: "Not for this role." },
-        { targetId: "routines-add", note: "Add a routine." },
+        { targetId: "automations-add", note: "Add a routine." },
       ]),
     ).resolves.toMatchObject({ ok: true });
     setTimeout(() => {
       pageLoaded = true;
-      rendered.set("routines-add", laidOut());
+      rendered.set("automations-add", laidOut());
     }, 3200);
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(3500);
 
-    expect(store.active?.targetId).toBe("routines-add");
-    expect(navigate).toHaveBeenLastCalledWith("/routines");
+    expect(store.active?.targetId).toBe("automations-add");
+    expect(navigate).toHaveBeenLastCalledWith("/automations");
   });
 
   it("moves on from a stop whose control disappears after the user acts on it", async () => {
@@ -618,7 +619,7 @@ describe("AgentUiControlStore guided tour", () => {
     const { navigate, rendered, load } = onSlowPages({
       "/settings/webhooks": "settings-webhooks-add",
       "/settings/roles": "settings-roles-add",
-      "/routines": "routines-add",
+      "/automations": "automations-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
@@ -626,7 +627,7 @@ describe("AgentUiControlStore guided tour", () => {
     await store.startGuidedTour([
       { targetId: "settings-webhooks-add", note: "Add a webhook." },
       { targetId: "settings-roles-add", note: "Add a role." },
-      { targetId: "routines-add", note: "Add a routine." },
+      { targetId: "automations-add", note: "Add a routine." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
@@ -638,7 +639,7 @@ describe("AgentUiControlStore guided tour", () => {
 
     expect(currentStop(store)).toMatchObject({ targetId: "settings-webhooks-add", stepIndex: 0 });
     expect(window.location.pathname).toBe("/settings/webhooks");
-    expect(navigate).not.toHaveBeenCalledWith("/routines");
+    expect(navigate).not.toHaveBeenCalledWith("/automations");
   });
 
   it("ends the tour after a Back that found no earlier stop leaves the user off the shown stop's page", async () => {

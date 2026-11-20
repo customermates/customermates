@@ -28,7 +28,7 @@ relatedHrefs:
 
 Die besten MCP-Server für den Vertrieb sind die, die Ihr CRM-Anbieter selbst betreibt: der Remote-Server von HubSpot, die gehosteten Server von Pipedrive und Attio und, für große Organisationen mit Administratoren, die Salesforce Hosted MCP Servers. Bei E-Mail sieht es schwächer aus. Googles Gmail-Server ist eine Entwicklervorschau, die Entwürfe anlegt und Labels setzt, aber nichts sendet, und Microsofts Work-IQ-Server muss ein Tenant-Administrator erst einschalten. Unten stehen acht Server für Vertrieb und Kundenarbeit in einer Rangliste, jeweils mit Betreiber, Hosting, Anmeldung und Schreibumfang.
 
-Offenlegung: Customermates, ein Open-Source-CRM mit eigenem MCP-Server, veröffentlicht diese Liste und ist einer der acht Einträge. Jede Zeile wurde am 12. November 2026 in der Dokumentation oder im offiziellen Repository des Anbieters geprüft, verlinkt in der Tabelle. Wir haben diese Seiten gelesen und nicht jeden Server ausprobiert; eine Zeile zeigt also, was der Anbieter dokumentiert, keine Messung.
+Offenlegung: Customermates, ein CRM mit einsehbarem Quellcode und eigenem MCP-Server, veröffentlicht diese Liste und ist einer der acht Einträge. Jede Zeile wurde am 12. November 2026 in der Dokumentation oder im offiziellen Repository des Anbieters geprüft, verlinkt in der Tabelle. Wir haben diese Seiten gelesen und nicht jeden Server ausprobiert; eine Zeile zeigt also, was der Anbieter dokumentiert, keine Messung.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="CRM-Server">
@@ -71,7 +71,7 @@ Der Maßstab ist ein kleines, kundennahes Team: wenige Arbeitsplätze, lange E-M
 | 1 | HubSpot Remote-MCP-Server | Teams mit HubSpot, die Datensätze, Aktivitäten und Konversationen in einem Server wollen | Kein Löschen im dokumentierten Schreibzugriff; Aktivitätsdaten sind gesperrt, wenn sensible Daten aktiv sind |
 | 2 | Pipedrive MCP | Pipeline-orientierte Vertriebsteams in jedem Pipedrive-Tarif | Löschen ist nicht dokumentiert; die Nutzung läuft gegen Token-Limits des Tarifs |
 | 3 | Attio MCP | Ein eigenes Datenmodell mit Listen, Notizen und Aufgaben | Löscht nur Aufgaben und Kommentare; ein SQL-Werkzeug gibt es nicht in jedem Tarif |
-| 4 | Customermates MCP (Herausgeber) | Kleine kundennahe Teams, die Konversationen neben den Datensätzen wollen, mit Open-Source-Kern | Nachrichten-Werkzeuge brauchen Pro in der Cloud; keine Berechtigungen auf Feldebene; keine Sequenzen, keine Telefonie, keine Rechnungen |
+| 4 | Customermates MCP (Herausgeber) | Kleine kundennahe Teams, die Konversationen neben den Datensätzen wollen, mit selbst hostbarer Community Edition | Nachrichten-Werkzeuge brauchen Pro in der Cloud; keine Berechtigungen auf Feldebene; keine Sequenzen, keine Telefonie, keine Rechnungen |
 | 5 | Salesforce Hosted MCP Servers | Organisationen, die Salesforce schon nutzen und Admins haben | Braucht einen Admin, eine External Client App und die Enterprise Edition oder höher |
 | 6 | Microsoft Work IQ MCP | Outlook-E-Mails, Kalender und Teams in einem Microsoft-365-Tenant | Einrichtung durch einen Global Administrator, dazu ein nutzungsbasierter Abrechnungsplan in Copilot Studio |
 | 7 | Gmail-MCP-Server (Google) | Threads lesen und Antworten in Gmail entwerfen | Entwicklervorschau; kein Sende- oder Lösch-Werkzeug aufgeführt; braucht ein eigenes Google-Cloud-Projekt |
@@ -140,7 +140,7 @@ Am 12. November 2026 haben wir keinen von LinkedIn betriebenen MCP-Server gefund
 | Sie nutzen Pipedrive | Dem Server von Pipedrive, in einem Tarif, dessen Token-Limit zu Ihrer Nutzung passt |
 | Sie wollen ein eigenes Datenmodell mit Listen und Berichten | Attio |
 | Sie nutzen Salesforce mit Admins und eigener Logik | Salesforce Hosted MCP Servers, zunächst `platform/sobject-reads` in einer Sandbox |
-| Sie wählen ein erstes CRM und wollen MCP-Server, Konversationen und Open-Source-Kern in einem Produkt | Customermates |
+| Sie wählen ein erstes CRM und wollen MCP-Server, Konversationen und einsehbaren Quellcode in einem Produkt | Customermates |
 | Die KI soll Ihr Postfach lesen und Antworten entwerfen | Dem Gmail-Server, wenn Sie eine Vorschau akzeptieren, Microsoft Work IQ, wenn Sie Microsoft 365 nutzen |
 | Ihr Postfach ist ein IMAP-Postfach, weder Gmail noch Microsoft 365 | Weder Googles noch Microsofts Server greift; Customermates verbindet Gmail-, Outlook- und IMAP-Postfächer in der Cloud ab Pro |
 | Sie wollen feste Abläufe über mehrere Werkzeuge | Dem Server von n8n |

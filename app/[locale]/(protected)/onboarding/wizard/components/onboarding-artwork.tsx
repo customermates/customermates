@@ -6,11 +6,15 @@ import {
   AtSign,
   Blocks,
   BookOpen,
+  Bot,
   Check,
+  ClipboardCheck,
   Compass,
   Languages,
+  LayoutTemplate,
   Link2,
   Mail,
+  MessagesSquare,
   Plus,
   Sparkles,
   UserRound,
@@ -18,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { Linkedin } from "@/components/icons/channel-icon";
 import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
 import { COMPOUND_CONNECTOR_STROKE } from "@/components/marketing/visuals/story-visual-layout";
 import { VisualArtboard } from "@/components/marketing/visuals/visual-artboard";
@@ -27,15 +32,19 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/core/utils/cn";
 
 import type { WizardStep } from "./onboarding-wizard.store";
+import type { MilestoneStep } from "./onboarding-wizard-flow";
 
-type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook">;
+type SceneStep = Exclude<WizardStep, "setup" | "playbook" | "template" | "prompt" | "source">;
 const STEP_ICONS = {
   profile: UserRound,
   goal: Compass,
   playbook: BookOpen,
   setup: Blocks,
   invite: UsersRound,
+  channel: Mail,
   ai: Sparkles,
+  template: LayoutTemplate,
+  prompt: ClipboardCheck,
 };
 
 const NARROW_CONNECTOR = "M40 32C68 32 68 56 96 56";
@@ -145,6 +154,30 @@ function ProfileScene() {
   );
 }
 
+function GoalScene() {
+  return (
+    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+      <SourcePair first={<Bot className="size-4" />} second={<Sparkles className="size-4" />} />
+
+      <FocalIdentity>
+        <LayoutTemplate className="size-5" />
+      </FocalIdentity>
+    </Scene>
+  );
+}
+
+function ChannelScene() {
+  return (
+    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+      <SourcePair first={<Linkedin className="size-4" />} second={<Mail className="size-4" />} />
+
+      <FocalIdentity>
+        <MessagesSquare className="size-5" />
+      </FocalIdentity>
+    </Scene>
+  );
+}
+
 function InviteScene() {
   return (
     <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
@@ -202,16 +235,25 @@ function StepScene({ step }: { step: SceneStep }) {
   switch (step) {
     case "profile":
       return <ProfileScene />;
+    case "goal":
+      return <GoalScene />;
     case "invite":
       return <InviteScene />;
+    case "channel":
+      return <ChannelScene />;
     case "ai":
       return <AiScene />;
   }
 }
 
-export function OnboardingArtwork({ step }: { step: SceneStep }) {
+export function OnboardingArtwork({ step, className }: { step: SceneStep; className?: string }) {
   return (
-    <VisualArtboard aria-hidden="true" className="h-36 shrink-0 rounded-xl sm:h-40" role="presentation" tone="ink">
+    <VisualArtboard
+      aria-hidden="true"
+      className={cn("h-32 shrink-0 rounded-xl sm:h-40", className)}
+      role="presentation"
+      tone="ink"
+    >
       <GridPattern className="opacity-45" density="compact" />
 
       <div
@@ -226,11 +268,37 @@ export function OnboardingArtwork({ step }: { step: SceneStep }) {
 export function OnboardingMilestones({
   current,
   labels,
+  progressText,
   steps,
 }: {
   current: number;
-  labels: Record<WizardStep, string>;
-  steps: readonly WizardStep[];
+  labels: Record<MilestoneStep, string>;
+  progressText: string;
+  steps: readonly MilestoneStep[];
+}) {
+  const currentStep = steps[current];
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p aria-hidden="true" className="text-xs text-muted-foreground sm:hidden">
+        {progressText}
+
+        {currentStep ? <span className="font-medium text-foreground">{` · ${labels[currentStep]}`}</span> : null}
+      </p>
+
+      <MilestoneSteps current={current} labels={labels} steps={steps} />
+    </div>
+  );
+}
+
+function MilestoneSteps({
+  current,
+  labels,
+  steps,
+}: {
+  current: number;
+  labels: Record<MilestoneStep, string>;
+  steps: readonly MilestoneStep[];
 }) {
   return (
     <ol className="flex items-start">
@@ -240,7 +308,7 @@ export function OnboardingMilestones({
           <li
             key={step}
             aria-current={index === current ? "step" : undefined}
-            className="relative flex flex-1 flex-col items-center gap-2"
+            className="relative flex min-w-0 flex-1 flex-col items-center gap-2"
           >
             {index < steps.length - 1 && (
               <span
@@ -261,7 +329,10 @@ export function OnboardingMilestones({
             </span>
 
             <span
-              className={cn("text-xs", index === current ? "font-medium text-foreground" : "text-muted-foreground")}
+              className={cn(
+                "max-w-full px-1 text-center text-xs text-balance wrap-anywhere max-sm:sr-only",
+                index === current ? "font-medium text-foreground" : "text-muted-foreground",
+              )}
             >
               {labels[step]}
             </span>

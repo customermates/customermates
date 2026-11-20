@@ -39,6 +39,7 @@ type Props = {
   onboardingIntent?: string;
   onSignedOut?: () => void;
   profile?: MarketingAccountProfile | null;
+  templatesInNav?: boolean;
 };
 
 const mobileOverviewRowClassName =
@@ -51,6 +52,7 @@ export function PublicNavbar({
   onboardingIntent,
   onSignedOut,
   profile,
+  templatesInNav = false,
 }: Props) {
   const t = useTranslations();
   const locale = useLocale();
@@ -71,6 +73,7 @@ export function PublicNavbar({
   }
 
   const publicNavGroups = resolvePublicNavGroups(t, locale);
+  const templatesLabel = templatesInNav ? t("NavigationBar.public.templates") : undefined;
 
   const logoAlt = t("Common.imageAlt.logo");
   const homeLabel = t("UserAvatar.home");
@@ -225,6 +228,7 @@ export function PublicNavbar({
           groups={publicNavGroups}
           pathname={pathname}
           pricingLabel={t("NavigationBar.pricing")}
+          templatesLabel={templatesLabel}
           onNavigate={closeMenu}
         />
 
@@ -333,6 +337,18 @@ export function PublicNavbar({
                       </ul>
                     </details>
                   ))}
+
+                  {templatesLabel ? (
+                    <AppLink
+                      appearance="unstyled"
+                      aria-current={isNavItemActive("/templates") ? "page" : undefined}
+                      className={cn(mobileOverviewRowClassName, isNavItemActive("/templates") && "font-semibold")}
+                      href="/templates"
+                      onNavigate={closeMenu}
+                    >
+                      {templatesLabel}
+                    </AppLink>
+                  ) : null}
 
                   <AppLink
                     appearance="unstyled"

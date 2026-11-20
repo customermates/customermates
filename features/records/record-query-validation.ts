@@ -11,6 +11,29 @@ import { resolveRecordGrouping } from "./record-grouping";
 import { resolveRecordPath } from "./record-relationship-path";
 import { recordMeasureIssue } from "./record-measure-validation";
 
+export function recordFieldFilterIsValid(
+  filter: RecordQuery["filters"][number],
+  field: Pick<RecordField, "valueType" | "multiple" | "options">,
+): boolean {
+  if (!recordFilterOperators(field).includes(filter.operator)) return false;
+  if (isTemporalRecordType(field.valueType)) return temporalFilterIsValid(filter, field.valueType);
+  if (["contains", "startsWith"].includes(filter.operator)) {
+    return (
+      filter.value?.kind === "text" && ["text", "url", "richText", "address", "channels"].includes(field.valueType)
+    );
+  }
+  const values = filter.values ?? (filter.value ? [filter.value] : []);
+  if (
+    field.valueType === "select" &&
+    values.some((value) => value.kind !== "select" || !field.options.some((option) => option.id === value.value))
+  )
+    return false;
+  if (["in", "notIn", "all"].includes(filter.operator))
+    return filter.values !== undefined && filter.values.every((value) => scalarMatchesType(value, field.valueType));
+  if (["empty", "notEmpty"].includes(filter.operator)) return true;
+  return filter.value !== undefined && filter.value !== null && scalarMatchesType(filter.value, field.valueType);
+}
+
 export function invalidRecordQueryPart(
   query: RecordQuery,
   model: RecordModel,
@@ -68,34 +91,7 @@ export function invalidRecordQueryPart(
       continue;
     }
     const field = fields.get(filter.fieldId);
-    if (!field || !recordFilterOperators(field).includes(filter.operator)) return "filters";
-    if (isTemporalRecordType(field.valueType)) {
-      if (!temporalFilterIsValid(filter, field.valueType)) return "filters";
-      continue;
-    }
-    if (["contains", "startsWith"].includes(filter.operator)) {
-      if (
-        filter.value?.kind !== "text" ||
-        !["text", "url", "richText", "address", "channels"].includes(field.valueType)
-      )
-        return "filters";
-      continue;
-    }
-    const values = filter.values ?? (filter.value ? [filter.value] : []);
-    if (
-      field.valueType === "select" &&
-      values.some((value) => value.kind !== "select" || !field.options.some((option) => option.id === value.value))
-    )
-      return "filters";
-    if (["in", "notIn", "all"].includes(filter.operator)) {
-      if (!filter.values || filter.values.some((value) => !scalarMatchesType(value, field.valueType))) return "filters";
-      continue;
-    }
-    if (
-      !["empty", "notEmpty"].includes(filter.operator) &&
-      (!filter.value || !scalarMatchesType(filter.value, field.valueType))
-    )
-      return "filters";
+    if (!field || !recordFieldFilterIsValid(filter, field)) return "filters";
   }
   for (const sort of query.sort) {
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") continue;

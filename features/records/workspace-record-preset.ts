@@ -2,6 +2,7 @@ import type { RecordField } from "./record-model.schema";
 import { createCrmPreset, presetId } from "./crm-preset";
 import { DEFAULT_SELECT_COLUMNS } from "./crm-preset-options";
 import { recordInvariant } from "./record-invariant";
+import { labelRelationshipPaths } from "./relationship-path-labels";
 
 export const RECORD_PRESET_KEYS = ["contact", "organization", "deal", "service", "task"] as const;
 
@@ -30,6 +31,7 @@ export function createWorkspaceRecordPreset(companyId: string, t: (key: string) 
     relation.sourceLabel = relation.sourceCardinality === "one" ? target.singular : target.plural;
     relation.targetLabel = relation.targetCardinality === "one" ? source.singular : source.plural;
   }
+  labelRelationshipPaths(model, (typeId) => recordInvariant(labels.get(typeId)).plural);
   const fieldLabels = new Map<string, string>();
   for (const key of ["contact", "organization", "deal", "service", "task", "lineItem"]) {
     fieldLabels.set(id(`${key}.name`), "Common.table.columns.name");

@@ -1,0 +1,143 @@
+{
+  "locale": "nl",
+  "name": "CRM op maat",
+  "summary": "Stap over van je spreadsheet of oude tool zonder groot migratieproject. Contactpersonen, bedrijven, deals en acties met datum, afgestemd op hoe jij werkt, met een import van je gegevens en een wekelijkse controle.",
+  "description": "Je klantgegevens staan verspreid over een spreadsheet, een Notion-pagina of een oude tool, en niemand wil een migratieproject starten. Dit sjabloon begint bij de vier lijsten die elk CRM nodig heeft: contactpersonen, bedrijven, deals en acties. Je agent past de fasen, velden en weergaven aan op hoe je werkt, importeert daarna je gegevens en onthoudt waar elk record vandaan is geïmporteerd. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je te maken hebt." },
+    "organizations": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "Bedrijven en andere organisaties." },
+    "opportunities": { "label": "Deal", "pluralLabel": "Deals", "description": "Eén deal van lead tot gewonnen of verloren." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "lead": "Lead", "qualified": "Gekwalificeerd", "proposal": "Voorstel", "negotiation": "Onderhandeling", "won": "Gewonnen", "lost": "Verloren" }
+    },
+    "contacts.job_title": { "label": "Functie" },
+    "contacts.contact_role": {
+      "label": "Rol",
+      "options": { "decision_maker": "Beslisser", "influencer": "Beïnvloeder", "user": "Gebruiker", "billing": "Facturatie", "other": "Overig" }
+    },
+    "contacts.language": { "label": "Taal" },
+    "contacts.last_contact": { "label": "Laatste contact" },
+    "contacts.consent": { "label": "Toestemming voor contact" },
+    "organizations.relationship": {
+      "label": "Relatie",
+      "options": { "prospect": "Prospect", "customer": "Klant", "former_customer": "Oud-klant", "partner": "Partner", "other": "Overig" }
+    },
+    "organizations.owner": { "label": "Eigenaar" },
+    "organizations.source": {
+      "label": "Herkomst",
+      "options": { "referral": "Aanbeveling", "website": "Website", "event": "Evenement", "outbound": "Eigen acquisitie", "import": "Import", "other": "Overig" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.address": { "label": "Adres" },
+    "organizations.imported_from": { "label": "Geïmporteerd uit" },
+    "opportunities.owner": { "label": "Eigenaar" },
+    "opportunities.expected_close": { "label": "Verwachte afsluitdatum" },
+    "opportunities.next_step": { "label": "Volgende stap" },
+    "opportunities.next_step_due": { "label": "Datum volgende stap" },
+    "opportunities.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "competitor": "Concurrent", "no_decision": "Geen besluit", "timing": "Timing", "no_response": "Geen reactie", "not_a_fit": "Past niet", "other": "Overig" }
+    },
+    "opportunities.weighted_value": { "label": "Gewogen waarde" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "call": "Telefoongesprek", "email": "E-mail", "meeting": "Afspraak", "follow_up": "Opvolging", "review": "Controle", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Bedrijf", "targetLabel": "Contactpersonen" },
+    "opportunity_organization": { "sourceLabel": "Bedrijf", "targetLabel": "Deals" },
+    "action_opportunity": { "sourceLabel": "Deal", "targetLabel": "Acties" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Alle deals" },
+    "no_next_step": { "name": "Zonder volgende stap" },
+    "organizations_all": { "name": "Alle bedrijven" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Open deals per fase" },
+    "open_value": { "title": "Open waarde" },
+    "open_weighted_value": { "title": "Open gewogen waarde" },
+    "lost_reasons": { "title": "Redenen van verlies" },
+    "deals_without_next_step": { "title": "Deals zonder volgende stap" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "Zo gebruiken we dit CRM", "sections": ["Wat erin komt en wie het bijwerkt", "Fasen en wanneer een deal verder gaat"] },
+    "data_entry_rules": { "title": "Regels voor het invoeren van gegevens", "sections": ["Namen, e-mails en één record per persoon", "Een volgende stap met datum bij elke open deal"] },
+    "import_notes": { "title": "Importnotities: wat waar vandaan kwam", "sections": ["Bronapplicatie en exportdatum", "Wat niet is meegekomen en waarom"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Maak een vervolgactie aan wanneer een deal van fase wisselt" },
+    "set_a_next_step": { "title": "Vraag om een volgende stap bij elke open deal zonder" },
+    "next_step_notice": { "title": "Informeer de eigenaar wanneer een volgende stap aan de beurt is" },
+    "expected_close_passed": { "title": "Bekijk een open deal de dag na de verwachte afsluitdatum" },
+    "weekly_review": { "title": "Houd elke vrijdag de wekelijkse controle" },
+    "enquiry_form_records": { "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraagformulier" },
+    "webhook_upsert": { "title": "Maak of werk records bij uit de oude tool via een inkomende webhook" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke deal heeft een fase.",
+    "board_view": "De pipeline opent als bord per fase met totalen.",
+    "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
+  },
+  "page": {
+    "metaTitle": "CRM op maat: alternatief voor Excel en spreadsheets",
+    "metaDescription": "CRM op maat zonder migratieproject: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt het CRM en importeert je gegevens uit je spreadsheet.",
+    "headline": "Een CRM op maat in plaats van je spreadsheet: je AI-agent bouwt het in Customermates en importeert je gegevens",
+    "answer": "Staan je klanten en deals in een spreadsheet, een Notion-pagina of een oud programma, dan vervangt een CRM op maat dat zonder migratieproject: contactpersonen, bedrijven, deals en taken met een datum, afgestemd op hoe jij verkoopt. Plak dit sjabloon in je AI-agent. Die vraagt hoe je werkt, bouwt het CRM in Customermates en importeert je gegevens. Je keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De vrijdagse CRM-controle",
+      "steps": [
+        "Open de pijplijn als bord en kijk naar elke fase: wat is er deze week verschoven en wat niet.",
+        "Open de deals zonder volgende stap en geef elk een volgende stap met een datum, of sluit de deal.",
+        "Controleer de deals met een verwachte afsluiting in de komende maand en schuif datums door die zijn verstreken.",
+        "Ruim de achterstallige taken op: doen, verplaatsen of laten vallen.",
+        "Herstel wat de import heeft achtergelaten: dubbele contactpersonen, een ontbrekende eigenaar, een record zonder volgende stap."
+      ]
+    },
+    "limits": [
+      "Het is geen no-code appbouwer. Er zijn geen eigen schermen, klantenportalen of scripts: je hebt lijsten, koppelingen, tabel-, bord- en kalenderweergaven, dashboards en je agent. Heb je een appbouwer nodig, gebruik dan een appbouwer.",
+      "Het is geen vrije werkruimte. Notion en Airtable blijven beter voor pagina's, wiki's en gegevens die niets met klanten te maken hebben.",
+      "Er is geen synchronisatie in twee richtingen met je oude programma en geen manier om een import ongedaan te maken. De import is een eenmalige kopie nadat je de koppeling van kolommen hebt gecontroleerd; in de bron wordt niets gewijzigd of verwijderd.",
+      "Er zijn geen Gantt-diagrammen, capaciteitsplanning of tijdlijnen. Dat blijft het werk van projecttools.",
+      "Er zijn geen rechten op veldniveau. Moeten sommige kolommen voor collega's verborgen blijven, zet ze dan in een aparte lijst met eigen toegang.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij beslist welke je inschakelt."
+    ],
+    "faq": [
+      {
+        "question": "Hoe stap ik over van Google Sheets of Excel naar een CRM?",
+        "answer": "Vertel de agent welke kolommen je echt gebruikt. Die stelt lijsten en velden voor, controleert een steekproef van rijen op dubbele en onbekende waarden en importeert zodra jij de koppeling van kolommen hebt goedgekeurd. Customermates importeert Excel- en CSV-bestanden met een wizard voor kolomkoppeling, en je agent kan records importeren via MCP. De import is een kopie: je spreadsheet blijft zoals hij is totdat jij besluit er niet meer mee te werken."
+      },
+      {
+        "question": "Wanneer is een spreadsheet niet meer genoeg voor klanten en deals?",
+        "answer": "Gidsen van CRM-leveranciers leggen de grens tussen ongeveer 25 en 200 contactpersonen, of op het moment dat meerdere mensen hetzelfde bestand bewerken of niemand meer aan een opvolging wordt herinnerd. Dan helpt een CRM: contactpersonen zijn gekoppeld aan bedrijven en deals, volgende stappen zijn taken met een datum en de gesprekken staan naast elk record."
+      },
+      {
+        "question": "Moet ik het CRM zelf ontwerpen?",
+        "answer": "Nee. De agent interviewt je eerst: wat je verkoopt, welke fases er echt zijn van eerste contact tot afsluiting, wat je elke ochtend en elke vrijdag wilt zien, wie er nog meer mee werkt, waar je gegevens nu staan en wat in een ander programma blijft. Hij stelt het model voor en bouwt het nadat jij het hebt goedgekeurd. Fases, velden en weergaven pas je later aan door erom te vragen."
+      },
+      {
+        "question": "Wat komt er niet mee uit mijn oude programma?",
+        "answer": "De import kopieert records. Automatiseringen, formulieren, weergaven, opmerkingen en bijlagen gaan niet mee, en koppelingen die je oude programma als platte tekst exporteerde moeten opnieuw worden opgebouwd. De agent noteert waar elk geïmporteerd record vandaan komt, zodat je dat later kunt nagaan."
+      },
+      {
+        "question": "Wat is het verschil met een CRM op maat van een bureau?",
+        "answer": "Bureaus die een CRM op maat ontwikkelen noemen meerdere maanden projecttijd. Hier bestaat het CRM al, met rollen en toegang per lijst, en alleen de inhoud is van jou: de fases, velden en weergaven. Een eerste werkende pijplijn kan uit één gesprek komen, en je controleert die zelf voordat je erop vertrouwt."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Mijn klanten en deals staan in een spreadsheet of een oude tool en ik wil een CRM dat past bij hoe ik werk. Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+    "questions": [
+      "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
+      "Welke fasen doorloopt een deal in jouw bedrijf?",
+      "Welke velden gebruik je nu echt en welke kun je achterlaten?",
+      "Wie werkt in het CRM en wie is eigenaar van welke records?"
+    ]
+  }
+}

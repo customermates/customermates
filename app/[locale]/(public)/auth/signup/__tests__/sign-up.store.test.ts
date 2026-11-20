@@ -130,7 +130,23 @@ describe("SignUpStore signup journey", () => {
     utmSource: null,
     utmMedium: null,
     utmCampaign: null,
+    template: null,
   };
+
+  it("hands the chosen template to email and social signup with the journey", async () => {
+    authActions.signUpWithEmailAction.mockResolvedValue({ ok: true, data: null });
+    authActions.continueWithGoogleAction.mockResolvedValue({ ok: true, data: null });
+    const withTemplate = { ...journey, template: "client-tracker" as const };
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: undefined });
+    store.setSignupJourney(withTemplate);
+
+    await store.onSubmit();
+    await store.continueWithProvider("google");
+
+    expect(authActions.signUpWithEmailAction).toHaveBeenLastCalledWith(expect.any(Object), withTemplate);
+    expect(authActions.continueWithGoogleAction).toHaveBeenLastCalledWith("/onboarding", "/auth/signup", withTemplate);
+  });
 
   it("hands the job and landing page to email and social signup", async () => {
     authActions.signUpWithEmailAction.mockResolvedValue({ ok: true, data: null });

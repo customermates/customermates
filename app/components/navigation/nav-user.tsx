@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { navUserTriggerLabel } from "./nav-user-label";
 
 export type AccountMenuUser = Pick<TenantUser, "firstName" | "lastName" | "email" | "avatarUrl">;
 
@@ -110,21 +111,34 @@ export const NavUser = observer(
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 ref={triggerRef}
-                aria-label={`${name || email}, ${labels.menu}`}
+                aria-label={navUserTriggerLabel({
+                  name,
+                  email,
+                  menu: labels.menu,
+                  notVerified: labels.notVerified,
+                  emailVerified,
+                })}
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 id="nav-personal-menu"
                 size="lg"
                 tooltip={name || email}
               >
-                <Avatar className="rounded-lg" name={name} size="lg" src={user?.avatarUrl ?? undefined} />
+                <span className="relative shrink-0">
+                  <Avatar className="rounded-lg" name={name} size="lg" src={user?.avatarUrl ?? undefined} />
+
+                  {emailVerified === false && (
+                    <span
+                      aria-hidden
+                      className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border-2 border-sidebar bg-warning"
+                    />
+                  )}
+                </span>
 
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{name || email}</span>
 
-                  <span className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
-                    {notVerified}
-
-                    <span className="truncate">{email}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {emailVerified === false ? labels.notVerified : email}
                   </span>
                 </div>
 

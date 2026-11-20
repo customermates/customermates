@@ -1,0 +1,162 @@
+{
+  "locale": "it",
+  "name": "Gestione candidature",
+  "summary": "Fai avanzare ogni candidatura e dai una risposta a ogni candidato. Una candidatura per posizione attraverso nove fasi, una scheda di valutazione per ogni intervistatore e una data per cancellare quelle scartate.",
+  "description": "In una piccola azienda la selezione corre su e-mail e memoria: i candidati aspettano troppo una risposta, gli appunti dei colloqui sono sparsi e le candidature scartate restano nella posta molto più a lungo del dovuto. Questo modello imposta posizioni con responsabile e fascia retributiva, candidati e candidature che avanzano da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto. Ogni intervistatore compila una scheda di valutazione e le candidature scartate ricevono una data di conservazione, per ricordarti di cancellarle o di chiedere il consenso. Adatto a un'azienda con poche posizioni aperte alla volta. Non è un job board, un parser di CV, una piattaforma di test né uno strumento per la firma elettronica, e non dà consulenza legale sui tempi di conservazione.",
+  "lists": {
+    "applicants": { "label": "Candidato", "pluralLabel": "Candidati", "description": "Le persone che si candidano, con la fonte e il consenso per future selezioni." },
+    "jobs": { "label": "Posizione", "pluralLabel": "Posizioni", "description": "Ogni posizione con il suo responsabile e la fascia retributiva." },
+    "applications": { "label": "Candidatura", "pluralLabel": "Candidature", "description": "Un candidato per una posizione, da ricevuta ad assunto o scartato." },
+    "scorecards": { "label": "Scheda di valutazione", "pluralLabel": "Schede di valutazione", "description": "Voto e raccomandazione di un intervistatore per una candidatura." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Fonte",
+      "options": { "careers_page": "Pagina «Lavora con noi»", "job_board": "Portale di offerte di lavoro", "referral": "Segnalazione", "linkedin": "LinkedIn", "agency": "Agenzia per il lavoro", "other": "Altro" }
+    },
+    "applicants.location": { "label": "Località" },
+    "applicants.salary_expectation": { "label": "RAL desiderata" },
+    "applicants.pool_consent": { "label": "Consenso per future selezioni" },
+    "jobs.status": {
+      "label": "Stato",
+      "options": { "draft": "Bozza", "open": "Aperta", "on_hold": "In pausa", "filled": "Coperta", "cancelled": "Annullata" }
+    },
+    "jobs.department": { "label": "Reparto" },
+    "jobs.hiring_manager": { "label": "Responsabile della selezione" },
+    "jobs.pay_min": { "label": "Retribuzione da" },
+    "jobs.pay_max": { "label": "Retribuzione fino a" },
+    "jobs.apply_by": { "label": "Candidarsi entro" },
+    "applications.stage": {
+      "label": "Fase",
+      "options": { "new": "Ricevuta", "screening": "Preselezione", "interview_1": "Colloquio conoscitivo", "interview_2": "Colloquio tecnico", "reference_check": "Verifica delle referenze", "offer": "Offerta", "hired": "Assunto", "rejected": "Scartato", "withdrawn": "Ritirato" }
+    },
+    "applications.interview_at": { "label": "Colloquio" },
+    "applications.offer_decision_due": { "label": "Risposta all'offerta entro" },
+    "applications.rejection_reason": {
+      "label": "Motivo dello scarto",
+      "options": { "skills": "Competenze", "experience": "Esperienza", "salary_mismatch": "Aspettative retributive non allineate", "other_offer": "Ha accettato un'altra offerta", "position_filled": "Posizione coperta", "other": "Altro" }
+    },
+    "applications.retain_until": { "label": "Conservare fino al" },
+    "scorecards.interviewer": { "label": "Intervistatore" },
+    "scorecards.round": { "label": "Tipo di colloquio", "options": { "screening": "Preselezione", "interview_1": "Colloquio conoscitivo", "interview_2": "Colloquio tecnico" } },
+    "scorecards.rating": { "label": "Voto" },
+    "scorecards.recommendation": { "label": "Raccomandazione", "options": { "strong_no": "Decisamente no", "no": "No", "yes": "Sì", "strong_yes": "Decisamente sì" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "acknowledge": "Confermare la ricezione",
+        "screen": "Preselezionare la candidatura",
+        "schedule_interview": "Fissare un colloquio",
+        "collect_scorecards": "Raccogliere le schede",
+        "chase_offer": "Sollecitare la risposta all'offerta",
+        "close_message": "Inviare un messaggio di chiusura",
+        "retention_review": "Rivedere la conservazione",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Candidato", "targetLabel": "Candidature" },
+    "application_job": { "sourceLabel": "Posizione", "targetLabel": "Candidature" },
+    "scorecard_application": { "sourceLabel": "Candidatura", "targetLabel": "Schede di valutazione" },
+    "action_application": { "sourceLabel": "Candidatura", "targetLabel": "Attività" }
+  },
+  "views": {
+    "applications_all": { "name": "Tutte le candidature" },
+    "applications_board": { "name": "Board di selezione" },
+    "jobs_all": { "name": "Tutte le posizioni" },
+    "applicants_all": { "name": "Tutti i candidati" },
+    "scorecards_all": { "name": "Tutte le schede di valutazione" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Candidature per fase" },
+    "applicants_by_source": { "title": "Candidati per fonte" },
+    "interviews_coming": { "title": "Colloqui in arrivo" },
+    "open_jobs": { "title": "Posizioni aperte" },
+    "rejection_reasons": { "title": "Motivi di scarto" },
+    "retention_coming": { "title": "Candidature da cancellare o con consenso da rinnovare" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Processo di selezione e chi decide", "sections": ["Fasi e responsabili", "Che cosa cerchiamo in preselezione e nei colloqui"] },
+    "form_and_retention": { "title": "Modulo di candidatura e conservazione dei dati", "sections": ["Dati richiesti e informativa privacy", "Per quanto tempo conserviamo le candidature scartate"] },
+    "candidate_messages": { "title": "Messaggi ai candidati", "sections": ["Conferma di ricezione, invito, offerta", "Messaggio di chiusura per ogni candidato non selezionato"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Creare candidato e candidatura quando viene inviato il modulo di candidatura" },
+    "acknowledge_application": { "title": "Confermare una nuova candidatura entro 2 giorni" },
+    "collect_scorecards": { "title": "Raccogliere le schede il giorno del colloquio" },
+    "scorecard_reminder": { "title": "Ricordare al responsabile il giorno dopo il colloquio" },
+    "chase_offer": { "title": "Sollecitare la risposta 5 giorni dopo un'offerta" },
+    "rejection_retention": {
+      "title": "Impostare la data di conservazione a 180 giorni quando una candidatura viene scartata",
+      "variants": {
+        "PL": {
+          "title": "Impostare la data di conservazione a 30 giorni quando una candidatura viene scartata (Polonia: più a lungo solo con consenso)",
+          "description": "L'autorità polacca per la protezione dei dati (UODO) si aspetta che i dati del candidato siano cancellati al termine della selezione, salvo consenso del candidato a selezioni future. È un valore predefinito: imposta il termine della tua politica di conservazione e, in caso di consenso, una data successiva a mano."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Scrivere agli altri candidati quando una posizione è coperta" },
+    "retention_review": { "title": "Rivedere una candidatura quando arriva la data di conservazione" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni candidatura ha una delle nove fasi.",
+    "retain_until_field": "Ogni candidatura indica fino a quando viene conservata.",
+    "applications_board_view": "Le candidature si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "Gestione candidature: nessun candidato senza risposta",
+    "metaDescription": "Incolla questo modello di gestione candidature in Claude, ChatGPT o Codex: posizioni, nove fasi, schede di valutazione e data di cancellazione per i rifiuti.",
+    "headline": "Rispondi a ogni candidato e tieni gli appunti insieme: la gestione candidature che il tuo agente IA costruisce",
+    "answer": "Un sistema di gestione delle candidature per una piccola azienda è un elenco di posizioni con una candidatura per candidato e per posizione, che avanza da ricevuta ad assunto o scartato, perché nessun candidato resti senza risposta. Incolla questo modello nel tuo agente IA e lo costruisce in Customermates, con posizioni, una scheda di valutazione per ogni intervistatore, attività di follow-up con data e una data di conservazione per le candidature scartate. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale delle candidature",
+      "steps": [
+        "Controlla che ogni nuova candidatura abbia ricevuto una conferma e una data successiva, e rispondi a quelle che aspettano ancora.",
+        "Confronta le nuove candidature con i requisiti indispensabili della posizione e decidi chi invitare a un colloquio.",
+        "Raccogli la scheda di ogni intervistatore il giorno dopo ogni colloquio, finché gli appunti sono freschi.",
+        "Sollecita le offerte che aspettano una decisione e invia il messaggio di chiusura ai candidati scartati o la cui posizione è stata coperta."
+      ]
+    },
+    "limits": [
+      "Non è un job board, uno strumento di multiposting né un costruttore di pagine carriera. Non pubblica i tuoi annunci.",
+      "Non legge né classifica i CV e non scarta nessuno in automatico. Le schede di valutazione sono giudizi dati da una persona.",
+      "Non è una piattaforma di test, valutazione o colloqui video, né uno strumento per lettere d'offerta e firme elettroniche.",
+      "Non fa verifiche sui precedenti né sul diritto al lavoro e non è un sistema di onboarding, un fascicolo del personale o un sistema paghe. Dopo l'assunzione il fascicolo passa al tuo sistema HR.",
+      "Tieni fuori copie di documenti d'identità e dati di monitoraggio delle pari opportunità. Raccogli solo ciò che serve alla decisione di assunzione.",
+      "Non dà consulenza legale. Registra una data di conservazione e un responsabile; il periodo lo decidi tu, con il tuo consulente.",
+      "È pensato per poche posizioni aperte alla volta. Per assunzioni in grandi volumi o su più sedi è più adatto un sistema di gestione delle candidature dedicato."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve contenere uno strumento per le candidature?",
+        "answer": "Posizioni con un responsabile e una fascia retributiva, candidati e una candidatura per candidato e per posizione con la sua fase, la data del colloquio, la scadenza dell'offerta e il motivo dello scarto. Chi lavora sul campo aggiunge una scheda di valutazione per ogni intervistatore, così i giudizi sono strutturati invece di restare sparsi tra e-mail e chat."
+      },
+      {
+        "question": "Quali fasi dovrebbe avere un processo di selezione?",
+        "answer": "Le guide più comuni citano candidatura ricevuta, preselezione, colloquio, verifica delle referenze e offerta. Questo modello ne ha nove: ricevuta, preselezione, colloquio conoscitivo, colloquio tecnico, verifica delle referenze, offerta, assunto, scartato e ritirato, perché una piccola azienda raramente ha bisogno di più di due giri di colloqui. Rinomina o togli fasi nel piano che il tuo agente propone."
+      },
+      {
+        "question": "Per quanto tempo posso conservare le candidature scartate?",
+        "answer": "Dipende dal paese. In Francia l'autorità per la protezione dei dati ammette in linea di principio un bacino di candidati non selezionati per due anni dall'ultimo contatto, se gli interessati sono stati informati; in Germania le candidature scartate si conservano di norma circa sei mesi dopo la fine della selezione, e un bacino di talenti solo con consenso. Il modello imposta la data di conservazione 180 giorni dopo uno scarto, così cancelli la candidatura o chiedi il consenso. Adatta il periodo al tuo paese e chiedi al tuo consulente. Non è una consulenza legale."
+      },
+      {
+        "question": "Posso tenere un bacino di talenti?",
+        "answer": "Sì, se i candidati ne sono informati e, a seconda del paese, con il loro consenso. Quando arriva la data di conservazione di una candidatura scartata, la cancelli oppure registri il consenso del candidato a restare nel tuo bacino. Le fonti tedesche richiedono il consenso, altre ammettono un periodo breve per legittimo interesse; verifica la regola del tuo paese."
+      },
+      {
+        "question": "L'agente contatta i candidati o ne scarta qualcuno?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. I messaggi, come una conferma di ricezione o un rifiuto, sono bozze che esistono solo se le chiedi, e le invii tu. Niente viene scartato in automatico."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Assumo per la mia piccola azienda: i candidati aspettano troppo una risposta e gli appunti dei colloqui restano sparsi in posti diversi. Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
+    "questions": [
+      "Quante posizioni hai aperte contemporaneamente e chi seleziona per ciascuna?",
+      "Da dove arrivano i candidati e usi un modulo di candidatura?",
+      "Per quanto tempo conservi le candidature scartate e tieni un archivio di candidati (talent pool) con consenso?",
+      "Quali colloqui prevedi e chi compila una scheda di valutazione?"
+    ]
+  }
+}

@@ -11,6 +11,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRight,
+  CalendarClock,
+  CalendarPlus,
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
@@ -73,6 +75,8 @@ import { RecordExplorationStore } from "../../records/[typeId]/components/record
 import { calendarSwatchStyle } from "../../records/[typeId]/components/record-calendar-layout";
 import { cn } from "@/core/utils/cn";
 import { plannerCalendarAdapter, plannerEntryColors } from "./planner-calendar-adapter";
+import { BookingPanel } from "./booking/booking-panel";
+import type { BookingPanelState } from "./booking/booking-panel-model";
 import { PlannerSettingsStore } from "./planner-settings.store";
 import { PlannerSourceModal } from "./planner-source-modal";
 import { PlannerWeekSchedule } from "./planner-week-schedule";
@@ -94,7 +98,17 @@ function sourceHref(source: PlannerSource) {
   return `/records/${source.typeId}?${params}`;
 }
 
-const PlannerPageViewContent = observer(function PlannerPageView({ options }: { options: PlannerOptions }) {
+type PlannerPageViewProps = {
+  options: PlannerOptions;
+  booking: BookingPanelState;
+  bookingRequested: boolean;
+};
+
+const PlannerPageViewContent = observer(function PlannerPageView({
+  options,
+  booking,
+  bookingRequested,
+}: PlannerPageViewProps) {
   const t = useTranslations();
   const root = useRootStore();
   const format = useRecordValueFormat();
@@ -120,6 +134,10 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [jumping, setJumping] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(bookingRequested);
+  useEffect(() => {
+    if (bookingRequested) setBookingOpen(true);
+  }, [bookingRequested]);
   const [eventDetail, setEventDetail] = useState<PlannerEntry | null>(null);
   const [creating, setCreating] = useState<{
     date: CalendarDate;
@@ -211,15 +229,24 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     },
     [stores],
   );
+  const canSchedule = root.appMode === "cloud" && options.personalAvailable && options.calendars.length > 0;
+  const scheduleAt = useCallback(
+    (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null) => {
+      root.scheduleMeetingModalStore.start({ date, minutes, timeZone: config.timeZone }, opener);
+    },
+    [root, config.timeZone],
+  );
   const createAt = useCallback(
     (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null, anchor?: DOMRect) => {
       const ids = creatableKey ? creatableKey.split(",") : [];
-      if (ids.length === 1) createIn(ids[0], date, minutes, opener);
-      else if (ids.length > 1)
+      if (ids.length === 0 && canSchedule) scheduleAt(date, minutes, opener);
+      else if (ids.length === 1 && !canSchedule) createIn(ids[0], date, minutes, opener);
+      else if (ids.length > 0)
         setCreating({ date, minutes, opener: opener ?? null, rect: anchor ?? opener?.getBoundingClientRect() ?? null });
     },
-    [creatableKey, createIn],
+    [creatableKey, createIn, canSchedule, scheduleAt],
   );
+  const creatable = Boolean(creatableKey) || canSchedule;
   const adapter = useMemo(
     () =>
       plannerCalendarAdapter({
@@ -232,9 +259,9 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         refreshing,
         refresh,
         navigate: setAnchor,
-        create: creatableKey ? createAt : null,
+        create: creatable ? createAt : null,
       }),
-    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh, creatableKey, createAt],
+    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh, creatable, createAt],
   );
   const dateLabel = (date: string, full = false) =>
     format.date(
@@ -305,6 +332,13 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             onClick: () => setSourcesOpen(true),
           },
           {
+            id: "planner-booking",
+            icon: CalendarClock,
+            label: t("Booking.panelTitle"),
+            pressed: bookingOpen,
+            onClick: () => setBookingOpen((open) => !open),
+          },
+          {
             id: "planner-sync",
             icon: Download,
             label: t("Planner.calendarSync"),
@@ -321,7 +355,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         ]}
       />
     ),
-    [t, clientReady, canAddSource, addSource],
+    [t, clientReady, canAddSource, addSource, bookingOpen],
   );
   useSetTopBarActions(topBarActions);
   const recordName = (row: { id: string }) => {
@@ -474,7 +508,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
               refreshing={refreshing}
               store={adapter}
               window={calendarWindow}
-              onCreate={creatableKey ? createAt : undefined}
+              onCreate={creatable ? createAt : undefined}
               onOpen={open}
             />
           </div>
@@ -482,6 +516,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
           <RecordCalendarView hideToolbar recordName={recordName} store={adapter} onOpenRecord={openRow} />
         )}
       </div>
+
+      {bookingOpen && <BookingPanel state={booking} onClose={() => setBookingOpen(false)} />}
 
       {sourcesOpen && (
         <AppModal open titleInContent size="lg" title={t("Planner.sources")} onClose={() => setSourcesOpen(false)}>
@@ -689,6 +725,22 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             </PopoverHeader>
 
             <div className="flex flex-col gap-0.5 p-1.5">
+              {canSchedule && (
+                <Button
+                  className="justify-start"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setCreating(null);
+                    scheduleAt(creating.date, creating.minutes, creating.opener);
+                  }}
+                >
+                  <CalendarPlus aria-hidden className="size-4" />
+
+                  <span className="truncate">{t("ScheduleMeeting.newMeeting")}</span>
+                </Button>
+              )}
+
               {config.sources
                 .filter((source) => creatableKey.split(",").includes(source.id))
                 .map((source) => (

@@ -1,0 +1,153 @@
+{
+  "locale": "pl",
+  "name": "Zlecenia konsultingowe",
+  "summary": "Wiedz, na jakim etapie jest każda oferta, i nie gub kontaktów po rozmowie. Zlecenia od kontaktu do wygranego, termin ponownego kontaktu ustalony na rozmowie oraz rezultaty, od których zależą realizacja i zamknięcie.",
+  "description": "Jako niezależny konsultant prowadzisz kilka rozmów i jedną ofertę naraz, a zlecenia przepadają w ciszy po rozmowie o ofercie albo w przerwie między podpisem a startem. Szablon zakłada zlecenia przez rozmowę odkrywczą, zakres, ofertę i decyzję, z terminem ponownego kontaktu ustalonym ze sponsorem, kontrolą przyjęcia zlecenia (moce przerobowe, niezależność, poufność) przed ofertą, rezultatami z terminem i odbiorem oraz zamknięciem, w którym prosisz o opinię i referencje. Zapisuje lejek, relacje i punkty kontrolne realizacji. To nie jest rejestr czasu pracy, system do fakturowania, podpisu elektronicznego ofert ani planowania zasobów i nie przechowuje poufnych danych klienta.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Sponsorzy, osoby kontaktowe na co dzień, osoby akceptujące i polecający." },
+    "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Potencjalni klienci, klienci, byli klienci i partnerzy polecający." },
+    "engagements": { "label": "Zlecenie", "pluralLabel": "Zlecenia", "description": "Jedna praca konsultingowa, od pierwszego kontaktu do realizacji i zamknięcia." },
+    "deliverables": { "label": "Rezultat", "pluralLabel": "Rezultaty", "description": "Kamień milowy, który przekazujesz, z terminem i odbiorem." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Rola", "options": { "sponsor": "Sponsor", "day_to_day": "Kontakt na co dzień", "signs_off": "Zatwierdza", "referrer": "Polecający", "influencer": "Osoba wpływowa" } },
+    "contacts.relationship_strength": { "label": "Relacja", "options": { "strong": "Silna", "warm": "Ciepła", "new": "Nowa" } },
+    "contacts.last_meeting": { "label": "Ostatnie spotkanie" },
+    "clients.relationship": { "label": "Relacja", "options": { "prospect": "Potencjalny klient", "client": "Klient", "former_client": "Były klient", "referral_partner": "Partner polecający" } },
+    "clients.industry": { "label": "Branża" },
+    "engagements.stage": {
+      "label": "Etap",
+      "options": { "introduction": "Kontakt", "discovery": "Rozmowa odkrywcza", "scoping": "Zakres", "proposal_sent": "Oferta wysłana", "decision": "Decyzja", "won": "Wygrane", "lost": "Przegrane" }
+    },
+    "engagements.engagement_type": { "label": "Typ", "options": { "diagnostic": "Diagnoza", "advisory_review": "Przegląd doradczy", "workshop": "Warsztat", "interim": "Zarządzanie interim", "retainer": "Stała współpraca", "training": "Szkolenie" } },
+    "engagements.referral_source": { "label": "Skąd pochodzi zlecenie", "options": { "client_referral": "Polecenie klienta", "peer_referral": "Polecenie kolegi z branży", "event_or_talk": "Wydarzenie lub wystąpienie", "content": "Publikacje", "existing_client": "Obecny klient", "marketplace": "Platforma" } },
+    "engagements.day_rate": { "label": "Stawka dzienna" },
+    "engagements.days_estimated": { "label": "Szacowana liczba dni" },
+    "engagements.estimated_fee": { "label": "Szacowane wynagrodzenie" },
+    "engagements.acceptance_checked_on": { "label": "Data kontroli przyjęcia" },
+    "engagements.proposal_follow_up_on": { "label": "Ustalony termin ponownego kontaktu" },
+    "engagements.decision_expected": { "label": "Spodziewana decyzja" },
+    "engagements.start_date": { "label": "Data rozpoczęcia" },
+    "engagements.end_date": { "label": "Data zakończenia" },
+    "engagements.delivery_status": { "label": "Realizacja", "options": { "not_started": "Nierozpoczęta", "kickoff_scheduled": "Spotkanie startowe umówione", "in_delivery": "W realizacji", "wrapping_up": "Zamykanie", "completed": "Zakończona" } },
+    "engagements.next_step_due": { "label": "Termin następnego kroku" },
+    "engagements.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "timing": "Nieodpowiedni moment", "budget": "Budżet", "in_house": "Zrobi to we własnym zakresie", "other_advisor": "Klient wybrał innego doradcę", "scope_changed": "Zmienił się zakres", "no_decision": "Brak decyzji", "no_response": "Brak odpowiedzi" }
+    },
+    "deliverables.status": { "label": "Status", "options": { "planned": "Zaplanowany", "in_progress": "W toku", "delivered": "Przekazany", "accepted": "Odebrany" } },
+    "deliverables.kind": { "label": "Rodzaj", "options": { "interview_summary": "Podsumowanie wywiadów", "workshop": "Warsztat", "report": "Raport", "recommendation": "Rekomendacja", "training_session": "Sesja szkoleniowa", "handover": "Przekazanie" } },
+    "deliverables.due_date": { "label": "Termin" },
+    "deliverables.owner": { "label": "Osoba odpowiedzialna" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "reply": "Odpowiedzieć", "write_up": "Opisać rozmowę", "acceptance_check": "Sprawdzić przyjęcie", "proposal": "Napisać ofertę", "follow_up": "Skontaktować się ponownie", "kickoff": "Spotkanie startowe", "deliver": "Dostarczyć", "feedback": "Poprosić o opinię", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klient", "targetLabel": "Kontakty" },
+    "engagement_client": { "sourceLabel": "Klient", "targetLabel": "Zlecenia" },
+    "engagement_sponsor": { "sourceLabel": "Sponsor i kontakty", "targetLabel": "Zlecenia" },
+    "deliverable_engagement": { "sourceLabel": "Zlecenie", "targetLabel": "Rezultaty" },
+    "action_engagement": { "sourceLabel": "Zlecenie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "engagements_board": { "name": "Zlecenia według etapu" },
+    "engagements_all": { "name": "Wszystkie zlecenia" },
+    "in_delivery": { "name": "Wygrane i jeszcze niezakończone" },
+    "deliverables_all": { "name": "Wszystkie rezultaty" },
+    "clients_all": { "name": "Wszyscy klienci" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Zlecenia według etapu" },
+    "open_value": { "title": "Wartość ofert w toku" },
+    "decisions_coming": { "title": "Spodziewane decyzje" },
+    "deliverables_due": { "title": "Rezultaty do przekazania" },
+    "engagements_ending": { "title": "Kończące się zlecenia" },
+    "by_type": { "title": "Wygrane zlecenia według typu" },
+    "lost_reasons": { "title": "Powody utraty zleceń" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Jak działa praktyka konsultingowa", "sections": ["Etapy i zasada jednego następnego kroku z terminem na otwarte zlecenie", "Co zostaje na zewnątrz: rejestr czasu i fakturowanie"] },
+    "discovery_guide": { "title": "Przewodnik po rozmowie odkrywczej", "sections": ["Problem słowami klienta, interesariusze i sygnały dotyczące budżetu", "Co zapisać następnego dnia"] },
+    "acceptance_check": { "title": "Kontrola przyjęcia zlecenia przed ofertą", "sections": ["Moce przerobowe, niezależność, poufność i dopasowanie", "Kto decyduje o przyjęciu zlecenia"] },
+    "proposal_and_follow_up": { "title": "Struktura oferty i ponowny kontakt", "sections": ["Przedstawione opcje i rekomendowana", "Ustalenie terminu ponownego kontaktu podczas rozmowy o ofercie"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Opisz rozmowę odkrywczą następnego dnia" },
+    "acceptance_check": { "title": "Sprawdź przyjęcie zlecenia dzień po wejściu w etap zakresu" },
+    "proposal_follow_up": { "title": "Przypomnij o ofercie 3 dni po jej wysłaniu" },
+    "decision_date": { "title": "Zapytaj o decyzję w spodziewanym terminie decyzji" },
+    "won_kickoff": { "title": "Umów spotkanie startowe dzień po wygraniu zlecenia" },
+    "lost_review": { "title": "Zapytaj, co można było zrobić inaczej, 2 dni po utracie zlecenia" },
+    "deliverable_due_notice": { "title": "Powiadom osobę odpowiedzialną 3 dni przed terminem rezultatu" },
+    "closeout_report": { "title": "Przekaż raport końcowy w dniu zakończenia" },
+    "testimonial_ask": { "title": "Poproś o referencje 14 dni po zakończeniu" },
+    "followup_after_end": { "title": "Zaproponuj dalszą pracę 30 dni po zakończeniu" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde zlecenie ma etap.",
+    "follow_up_field": "Każda oferta zapisuje termin ponownego kontaktu ustalony ze sponsorem.",
+    "acceptance_checked_field": "Każde zlecenie zapisuje, kiedy sprawdzono przyjęcie.",
+    "engagements_board_view": "Zlecenia otwierają się jako tablica według etapu."
+  },
+  "page": {
+    "metaTitle": "Zlecenia konsultingowe: oferty i follow-up w Twoim CRM",
+    "metaDescription": "Zlecenia konsultingowe, które agent AI buduje w Twoim CRM: od kontaktu do wygranego, z terminem ponownego kontaktu ustalonym na rozmowie o ofercie.",
+    "headline": "Nie trać oferty w ciszy po rozmowie: CRM dla konsultanta, który buduje Twój agent AI",
+    "answer": "CRM dla konsultanta śledzi kilka zleceń o dużej wartości od kontaktu do wygranego i przede wszystkim termin, w którym wracasz do oferty. Ten szablon konfiguruje zlecenia z rozmową odkrywczą, zakresem, ofertą i decyzją, sprawdzenie przyjęcia zlecenia przed ofertą, rezultaty z terminami wykonania i odbioru oraz zamknięcie. Wklej go do swojego agenta AI, a on zbuduje wszystko w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Poniedziałkowy przegląd zleceń",
+      "steps": [
+        "Przejdź przez pipeline etapami i dodaj datowany następny krok do każdego zlecenia, które go nie ma, albo je zamknij.",
+        "Sprawdź wysłane oferty: każda wymaga terminu ponownego kontaktu ustalonego z decydentem na rozmowie, potem drugiego kontaktu około dziesiątego dnia i pytania o decyzję w planowanym terminie.",
+        "Zerknij na rezultaty z terminem w ciągu 14 dni i potwierdź z klientem termin przeglądu.",
+        "Odezwij się do silnych lub ciepłych kontaktów, z którymi nie spotykaliście się od 60 dni, i podziękuj osobie, która poleciła Cię przy ostatnim zleceniu."
+      ]
+    },
+    "limits": [
+      "To nie jest ewidencja czasu pracy ani fakturowanie. Godziny i faktury zostają w Twoich narzędziach do czasu i księgowości; zadanie przy kamieniu milowym tylko przypomina o fakturze.",
+      "Nie pisze ofert i nie zbiera podpisów. Oferta i podpisana umowa to linki do dokumentów w innym miejscu.",
+      "To nie jest planowanie zasobów ani zarządzanie projektem poza rezultatami i terminami. Zadania samej pracy należą do Twojego narzędzia projektowego.",
+      "Nie trzymaj w nim poufnych materiałów klientów ani danych z wywiadów. Nie ma uprawnień na poziomie pola, więc zapisuj neutralny tytuł zlecenia i link.",
+      "Nie wysyła sekwencji. Każdy kolejny kontakt to datowane zadanie i szkic, który sprawdzasz i wysyłasz Ty; Customermates nie ma silnika wysyłki automatycznej ani masowej.",
+      "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+    ],
+    "faq": [
+      {
+        "question": "Jakiego CRM używają konsultanci?",
+        "answer": "Wielu niezależnych konsultantów zaczyna od arkusza albo ogólnego CRM sprzedażowego. Konsultant potrzebuje niewiele: kilku kontaktów i zleceń, datowanego następnego kroku przy każdym, terminu powrotu do oferty i kroków odbioru po sprzedaży. Ten szablon konfiguruje to w Customermates."
+      },
+      {
+        "question": "Kiedy wrócić do oferty po jej wysłaniu?",
+        "answer": "Ustal termin w trakcie rozmowy o ofercie, tak jak opisuje to Alan Weiss: podaj konkretny dzień i godzinę, zadzwoń najpierw i napisz tylko wtedy, gdy kupujący jest nieosiągalny. Szablon domyślnie proponuje pierwszy kontakt po 3 dniach i drugi po 10; oba możesz zmienić."
+      },
+      {
+        "question": "Czym jest sprawdzenie przyjęcia zlecenia?",
+        "answer": "To krótka kontrola przed napisaniem oferty: czy masz moce, czy zachowasz niezależność wobec innych stron klienta, czy da się utrzymać poufność i czy zlecenie do Ciebie pasuje? Niemieckie stowarzyszenie konsultantów zaleca sprawdzić, czy zlecenie można przyjąć, zanim sformułujesz ofertę, a w przeciwnym razie odmówić."
+      },
+      {
+        "question": "Jak szybko po podpisaniu powinno odbyć się spotkanie startowe?",
+        "answer": "Przewodnik jednego z dostawców celuje w spotkanie startowe w ciągu 48 godzin od zamknięcia, z materiałem wstępnym wysłanym 24 godziny przed 60-minutowym spotkaniem; zaznacza, że zlecenia regulowane lub podzlecane wymagają więcej czasu. Szablon tworzy krok startowy dzień po wygraniu zlecenia."
+      },
+      {
+        "question": "Co zrobić po utracie oferty?",
+        "answer": "Zapisz powód, a dwa dni później zapytaj decydenta, co można było zrobić inaczej. Alan Weiss zaleca właśnie to pytanie, gdy odpowiedź brzmi nie. Szablon tworzy ten krok za Ciebie."
+      },
+      {
+        "question": "Czy agent pisze do moich klientów?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je Ty."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Prowadzę własną firmę konsultingową i tracę zlecenia w ciszy po rozmowie o ofercie. Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
+    "questions": [
+      "Jakie rodzaje zleceń sprzedajesz i w jakiej stawce dziennej?",
+      "Jak decydujesz, czy przyjąć zlecenie?",
+      "Jak długo czekasz po ofercie, zanim przypomnisz o sobie?",
+      "Które rezultaty są kamieniami milowymi, za które fakturujesz?"
+    ]
+  }
+}

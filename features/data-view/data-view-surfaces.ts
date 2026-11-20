@@ -33,6 +33,12 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
     resource: Resource.api,
     readAllOnly: true,
   },
+  [SURFACE.incomingWebhooks]: {
+    label: "Incoming webhooks",
+    path: DATA_VIEW_PATHS[SURFACE.incomingWebhooks],
+    resource: Resource.api,
+    readAllOnly: true,
+  },
   [SURFACE.messagingThreads]: {
     label: "Inbox",
     path: DATA_VIEW_PATHS[SURFACE.messagingThreads],
@@ -62,7 +68,7 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
     path: DATA_VIEW_PATHS[SURFACE.operatorAudit],
   },
   [SURFACE.routines]: {
-    label: "Routines",
+    label: "Automations",
     path: DATA_VIEW_PATHS[SURFACE.routines],
     resource: Resource.routines,
   },

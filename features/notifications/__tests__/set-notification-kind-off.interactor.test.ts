@@ -1,0 +1,233 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { Locale } from "@/generated/prisma";
+import { MOCK_ENV_MODULE, MOCK_PRISMA_DB_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+
+import { SetNotificationKindOffInteractor, maskEmailAddress } from "../set-notification-kind-off.interactor";
+import { notificationUnsubscribeSecret, signNotificationUnsubscribe } from "../notification-unsubscribe-token";
+import { FakeNotificationRepo } from "./fake-notification-repo";
+
+const COMPANY = "00000000-0000-4000-8000-000000000011";
+const ME = "00000000-0000-4000-8000-000000000010";
+const NOW = new Date("2026-11-17T08:00:00.000Z");
+const DAY_MS = 24 * 60 * 60 * 1000;
+const AUTH_SECRET = "auth-secret";
+const SECRET = notificationUnsubscribeSecret(AUTH_SECRET) as string;
+
+function signed(kind: "dueToday" | "replyReceived" | "ruleAlert" = "ruleAlert", preferenceVersion?: number) {
+  return signNotificationUnsubscribe(SECRET, { userId: ME, companyId: COMPANY, kind, preferenceVersion }, NOW);
+}
+
+let repo: FakeNotificationRepo;
+let clockNow = NOW;
+
+let viewer: string | null = null;
+
+function interactor(authSecret: string | undefined = AUTH_SECRET) {
+  return new SetNotificationKindOffInteractor(
+    repo,
+    authSecret,
+    () => clockNow,
+    () => Promise.resolve(viewer),
+  );
+}
+
+const DETAILS = {
+  kind: "ruleAlert",
+  workspaceSlug: "ws-1",
+  workspaceName: "Acme",
+  maskedEmail: "m•••@example.test",
+  viewerIsMember: false,
+  locale: "de",
+};
+
+beforeEach(() => {
+  repo = new FakeNotificationRepo();
+  clockNow = NOW;
+  viewer = null;
+  repo.members = [
+    {
+      id: ME,
+      email: "me@example.test",
+      firstName: "Sofia",
+      displayLanguage: Locale.de,
+      workspaceSlug: "ws-1",
+      workspaceName: "Acme",
+    },
+  ];
+});
+
+describe("turning a notification kind off from an email link", () => {
+  it("changes nothing until the person confirms, and names the kind and the workspace to ask about", async () => {
+    const token = signed("ruleAlert");
+
+    const first = await interactor().invoke({ token, confirmed: false });
+    const second = await interactor().invoke({ token, confirmed: false });
+
+    expect(first).toEqual({ ok: true, data: { status: "pending", ...DETAILS } });
+    expect(second).toEqual(first);
+    expect(repo.unscopedSaves).toEqual([]);
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBeUndefined();
+  });
+
+  it("names the workspace and only a masked address of the member whose emails the link switches off", async () => {
+    const result = await interactor().invoke({ token: signed("ruleAlert"), confirmed: false });
+
+    expect(result).toMatchObject({ ok: true, data: { workspaceName: "Acme", maskedEmail: "m•••@example.test" } });
+    expect(JSON.stringify(result)).not.toContain("me@example.test");
+    expect(maskEmailAddress("sofia.keller@acme.example")).toBe("s•••@acme.example");
+    expect(maskEmailAddress("no-at-sign")).toBe("•••");
+  });
+
+  it("tells a signed-in member apart from a colleague who opened a forwarded mail", async () => {
+    const token = signed("ruleAlert");
+
+    viewer = "colleague@example.test";
+    expect(await interactor().invoke({ token, confirmed: true })).toMatchObject({
+      ok: true,
+      data: { status: "off", viewerIsMember: false },
+    });
+    viewer = "ME@example.test";
+    expect(await interactor().invoke({ token, confirmed: true })).toMatchObject({
+      ok: true,
+      data: { status: "off", viewerIsMember: true },
+    });
+  });
+
+  it("reports a kind that is already off as off before anyone confirms", async () => {
+    repo.preferences.set(ME, new Map([["ruleAlert", "off"]]));
+
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: false })).toEqual({
+      ok: true,
+      data: { status: "off", ...DETAILS },
+    });
+    expect(repo.unscopedSaves).toEqual([]);
+  });
+
+  it("sets the email mode of that kind to off without a session and names where to send the person next", async () => {
+    const result = await interactor().invoke({ token: signed("ruleAlert"), confirmed: true });
+
+    expect(result).toEqual({ ok: true, data: { status: "off", ...DETAILS } });
+    expect(repo.unscopedSaves).toEqual([{ companyId: COMPANY, userId: ME, kind: "ruleAlert", emailMode: "off" }]);
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBe("off");
+  });
+
+  it("leaves the other kinds as they were", async () => {
+    repo.preferences.set(ME, new Map([["dueToday", "instant"]]));
+
+    await interactor().invoke({ token: signed("replyReceived"), confirmed: true });
+
+    expect(repo.preferences.get(ME)?.get("dueToday")).toBe("instant");
+    expect(repo.preferences.get(ME)?.get("replyReceived")).toBe("off");
+  });
+
+  it("is idempotent when the link is followed again", async () => {
+    const token = signed("dueToday");
+
+    const first = await interactor().invoke({ token, confirmed: true });
+    const second = await interactor().invoke({ token, confirmed: true });
+
+    expect(second).toEqual(first);
+    expect(repo.preferences.get(ME)?.get("dueToday")).toBe("off");
+  });
+
+  it("changes nothing for a wrong, tampered or empty token", async () => {
+    const token = signed("ruleAlert");
+    const tampered = token.replace("ruleAlert", "dueToday");
+
+    expect(await interactor().invoke({ token: tampered, confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(await interactor().invoke({ token: "nonsense", confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect((await interactor().invoke({ token: "", confirmed: true })).ok).toBe(false);
+    expect(repo.unscopedSaves).toEqual([]);
+  });
+
+  it("refuses a token signed with another secret and any token when no secret is configured", async () => {
+    const token = signed("ruleAlert");
+
+    expect(await interactor("other-secret").invoke({ token, confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(await interactor("  ").invoke({ token, confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(repo.unscopedSaves).toEqual([]);
+  });
+
+  it("reports an expired link and changes nothing", async () => {
+    const token = signed("ruleAlert");
+    clockNow = new Date(NOW.getTime() + 31 * DAY_MS);
+
+    expect(await interactor().invoke({ token, confirmed: true })).toEqual({ ok: true, data: { status: "expired" } });
+    expect(repo.unscopedSaves).toEqual([]);
+  });
+
+  it("no longer works once the member switched the kind on again, and lands on the expired page", async () => {
+    const token = signed("ruleAlert");
+    await interactor().invoke({ token, confirmed: true });
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBe("off");
+
+    repo.currentUserId = ME;
+    repo.clock = new Date(NOW.getTime() + DAY_MS);
+    await repo.savePreferences([{ kind: "ruleAlert", emailMode: "instant" }]);
+    repo.unscopedSaves = [];
+
+    expect(await interactor().invoke({ token, confirmed: false })).toEqual({ ok: true, data: { status: "expired" } });
+    expect(await interactor().invoke({ token, confirmed: true })).toEqual({ ok: true, data: { status: "expired" } });
+    expect(repo.unscopedSaves).toEqual([]);
+    expect(repo.preferences.get(ME)?.get("ruleAlert")).toBe("instant");
+  });
+
+  it("accepts the link of a mail that was sent after the member's last change", async () => {
+    repo.currentUserId = ME;
+    repo.clock = new Date(NOW.getTime() - DAY_MS);
+    await repo.savePreferences([{ kind: "ruleAlert", emailMode: "instant" }]);
+    const version = repo.clock.getTime();
+
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "expired" },
+    });
+    expect(await interactor().invoke({ token: signed("ruleAlert", version), confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "off", ...DETAILS },
+    });
+  });
+
+  it("still shows the kind as off when the used link is opened again, though the change it made is newer than the link", async () => {
+    const token = signed("ruleAlert");
+    repo.clock = new Date(NOW.getTime() + 60_000);
+    await interactor().invoke({ token, confirmed: true });
+
+    expect(await interactor().invoke({ token, confirmed: false })).toEqual({
+      ok: true,
+      data: { status: "off", ...DETAILS },
+    });
+    expect(repo.unscopedSaves).toHaveLength(1);
+  });
+
+  it("changes nothing when the person is no longer an active member of that workspace", async () => {
+    repo.members = [];
+
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: true })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(await interactor().invoke({ token: signed("ruleAlert"), confirmed: false })).toEqual({
+      ok: true,
+      data: { status: "invalid" },
+    });
+    expect(repo.unscopedSaves).toEqual([]);
+  });
+});

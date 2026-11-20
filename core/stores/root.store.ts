@@ -3,6 +3,10 @@ import type { BaseModalStore } from "../base/base-modal.store";
 
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/company-invite/invite-by-email.store";
+import { IncomingWebhookModalStore } from "@/components/incoming-webhook/incoming-webhook-modal.store";
+import { IncomingWebhooksStore } from "@/components/incoming-webhook/incoming-webhooks.store";
+import { AgentRunnerModalStore } from "@/components/agent-runners/agent-runner-modal.store";
+import { AgentRunnersStore } from "@/components/agent-runners/agent-runners.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
 import { AddPickerStore } from "@/app/components/navigation/add-picker.store";
 import { ViewPickerStore } from "@/components/data-view/views/view-picker.store";
@@ -34,14 +38,17 @@ import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/componen
 import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
 import { ApiKeyModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-key-modal.store";
 import { ApiKeysStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-keys.store";
+import { ConnectedAppsStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-apps.store";
 import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connect-upsell-modal.store";
 import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-account-modal.store";
 import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts.store";
 import { ProfileSettingsStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings.store";
 import { UserStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/user.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routine-modal.store";
-import { RoutinesStore } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routines.store";
+import { AutomationBuilderStore } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.store";
+import { AutomationsStore } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automations.store";
 import { TrashStore } from "@/app/[locale]/(protected)/w/[workspace]/trash/components/trash.store";
+import { NotificationsStore } from "@/app/[locale]/(protected)/w/[workspace]/notifications/components/notifications.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/w/[workspace]/subscription-expired/components/subscription-expired.store";
 import { ErrorTestStore } from "@/app/[locale]/(protected)/w/[workspace]/test/error/error-test.store";
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
@@ -61,8 +68,13 @@ import { TimelineDetailModalStore } from "@/features/messaging/activities/activi
 import { RecordWorkspaceStore } from "./record-workspace.store";
 import { WikiPageStore } from "@/app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-page.store";
 import { CreateWorkspaceModalStore } from "@/app/components/workspaces/create-workspace-modal.store";
+import { ScheduleMeetingModalStore } from "@/app/components/schedule-meeting/schedule-meeting-modal.store";
+import { BookingLinkModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/booking-link-modal.store";
 import { WorkspacesStore } from "@/app/components/workspaces/workspaces.store";
 
+import { AgentKeyModalStore } from "@/components/agent-keys/agent-key-modal.store";
+import { AgentKeysStore } from "@/components/agent-keys/agent-keys.store";
+import { AgentRunsStore } from "@/components/agent-jobs/agent-runs.store";
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
 import { NavigationGuardController } from "./navigation-guard.controller";
@@ -72,6 +84,9 @@ export class RootStore {
   public readonly navigationGuard = new NavigationGuardController();
 
   private _apiKeysStore?: ApiKeysStore;
+  private _connectedAppsStore?: ConnectedAppsStore;
+  private _agentKeysStore?: AgentKeysStore;
+  private _agentRunsStore?: AgentRunsStore;
   private _connectedAccountsStore?: ConnectedAccountsStore;
   private _connectedAccountModalStore?: ConnectedAccountModalStore;
   private _connectUpsellModalStore?: ConnectUpsellModalStore;
@@ -89,8 +104,13 @@ export class RootStore {
   private _usersStore?: UsersStore;
   private _webhookDeliveriesStore?: WebhookDeliveriesStore;
   private _webhooksStore?: WebhooksStore;
-  private _routinesStore?: RoutinesStore;
+  private _incomingWebhooksStore?: IncomingWebhooksStore;
+  private _agentRunnersStore?: AgentRunnersStore;
+  private _agentRunnerModalStore?: AgentRunnerModalStore;
+  private _automationsStore?: AutomationsStore;
+  private _automationBuilderStore?: AutomationBuilderStore;
   private _trashStore?: TrashStore;
+  private _notificationsStore?: NotificationsStore;
   private _widgetsGridStore?: WidgetsStore;
   private _operatorUsersStore?: OperatorUsersStore;
   private _operatorAuditStore?: OperatorAuditStore;
@@ -121,7 +141,10 @@ export class RootStore {
 
   private _companyInviteModalStore?: CompanyInviteModalStore;
   private _createWorkspaceModalStore?: CreateWorkspaceModalStore;
+  private _scheduleMeetingModalStore?: ScheduleMeetingModalStore;
+  private _bookingLinkModalStore?: BookingLinkModalStore;
   private _createApiKeyModalStore?: ApiKeyModalStore;
+  private _agentKeyModalStore?: AgentKeyModalStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
   private _recordWorkspaceStore?: RecordWorkspaceStore;
@@ -129,6 +152,7 @@ export class RootStore {
   private _userModalStore?: UserModalStore;
   private _webhookDeliveryModalStore?: WebhookDeliveryModalStore;
   private _webhookModalStore?: WebhookModalStore;
+  private _incomingWebhookModalStore?: IncomingWebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
   private _routineRunChatStore?: AgentChatStore;
   private _widgetModalStore?: WidgetModalStore;
@@ -215,6 +239,14 @@ export class RootStore {
     return (this._createWorkspaceModalStore ??= new CreateWorkspaceModalStore(this));
   }
 
+  get scheduleMeetingModalStore() {
+    return (this._scheduleMeetingModalStore ??= new ScheduleMeetingModalStore(this));
+  }
+
+  get bookingLinkModalStore() {
+    return (this._bookingLinkModalStore ??= new BookingLinkModalStore(this));
+  }
+
   get workspaceGeneralStore() {
     return (this._workspaceGeneralStore ??= new WorkspaceGeneralStore(this));
   }
@@ -225,6 +257,22 @@ export class RootStore {
 
   get apiKeysStore() {
     return (this._apiKeysStore ??= new ApiKeysStore(this));
+  }
+
+  get connectedAppsStore() {
+    return (this._connectedAppsStore ??= new ConnectedAppsStore(this));
+  }
+
+  get agentKeyModalStore() {
+    return (this._agentKeyModalStore ??= new AgentKeyModalStore(this));
+  }
+
+  get agentKeysStore() {
+    return (this._agentKeysStore ??= new AgentKeysStore(this));
+  }
+
+  get agentRunsStore() {
+    return (this._agentRunsStore ??= new AgentRunsStore(this));
   }
 
   get connectedAccountsStore() {
@@ -361,12 +409,20 @@ export class RootStore {
     }));
   }
 
-  get routinesStore() {
-    return (this._routinesStore ??= new RoutinesStore(this));
+  get automationsStore() {
+    return (this._automationsStore ??= new AutomationsStore(this));
+  }
+
+  get automationBuilderStore() {
+    return (this._automationBuilderStore ??= new AutomationBuilderStore(this));
   }
 
   get trashStore() {
     return (this._trashStore ??= new TrashStore(this));
+  }
+
+  get notificationsStore() {
+    return (this._notificationsStore ??= new NotificationsStore());
   }
 
   get webhookModalStore() {
@@ -375,6 +431,22 @@ export class RootStore {
 
   get webhooksStore() {
     return (this._webhooksStore ??= new WebhooksStore(this));
+  }
+
+  get incomingWebhookModalStore() {
+    return (this._incomingWebhookModalStore ??= new IncomingWebhookModalStore(this));
+  }
+
+  get incomingWebhooksStore() {
+    return (this._incomingWebhooksStore ??= new IncomingWebhooksStore(this));
+  }
+
+  get agentRunnersStore() {
+    return (this._agentRunnersStore ??= new AgentRunnersStore(this));
+  }
+
+  get agentRunnerModalStore() {
+    return (this._agentRunnerModalStore ??= new AgentRunnerModalStore(this));
   }
 
   get webhookDeliveriesStore() {

@@ -1,0 +1,262 @@
+{
+  "locale": "it",
+  "name": "Scheda cliente e accoglienza",
+  "summary": "Accogli i nuovi clienti senza rincorrere moduli, documenti e lettere d'incarico a mano. Un'accoglienza per incarico, con un passaggio datato a ogni fase e il motivo registrato quando rifiuti.",
+  "description": "I nuovi clienti si fanno silenziosi tra la prima richiesta e il primo giorno di lavoro: il modulo non è tornato, manca un documento, la lettera d'incarico aspetta ancora. Questo modello imposta un'accoglienza per ogni incarico con nove fasi dalla richiesta alla riunione di avvio, i documenti richiesti, un passaggio datato a ogni fase, una risposta entro un giorno e il motivo del rifiuto quando declini. Le professioni regolamentate possono annotare chi ha verificato identità, conflitti e rischio e quando, mai il documento stesso. Non è uno strumento di firma elettronica, di verifica dell'identità né di pagamento.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso ogni cliente: referente principale, amministrazione, firmatario." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Aziende, ditte individuali e privati che accogli." },
+    "intakes": { "label": "Accoglienza", "pluralLabel": "Accoglienze", "description": "Un'accoglienza per incarico, dalla richiesta ad acquisito o rifiutato." },
+    "document_requests": { "label": "Documento richiesto", "pluralLabel": "Documenti richiesti", "description": "Una riga per ogni documento che chiedi a un cliente." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Fase",
+      "options": {
+        "enquiry": "Richiesta",
+        "screening": "Valutazione",
+        "form_sent": "Questionario inviato",
+        "review_checks": "Verifica",
+        "agreement_sent": "Lettera d'incarico inviata",
+        "ready_to_start": "Pronto all'avvio",
+        "kickoff_scheduled": "Riunione di avvio",
+        "onboarded": "Acquisito",
+        "declined": "Rifiutato"
+      }
+    },
+    "contacts.job_title": { "label": "Ruolo aziendale" },
+    "contacts.contact_role": {
+      "label": "Funzione",
+      "options": { "primary": "Referente principale", "billing": "Amministrazione", "signatory": "Firmatario", "technical": "Tecnico", "other": "Altro" }
+    },
+    "contacts.language": { "label": "Lingua" },
+    "contacts.privacy_notice_sent_on": { "label": "Informativa privacy inviata il" },
+    "clients.client_type": {
+      "label": "Tipo di cliente",
+      "options": { "company": "Società", "sole_trader": "Ditta individuale", "individual": "Privato", "organisation": "Associazione o ente" }
+    },
+    "clients.owner": { "label": "Responsabile" },
+    "clients.website": { "label": "Sito web" },
+    "clients.address": { "label": "Indirizzo" },
+    "clients.registration_id": { "label": "Partita IVA o codice fiscale" },
+    "clients.source": {
+      "label": "Provenienza",
+      "options": { "referral": "Segnalazione", "website": "Sito web", "event": "Evento", "outbound": "Contatto diretto", "partner": "Partner", "other": "Altro" }
+    },
+    "intakes.owner": { "label": "Responsabile" },
+    "intakes.service": { "label": "Servizio" },
+    "intakes.received_on": { "label": "Ricevuta il" },
+    "intakes.first_response_on": { "label": "Prima risposta il" },
+    "intakes.form_sent_on": { "label": "Questionario inviato il" },
+    "intakes.form_received_on": { "label": "Questionario ricevuto il" },
+    "intakes.agreement_sent_on": { "label": "Lettera d'incarico inviata il" },
+    "intakes.agreement_signed_on": { "label": "Lettera d'incarico firmata il" },
+    "intakes.kickoff_on": { "label": "Avvio il" },
+    "intakes.fee_model": {
+      "label": "Modello di compenso",
+      "options": { "fixed": "Importo fisso", "hourly": "A ore", "retainer": "Canone mensile", "other": "Altro" }
+    },
+    "intakes.deposit_required": { "label": "Acconto richiesto" },
+    "intakes.deposit_received_on": { "label": "Acconto ricevuto il" },
+    "intakes.identity_verified_on": { "label": "Identità verificata il" },
+    "intakes.identity_verified_by": { "label": "Identità verificata da" },
+    "intakes.conflict_check": {
+      "label": "Verifica del conflitto di interessi",
+      "options": { "not_required": "Non richiesta", "pending": "In corso", "clear": "Nessun conflitto", "conflict_found": "Conflitto rilevato" }
+    },
+    "intakes.risk_rating": {
+      "label": "Livello di rischio",
+      "options": { "not_assessed": "Non valutato", "low": "Basso", "standard": "Normale", "high": "Alto" }
+    },
+    "intakes.decline_reason": {
+      "label": "Motivo del rifiuto",
+      "options": {
+        "conflict": "Conflitto di interessi",
+        "not_a_fit": "Non adatto",
+        "no_capacity": "Nessuna disponibilità",
+        "no_response": "Nessuna risposta",
+        "client_withdrew": "Il cliente si è ritirato",
+        "risk": "Rischio",
+        "other": "Altro"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Rifiuto inviato il" },
+    "intakes.next_step": { "label": "Prossimo passo" },
+    "intakes.next_step_due": { "label": "Scadenza del prossimo passo" },
+    "intakes.days_to_first_response": { "label": "Giorni alla prima risposta" },
+    "intakes.days_to_kickoff": { "label": "Giorni all'avvio" },
+    "document_requests.kind": {
+      "label": "Tipo",
+      "options": {
+        "identity": "Documento d'identità",
+        "proof_of_address": "Attestazione di residenza",
+        "company_register": "Visura camerale",
+        "prior_year_return": "Dichiarazione dei redditi dell'anno precedente",
+        "contract": "Contratto",
+        "questionnaire": "Questionario",
+        "access_credentials": "Credenziali di accesso",
+        "other": "Altro"
+      }
+    },
+    "document_requests.status": {
+      "label": "Stato",
+      "options": { "requested": "Richiesto", "partial": "Ricevuto in parte", "received": "Ricevuto", "needs_correction": "Da correggere", "not_needed": "Non necessario" }
+    },
+    "document_requests.requested_on": { "label": "Richiesto il" },
+    "document_requests.needed_by": { "label": "Da consegnare entro" },
+    "document_requests.received_on": { "label": "Ricevuto il" },
+    "document_requests.where_stored": { "label": "Dove è conservato" },
+    "document_requests.owner": { "label": "Responsabile" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Risposta",
+        "chase_form": "Sollecitare il questionario",
+        "chase_document": "Sollecitare un documento",
+        "review": "Revisione",
+        "check": "Verifica",
+        "send_agreement": "Inviare la lettera d'incarico",
+        "chase_signature": "Sollecitare la firma",
+        "kickoff": "Avvio",
+        "decline_letter": "Lettera di rifiuto",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Referenti" },
+    "intake_client": { "sourceLabel": "Cliente", "targetLabel": "Accoglienze" },
+    "intake_contact": { "sourceLabel": "Referente principale", "targetLabel": "Accoglienze" },
+    "document_request_intake": { "sourceLabel": "Accoglienza", "targetLabel": "Documenti richiesti" },
+    "action_intake": { "sourceLabel": "Accoglienza", "targetLabel": "Attività" }
+  },
+  "views": {
+    "intakes_all": { "name": "Tutte le accoglienze" },
+    "intakes_board": { "name": "Accoglienze per fase" },
+    "awaiting_signature": { "name": "In attesa di firma" },
+    "no_first_response": { "name": "Senza prima risposta" },
+    "declined_intakes": { "name": "Rifiutate" },
+    "document_requests_all": { "name": "Tutti i documenti richiesti" },
+    "documents_outstanding": { "name": "In attesa di documenti" },
+    "clients_all": { "name": "Tutti i clienti" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Accoglienze aperte per fase" },
+    "open_intakes_by_owner": { "title": "Accoglienze aperte per responsabile" },
+    "enquiries_without_reply": { "title": "Richieste senza prima risposta" },
+    "documents_outstanding": { "title": "Documenti in sospeso" },
+    "awaiting_signature_count": { "title": "In attesa di firma" },
+    "average_days_to_reply": { "title": "Media dei giorni alla prima risposta" },
+    "average_days_to_kickoff": { "title": "Media dei giorni all'avvio" },
+    "decline_reasons": { "title": "Motivi del rifiuto" },
+    "new_intakes_per_month": { "title": "Nuove accoglienze al mese" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Processo di accoglienza del cliente",
+      "sections": ["Le nove fasi e che cosa chiude ciascuna", "Chi risponde, chi valuta, chi firma", "Tempi: rispondere entro un giorno, sollecitare a 3 e a 7 giorni"]
+    },
+    "intake_questionnaire": {
+      "title": "Questionario per tipo di cliente",
+      "sections": ["Società, ditta individuale, privato, associazione", "Domande che decidono l'adeguatezza", "Che cosa non chiedi mai"]
+    },
+    "document_requests_guide": {
+      "title": "Elenco dei documenti e messaggi di sollecito",
+      "sections": ["Elenco standard per servizio", "Prima richiesta e solleciti", "Quando un documento va corretto"]
+    },
+    "agreement_checklist": {
+      "title": "Checklist della lettera d'incarico",
+      "sections": ["Ambito, modello di compenso e acconto", "Chi firma e con quale strumento", "Che cosa fare se resta non firmata"]
+    },
+    "regulated_checks": {
+      "title": "Verifiche di identità, conflitto e rischio per le professioni regolamentate",
+      "sections": ["Annotare chi ha verificato e quando, mai il documento", "Ricerca di conflitti prima di iniziare", "Livello di rischio e quando rifiutare"]
+    },
+    "privacy_at_intake": {
+      "title": "Privacy: che cosa raccogliamo all'accoglienza e perché",
+      "sections": ["Finalità e base giuridica", "Che cosa resta fuori dallo spazio di lavoro", "Conservazione e richieste di cancellazione"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Rispondere alla richiesta", "description": "Una nuova accoglienza riceve un'attività di risposta con scadenza il giorno dopo." },
+    "chase_form": { "title": "Sollecitare il questionario", "description": "Tre giorni dopo l'invio del questionario scade un'attività di sollecito." },
+    "chase_document": { "title": "Sollecitare il documento mancante", "description": "Alla data limite di un documento richiesto ancora aperto viene creata un'attività di sollecito." },
+    "review_received_document": { "title": "Controllare il documento ricevuto", "description": "Quando un documento è segnato come ricevuto, un'attività di controllo scade il giorno dopo." },
+    "chase_signature": { "title": "Sollecitare la firma", "description": "Sette giorni dopo l'invio della lettera d'incarico scade un'attività di sollecito." },
+    "decline_letter": { "title": "Inviare la lettera di rifiuto", "description": "Un'accoglienza rifiutata riceve un'attività di lettera con scadenza il giorno dopo. Precisa che non esiste alcun incarico e indica eventuali termini in scadenza." },
+    "kickoff_event": { "title": "Inserire la riunione di avvio nel calendario", "description": "Quando la data di avvio è impostata, l'evento viene scritto nel calendario del responsabile." },
+    "first_value_check": { "title": "Verificare il primo risultato", "description": "Quattordici giorni dopo l'acquisizione, un'attività di verifica chiede se il cliente ha visto un primo risultato." },
+    "stalled_intake": { "title": "Rivedere l'accoglienza ferma", "description": "Un'accoglienza aperta rimasta 7 giorni nella stessa fase riceve un'attività di revisione." },
+    "intake_form_records": { "title": "Creare cliente, referente e accoglienza dal modulo", "description": "Un modulo di accoglienza pubblico crea il cliente, il referente e un'accoglienza nella fase Richiesta." },
+    "intake_form_notice": { "title": "Avvisare il responsabile della nuova accoglienza", "description": "Il titolare dello spazio di lavoro riceve un avviso a ogni invio." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni accoglienza ha una delle nove fasi.",
+    "first_response_field": "Ogni accoglienza registra quando hai risposto per la prima volta.",
+    "document_requests_list": "I documenti richiesti sono seguiti in un elenco proprio.",
+    "intakes_board_view": "L'elenco delle accoglienze si può vedere come board per fase.",
+    "chase_signature_rule": "Una lettera d'incarico inviata riceve un'attività di sollecito dopo 7 giorni.",
+    "process_page": "La base di conoscenza contiene il processo di accoglienza."
+  },
+  "page": {
+    "metaTitle": "Scheda cliente: accoglienza e onboarding nel tuo CRM",
+    "metaDescription": "Scheda cliente e accoglienza in un'unica pipeline: il tuo agente IA crea nel CRM richieste di documenti, passaggi datati e il motivo di ogni rifiuto.",
+    "headline": "Scheda cliente e accoglienza senza rincorrere nessuno: la pipeline che il tuo agente IA costruisce nel CRM",
+    "answer": "Una scheda cliente raccoglie i dati per accogliere un cliente, ma il lavoro vero è rincorrere i documenti e la lettera d'incarico firmata. Questo modello imposta un'accoglienza per incarico con nove fasi, dalla richiesta alla riunione di avvio, richieste di documenti e un passaggio datato a ogni fase. Incollalo nel tuo agente IA: costruisce la pipeline in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale delle accoglienze",
+      "steps": [
+        "Rispondi a ogni nuova richiesta. Per impostazione predefinita la risposta parte entro un giorno e ogni richiesta finisce con un prossimo passo o con un rifiuto.",
+        "Sollecita i questionari partiti 3 giorni fa e i documenti la cui scadenza è passata.",
+        "Controlla i documenti arrivati, elenca le lacune e sollecita le lettere d'incarico inviate 7 giorni fa.",
+        "Guarda le accoglienze ferme da 7 giorni: fissa una data oppure rifiuta annotando il motivo e inviando una breve comunicazione scritta che indichi che non esiste alcun rapporto e citi ogni scadenza nota.",
+        "Fai un controllo con i clienti accolti 14 giorni fa: il primo risultato è arrivato?"
+      ]
+    },
+    "limits": [
+      "Non fa firmare. La firma avviene nel tuo strumento di firma elettronica o di contabilità; l'accoglienza conserva le date e un link.",
+      "Non è uno strumento di verifica dell'identità o antiriciclaggio e non tiene un registro dei conflitti di interesse. Le professioni regolamentate registrano chi ha verificato l'identità, quando e come; i documenti e il registro di riferimento restano nel tuo gestionale o sistema KYC.",
+      "Non incassa pagamenti e non emette fatture. Acconti e anticipi restano nella banca o nel software di contabilità.",
+      "In Customermates oggi non esistono né un portale clienti né un modulo pubblico per caricare documenti. Il questionario parte come documento oppure passa da un modulo esterno che scrive in Customermates tramite API o n8n.",
+      "Tieni fuori numeri e copie di documenti d'identità, dati sanitari, di terapia o di religione e dati bancari. Non è adatto a schede di centri estetici, cliniche o personal trainer, che raccolgono dati sulla salute.",
+      "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve contenere una scheda cliente?",
+        "answer": "Dati di contatto e dell'azienda, che cosa vuole il cliente, ambito, tempi e budget, chi decide, gli accessi che ti servono e le eventuali questioni legali o di conformità. Nella pratica la scheda è un promemoria per il primo colloquio, non un test legale; per i privati tienila più breve."
+      },
+      {
+        "question": "Quali sono le fasi dell'accoglienza di un nuovo cliente?",
+        "answer": "L'ordine è stabile da una professione all'altra: prima risposta, valutazione di idoneità, questionario e documenti, verifiche dove la professione le richiede, accordo scritto, eventuale acconto, poi la riunione di avvio. I tempi tengono il ritmo: guide di fornitori indicano una risposta entro 24 ore e un sollecito della firma dopo 7 giorni. Considera questi numeri valori predefiniti, non norme."
+      },
+      {
+        "question": "Devo rifiutare un cliente per iscritto?",
+        "answer": "Un rifiuto scritto tutela entrambe le parti. Una guida per studi legali consiglia di indicare che non esiste alcun rapporto e di citare ogni scadenza vicina. Il modello registra il motivo del rifiuto e crea un'azione datata per inviare la comunicazione. Non è consulenza legale."
+      },
+      {
+        "question": "Quali dati del cliente restano fuori dal CRM?",
+        "answer": "Numeri e copie di documenti d'identità, codice fiscale personale, data di nascita oltre il necessario per la verifica, dati sulla salute, religione e credenziali bancarie. Una guida italiana per piccole imprese tratta i dati sanitari come dati particolari ai sensi del GDPR e li tiene separati dalla scheda cliente. Per una professione regolamentata il modello conserva solo che l'identità è stata verificata, da chi e in quale data."
+      },
+      {
+        "question": "Il cliente può compilare il questionario online?",
+        "answer": "Non tramite un modulo pubblico in Customermates, oggi. Il questionario parte come documento preparato dal tuo agente oppure da un modulo esterno che scrive in Customermates tramite API o n8n. Lo invii tu."
+      },
+      {
+        "question": "L'agente scrive ai miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"I nuovi clienti si perdono tra la prima richiesta e il primo giorno di lavoro, perché mi dimentico di mandare il modulo o di sollecitare i documenti. Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
+    "questions": [
+      "Che cosa vendi e chi sono i tuoi clienti: società, ditte individuali o privati?",
+      "Quali passaggi attraversa oggi un nuovo cliente e quali delle nove fasi non ti servono?",
+      "La tua professione è regolamentata e richiede di registrare verifiche di identità, conflitto o rischio? In quale paese?",
+      "Quali documenti chiedi sempre e dove li conservi? Qui si tiene solo un link.",
+      "Dove firmano i clienti la lettera d'incarico? Resta lì e qui si tengono le date."
+    ]
+  }
+}

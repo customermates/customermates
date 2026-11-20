@@ -1,0 +1,235 @@
+{
+  "locale": "nl",
+  "name": "Klantenbestand",
+  "summary": "Weet altijd aan welke klant je nog een telefoontje, antwoord of offerte schuldig bent. Elke klant krijgt één accountmanager en één volgende stap met datum, en een wekelijkse controle laat zien wat te laat is.",
+  "description": "Als klantgegevens in een spreadsheet, een inbox en je hoofd zitten, glippen opvolgingen door en merkt niemand het tot een klant stil wordt. Dit sjabloon zet één regel per klant op met een status, de datum van het laatste contact, een volgende stap met datum en een controleritme per segment, met contactpersonen, acties met datum en gekoppelde gesprekken bij elke klant en een controledatum voor de gegevens zodra een klant is beëindigd. Voor zzp’ers, bureaus en kleine teams tot ongeveer tien personen die zelf hun klantrelaties onderhouden.",
+  "lists": {
+    "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Eén regel per klant, één accountmanager, één volgende stap met datum." },
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je werkt bij elke klant." }
+  },
+  "fields": {
+    "clients.status": {
+      "label": "Status",
+      "options": {
+        "prospect": "Prospect",
+        "onboarding": "Opstart",
+        "active": "Actief",
+        "waiting_on_client": "Wacht op klant",
+        "at_risk": "Loopt risico",
+        "inactive": "Inactief",
+        "closed": "Beëindigd"
+      }
+    },
+    "clients.segment": {
+      "label": "Segment",
+      "options": { "a_key": "A: sleutelklant", "b_regular": "B: vaste klant", "c_occasional": "C: incidentele klant" }
+    },
+    "clients.owner": { "label": "Accountmanager" },
+    "clients.source": {
+      "label": "Herkomst",
+      "options": {
+        "referral": "Aanbeveling",
+        "website": "Website",
+        "event": "Evenement",
+        "outbound": "Eigen acquisitie",
+        "existing_network": "Bestaand netwerk",
+        "other": "Overig"
+      }
+    },
+    "clients.client_since": { "label": "Klant sinds" },
+    "clients.last_contact": { "label": "Laatste contact" },
+    "clients.next_step": { "label": "Volgende stap" },
+    "clients.next_step_due": { "label": "Datum volgende stap" },
+    "clients.review_interval": {
+      "label": "Controlefrequentie",
+      "options": { "monthly": "Maandelijks", "quarterly": "Per kwartaal", "half_yearly": "Halfjaarlijks", "yearly": "Jaarlijks" }
+    },
+    "clients.next_review": { "label": "Volgende controle" },
+    "clients.annual_value": { "label": "Jaarwaarde" },
+    "clients.website": { "label": "Website" },
+    "clients.address": { "label": "Adres" },
+    "clients.registration_id": { "label": "KvK- of btw-nummer" },
+    "clients.closed_on": { "label": "Beëindigd op" },
+    "clients.data_review_on": { "label": "Gegevenscontrole op" },
+    "contacts.job_title": { "label": "Functie" },
+    "contacts.contact_role": {
+      "label": "Rol",
+      "options": { "decision_maker": "Beslisser", "day_to_day": "Dagelijks aanspreekpunt", "billing": "Facturatie", "other": "Overig" }
+    },
+    "contacts.preferred_channel": {
+      "label": "Voorkeurskanaal",
+      "options": { "email": "E-mail", "phone": "Telefoon", "whatsapp": "WhatsApp", "linkedin": "LinkedIn", "in_person": "Persoonlijk" }
+    },
+    "contacts.language": { "label": "Taal" },
+    "contacts.marketing_consent": { "label": "Toestemming voor marketing" },
+    "contacts.consent_date": { "label": "Datum toestemming" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "check_in": "Check-in",
+        "reply": "Antwoord",
+        "request_document": "Document opvragen",
+        "review": "Controle",
+        "chase": "Herinnering",
+        "data_review": "Gegevenscontrole",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klant", "targetLabel": "Contactpersonen" },
+    "action_client": { "sourceLabel": "Klant", "targetLabel": "Acties" },
+    "action_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Acties" }
+  },
+  "views": {
+    "clients_all": { "name": "Alle klanten" },
+    "clients_board": { "name": "Klanten per status" },
+    "needs_next_step": { "name": "Zonder volgende stap" },
+    "overdue_next_step": { "name": "Achterstallige volgende stappen" },
+    "waiting_on_client": { "name": "Wacht op klant" },
+    "at_risk": { "name": "Loopt risico" },
+    "data_review_due": { "name": "Gegevenscontrole aan de beurt" },
+    "actions_all": { "name": "Alle acties" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "upcoming_actions": { "title": "Aankomende acties" },
+    "review_calendar": { "title": "Klantcontroles deze maand" },
+    "clients_by_status": { "title": "Klanten per status" },
+    "clients_by_segment": { "title": "Klanten per segment" },
+    "clients_per_owner": { "title": "Klanten per accountmanager" },
+    "active_without_next_step": { "title": "Actieve klanten zonder volgende stap" },
+    "waiting_on_client_count": { "title": "Wacht op klant" },
+    "at_risk_count": { "title": "Loopt risico" },
+    "value_by_segment": { "title": "Jaarwaarde per segment" },
+    "new_clients_per_month": { "title": "Nieuwe klanten per maand" },
+    "overdue_actions": { "title": "Achterstallige acties" },
+    "activity_timeline": { "title": "Recente activiteit" }
+  },
+  "knowledgePages": {
+    "playbook": {
+      "title": "Werkwijze klantenbestand",
+      "sections": ["Eén regel, één accountmanager, één volgende stap met datum", "Wat elke status betekent", "Werk de regel dezelfde dag bij na elk gesprek of elke offerte"]
+    },
+    "weekly_review": {
+      "title": "Wekelijkse klantcontrole van 15 minuten",
+      "sections": ["Sorteer op datum volgende stap en status", "Achterstallig, actief zonder volgende stap, prospects die stilvallen", "Sluit af met een datum op elke regel"]
+    },
+    "status_definitions": {
+      "title": "Definitie van de klantstatussen",
+      "sections": ["Instap- en uitstapregel per status", "Herinner na 7 dagen, schaal op na 14", "Wie een status mag wijzigen"]
+    },
+    "message_templates": {
+      "title": "Berichtsjablonen: check-in en heractivering",
+      "sections": ["Check-in na een stille periode", "Herinnering aan een klant die moet antwoorden", "Uitnodiging voor de controle", "Heractivering na 90 dagen", "Beleefde afsluiting"]
+    },
+    "data_retention": {
+      "title": "Bewaartermijn en privacy voor het klantenbestand",
+      "sections": ["Doel en bewaarde gegevens", "Bewaartermijn per land", "Bewijs van toestemming", "Een verzoek om inzage of verwijdering afhandelen"]
+    }
+  },
+  "rules": {
+    "overdue_action_notice": {
+      "title": "Informeer de accountmanager dat een actie te laat is",
+      "description": "Op de deadline van een open actie krijgt de accountmanager een melding."
+    },
+    "chase_waiting_client": {
+      "title": "Herinner de klant aan het openstaande punt",
+      "description": "Wanneer een klant naar Wacht op klant gaat, krijgt de accountmanager na 7 dagen een herinneringsactie."
+    },
+    "review_before_due": {
+      "title": "Controleer het klantdossier",
+      "description": "Zeven dagen voor de volgende controle van een actieve klant wordt een controleactie voor de accountmanager aangemaakt."
+    },
+    "daily_next_step_sweep": {
+      "title": "Neem contact op: geen open actie bij deze klant",
+      "description": "Elke dag krijgt een actieve klant of een klant in opstart zonder gekoppelde open actie een check-in met deadline vandaag."
+    },
+    "stalled_client_sweep": {
+      "title": "Neem contact op: 45 dagen geen contact",
+      "description": "Elke maandag krijgt een actieve klant zonder contact in 45 dagen een check-in. De status verandert nooit vanzelf."
+    },
+    "closed_client_dates": {
+      "title": "Stel de beëindigingsdatum en de gegevenscontrole in",
+      "description": "Wanneer een klant wordt beëindigd, krijgt Beëindigd op de datum van vandaag en Gegevenscontrole op drie jaar later. Pas de termijn aan voor je land."
+    },
+    "closed_client_data_review": {
+      "title": "Controleer de gegevens van deze beëindigde klant",
+      "description": "Op de datum van de gegevenscontrole staat een actie voor de gegevenscontrole klaar."
+    },
+    "inactive_reactivation": {
+      "title": "Vraag of de klant nog relevant is",
+      "description": "Negentig dagen nadat een klant Inactief wordt, stelt een check-in de vraag over heractivering."
+    },
+    "enquiry_form_records": {
+      "title": "Maak de klant en de contactpersoon aan uit een aanvraag",
+      "description": "Een openbaar aanvraagformulier maakt een klant aan als Prospect, met de contactpersoon."
+    },
+    "enquiry_form_reply": {
+      "title": "Beantwoord de aanvraag",
+      "description": "Elke aanvraag krijgt een antwoordactie met deadline de volgende dag."
+    },
+    "weekly_client_review": {
+      "title": "Houd de wekelijkse klantcontrole",
+      "description": "Elke maandag somt één controleactie de klanten met achterstand, de klanten zonder volgende stap en de prospects die stilvallen op."
+    }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke klant heeft een status uit de zeven waarden.",
+    "next_step_date_field": "Elke klant heeft een volgende stap en een datum daarvoor.",
+    "clients_default_view": "De klantenlijst opent gesorteerd op datum volgende stap.",
+    "overdue_widget": "Het dashboard toont hoeveel acties te laat zijn.",
+    "chase_rule": "Een klant die naar Wacht op klant gaat, krijgt een herinneringsactie.",
+    "playbook_page": "De kennisbank bevat de werkwijze van het klantenbestand."
+  },
+  "page": {
+    "metaTitle": "Klantenbestand sjabloon: mis nooit meer een opvolging",
+    "metaDescription": "Klantenbestand voor Claude, ChatGPT of Codex: per klant één accountmanager en een volgende stap met datum, plus een wekelijkse controle op wat te laat is.",
+    "headline": "Weet wie je als volgende belt: een klantenbestand dat je AI-agent in je CRM opbouwt",
+    "answer": "Een klantenbestand is een lijst met één regel per klant, één accountmanager en een volgende stap met datum, zodat geen klant stil valt zonder dat je het merkt. Plak dit sjabloon in je AI-agent en die bouwt de lijst op in Customermates, met contactpersonen, acties met datum, gekoppelde gesprekken en een wekelijkse controle. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse klantcontrole van 15 minuten",
+      "steps": [
+        "Sorteer de klantenlijst op de datum van de volgende stap en op status.",
+        "Pak eerst alles aan wat te laat is, daarna de actieve klanten zonder volgende stap.",
+        "Kijk naar prospects die stil zijn geworden en beslis: opvolgen of afsluiten.",
+        "Sluit af met een datum op elke regel, zodat geen enkele klant zonder volgende stap blijft."
+      ]
+    },
+    "limits": [
+      "Het is geen hulpmiddel voor facturatie, offertes of tijdregistratie. Facturatie blijft in je boekhoudpakket; het klantenbestand bevat hooguit een link en een jaarwaarde.",
+      "Het bewaart geen getekende contracten en is geen klantenportaal. Klanten kunnen niet inloggen om hun status te zien.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij bepaalt welke je aanzet.",
+      "Houd gevoelige klantdossiers, zoals medische, juridische of therapeutische gegevens, erbuiten. Hier staat de relatie, de inhoud van het dossier staat in een systeem dat daarvoor is gebouwd.",
+      "Het is bedoeld voor één tot tien personen. Moeten bepaalde kolommen verborgen blijven voor collega’s, zet ze dan in een aparte lijst met eigen toegang."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een klantenbestand?",
+        "answer": "Eén regel per klant met een accountmanager, een status uit een korte lijst, de datum van het laatste contact en een volgende stap met datum. Die datum bepaalt het werk: sorteer er één keer per week op en er valt niets tussendoor."
+      },
+      {
+        "question": "Wanneer is een spreadsheet niet meer genoeg voor klantenbeheer?",
+        "answer": "Praktijkgidsen leggen de grens bij ongeveer 25 tot 50 klanten, bij meerdere mensen die het bestand bewerken, of op het punt dat niemand meer aan een opvolging wordt herinnerd. Dan helpt een CRM: contactpersonen zijn gekoppeld, volgende stappen zijn acties met datum en de gesprekken staan naast elke klant."
+      },
+      {
+        "question": "Hoe lang mag ik de gegevens van beëindigde klanten bewaren?",
+        "answer": "Dat hangt af van het land en van de gegevens. Twee voorbeelden: de Franse privacytoezichthouder staat toe dat klantgegevens voor acquisitie worden bewaard zolang de relatie duurt plus drie jaar, en het Duitse handelsrecht eist dat zakelijke brieven zes jaar en boekingsstukken acht jaar worden bewaard. In Nederland geldt de AVG, met de Autoriteit Persoonsgegevens als toezichthouder. Het sjabloon zet voor elke beëindigde klant een controledatum; pas de termijn aan op je land en vraag je adviseur. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn klanten?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ik onderhoud mijn klantrelaties zelf en te veel opvolgingen glippen erdoorheen: ik weet niet meer met wie ik het laatst sprak en wat de volgende stap is. Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
+    "questions": [
+      "Hoeveel klanten heb je nu en wie werkt er nog meer met het bestand?",
+      "Welke klantstatussen gebruik je al? Moet een van de zeven worden hernoemd of weggelaten?",
+      "Hoe vaak wil je sleutelklanten, vaste klanten en incidentele klanten controleren?",
+      "In welk land werk je, zodat de bewaartermijn voor beëindigde klanten kan worden ingesteld?",
+      "Bewaar je facturen elders? Zo ja, in welke tool, zodat hier geen factuurvelden worden toegevoegd."
+    ]
+  }
+}

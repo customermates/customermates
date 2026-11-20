@@ -1,0 +1,159 @@
+{
+  "locale": "pl",
+  "name": "Lejek klientów dla agencji",
+  "summary": "Zdobywaj klientów agencji i zatrzymuj ich po pierwszym projekcie. Szanse prowadzisz od pierwszej rozmowy do podpisanej umowy, z decyzją o udziale w przetargu, a trwające umowy abonamentowe mają termin odnowienia i przegląd kwartalny.",
+  "description": "Agencja zdobywa klienta, a potem odnowienie umowy abonamentowej ją zaskakuje, bo przetargi i bieżące zlecenia są prowadzone w różnych miejscach. Szablon zakłada szanse sprzedaży od rozmowy przez kwalifikację, brief lub przetarg, ofertę i negocjacje po wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujesz, gdy klient je poda, nigdy nie zgadujesz, a dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do przestrzeni roboczej. Pasuje do agencji marketingowych, komunikacyjnych, kreatywnych i cyfrowych; zarządzanie projektami, rejestr czasu pracy i rozliczenia zostają w Twoich narzędziach.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Decydenci, szefowie marketingu, zakupy i osoby kontaktowe na co dzień." },
+    "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Potencjalni klienci, klienci, byli klienci i partnerzy." },
+    "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Możliwe zlecenie, od pierwszej rozmowy do wygranego lub przegranego." },
+    "engagements": { "label": "Umowa", "pluralLabel": "Umowy abonamentowe i projekty", "description": "Trwający abonament lub projekt z opłatą, terminem odnowienia, okresem wypowiedzenia i kondycją." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rola", "options": { "decision_maker": "Decydent", "marketing_lead": "Szef marketingu", "procurement": "Zakupy", "day_to_day": "Kontakt na co dzień", "referrer": "Polecający" } },
+    "contacts.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "phone": "Telefon", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack lub czat" } },
+    "clients.relationship": { "label": "Relacja", "options": { "prospect": "Potencjalny klient", "client": "Klient", "former_client": "Były klient", "partner": "Partner" } },
+    "clients.website": { "label": "Strona internetowa" },
+    "opportunities.stage": {
+      "label": "Etap",
+      "options": { "prospect": "Kontakt", "conversation": "Rozmowa", "qualified": "Zakwalifikowany", "brief_or_pitch": "Brief lub przetarg", "proposal_sent": "Oferta wysłana", "negotiation": "Negocjacje", "won": "Wygrane", "lost": "Przegrane" }
+    },
+    "opportunities.opportunity_type": { "label": "Typ", "options": { "retainer": "Abonament", "project": "Projekt", "audit_or_workshop": "Audyt lub warsztat", "one_off": "Zlecenie jednorazowe" } },
+    "opportunities.services": {
+      "label": "Usługi",
+      "options": { "seo": "SEO", "paid_media": "Reklama płatna", "social": "Social media", "content": "Treści", "web": "Strony WWW", "branding": "Branding", "pr": "PR" }
+    },
+    "opportunities.source": { "label": "Źródło", "options": { "referral": "Polecenie", "inbound": "Zapytanie przychodzące", "outbound": "Kontakt wychodzący", "existing_client": "Obecny klient", "event": "Wydarzenie", "marketplace": "Platforma" } },
+    "opportunities.competitive_pitch": { "label": "Przetarg z innymi agencjami" },
+    "opportunities.pitch_date": { "label": "Data prezentacji" },
+    "opportunities.monthly_fee": { "label": "Abonament miesięczny" },
+    "opportunities.decision_expected": { "label": "Spodziewana decyzja" },
+    "opportunities.next_step_due": { "label": "Termin następnego kroku" },
+    "opportunities.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "price": "Cena", "chose_other_agency": "Klient wybrał inną agencję", "in_house": "Zrobi to we własnym zakresie", "budget_cut": "Obcięty budżet", "no_decision": "Brak decyzji", "scope_mismatch": "Niedopasowany zakres", "no_response": "Brak odpowiedzi" }
+    },
+    "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Aktywna", "at_risk": "Zagrożona", "paused": "Wstrzymana", "ended": "Zakończona" } },
+    "engagements.health": { "label": "Kondycja", "options": { "green": "Zielona", "amber": "Żółta", "red": "Czerwona" } },
+    "engagements.start_date": { "label": "Data rozpoczęcia" },
+    "engagements.renewal_date": { "label": "Data odnowienia" },
+    "engagements.notice_days": { "label": "Okres wypowiedzenia (dni)" },
+    "engagements.monthly_fee": { "label": "Abonament miesięczny" },
+    "engagements.next_qbr_on": { "label": "Następny przegląd kwartalny" },
+    "engagements.account_manager": { "label": "Opiekun klienta" },
+    "engagements.ended_reason": {
+      "label": "Powód zakończenia",
+      "options": { "client_ended": "Zakończył klient", "agency_ended": "Zakończyła agencja", "project_completed": "Projekt zakończony", "budget": "Budżet", "in_house": "Przejęta przez klienta", "moved_agency": "Przeszła do innej agencji" }
+    },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "call": "Rozmowa telefoniczna", "email": "E-mail", "proposal": "Oferta lub prezentacja", "onboarding": "Krok onboardingu", "report": "Raport", "qbr": "Przegląd kwartalny", "renewal": "Odnowienie", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klient", "targetLabel": "Kontakty" },
+    "opportunity_client": { "sourceLabel": "Klient", "targetLabel": "Szanse sprzedaży" },
+    "engagement_client": { "sourceLabel": "Klient", "targetLabel": "Umowy abonamentowe i projekty" },
+    "engagement_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Umowy abonamentowe i projekty" },
+    "action_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Zadania" },
+    "action_engagement": { "sourceLabel": "Umowa", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Szanse według etapu" },
+    "opportunities_all": { "name": "Wszystkie szanse sprzedaży" },
+    "engagements_all": { "name": "Wszystkie umowy abonamentowe i projekty" },
+    "at_risk_engagements": { "name": "Umowy z żółtą i czerwoną kondycją" },
+    "clients_all": { "name": "Wszyscy klienci" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Szanse według etapu" },
+    "recurring_revenue": { "title": "Miesięczny przychód cykliczny" },
+    "pipeline_fees": { "title": "Abonamenty miesięczne w lejku" },
+    "renewals_coming": { "title": "Nadchodzące odnowienia" },
+    "qbrs_coming": { "title": "Nadchodzące przeglądy kwartalne" },
+    "health_split": { "title": "Kondycja trwających umów" },
+    "pitches_coming": { "title": "Nadchodzące prezentacje" },
+    "lost_reasons": { "title": "Powody utraty szans" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Jak działa lejek agencji", "sections": ["Etapy i kto za nie odpowiada", "Pytania kwalifikujące: cele, pilność, budżet, decydenci"] },
+    "pitch_go_no_go": { "title": "Lista kontrolna: startować w przetargu czy odpuścić", "sections": ["Koszt prezentacji, liczba agencji i wynagrodzenie za udział", "Kryteria i kto decyduje"] },
+    "onboarding_checklist": { "title": "Onboarding w pięciu krokach", "sections": ["Powitanie i płatność, materiały i harmonogram", "Spotkanie startowe w ciągu pięciu dni i przebieg realizacji"] },
+    "renewal_playbook": { "title": "Przewodnik po odnowieniu i przeglądzie kwartalnym", "sections": ["Podsumowanie wyników i możliwości rozszerzenia", "Okno wypowiedzenia i oferta odnowienia"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Utwórz kontakt i szansę sprzedaży po wysłaniu formularza briefu" },
+    "respond_to_brief": { "title": "Odpowiedz na nową szansę w ciągu doby" },
+    "qualify_check": { "title": "Potwierdź widełki budżetu i decydenta 2 dni po kwalifikacji" },
+    "pitch_go_no_go": { "title": "Zdecyduj o starcie w przetargu w dniu, w którym szansa trafia na etap briefu lub przetargu" },
+    "pitch_rehearsal": { "title": "Przypomnij opiekunowi 3 dni przed prezentacją" },
+    "proposal_follow_up": { "title": "Zadzwoń 2 dni po wysłaniu oferty" },
+    "onboarding_set": { "title": "Uruchom kroki onboardingu dzień po wygranej" },
+    "lost_feedback": { "title": "Poproś o opinię 2 dni po utracie szansy" },
+    "renewal_review": { "title": "Przejrzyj odnowienie 90 dni przed terminem odnowienia umowy" },
+    "renewal_notice": { "title": "Powiadom opiekuna 45 dni przed odnowieniem, by potwierdził zamiary klienta" },
+    "qbr_due": { "title": "Przygotuj przegląd kwartalny w jego terminie" },
+    "health_red": { "title": "Powiadom szefa zespołu, gdy kondycja umowy zmieni się na czerwoną" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda szansa sprzedaży ma etap.",
+    "renewal_date_field": "Każda umowa zapisuje termin odnowienia.",
+    "notice_days_field": "Każda umowa zapisuje okres wypowiedzenia.",
+    "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
+  },
+  "page": {
+    "metaTitle": "Lejek klientów dla agencji: przetargi i abonamenty",
+    "metaDescription": "Wklej ten lejek dla agencji w Claude, ChatGPT lub Codex: decyzja o udziale w przetargu, onboarding w pięciu krokach i abonamenty z terminem odnowienia.",
+    "headline": "Zdobywaj klientów i widź każde odnowienie z wyprzedzeniem: lejek dla agencji, który buduje Twój agent AI",
+    "answer": "Lejek klientów dla agencji pokazuje w jednym miejscu dwie rzeczy: nowych klientów, od pierwszej rozmowy do podpisania umowy, oraz umowy abonamentowe i projekty, które po niej następują, każdą z terminem odnowienia i przeglądem kwartalnym. Wklej ten szablon do swojego agenta AI, a zbuduje on oba w Customermates, z decyzją o udziale w przetargu, onboardingiem w pięciu krokach po wygranej i okresem wypowiedzenia przy każdej umowie. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda w agencji",
+      "steps": [
+        "Otwórz każdą szansę bez następnego kroku i dodaj krok z terminem albo ją zamknij.",
+        "Przy każdym nowym briefie lub zaproszeniu do przetargu zdecyduj, czy startujesz: ile kosztuje udział, ile agencji w nim uczestniczy oraz kto prezentuje, a kto realizuje.",
+        "Sprawdź umowy, które odnawiają się w ciągu 90 dni, i terminy wypowiedzenia, które zamykają się w najbliższych tygodniach.",
+        "Przejrzyj umowy abonamentowe bez kontaktu od 30 dni i te, których wskaźnik kondycji zmienił się na czerwony, i zaplanuj kontakt lub rozmowę wspólnika."
+      ]
+    },
+    "limits": [
+      "To nie jest oprogramowanie dla agencji do projektów, rejestrowania czasu, planowania zasobów ani rozliczeń. Te zadania zostają w Twoich narzędziach; tutaj jest warstwa sprzedażowa i abonamentowa obok nich.",
+      "To nie jest portal klienta ani obieg akceptacji i nie raportuje wyników kampanii.",
+      "Nigdy nie zapisuj w przestrzeni roboczej danych dostępowych klientów, materiałów marki ani dostępu do kont reklamowych. Trzymaj je w menedżerze haseł i w swojej bibliotece plików.",
+      "Nie pisze ofert i nie zbiera podpisów elektronicznych. Oferty i umowy zostają w Twoim narzędziu do dokumentów i są powiązane z szansą sprzedaży.",
+      "To nie jest narzędzie do sekwencji ani masowej wysyłki. Każdy kolejny kontakt to zadanie z terminem i szkic, który sprawdzasz i wysyłasz samodzielnie.",
+      "Budżet zapisujesz tylko wtedy, gdy poda go klient, a okresu wypowiedzenia nie ma z góry: wpisujesz ten z każdej umowy."
+    ],
+    "faq": [
+      {
+        "question": "Czym lejek agencji różni się od zwykłego lejka sprzedaży?",
+        "answer": "Agencja ma mniej szans, ale większych, z kilkoma decydentami i długimi decyzjami, a większość przychodu pochodzi od klientów, którzy zostają i rosną. Dlatego ten szablon dodaje decyzję o udziale w przetargu, onboarding w pięciu krokach po wygranej i umowy z terminem odnowienia, zamiast kończyć się na wygranej."
+      },
+      {
+        "question": "Czy agencja powinna startować w każdym przetargu?",
+        "answer": "Nie. Udział w przetargu kosztuje dużo czasu i pieniędzy, więc doradcy zalecają najpierw sprawdzić, czy jest potrzebny: czy jest jasny brief z widełkami budżetu, ile agencji startuje, czy jest wynagrodzenie za udział i kto prezentuje, a kto realizuje. Szablon wymaga tej decyzji w dniu, w którym szansa trafia na etap brief lub przetarg."
+      },
+      {
+        "question": "Jaki okres wypowiedzenia ma mieć umowa abonamentowa?",
+        "answer": "Żaden przepis nie daje jednej odpowiedzi. Zwyczajowo jest to 30 dni na piśmie, a automatyczne odnowienie z 90-dniowym wypowiedzeniem sprzyja agencji. Szablon zapisuje okres wypowiedzenia przy każdej umowie i niczego nie zakłada. Tworzy przegląd odnowienia 90 dni przed terminem i przypomnienie 45 dni przed nim, by potwierdzić zamiar klienta."
+      },
+      {
+        "question": "Co dzieje się po wygranej?",
+        "answer": "Wygrana uruchamia onboarding w pięciu krokach: powitanie i potwierdzenie kickoffu, zebranie materiałów, harmonogram, kickoff i ustalenie obiegu realizacji. Wiele agencji wiąże kickoff z płatnością. Potem klient działa dalej jako umowa z terminem odnowienia i przeglądem kwartalnym."
+      },
+      {
+        "question": "Czy agent kontaktuje się z moimi klientami lub potencjalnymi klientami?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Prowadzę agencję: zdobywam nowych klientów, ale gubię się w trwających przetargach i w tym, kiedy odnawiają się umowy abonamentowe. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse sprzedaży z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
+    "questions": [
+      "Jakie usługi sprzedajesz i czy pracujesz w abonamencie, w projektach, czy w obu modelach?",
+      "Jak decydujesz, czy startować w przetargu z udziałem innych agencji?",
+      "Jaki jest zwykły okres wypowiedzenia i czas trwania umowy?",
+      "Jak często omawiasz wyniki z klientem?"
+    ]
+  }
+}

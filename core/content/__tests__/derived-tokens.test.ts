@@ -5,6 +5,7 @@ import {
   WEBHOOK_EVENT_COUNT,
   WEBHOOK_MESSAGING_EVENTS,
   WEBHOOK_MESSAGING_EVENT_COUNT,
+  WEBHOOK_OTHER_EVENT_COUNT,
   WEBHOOK_RECORD_EVENTS,
   WEBHOOK_RECORD_EVENT_COUNT,
 } from "@/features/webhook/webhook-event-registry";
@@ -33,13 +34,18 @@ describe("derived content tokens", () => {
     expect(resolveDerivedTokens("[[derived.webhooks.events.messaging]] messaging events")).toBe(
       `${WEBHOOK_MESSAGING_EVENT_COUNT} messaging events`,
     );
+    expect(resolveDerivedTokens("[[derived.webhooks.events.other]] other events")).toBe(
+      `${WEBHOOK_OTHER_EVENT_COUNT} other events`,
+    );
   });
 
   it("counts only the webhook events a webhook can subscribe to", () => {
     expect(WEBHOOK_EVENT_COUNT).toBe(WEBHOOK_EVENTS.length);
     expect(WEBHOOK_RECORD_EVENT_COUNT).toBe(WEBHOOK_RECORD_EVENTS.length);
     expect(WEBHOOK_MESSAGING_EVENT_COUNT).toBe(WEBHOOK_MESSAGING_EVENTS.length);
-    expect(WEBHOOK_RECORD_EVENT_COUNT + WEBHOOK_MESSAGING_EVENT_COUNT).toBe(WEBHOOK_EVENT_COUNT);
+    expect(WEBHOOK_RECORD_EVENT_COUNT + WEBHOOK_MESSAGING_EVENT_COUNT + WEBHOOK_OTHER_EVENT_COUNT).toBe(
+      WEBHOOK_EVENT_COUNT,
+    );
     expect(WebhookEventSchema.options).toHaveLength(WEBHOOK_EVENT_COUNT);
     for (const retired of ["contact.created", "deal.updated", "task.deleted"])
       expect(WebhookEventSchema.safeParse(retired).success).toBe(false);

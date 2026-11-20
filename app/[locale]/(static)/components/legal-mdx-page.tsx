@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
-import { legalSource } from "@/core/fumadocs/source";
+import { legalBodySource } from "@/core/fumadocs/body-sources/legal";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { Toc } from "@/components/shared/toc";
 
 export async function LegalMdxPage({ slug }: { slug: string }) {
   const locale = await getLocale();
-  const page = legalSource.getPage([slug], locale);
+  const page = legalBodySource.getPage([slug], locale);
 
   if (!page) notFound();
 

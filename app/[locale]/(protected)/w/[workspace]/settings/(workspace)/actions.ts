@@ -1,7 +1,12 @@
 "use server";
 
-import { getResolveUserOptionsInteractor, getSetPublicLinksAllowedInteractor } from "@/core/di";
+import {
+  getResolveUserOptionsInteractor,
+  getSaveWorkspaceBrandInteractor,
+  getSetPublicLinksAllowedInteractor,
+} from "@/core/di";
 import type { SetPublicLinksAllowedData } from "@/features/public-link/public-link-settings.schema";
+import type { SaveWorkspaceBrandData } from "@/features/workspace-brand/workspace-brand.schema";
 import type { ResolveUserOptionsInput } from "@/features/user/get/resolve-user-options.interactor";
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
@@ -199,4 +204,8 @@ export async function resolveUserOptionsAction(input: ResolveUserOptionsInput) {
 
 export async function setPublicLinksAllowedAction(data: SetPublicLinksAllowedData) {
   return serializeResult(getSetPublicLinksAllowedInteractor().invoke(data));
+}
+
+export async function saveWorkspaceBrandAction(data: SaveWorkspaceBrandData) {
+  return serializeResult(getSaveWorkspaceBrandInteractor().invoke(data));
 }

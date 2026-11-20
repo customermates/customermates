@@ -273,7 +273,7 @@ The value of a Formatted text field in payloads is a `richText` value whose `doc
 
 ## Which events exist? [#which-events-exist]
 
-A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] messaging events. For a CRM webhook, select **Record created**, **Record updated**, **Record moved to Trash**, **Record restored** or **Record deleted permanently** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) and set its [record source](#record-event-sources); this covers lists you created yourself too. All use the [standard envelope](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Record deleted permanently** (`record.deletedPermanently`), **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines. See [Routines](/docs/app-routines#how-do-event-triggers-work).
+A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events, [[derived.webhooks.events.messaging]] messaging events and [[derived.webhooks.events.other]] events of forms, booking pages, incoming webhooks and automation rules. For a CRM webhook, select **Record created**, **Record updated**, **Record moved to Trash**, **Record restored** or **Record deleted permanently** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) and set its [record source](#record-event-sources); this covers lists you created yourself too. All use the [standard envelope](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Record deleted permanently** (`record.deletedPermanently`), **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines. See [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record events [#record-events]
 
@@ -322,6 +322,25 @@ Messaging events fire on inbound provider activity on connected accounts. **Even
 | `messaging.calendar.changed` | A connected calendar changes |
 | `messaging.calendar_event.changed` | A calendar event changes |
 | `messaging.relation.created` | A new provider relation is created |
+
+### Events of forms, booking pages, incoming webhooks and automation rules [#other-events]
+
+These events use the [standard envelope](#what-does-the-payload-look-like). Customermates keeps one only while a webhook subscribes to it or an automation rule uses it, and routines cannot be triggered by them.
+
+| Event | When it fires | `data` |
+| --- | --- | --- |
+| `form.submitted` | A public form or booking page receives a submission | `source`, `formId`, `formName`, `typeId`, `submissionId`, `outcome`, `recordId`, `personRecordId` and the `answers` by field label |
+| `webhook.received` | An [incoming webhook](#incoming-webhooks) creates or updates a record | `webhookId`, `webhookName`, `typeId`, `deliveryId`, `outcome` and `recordId` |
+| `booking.changed` | A booking made through a booking page is cancelled or rescheduled | `bookingId`, `bookingLinkId`, `bookingLinkName`, `change` (`cancelled` or `rescheduled`), `by` (`invitee` or `host`), `typeId`, `recordId`, `personRecordId`, `hostUserId` and the `answers`: the visitor's `name` and `email`, `startsAt`, `endsAt` and `timeZone` (the new time after a reschedule), `previousStartsAt` after a reschedule, a `reason` if one was given and the visitor's answers by field label |
+| `automation.rule.fired` | An automation rule with a **Call webhook** effect fires | `ruleId`, `ruleName`, `runId`, `trigger`, `firedAt` and the `record` that started the rule |
+
+For all of them except `automation.rule.fired`, `actorId` is `null`. `automation.rule.fired` reaches only the webhook the rule names, and only if that webhook selected the event; `actorId` is the owner of the rule. A delivery of it appears in **Webhook log** like any other, with retries and resend.
+
+## How do I receive data from other tools with an incoming webhook? [#incoming-webhooks]
+
+An incoming webhook lets another system create or update records by posting JSON to a secret address, for example a form tool, a payment provider or an n8n workflow. Open [Incoming webhooks](app:settings/incoming-webhooks) in Settings, between Webhooks and Webhook log, and click **Add incoming webhook**. Choose the **List** whose records the endpoint fills, enter a **Name**, and paste a **Sample body (JSON)**. Under **Field mapping**, **Add field** for each value: the **JSON path** where it sits in the body, such as `data.email` or `items[0].name`, and the **Field** of the list that receives it. **When a request arrives** is either **Always create a record** or **Update the matching record, or create one**; for the second, choose **Find the existing record by**, one of the mapped fields. **Save and test with the sample** shows what a request would do, create, update or refuse, without writing anything. The **Secret address** appears after you save. It ends in `/api/hooks/…` and carries its own secret, so anyone who has it can post to it, and **Replace the secret address** makes the old one stop working. Requests run with the access of the member who created the endpoint, and the change history of a record names the incoming webhook as its source.
+
+Send a `POST` with a JSON body. The answer is `201` for a created and `200` for an updated record, with its `recordId`. For a signature check, set a **Signing secret** and a **Signature header** (the default is `x-signature`): every request must then carry the hex HMAC-SHA256 of the raw body in that header, with or without a `sha256=` prefix, and a wrong or missing signature is refused with `401`. An `Idempotency-Key` header of at least 8 characters makes a repeated request count once. A body over 256 KB is refused with `413`, a body that is not valid JSON or does not fit the field types with `400` or `422`, more than 120 requests per minute for one endpoint with `429` and a `Retry-After` header, and a request while the workspace is on a plan without webhooks with `403`. **Deliveries** lists every request of the last 30 days with its outcome, the record it created or updated and the body, so you can see why one was refused. Incoming webhooks follow the plan rule of outgoing ones below: on Customermates Cloud they start on Starter, and self-hosted installs have no limit. Agents manage them with the MCP tool `manage_incoming_webhooks`, and REST has the endpoints under `/api/v1/incoming-webhooks/`.
 
 ## Do webhooks work on the Free plan? [#webhooks-on-the-free-plan]
 

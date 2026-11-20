@@ -1,0 +1,144 @@
+{
+  "locale": "pl",
+  "name": "Sprzedaż prowadzona przez założyciela",
+  "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
+  "description": "Gdy sprzedajesz osobiście, każda rozmowa uczy Cię, kto kupuje i dlaczego, ale notatki i następny krok siedzą w głowie i w stosie otwartych kart w przeglądarce. Szablon pomaga prowadzić od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany. Pilotaż ma termin zakończenia i informację, czy jest płatny, a szansa, która ucichła, jest wstrzymywana z datą powrotu zamiast być ponaglana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie jest masowa wysyłka sekwencji wiadomości, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, z którymi rozmawiasz, z ich rolą w decyzji zakupowej." },
+    "companies": { "label": "Firma", "pluralLabel": "Firmy", "description": "Potencjalni klienci, pilotaże, klienci i partnerzy." },
+    "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Jedna możliwa sprzedaż, od pierwszej rozmowy do wygranej, przegranej lub wstrzymanej." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Rola w zakupie", "options": { "decision_maker": "Decydent", "budget_holder": "Dysponent budżetu", "champion": "Rzecznik wewnętrzny", "user": "Użytkownik", "other": "Inna" } },
+    "contacts.outreach_consent": { "label": "Zgoda na kontakt" },
+    "companies.relationship": { "label": "Relacja", "options": { "prospect": "Potencjalny klient", "pilot": "Pilotaż", "customer": "Klient", "churned": "Utracony", "partner": "Partner" } },
+    "companies.size": { "label": "Wielkość", "options": { "micro": "1 do 10 osób", "small": "11 do 50 osób", "medium": "51 do 250 osób", "large": "Ponad 250 osób" } },
+    "companies.website": { "label": "Strona internetowa" },
+    "opportunities.stage": {
+      "label": "Etap",
+      "options": { "new": "Rozmowa", "discovery_done": "Analiza potrzeb", "pilot": "Pilotaż lub test", "proposal": "Oferta", "won": "Wygrana", "lost": "Przegrana", "parked": "Wstrzymane" }
+    },
+    "opportunities.source": { "label": "Źródło", "options": { "own_network": "Własna sieć kontaktów", "introduction": "Polecenie z przedstawieniem", "inbound": "Zapytanie przychodzące", "community": "Społeczność", "outbound": "Kontakt wychodzący", "event": "Wydarzenie" } },
+    "opportunities.problem": { "label": "Problem słowami klienta" },
+    "opportunities.urgency": { "label": "Pilność", "options": { "burning": "Palący", "important": "Ważny", "nice_to_have": "Niski priorytet" } },
+    "opportunities.budget_status": { "label": "Budżet", "options": { "unknown": "Nieznany", "has_budget": "Ma budżet", "needs_budget": "Musi zdobyć budżet", "no_budget": "Brak budżetu" } },
+    "opportunities.decision_maker_engaged": { "label": "Decydent zaangażowany" },
+    "opportunities.pilot_end": { "label": "Data zakończenia pilotażu" },
+    "opportunities.pilot_paid": { "label": "Pilotaż jest płatny" },
+    "opportunities.expected_close": { "label": "Planowane zamknięcie" },
+    "opportunities.revisit_on": { "label": "Data powrotu do rozmowy" },
+    "opportunities.next_step_due": { "label": "Termin następnego kroku" },
+    "opportunities.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "no_budget": "Brak budżetu", "no_urgency": "Brak pilności", "competitor": "Klient wybrał konkurencję", "built_in_house": "Zbudował to we własnym zakresie", "wrong_buyer": "Niewłaściwy rozmówca", "no_response": "Brak odpowiedzi", "not_a_fit": "Nie pasuje" }
+    },
+    "opportunities.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "reply": "Odpowiedzieć z podsumowaniem", "call": "Zadzwonić", "intro_request": "Poprosić o przedstawienie", "pilot_check": "Sprawdzić pilotaż", "proposal": "Wysłać ofertę", "follow_up": "Przypomnieć o sobie", "handover": "Przekazać", "review": "Podsumować", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Firma", "targetLabel": "Kontakty" },
+    "opportunity_company": { "sourceLabel": "Firma", "targetLabel": "Szanse sprzedaży" },
+    "opportunity_contacts": { "sourceLabel": "Kontakty", "targetLabel": "Szanse sprzedaży" },
+    "action_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Szanse według etapu" },
+    "opportunities_all": { "name": "Wszystkie szanse sprzedaży" },
+    "parked_to_revisit": { "name": "Wstrzymane, do powrotu" },
+    "without_next_step": { "name": "Otwarte bez następnego kroku" },
+    "companies_all": { "name": "Wszystkie firmy" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Szanse według etapu" },
+    "weighted_pipeline": { "title": "Lejek ważony" },
+    "customers_won": { "title": "Pozyskani klienci" },
+    "pilots_running": { "title": "Trwające pilotaże" },
+    "pilot_ends": { "title": "Kończące się pilotaże" },
+    "revisits_coming": { "title": "Wstrzymane szanse do powrotu" },
+    "urgency_split": { "title": "Otwarte szanse według pilności" },
+    "lost_reasons": { "title": "Powody utraty szans" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Przewodnik sprzedaży założyciela", "sections": ["Komu sprzedajemy i czego się nauczyliśmy", "Tygodniowy przegląd założyciela"] },
+    "discovery_questions": { "title": "Pytania na rozmowę odkrywczą", "sections": ["Problem, pilność, budżet i decydenci", "Co zapisać po rozmowie"] },
+    "pilot_plan": { "title": "Plan pilotażu i karta oceny", "sections": ["Stały termin zakończenia i kryteria sukcesu", "Płatny domyślnie i jak pilotaż zamienia się w umowę"] },
+    "when_to_hire": { "title": "Kiedy zatrudnić pierwszego handlowca", "sections": ["Sygnały, że sprzedaż powtarza się bez Ciebie", "Co przekazać najpierw"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Utwórz kontakt, firmę i szansę sprzedaży po wysłaniu formularza" },
+    "recap_reply": { "title": "Odpowiedz z osobistym podsumowaniem i następnym krokiem dzień po rozpoczęciu rozmowy" },
+    "discovery_proposal": { "title": "Wyślij plan pilotażu lub ofertę 2 dni po analizie potrzeb" },
+    "pilot_start_check": { "title": "Zapytaj, jak idzie pilotaż, 14 dni po jego starcie" },
+    "pilot_review": { "title": "Przeprowadź rozmowę decyzyjną 3 dni przed końcem pilotażu" },
+    "proposal_follow_up": { "title": "Przypomnij o ofercie 3 dni po jej wysłaniu" },
+    "parked_revisit_date": { "title": "Ustaw datę powrotu do rozmowy na 90 dni naprzód, gdy szansa zostaje wstrzymana" },
+    "revisit_reopen": { "title": "Wznów rozmowę w ustalonym dniu powrotu" },
+    "won_handover": { "title": "Przekaż klienta dzień po wygranej" },
+    "won_intro_request": { "title": "Poproś klienta o przedstawienie jednej osoby 30 dni po wygranej" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda szansa sprzedaży ma etap.",
+    "problem_field": "Każda szansa zapisuje problem słowami klienta.",
+    "pilot_end_field": "Każdy pilotaż ma termin zakończenia.",
+    "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
+  },
+  "page": {
+    "metaTitle": "Sprzedaż prowadzona przez założyciela: lejek i terminy",
+    "metaDescription": "Sprzedawaj jako założyciel, nie gubiąc wątku: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje lejek z pilotażem i wstrzymanymi szansami.",
+    "headline": "Sprzedaż prowadzona przez założyciela bez gubienia wątku: lejek, który Twój agent AI buduje w Twoim CRM",
+    "answer": "Lejek sprzedaży założyciela to krótka lista otwartych rozmów, każda z problemem opisanym słowami klienta, następnym krokiem z terminem i, jeśli go prowadzisz, pilotażem ze stałą datą końca. Wklej ten szablon do swojego agenta AI, a zbuduje lejek w Customermates, ze stanem Wstrzymane i datą powrotu dla ucichłych szans. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Poniedziałkowy przegląd założyciela",
+      "steps": [
+        "Wypisz każdą otwartą rozmowę i dla każdej ustal następny krok z terminem. Rozmowa bez daty to ta, która cichnie.",
+        "Zapisz, co wiadomo od zeszłego tygodnia: problem słowami kupującego, pilność, budżet i kto decyduje.",
+        "Sprawdź pilotaże: czy jest data końca, czy kryteria sukcesu są spisane, czy jest płatny? Umów rozmowę decyzyjną na kilka dni przed końcem.",
+        "Zdecyduj o ucichłych szansach: jedna uczciwa wiadomość na zamknięcie, potem wstrzymaj je z datą powrotu zamiast ścigać.",
+        "Zobacz, kto kupił, a kto odmówił, i dlaczego. Wzór pokazuje, jakiemu segmentowi sprzedawać i kiedy czas zatrudnić pierwszego handlowca."
+      ]
+    },
+    "limits": [
+      "To nie jest narzędzie do sekwencji wychodzących. Customermates nie ma sekwencji ani masowych wysyłek, a każda wiadomość jest pojedyncza i sprawdzana przez Ciebie. LinkedIn lub e-mail w dużej skali wymagają wyspecjalizowanego narzędzia.",
+      "To nie jest CRM dla inwestorów. Pozyskiwanie kapitału ma inne etapy i innych rozmówców, więc użyj osobnego szablonu.",
+      "Nie tworzy ofert cenowych, faktur ani umów i nie ma podpisu elektronicznego. Oferty i umowy powstają w innych narzędziach; tu zostają tylko terminy i link.",
+      "Nie ma punktacji leadów ani wzbogacania danych. To, jak dobrze lead pasuje, to pole, które ustawiasz sam.",
+      "Wartość ważona to nie prognoza. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i możesz je zmieniać.",
+      "Jest dla jednego sprzedawcy. Kilku handlowców z planami sprzedaży i prognozą zespołu potrzebuje szablonu lejka sprzedaży albo cięższego CRM."
+    ],
+    "faq": [
+      {
+        "question": "Kiedy założyciel potrzebuje CRM?",
+        "answer": "Poradniki wskazują moment, gdy masz więcej leadów i klientów, niż mieści się w głowie lub w arkuszu, często między 50 a 200 kontaktami, albo gdy sprzedawać zaczyna druga osoba. Do tego czasu wystarczy arkusz. Czekanie ma swoją cenę: gdy zmieniasz narzędzie, notatki i kolejne kroki są już rozrzucone."
+      },
+      {
+        "question": "Ilu klientów powinien samodzielnie zamknąć założyciel?",
+        "answer": "Rady się różnią: Jason Lemkin mówi o pierwszych 10 klientach, może 20, inne poradniki o 10 do 50. Mercury radzi zatrudnić pierwszego handlowca, gdy możesz powiedzieć: „Wiem, że mogę sprzedać swój produkt ludziom takim jak X, którzy mają problem Y”. Szablon pokazuje, ilu klientów udało się zdobyć, i nie narzuca żadnej liczby."
+      },
+      {
+        "question": "Jak długo ścigać szansę, która ucichła?",
+        "answer": "Praktycy nie zgadzają się co do liczby, ale zgadzają się, że w pewnym momencie trzeba przestać. Mercury radzi nie ścigać dłużej osób, które Cię ignorują; inni sugerują kilka ponagleń, ostatni e-mail i nowy kontakt po miesiącach. Szablon robi jedno i drugie: jedna wiadomość na zamknięcie, potem szansa jest wstrzymywana z datą powrotu po 90 dniach."
+      },
+      {
+        "question": "Czy warto robić bezpłatny pilotaż?",
+        "answer": "Rada streszczona ze Startup School Y Combinator brzmi: unikaj bezterminowych bezpłatnych pilotaży i prowadź krótki, oceniany, najlepiej płatny. Szablon nadaje pilotażowi stałą datę końca i znacznik płatny lub nie, tworzy kontrolę 14 dni po starcie i zadanie rozmowy decyzyjnej 3 dni przed końcem."
+      },
+      {
+        "question": "Czy agent pisze do moich potencjalnych klientów?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Sam sprzedaję swój produkt i ciągle gubię notatki oraz następne kroki z rozmów. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane kolejne kroki. Niczego nie wysyłaj automatycznie.",
+    "questions": [
+      "Co sprzedajesz i kto już od Ciebie kupił?",
+      "Czy prowadzisz pilotaże lub testy i czy są płatne?",
+      "Jak długo ponaglasz szansę, która ucichła, zanim ją wstrzymasz?",
+      "Skąd biorą się Twoje rozmowy: z sieci kontaktów, poleceń, zapytań czy wydarzeń?"
+    ]
+  }
+}

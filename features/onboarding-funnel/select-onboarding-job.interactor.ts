@@ -41,6 +41,7 @@ export class SelectOnboardingJobInteractor {
 
     return runWithTenant(user, async () => {
       await this.funnel.recordFunnelEvent({ type: "jobSelected", occurredAt: new Date(), job });
+      if (job !== "agent") await this.setupStep.reopenOnboardingSetupStep({ userId: user.id });
       if (job === "workspace") return { ok: true as const, data: { job, next: "setup" as const } };
       if (job === "followup") return { ok: true as const, data: { job, next: "playbook" as const } };
 

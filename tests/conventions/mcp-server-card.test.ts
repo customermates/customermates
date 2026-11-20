@@ -5,7 +5,11 @@ import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { buildMcpServerCard } from "@/features/mcp-tools/server-card";
-import { MCP_GET_STARTED_PROMPT_INFO, MCP_SERVER_INFO } from "@/features/mcp-tools/server-metadata";
+import {
+  MCP_GET_STARTED_PROMPT_INFO,
+  MCP_SERVER_INFO,
+  MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO,
+} from "@/features/mcp-tools/server-metadata";
 
 import { REPO_ROOT } from "./walk";
 
@@ -29,7 +33,7 @@ describe("public MCP server card", () => {
     expect(card.serverInfo).toEqual(MCP_SERVER_INFO);
     expect(card.authentication).toEqual({ required: true, schemes: ["oauth2", "apiKey"] });
     expect(card.resources).toEqual([]);
-    expect(card.prompts).toEqual([MCP_GET_STARTED_PROMPT_INFO]);
+    expect(card.prompts).toEqual([MCP_GET_STARTED_PROMPT_INFO, MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO]);
     expect(card.tools[0]).not.toHaveProperty("execute");
     expect(card.tools[0].inputSchema).toMatchObject({
       type: "object",

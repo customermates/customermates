@@ -26,6 +26,7 @@ describe("what stops when a trial moves to Free", () => {
         openDrafts: 4,
         activeRoutines: 2,
         maxRoutinesPerOwner: 2,
+        formSubmissionsThisMonth: 180,
         webhooks: 1,
         mateRequests: 12,
       }),
@@ -36,9 +37,26 @@ describe("what stops when a trial moves to Free", () => {
       { kind: "drafts", count: 4 },
       { kind: "routines", count: 2 },
       { kind: "members", count: 2 },
+      { kind: "forms", count: 130 },
       { kind: "webhooks", count: 1 },
       { kind: "mate", count: 12 },
     ]);
+  });
+
+  it("counts only the form submissions beyond the Free monthly allowance", () => {
+    const allowance = PLAN_CATALOG.free.entitlements.formSubmissionsPerMonth;
+
+    expect(allowance).toBe(50);
+    expect(lostOnFree(usage({ formSubmissionsThisMonth: 50 }))).toEqual([]);
+    expect(lostOnFree(usage({ formSubmissionsThisMonth: 51 }))).toEqual([{ kind: "forms", count: 1 }]);
+  });
+
+  it("counts only the automations beyond the Free allowance, because the plan pauses those", () => {
+    const allowance = PLAN_CATALOG.free.entitlements.activeAutomationRules;
+
+    expect(allowance).toBe(3);
+    expect(lostOnFree(usage({ activeAutomationRules: 3 }))).toEqual([]);
+    expect(lostOnFree(usage({ activeAutomationRules: 5 }))).toEqual([{ kind: "rules", count: 2 }]);
   });
 
   it("counts people beyond the one Free seat and ignores a workspace of one", () => {
@@ -89,6 +107,18 @@ describe("the one plan that keeps a workspace running", () => {
 
   it("falls back to the top plan when no plan holds what is in use", () => {
     expect(planThatKeepsItRunning(usage({ connectedAccounts: 40, maxAccountsPerUser: 20 }))).toBe("max");
+  });
+
+  it("moves to the plan whose automation allowance holds the active rules", () => {
+    expect(planThatKeepsItRunning(usage({ webhooks: 1, activeAutomationRules: 20 }))).toBe("starter");
+    expect(planThatKeepsItRunning(usage({ webhooks: 1, activeAutomationRules: 21 }))).toBe("pro");
+    expect(planCovers("starter", usage({ activeAutomationRules: 21 }))).toBe(false);
+    expect(planCovers("pro", usage({ activeAutomationRules: 400 }))).toBe(true);
+  });
+
+  it("names Starter for form submissions above the Free allowance", () => {
+    expect(planThatKeepsItRunning(usage({ formSubmissionsThisMonth: 90 }))).toBe("starter");
+    expect(planCovers("starter", usage({ formSubmissionsThisMonth: 90_000 }))).toBe(true);
   });
 
   it("only ever picks a plan whose entitlements cover every used feature", () => {

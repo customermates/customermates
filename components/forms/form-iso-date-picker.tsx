@@ -12,7 +12,7 @@ import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "./form-label";
 import { InputClearButton } from "./input-clear-button";
-import { DATE_PRESETS, localTimeValue, parseIsoDate, toLocalIso } from "./iso-date-values";
+import { DATE_PRESETS, localTimeValue, parseIsoDate, parseLocalDay, toLocalIso } from "./iso-date-values";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
@@ -31,6 +31,7 @@ type Props = {
   displayFormat?: DateDisplayFormat;
   dateOnly?: boolean;
   clearable?: boolean;
+  min?: string;
   value?: string;
   onValueChange?: (value: string | undefined) => void;
   onPicked?: () => void;
@@ -49,6 +50,7 @@ export const FormIsoDatePicker = observer(
     displayFormat = "descriptiveLong",
     dateOnly = true,
     clearable = true,
+    min,
     value: controlledValue,
     onValueChange,
     onPicked,
@@ -64,7 +66,7 @@ export const FormIsoDatePicker = observer(
     const raw = controlledValue ?? store?.getValue(id);
     const domId = inputId ?? id;
     const isoValue = typeof raw === "string" && raw !== "" ? raw : undefined;
-    const parsed = parseIsoDate(isoValue);
+    const parsed = (dateOnly ? parseLocalDay(isoValue) : undefined) ?? parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
     const isLoading = store?.isLoading ?? false;
     const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
@@ -134,11 +136,16 @@ export const FormIsoDatePicker = observer(
     }
 
     const timeValue = parsed ? localTimeValue(parsed) : "";
+    const earliest = parseLocalDay(min);
+    const today = new Date();
+    const presetIsTooEarly = (compute: (today: Date) => Date) =>
+      earliest !== undefined &&
+      compute(new Date(today.getFullYear(), today.getMonth(), today.getDate())).getTime() < earliest.getTime();
 
     const panel = (
       <>
         <Calendar
-          disabled={isLoading}
+          disabled={isLoading || (earliest ? { before: earliest } : false)}
           mode="single"
           month={currentMonth}
           selected={parsed}
@@ -172,7 +179,7 @@ export const FormIsoDatePicker = observer(
           {DATE_PRESETS.map((preset) => (
             <Button
               key={preset.key}
-              disabled={isLoading}
+              disabled={isLoading || presetIsTooEarly(preset.compute)}
               size="sm"
               type="button"
               variant="secondary"

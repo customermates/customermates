@@ -72,9 +72,25 @@ describe("onboarding progress access and persistence", () => {
     expect(repo.saveOnboardingWizardProgress).not.toHaveBeenCalled();
   });
 
+  it("saves the goal step with the chosen path and reads it back unchanged", async () => {
+    const atGoal = { ...progress, step: "goal" as const, job: "workspace" as const };
+    repo.findOnboardingWizardProgressOrThrow.mockResolvedValue(atGoal);
+
+    await expect(save().invoke({ userId: user.id, progress: atGoal })).resolves.toEqual({ ok: true, data: atGoal });
+    expect(repo.saveOnboardingWizardProgress).toHaveBeenCalledExactlyOnceWith(atGoal);
+    await expect(read().invoke()).resolves.toEqual({ ok: true, data: atGoal });
+  });
+
+  it("reads progress saved before the chosen path existed as having no path", () => {
+    const legacy = Object.fromEntries(Object.entries(progress).filter(([key]) => key !== "job"));
+
+    expect(readOnboardingWizardProgress(legacy)).toEqual({ ...progress, job: null });
+  });
+
   it("rejects secret-bearing or invalid step inputs before a repository write", async () => {
     for (const invalid of [
       { ...progress, step: "profile" },
+      { ...progress, job: "unknown" },
       { ...progress, ai: { ...progress.ai, key: "not-progress" } },
       { ...progress, inviteTab: "unknown" },
     ])

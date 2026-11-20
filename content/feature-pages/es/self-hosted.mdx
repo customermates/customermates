@@ -1,6 +1,6 @@
 ---
 title: "CRM self hosted con Docker y PostgreSQL"
-description: "CRM self hosted: ejecuta la aplicación de Customermates y PostgreSQL en tu infraestructura con Docker Compose. Núcleo AGPL, MCP, REST y webhooks incluidos."
+description: "CRM self hosted: ejecuta la aplicación de Customermates y PostgreSQL en tu infraestructura con Docker Compose. Edición Community, MCP, REST y webhooks."
 featureName: CRM self hosted
 
 acquisition:
@@ -11,10 +11,10 @@ acquisition:
   primaryIntent: Despliegue de un CRM self hosted
   metadata:
     title: "CRM self hosted con Docker y PostgreSQL"
-    description: "CRM self hosted: ejecuta la aplicación de Customermates y PostgreSQL en tu infraestructura con Docker Compose. Núcleo AGPL, MCP, REST y webhooks incluidos."
+    description: "CRM self hosted: ejecuta la aplicación de Customermates y PostgreSQL en tu infraestructura con Docker Compose. Edición Community, MCP, REST y webhooks."
   proof:
     factReferences:
-      - product:agpl-community-core
+      - product:source-available-community-core
       - product:docker-postgresql-deployment
       - product:self-hosted-starter-entitlements
       - product:core-crm-records
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Lee la guía de instalación"
   buttonRightHref: /docs/self-hosting
-  hint: "Núcleo AGPL • Docker Compose • PostgreSQL 16"
+  hint: "Edición Community • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "¿Necesitas también seguimiento por LinkedIn y email? Prueba primero la nube"
@@ -132,9 +132,9 @@ cta:
   hint: "Quien opera el sistema se encarga de la infraestructura, las actualizaciones, las copias de seguridad y los proveedores conectados."
 ---
 
-Customermates es un **CRM self hosted** que puedes ejecutar como dos servicios de Docker Compose: la aplicación y PostgreSQL 16. Encaja cuando tu equipo quiere operar la infraestructura de su CRM y usar un núcleo de código abierto. No es la edición autoalojada de todas las funciones de Customermates Cloud.
+Customermates es un **CRM self hosted** que puedes ejecutar como dos servicios de Docker Compose: la aplicación y PostgreSQL 16. Encaja cuando tu equipo quiere operar la infraestructura de su CRM y usar una edición Community con el código fuente disponible. No es la edición autoalojada de todas las funciones de Customermates Cloud.
 
-Un CRM autoalojado funciona en servidores que controlas tú en lugar de en la nube del proveedor: decides dónde viven la aplicación y la base de datos, y te encargas de las actualizaciones, las copias de seguridad y la seguridad. Que el código sea abierto es otra cuestión, la de los derechos de licencia, que cubre la [guía de CRM de código abierto](/blog/open-source-crm). Esta página se centra en el lado operativo de Customermates.
+Un CRM autoalojado funciona en servidores que controlas tú en lugar de en la nube del proveedor: decides dónde viven la aplicación y la base de datos, y te encargas de las actualizaciones, las copias de seguridad y la seguridad. Que el código sea abierto o solo esté disponible es otra cuestión, la de los derechos de licencia, que cubre la [guía de CRM de código abierto](/blog/open-source-crm). Esta página se centra en el lado operativo de Customermates.
 
 **Dónde encaja el seguimiento.** El autoalojamiento mantiene en tus propios servidores los registros de clientes, las fechas de los siguientes pasos, los paneles y MCP, de modo que tu propio cliente de IA puede leerlos y actualizarlos. No tiene la bandeja de entrada que pone las conversaciones de LinkedIn y email en cada cliente, ni tiene Mate, que redacta las respuestas. Si el motivo por el que quieres el CRM es el seguimiento en borrador de las conversaciones, empieza por Customermates Cloud; el autoalojamiento encaja mejor cuando pesa más el control sobre dónde funcionan los datos.
 
@@ -180,13 +180,13 @@ El archivo Compose no incluye n8n, un modelo de IA, un proveedor de envío de em
 | Vista de calendario conectado de solo lectura                 | No incluida               |
 | Cuentas conectadas compartidas                                | No incluidas              |
 
-La [bandeja de entrada unificada del CRM](/features/unified-inbox) es una función de la nube gestionada a partir de Pro. El autoalojamiento se centra en el núcleo de código abierto del CRM y en los clientes MCP externos.
+La [bandeja de entrada unificada del CRM](/features/unified-inbox) es una función de la nube gestionada a partir de Pro. El autoalojamiento se centra en la edición Community del CRM y en los clientes MCP externos.
 
-## Límites entre el código abierto y el código comercial
+## Límites entre la Sustainable Use License y el código comercial
 
-El material propio fuera de `ee/` tiene licencia AGPL-3.0-only. Dentro de `ee/`, el material tiene licencia comercial, salvo las imágenes, las fuentes, el CSS y el JavaScript del lado del cliente que se identifican como AGPL Client Material en la Sección 6 de `ee/LICENSE.md`. Revisa ambas licencias antes de modificar, redistribuir o usar el software en tu caso.
+El material propio fuera de `ee/` tiene licencia Sustainable Use License: puedes usarlo y modificarlo para los fines internos de tu empresa o para uso personal y no comercial, y solo puedes distribuirlo gratis y sin fines comerciales. No puedes revenderlo ni alojarlo para terceros. Dentro de `ee/`, el material tiene la licencia comercial de `ee/LICENSE.md`. Revisa ambas licencias antes de modificar, redistribuir o usar el software en tu caso.
 
-Esa distinción importa cuando comparas un [CRM de código abierto](/blog/open-source-crm): un repositorio público por sí solo no te dice qué código puedes usar y bajo qué condiciones. Si estás valorando otros proyectos que se pueden autoalojar, las comparativas con [EspoCRM](/compare/espocrm-alternative) y [Twenty](/compare/twenty-alternative) muestran en qué se diferencian sus límites de despliegue y de licencia.
+Esa distinción importa cuando comparas un [CRM de código abierto](/blog/open-source-crm): un repositorio público por sí solo no te dice qué código puedes usar y bajo qué condiciones, y el código fuente disponible no es lo mismo que el código abierto. Si estás valorando otros proyectos que se pueden autoalojar, las comparativas con [EspoCRM](/compare/espocrm-alternative) y [Twenty](/compare/twenty-alternative) muestran en qué se diferencian sus límites de despliegue y de licencia.
 
 ## ¿Qué control ofrece un CRM autoalojado?
 
@@ -203,7 +203,7 @@ Los servicios conectados siguen siendo límites de tratamiento aparte. Los prove
 | quieres que clientes de IA externos usen MCP      | quieres las funciones de los planes de la nube y cuentas conectadas gestionadas |
 | te encargarás de las actualizaciones, las copias de seguridad y la recuperación | prefieres una suscripción con operación gestionada |
 
-Si quieres probar Customermates antes de operar tu propio servidor, la página sobre el [CRM de código abierto en la nube o autoalojado](/features/open-source-crm) pone los dos caminos lado a lado, con la prueba gratuita en la nube como arranque más rápido.
+Si quieres probar Customermates antes de operar tu propio servidor, la página sobre el [CRM en la nube o autoalojado y las alternativas de código abierto](/features/open-source-crm) pone los dos caminos lado a lado, con la prueba gratuita en la nube como arranque más rápido.
 
 Los registros se mueven entre instalaciones o desde otro CRM como libros XLSX, un tipo de registro cada vez y dentro de los límites de filas, o mediante la API REST, que también puede subir archivos a los campos de tipo Archivo. Una importación XLSX no incluye archivos adjuntos y no existe una transferencia completa de la cuenta, así que planifica un traslado grande como un proyecto de migración que validas.
 
@@ -211,7 +211,7 @@ Los registros se mueven entre instalaciones o desde otro CRM como libros XLSX, u
 
 <Faq>
 <FaqItem question="¿Customermates es totalmente de código abierto?">
-El material propio fuera de `ee/` es AGPL-3.0-only. Dentro de `ee/`, el material del lado del cliente identificado en la Sección 6 de `ee/LICENSE.md` también es AGPL-3.0-only; el resto del material propio usa la licencia comercial. Revisa ambos archivos de licencia para conocer el límite exacto.
+No en el sentido de la OSI: tiene el código fuente disponible (source-available, fair-code). El material propio fuera de `ee/` usa la Sustainable Use License, que permite el uso y la modificación para fines internos de la empresa o de forma personal y no comercial; el material de `ee/` usa la licencia comercial. Revisa ambos archivos de licencia para conocer el límite exacto.
 </FaqItem>
 
 <FaqItem question="¿El autoalojamiento incluye la bandeja de entrada unificada?">

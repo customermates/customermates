@@ -13,6 +13,8 @@ const harness = vi.hoisted(() => ({
   layoutProps: vi.fn(),
   roleAdd: vi.fn(),
   roleEdit: vi.fn(),
+  builderCreate: vi.fn(),
+  builderRule: vi.fn(),
   routineCreate: vi.fn(),
   routineEdit: vi.fn(),
   routerPush: vi.fn(),
@@ -107,8 +109,11 @@ vi.mock(
     useWebhookDeliveryColumns: () => [],
   }),
 );
-vi.mock("@/app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns", () => ({
-  useRoutineColumns: () => [],
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns", () => ({
+  useAutomationColumns: () => [],
+}));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder-modal", () => ({
+  AutomationBuilderModal: () => null,
 }));
 
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/role-modal", () => ({
@@ -119,7 +124,7 @@ import { RolesPageView } from "@/app/[locale]/(protected)/w/[workspace]/settings
 import { MembersPageView } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/members-page-view";
 import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhook-deliveries-page-view";
 import { WebhooksPageView } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhooks-page-view";
-import { RoutinesPageView } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routines-page-view";
+import { AutomationsPageView } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automations-page-view";
 
 type Store = ReturnType<typeof store>;
 type Fixture = {
@@ -208,6 +213,11 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
     routineModalStore: {
       openForCreate: harness.routineCreate,
       openForEdit: harness.routineEdit,
+    },
+    automationBuilderStore: {
+      openForCreate: harness.builderCreate,
+      openForRule: harness.builderRule,
+      close: vi.fn(),
     },
     webhookModalStore: { allows: () => false, openWith: harness.webhookOpen },
     [key]: value,
@@ -330,16 +340,29 @@ const fixtures: Fixture[] = [
   },
   {
     creator: true,
-    name: "Routines",
+    name: "Automations",
     render: (value, initial) => {
-      setRoot("routinesStore", value);
-      return renderToStaticMarkup(createElement(RoutinesPageView, { initialRoutines: initial as never }));
+      setRoot("automationsStore", value);
+      return renderToStaticMarkup(
+        createElement(AutomationsPageView, {
+          initial: initial as never,
+          model: { lists: [], relationships: [] },
+          runtimes: {} as never,
+          webhooks: [],
+          composer: false,
+          cloud: false,
+          canCreateRoutine: false,
+          prefill: null,
+        }),
+      );
     },
-    verifyAdd: () => expect(harness.routineCreate).toHaveBeenCalledTimes(1),
+    verifyAdd: () => expect(harness.builderCreate).toHaveBeenCalledTimes(1),
     verifyRow: (props) => {
-      const item = { id: "row", name: "Weekly digest" };
+      const item = { id: "row", name: "Weekly digest", rule: { id: "row" } };
       (props.onRowClick as (value: typeof item) => void)(item);
-      expect(harness.routineEdit).toHaveBeenCalledWith(item);
+      expect(harness.builderRule).toHaveBeenCalledWith(expect.anything(), item.rule, expect.any(Function), {
+        pane: "preview",
+      });
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
   },

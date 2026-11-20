@@ -5,15 +5,16 @@ import type { ShortcutId } from "./shortcut-registry";
 
 import {
   ArrowLeftRight,
+  Bell,
   BookOpen,
   Building2,
   CalendarDays,
-  Repeat,
   Settings,
   Contrast,
   Hash,
   Image as ImageIcon,
   Inbox,
+  Repeat,
   Keyboard,
   KeyRound,
   Languages,
@@ -30,6 +31,7 @@ import {
   User,
   UserPlus,
   Webhook,
+  Workflow,
   Trash2,
 } from "lucide-react";
 
@@ -178,6 +180,13 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     requires: { resource: Resource.inboxMessages, cloudOnly: true },
   },
   {
+    id: "page.notifications",
+    labelKey: "NavigationBar.notifications",
+    kind: "page",
+    icon: Bell,
+    target: { href: "/notifications" },
+  },
+  {
     id: "page.knowledgeBase",
     labelKey: "NavigationBar.wiki",
     kind: "page",
@@ -198,9 +207,17 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     labelKey: "NavigationBar.routines",
     kind: "page",
     icon: Repeat,
-    target: { href: "/routines" },
-    shortcut: "goRoutines",
+    target: { href: "/automations?kind=routine" },
     requires: { resource: Resource.routines, cloudOnly: true },
+  },
+  {
+    id: "page.automations",
+    labelKey: "NavigationBar.automations",
+    kind: "page",
+    icon: Workflow,
+    target: { href: "/automations" },
+    shortcut: "goRoutines",
+    requires: { resource: Resource.routines },
   },
   {
     id: "page.trash",

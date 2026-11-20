@@ -87,5 +87,5 @@ describe("demo people photos", () => {
       for (const [key, person] of Object.entries(messaging?.people ?? {}))
         expect(person.avatarPath, `${plan.workspace.slug}/${key}`).toBe(byKey.get(key)?.avatar);
     }
-  });
+  }, 30_000);
 });

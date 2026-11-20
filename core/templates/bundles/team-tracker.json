@@ -1,0 +1,3320 @@
+{
+  "spec": {
+    "id": "tpl_team_tracker",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "team-tracker",
+    "family": "operations",
+    "kind": "tracker",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {},
+    "modules": [],
+    "lists": [
+      {
+        "key": "requesters",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "projects",
+        "icon": "kanban"
+      },
+      {
+        "key": "tasks",
+        "role": "tasks",
+        "icon": "check"
+      },
+      {
+        "key": "recurring",
+        "icon": "repeat"
+      }
+    ],
+    "fields": [
+      {
+        "key": "requesters.relation",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "customer"
+          },
+          {
+            "key": "colleague"
+          },
+          {
+            "key": "partner"
+          },
+          {
+            "key": "vendor"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "requesters.team",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "projects.health",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "on_track",
+            "color": "success"
+          },
+          {
+            "key": "at_risk",
+            "color": "warning"
+          },
+          {
+            "key": "off_track",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "projects.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "projects.due_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "projects.repo_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tasks.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "task"
+          },
+          {
+            "key": "bug",
+            "color": "warning"
+          },
+          {
+            "key": "feature"
+          },
+          {
+            "key": "chore"
+          },
+          {
+            "key": "request",
+            "color": "info"
+          }
+        ]
+      },
+      {
+        "key": "tasks.priority",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "urgent",
+            "color": "destructive"
+          },
+          {
+            "key": "high",
+            "color": "warning"
+          },
+          {
+            "key": "medium"
+          },
+          {
+            "key": "low",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "tasks.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tasks.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tasks.original_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tasks.done_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tasks.blocked_reason",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "tasks.external_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "recurring.cadence",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "weekly"
+          },
+          {
+            "key": "monthly"
+          },
+          {
+            "key": "quarterly"
+          },
+          {
+            "key": "yearly"
+          }
+        ]
+      },
+      {
+        "key": "recurring.next_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "recurring.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "tasks.status",
+        "items": [
+          {
+            "key": "backlog",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "todo",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_progress",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_review",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "blocked",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "done",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "cancelled",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "projects.status",
+        "items": [
+          {
+            "key": "planned",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "active",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "on_hold",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "done",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "cancelled",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "task_project",
+        "source": "tasks",
+        "target": "projects",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "task_requester",
+        "source": "tasks",
+        "target": "requesters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "recurring_project",
+        "source": "recurring",
+        "target": "projects",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "tasks_all",
+        "list": "tasks",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "tasks.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "tasks.status",
+          "tasks.priority",
+          "tasks.kind",
+          "tasks.owner",
+          "tasks.due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "tasks_board",
+        "list": "tasks",
+        "default": false,
+        "layout": "board",
+        "groupBy": "tasks.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "blocked_tasks",
+        "list": "tasks",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "blocked"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "projects_all",
+        "list": "projects",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "projects.due_date",
+          "direction": "asc"
+        },
+        "columns": [
+          "projects.status",
+          "projects.health",
+          "projects.owner",
+          "projects.due_date"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "recurring_all",
+        "list": "recurring",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "recurring.next_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "recurring.cadence",
+          "recurring.next_due",
+          "recurring.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "requesters_all",
+        "list": "requesters",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "requesters.relation",
+          "requesters.team"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "tasks_by_status",
+        "list": "tasks",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "tasks.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_by_priority",
+        "list": "tasks",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "tasks.priority"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "backlog",
+              "todo",
+              "in_progress",
+              "in_review",
+              "blocked"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_tasks",
+        "list": "tasks",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "todo",
+              "in_progress",
+              "in_review",
+              "blocked"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "tasks.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "due_soon",
+        "list": "tasks",
+        "layout": "upcoming",
+        "dateField": "tasks.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "todo",
+              "in_progress",
+              "in_review",
+              "blocked"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "blocked_count",
+        "list": "tasks",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "blocked"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "how_we_work",
+        "kind": "overview"
+      },
+      {
+        "key": "weekly_review",
+        "kind": "processes"
+      },
+      {
+        "key": "triage",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "task_assigned",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "tasks.owner"
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "due_tomorrow",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "tasks.due",
+          "offsetDays": -1
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "tasks.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "overdue_task",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "tasks.due",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "tasks.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "blocked_stale",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "tasks.status",
+          "days": 3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "blocked"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "stale_in_progress",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "tasks.status",
+          "days": 5
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "tasks.status",
+            "options": [
+              "in_progress"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "recurring_due",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "recurring.next_due",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chore",
+          "assignee": "record_owner",
+          "about": "recurring"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "task_from_git",
+        "trigger": {
+          "kind": "webhook_received",
+          "source": "git"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "tasks"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "incomingWebhooks"
+      },
+      {
+        "key": "request_form",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "request"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "tasks",
+            "requesters"
+          ]
+        },
+        "dueOffsetDays": 2,
+        "needs": "forms"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "tasks.status"
+      },
+      {
+        "key": "due_field",
+        "kind": "field_exists",
+        "ref": "tasks.due"
+      },
+      {
+        "key": "tasks_board_view",
+        "kind": "view_exists",
+        "ref": "tasks_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.browserstack.com/guide/jira-automation-rules",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.notion.com/help/guides/getting-started-with-projects-and-tasks",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.airtable.com/templates/featured/expOzMycWirMsUOTL/bug-tracker",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.smartsheet.com/content/issue-tracking-templates",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://linear.app/docs/conceptual-model",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.granola.ai/blog/how-to-run-a-weekly-team-meeting",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://monday.com/blog/pt/gestao-de-projetos-pt/quadro-kanban-tudo-o-que-voce-precisa-saber/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://clickup.com/nl/blog/3892/software-voor-taakbeheer",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.atlassian.com/trello/docs/butler-quotas-and-limits/",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "publication": {
+      "en": "noindex",
+      "de": "noindex",
+      "fr": "noindex",
+      "it": "noindex",
+      "es": "noindex",
+      "pt": "noindex",
+      "pl": "noindex",
+      "nl": "noindex"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Team-Aufgaben",
+      "summary": "Sehen, wer was bis wann erledigt, ohne schweres Projektwerkzeug. Projekte und Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf einer Liste.",
+      "description": "In einem kleinen Team verstecken sich Aufgaben in Chat, Boards und Köpfen, und eine blockierte Aufgabe fällt erst am Fälligkeitstag auf. Diese Vorlage führt ein Team von zwei bis fünfzehn Personen auf einer Liste: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
+      "lists": {
+        "requesters": {
+          "label": "Anfragender",
+          "pluralLabel": "Anfragende",
+          "description": "Die Personen außerhalb des Teams, die Arbeit anfragen."
+        },
+        "projects": {
+          "label": "Projekt",
+          "pluralLabel": "Projekte",
+          "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Ampel und Termin."
+        },
+        "tasks": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Eine Arbeit mit einem Verantwortlichen und einem Termin."
+        },
+        "recurring": {
+          "label": "Wiederkehrende Aufgabe",
+          "pluralLabel": "Wiederkehrende Aufgaben",
+          "description": "Eine Aufgabe, die wöchentlich, monatlich, vierteljährlich oder jährlich wiederkommt."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Beziehung",
+          "options": {
+            "customer": "Kunde",
+            "colleague": "Kollege",
+            "partner": "Partner",
+            "vendor": "Lieferant",
+            "other": "Sonstige"
+          }
+        },
+        "requesters.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Geplant",
+            "active": "Aktiv",
+            "on_hold": "Pausiert",
+            "done": "Abgeschlossen",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "projects.health": {
+          "label": "Ampel",
+          "options": {
+            "on_track": "Im Plan",
+            "at_risk": "Gefährdet",
+            "off_track": "Außer Plan"
+          }
+        },
+        "projects.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Link zum Repository",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Status",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "Geplant",
+            "in_progress": "In Arbeit",
+            "in_review": "In Prüfung",
+            "blocked": "Blockiert",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "tasks.kind": {
+          "label": "Art",
+          "options": {
+            "task": "Aufgabe",
+            "bug": "Fehler",
+            "feature": "Funktion",
+            "chore": "Routineaufgabe",
+            "request": "Anfrage"
+          }
+        },
+        "tasks.priority": {
+          "label": "Priorität",
+          "options": {
+            "urgent": "Dringend",
+            "high": "Hoch",
+            "medium": "Mittel",
+            "low": "Niedrig"
+          }
+        },
+        "tasks.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Ursprünglicher Termin",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Erledigt am",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Blockiert wegen",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Link (Pull Request oder Ticket)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Wiederholung",
+          "options": {
+            "weekly": "Wöchentlich",
+            "monthly": "Monatlich",
+            "quarterly": "Vierteljährlich",
+            "yearly": "Jährlich"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Nächste Fälligkeit",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Projekt",
+          "targetLabel": "Aufgaben"
+        },
+        "task_requester": {
+          "sourceLabel": "Anfragender",
+          "targetLabel": "Aufgaben"
+        },
+        "recurring_project": {
+          "sourceLabel": "Projekt",
+          "targetLabel": "Wiederkehrende Aufgaben"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Alle Aufgaben"
+        },
+        "tasks_board": {
+          "name": "Aufgaben-Board"
+        },
+        "blocked_tasks": {
+          "name": "Blockierte Aufgaben"
+        },
+        "projects_all": {
+          "name": "Alle Projekte"
+        },
+        "recurring_all": {
+          "name": "Alle wiederkehrenden Aufgaben"
+        },
+        "requesters_all": {
+          "name": "Alle Anfragenden"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Aufgaben nach Status"
+        },
+        "open_by_priority": {
+          "title": "Offene Aufgaben nach Priorität"
+        },
+        "overdue_tasks": {
+          "title": "Überfällige Aufgaben"
+        },
+        "due_soon": {
+          "title": "Bald fällige Aufgaben"
+        },
+        "blocked_count": {
+          "title": "Blockierte Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "So arbeiten wir",
+          "sections": [
+            "Status, Prioritäten und was erledigt bedeutet",
+            "Ein Verantwortlicher und ein Termin je Aufgabe"
+          ]
+        },
+        "weekly_review": {
+          "title": "Wochenrückblick",
+          "sections": [
+            "Überfälliges, Blockiertes und Unzugewiesenes",
+            "Was sich diese Woche ändert"
+          ]
+        },
+        "triage": {
+          "title": "Einordnung von Anfragen und Fehlern",
+          "sections": [
+            "Wer entscheidet, was hereinkommt",
+            "Schweregrad gegenüber Priorität"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Den neuen Verantwortlichen informieren, wenn eine Aufgabe zugewiesen wird",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Den Verantwortlichen am Tag vor der Fälligkeit erinnern",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Die Leitung am Tag nach der Fälligkeit informieren",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Die Leitung informieren, wenn eine Aufgabe 3 Tage blockiert bleibt",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Den Verantwortlichen erinnern, wenn sich eine Aufgabe 5 Tage nicht bewegt hat",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Eine Aufgabe anlegen, wenn eine wiederkehrende Aufgabe fällig wird",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Eine Aufgabe anlegen, wenn der Git-Dienst ein Ereignis schickt",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Aufgabe und Anfragenden anlegen, wenn das Anfrageformular abgeschickt wird",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jede Aufgabe hat einen Status.",
+        "due_field": "Jede Aufgabe hat einen Fälligkeitstermin.",
+        "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
+      },
+      "page": {
+        "metaTitle": "Jira Alternative für kleine Teams: Aufgaben mit Termin",
+        "metaDescription": "Jira Alternative für 2 bis 15 Personen: ein Verantwortlicher und ein Termin je Aufgabe, Fehler, Routineaufgaben. Vorlage in Ihren KI-Agenten einfügen.",
+        "headline": "Eine einfache Jira Alternative für kleine Teams, aufgebaut von Ihrem KI-Agenten in Ihrem CRM",
+        "answer": "Eine einfache Aufgabenverwaltung für ein kleines Team ist eine Liste mit Arbeitspaketen, jedes mit einem Verantwortlichen, einem Status, einer Priorität und einem Termin, dazu ein Board und eine kurze wöchentliche Durchsicht von Überfälligem und Blockiertem. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Projekten, wiederkehrenden Aufgaben und Anfragen von außerhalb des Teams. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die wöchentliche Teambesprechung in 30 Minuten",
+          "steps": [
+            "Öffnen Sie die Liste der letzten Woche und beginnen Sie mit dem Zugesagten: Was ist erledigt, was ist gerutscht?",
+            "Gehen Sie die überfälligen und blockierten Aufgaben durch und entscheiden Sie je Aufgabe: neu zusagen, verkleinern oder neu zuweisen. Rutscht ein Termin, bleibt der ursprüngliche Termin stehen und der neue kommt mit Begründung dazu.",
+            "Sehen Sie sich Aufgaben an, die seit fünf Tagen nicht vorangekommen sind, und fragen Sie, ob die Aufgabe unklar oder zu groß ist. Schließen Sie, was niemand braucht.",
+            "Sichten Sie neue Anfragen und Fehler: Jede bekommt eine Art, eine Priorität und einen Verantwortlichen.",
+            "Lesen Sie die Liste zum Schluss vor, damit jede Aufgabe vor dem Ende der Besprechung einen benannten Verantwortlichen und einen Termin hat."
+          ]
+        },
+        "limits": [
+          "Es ist kein Werkzeug für Sprints und Velocity: Es gibt keine Sprints, Story Points oder Burn-down-Diagramme. Wer sie braucht, bleibt bei Linear oder Jira.",
+          "Es ist kein Gantt-, Abhängigkeits- oder Kapazitätsplaner, keine Zeiterfassung und kein Release-Management.",
+          "Es ist kein Code-Host, kein CI-System und kein Service Desk mit Reaktionszeiten. Der Link zu einem Pull Request oder Ticket ist ein einfaches Linkfeld.",
+          "Es gibt keine native Slack- oder Teams-Anbindung und keine mobile App. Der Weg zu Slack führt über n8n.",
+          "Es ist kein HR- oder Leistungsbeurteilungssystem und hat weder Single Sign-on noch Rechte auf Feldebene."
+        ],
+        "faq": [
+          {
+            "question": "Kann eine einfache Aufgabenverwaltung Trello, Jira oder eine Tabelle ersetzen?",
+            "answer": "Für zwei bis fünfzehn Personen, die je Aufgabe einen Verantwortlichen und einen Termin, eine wöchentliche Durchsicht und Anfragen von außerhalb auf derselben Liste wollen, ja. Exportieren Sie Ihr Board oder Ihre Tabelle als CSV oder Excel und importieren Sie sie über den Assistenten zur Spaltenzuordnung, oder lassen Sie Ihren Agenten zuordnen und importieren. Wer Sprints, Velocity oder Abhängigkeiten braucht, bleibt bei Linear, Jira oder ClickUp."
+          },
+          {
+            "question": "Welche Status sollte ein kleines Team verwenden?",
+            "answer": "Weniger, als man denkt. Typisch sind Trellos Zu erledigen, In Arbeit und Erledigt oder Linears Backlog, Todo, In Progress, Done und Canceled. Die Vorlage startet mit sieben (Backlog, Geplant, In Arbeit, In Prüfung, Blockiert, Erledigt, Abgebrochen), und Sie benennen um oder lassen weg. Blockiert hat seinen Platz, weil eine blockierte Aufgabe sonst bis zum Fälligkeitstag unbemerkt bleibt."
+          },
+          {
+            "question": "Sollte ein Team in Sprints oder auf einem Board arbeiten?",
+            "answer": "Kanban-Leitfäden setzen auf Fluss und begrenzte parallele Arbeit, Linear und Jira eher auf Sprints. Diese Vorlage arbeitet mit einem Board und einem Termin und kennt kein Sprint-Objekt. Wer Velocity braucht, bleibt bei einem Sprint-Werkzeug."
+          },
+          {
+            "question": "Sollen liegen gebliebene Aufgaben automatisch geschlossen werden?",
+            "answer": "Nein. Eine Erinnerung nach fünf Tagen ohne Bewegung ist sicherer als ein automatisches Schließen, und Besprechungsleitfäden raten dazu, liegen gebliebene Punkte ausdrücklich zu schließen. Die Vorlage erinnert den Verantwortlichen, und er entscheidet. Eine Aufgabe, die Woche für Woche offen bleibt, ist meist unklar oder zu groß: Verbessern Sie die Definition, nicht die Person."
+          },
+          {
+            "question": "Braucht es den Betriebsrat, wenn das Team Aufgaben so erfasst?",
+            "answer": "Ein Werkzeug, mit dem sich Zeiten oder Ergebnisse einzelner Beschäftigter auswerten lassen, kann nach § 87 Abs. 1 Nr. 6 BetrVG mitbestimmungspflichtig sein, und schon die objektive Eignung kann genügen. Die Vorlage hat keine Zeiterfassung und keine Leistungsauswertung, die Frage bleibt aber Ihre. Klären Sie sie vor dem Start mit Ihrer Rechtsberatung. Das ist keine Rechtsberatung."
+          },
+          {
+            "question": "Schreibt der Agent meinem Team?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Die Arbeit in unserem Team verteilt sich auf Chat, Board und Tabelle, und ich sehe nicht, was überfällig oder blockiert ist. Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
+        "questions": [
+          "Wie viele Personen hat das Team, und woran arbeiten sie?",
+          "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",
+          "Welche Aufgaben kommen jede Woche oder jeden Monat wieder, und wer ist zuständig?",
+          "Woher kommen Anfragen, und sollen sie über ein Formular eingehen?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Team tracker",
+      "summary": "See who is doing what by when, without a heavy project tool. Projects and tasks with one owner and one due date, recurring chores and requests from outside the team on one list.",
+      "description": "In a small team tasks hide in chat, boards and heads, and a blocked task goes unnoticed until the day it is due. This template keeps a team of two to fifteen on one list: every task has a status, a priority, an owner and a due date, and you see what is overdue or blocked at a glance. Recurring chores create their own tasks, requests from colleagues or customers arrive through a form, and a blocked or stale task nudges its owner. It is not a sprint tool, a Gantt planner, a time tracker or an HR system.",
+      "lists": {
+        "requesters": {
+          "label": "Requester",
+          "pluralLabel": "Requesters",
+          "description": "The people outside the team who ask for work."
+        },
+        "projects": {
+          "label": "Project",
+          "pluralLabel": "Projects",
+          "description": "A bundle of tasks with an owner, a health and a due date."
+        },
+        "tasks": {
+          "label": "Task",
+          "pluralLabel": "Tasks",
+          "description": "One piece of work with one owner and one due date."
+        },
+        "recurring": {
+          "label": "Recurring task",
+          "pluralLabel": "Recurring tasks",
+          "description": "A chore that comes back weekly, monthly, quarterly or yearly."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relation",
+          "options": {
+            "customer": "Customer",
+            "colleague": "Colleague",
+            "partner": "Partner",
+            "vendor": "Vendor",
+            "other": "Other"
+          }
+        },
+        "requesters.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planned",
+            "active": "Active",
+            "on_hold": "On hold",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "projects.health": {
+          "label": "Health",
+          "options": {
+            "on_track": "On track",
+            "at_risk": "At risk",
+            "off_track": "Off track"
+          }
+        },
+        "projects.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Due date",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Repository link",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Status",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "To do",
+            "in_progress": "In progress",
+            "in_review": "In review",
+            "blocked": "Blocked",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "tasks.kind": {
+          "label": "Kind",
+          "options": {
+            "task": "Task",
+            "bug": "Bug",
+            "feature": "Feature",
+            "chore": "Chore",
+            "request": "Request"
+          }
+        },
+        "tasks.priority": {
+          "label": "Priority",
+          "options": {
+            "urgent": "Urgent",
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low"
+          }
+        },
+        "tasks.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Original due date",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Done on",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Blocked because",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Link (pull request or ticket)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Repeats",
+          "options": {
+            "weekly": "Weekly",
+            "monthly": "Monthly",
+            "quarterly": "Quarterly",
+            "yearly": "Yearly"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Next due",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Owner",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Project",
+          "targetLabel": "Tasks"
+        },
+        "task_requester": {
+          "sourceLabel": "Requester",
+          "targetLabel": "Tasks"
+        },
+        "recurring_project": {
+          "sourceLabel": "Project",
+          "targetLabel": "Recurring tasks"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "All tasks"
+        },
+        "tasks_board": {
+          "name": "Task board"
+        },
+        "blocked_tasks": {
+          "name": "Blocked tasks"
+        },
+        "projects_all": {
+          "name": "All projects"
+        },
+        "recurring_all": {
+          "name": "All recurring tasks"
+        },
+        "requesters_all": {
+          "name": "All requesters"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Tasks by status"
+        },
+        "open_by_priority": {
+          "title": "Open tasks by priority"
+        },
+        "overdue_tasks": {
+          "title": "Overdue tasks"
+        },
+        "due_soon": {
+          "title": "Tasks due soon"
+        },
+        "blocked_count": {
+          "title": "Blocked tasks"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "How we work",
+          "sections": [
+            "Statuses, priorities and what done means",
+            "One owner and one date per task"
+          ]
+        },
+        "weekly_review": {
+          "title": "Weekly review",
+          "sections": [
+            "Overdue, blocked and unassigned work",
+            "What changes this week"
+          ]
+        },
+        "triage": {
+          "title": "Triage of requests and bugs",
+          "sections": [
+            "Who decides what comes in",
+            "Severity versus priority"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Notify the new owner when a task is assigned",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Notify the owner the day before a task is due",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Notify the lead the day after a task was due",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Notify the lead when a task stays blocked for 3 days",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Remind the owner when a task has not moved for 5 days",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Create a task when a recurring task comes due",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Create a task when the Git host sends an event",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Create a task and a requester when the request form is submitted",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every task has a status.",
+        "due_field": "Every task has a due date.",
+        "tasks_board_view": "The tasks open as a board by status."
+      },
+      "page": {
+        "metaTitle": "Issue Tracker Template for Small Teams: Tasks and Bugs",
+        "metaDescription": "A simple issue tracker for two to fifteen people: one owner and one due date per task, bugs, recurring chores and a weekly review. Paste it into an AI agent.",
+        "headline": "A simple issue tracker for a small team: one owner and one date per task, built in your CRM by your AI agent",
+        "answer": "An issue tracker for a small team is one list of work items, each with one owner, a status, a priority and a due date, plus a board and a short weekly review of what is overdue or blocked. Paste this template into your AI agent and it builds the list in Customermates, with projects, recurring chores and requests from outside the team. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The weekly team review in 30 minutes",
+          "steps": [
+            "Open last week's list and start with what was promised: what is done and what slipped.",
+            "Go through the overdue and blocked tasks and decide for each: recommit, de-scope or reassign. When a date slips, keep the original date and note the new one with a reason.",
+            "Look at tasks that have not moved for five days and ask whether the task is vague or too large. Close the ones nobody needs.",
+            "Triage new requests and bugs: give each a kind, a priority and an owner.",
+            "End by reading the list back, so that every task has one named owner and one date before the meeting closes."
+          ]
+        },
+        "limits": [
+          "It is not a sprint or velocity tool: there are no sprints, story points or burn-down charts. A team that needs them should stay on Linear or Jira.",
+          "It is not a Gantt, dependency or capacity planner, a time tracker or a release manager.",
+          "It is not a code host, a CI system or a service desk with response-time clocks. A pull request or ticket link is a plain link field.",
+          "There is no native Slack or Teams integration and no mobile app. n8n is the route to Slack.",
+          "It is not an HR or performance-management system, and it has no single sign-on or field-level permissions."
+        ],
+        "faq": [
+          {
+            "question": "Can a simple tracker replace Trello, Jira or a spreadsheet?",
+            "answer": "For two to fifteen people who want one owner and one date per item, a weekly review and requests from outside the team on the same list, yes. Export your board or sheet to CSV or Excel and import it through the column-mapping wizard, or let your agent map and import it. If you need sprints, velocity or dependencies, stay on Linear, Jira or ClickUp."
+          },
+          {
+            "question": "Which statuses should a small team use?",
+            "answer": "Fewer than you think. Trello's To Do, Doing and Done and Linear's Backlog, Todo, In Progress, Done and Canceled are typical. The template starts from seven (Backlog, To do, In progress, In review, Blocked, Done, Cancelled) and you rename or drop any of them. Blocked earns its place because a blocked task otherwise goes unnoticed until its due date."
+          },
+          {
+            "question": "Should a team work in sprints or on a board?",
+            "answer": "Kanban guides lean on flow and on limiting work in progress, while Linear and Jira lean on sprints. This template uses a board plus a due date and has no sprint object, so a team that needs velocity should stay on a sprint tool."
+          },
+          {
+            "question": "Should stale tasks close automatically?",
+            "answer": "No. A reminder after five days without movement is safer than an automatic close, and meeting guides agree that stale items should be closed explicitly. The template reminds the owner and the owner decides. A task that stays open week after week is usually vague or too big, so fix the definition, not the person."
+          },
+          {
+            "question": "Does the agent message my team?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Our team's work is spread over chat, a board and a spreadsheet, and I cannot see what is overdue or blocked. Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
+        "questions": [
+          "How many people are on the team, and what do they work on?",
+          "Which statuses do you use today in Trello, Jira, Asana or a spreadsheet?",
+          "Which chores come back every week or month, and who owns them?",
+          "Where do requests come from, and should they arrive through a form?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Seguimiento del equipo",
+      "summary": "Ve quién hace qué y para cuándo, sin una herramienta de proyectos pesada. Proyectos y tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes de fuera del equipo en la misma lista.",
+      "description": "En un equipo pequeño las tareas se esconden en el chat, en tableros y en la cabeza de cada uno, y una tarea bloqueada pasa desapercibida hasta el día de su vencimiento. Esta plantilla mantiene a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+      "lists": {
+        "requesters": {
+          "label": "Solicitante",
+          "pluralLabel": "Solicitantes",
+          "description": "Las personas ajenas al equipo que piden trabajo."
+        },
+        "projects": {
+          "label": "Proyecto",
+          "pluralLabel": "Proyectos",
+          "description": "Un conjunto de tareas con responsable, estado de salud y vencimiento."
+        },
+        "tasks": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un trabajo con un responsable y un vencimiento."
+        },
+        "recurring": {
+          "label": "Tarea recurrente",
+          "pluralLabel": "Tareas recurrentes",
+          "description": "Una tarea que vuelve cada semana, mes, trimestre o año."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relación",
+          "options": {
+            "customer": "Cliente",
+            "colleague": "Compañero",
+            "partner": "Socio",
+            "vendor": "Proveedor",
+            "other": "Otro"
+          }
+        },
+        "requesters.team": {
+          "label": "Equipo",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Estado",
+          "options": {
+            "planned": "Planificado",
+            "active": "Activo",
+            "on_hold": "En pausa",
+            "done": "Terminado",
+            "cancelled": "Cancelado"
+          }
+        },
+        "projects.health": {
+          "label": "Salud",
+          "options": {
+            "on_track": "En plazo",
+            "at_risk": "En riesgo",
+            "off_track": "Desviado"
+          }
+        },
+        "projects.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Enlace al repositorio",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Estado",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "Por hacer",
+            "in_progress": "En curso",
+            "in_review": "En revisión",
+            "blocked": "Bloqueada",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "tasks.kind": {
+          "label": "Tipo",
+          "options": {
+            "task": "Tarea",
+            "bug": "Error",
+            "feature": "Funcionalidad",
+            "chore": "Mantenimiento",
+            "request": "Solicitud"
+          }
+        },
+        "tasks.priority": {
+          "label": "Prioridad",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Alta",
+            "medium": "Media",
+            "low": "Baja"
+          }
+        },
+        "tasks.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Vencimiento original",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Hecha el",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Motivo del bloqueo",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Enlace (pull request o ticket)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Se repite",
+          "options": {
+            "weekly": "Cada semana",
+            "monthly": "Cada mes",
+            "quarterly": "Cada trimestre",
+            "yearly": "Cada año"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Próximo vencimiento",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Responsable",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Proyecto",
+          "targetLabel": "Tareas"
+        },
+        "task_requester": {
+          "sourceLabel": "Solicitante",
+          "targetLabel": "Tareas"
+        },
+        "recurring_project": {
+          "sourceLabel": "Proyecto",
+          "targetLabel": "Tareas recurrentes"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Todas las tareas"
+        },
+        "tasks_board": {
+          "name": "Tablero de tareas"
+        },
+        "blocked_tasks": {
+          "name": "Tareas bloqueadas"
+        },
+        "projects_all": {
+          "name": "Todos los proyectos"
+        },
+        "recurring_all": {
+          "name": "Todas las tareas recurrentes"
+        },
+        "requesters_all": {
+          "name": "Todos los solicitantes"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Tareas por estado"
+        },
+        "open_by_priority": {
+          "title": "Tareas abiertas por prioridad"
+        },
+        "overdue_tasks": {
+          "title": "Tareas vencidas"
+        },
+        "due_soon": {
+          "title": "Tareas que vencen pronto"
+        },
+        "blocked_count": {
+          "title": "Tareas bloqueadas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "Cómo trabajamos",
+          "sections": [
+            "Estados, prioridades y qué significa hecha",
+            "Un responsable y una fecha por tarea"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revisión semanal",
+          "sections": [
+            "Retrasos, bloqueos y tareas sin responsable",
+            "Qué cambia esta semana"
+          ]
+        },
+        "triage": {
+          "title": "Clasificación de solicitudes y errores",
+          "sections": [
+            "Quién decide lo que entra",
+            "Gravedad y prioridad"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Avisar al nuevo responsable cuando se le asigna una tarea",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Avisar al responsable el día antes del vencimiento",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Avisar a la persona a cargo al día siguiente del vencimiento",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Avisar a la persona a cargo cuando una tarea sigue bloqueada 3 días",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Recordar al responsable cuando una tarea lleva 5 días sin moverse",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Crear una tarea cuando vence una tarea recurrente",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Crear una tarea cuando el servicio de Git envía un evento",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Crear la tarea y el solicitante cuando se envía el formulario de solicitud",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada tarea tiene un estado.",
+        "due_field": "Cada tarea tiene un vencimiento.",
+        "tasks_board_view": "Las tareas se abren como tablero por estado."
+      },
+      "page": {
+        "metaTitle": "Kanban online para equipos pequeños: plantilla de tareas",
+        "metaDescription": "Un kanban online sencillo para 2 a 15 personas: un responsable y un vencimiento por tarea, errores y tareas recurrentes. Pega la plantilla en tu agente de IA.",
+        "headline": "Un kanban online para equipos pequeños: un responsable y un vencimiento por tarea, montado por tu agente de IA",
+        "answer": "Un kanban online para un equipo pequeño es una sola lista de tareas, cada una con un responsable, un estado, una prioridad y un vencimiento, más un tablero y una revisión semanal corta de lo que va con retraso o está bloqueado. Pega esta plantilla en tu agente de IA y él monta la lista en Customermates, con proyectos, tareas recurrentes y solicitudes de fuera del equipo. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La reunión semanal del equipo en 30 minutos",
+          "steps": [
+            "Abre la lista de la semana pasada y empieza por lo prometido: qué está hecho y qué se ha retrasado.",
+            "Repasa las tareas atrasadas y bloqueadas y decide para cada una: volver a comprometerse, reducir el alcance o reasignar. Cuando una fecha se retrasa, conserva la original y anota la nueva con el motivo.",
+            "Mira las tareas que llevan cinco días sin moverse y pregúntate si son vagas o demasiado grandes. Cierra las que nadie necesita.",
+            "Clasifica las solicitudes y los errores nuevos: dale a cada uno un tipo, una prioridad y un responsable.",
+            "Termina releyendo la lista, para que cada tarea tenga un responsable con nombre y un vencimiento antes de cerrar la reunión."
+          ]
+        },
+        "limits": [
+          "No es una herramienta de sprints ni de velocidad: no hay sprints, puntos de historia ni gráficos burn-down. Un equipo que los necesite se queda con Linear o Jira.",
+          "No es un planificador Gantt, de dependencias o de capacidad, ni un control de horas ni un gestor de versiones.",
+          "No es un alojamiento de código, un sistema de integración continua ni un servicio de atención con tiempos de respuesta. El enlace a una pull request o a un ticket es un simple campo de enlace.",
+          "No hay integración nativa con Slack ni con Teams ni aplicación móvil. Para Slack, el camino es n8n.",
+          "No es un sistema de recursos humanos ni de evaluación del desempeño, y no tiene inicio de sesión único ni permisos por campo."
+        ],
+        "faq": [
+          {
+            "question": "¿Puede una herramienta sencilla sustituir a Trello, Jira o una hoja de cálculo?",
+            "answer": "Para entre dos y quince personas que quieren un responsable y un vencimiento por tarea, una revisión semanal y las solicitudes externas en la misma lista, sí. Exporta tu tablero u hoja a CSV o Excel e impórtalos con el asistente de asignación de columnas, o deja que tu agente asigne e importe. Si necesitas sprints, velocidad o dependencias, quédate con Linear, Jira o ClickUp."
+          },
+          {
+            "question": "¿Qué estados debería usar un equipo pequeño?",
+            "answer": "Menos de los que se cree. Por hacer, En curso y Hecho de Trello, o Backlog, Todo, In Progress, Done y Canceled de Linear, son típicos. La plantilla parte de siete estados (Backlog, Por hacer, En curso, En revisión, Bloqueada, Hecha, Cancelada) que puedes renombrar o quitar. Bloqueada tiene su sitio, porque si no una tarea bloqueada pasa desapercibida hasta su vencimiento."
+          },
+          {
+            "question": "¿Conviene trabajar por sprints o con un tablero?",
+            "answer": "Las guías de kanban apuestan por el flujo y por limitar el trabajo en curso; Linear y Jira, más bien por los sprints. Esta plantilla usa un tablero y un vencimiento y no tiene un objeto sprint, así que un equipo que necesite velocidad se queda con una herramienta de sprints."
+          },
+          {
+            "question": "¿Deben cerrarse solas las tareas estancadas?",
+            "answer": "No. Un aviso tras cinco días sin movimiento es más seguro que un cierre automático, y las guías de reuniones aconsejan cerrar de forma explícita lo que se estanca. La plantilla avisa al responsable y él decide. Una tarea que sigue abierta semana tras semana suele ser vaga o demasiado grande: corrige la definición, no a la persona."
+          },
+          {
+            "question": "¿El agente escribe a mi equipo?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "El trabajo de nuestro equipo está repartido entre el chat, un tablero y una hoja de cálculo, y no veo qué va con retraso ni qué está bloqueado. Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+        "questions": [
+          "¿Cuántas personas tiene el equipo y en qué trabajan?",
+          "¿Qué estados usas hoy en Trello, Jira, Asana o una hoja de cálculo?",
+          "¿Qué tareas vuelven cada semana o cada mes y quién es responsable?",
+          "¿De dónde vienen las solicitudes y deben llegar por un formulario?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Suivi d’équipe",
+      "summary": "Voyez qui fait quoi pour quand, sans outil de projet lourd. Des projets et des tâches avec un responsable et une échéance, les tâches récurrentes et les demandes venues de l’extérieur sur la même liste.",
+      "description": "Dans une petite équipe, les tâches se cachent dans les messages, les tableaux et les têtes, et une tâche bloquée passe inaperçue jusqu’au jour de l’échéance. Ce modèle garde une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
+      "lists": {
+        "requesters": {
+          "label": "Demandeur",
+          "pluralLabel": "Demandeurs",
+          "description": "Les personnes extérieures à l’équipe qui demandent du travail."
+        },
+        "projects": {
+          "label": "Projet",
+          "pluralLabel": "Projets",
+          "description": "Un ensemble de tâches avec un responsable, un état de santé et une échéance."
+        },
+        "tasks": {
+          "label": "Tâche",
+          "pluralLabel": "Tâches",
+          "description": "Un travail avec un responsable et une échéance."
+        },
+        "recurring": {
+          "label": "Tâche récurrente",
+          "pluralLabel": "Tâches récurrentes",
+          "description": "Une tâche qui revient chaque semaine, mois, trimestre ou année."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relation",
+          "options": {
+            "customer": "Client",
+            "colleague": "Collègue",
+            "partner": "Partenaire",
+            "vendor": "Fournisseur",
+            "other": "Autre"
+          }
+        },
+        "requesters.team": {
+          "label": "Équipe",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Statut",
+          "options": {
+            "planned": "Prévu",
+            "active": "Actif",
+            "on_hold": "En pause",
+            "done": "Terminé",
+            "cancelled": "Annulé"
+          }
+        },
+        "projects.health": {
+          "label": "Santé du projet",
+          "options": {
+            "on_track": "Dans les temps",
+            "at_risk": "À risque",
+            "off_track": "En dérive"
+          }
+        },
+        "projects.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Lien du dépôt",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Statut",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "À faire",
+            "in_progress": "En cours",
+            "in_review": "En revue",
+            "blocked": "Bloquée",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "tasks.kind": {
+          "label": "Type",
+          "options": {
+            "task": "Tâche",
+            "bug": "Bug",
+            "feature": "Fonctionnalité",
+            "chore": "Routine",
+            "request": "Demande"
+          }
+        },
+        "tasks.priority": {
+          "label": "Priorité",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Haute",
+            "medium": "Moyenne",
+            "low": "Basse"
+          }
+        },
+        "tasks.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Échéance d’origine",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Terminée le",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Motif du blocage",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Lien (pull request ou ticket)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Répétition",
+          "options": {
+            "weekly": "Chaque semaine",
+            "monthly": "Chaque mois",
+            "quarterly": "Chaque trimestre",
+            "yearly": "Chaque année"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Prochaine échéance",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Responsable",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Projet",
+          "targetLabel": "Tâches"
+        },
+        "task_requester": {
+          "sourceLabel": "Demandeur",
+          "targetLabel": "Tâches"
+        },
+        "recurring_project": {
+          "sourceLabel": "Projet",
+          "targetLabel": "Tâches récurrentes"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Toutes les tâches"
+        },
+        "tasks_board": {
+          "name": "Board des tâches"
+        },
+        "blocked_tasks": {
+          "name": "Tâches bloquées"
+        },
+        "projects_all": {
+          "name": "Tous les projets"
+        },
+        "recurring_all": {
+          "name": "Toutes les tâches récurrentes"
+        },
+        "requesters_all": {
+          "name": "Tous les demandeurs"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Tâches par statut"
+        },
+        "open_by_priority": {
+          "title": "Tâches ouvertes par priorité"
+        },
+        "overdue_tasks": {
+          "title": "Tâches en retard"
+        },
+        "due_soon": {
+          "title": "Tâches bientôt à échéance"
+        },
+        "blocked_count": {
+          "title": "Tâches bloquées"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "Notre façon de travailler",
+          "sections": [
+            "Statuts, priorités et ce que « terminé » veut dire",
+            "Un responsable et une date par tâche"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revue hebdomadaire",
+          "sections": [
+            "Retards, blocages et tâches sans responsable",
+            "Ce qui change cette semaine"
+          ]
+        },
+        "triage": {
+          "title": "Tri des demandes et des bugs",
+          "sections": [
+            "Qui décide de ce qui entre",
+            "Gravité et priorité"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Prévenir le nouveau responsable quand une tâche lui est attribuée",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Prévenir le responsable la veille de l’échéance",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Prévenir le chef d’équipe le lendemain de l’échéance",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Prévenir le chef d’équipe quand une tâche reste bloquée 3 jours",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Relancer le responsable quand une tâche n’a pas bougé depuis 5 jours",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Créer une tâche quand une tâche récurrente arrive à échéance",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Créer une tâche quand l’hébergeur Git envoie un événement",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Créer la tâche et le demandeur quand le formulaire de demande est envoyé",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Chaque tâche a un statut.",
+        "due_field": "Chaque tâche a une échéance.",
+        "tasks_board_view": "Les tâches s’ouvrent en board par statut."
+      },
+      "page": {
+        "metaTitle": "Outil gestion de projet pour petite équipe : modèle de suivi",
+        "metaDescription": "Un outil de gestion de projet pour 2 à 15 personnes : un responsable et une échéance par tâche, tâches récurrentes. Collez le modèle dans votre agent IA.",
+        "headline": "Un outil de gestion de projet pour petite équipe : un responsable, une échéance, construit par votre agent IA",
+        "answer": "Un outil de gestion de projet pour une petite équipe, c’est une seule liste de tâches avec, pour chacune, un responsable, un statut, une priorité et une échéance, plus un tableau et une courte revue hebdomadaire de ce qui est en retard ou bloqué. Collez ce modèle dans votre agent IA et il construit la liste dans Customermates, avec les projets, les tâches récurrentes et les demandes venues de l’extérieur. Vous validez le plan avant toute construction.",
+        "routine": {
+          "title": "La revue d’équipe hebdomadaire en 30 minutes",
+          "steps": [
+            "Ouvrez la liste de la semaine dernière et commencez par ce qui était promis : ce qui est fait et ce qui a glissé.",
+            "Passez en revue les tâches en retard et bloquées et décidez pour chacune : s’engager à nouveau, réduire le périmètre ou réaffecter. Quand une date glisse, gardez la date d’origine et notez la nouvelle avec la raison.",
+            "Regardez les tâches qui n’ont pas bougé depuis cinq jours et demandez-vous si elles sont floues ou trop grosses. Fermez celles dont personne n’a besoin.",
+            "Triez les nouvelles demandes et les bugs : donnez à chacun un type, une priorité et un responsable.",
+            "Terminez par une relecture de la liste, pour que chaque tâche ait un responsable nommé et une échéance avant la fin de la réunion."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas un outil de sprints ni de vélocité : il n’y a ni sprints, ni points d’effort, ni burn-down. Une équipe qui en a besoin reste sur Linear ou Jira.",
+          "Ce n’est ni un planificateur Gantt, de dépendances ou de capacité, ni un outil de suivi du temps, ni un gestionnaire de versions.",
+          "Ce n’est ni un hébergeur de code, ni un outil d’intégration continue, ni un service d’assistance avec des délais de réponse. Le lien vers une pull request ou un ticket est un simple champ de lien.",
+          "Il n’y a pas d’intégration native avec Slack ou Teams, ni d’application mobile. Pour Slack, la voie passe par n8n.",
+          "Ce n’est pas un système RH ou d’évaluation des performances, et il n’a ni authentification unique ni droits par champ."
+        ],
+        "faq": [
+          {
+            "question": "Un outil simple peut-il remplacer Trello, Jira ou un tableur ?",
+            "answer": "Pour deux à quinze personnes qui veulent un responsable et une échéance par tâche, une revue hebdomadaire et les demandes extérieures sur la même liste, oui. Exportez votre tableau ou votre feuille en CSV ou Excel et importez-les avec l’assistant de correspondance des colonnes, ou laissez votre agent faire la correspondance et l’import. Pour des sprints, de la vélocité ou des dépendances, restez sur Linear, Jira ou ClickUp."
+          },
+          {
+            "question": "Existe-t-il un outil de gestion de projet gratuit pour une petite équipe ?",
+            "answer": "Beaucoup d’outils proposent une offre gratuite limitée. Avec Customermates, vous créez un espace de travail et vous l’essayez avec votre équipe ; l’offre gratuite et ses limites, notamment le nombre de personnes actives, sont décrites sur la page des tarifs. Regardez-les avant de compter dessus pour toute l’équipe."
+          },
+          {
+            "question": "Quels statuts une petite équipe devrait-elle utiliser ?",
+            "answer": "Moins qu’on ne croit. À faire, En cours et Terminé de Trello, ou Backlog, Todo, In Progress, Done et Canceled de Linear, sont typiques. Le modèle part de sept statuts (Backlog, À faire, En cours, En revue, Bloquée, Terminée, Annulée) que vous renommez ou retirez. Bloquée a sa place, car sinon une tâche bloquée passe inaperçue jusqu’à son échéance."
+          },
+          {
+            "question": "Faut-il travailler par sprints ou sur un tableau ?",
+            "answer": "Les guides kanban misent sur le flux et sur la limite du travail en cours, Linear et Jira plutôt sur les sprints. Ce modèle utilise un tableau et une échéance, sans objet sprint : une équipe qui a besoin de vélocité reste sur un outil à sprints."
+          },
+          {
+            "question": "Faut-il fermer automatiquement les tâches qui n’avancent plus ?",
+            "answer": "Non. Un rappel après cinq jours sans mouvement est plus sûr qu’une fermeture automatique, et les guides de réunion conseillent de fermer explicitement les points qui traînent. Le modèle rappelle le responsable et c’est lui qui décide. Une tâche qui reste ouverte semaine après semaine est souvent floue ou trop grosse : corrigez la définition, pas la personne."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Le travail de notre équipe est éparpillé entre une messagerie, un tableau et un tableur, et je ne vois pas ce qui est en retard ou bloqué. Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
+        "questions": [
+          "Combien de personnes compte l’équipe, et sur quoi travaillent-elles ?",
+          "Quels statuts utilisez-vous aujourd’hui dans Trello, Jira, Asana ou un tableur ?",
+          "Quelles tâches reviennent chaque semaine ou chaque mois, et qui en est responsable ?",
+          "D’où viennent les demandes, et doivent-elles arriver par un formulaire ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Gestione attività del team",
+      "summary": "Vedi chi fa che cosa e per quando, senza uno strumento di project management pesante. Progetti e attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno del team sulla stessa lista.",
+      "description": "In un piccolo team le attività si nascondono in chat, bacheche e teste, e un'attività bloccata passa inosservata fino al giorno della scadenza. Questo modello tiene un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
+      "lists": {
+        "requesters": {
+          "label": "Richiedente",
+          "pluralLabel": "Richiedenti",
+          "description": "Le persone esterne al team che chiedono lavoro."
+        },
+        "projects": {
+          "label": "Progetto",
+          "pluralLabel": "Progetti",
+          "description": "Un insieme di attività con responsabile, andamento e scadenza."
+        },
+        "tasks": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un lavoro con un responsabile e una scadenza."
+        },
+        "recurring": {
+          "label": "Attività ricorrente",
+          "pluralLabel": "Attività ricorrenti",
+          "description": "Un'attività che ritorna ogni settimana, mese, trimestre o anno."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relazione",
+          "options": {
+            "customer": "Cliente",
+            "colleague": "Collega",
+            "partner": "Partner",
+            "vendor": "Fornitore",
+            "other": "Altro"
+          }
+        },
+        "requesters.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Stato",
+          "options": {
+            "planned": "Pianificato",
+            "active": "Attivo",
+            "on_hold": "In pausa",
+            "done": "Concluso",
+            "cancelled": "Annullato"
+          }
+        },
+        "projects.health": {
+          "label": "Andamento",
+          "options": {
+            "on_track": "In linea",
+            "at_risk": "A rischio",
+            "off_track": "Fuori rotta"
+          }
+        },
+        "projects.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Link al repository",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Stato",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "Da fare",
+            "in_progress": "In corso",
+            "in_review": "In revisione",
+            "blocked": "Bloccata",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "tasks.kind": {
+          "label": "Tipo",
+          "options": {
+            "task": "Attività",
+            "bug": "Bug",
+            "feature": "Funzionalità",
+            "chore": "Routine",
+            "request": "Richiesta"
+          }
+        },
+        "tasks.priority": {
+          "label": "Priorità",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Alta",
+            "medium": "Media",
+            "low": "Bassa"
+          }
+        },
+        "tasks.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Scadenza originale",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Completata il",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Motivo del blocco",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Link (pull request o ticket)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Si ripete",
+          "options": {
+            "weekly": "Ogni settimana",
+            "monthly": "Ogni mese",
+            "quarterly": "Ogni trimestre",
+            "yearly": "Ogni anno"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Prossima scadenza",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Responsabile",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Progetto",
+          "targetLabel": "Attività"
+        },
+        "task_requester": {
+          "sourceLabel": "Richiedente",
+          "targetLabel": "Attività"
+        },
+        "recurring_project": {
+          "sourceLabel": "Progetto",
+          "targetLabel": "Attività ricorrenti"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Tutte le attività"
+        },
+        "tasks_board": {
+          "name": "Board delle attività"
+        },
+        "blocked_tasks": {
+          "name": "Attività bloccate"
+        },
+        "projects_all": {
+          "name": "Tutti i progetti"
+        },
+        "recurring_all": {
+          "name": "Tutte le attività ricorrenti"
+        },
+        "requesters_all": {
+          "name": "Tutti i richiedenti"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Attività per stato"
+        },
+        "open_by_priority": {
+          "title": "Attività aperte per priorità"
+        },
+        "overdue_tasks": {
+          "title": "Attività in ritardo"
+        },
+        "due_soon": {
+          "title": "Attività in scadenza"
+        },
+        "blocked_count": {
+          "title": "Attività bloccate"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "Come lavoriamo",
+          "sections": [
+            "Stati, priorità e che cosa significa completata",
+            "Un responsabile e una data per attività"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revisione settimanale",
+          "sections": [
+            "Ritardi, blocchi e attività senza responsabile",
+            "Che cosa cambia questa settimana"
+          ]
+        },
+        "triage": {
+          "title": "Smistamento di richieste e bug",
+          "sections": [
+            "Chi decide che cosa entra",
+            "Gravità e priorità"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Avvisare il nuovo responsabile quando gli viene assegnata un'attività",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Avvisare il responsabile il giorno prima della scadenza",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Avvisare il responsabile del team il giorno dopo la scadenza",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Avvisare il responsabile del team quando un'attività resta bloccata per 3 giorni",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Sollecitare il responsabile quando un'attività è ferma da 5 giorni",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Creare un'attività quando scade un'attività ricorrente",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Creare un'attività quando il servizio Git invia un evento",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Creare attività e richiedente quando viene inviato il modulo di richiesta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Ogni attività ha uno stato.",
+        "due_field": "Ogni attività ha una scadenza.",
+        "tasks_board_view": "Le attività si aprono come board per stato."
+      },
+      "page": {
+        "metaTitle": "Gestionale progetti per piccoli team: modello attività",
+        "metaDescription": "Un gestionale progetti semplice per 2-15 persone: un responsabile e una scadenza per attività, bug, attività ricorrenti. Incolla il modello nel tuo agente IA.",
+        "headline": "Un gestionale progetti semplice per piccoli team, costruito dal tuo agente IA nel tuo CRM",
+        "answer": "Un gestionale progetti per un piccolo team è un’unica lista di attività, ciascuna con un responsabile, uno stato, una priorità e una scadenza, più una bacheca e una breve revisione settimanale di ciò che è in ritardo o bloccato. Incolla questo modello nel tuo agente IA e lui costruisce la lista in Customermates, con progetti, attività ricorrenti e richieste dall’esterno del team. Approvi tu il piano prima che venga costruito qualcosa.",
+        "routine": {
+          "title": "La riunione settimanale del team in 30 minuti",
+          "steps": [
+            "Apri la lista della settimana scorsa e parti da ciò che era stato promesso: che cosa è fatto e che cosa è slittato.",
+            "Passa in rassegna le attività in ritardo e bloccate e decidi per ciascuna: riconfermare, ridurre l’ambito o riassegnare. Quando una data slitta, tieni la data originale e annota la nuova con il motivo.",
+            "Guarda le attività ferme da cinque giorni e chiediti se sono vaghe o troppo grandi. Chiudi quelle che a nessuno servono.",
+            "Smista le nuove richieste e i bug: dai a ciascuno un tipo, una priorità e un responsabile.",
+            "Chiudi rileggendo la lista, così ogni attività ha un responsabile con nome e una scadenza prima della fine della riunione."
+          ]
+        },
+        "limits": [
+          "Non è uno strumento per sprint e velocity: non ci sono sprint, story point o burn-down. Chi ne ha bisogno resta su Linear o Jira.",
+          "Non è un pianificatore Gantt, di dipendenze o di capacità, né uno strumento di rilevazione del tempo o di gestione dei rilasci.",
+          "Non è un host di codice, un sistema di integrazione continua né un service desk con tempi di risposta. Il link a una pull request o a un ticket è un semplice campo link.",
+          "Non c’è un’integrazione nativa con Slack o Teams né un’app mobile. Per Slack la strada passa da n8n.",
+          "Non è un sistema HR o di valutazione delle prestazioni e non ha né single sign-on né permessi per campo."
+        ],
+        "faq": [
+          {
+            "question": "Un gestionale semplice può sostituire Trello, Jira o un foglio di calcolo?",
+            "answer": "Per da due a quindici persone che vogliono un responsabile e una scadenza per attività, una revisione settimanale e le richieste esterne sulla stessa lista, sì. Esporta la bacheca o il foglio in CSV o Excel e importali con la procedura guidata di associazione delle colonne, oppure lascia che il tuo agente associ e importi. Se servono sprint, velocity o dipendenze, resta su Linear, Jira o ClickUp."
+          },
+          {
+            "question": "Quali stati dovrebbe usare un piccolo team?",
+            "answer": "Meno di quanti si pensi. Da fare, In corso e Fatto di Trello, oppure Backlog, Todo, In Progress, Done e Canceled di Linear, sono tipici. Il modello parte da sette stati (Backlog, Da fare, In corso, In revisione, Bloccata, Completata, Annullata) che puoi rinominare o togliere. Bloccata ha il suo posto, perché altrimenti un’attività bloccata passa inosservata fino alla scadenza."
+          },
+          {
+            "question": "Meglio lavorare a sprint o con una bacheca?",
+            "answer": "Le guide kanban puntano sul flusso e sul limite del lavoro in corso, Linear e Jira più sugli sprint. Questo modello usa una bacheca e una scadenza e non ha un oggetto sprint: un team che ha bisogno di velocity resta su uno strumento a sprint."
+          },
+          {
+            "question": "Le attività ferme vanno chiuse in automatico?",
+            "answer": "No. Un promemoria dopo cinque giorni senza movimento è più sicuro di una chiusura automatica, e le guide alle riunioni consigliano di chiudere esplicitamente ciò che resta fermo. Il modello ricorda al responsabile e decide lui. Un’attività che resta aperta settimana dopo settimana è di solito vaga o troppo grande: correggi la definizione, non la persona."
+          },
+          {
+            "question": "L’agente scrive al mio team?",
+            "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Il lavoro del nostro team è sparso tra chat, una bacheca e un foglio di calcolo e non riesco a vedere che cosa è in ritardo o bloccato. Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
+        "questions": [
+          "Quante persone ha il team e di cosa si occupano?",
+          "Quali stati usi oggi in Trello, Jira, Asana o in un foglio di calcolo?",
+          "Quali attività tornano ogni settimana o ogni mese e chi ne è responsabile?",
+          "Da dove arrivano le richieste e devono arrivare da un modulo?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Teamtaken",
+      "summary": "Zie wie wat wanneer doet, zonder zware projecttool. Projecten en taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
+      "description": "In een klein team verdwijnen taken in chats, borden en hoofden, en een geblokkeerde taak valt pas op op de dag dat hij af moet zijn. Dit sjabloon houdt een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
+      "lists": {
+        "requesters": {
+          "label": "Aanvrager",
+          "pluralLabel": "Aanvragers",
+          "description": "De mensen buiten het team die werk vragen."
+        },
+        "projects": {
+          "label": "Project",
+          "pluralLabel": "Projecten",
+          "description": "Een bundel taken met eigenaar, stoplicht en deadline."
+        },
+        "tasks": {
+          "label": "Taak",
+          "pluralLabel": "Taken",
+          "description": "Eén stuk werk met één eigenaar en één deadline."
+        },
+        "recurring": {
+          "label": "Terugkerende taak",
+          "pluralLabel": "Terugkerende taken",
+          "description": "Een taak die elke week, maand, kwartaal of jaar terugkomt."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relatie",
+          "options": {
+            "customer": "Klant",
+            "colleague": "Collega",
+            "partner": "Partner",
+            "vendor": "Leverancier",
+            "other": "Overig"
+          }
+        },
+        "requesters.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Gepland",
+            "active": "Actief",
+            "on_hold": "On hold",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "projects.health": {
+          "label": "Stoplicht",
+          "options": {
+            "on_track": "Op koers",
+            "at_risk": "Loopt risico",
+            "off_track": "Uit koers"
+          }
+        },
+        "projects.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Link naar de repository",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Status",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "Te doen",
+            "in_progress": "In uitvoering",
+            "in_review": "In review",
+            "blocked": "Geblokkeerd",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "tasks.kind": {
+          "label": "Soort",
+          "options": {
+            "task": "Taak",
+            "bug": "Bug",
+            "feature": "Feature",
+            "chore": "Routinetaak",
+            "request": "Verzoek"
+          }
+        },
+        "tasks.priority": {
+          "label": "Prioriteit",
+          "options": {
+            "urgent": "Urgent",
+            "high": "Hoog",
+            "medium": "Gemiddeld",
+            "low": "Laag"
+          }
+        },
+        "tasks.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Oorspronkelijke deadline",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Klaar op",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Reden van blokkade",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Link (pull request of ticket)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Herhaling",
+          "options": {
+            "weekly": "Wekelijks",
+            "monthly": "Maandelijks",
+            "quarterly": "Elk kwartaal",
+            "yearly": "Jaarlijks"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Volgende deadline",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Project",
+          "targetLabel": "Taken"
+        },
+        "task_requester": {
+          "sourceLabel": "Aanvrager",
+          "targetLabel": "Taken"
+        },
+        "recurring_project": {
+          "sourceLabel": "Project",
+          "targetLabel": "Terugkerende taken"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Alle taken"
+        },
+        "tasks_board": {
+          "name": "Takenbord"
+        },
+        "blocked_tasks": {
+          "name": "Geblokkeerde taken"
+        },
+        "projects_all": {
+          "name": "Alle projecten"
+        },
+        "recurring_all": {
+          "name": "Alle terugkerende taken"
+        },
+        "requesters_all": {
+          "name": "Alle aanvragers"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Taken per status"
+        },
+        "open_by_priority": {
+          "title": "Open taken per prioriteit"
+        },
+        "overdue_tasks": {
+          "title": "Achterstallige taken"
+        },
+        "due_soon": {
+          "title": "Taken met een naderende deadline"
+        },
+        "blocked_count": {
+          "title": "Geblokkeerde taken"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "Zo werken wij",
+          "sections": [
+            "Statussen, prioriteiten en wat klaar betekent",
+            "Eén eigenaar en één datum per taak"
+          ]
+        },
+        "weekly_review": {
+          "title": "Wekelijkse review",
+          "sections": [
+            "Achterstallig, geblokkeerd en zonder eigenaar",
+            "Wat er deze week verandert"
+          ]
+        },
+        "triage": {
+          "title": "Triage van verzoeken en bugs",
+          "sections": [
+            "Wie beslist wat er binnenkomt",
+            "Ernst versus prioriteit"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Waarschuw de nieuwe eigenaar als een taak wordt toegewezen",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Waarschuw de eigenaar de dag voor de deadline",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Waarschuw de teamleider de dag na de deadline",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Waarschuw de teamleider als een taak 3 dagen geblokkeerd blijft",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Stuur de eigenaar een herinnering als een taak 5 dagen stilstaat",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Maak een taak aan als een terugkerende taak aan de beurt is",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Maak een taak aan als de Git-dienst een gebeurtenis stuurt",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Maak een taak en een aanvrager aan als het aanvraagformulier is ingediend",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Elke taak heeft een status.",
+        "due_field": "Elke taak heeft een deadline.",
+        "tasks_board_view": "De taken openen als bord per status."
+      },
+      "page": {
+        "metaTitle": "Kanban system voor kleine teams: sjabloon met taken",
+        "metaDescription": "Een eenvoudig kanbansysteem voor 2 tot 15 mensen: één eigenaar en één deadline per taak, bugs en terugkerende taken. Plak het sjabloon in je AI-agent.",
+        "headline": "Een eenvoudig kanbansysteem voor een klein team: één eigenaar en één deadline per taak, gebouwd door je AI-agent",
+        "answer": "Een kanbansysteem voor een klein team is één lijst met taken, elk met een eigenaar, een status, een prioriteit en een deadline, plus een bord en een korte wekelijkse bespreking van wat te laat of geblokkeerd is. Plak dit sjabloon in je AI-agent en hij bouwt de lijst in Customermates, met projecten, terugkerende taken en verzoeken van buiten het team. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De wekelijkse teambespreking in 30 minuten",
+          "steps": [
+            "Open de lijst van vorige week en begin bij wat is toegezegd: wat is klaar en wat is geschoven.",
+            "Loop de taken langs die te laat of geblokkeerd zijn en beslis per taak: opnieuw toezeggen, kleiner maken of herverdelen. Schuift een deadline, houd dan de oorspronkelijke datum aan en noteer de nieuwe met een reden.",
+            "Kijk naar taken die al vijf dagen niet zijn opgeschoten en vraag of de taak vaag of te groot is. Sluit wat niemand nodig heeft.",
+            "Sorteer nieuwe verzoeken en bugs: geef elk een soort, een prioriteit en een eigenaar.",
+            "Sluit af met het voorlezen van de lijst, zodat elke taak voor het einde van de bespreking een eigenaar met naam en een deadline heeft."
+          ]
+        },
+        "limits": [
+          "Het is geen tool voor sprints en velocity: er zijn geen sprints, storypoints of burn-downgrafieken. Een team dat ze nodig heeft, blijft bij Linear of Jira.",
+          "Het is geen Gantt-, afhankelijkheids- of capaciteitsplanner, geen urenregistratie en geen releasebeheer.",
+          "Het is geen codehost, geen CI-systeem en geen servicedesk met responstijden. De link naar een pull request of ticket is een gewoon linkveld.",
+          "Er is geen native koppeling met Slack of Teams en geen mobiele app. De route naar Slack loopt via n8n.",
+          "Het is geen hr- of prestatiebeoordelingssysteem en heeft geen single sign-on of rechten per veld."
+        ],
+        "faq": [
+          {
+            "question": "Kan een eenvoudig systeem Trello, Jira of een spreadsheet vervangen?",
+            "answer": "Voor twee tot vijftien mensen die één eigenaar en één deadline per taak willen, een wekelijkse bespreking en verzoeken van buiten het team op dezelfde lijst: ja. Exporteer je bord of sheet naar CSV of Excel en importeer die met de wizard voor kolomkoppeling, of laat je agent koppelen en importeren. Heb je sprints, velocity of afhankelijkheden nodig, blijf dan bij Linear, Jira of ClickUp."
+          },
+          {
+            "question": "Welke statussen moet een klein team gebruiken?",
+            "answer": "Minder dan je denkt. Nog te doen, In uitvoering en Klaar zijn gebruikelijk, net als Backlog, Todo, In Progress, Done en Canceled bij Linear. Het sjabloon begint met zeven statussen (Backlog, Te doen, In uitvoering, In review, Geblokkeerd, Klaar, Geannuleerd) die je hernoemt of schrapt. Geblokkeerd verdient zijn plek, want anders valt een geblokkeerde taak pas op op de dag van de deadline."
+          },
+          {
+            "question": "Werken in sprints of op een bord?",
+            "answer": "Kanbangidsen zetten in op flow en een limiet op lopend werk, Linear en Jira meer op sprints. Dit sjabloon gebruikt een bord en een deadline en kent geen sprintobject, dus een team dat velocity nodig heeft, blijft bij een sprinttool."
+          },
+          {
+            "question": "Moeten vastgelopen taken automatisch sluiten?",
+            "answer": "Nee. Een herinnering na vijf dagen zonder beweging is veiliger dan automatisch sluiten, en vergadergidsen raden aan vastgelopen punten expliciet te sluiten. Het sjabloon herinnert de eigenaar en die beslist. Een taak die week na week openstaat is meestal vaag of te groot: verbeter de definitie, niet de persoon."
+          },
+          {
+            "question": "Stuurt de agent berichten naar mijn team?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Het werk van ons team verspreidt zich over chat, een bord en een spreadsheet en ik kan niet zien wat te laat of geblokkeerd is. Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
+        "questions": [
+          "Hoeveel mensen telt het team en waar werken ze aan?",
+          "Welke statussen gebruik je nu in Trello, Jira, Asana of een spreadsheet?",
+          "Welke taken komen elke week of maand terug en wie is eigenaar?",
+          "Waar komen verzoeken vandaan en moeten ze via een formulier binnenkomen?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Śledzenie zadań zespołu",
+      "summary": "Zobacz, kto co robi i do kiedy, bez ciężkiego narzędzia do projektów. Projekty i zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby spoza zespołu na jednej liście.",
+      "description": "W małym zespole zadania chowają się w czacie, na tablicach i w głowach, a zablokowane zadanie zostaje niezauważone aż do dnia terminu. Szablon prowadzi zespół od dwóch do piętnastu osób na jednej liście: każde zadanie ma status, priorytet, osobę odpowiedzialną i termin, a to, co się spóźnia lub jest zablokowane, widać od razu. Zadania cykliczne tworzą się same, prośby od współpracowników i klientów przychodzą przez formularz, a zadanie zablokowane lub stojące przypomina o sobie osobie odpowiedzialnej. To nie jest narzędzie do sprintów, wykres Gantta, rejestr czasu pracy ani system kadrowy.",
+      "lists": {
+        "requesters": {
+          "label": "Osoba zgłaszająca",
+          "pluralLabel": "Osoby zgłaszające",
+          "description": "Osoby spoza zespołu, które proszą o pracę."
+        },
+        "projects": {
+          "label": "Projekt",
+          "pluralLabel": "Projekty",
+          "description": "Zestaw zadań z osobą odpowiedzialną, stanem realizacji i terminem."
+        },
+        "tasks": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jedna praca z jedną osobą odpowiedzialną i jednym terminem."
+        },
+        "recurring": {
+          "label": "Zadanie cykliczne",
+          "pluralLabel": "Zadania cykliczne",
+          "description": "Zadanie, które wraca co tydzień, miesiąc, kwartał lub rok."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relacja",
+          "options": {
+            "customer": "Klient",
+            "colleague": "Współpracownik",
+            "partner": "Partner",
+            "vendor": "Dostawca",
+            "other": "Inna"
+          }
+        },
+        "requesters.team": {
+          "label": "Zespół",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Zaplanowany",
+            "active": "Aktywny",
+            "on_hold": "Wstrzymany",
+            "done": "Zakończony",
+            "cancelled": "Anulowany"
+          }
+        },
+        "projects.health": {
+          "label": "Stan realizacji",
+          "options": {
+            "on_track": "Zgodnie z planem",
+            "at_risk": "Zagrożony",
+            "off_track": "Poza planem"
+          }
+        },
+        "projects.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Termin",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Link do repozytorium",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Status",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "Do zrobienia",
+            "in_progress": "W toku",
+            "in_review": "Do weryfikacji",
+            "blocked": "Zablokowane",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "tasks.kind": {
+          "label": "Typ",
+          "options": {
+            "task": "Zadanie",
+            "bug": "Błąd",
+            "feature": "Nowa funkcja",
+            "chore": "Czynność rutynowa",
+            "request": "Prośba"
+          }
+        },
+        "tasks.priority": {
+          "label": "Priorytet",
+          "options": {
+            "urgent": "Pilny",
+            "high": "Wysoki",
+            "medium": "Średni",
+            "low": "Niski"
+          }
+        },
+        "tasks.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Pierwotny termin",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Data wykonania",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Powód blokady",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Link (pull request lub zgłoszenie)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Powtarza się",
+          "options": {
+            "weekly": "Co tydzień",
+            "monthly": "Co miesiąc",
+            "quarterly": "Co kwartał",
+            "yearly": "Co rok"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Następny termin",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Projekt",
+          "targetLabel": "Zadania"
+        },
+        "task_requester": {
+          "sourceLabel": "Osoba zgłaszająca",
+          "targetLabel": "Zadania"
+        },
+        "recurring_project": {
+          "sourceLabel": "Projekt",
+          "targetLabel": "Zadania cykliczne"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Wszystkie zadania"
+        },
+        "tasks_board": {
+          "name": "Tablica zadań"
+        },
+        "blocked_tasks": {
+          "name": "Zablokowane zadania"
+        },
+        "projects_all": {
+          "name": "Wszystkie projekty"
+        },
+        "recurring_all": {
+          "name": "Wszystkie zadania cykliczne"
+        },
+        "requesters_all": {
+          "name": "Wszystkie osoby zgłaszające"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Zadania według statusu"
+        },
+        "open_by_priority": {
+          "title": "Otwarte zadania według priorytetu"
+        },
+        "overdue_tasks": {
+          "title": "Zadania po terminie"
+        },
+        "due_soon": {
+          "title": "Zadania z bliskim terminem"
+        },
+        "blocked_count": {
+          "title": "Zablokowane zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "Jak pracujemy",
+          "sections": [
+            "Statusy, priorytety i co oznacza zrobione",
+            "Jedna osoba odpowiedzialna i jeden termin na zadanie"
+          ]
+        },
+        "weekly_review": {
+          "title": "Przegląd tygodniowy",
+          "sections": [
+            "Zaległości, blokady i zadania bez właściciela",
+            "Co zmienia się w tym tygodniu"
+          ]
+        },
+        "triage": {
+          "title": "Kwalifikacja próśb i błędów",
+          "sections": [
+            "Kto decyduje, co wchodzi",
+            "Waga błędu a priorytet"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Powiadom nową osobę odpowiedzialną, gdy zostanie jej przypisane zadanie",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Powiadom osobę odpowiedzialną dzień przed terminem",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Powiadom osobę prowadzącą zespół dzień po terminie zadania",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Powiadom osobę prowadzącą zespół, gdy zadanie jest zablokowane przez 3 dni",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Przypomnij osobie odpowiedzialnej, gdy zadanie nie ruszyło od 5 dni",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Utwórz zadanie, gdy nadchodzi termin zadania cyklicznego",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Utwórz zadanie, gdy platforma Git wyśle zdarzenie",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Utwórz zadanie i osobę zgłaszającą po wysłaniu formularza zgłoszeniowego",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Każde zadanie ma status.",
+        "due_field": "Każde zadanie ma termin.",
+        "tasks_board_view": "Zadania otwierają się jako tablica według statusu."
+      },
+      "page": {
+        "metaTitle": "Program do zarządzania projektami dla małych zespołów",
+        "metaDescription": "Prosty program do zarządzania projektami dla 2-15 osób: jedna osoba i jeden termin na zadanie, błędy, zadania cykliczne. Wklej szablon do agenta AI.",
+        "headline": "Prosty program do zarządzania projektami dla małego zespołu, który Twój agent AI buduje w CRM",
+        "answer": "Program do zarządzania projektami dla małego zespołu to jedna lista zadań, z których każde ma osobę odpowiedzialną, status, priorytet i termin, do tego tablica i krótki tygodniowy przegląd tego, co jest po terminie lub zablokowane. Wklej ten szablon do swojego agenta AI, a zbuduje listę w Customermates, z projektami, zadaniami cyklicznymi i prośbami spoza zespołu. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Cotygodniowe spotkanie zespołu w 30 minut",
+          "steps": [
+            "Otwórz listę z zeszłego tygodnia i zacznij od tego, co obiecano: co jest zrobione, a co się przesunęło.",
+            "Przejrzyj zadania po terminie i zablokowane i zdecyduj dla każdego: potwierdzić ponownie, zawęzić zakres albo przekazać komuś innemu. Gdy termin się przesuwa, zostaw pierwotny i dopisz nowy z powodem.",
+            "Zobacz zadania, które od pięciu dni nie ruszyły, i zapytaj, czy są niejasne lub zbyt duże. Zamknij te, których nikt nie potrzebuje.",
+            "Posortuj nowe prośby i błędy: nadaj każdemu rodzaj, priorytet i osobę odpowiedzialną.",
+            "Zakończ odczytaniem listy, żeby przed końcem spotkania każde zadanie miało wskazaną osobę odpowiedzialną i termin."
+          ]
+        },
+        "limits": [
+          "To nie jest narzędzie do sprintów ani do mierzenia prędkości: nie ma sprintów, punktów historii ani wykresów burn-down. Zespół, który ich potrzebuje, zostaje przy Linear lub Jirze.",
+          "To nie jest planer Gantta, zależności ani zdolności produkcyjnych, nie rejestruje czasu pracy i nie zarządza wydaniami.",
+          "To nie jest hosting kodu, system CI ani helpdesk z czasami odpowiedzi. Link do pull requesta lub zgłoszenia to zwykłe pole z linkiem.",
+          "Nie ma natywnej integracji ze Slackiem ani z Teams i nie ma aplikacji mobilnej. Do Slacka prowadzi droga przez n8n.",
+          "To nie jest system HR ani oceny pracowniczej i nie ma jednokrotnego logowania ani uprawnień na poziomie pola."
+        ],
+        "faq": [
+          {
+            "question": "Czy prosty program może zastąpić Trello, Jirę albo arkusz?",
+            "answer": "Dla dwóch do piętnastu osób, które chcą jednej osoby i jednego terminu na zadanie, tygodniowego przeglądu i próśb spoza zespołu na jednej liście, tak. Wyeksportuj tablicę lub arkusz do CSV albo Excela i zaimportuj je kreatorem dopasowania kolumn albo pozwól agentowi dopasować i zaimportować. Jeśli potrzebujesz sprintów, prędkości lub zależności, zostań przy Linear, Jirze lub ClickUp."
+          },
+          {
+            "question": "Jakich statusów powinien używać mały zespół?",
+            "answer": "Mniej, niż się wydaje. Typowe są Do zrobienia, W toku i Zrobione z Trello albo Backlog, Todo, In Progress, Done i Canceled z Linear. Szablon startuje od siedmiu statusów (Backlog, Do zrobienia, W toku, Do weryfikacji, Zablokowane, Zrobione, Anulowane), które możesz zmienić lub usunąć. Zablokowane ma swoje miejsce, bo inaczej zablokowane zadanie umyka do dnia terminu."
+          },
+          {
+            "question": "Pracować w sprintach czy na tablicy?",
+            "answer": "Poradniki kanban stawiają na przepływ i limit pracy w toku, Linear i Jira raczej na sprinty. Ten szablon używa tablicy i terminu i nie ma obiektu sprintu, więc zespół, który potrzebuje prędkości, zostaje przy narzędziu ze sprintami."
+          },
+          {
+            "question": "Czy zadania, które utknęły, zamykać automatycznie?",
+            "answer": "Nie. Przypomnienie po pięciu dniach bez ruchu jest bezpieczniejsze niż automatyczne zamknięcie, a poradniki o spotkaniach zalecają zamykać takie pozycje jawnie. Szablon przypomina osobie odpowiedzialnej, a ona decyduje. Zadanie otwarte tydzień po tygodniu jest zwykle niejasne lub zbyt duże: popraw definicję, nie człowieka."
+          },
+          {
+            "question": "Czy agent pisze do mojego zespołu?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Praca naszego zespołu jest rozrzucona po czacie, tablicy i arkuszu, a ja nie widzę, co jest po terminie albo zablokowane. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
+        "questions": [
+          "Ile osób liczy zespół i nad czym pracują?",
+          "Jakich statusów używasz dziś w Trello, Jirze, Asanie lub arkuszu?",
+          "Jakie zadania wracają co tydzień lub co miesiąc i kto za nie odpowiada?",
+          "Skąd przychodzą prośby i czy mają trafiać przez formularz?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Acompanhamento da equipe",
+      "summary": "Veja quem está fazendo o quê e até quando, sem uma ferramenta pesada de projetos. Projetos e tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
+      "description": "Em uma equipe pequena, as tarefas se escondem no chat, em quadros e na cabeça de cada um, e uma tarefa bloqueada passa despercebida até o dia do prazo. Este modelo mantém uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes criam as próprias tarefas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
+      "lists": {
+        "requesters": {
+          "label": "Solicitante",
+          "pluralLabel": "Solicitantes",
+          "description": "As pessoas de fora da equipe que pedem trabalho."
+        },
+        "projects": {
+          "label": "Projeto",
+          "pluralLabel": "Projetos",
+          "description": "Um conjunto de tarefas com responsável, saúde e prazo."
+        },
+        "tasks": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um trabalho com um responsável e um prazo."
+        },
+        "recurring": {
+          "label": "Tarefa recorrente",
+          "pluralLabel": "Tarefas recorrentes",
+          "description": "Uma tarefa que volta toda semana, mês, trimestre ou ano."
+        }
+      },
+      "fields": {
+        "requesters.relation": {
+          "label": "Relacionamento",
+          "options": {
+            "customer": "Cliente",
+            "colleague": "Colega",
+            "partner": "Parceiro",
+            "vendor": "Fornecedor",
+            "other": "Outro"
+          }
+        },
+        "requesters.team": {
+          "label": "Equipe",
+          "options": {}
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planejado",
+            "active": "Ativo",
+            "on_hold": "Pausado",
+            "done": "Concluído",
+            "cancelled": "Cancelado"
+          }
+        },
+        "projects.health": {
+          "label": "Saúde",
+          "options": {
+            "on_track": "No prazo",
+            "at_risk": "Em risco",
+            "off_track": "Atrasado"
+          }
+        },
+        "projects.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "projects.due_date": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "projects.repo_url": {
+          "label": "Link do repositório",
+          "options": {}
+        },
+        "tasks.status": {
+          "label": "Status",
+          "options": {
+            "backlog": "Backlog",
+            "todo": "A fazer",
+            "in_progress": "Em andamento",
+            "in_review": "Em revisão",
+            "blocked": "Bloqueada",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "tasks.kind": {
+          "label": "Tipo",
+          "options": {
+            "task": "Tarefa",
+            "bug": "Bug",
+            "feature": "Funcionalidade",
+            "chore": "Manutenção",
+            "request": "Pedido"
+          }
+        },
+        "tasks.priority": {
+          "label": "Prioridade",
+          "options": {
+            "urgent": "Urgente",
+            "high": "Alta",
+            "medium": "Média",
+            "low": "Baixa"
+          }
+        },
+        "tasks.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "tasks.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "tasks.original_due": {
+          "label": "Prazo original",
+          "options": {}
+        },
+        "tasks.done_on": {
+          "label": "Concluída em",
+          "options": {}
+        },
+        "tasks.blocked_reason": {
+          "label": "Motivo do bloqueio",
+          "options": {}
+        },
+        "tasks.external_url": {
+          "label": "Link (pull request ou chamado)",
+          "options": {}
+        },
+        "recurring.cadence": {
+          "label": "Repete",
+          "options": {
+            "weekly": "Toda semana",
+            "monthly": "Todo mês",
+            "quarterly": "Todo trimestre",
+            "yearly": "Todo ano"
+          }
+        },
+        "recurring.next_due": {
+          "label": "Próximo prazo",
+          "options": {}
+        },
+        "recurring.owner": {
+          "label": "Responsável",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "task_project": {
+          "sourceLabel": "Projeto",
+          "targetLabel": "Tarefas"
+        },
+        "task_requester": {
+          "sourceLabel": "Solicitante",
+          "targetLabel": "Tarefas"
+        },
+        "recurring_project": {
+          "sourceLabel": "Projeto",
+          "targetLabel": "Tarefas recorrentes"
+        }
+      },
+      "views": {
+        "tasks_all": {
+          "name": "Todas as tarefas"
+        },
+        "tasks_board": {
+          "name": "Quadro de tarefas"
+        },
+        "blocked_tasks": {
+          "name": "Tarefas bloqueadas"
+        },
+        "projects_all": {
+          "name": "Todos os projetos"
+        },
+        "recurring_all": {
+          "name": "Todas as tarefas recorrentes"
+        },
+        "requesters_all": {
+          "name": "Todos os solicitantes"
+        }
+      },
+      "widgets": {
+        "tasks_by_status": {
+          "title": "Tarefas por status"
+        },
+        "open_by_priority": {
+          "title": "Tarefas abertas por prioridade"
+        },
+        "overdue_tasks": {
+          "title": "Tarefas atrasadas"
+        },
+        "due_soon": {
+          "title": "Tarefas com prazo próximo"
+        },
+        "blocked_count": {
+          "title": "Tarefas bloqueadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        }
+      },
+      "knowledgePages": {
+        "how_we_work": {
+          "title": "Como trabalhamos",
+          "sections": [
+            "Status, prioridades e o que significa concluída",
+            "Um responsável e uma data por tarefa"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revisão semanal",
+          "sections": [
+            "Atrasos, bloqueios e tarefas sem responsável",
+            "O que muda nesta semana"
+          ]
+        },
+        "triage": {
+          "title": "Triagem de pedidos e bugs",
+          "sections": [
+            "Quem decide o que entra",
+            "Gravidade e prioridade"
+          ]
+        }
+      },
+      "rules": {
+        "task_assigned": {
+          "title": "Avisar o novo responsável quando uma tarefa é atribuída",
+          "description": ""
+        },
+        "due_tomorrow": {
+          "title": "Avisar o responsável um dia antes do prazo",
+          "description": ""
+        },
+        "overdue_task": {
+          "title": "Avisar a liderança um dia depois do prazo",
+          "description": ""
+        },
+        "blocked_stale": {
+          "title": "Avisar a liderança quando uma tarefa fica bloqueada por 3 dias",
+          "description": ""
+        },
+        "stale_in_progress": {
+          "title": "Lembrar o responsável quando uma tarefa não se mexe há 5 dias",
+          "description": ""
+        },
+        "recurring_due": {
+          "title": "Criar uma tarefa quando uma tarefa recorrente vence",
+          "description": ""
+        },
+        "task_from_git": {
+          "title": "Criar uma tarefa quando o serviço de Git envia um evento",
+          "description": ""
+        },
+        "request_form": {
+          "title": "Criar a tarefa e o solicitante quando o formulário de pedido for enviado",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Toda tarefa tem um status.",
+        "due_field": "Toda tarefa tem um prazo.",
+        "tasks_board_view": "As tarefas abrem como quadro por status."
+      },
+      "page": {
+        "metaTitle": "Kanban online para equipes pequenas: modelo de tarefas",
+        "metaDescription": "Um kanban online simples para 2 a 15 pessoas: um responsável e um prazo por tarefa, bugs e tarefas recorrentes. Cole o modelo no seu agente de IA e use já.",
+        "headline": "Um kanban online para equipes pequenas: um responsável e um prazo por tarefa, montado pelo seu agente de IA",
+        "answer": "Um kanban online para uma equipe pequena é uma única lista de tarefas, cada uma com um responsável, um status, uma prioridade e um prazo, mais um quadro e uma revisão semanal curta do que está atrasado ou bloqueado. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com projetos, tarefas recorrentes e pedidos de fora da equipe. Você aprova o plano antes de qualquer coisa ser construída.",
+        "routine": {
+          "title": "A reunião semanal da equipe em 30 minutos",
+          "steps": [
+            "Abra a lista da semana passada e comece pelo que foi prometido: o que está feito e o que atrasou.",
+            "Passe pelas tarefas atrasadas e bloqueadas e decida para cada uma: reassumir, reduzir o escopo ou reatribuir. Quando um prazo atrasa, mantenha o original e anote o novo com o motivo.",
+            "Olhe as tarefas paradas há cinco dias e pergunte se estão vagas ou grandes demais. Feche as que ninguém precisa.",
+            "Faça a triagem dos pedidos e bugs novos: dê a cada um um tipo, uma prioridade e um responsável.",
+            "Termine relendo a lista, para que toda tarefa tenha um responsável com nome e um prazo antes de a reunião acabar."
+          ]
+        },
+        "limits": [
+          "Não é uma ferramenta de sprints nem de velocidade: não há sprints, pontos de história nem gráficos burn-down. Uma equipe que precise deles fica com Linear ou Jira.",
+          "Não é um planejador Gantt, de dependências ou de capacidade, nem um controle de horas ou um gestor de versões.",
+          "Não é um host de código, um sistema de integração contínua nem uma central de atendimento com tempos de resposta. O link de um pull request ou ticket é um simples campo de link.",
+          "Não há integração nativa com Slack ou Teams nem aplicativo móvel. Para o Slack, o caminho é o n8n.",
+          "Não é um sistema de RH nem de avaliação de desempenho, e não tem login único nem permissões por campo."
+        ],
+        "faq": [
+          {
+            "question": "Uma ferramenta simples pode substituir o Trello, o Jira ou uma planilha?",
+            "answer": "Para duas a quinze pessoas que querem um responsável e um prazo por tarefa, uma revisão semanal e os pedidos externos na mesma lista, sim. Exporte seu quadro ou planilha em CSV ou Excel e importe com o assistente de mapeamento de colunas, ou deixe seu agente mapear e importar. Se você precisa de sprints, velocidade ou dependências, fique com Linear, Jira ou ClickUp."
+          },
+          {
+            "question": "Quais status uma equipe pequena deve usar?",
+            "answer": "Menos do que se imagina. A fazer, Em andamento e Feito, como em guias de kanban, ou Backlog, Todo, In Progress, Done e Canceled do Linear, são típicos. O modelo parte de sete status (Backlog, A fazer, Em andamento, Em revisão, Bloqueada, Concluída, Cancelada) que você renomeia ou remove. Bloqueada tem seu lugar, porque senão uma tarefa bloqueada passa despercebida até o prazo."
+          },
+          {
+            "question": "Vale trabalhar em sprints ou em um quadro?",
+            "answer": "Os guias de kanban apostam no fluxo e no limite de trabalho em andamento; Linear e Jira, mais nos sprints. Este modelo usa um quadro e um prazo e não tem objeto de sprint, então uma equipe que precisa de velocidade fica com uma ferramenta de sprints."
+          },
+          {
+            "question": "Tarefas paradas devem ser fechadas automaticamente?",
+            "answer": "Não. Um lembrete depois de cinco dias sem movimento é mais seguro do que um fechamento automático, e os guias de reunião recomendam fechar de forma explícita o que ficou parado. O modelo lembra o responsável e ele decide. Uma tarefa que continua aberta semana após semana costuma estar vaga ou grande demais: corrija a definição, não a pessoa."
+          },
+          {
+            "question": "O agente escreve para a minha equipe?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "O trabalho da nossa equipe está espalhado entre o chat, um quadro e uma planilha, e eu não consigo ver o que está atrasado ou bloqueado. Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
+        "questions": [
+          "Quantas pessoas tem a equipe e no que elas trabalham?",
+          "Quais status você usa hoje no Trello, Jira, Asana ou em uma planilha?",
+          "Quais tarefas voltam toda semana ou todo mês e quem é responsável?",
+          "De onde vêm os pedidos e eles devem chegar por um formulário?"
+        ]
+      }
+    }
+  }
+}

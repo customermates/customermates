@@ -17,7 +17,7 @@ type Props = {
   workspaceMenu: ReactNode | null;
   workspaceMenuLabel: string;
   workspaceMenuBadge?: { count: number; label: string };
-  workspace: { companyId: string; name: string } | null;
+  workspace: { companyId: string; name: string; logoUrl?: string | null } | null;
   onWorkspaceMenuOpen?: () => void;
   brandName: string;
   logoAlt: string;
@@ -54,7 +54,7 @@ export function NavHeader({
   const brand = (
     <>
       {workspace ? (
-        <WorkspaceAvatar companyId={workspace.companyId} name={workspace.name} size="sm" />
+        <WorkspaceAvatar companyId={workspace.companyId} logoUrl={workspace.logoUrl} name={workspace.name} size="sm" />
       ) : (
         <AppImage
           alt={logoAlt}
@@ -141,6 +141,7 @@ export function NavHeader({
             <SidebarMenuItem>
               <SidebarMenuButton
                 aria-disabled={overlaysDisabled}
+                className="flex-wrap content-start py-0"
                 id="nav-assistant"
                 tooltip={{
                   children: (
@@ -156,9 +157,9 @@ export function NavHeader({
               >
                 {assistantBusy ? <Loader2 aria-label={assistantBusyLabel} className="animate-spin" /> : <Sparkles />}
 
-                <span>{assistantLabel}</span>
+                <span className="h-8 leading-8 whitespace-nowrap">{assistantLabel}</span>
 
-                <ActiveShortcutKeys className="ml-auto" id="askMate" />
+                <ActiveShortcutKeys className="ml-auto h-8" id="askMate" />
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}

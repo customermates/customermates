@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 15 }, () => vi.fn(() => Promise.resolve())));
+const invokes = vi.hoisted(() => Array.from({ length: 22 }, () => vi.fn(() => Promise.resolve())));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
@@ -34,11 +34,18 @@ vi.mock("@/core/di", () => ({
   getSyncStaleWikiSectionsInteractor: () => ({ invoke: invokes[12] }),
   getPurgeExpiredRecordFilesInteractor: () => ({ invoke: invokes[13] }),
   getNormalizePhoneIdentitiesInteractor: () => ({ invoke: invokes[14] }),
+  getSendNotificationDigestInteractor: () => ({ invoke: invokes[15] }),
+  getPruneIncomingWebhookDeliveriesInteractor: () => ({ invoke: invokes[16] }),
+  getPrunePublicFormSubmissionsInteractor: () => ({ invoke: invokes[17] }),
+  getPruneBookingsInteractor: () => ({ invoke: invokes[18] }),
+  getPruneAutomationRuleRunsInteractor: () => ({ invoke: invokes[19] }),
+  getPruneNotificationsInteractor: () => ({ invoke: invokes[20] }),
+  getPruneAgentJobsInteractor: () => ({ invoke: invokes[21] }),
 }));
 
 import { GET } from "../route";
 
-const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14];
+const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const UNIPILE_STEPS = [3, 4, 5];
 
 function callLifecycle() {

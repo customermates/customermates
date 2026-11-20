@@ -2,8 +2,7 @@ import { address, groupDigits } from "../../define-solution";
 import type { Strings } from "../sales-pipeline";
 
 export const nl: Strings = {
-  company: "Maaslucht Persluchttechniek B.V.",
-  workspaceName: "Verkooppipeline",
+  company: "Maaslucht Persluchttechniek",
   website: "https://maaslucht.example",
   phones: {
     office: {

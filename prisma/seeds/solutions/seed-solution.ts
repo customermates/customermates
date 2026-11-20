@@ -17,6 +17,7 @@ import { writeSyntheticRecordHistory } from "../record-history";
 import { TEAM_MEMBER_IDS } from "../team";
 import { SYNTHETIC_SEED_TIMELINE, storyMoment } from "../timeline";
 import type { SolutionContent } from "./define-solution";
+import { seedSolutionBrand } from "./solution-brands";
 import {
   SOLUTION_IDENTITY_PREFIX,
   SOLUTION_LINK_PREFIX,
@@ -28,6 +29,7 @@ import {
 } from "./solution-data";
 import { seedSolutionMateChats, seedSolutionPlanner, seedSolutionTrash } from "./solution-extras";
 import { seedSolutionFiles, solutionFileValues } from "./solution-files";
+import { buildTeamPlatformFixtures, seedSolutionPlatform } from "./solution-platform";
 import { buildSolutionMessaging } from "./solution-messaging";
 import {
   SOLUTION_VIEW_GROUP,
@@ -73,7 +75,7 @@ async function seedWorkspaceShell(context: SeedContext, workspace: SolutionWorks
   if (workspace.team) return;
   const createdAt = solutionWorkspaceCreatedAt(workspace, content);
   const company = {
-    name: content.workspaceName,
+    name: content.companyName,
     createdByAuthUserId: context.ids.user,
     createdAt,
     updatedAt: createdAt,
@@ -559,7 +561,7 @@ async function seedSolutionApiKeys(prisma: PrismaClient, workspace: SolutionWork
 
 /**
  * Seeds one demo workspace from its solution content: the shell (company, admin, membership, subscription), the
- * record model, records with links, owners, identities, calculations and history, then views, the dashboard, the
+ * brand, the record model, records with links, owners, identities, calculations and history, then views, the dashboard, the
  * default sidebar, the wiki and the conversations. Every step is idempotent, so a repeated run changes nothing.
  */
 export async function seedSolutionWorkspace(
@@ -572,6 +574,7 @@ export async function seedSolutionWorkspace(
   const { prisma } = context;
   const { companyId } = workspace;
   await seedWorkspaceShell(context, workspace, content);
+  await seedSolutionBrand(prisma, workspace);
 
   const model = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
@@ -613,6 +616,8 @@ export async function seedSolutionWorkspace(
   await seedSolutionPlanner(prisma, workspace, content);
   await seedSolutionTrash(prisma, workspace, content);
   await seedSolutionMateChats(prisma, workspace, content);
+  if (workspace.team)
+    await seedSolutionPlatform(prisma, workspace, buildTeamPlatformFixtures(workspace, content, model, data));
 
   return {
     slug: workspace.slug,

@@ -1,0 +1,159 @@
+{
+  "locale": "pt",
+  "name": "Plano de ação",
+  "summary": "Garanta que o que foi combinado na reunião realmente aconteça. Cada ação tem um responsável e um prazo e fica ligada à decisão ou ao projeto de onde veio, com uma revisão semanal.",
+  "description": "As ações combinadas em reuniões, auditorias e conversas com clientes se perdem em atas e mensagens, e o mesmo assunto volta à pauta na semana seguinte. Este modelo monta uma lista de ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, ligadas à reunião, à decisão ou ao projeto de onde vieram, além de um registro de decisões e uma verificação de eficácia depois de uma ação corretiva. Serve para equipes, gerentes de projeto e responsáveis pela qualidade que querem uma revisão semanal do que está aberto, atrasado ou bloqueado, e quem usa 5W2H encontra aqui responsável, prazo e origem. Os lembretes vêm de regras de automação e notificações que você ativa.",
+  "lists": {
+    "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Equipe, parceiros, clientes e fornecedores." },
+    "meetings": { "label": "Reunião", "pluralLabel": "Reuniões", "description": "De onde vêm as ações e as decisões." },
+    "decisions": { "label": "Decisão", "pluralLabel": "Decisões", "description": "O registro de decisões com data de revisão." },
+    "projects": { "label": "Projeto", "pluralLabel": "Projetos", "description": "O projeto a que uma ação pertence." },
+    "actions": { "label": "Ação", "pluralLabel": "Ações", "description": "Um responsável e um prazo por ação." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "A fazer", "in_progress": "Em andamento", "blocked": "Bloqueada", "in_review": "Em revisão", "done": "Concluída", "cancelled": "Cancelada" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Planejado", "active": "Ativo", "on_hold": "Em pausa", "done": "Concluído" }
+    },
+    "people.person_role": {
+      "label": "Papel",
+      "options": { "team_member": "Membro da equipe", "external": "Parceiro externo", "customer": "Cliente", "supplier": "Fornecedor", "other": "Outro" }
+    },
+    "people.team": { "label": "Equipe" },
+    "meetings.meeting_type": {
+      "label": "Tipo de reunião",
+      "options": { "team": "Reunião de equipe", "project": "Reunião de projeto", "steering": "Comitê diretivo", "customer": "Reunião com cliente", "audit": "Auditoria ou revisão" }
+    },
+    "meetings.held_at": { "label": "Realizada em" },
+    "meetings.agenda_url": { "label": "Link da pauta" },
+    "meetings.minutes_url": { "label": "Link da ata" },
+    "meetings.minutes_sent_on": { "label": "Ata enviada em" },
+    "meetings.next_meeting_on": { "label": "Próxima reunião em" },
+    "decisions.decision_text": { "label": "Decisão" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Válida", "superseded": "Substituída", "revoked": "Revogada" } },
+    "decisions.decided_on": { "label": "Decidida em" },
+    "decisions.review_on": { "label": "Revisão em" },
+    "projects.owner": { "label": "Responsável" },
+    "projects.start_date": { "label": "Início" },
+    "projects.end_date": { "label": "Fim" },
+    "actions.priority": { "label": "Prioridade", "options": { "high": "Alta", "medium": "Média", "low": "Baixa" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "action": "Ação", "follow_up": "Retorno", "review": "Revisão", "corrective": "Ação corretiva", "preventive": "Ação preventiva", "customer_request": "Pedido de cliente" }
+    },
+    "actions.source": {
+      "label": "Origem",
+      "options": { "meeting": "Reunião", "email": "E-mail", "project_plan": "Plano de projeto", "audit": "Auditoria ou inspeção", "complaint": "Reclamação", "incident": "Incidente" }
+    },
+    "actions.owner": { "label": "Quem" },
+    "actions.due": { "label": "Quando (prazo)" },
+    "actions.follow_up_on": { "label": "Retomar em" },
+    "actions.done_on": { "label": "Concluída em" },
+    "actions.blocker_note": { "label": "O que bloqueia" },
+    "actions.proof_url": { "label": "Link da comprovação" },
+    "actions.outcome": { "label": "Resultado" },
+    "actions.days_late": { "label": "Dias de atraso" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Reunião", "targetLabel": "Ações" },
+    "action_project": { "sourceLabel": "Projeto", "targetLabel": "Ações" },
+    "decision_meeting": { "sourceLabel": "Reunião", "targetLabel": "Decisões" }
+  },
+  "views": {
+    "actions_all": { "name": "Todas as ações" },
+    "actions_board": { "name": "Ações por status" },
+    "blocked_actions": { "name": "Bloqueadas" },
+    "overdue_list": { "name": "Atrasadas" },
+    "meetings_all": { "name": "Todas as reuniões" },
+    "decisions_all": { "name": "Registro de decisões" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Ações por status" },
+    "overdue_count": { "title": "Ações atrasadas" },
+    "blocked_count": { "title": "Ações bloqueadas" },
+    "due_soon": { "title": "Vencem em breve" },
+    "open_by_owner": { "title": "Ações abertas por responsável" },
+    "done_per_month": { "title": "Concluídas por mês" },
+    "actions_by_source": { "title": "Ações por origem" },
+    "average_days_late": { "title": "Atraso médio em dias" },
+    "activity_timeline": { "title": "Atividade recente" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "Como escrevemos uma ação", "sections": ["Um verbo, um responsável, uma data", "Como é uma ação concluída"] },
+    "weekly_action_review": { "title": "Revisão semanal das ações em 15 minutos", "sections": ["Bloqueadas, atrasadas, sem próximo passo", "Alterar o prazo, delegar ou cancelar"] },
+    "closing_with_proof": { "title": "Encerrar uma ação com comprovação", "sections": ["Vincular a comprovação", "Verificação de eficácia das ações corretivas"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Enviar a ata e a lista de ações depois de uma reunião" },
+    "unblock_action": { "title": "Indicar quem pode desbloquear uma ação que fica bloqueada" },
+    "due_reminder": { "title": "Lembrar o responsável dois dias antes do prazo" },
+    "overdue_notice": { "title": "Avisar o responsável no dia seguinte ao vencimento do prazo" },
+    "follow_up_date": { "title": "Retomar a ação na data de retorno" },
+    "effectiveness_check": { "title": "Verificar a eficácia de uma ação corretiva ou preventiva após 30 dias" },
+    "weekly_action_review": { "title": "Fazer a revisão semanal das ações toda segunda-feira" },
+    "decision_review": { "title": "Revisar uma decisão na data de revisão" },
+    "request_form_action": { "title": "Criar uma ação a partir de um pedido enviado por formulário" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada ação tem um dos seis status.",
+    "due_field": "Cada ação tem um responsável e um prazo.",
+    "overdue_widget": "O painel mostra quantas ações estão atrasadas."
+  },
+  "page": {
+    "metaTitle": "Planilha de tarefas: plano de ação com responsável e prazo",
+    "metaDescription": "Planilha de tarefas para reuniões: cole no Claude, ChatGPT ou Codex e tenha um plano de ação 5W2H com responsável, prazo e revisão semanal de cada ação.",
+    "headline": "Uma planilha de tarefas que cobra o prazo: um plano de ação que o seu agente de IA monta no CRM",
+    "answer": "Um plano de ação é uma lista em que cada ação tem um responsável, um prazo e um status, ligada à reunião ou à decisão de onde veio, para que o que foi combinado aconteça de verdade. Quem usa a planilha 5W2H encontra aqui responsável, prazo e origem de cada ação. Cole este modelo no seu agente de IA e ele monta a lista no Customermates, com reuniões, decisões, projetos e uma revisão semanal do que está aberto, atrasado ou bloqueado. Você aprova o plano antes que qualquer coisa seja criada.",
+    "routine": {
+      "title": "A revisão semanal das ações em 15 minutos",
+      "steps": [
+        "Olhe só as exceções: ações bloqueadas, ações que estouram o prazo e ações sem próximo passo.",
+        "Para cada ação bloqueada, indique quem pode desbloqueá-la e marque uma data para retomá-la.",
+        "Para cada ação atrasada, decida com o responsável: novo prazo, passar para outra pessoa ou cancelar.",
+        "Confirme as mudanças de prazo na reunião, não depois, e só conclua uma ação com prova, como um link, um arquivo ou uma mensagem."
+      ]
+    },
+    "limits": [
+      "Não é uma suíte de gestão de projetos. Não há dependências entre tarefas, linha do tempo ou Gantt, sprints nem controle de horas. Essas funções ficam na sua ferramenta de projetos.",
+      "Não é um sistema de qualidade validado. Ações corretivas regulamentadas, por exemplo em dispositivos médicos ou aviação, exigem assinaturas eletrônicas e trilhas de auditoria validadas. O modelo oferece a uma organização pequena um registro claro e uma verificação de eficácia, nada além disso.",
+      "Deixe de fora planos de cuidado e qualquer dado de saúde.",
+      "Ninguém é lembrado automaticamente. A revisão semanal e o painel mostram o que vence; os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em intervalos regulares, e você decide quais ativar.",
+      "Uma visão não consegue mostrar ao mesmo tempo as ações atrasadas e as bloqueadas, por isso o modelo tem uma visão para cada uma."
+    ],
+    "faq": [
+      {
+        "question": "O que deve ter uma ação num plano de ação?",
+        "answer": "Um título que começa com um verbo e tem menos de dez palavras, um responsável com nome, uma data concreta e não uma janela como semana que vem, e um status. Quem trabalha com 5W2H responde sete perguntas: o quê, por quê, quem, onde, quando, como e quanto. O modelo cobre o essencial, que é a ação, o responsável, o prazo e a origem; se quiser as outras perguntas como campos, peça ao seu agente no plano."
+      },
+      {
+        "question": "Quais status uma ação deve ter?",
+        "answer": "Os guias de quem trabalha na prática usam A fazer, Em andamento, Bloqueado, Em revisão e Concluído, e alguns acrescentam Cancelado. Este modelo tem seis: a fazer, em andamento, bloqueada, em revisão, concluída e cancelada. Escale no bloqueio, não no prazo: uma ação bloqueada indica quem pode desbloqueá-la e ganha uma data para ser retomada."
+      },
+      {
+        "question": "Quando uma ação está realmente concluída?",
+        "answer": "Quando há uma prova e não só a palavra feito: um link, um arquivo ou uma mensagem, mais a data real de conclusão. Uma ação corretiva ou preventiva só é concluída quando a sua eficácia foi verificada; o modelo cria essa verificação 30 dias depois de a ação ser concluída, e você pode mudar o prazo."
+      },
+      {
+        "question": "Planilha de tarefas ou CRM: qual escolher?",
+        "answer": "Uma planilha basta para uma lista curta de um grupo pequeno, mas não lembra ninguém do prazo nem liga a ação à reunião de onde ela veio. Aqui cada ação fica ligada à reunião, à decisão e ao projeto, e a revisão semanal mostra o que está atrasado ou bloqueado. Dá para importar uma planilha em Excel ou CSV por um assistente de mapeamento de colunas."
+      },
+      {
+        "question": "O agente envia as atas ou os lembretes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "As ações que combinamos nas reuniões ficam pelo caminho, e ninguém sabe quem é responsável por quê nem até quando. Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data para retomar, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
+    "questions": [
+      "De onde vêm as suas ações: reuniões, projetos, auditorias, clientes?",
+      "Quem é responsável pelas ações e quem decide quando o prazo de uma muda ou ela é cancelada?",
+      "Você precisa de ações corretivas e preventivas com checagem de eficácia, como na ISO 9001?",
+      "Você guarda as atas em outro lugar? Aqui só se guarda um link."
+    ]
+  }
+}

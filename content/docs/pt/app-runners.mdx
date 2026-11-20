@@ -1,0 +1,115 @@
+---
+title: "Runners: agentes com o seu próprio Claude Code ou Codex"
+description: "Um runner executa os seus passos do agente com o seu próprio Claude Code, Codex ou Gemini CLI na sua máquina: início, alcance, tempo e revogação."
+---
+
+Um runner permite que os seus passos do agente sejam executados com o seu próprio Claude Code, Codex ou Gemini CLI na sua própria máquina. É um pequeno programa, `customermates-runner`, que pede ao seu espaço de trabalho as suas tarefas do agente, inicia a CLI em que você iniciou sessão, devolve o que a CLI faz como transcrição e comunica o resultado. O seu início de sessão da CLI fica na sua máquina: o Customermates nunca o recebe. Os runners funcionam no Customermates Cloud e em instâncias auto-hospedadas.
+
+Você gerencia os runners em **Configurações**, **Agentes**, no cartão **Runners**. Para adicionar e revogar um runner é preciso o mesmo acesso de função que para as [chaves de API](/docs/api-keys).
+
+## O que faz um runner? [#what-does-a-runner-do]
+
+A cada 60 segundos ele informa ao espaço de trabalho o nome da sua máquina e quais CLIs pode iniciar, com as versões. Entre um aviso e outro, mantém uma solicitação aberta por até 25 segundos para buscar a próxima tarefa na fila e pergunta de novo logo em seguida. Um runner só executa as tarefas do membro que o adicionou: os passos do agente das automações de que esse membro é dono. Ele confirma cada tarefa ao espaço de trabalho antes de iniciar a CLI. Para uma tarefa, grava uma configuração MCP temporária com o endereço do seu espaço de trabalho e a chave dessa tarefa, inicia a CLI com o prompt da tarefa em uma pasta temporária vazia, devolve cada passo do trabalho da CLI como evento de transcrição e apaga a configuração quando a CLI termina. Depois fica à espera da próxima tarefa.
+
+A CLI trabalha como você, o membro que adicionou o runner, com as suas permissões neste espaço de trabalho. Ela usa as ferramentas do seu espaço de trabalho por [MCP](/docs/mcp) com uma chave que pertence só a essa tarefa. A chave funciona apenas no endereço MCP do seu espaço de trabalho e apenas enquanto a tarefa está em execução. Ela permite no máximo 25 chamadas de ferramentas e recusa as chamadas que, no chat, precisariam da sua aprovação, como excluir registros ou alterar funções. Ela também recusa criar, alterar ou excluir páginas da base de conhecimento. Quando a instrução da etapa contém texto de fora do espaço de trabalho, ela recusa ainda enviar e-mails ou mensagens de chat, enviar convites de conexão e criar, alterar ou iniciar webhooks e rotinas, como descrito em [O que uma etapa de agente pode fazer?](/docs/app-agents#what-may-an-agent-step-do).
+
+## O que ele precisa? [#what-does-it-need]
+
+- Node 24, ou Docker.
+- Claude Code, Codex ou Gemini CLI, instalado e com a sessão iniciada nessa máquina. Sem CLI, o runner não informa nenhuma e não pega tarefas. Enquanto nenhum dos seus runners tiver informado uma CLI, um passo do agente que roda no seu próprio runner não espera: ele falha de imediato com "Você ainda não tem nenhum runner pronto. Os runners são pessoais: cada membro adiciona o seu."
+- Uma conexão de rede dessa máquina até o endereço do seu Customermates. O runner só faz solicitações de saída: funciona atrás de um firewall e não precisa de nenhuma porta aberta.
+
+## Como adiciono e inicio um runner? [#how-do-i-add-a-runner]
+
+1. Abra **Configurações**, **Agentes** e clique em **Adicionar runner**. Dê a ele um nome que indique de qual máquina se trata.
+2. Copie o token. Ele é mostrado uma única vez e começa com `cmr_`. Trate-o como uma senha: quem o tiver pode buscar as suas tarefas de runner neste espaço de trabalho.
+3. Inicie o runner nessa máquina, com Node:
+
+```bash
+CUSTOMERMATES_RUNNER_TOKEN=cmr_... npx customermates-runner --url https://crm.example.com
+```
+
+ou com Docker, montando a pasta de início de sessão da sua CLI para que ela continue com a sessão iniciada:
+
+```bash
+docker run -d --restart unless-stopped \
+  -e CUSTOMERMATES_URL=https://crm.example.com \
+  -e CUSTOMERMATES_RUNNER_TOKEN=cmr_... \
+  -v "$HOME/.claude:/home/node/.claude" \
+  -v "$HOME/.claude.json:/home/node/.claude.json" \
+  ghcr.io/customermates/runner
+```
+
+O endereço é aquele em que você abre o Customermates; em uma instância auto-hospedada é o seu próprio `BASE_URL`. Ele também pode vir de `CUSTOMERMATES_URL`. Dê ao runner o token na variável `CUSTOMERMATES_RUNNER_TOKEN`, ou em um arquivo que só a sua conta possa ler, indicado com `--token-file` ou `CUSTOMERMATES_RUNNER_TOKEN_FILE`. Não o passe como argumento: uma linha de comando é visível para todos os usuários da máquina. No macOS, o Claude Code guarda a sessão no Acesso às Chaves, então a pasta montada não leva nenhuma sessão para o contêiner: passe `ANTHROPIC_API_KEY`, ou um token obtido com `claude setup-token` em `CLAUDE_CODE_OAUTH_TOKEN`. Opções úteis:
+
+- `--client claude`, `codex` ou `gemini` escolhe a CLI que executa as tarefas. Por padrão, é a primeira encontrada.
+- `--workdir <pasta>` executa a CLI nessa pasta. Por padrão, cada tarefa recebe uma pasta temporária vazia.
+- `--permission-mode <modo>`, `--allowed-tools <ferramentas>` e `--setting-sources <lista>` definem o que o Claude Code pode fazer sem perguntar. Por padrão, só as ferramentas do seu espaço de trabalho são permitidas e as suas próprias configurações do Claude Code não são carregadas.
+- `--allow-shell` permite que o Codex execute comandos de shell no seu ambiente isolado somente leitura. Por padrão, o Codex não tem shell.
+
+O runner grava seus logs na saída padrão e nunca imprime o seu token.
+
+## O que o servidor envia e o que ele nunca envia? [#what-is-sent]
+
+O servidor envia o prompt da tarefa, se pessoas de fora podem influenciar esse prompt, o endereço MCP do seu espaço de trabalho e a chave da tarefa. Quando o runner confirma a tarefa, o servidor informa por quanto tempo ela pode durar. Ele nunca envia um segredo do espaço de trabalho, uma chave de provedor ou uma tarefa de outro membro. A chave só alcança este espaço de trabalho, só como você, e só enquanto a tarefa está em execução: o servidor a recusa antes de o runner confirmar a tarefa e a partir do momento em que a tarefa é concluída, expira ou é cancelada.
+
+O runner nunca envia o seu início de sessão da CLI, os seus arquivos ou o seu ambiente. Ele envia o nome da máquina, as CLIs que pode iniciar, os eventos de transcrição (o que o agente escreveu, cada chamada de ferramenta com um resumo curto dos argumentos e cada resultado de ferramenta, sem tokens) e o resultado. As transcrições são guardadas com a tarefa: por isso, não deixe uma CLI imprimir segredos que não devem aparecer. O espaço de trabalho guarda os últimos 200 eventos de uma tarefa, então uma execução mais longa mostra as suas etapas mais recentes.
+
+Um prompt que pessoas de fora podem influenciar, por exemplo um que carrega o envio de um formulário, um webhook de entrada ou o nome de um registro, fica marcado na tarefa. O runner o envolve no mesmo enquadramento que o servidor MCP usa: o texto é dado, não instrução, e um pedido dentro dele para mudar o comportamento do agente é relatado, não seguido.
+
+## O que a CLI pode alcançar na minha máquina? [#what-can-it-reach]
+
+A CLI roda com a conta que iniciou o runner. Apresentar um texto como dado reduz a chance de um modelo segui-lo, mas não a elimina. O que uma CLI enganada poderia fazer é limitado pela chave da tarefa, descrita acima, e por estes padrões:
+
+- O Claude Code só pode chamar as ferramentas do seu espaço de trabalho, só carrega o servidor MCP da tarefa e não carrega as suas próprias configurações. As ferramentas de arquivos dele ficam na pasta vazia da tarefa.
+- O Codex roda sem a sua própria configuração e sem shell. Se você iniciar o runner com `--allow-shell`, os comandos rodam no ambiente isolado somente leitura do Codex, que impede escrever, mas não ler: um comando pode ler qualquer arquivo que a sua conta possa ler, e as ferramentas do seu espaço de trabalho podem depois gravar esse conteúdo em um registro. Use isso apenas em uma máquina, em um contêiner ou com uma conta que não contenha mais nada.
+- O Gemini CLI é iniciado com o servidor MCP do seu espaço de trabalho como o único permitido. As ferramentas integradas dele seguem as suas próprias configurações do Gemini.
+- O token do runner e as suas sessões das CLIs ficam na sua conta nessa máquina. Uma CLI que você autoriza a executar comandos pode lê-los. Para uma separação rígida, execute o runner com Docker ou com uma conta de usuário própria.
+
+## O que acontece com uma tarefa? [#what-happens-to-a-job]
+
+Uma tarefa espera na fila até que um runner do dono dela a pegue. Uma tarefa pega que o runner não confirma em um minuto, por exemplo porque foi parado nesse momento, volta para a fila em poucos minutos. Uma tarefa que nenhum runner busca em 15 minutos termina como expirada. Uma tarefa confirmada pode durar pouco menos de dez minutos; então o runner para a CLI e tudo o que ela iniciou, e a tarefa termina como expirada. Uma tarefa confirmada nunca é executada uma segunda vez: se o runner sumir enquanto a tarefa está em execução, a tarefa termina como expirada poucos minutos depois de passarem os dez minutos dela. Se a CLI falhar, a tarefa termina como com falha, com o motivo. Quando um runner é revogado, as tarefas dele terminam como canceladas. Uma tarefa já concluída, expirada ou cancelada não pode mais ser alterada por um relatório tardio de um runner, e o runner para a sua CLI quando o espaço de trabalho assim indicar.
+
+Vários runners podem trabalhar em um espaço de trabalho. As tarefas de um membro vão para os runners desse membro, e cada tarefa para um só deles. Um passo do agente que nomeia um runner espera por esse runner.
+
+## Como sei se um runner está online? [#is-it-online]
+
+O cartão **Runners** mostra de cada runner a máquina, as CLIs que ele pode iniciar e quando foi visto pela última vez, com um de quatro estados: **Online** se foi visto nos últimos dois minutos, **Offline** se foi visto antes, **Nunca ligado** se ainda não se comunicou, e **Revogado**. O cartão se atualiza sozinho a cada 30 segundos.
+
+Quando as suas tarefas do agente estão à espera e há 10 minutos não é visto nenhum runner seu que possa pegá-las, você recebe uma notificação do tipo **Alertas de automação**, uma vez a cada vez que o runner se ausentou, com um link para o cartão **Runners**.
+
+## Como revogo um runner? [#how-do-i-revoke-a-runner]
+
+Clique em **Revogar** no runner e confirme. O runner não pode mais buscar tarefas: a sua próxima solicitação é recusada e o programa para. As tarefas que ele está executando, e as que esperam exatamente por esse runner, terminam como canceladas, e as chaves delas deixam de funcionar na hora. A revogação não pode ser desfeita. Para usar a máquina de novo, adicione um novo runner e inicie-o com o novo token. Revogue um runner imediatamente se o token for divulgado. Um runner também é revogado quando o membro que o adicionou sai do espaço de trabalho ou é desativado. Um membro que o plano Free pausou mantém os seus runners: durante a pausa, as solicitações do runner são recusadas e o programa para, e quando um plano pago traz o membro de volta, o mesmo token volta a funcionar.
+
+## Para agentes [#for-agents]
+
+Os runners falam com o espaço de trabalho por REST com `Authorization: Bearer cmr_...`, o token mostrado quando o runner foi adicionado. Um token de runner só alcança estes cinco endpoints, descritos na [referência da API](/docs/openapi):
+
+- `POST /api/v1/runner/heartbeat` informa a máquina e as CLIs que o runner pode iniciar.
+- `POST /api/v1/runner/jobs/claim` espera até 25 segundos e responde 200 com uma tarefa do membro do runner, o número da tentativa e as credenciais MCP dela, ou 204 se nenhuma chegou.
+- `POST /api/v1/runner/jobs/{id}/start` confirma a tentativa pega, inicia a tarefa e responde por quantos segundos ela pode durar.
+- `POST /api/v1/runner/jobs/{id}/events` acrescenta eventos de transcrição dessa tentativa e responde 409 quando a tarefa está encerrada.
+- `POST /api/v1/runner/jobs/{id}/result` informa `succeeded`, `failed` ou `timedOut` para essa tentativa com a resposta final e, se a CLI os informar, os tokens consumidos.
+
+Um token revogado, um runner cujo membro saiu do espaço de trabalho, foi desativado ou está pausado pelo plano Free, e um espaço de trabalho em exclusão respondem 401.
+
+## Perguntas frequentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="O Customermates recebe o meu início de sessão do Claude Code, Codex ou Gemini?">
+Não. O runner inicia a CLI que você mesmo instalou e em que iniciou sessão, na sua máquina. O espaço de trabalho só envia a ela o prompt e uma chave para essa única tarefa no endereço MCP do seu espaço de trabalho.
+</FaqItem>
+<FaqItem question="Alguém de fora da minha equipe pode fazer o meu runner executar algo?">
+Só por meio de um prompt que você configurou. Se um prompt carrega texto de pessoas de fora ou de um registro, a tarefa o marca e o runner o apresenta como dado, não como instrução. Mesmo assim, um modelo pode ser enganado por um texto desses. O que ele poderia fazer então é limitado: a chave da tarefa age como você, permite no máximo 25 chamadas de ferramentas, recusa o que precisa da sua aprovação e deixa de funcionar quando a tarefa termina. Por padrão, o Claude Code só pode usar as ferramentas do seu espaço de trabalho e o Codex não tem shell: amplie isso apenas em uma máquina em que você confie.
+</FaqItem>
+<FaqItem question="O runner de um colega pode executar as minhas tarefas?">
+Não. Um runner só executa as tarefas do membro que o adicionou, então a máquina de outro membro nunca recebe uma chave que age como você. Para executar os seus passos do agente em um runner, adicione o seu.
+</FaqItem>
+<FaqItem question="E se a minha máquina estiver desligada?">
+As suas tarefas esperam na fila por até 15 minutos e depois terminam como expiradas. Após 10 minutos sem nenhum runner seu, você recebe uma notificação.
+</FaqItem>
+<FaqItem question="Posso executar o runner em um servidor?">
+Sim. Serve qualquer máquina com Node 24 ou Docker, uma CLI com a sessão iniciada e conexão com o endereço do seu Customermates, por exemplo uma máquina virtual sempre ligada.
+</FaqItem>
+</Faq>

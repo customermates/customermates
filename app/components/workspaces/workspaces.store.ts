@@ -2,9 +2,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { action, computed, makeObservable, observable } from "mobx";
+import { Status } from "@/generated/prisma";
 
 import {
   deleteWorkspaceAction,
+  leaveInactiveWorkspaceAction,
   leaveWorkspaceAction,
   listMyWorkspacesAction,
   withdrawWorkspaceRequestAction,
@@ -34,6 +36,7 @@ export class WorkspacesStore extends BaseStore {
       canCreate: computed,
       setWorkspaces: action,
       renameCurrent: action,
+      setCurrentLogo: action,
       showUnavailable: action,
       setIsNavigating: action,
     });
@@ -57,6 +60,10 @@ export class WorkspacesStore extends BaseStore {
 
   renameCurrent = (name: string) => {
     this.items = this.items.map((workspace) => (workspace.isCurrent ? { ...workspace, name } : workspace));
+  };
+
+  setCurrentLogo = (logoUrl: string | null) => {
+    this.items = this.items.map((workspace) => (workspace.isCurrent ? { ...workspace, logoUrl } : workspace));
   };
 
   showUnavailable = () => {
@@ -100,16 +107,45 @@ export class WorkspacesStore extends BaseStore {
 
   leaveCurrent = async (): Promise<boolean> => {
     const current = this.current;
-    if (this.isNavigating || !current) return false;
+    return current ? this.leaveActive(current.companyId) : false;
+  };
 
-    const result = await this.whileLoading(() => leaveWorkspaceAction({ companyId: current.companyId }));
+  leaveActive = async (companyId: string): Promise<boolean> => {
+    const target = this.items.find((workspace) => workspace.companyId === companyId);
+    if (this.isNavigating || target?.status !== Status.active) return false;
+
+    const result = await this.whileLoading(() =>
+      target.isCurrent
+        ? leaveWorkspaceAction({ companyId })
+        : leaveInactiveWorkspaceAction({ companyId, status: Status.active }),
+    );
     if (!result.ok) {
-      if (result.code === CustomErrorCode.workspaceChanged) this.showUnavailable();
+      if (result.code !== CustomErrorCode.workspaceChanged && result.code !== CustomErrorCode.workspaceNotFound)
+        toastZodErrorTree(result.error);
+      else if (target.isCurrent) this.showUnavailable();
+      else this.reload();
+      return false;
+    }
+
+    if (target.isCurrent) this.enter("/dashboard");
+    else this.reload();
+    return true;
+  };
+
+  leaveInactive = async (companyId: string, options: { stayOnPage?: boolean } = {}): Promise<boolean> => {
+    const target = this.items.find((workspace) => workspace.companyId === companyId);
+    if (this.isNavigating || target?.status !== Status.inactive) return false;
+
+    const result = await this.whileLoading(() => leaveInactiveWorkspaceAction({ companyId }));
+    if (!result.ok) {
+      if (result.code === CustomErrorCode.workspaceChanged || result.code === CustomErrorCode.workspaceNotFound)
+        this.reload();
       else toastZodErrorTree(result.error);
       return false;
     }
 
-    this.enter("/dashboard");
+    if (target.isCurrent && !options.stayOnPage) this.enter("/dashboard");
+    else this.reload();
     return true;
   };
 
@@ -141,6 +177,10 @@ export class WorkspacesStore extends BaseStore {
     this.enter("/dashboard");
     return true;
   };
+
+  private reload() {
+    this.navigateTo(`${window.location.pathname}${window.location.search}`);
+  }
 
   private navigateTo(href: string) {
     this.setIsNavigating(true);

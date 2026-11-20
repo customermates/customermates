@@ -1,18 +1,20 @@
 import { z } from "zod";
 
-export const EVENT_VIA_KINDS = ["apiKey", "oauthApplication"] as const;
+export const EVENT_VIA_KINDS = ["apiKey", "oauthApplication", "form", "incomingWebhook"] as const;
 export const EVENT_VIA_NAME_MAX_LENGTH = 100;
 
 export const EventViaSchema = z
   .object({
     kind: z
       .enum(EVENT_VIA_KINDS)
-      .describe("The credential the change came through: an API key, or an OAuth application such as an MCP client"),
+      .describe(
+        "What the change came through: an API key, an OAuth application such as an MCP client, a public form or an incoming webhook",
+      ),
     name: z
       .string()
       .min(1)
       .max(EVENT_VIA_NAME_MAX_LENGTH)
-      .describe("The name of the API key or OAuth application when the change was made"),
+      .describe("The name of the API key, OAuth application, form or incoming webhook when the change was made"),
   })
   .strict();
 

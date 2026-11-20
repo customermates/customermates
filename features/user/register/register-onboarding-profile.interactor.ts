@@ -2,6 +2,7 @@ import type { AuthService } from "@/features/auth/auth.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { RegistrationAdAttribution } from "@/features/acquisition/ad-attribution.schema";
 import type { RegistrationSignupSource } from "@/features/acquisition/signup-source";
+import type { TemplateSlug } from "@/core/templates/template-slugs";
 import type { InviteTokenCookieRepo } from "@/features/company/invite-token-cookie.repo";
 import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -21,6 +22,7 @@ export type RegisterOnboardingProfileData = RegisterUserData & { onboardingInten
 type RegistrationContext = {
   adAttribution?: RegistrationAdAttribution[];
   signupSource?: RegistrationSignupSource | null;
+  signupTemplate?: TemplateSlug | null;
 };
 
 @SystemInteractor
@@ -63,6 +65,7 @@ export class RegisterOnboardingProfileInteractor {
     const result = await this.registerUserInteractor.invoke(registrationData, {
       adAttribution: context.adAttribution,
       signupSource: context.signupSource,
+      signupTemplate: context.signupTemplate,
       target,
     });
 

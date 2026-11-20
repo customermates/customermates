@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   refresh: vi.fn(),
   register: vi.fn(),
   readSignupSource: vi.fn(),
+  readSignupTemplate: vi.fn(),
   forgetSignupJourney: vi.fn(),
 }));
 
@@ -35,6 +36,7 @@ vi.mock("@/features/acquisition/next/ad-attribution-cookie", () => ({
 vi.mock("@/features/acquisition/next/signup-journey-cookie", () => ({
   forgetSignupJourney: mocks.forgetSignupJourney,
   readRegistrationSignupSource: mocks.readSignupSource,
+  readRegistrationSignupTemplate: mocks.readSignupTemplate,
 }));
 
 import { applyOnboardingPlaybookAction, completeOnboardingWizardAction, registerProfileAction } from "../actions";
@@ -79,6 +81,7 @@ describe("onboarding registration action", () => {
     mocks.clearRegisteredClick.mockResolvedValue(undefined);
     mocks.readAttribution.mockResolvedValue(attribution);
     mocks.readSignupSource.mockResolvedValue(signupSource);
+    mocks.readSignupTemplate.mockResolvedValue("client-tracker");
     mocks.forgetSignupJourney.mockResolvedValue(undefined);
   });
 
@@ -90,7 +93,11 @@ describe("onboarding registration action", () => {
       error: { fieldErrors: {}, formErrors: [] },
     });
 
-    expect(mocks.register).toHaveBeenCalledExactlyOnceWith(registration, { adAttribution: attribution, signupSource });
+    expect(mocks.register).toHaveBeenCalledExactlyOnceWith(registration, {
+      adAttribution: attribution,
+      signupSource,
+      signupTemplate: "client-tracker",
+    });
     expect(mocks.clearRegisteredClick).not.toHaveBeenCalled();
     expect(mocks.forgetSignupJourney).not.toHaveBeenCalled();
   });

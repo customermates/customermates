@@ -35,7 +35,7 @@ This guide lists the duties that matter for a CRM with their article numbers, sh
   <SummaryItem label="The rule">You are the controller of the personal data in your CRM, and the CRM vendor is your processor. The GDPR makes you responsible for the lawful basis, the contract and the requests, not the software.</SummaryItem>
   <SummaryItem label="Before you sign">A data processing agreement with the content of Article 28(3), the vendor's subprocessor list, where the data is processed and which transfer mechanism covers any provider outside the EU.</SummaryItem>
   <SummaryItem label="In daily use">Narrow access, few fields, a way to find, correct, export and delete one person's data, and a retention review you actually run.</SummaryItem>
-  <SummaryItem label="Customermates">A DPA for the managed cloud, a public subprocessor list that includes US providers, the primary database configured in AWS Frankfurt (a chosen setting, not a guarantee), no compliance certification, and an open-source core you can self-host.</SummaryItem>
+  <SummaryItem label="Customermates">A DPA for the managed cloud, a public subprocessor list that includes US providers, the primary database configured in AWS Frankfurt (a chosen setting, not a guarantee), no compliance certification, and a Community Edition you can self-host.</SummaryItem>
   <SummaryItem label="Disclosure">Customermates publishes this guide. Third-party law is cited to EUR-Lex and the European Commission.</SummaryItem>
 </ArticleSummary>
 
@@ -150,7 +150,7 @@ Provided, from the product documentation and the legal pages:
 - roles per list, a deactivation switch for members and tenant separation by company account;
 - global search by email address or phone number, in-place correction, Excel and JSON export per list, and Trash with permanent deletion;
 - an Activity log for changes to CRM records and workspace configuration, readable by roles that have access; and
-- an open-source core under the AGPL that you can [self-host](/features/self-hosted).
+- a source-available Community Edition under the Sustainable Use License that you can [self-host](/features/self-hosted).
 
 Not provided, so ask for it elsewhere if you need it:
 
@@ -158,7 +158,7 @@ Not provided, so ask for it elsewhere if you need it:
 - it has no field-level permissions and no export of a whole account in one step;
 - its Activity log does not cover sign-ins, API keys or inbox content, and it has no export button.
 
-Self-hosting changes who is responsible. The AGPL core runs with Docker and PostgreSQL on your infrastructure, and the DPA covers only the managed service: you pick the hosting and the providers and you hold your own Art. 28 contracts and transfer safeguards. TLS and encryption at rest are yours to set up. Self-hosting uses the Starter feature set, without the inbox and without Mate, and it is not air-gapped: the first address entry for a country downloads that country's public postal-code file from GeoNames unless you set `POSTAL_CODE_DATA_URL` to `off` or to a mirror. The [self-hosting guide](/docs/self-hosting) has the details, and the [open-source CRM page](/features/open-source-crm) explains the licence boundary.
+Self-hosting changes who is responsible. The Community Edition runs with Docker and PostgreSQL on your infrastructure, and the DPA covers only the managed service: you pick the hosting and the providers and you hold your own Art. 28 contracts and transfer safeguards. TLS and encryption at rest are yours to set up. Self-hosting uses the Starter feature set, without the inbox and without Mate, and it is not air-gapped: the first address entry for a country downloads that country's public postal-code file from GeoNames unless you set `POSTAL_CODE_DATA_URL` to `off` or to a mirror. The [self-hosting guide](/docs/self-hosting) has the details, and the [open-source CRM page](/features/open-source-crm) explains the licence boundary.
 
 <AcquisitionCallout title="Where Customermates is the wrong fit" variant="boundary">
   If a procurement checklist asks for a recognised certification, a contractual guarantee of EU-only processing or field-level permissions, Customermates cannot tick those boxes today. Put them in writing to every vendor you compare, and read the answers against the subprocessor lists. The [best CRM software comparison](/blog/best-crm-software) and the [guide to choosing a CRM](/blog/how-to-choose-crm) cover the other criteria.
@@ -188,7 +188,7 @@ The GDPR sets no fixed period. Art. 5(1)(e) requires that data is kept no longer
 In general, yes. Arts. 13 and 14 require a privacy notice. When you did not collect the data from the person, for example from an imported list, you must inform them within a reasonable period and at the latest within one month.
 </FaqItem>
 <FaqItem question="Can I keep all CRM data on my own server?">
-With the open-source core, yes: you run it with Docker and PostgreSQL on infrastructure you choose. It uses the Starter feature set, without the inbox and without Mate, and you are responsible for your own hosting contracts and security.
+With the Community Edition, yes: you run it with Docker and PostgreSQL on infrastructure you choose. It uses the Starter feature set, without the inbox and without Mate, and you are responsible for your own hosting contracts and security.
 </FaqItem>
 <FaqItem question="What happens to my data when I cancel?">
 Under the Customermates DPA you have 30 days after the end of the service to choose deletion or return. Then the data is deleted from Customermates' own systems, from backups at the latest within 90 days, and subprocessors delete under their own agreements.

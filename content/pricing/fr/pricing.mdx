@@ -13,7 +13,7 @@ pricing:
   totalSuffixPlural: "/mois au total pour {count} utilisateurs"
   moreTitle: "Plus d’usage ou une configuration sur mesure"
   selfHost:
-    text: "Vous préférez l’héberger vous-même ? L’édition open source s’auto-héberge gratuitement."
+    text: "Vous préférez l’héberger vous-même ? La Community Edition auto-hébergée est sur GitHub : code source disponible, gratuite pour votre propre entreprise."
     linkLabel: "Guide d’auto-hébergement"
     href: /docs/self-hosting
   pricingCards:
@@ -187,6 +187,10 @@ comparison:
     rows:
       - label: "Routines par utilisateur"
         catalogFact: includedRoutinesPerUser
+      - label: "Automatisations actives"
+        catalogFact: activeAutomationRules
+      - label: "Agents avec votre propre clé d'IA"
+        catalogFact: agentOwnKey
       - label: "Stockage de fichiers par utilisateur, partagé dans l’espace de travail"
         catalogFact: fileStoragePerActiveUser
       - label: "Requêtes API et MCP par espace de travail"
@@ -221,6 +225,10 @@ comparison:
         enterprise: true
       - label: "Webhooks et déclencheur n8n"
         catalogFact: webhooks
+      - label: "Envois de formulaire par mois"
+        catalogFact: formSubmissionsPerMonth
+      - label: "Formulaires sans la mention Customermates"
+        catalogFact: formBadge
       - label: "Accès MCP pour un client IA externe"
         free: true
         starter: true
@@ -244,13 +252,13 @@ comparison:
         business: false
         max: false
         enterprise: "Sur demande"
-      - label: "Marque blanche (pas encore développée, sur accord)"
+      - label: "Intégration et marque blanche (pas encore développées, sur accord)"
         free: false
         starter: false
         pro: false
         business: false
         max: false
-        enterprise: "Sur demande"
+        enterprise: "Sur accord, la marque reste visible"
       - label: "Processus d’agent personnalisé sous contrat (non intégré)"
         free: false
         starter: false
@@ -321,7 +329,10 @@ faq:
     content: "Votre premier espace de travail Cloud commence par l’essai Pro de [[commercial.trial.days]] jours, sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. Si l’essai se termine sans formule payante, l’espace de travail passe à Free au lieu d’être bloqué, et rien n’est supprimé. Free sert à essayer Customermates seul : [[commercial.limit.free.maxMembers]] personne, jusqu’à [[commercial.limit.free.maxRecords]] enregistrements et [[commercial.limit.free.fileStorageBytes]] de stockage de fichiers par espace de travail. Elle n’inclut ni boîte de réception ni comptes connectés, ni Mate, ni routines, ni webhooks, ni déclencheur n8n. L’API REST et MCP sont inclus, avec jusqu’à [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour et par espace de travail : vous pouvez donc utiliser votre propre Claude ou ChatGPT. Les enregistrements et fichiers au-delà d’une limite sont conservés, seul l’ajout de nouveaux est refusé. Vous pouvez passer à une formule payante à tout moment. Une instance auto-hébergée reste gratuite et sans ces limites."
   - id: pricing-faq-13
     title: "Que devient mon équipe quand un espace de travail passe à Free ?"
-    content: "Free garde [[commercial.limit.free.maxMembers]] personne active par espace de travail : la personne qui a créé l’espace de travail, sinon le premier administrateur. Toutes les autres sont mises en pause, pas supprimées. Les personnes en pause ne peuvent pas ouvrir l’espace de travail, et leurs enregistrements, notes et historique sont conservés. Les invitations et demandes d’accès en attente sont annulées, les routines sont mises en pause et les webhooks existants n’envoient plus rien. Un administrateur peut transmettre la place active à un autre administrateur. Dès que l’espace de travail choisit une formule payante, toutes les personnes en pause reviennent automatiquement et comptent de nouveau comme des places payantes, et les routines et webhooks reprennent."
+    content: "Free garde [[commercial.limit.free.maxMembers]] personne active par espace de travail : la personne qui a créé l’espace de travail, sinon le premier administrateur. Toutes les autres sont mises en pause, pas supprimées. Les personnes en pause ne peuvent pas ouvrir l’espace de travail, et leurs enregistrements, notes et historique sont conservés. Les invitations et demandes d’accès en attente sont annulées, les routines sont mises en pause, les automatisations au-delà de la limite Free de [[commercial.entitlement.free.activeAutomationRules]] sont désactivées, les formulaires publics n’acceptent plus d’envois au-delà de la limite mensuelle de [[commercial.entitlement.free.formSubmissionsPerMonth]] et les webhooks existants n’envoient plus rien. Un administrateur peut transmettre la place active à un autre administrateur. Dès que l’espace de travail choisit une formule payante, toutes les personnes en pause reviennent automatiquement et comptent de nouveau comme des places payantes, et les routines, automatisations, formulaires et webhooks reprennent."
+  - id: pricing-faq-14
+    title: "Comment surveillez-vous l’usage d’une instance auto-hébergée ?"
+    content: "Nous ne le faisons pas. Une Community Edition auto-hébergée n’a pas de clé de licence et ne signale aucun usage à Customermates : l’image publiée n’a pas de ping de licence et désactive la télémétrie de Next.js et de Prisma, et les erreurs de l’application restent dans vos propres journaux. La licence s’applique par ses conditions, pas par la télémétrie : la Sustainable Use License limite l’usage à votre propre entreprise, et les fonctions Enterprise, l’intégration et la marque blanche exigent un accord. Un forfait Cloud ne débloque rien sur une instance auto-hébergée. Plus d’informations : https://customermates.com/docs/licence-faq et https://customermates.com/docs/compare-editions"
 
 cta:
   action: "Prêt à donner suite à chaque échange client ?"

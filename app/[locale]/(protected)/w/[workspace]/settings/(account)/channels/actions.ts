@@ -21,8 +21,8 @@ import {
 } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
-export async function startConnectAccountAction(channel: ConnectChannel) {
-  const result = await settleOutcome(getCreateAuthLinkInteractor().invoke({ channel }));
+export async function startConnectAccountAction(channel: ConnectChannel, returnTo?: "settings" | "onboarding") {
+  const result = await settleOutcome(getCreateAuthLinkInteractor().invoke({ channel, returnTo }));
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
   const failure = serializeActionFailure(result.error);
   return "code" in result && result.code ? { ...failure, code: result.code } : failure;

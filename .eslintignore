@@ -21,3 +21,5 @@ build
 !tsup.config.ts
 prisma/dev.db
 generated
+templates/*
+core/templates/bundles/*

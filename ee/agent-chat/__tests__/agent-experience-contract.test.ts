@@ -567,7 +567,7 @@ describe("agent experience contract", () => {
           note: "The dashboard shows your numbers.",
         },
         {
-          targetId: "nav-routines",
+          targetId: "nav-automations",
           note: "Routines run your saved instructions.",
         },
       ],

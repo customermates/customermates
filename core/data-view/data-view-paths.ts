@@ -7,13 +7,14 @@ export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string 
   [SURFACE.roles]: settingsHref("roles"),
   [SURFACE.webhooks]: settingsHref("webhooks"),
   [SURFACE.webhookDeliveries]: WEBHOOK_DELIVERIES_HREF,
+  [SURFACE.incomingWebhooks]: settingsHref("incoming-webhooks"),
   [SURFACE.messagingThreads]: "/inbox",
   [SURFACE.entityTimeline]: null,
   [SURFACE.activity]: settingsHref("activity"),
   [SURFACE.operatorUsers]: "/operator/users",
   [SURFACE.operatorWorkspaces]: "/operator/workspaces",
   [SURFACE.operatorAudit]: "/operator/audit",
-  [SURFACE.routines]: "/routines",
+  [SURFACE.routines]: "/automations",
   [SURFACE.dashboard]: "/dashboard",
 });
 

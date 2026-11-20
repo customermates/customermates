@@ -24,7 +24,6 @@ import { RecordJournal } from "./record-journal";
 import { recordCauseBy } from "./record-event-cause";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import { invalidConfigurationFailure } from "./configuration-issue-failure";
-import { currentRoutineContext } from "@/core/decorators/routine-context";
 
 @TenantInteractor()
 export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
@@ -82,11 +81,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
             operationId,
             "context",
             "cause",
-            recordCauseBy(this.user, {
-              kind: "configuration",
-              operationId,
-              routineDepth: currentRoutineContext()?.causationDepth,
-            }),
+            recordCauseBy(this.user, { kind: "configuration", operationId }),
           );
           await this.background.dispatch("record-operation", {
             operationId,
@@ -107,7 +102,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
             prepared.model,
             this.userId,
             input.idempotencyKey,
-            recordCauseBy(this.user, { kind: "configuration", routineDepth: currentRoutineContext()?.causationDepth }),
+            recordCauseBy(this.user, { kind: "configuration" }),
           );
           data = {
             status: "completed",

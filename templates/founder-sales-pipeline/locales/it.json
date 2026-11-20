@@ -1,0 +1,144 @@
+{
+  "locale": "it",
+  "name": "Pipeline commerciale del fondatore",
+  "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
+  "description": "Quando vendi di persona, ogni conversazione ti insegna chi compra e perché, ma gli appunti e il prossimo passo restano nella tua testa e in una pila di schede aperte. Questo modello tiene da una manciata a qualche decina di conversazioni aperte: ogni trattativa registra il problema con le parole del cliente, l'urgenza, lo stato del budget e se il decisore è coinvolto. Un pilota ha una data di fine e dice se è a pagamento, e una trattativa silenziosa va in pausa con una data per riprenderla invece di essere inseguita. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sta a te impostarli. Non è invio di sequenze in volume, raccolta di capitali né previsione per un team con più venditori.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone con cui parli, con il loro ruolo nella decisione d'acquisto." },
+    "companies": { "label": "Azienda", "pluralLabel": "Aziende", "description": "Potenziali clienti, piloti, clienti e partner." },
+    "opportunities": { "label": "Trattativa", "pluralLabel": "Trattative", "description": "Una possibile vendita, dalla prima conversazione a vinta, persa o in pausa." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Ruolo nell'acquisto", "options": { "decision_maker": "Decisore", "budget_holder": "Titolare del budget", "champion": "Sostenitore interno", "user": "Utilizzatore", "other": "Altro" } },
+    "contacts.outreach_consent": { "label": "Accetta di essere contattato" },
+    "companies.relationship": { "label": "Relazione", "options": { "prospect": "Potenziale cliente", "pilot": "Pilota", "customer": "Cliente", "churned": "Ex cliente", "partner": "Partner" } },
+    "companies.size": { "label": "Dimensione", "options": { "micro": "Da 1 a 10 persone", "small": "Da 11 a 50 persone", "medium": "Da 51 a 250 persone", "large": "Più di 250 persone" } },
+    "companies.website": { "label": "Sito web" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "new": "Nuova conversazione", "discovery_done": "Analisi esigenze", "pilot": "Pilota o prova", "proposal": "Offerta", "won": "Vinta", "lost": "Persa", "parked": "In pausa" }
+    },
+    "opportunities.source": { "label": "Origine", "options": { "own_network": "Rete personale", "introduction": "Presentazione", "inbound": "Richiesta in entrata", "community": "Community", "outbound": "Prospezione", "event": "Evento" } },
+    "opportunities.problem": { "label": "Il problema, con le parole del cliente" },
+    "opportunities.urgency": { "label": "Urgenza", "options": { "burning": "Urgentissima", "important": "Importante", "nice_to_have": "Auspicabile" } },
+    "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Sconosciuto", "has_budget": "Ha il budget", "needs_budget": "Deve ottenere il budget", "no_budget": "Nessun budget" } },
+    "opportunities.decision_maker_engaged": { "label": "Decisore coinvolto" },
+    "opportunities.pilot_end": { "label": "Fine pilota" },
+    "opportunities.pilot_paid": { "label": "Il pilota è a pagamento" },
+    "opportunities.expected_close": { "label": "Chiusura attesa" },
+    "opportunities.revisit_on": { "label": "Riprendere il" },
+    "opportunities.next_step_due": { "label": "Prossimo passo entro" },
+    "opportunities.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "no_budget": "Nessun budget", "no_urgency": "Nessuna urgenza", "competitor": "Ha scelto un concorrente", "built_in_house": "Sviluppato internamente", "wrong_buyer": "Interlocutore sbagliato", "no_response": "Nessuna risposta", "not_a_fit": "Non adatto" }
+    },
+    "opportunities.weighted_value": { "label": "Valore ponderato" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Rispondere con un riepilogo", "call": "Chiamare", "intro_request": "Chiedere una presentazione", "pilot_check": "Verificare il pilota", "proposal": "Inviare l'offerta", "follow_up": "Fare follow-up", "handover": "Passare la mano", "review": "Fare il punto", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Azienda", "targetLabel": "Referenti" },
+    "opportunity_company": { "sourceLabel": "Azienda", "targetLabel": "Trattative" },
+    "opportunity_contacts": { "sourceLabel": "Referenti", "targetLabel": "Trattative" },
+    "action_opportunity": { "sourceLabel": "Trattativa", "targetLabel": "Attività" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Trattative per fase" },
+    "opportunities_all": { "name": "Tutte le trattative" },
+    "parked_to_revisit": { "name": "In pausa, da riprendere" },
+    "without_next_step": { "name": "Aperte senza prossimo passo" },
+    "companies_all": { "name": "Tutte le aziende" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Trattative per fase" },
+    "weighted_pipeline": { "title": "Pipeline ponderata" },
+    "customers_won": { "title": "Clienti acquisiti" },
+    "pilots_running": { "title": "Piloti in corso" },
+    "pilot_ends": { "title": "Piloti in scadenza" },
+    "revisits_coming": { "title": "Trattative in pausa da riprendere" },
+    "urgency_split": { "title": "Trattative aperte per urgenza" },
+    "lost_reasons": { "title": "Motivi di perdita delle trattative" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Guida alle vendite del fondatore", "sections": ["A chi vendiamo e che cosa abbiamo imparato", "Revisione settimanale del fondatore"] },
+    "discovery_questions": { "title": "Domande per la chiamata di analisi", "sections": ["Problema, urgenza, budget e decisori", "Che cosa annotare dopo la chiamata"] },
+    "pilot_plan": { "title": "Piano del pilota e scheda di valutazione", "sections": ["Data di fine fissa e criteri di successo", "A pagamento per impostazione predefinita e come il pilota diventa contratto"] },
+    "when_to_hire": { "title": "Quando assumere il primo venditore", "sections": ["Segnali che la vendita si ripete senza di te", "Che cosa delegare per primo"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Creare referente, azienda e trattativa quando viene inviato il modulo di richiesta" },
+    "recap_reply": { "title": "Rispondere con un riepilogo personale e un prossimo passo il giorno dopo l'inizio di una conversazione" },
+    "discovery_proposal": { "title": "Inviare il piano del pilota o l'offerta 2 giorni dopo l'analisi delle esigenze" },
+    "pilot_start_check": { "title": "Verificare il pilota 14 giorni dopo l'avvio" },
+    "pilot_review": { "title": "Fare la chiamata di decisione 3 giorni prima della fine del pilota" },
+    "proposal_follow_up": { "title": "Fare follow-up 3 giorni dopo l'invio di un'offerta" },
+    "parked_revisit_date": { "title": "Fissare la ripresa a 90 giorni quando una trattativa viene messa in pausa" },
+    "revisit_reopen": { "title": "Riaprire la conversazione alla data di ripresa" },
+    "won_handover": { "title": "Passare la mano per il cliente il giorno dopo una trattativa vinta" },
+    "won_intro_request": { "title": "Chiedere una presentazione al cliente 30 giorni dopo una trattativa vinta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni trattativa ha una fase.",
+    "problem_field": "Ogni trattativa registra il problema con le parole del cliente.",
+    "pilot_end_field": "Ogni pilota ha una data di fine.",
+    "opportunities_board_view": "Le trattative si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "Vendite del fondatore: una pipeline per ogni conversazione",
+    "metaDescription": "Vendere da fondatore senza perdere il filo: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce la pipeline con pilota e pausa.",
+    "headline": "Vendere da fondatore senza perdere il filo: una pipeline che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Una pipeline di vendita del fondatore è un breve elenco di conversazioni aperte, ognuna con il problema nelle parole del cliente, un prossimo passo con scadenza e, se ne fai uno, un pilota con data di fine fissa. Incolla questo modello nel tuo agente IA e costruisce la pipeline in Customermates, con uno stato In pausa e una data di ripresa per le trattative silenziose. Approvi il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La revisione del fondatore il lunedì",
+      "steps": [
+        "Elenca ogni conversazione aperta e dai a ciascuna un prossimo passo con scadenza. Una conversazione senza data è quella che si spegne.",
+        "Annota ciò che hai imparato dalla settimana scorsa: il problema con le parole di chi compra, l'urgenza, il budget e chi decide.",
+        "Controlla i piloti: la data di fine è fissata, i criteri di successo sono scritti, è a pagamento? Fissa la chiamata di decisione pochi giorni prima della fine.",
+        "Decidi sulle trattative silenziose: un messaggio di chiusura onesto, poi mettile in pausa con una data di ripresa invece di inseguirle.",
+        "Guarda chi ha comprato e chi ha detto no, e perché. Lo schema mostra a quale segmento vendere e quando è il momento di assumere il tuo primo venditore."
+      ]
+    },
+    "limits": [
+      "Non è uno strumento di sequenze in uscita. Customermates non ha sequenze né invii di massa, e ogni messaggio è singolo e riletto da te. LinkedIn o email in grandi numeri richiedono uno strumento specializzato.",
+      "Non è un CRM per investitori. Il fundraising ha altre fasi e altri interlocutori: usa un modello a parte.",
+      "Non produce preventivi, fatture o contratti e non ha la firma elettronica. Offerte e accordi nascono in altri strumenti; qui restano solo le date e un link.",
+      "Non c'è lead scoring né arricchimento dei dati. Quanto un lead è adatto è un campo che imposti tu.",
+      "Il valore ponderato non è una previsione. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sono tuoi da modificare.",
+      "È pensato per un solo venditore. Più venditori con obiettivi e una previsione di team richiedono il modello di pipeline di vendita o un CRM più pesante."
+    ],
+    "faq": [
+      {
+        "question": "Quando serve un CRM a un fondatore?",
+        "answer": "Le guide lo indicano quando hai più lead e clienti di quanti ne stiano nella testa o in un foglio di calcolo, spesso tra 50 e 200 contatti, o quando una seconda persona comincia a vendere. Fino ad allora basta un foglio. Aspettare ha un costo: quando cambi, note e prossimi passi sono già sparsi ovunque."
+      },
+      {
+        "question": "Quanti clienti dovrebbe chiudere personalmente un fondatore?",
+        "answer": "I consigli divergono: Jason Lemkin parla dei primi 10 clienti, forse 20, altre guide da 10 a 50. Mercury consiglia di assumere il primo venditore quando puoi dire: “So di poter vendere il mio prodotto a persone come X che hanno il problema Y”. Il modello mostra quanti clienti hai conquistato e non impone alcun numero."
+      },
+      {
+        "question": "Per quanto tempo inseguire una trattativa silenziosa?",
+        "answer": "I professionisti non concordano sul numero, ma concordano che a un certo punto ci si ferma. Mercury consiglia di non inseguire più chi ignora i tuoi messaggi; altri suggeriscono qualche sollecito, un'ultima email e un nuovo contatto dopo mesi. Il modello fa entrambe le cose: un messaggio di chiusura, poi la trattativa va in pausa con una data di ripresa a 90 giorni."
+      },
+      {
+        "question": "Conviene fare un pilota gratuito?",
+        "answer": "Il consiglio riassunto dalla Startup School di Y Combinator è di evitare piloti gratuiti senza limite e di farne uno breve, valutato e possibilmente a pagamento. Il modello dà al pilota una data di fine fissa e un indicatore a pagamento o no, crea un controllo 14 giorni dopo l'inizio e un'attività per la chiamata di decisione 3 giorni prima della fine."
+      },
+      {
+        "question": "L'agente scrive ai miei potenziali clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Vendo il mio prodotto di persona e continuo a perdere gli appunti e i prossimi passi delle mie conversazioni. Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
+    "questions": [
+      "Che cosa vendi e chi ha già comprato da te?",
+      "Fai piloti o prove e sono a pagamento?",
+      "Per quanto tempo insegui una trattativa silenziosa prima di metterla in pausa?",
+      "Da dove partono le tue conversazioni: rete personale, presentazioni, richieste in entrata o eventi?"
+    ]
+  }
+}

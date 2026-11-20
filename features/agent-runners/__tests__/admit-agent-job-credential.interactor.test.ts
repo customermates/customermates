@@ -1,0 +1,136 @@
+import { describe, expect, it, vi } from "vitest";
+
+import { MOCK_ENV_MODULE, MOCK_PRISMA_DB_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+
+import { agentJobCausation } from "@/ee/agent-runtime/agent-job-toolset";
+
+import { AdmitAgentJobCredentialInteractor } from "../admit-agent-job-credential.interactor";
+import {
+  admitsAgentJobKey,
+  agentJobRequestCausation,
+  currentAgentJobRequest,
+  runAsAgentJobRequest,
+} from "../agent-job-request-context";
+import { agentJobToolNeedsApproval } from "../agent-job-tool-gate";
+
+import { COMPANY_ID, JOB_ID, RUNNER_ID } from "./agent-runner-fixtures";
+import { FakeAgentJobRunnerRepo } from "./fake-agent-job-runner-repo";
+
+const KEY = { keyId: "key-1", companyId: COMPANY_ID, jobId: JOB_ID, attempt: 2, runnerId: RUNNER_ID };
+
+const NOW = new Date("2026-11-17T09:00:00.000Z");
+
+function setup(job: {
+  status: string;
+  attempts?: number;
+  runnerId?: string;
+  ruleChain?: string[];
+  timeoutAt?: Date | null;
+  promptUntrusted?: boolean;
+}) {
+  const jobs = new FakeAgentJobRunnerRepo(() => NOW.getTime());
+  jobs.addJob({
+    runnerId: RUNNER_ID,
+    attempts: 2,
+    ruleChain: ["rule-1"],
+    timeoutAt: new Date(NOW.getTime() + 60_000),
+    ...job,
+  });
+  return new AdmitAgentJobCredentialInteractor(jobs);
+}
+
+describe("AdmitAgentJobCredentialInteractor", () => {
+  it("admits the key while its attempt runs on its runner and hands over the job's rule chain", async () => {
+    expect(await setup({ status: "running" }).invoke(KEY)).toEqual({
+      keyId: "key-1",
+      companyId: COMPANY_ID,
+      jobId: JOB_ID,
+      attempt: 2,
+      ruleChain: ["rule-1"],
+      untrusted: false,
+    });
+  });
+
+  it("hands over that outside text can reach the instruction of the job", async () => {
+    expect(await setup({ status: "running", promptUntrusted: true }).invoke(KEY)).toMatchObject({ untrusted: true });
+  });
+
+  it.each(["claimed", "queued", "succeeded", "failed", "timedOut", "cancelled"])(
+    "refuses the key while the job is %s: before the runner confirmed it and after it ended",
+    async (status) => {
+      expect(await setup({ status }).invoke(KEY)).toBeNull();
+    },
+  );
+
+  it("refuses the key once the job is past its time limit, before any sweep closed it", async () => {
+    expect(await setup({ status: "running", timeoutAt: new Date(NOW.getTime() + 1) }).invoke(KEY)).not.toBeNull();
+    expect(await setup({ status: "running", timeoutAt: NOW }).invoke(KEY)).toBeNull();
+    expect(await setup({ status: "running", timeoutAt: new Date(NOW.getTime() - 1) }).invoke(KEY)).toBeNull();
+    expect(await setup({ status: "running", timeoutAt: null }).invoke(KEY)).toBeNull();
+  });
+
+  it("refuses the key of an earlier attempt, of another runner, of another workspace and one without a workspace", async () => {
+    expect(await setup({ status: "running", attempts: 3 }).invoke(KEY)).toBeNull();
+    expect(await setup({ status: "running", runnerId: "99999999-9999-4999-8999-999999999999" }).invoke(KEY)).toBeNull();
+    expect(
+      await setup({ status: "running" }).invoke({ ...KEY, companyId: "22222222-2222-4222-8222-222222222222" }),
+    ).toBeNull();
+    expect(await setup({ status: "running" }).invoke({ ...KEY, companyId: null })).toBeNull();
+  });
+});
+
+describe("the request context of a job key", () => {
+  const request = {
+    keyId: "key-1",
+    companyId: COMPANY_ID,
+    jobId: JOB_ID,
+    attempt: 2,
+    ruleChain: ["rule-1"],
+    untrusted: false,
+  };
+
+  it("admits exactly the key the request was admitted for, and nothing outside such a request", async () => {
+    expect(admitsAgentJobKey("key-1")).toBe(false);
+    expect(currentAgentJobRequest()).toBeUndefined();
+
+    await runAsAgentJobRequest(request, async () => {
+      await Promise.resolve();
+      expect(admitsAgentJobKey("key-1")).toBe(true);
+      expect(admitsAgentJobKey("key-2")).toBe(false);
+      expect(currentAgentJobRequest()).toEqual(request);
+    });
+
+    expect(admitsAgentJobKey("key-1")).toBe(false);
+  });
+
+  it("builds the causation hosted agent jobs run their tool calls in", () => {
+    expect(agentJobRequestCausation(request)).toEqual(agentJobCausation(["rule-1"]));
+    expect(agentJobRequestCausation({ ruleChain: [], untrusted: false })).toEqual({ routineDepth: 1, ruleChain: [] });
+  });
+
+  it("marks the writes of a job whose instruction outside text can reach, like a hosted job does", () => {
+    const untrusted = agentJobRequestCausation({ ...request, untrusted: true });
+
+    expect(untrusted).toEqual({ routineDepth: 1, ruleChain: ["rule-1"], untrustedOrigin: true });
+    expect(untrusted).toEqual(agentJobCausation(["rule-1"], true));
+  });
+});
+
+describe("what a job key may call", () => {
+  it("allows reads and approval-free writes and refuses what needs a person", () => {
+    const write = (name: string, input?: unknown) => agentJobToolNeedsApproval({ name }, input);
+
+    expect(agentJobToolNeedsApproval({ name: "anything", annotations: { readOnlyHint: true } }, {})).toBe(false);
+    expect(write("send_email")).toBe(false);
+    expect(write("manage_wiki_pages", { action: "update" })).toBe(false);
+    expect(write("manage_wiki_pages", { action: "delete" })).toBe(true);
+    expect(write("manage_team", { action: "update_member", roleId: "r" })).toBe(true);
+    expect(write("manage_webhooks", { action: "delete" })).toBe(true);
+    expect(write("request_support")).toBe(true);
+    expect(write("a_tool_without_a_policy")).toBe(true);
+  });
+});

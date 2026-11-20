@@ -1,0 +1,175 @@
+{
+  "locale": "pl",
+  "name": "Dealflow inwestora",
+  "summary": "Pamiętaj, kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia.",
+  "description": "Większość dealów kończy się odmową, a bez zapisu, kto polecił startup i z jakiego powodu go odrzucono, ten sam deal trzeba przy następnej okazji oceniać od nowa. Szablon prowadzi startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
+  "lists": {
+    "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Założyciele, inwestorzy, współinwestorzy i osoby polecające." },
+    "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Startupy, fundusze, syndykaty i akceleratory." },
+    "deals": { "label": "Deal", "pluralLabel": "Deale", "description": "Jedna szansa inwestycyjna od sourcingu do zamknięcia lub odrzucenia." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Etap",
+      "options": { "sourced": "Wyszukany", "screening": "Wstępna ocena", "first_meeting": "Pierwsze spotkanie", "partner_meeting": "Komitet inwestycyjny", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Zamknięty", "passed": "Odrzucony" }
+    },
+    "people.person_role": {
+      "label": "Rola",
+      "options": { "founder": "Założyciel", "investor": "Partner inwestycyjny", "angel": "Anioł biznesu", "co_investor": "Współinwestor", "introducer": "Osoba polecająca", "advisor": "Doradca" }
+    },
+    "people.focus_stages": {
+      "label": "Preferowane etapy",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Seria A", "series_b_plus": "Seria B i późniejsze" }
+    },
+    "people.thesis": { "label": "Teza inwestycyjna" },
+    "people.relationship_strength": { "label": "Relacja", "options": { "strong": "Silna", "warm": "Ciepła", "new": "Nowa" } },
+    "people.last_meeting_on": { "label": "Ostatnie spotkanie" },
+    "people.relationship_owner": { "label": "Opiekun" },
+    "organizations.org_type": {
+      "label": "Rodzaj",
+      "options": { "startup": "Startup", "vc_fund": "Fundusz VC", "angel_syndicate": "Syndykat aniołów biznesu", "corporate_vc": "Corporate venture", "accelerator": "Akcelerator", "other": "Inny" }
+    },
+    "organizations.website": { "label": "Strona internetowa" },
+    "organizations.sector": { "label": "Branża" },
+    "organizations.stage": {
+      "label": "Etap",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Seria A", "series_b": "Seria B", "growth": "Wzrost" }
+    },
+    "organizations.country": { "label": "Kraj" },
+    "organizations.conflict_check": { "label": "Sprawdzenie konfliktu interesów", "options": { "to_check": "Do sprawdzenia", "clear": "Brak konfliktu", "conflict": "Konflikt" } },
+    "deals.round": {
+      "label": "Runda",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Seria A", "series_b": "Seria B", "bridge": "Runda pomostowa" }
+    },
+    "deals.lead_role": { "label": "Nasza rola", "options": { "lead": "Lider", "follow": "Współinwestor", "undecided": "Do ustalenia" } },
+    "deals.thesis_fit": { "label": "Dopasowanie do tezy", "options": { "strong": "Silne", "partial": "Częściowe", "weak": "Słabe" } },
+    "deals.owner": { "label": "Osoba odpowiedzialna" },
+    "deals.source": {
+      "label": "Źródło",
+      "options": { "warm_introduction": "Osobiste polecenie", "inbound": "Zapytanie przychodzące", "outbound": "Kontakt wychodzący", "event": "Wydarzenie", "portfolio_referral": "Polecenie z portfela", "co_investor": "Współinwestor" }
+    },
+    "deals.intro_requested_on": { "label": "Data prośby o przedstawienie" },
+    "deals.intro_made_on": { "label": "Data przedstawienia" },
+    "deals.first_meeting_on": { "label": "Data pierwszego spotkania" },
+    "deals.decision_on": { "label": "Data decyzji" },
+    "deals.term_sheet_on": { "label": "Data term sheet" },
+    "deals.closed_on": { "label": "Data zamknięcia" },
+    "deals.nda_signed": { "label": "NDA podpisane" },
+    "deals.pass_reason": {
+      "label": "Powód odrzucenia",
+      "options": { "thesis_mismatch": "Poza tezą", "team": "Zespół", "market": "Rynek", "too_early": "Za wcześnie", "valuation": "Wycena", "timing": "Nieodpowiedni moment", "other": "Inny" }
+    },
+    "deals.revisit_on": { "label": "Data ponownej oceny" },
+    "deals.data_room_url": { "label": "Link do data roomu" },
+    "deals.days_to_term_sheet": { "label": "Dni od pierwszego spotkania do term sheet" },
+    "deals.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "request_intro": "Poprosić o przedstawienie",
+        "send_deck": "Wysłać prezentację",
+        "prepare_meeting": "Przygotować spotkanie",
+        "follow_up": "Ponowny kontakt",
+        "diligence_request": "Prośba w ramach due diligence",
+        "write_memo": "Napisać memorandum",
+        "send_pass_note": "Wysłać odmowę",
+        "revisit": "Ponowna ocena",
+        "thank_introducer": "Podziękować lub przypomnieć osobie polecającej",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Firma", "targetLabel": "Deale" },
+    "deal_contacts": { "sourceLabel": "Założyciele i kontakty", "targetLabel": "Deale" },
+    "action_deal": { "sourceLabel": "Deal", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Wszystkie deale" },
+    "passed_to_revisit": { "name": "Odrzucone, do ponownej oceny" },
+    "organizations_all": { "name": "Wszystkie organizacje" },
+    "people_all": { "name": "Wszystkie osoby" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Otwarte deale wg etapu" },
+    "deals_by_source": { "title": "Deale wg źródła" },
+    "pass_reasons": { "title": "Powody odrzucenia" },
+    "average_days_to_term_sheet": { "title": "Średnia liczba dni do term sheet" },
+    "revisits_coming": { "title": "Nadchodzące ponowne oceny" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Teza inwestycyjna i obszar zainteresowań", "sections": ["Etap, branża i wielkość biletu", "W co nie inwestujemy"] },
+    "stage_criteria": { "title": "Kryteria etapów", "sections": ["Co przenosi deal na następny etap", "Kto decyduje na komitecie"] },
+    "pass_notes": { "title": "Odmowy i zasady ponownej oceny", "sections": ["Jak odmawiamy", "Kiedy patrzymy ponownie"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Wyślij wiadomość z kolejnymi krokami po pierwszym spotkaniu" },
+    "stale_screening": { "title": "Wznów lub odrzuć deal, który 14 dni stał we wstępnej ocenie" },
+    "pass_note": { "title": "Wyślij odmowę, gdy deal zostaje odrzucony" },
+    "revisit_deal": { "title": "Wróć do odrzuconego dealu w wyznaczonym dniu" },
+    "diligence_checklist": { "title": "Uruchom listę due diligence, gdy ustalono term sheet" },
+    "first_check_in_after_close": { "title": "Zapytaj o postępy 30 dni po zamknięciu" },
+    "intro_nudge": { "title": "Przypomnij osobie polecającej tydzień po prośbie o przedstawienie" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każdy deal ma jeden z ośmiu etapów.",
+    "pass_reason_field": "Każdy deal zapisuje, dlaczego został odrzucony.",
+    "board_view": "Deale otwierają się jako tablica według etapów."
+  },
+  "page": {
+    "metaTitle": "CRM dla inwestorów: szablon dealflow z datami powrotu",
+    "metaDescription": "CRM dla Twojego dealflow: kto polecił deal, dlaczego go odrzucono i kiedy do niego wrócić. Wklej szablon do agenta AI, a zbuduje listę w Twoim CRM.",
+    "headline": "CRM dla inwestora, który pamięta, kto polecił deal i kiedy do niego wrócić, zbudowany przez Twojego agenta AI",
+    "answer": "Dealflow to lejek, który odrzuca prawie wszystko, więc wartość leży w relacjach wokół niego: kto polecił startup, dlaczego go odrzucono i kiedy do niego wrócić. Wklej ten szablon do swojego agenta AI, a zbuduje w Customermates listę dealów w ośmiu etapach, od wyszukania do zamknięcia lub odrzucenia, ze startupami, inwestorami i zadaniami z terminem. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowy przegląd lejka",
+      "steps": [
+        "Otwórz tablicę dealów i zapisz, co jest nowe w tym tygodniu i co się ruszyło.",
+        "Zobacz deale, które od 14 dni stoją we wstępnej ocenie, i zdecyduj: wrócić do rozmowy albo odrzucić.",
+        "Przy każdym odrzuceniu zapisz powód i datę powrotu oraz wyślij wiadomość o odrzuceniu, gdy to właściwe.",
+        "Po pierwszym spotkaniu wyślij podsumowanie z kolejnymi krokami, a gdy uzgodniono term sheet, uruchom listę kontrolną due diligence.",
+        "Podziękuj osobom, które poleciły nowe deale, i ponagl każde polecenie poproszone tydzień temu, które nie doszło do skutku.",
+        "Zobacz odrzucone deale, u których nadeszła data powrotu, i oceń je ponownie z dawnym kontekstem."
+      ]
+    },
+    "limits": [
+      "Nie ma oceny relacji ani wzbogacania danych o firmach. W Customermates Cloud z planem Pro lub wyższym e-maile z adresem z danych kontaktowych rekordu pojawiają się przy tym rekordzie, a stamtąd można zaplanować spotkania w Twoim kalendarzu; agent działa przez MCP.",
+      "To nie jest portal dla LP, tabela kapitalizacji ani księgowość funduszu. Takie zadania wykonują narzędzia jak Carta czy Dynamo.",
+      "To nie jest baza dealów ani źródło danych rynkowych takich jak PitchBook, Dealroom czy Crunchbase.",
+      "To nie jest data room ani narzędzie do podpisu elektronicznego. Zamiast tego podlinkuj swój data room, na przykład DocSend lub Papermark.",
+      "Nie przygotowuje dokumentów prawnych i nie rozstrzyga o KYC, przeciwdziałaniu praniu pieniędzy ani kontroli inwestycji zagranicznych. To zadanie prawników i compliance; szablon zapisuje terminy i linki."
+    ],
+    "faq": [
+      {
+        "question": "Jakie etapy ma dealflow?",
+        "answer": "Praktycy zgadzają się co do siedmiu faz: sourcing, wstępna ocena, pierwsze spotkanie, due diligence, komitet inwestycyjny, term sheet i zamknięcie. Szablon używa ośmiu etapów: Wyszukany, Wstępna ocena, Pierwsze spotkanie, Komitet inwestycyjny, Due diligence, Term sheet, Zamknięty i Odrzucony. Inwestorzy finansują mniej niż 1 proc. firm, które widzą."
+      },
+      {
+        "question": "Po co zapisywać powód odrzucenia?",
+        "answer": "Odrzucenie z powodem pozwala później spojrzeć na firmę ponownie z kontekstem. Szablon zapisuje przy każdym dealu powód odrzucenia i datę powrotu oraz tworzy zadanie ponownej oceny w tym dniu. Bez tego zapisu ten sam deal jest następnym razem oceniany od zera."
+      },
+      {
+        "question": "Czy założyciel może go użyć do śledzenia inwestorów?",
+        "answer": "Struktura pasuje: jeden deal na rozmowę z inwestorem. Śledź każdego inwestora jako osobę, nie tylko fundusz, i informuj zainteresowanych co cztery do sześciu tygodni albo co miesiąc. Pola są opisane z punktu widzenia inwestora, więc poproś agenta o zmianę nazw tych, które nie pasują, jak Nasza rola i Dopasowanie do tezy."
+      },
+      {
+        "question": "Kiedy fundusz powinien przejść na Affinity lub Attio?",
+        "answer": "Gdy potrzebujesz oceny relacji, rankingu ścieżek polecenia, wzbogacania danych lub raportów dla LP. Rozmowy e-mailowe pojawiają się już przy rekordzie z pasującym adresem (Customermates Cloud, plan Pro lub wyższy), ale nic nie ocenia relacji ani nie szereguje ścieżek. Dla małego funduszu lub anioła biznesu, który pracuje z jedną listą i tygodniowym przeglądem, ten szablon wystarczy."
+      },
+      {
+        "question": "Czy agent pisze do startupów lub inwestorów?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Przeglądam wiele startupów i zapominam, kto je polecił, dlaczego zostały odrzucone i kiedy mam do nich wrócić. Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
+    "questions": [
+      "W jakie etapy i branże inwestujesz i jaka jest Twoja typowa wielkość biletu?",
+      "Jak deale do Ciebie docierają i kto je poleca?",
+      "Kto decyduje na każdym etapie i kiedy odmawiasz?",
+      "Gdzie przechowujesz dokumenty prawne i data room? Tutaj zapisujemy tylko link."
+    ]
+  }
+}

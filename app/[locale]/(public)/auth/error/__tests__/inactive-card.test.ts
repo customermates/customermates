@@ -65,6 +65,16 @@ describe("InactiveCard", () => {
     expect(render()).toMatch(/<button[^>]*>Common\.actions\.refresh<\/button>/);
   });
 
+  it("offers leaving the inactive workspace, and only while the list shows it as inactive", () => {
+    expect(render()).toMatch(/<button[^>]*id="inactive-leave"[^>]*>Workspaces\.leave<\/button>/);
+
+    harness.current = { ...inactive, status: Status.active };
+    expect(render()).not.toContain("inactive-leave");
+
+    harness.current = null;
+    expect(render()).not.toContain("inactive-leave");
+  });
+
   it("names a workspace without a name by the fallback name", () => {
     harness.current = { ...inactive, name: "  " };
 

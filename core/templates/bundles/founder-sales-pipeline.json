@@ -1,0 +1,4258 @@
+{
+  "spec": {
+    "id": "tpl_founder_sales_pipeline",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "founder-sales-pipeline",
+    "family": "sales",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "me",
+    "requiresCapabilities": [
+      "forms",
+      "rules"
+    ],
+    "pairedPages": {
+      "en": "/features/simple-crm",
+      "de": "/features/simple-crm",
+      "fr": "/features/simple-crm",
+      "it": "/features/simple-crm",
+      "es": "/features/simple-crm",
+      "pt": "/features/simple-crm",
+      "pl": "/features/simple-crm",
+      "nl": "/features/simple-crm"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "companies",
+        "icon": "building"
+      },
+      {
+        "key": "opportunities",
+        "role": "deals",
+        "icon": "rocket"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.buying_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "decision_maker"
+          },
+          {
+            "key": "budget_holder"
+          },
+          {
+            "key": "champion",
+            "color": "success"
+          },
+          {
+            "key": "user"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "contacts.outreach_consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "companies.relationship",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "pilot",
+            "color": "info"
+          },
+          {
+            "key": "customer",
+            "color": "success"
+          },
+          {
+            "key": "churned",
+            "color": "secondary"
+          },
+          {
+            "key": "partner"
+          }
+        ]
+      },
+      {
+        "key": "companies.size",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "micro"
+          },
+          {
+            "key": "small"
+          },
+          {
+            "key": "medium"
+          },
+          {
+            "key": "large"
+          }
+        ]
+      },
+      {
+        "key": "companies.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "own_network"
+          },
+          {
+            "key": "introduction"
+          },
+          {
+            "key": "inbound"
+          },
+          {
+            "key": "community"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "event"
+          }
+        ]
+      },
+      {
+        "key": "opportunities.problem",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.urgency",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "burning",
+            "color": "destructive"
+          },
+          {
+            "key": "important",
+            "color": "warning"
+          },
+          {
+            "key": "nice_to_have",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "opportunities.budget_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "unknown"
+          },
+          {
+            "key": "has_budget",
+            "color": "success"
+          },
+          {
+            "key": "needs_budget"
+          },
+          {
+            "key": "no_budget",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "opportunities.decision_maker_engaged",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.pilot_end",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.pilot_paid",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.expected_close",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.revisit_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "no_budget"
+          },
+          {
+            "key": "no_urgency"
+          },
+          {
+            "key": "competitor"
+          },
+          {
+            "key": "built_in_house"
+          },
+          {
+            "key": "wrong_buyer"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "not_a_fit"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "call"
+          },
+          {
+            "key": "intro_request"
+          },
+          {
+            "key": "pilot_check"
+          },
+          {
+            "key": "proposal"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "handover"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "opportunities.stage",
+        "items": [
+          {
+            "key": "new",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "discovery_done",
+            "outcome": "open",
+            "weight": 30
+          },
+          {
+            "key": "pilot",
+            "outcome": "open",
+            "weight": 50
+          },
+          {
+            "key": "proposal",
+            "outcome": "open",
+            "weight": 70
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "parked",
+            "outcome": "open",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "opportunities.weighted_value",
+        "type": "currency",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {
+              "op": "field",
+              "field": "opportunities.value"
+            },
+            "right": {
+              "op": "optionWeight",
+              "field": "opportunities.stage"
+            }
+          },
+          "right": {
+            "op": "number",
+            "value": "100"
+          }
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "contact_company",
+        "source": "contacts",
+        "target": "companies",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_company",
+        "source": "opportunities",
+        "target": "companies",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_contacts",
+        "source": "opportunities",
+        "target": "contacts",
+        "sourceCardinality": "many",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_opportunity",
+        "source": "actions",
+        "target": "opportunities",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "opportunities_board",
+        "list": "opportunities",
+        "default": true,
+        "layout": "board",
+        "groupBy": "opportunities.stage",
+        "sort": null,
+        "columns": [
+          "opportunities.urgency",
+          "opportunities.budget_status",
+          "opportunities.next_step_due"
+        ],
+        "summaries": [
+          {
+            "field": "opportunities.value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "opportunities_all",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "opportunities.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "opportunities.stage",
+          "opportunities.urgency",
+          "opportunities.budget_status",
+          "opportunities.expected_close",
+          "opportunities.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "parked_to_revisit",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "opportunities.revisit_on",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "parked"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "without_next_step",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost",
+              "parked"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ]
+      },
+      {
+        "key": "companies_all",
+        "list": "companies",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "companies.relationship",
+          "companies.size",
+          "companies.website"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.buying_role",
+          "contacts.outreach_consent"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "pipeline_funnel",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "new",
+              "discovery_done",
+              "pilot",
+              "proposal",
+              "won"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "chart",
+        "key": "weighted_pipeline",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.weighted_value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "new",
+              "discovery_done",
+              "pilot",
+              "proposal"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "customers_won",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "won"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "pilots_running",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "pilot"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "pilot_ends",
+        "list": "opportunities",
+        "layout": "upcoming",
+        "dateField": "opportunities.pilot_end",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "pilot"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "revisits_coming",
+        "list": "opportunities",
+        "layout": "upcoming",
+        "dateField": "opportunities.revisit_on",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "parked"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "urgency_split",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.urgency"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "new",
+              "discovery_done",
+              "pilot",
+              "proposal"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "founder_playbook",
+        "kind": "overview"
+      },
+      {
+        "key": "discovery_questions",
+        "kind": "salesPlaybook"
+      },
+      {
+        "key": "pilot_plan",
+        "kind": "processes"
+      },
+      {
+        "key": "when_to_hire",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "companies",
+            "opportunities"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "recap_reply",
+        "trigger": {
+          "kind": "record_created",
+          "list": "opportunities"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 1
+      },
+      {
+        "key": "discovery_proposal",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "discovery_done"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "proposal",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 2,
+        "needs": "today",
+        "priority": 2
+      },
+      {
+        "key": "pilot_start_check",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "pilot"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "pilot_check",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 14,
+        "needs": "today",
+        "priority": 6
+      },
+      {
+        "key": "pilot_review",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.pilot_end",
+          "offsetDays": -3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "pilot"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "proposal_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "proposal"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today",
+        "priority": 3
+      },
+      {
+        "key": "parked_revisit_date",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "parked"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "opportunities.revisit_on",
+              "offsetDays": 90
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules",
+        "priority": 4
+      },
+      {
+        "key": "revisit_reopen",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.revisit_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "won_handover",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "handover",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 5
+      },
+      {
+        "key": "won_intro_request",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "intro_request",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 30,
+        "needs": "today",
+        "priority": 7
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "opportunities.stage"
+      },
+      {
+        "key": "problem_field",
+        "kind": "field_exists",
+        "ref": "opportunities.problem"
+      },
+      {
+        "key": "pilot_end_field",
+        "kind": "field_exists",
+        "ref": "opportunities.pilot_end"
+      },
+      {
+        "key": "opportunities_board_view",
+        "kind": "view_exists",
+        "ref": "opportunities_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://handbook.opencoreventures.com/founder-led-sales",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://startuphub.ai/news/the-sales-playbook-for-founders-from-design-partnerships-to-recurring-revenue",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.saastr.com/should-a-startup-founder-handle-sales-when-first-getting-started",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://mercury.com/blog/the-founder-led-sales-blueprint",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.folk.app/articles/crm-templates",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.quickbase.com/blog/best-crm-for-startups-small-business",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.salesforce.com/crm/startup-crm/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.airtable.com/templates/sales-and-customers/expGObpa2AGjv2Z8t/lightweight-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.salesbook.com/pl/blog/sprzedaz/crm-jako-wirtualny-asystent-handlowca",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.fuer-gruender.de/blog/crm-systeme/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.hubspot.fr/products/crm/crm-for-ceo",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cartelis.com/blog/comparatif-logiciels-crm-marketing/",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "publication": {
+      "en": "noindex",
+      "de": "noindex",
+      "fr": "noindex",
+      "it": "noindex",
+      "es": "noindex",
+      "pt": "noindex",
+      "pl": "noindex",
+      "nl": "noindex"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Vertrieb im Gründerteam",
+      "summary": "Selbst verkaufen, ohne den Faden der Gespräche zu verlieren. Eine kurze Pipeline vom ersten Gespräch bis gewonnen, mit optionalem Pilot mit Enddatum und einem Zurückgestellt-Status mit Wiedervorlage.",
+      "description": "Wer selbst verkauft, lernt in jedem Gespräch, wer kauft und warum, aber die Notizen und der nächste Schritt stecken im Kopf und in einem Stapel Tabs. Diese Vorlage führt eine Handvoll bis einige Dutzend offene Gespräche: Jede Verkaufschance hält das Problem in den Worten des Kunden fest, die Dringlichkeit, den Budgetstand und ob der Entscheider eingebunden ist. Ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird, und ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Die Personen, mit denen du sprichst, mit ihrer Rolle in der Kaufentscheidung."
+        },
+        "companies": {
+          "label": "Unternehmen",
+          "pluralLabel": "Unternehmen",
+          "description": "Interessenten, Pilotkunden, Kunden und Partner."
+        },
+        "opportunities": {
+          "label": "Verkaufschance",
+          "pluralLabel": "Verkaufschancen",
+          "description": "Ein möglicher Verkauf, vom ersten Gespräch bis gewonnen, verloren oder zurückgestellt."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rolle beim Kauf",
+          "options": {
+            "decision_maker": "Entscheider",
+            "budget_holder": "Budgetverantwortlicher",
+            "champion": "Fürsprecher",
+            "user": "Anwender",
+            "other": "Sonstige"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Kontakt erlaubt",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Beziehung",
+          "options": {
+            "prospect": "Interessent",
+            "pilot": "Pilotkunde",
+            "customer": "Kunde",
+            "churned": "Abgewandert",
+            "partner": "Partner"
+          }
+        },
+        "companies.size": {
+          "label": "Größe",
+          "options": {
+            "micro": "1 bis 10 Personen",
+            "small": "11 bis 50 Personen",
+            "medium": "51 bis 250 Personen",
+            "large": "Mehr als 250 Personen"
+          }
+        },
+        "companies.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Phase",
+          "options": {
+            "new": "Gespräch",
+            "discovery_done": "Bedarf geklärt",
+            "pilot": "Pilot oder Testphase",
+            "proposal": "Angebot",
+            "won": "Gewonnen",
+            "lost": "Verloren",
+            "parked": "Zurückgestellt"
+          }
+        },
+        "opportunities.source": {
+          "label": "Quelle",
+          "options": {
+            "own_network": "Eigenes Netzwerk",
+            "introduction": "Vorstellung",
+            "inbound": "Anfrage",
+            "community": "Community",
+            "outbound": "Direktansprache",
+            "event": "Veranstaltung"
+          }
+        },
+        "opportunities.problem": {
+          "label": "Das Problem in den Worten des Kunden",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Dringlichkeit",
+          "options": {
+            "burning": "Brennt",
+            "important": "Wichtig",
+            "nice_to_have": "Wünschenswert"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Budget",
+          "options": {
+            "unknown": "Unbekannt",
+            "has_budget": "Budget vorhanden",
+            "needs_budget": "Braucht Budget",
+            "no_budget": "Kein Budget"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Entscheider eingebunden",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Pilotende",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "Pilot ist bezahlt",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Erwarteter Abschluss",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Wiedervorlage",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Nächster Schritt bis",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "no_budget": "Kein Budget",
+            "no_urgency": "Keine Dringlichkeit",
+            "competitor": "Wettbewerber gewählt",
+            "built_in_house": "Selbst gebaut",
+            "wrong_buyer": "Falscher Ansprechpartner",
+            "no_response": "Keine Rückmeldung",
+            "not_a_fit": "Passt nicht"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewichteter Wert",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Mit Zusammenfassung antworten",
+            "call": "Anrufen",
+            "intro_request": "Um eine Vorstellung bitten",
+            "pilot_check": "Pilot prüfen",
+            "proposal": "Angebot senden",
+            "follow_up": "Nachfassen",
+            "handover": "Übergeben",
+            "review": "Auswerten",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Unternehmen",
+          "targetLabel": "Ansprechpartner"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Unternehmen",
+          "targetLabel": "Verkaufschancen"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Ansprechpartner",
+          "targetLabel": "Verkaufschancen"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Verkaufschance",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "opportunities_board": {
+          "name": "Verkaufschancen nach Phase"
+        },
+        "opportunities_all": {
+          "name": "Alle Verkaufschancen"
+        },
+        "parked_to_revisit": {
+          "name": "Zurückgestellt, zur Wiedervorlage"
+        },
+        "without_next_step": {
+          "name": "Offen ohne nächsten Schritt"
+        },
+        "companies_all": {
+          "name": "Alle Unternehmen"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "pipeline_funnel": {
+          "title": "Verkaufschancen nach Phase"
+        },
+        "weighted_pipeline": {
+          "title": "Gewichtete Pipeline"
+        },
+        "customers_won": {
+          "title": "Gewonnene Kunden"
+        },
+        "pilots_running": {
+          "title": "Laufende Piloten"
+        },
+        "pilot_ends": {
+          "title": "Endende Piloten"
+        },
+        "revisits_coming": {
+          "title": "Zurückgestellte Deals zur Wiedervorlage"
+        },
+        "urgency_split": {
+          "title": "Offene Deals nach Dringlichkeit"
+        },
+        "lost_reasons": {
+          "title": "Warum Deals verloren gingen"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Vertriebsleitfaden für Gründer",
+          "sections": [
+            "An wen wir verkaufen und was wir gelernt haben",
+            "Wöchentlicher Rückblick des Gründers"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Fragen im Erstgespräch",
+          "sections": [
+            "Problem, Dringlichkeit, Budget und Entscheider",
+            "Was nach dem Gespräch festgehalten wird"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Pilotplan und Bewertungsbogen",
+          "sections": [
+            "Festes Enddatum und Erfolgskriterien",
+            "Bezahlt als Standard und wie ein Pilot zum Vertrag wird"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Wann der erste Vertriebsmitarbeiter kommt",
+          "sections": [
+            "Anzeichen, dass sich der Verkauf ohne dich wiederholt",
+            "Was zuerst übergeben wird"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Ansprechpartner, Unternehmen und Verkaufschance anlegen, wenn das Anfrageformular abgeschickt wird",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Am Tag nach Beginn eines Gesprächs mit persönlicher Zusammenfassung und einem nächsten Schritt antworten",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "2 Tage nach geklärtem Bedarf Pilotplan oder Angebot senden",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "14 Tage nach Pilotbeginn nachsehen",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "3 Tage vor Pilotende das Entscheidungsgespräch führen",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "3 Tage nach dem Angebot nachfassen",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Die Wiedervorlage auf 90 Tage setzen, wenn ein Deal zurückgestellt wird",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Zur Wiedervorlage das Gespräch wieder aufnehmen",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Am Tag nach dem Abschluss den Kunden übergeben",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "30 Tage nach dem Abschluss den Kunden um eine Vorstellung bitten",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Verkaufschance hat eine Phase.",
+        "problem_field": "Jede Verkaufschance hält das Problem in den Worten des Kunden fest.",
+        "pilot_end_field": "Jeder Pilot hat ein Enddatum.",
+        "opportunities_board_view": "Die Verkaufschancen öffnen sich als Board nach Phase."
+      },
+      "page": {
+        "metaTitle": "Vertriebspipeline für Gründer: jedes Gespräch im Blick",
+        "metaDescription": "Selbst verkaufen, ohne den Faden zu verlieren: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut die Pipeline mit Pilot und Wiedervorlage.",
+        "headline": "Als Gründer selbst verkaufen, ohne den Faden zu verlieren: eine Pipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
+        "answer": "Eine Vertriebspipeline für Gründer ist eine kurze Liste offener Gespräche, jedes mit dem Problem in den Worten des Kunden, einem terminierten nächsten Schritt und, wo Sie einen fahren, einem Pilot mit festem Enddatum. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf, mit dem Status „Zurückgestellt“ und einem Datum zum Wiederaufgreifen für stille Chancen. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die Gründer-Durchsicht am Montag",
+          "steps": [
+            "Listen Sie jedes offene Gespräch auf und geben Sie jedem einen terminierten nächsten Schritt. Ein Gespräch ohne Datum ist das, das einschläft.",
+            "Halten Sie fest, was Sie seit letzter Woche gelernt haben: das Problem in den Worten des Käufers, Dringlichkeit, Budget und wer entscheidet.",
+            "Prüfen Sie die Piloten: Ist das Enddatum gesetzt, sind die Erfolgskriterien aufgeschrieben, ist er bezahlt? Legen Sie das Entscheidungsgespräch wenige Tage vor das Ende.",
+            "Entscheiden Sie über die stillen Chancen: eine ehrliche Abschlussnachricht senden und sie dann mit einem Datum zum Wiederaufgreifen zurückstellen, statt nachzujagen.",
+            "Sehen Sie sich an, wer gekauft hat und wer abgesagt hat, und warum. Das Muster zeigt, an welches Segment Sie verkaufen sollten und wann es Zeit für Ihren ersten Vertriebsmitarbeiter ist."
+          ]
+        },
+        "limits": [
+          "Es ist kein Werkzeug für Outbound-Sequenzen. Customermates hat keine Sequenzen und keinen Massenversand, und jede Nachricht ist einzeln und wird von Ihnen geprüft. LinkedIn oder E-Mail in großer Zahl braucht ein Spezialwerkzeug.",
+          "Es ist kein CRM für Investoren. Fundraising hat andere Phasen und Gegenüber, nehmen Sie dafür eine eigene Vorlage.",
+          "Es erstellt keine Angebote, Rechnungen oder Verträge und hat keine elektronische Unterschrift. Angebote und Vereinbarungen entstehen in anderen Werkzeugen; hier liegen nur die Termine und ein Link.",
+          "Es gibt kein Lead-Scoring und keine Datenanreicherung. Wie gut ein Lead passt, ist ein Feld, das Sie selbst setzen.",
+          "Der gewichtete Wert ist keine Prognose. Die Gewichte sind grob, weil ein Gründer noch keine Abschlussquoten kennt, und Sie dürfen sie ändern.",
+          "Es ist für einen Verkäufer ausgelegt. Mehrere Vertriebsmitarbeiter mit Zielvorgaben und eine Teamprognose brauchen die Vorlage für die Vertriebspipeline oder ein größeres CRM."
+        ],
+        "faq": [
+          {
+            "question": "Ab wann braucht ein Gründer ein CRM?",
+            "answer": "Ratgeber nennen den Punkt, an dem Sie mehr Leads und Kunden haben, als in Ihren Kopf oder eine Tabelle passen, oft zwischen 50 und 200 Kontakten, oder an dem eine zweite Person zu verkaufen beginnt. Bis dahin reicht eine Tabelle. Wer wartet, hat beim Wechsel Notizen und nächste Schritte schon überall verstreut."
+          },
+          {
+            "question": "Wie viele Kunden sollte ein Gründer selbst gewinnen?",
+            "answer": "Die Ratschläge gehen auseinander: Jason Lemkin nennt die ersten 10 Kunden, vielleicht 20, andere Ratgeber 10 bis 50. Mercury empfiehlt, den ersten Vertriebsmitarbeiter einzustellen, wenn Sie sagen können: „Ich weiß, dass ich mein Produkt an Leute wie X mit Problem Y verkaufen kann.“ Die Vorlage zeigt, wie viele Kunden Sie gewonnen haben, und erzwingt keine Zahl."
+          },
+          {
+            "question": "Wie lange sollte ich einer stillen Chance nachgehen?",
+            "answer": "Über die Zahl sind sich Praktiker uneinig, aber darin, dass man irgendwann aufhört, einig. Mercury rät, Interessenten, die nicht reagieren, nicht länger nachzujagen; andere empfehlen ein paar Nachfragen, eine letzte E-Mail und Monate später einen neuen Kontakt. Die Vorlage tut beides: eine Abschlussnachricht, dann wird die Chance zurückgestellt, mit einem Termin zum Wiederaufgreifen in 90 Tagen."
+          },
+          {
+            "question": "Sollte ich einen kostenlosen Pilot anbieten?",
+            "answer": "Der Rat, wie er aus der Startup School von Y Combinator zusammengefasst wird, lautet: offene kostenlose Piloten vermeiden und einen kurzen, bewerteten, möglichst bezahlten fahren. Die Vorlage gibt einem Pilot ein festes Enddatum und ein Kennzeichen bezahlt oder unbezahlt, legt 14 Tage nach dem Start eine Kontrolle an und 3 Tage vor dem Ende eine Aufgabe für das Entscheidungsgespräch."
+          },
+          {
+            "question": "Schreibt der Agent meine Interessenten an?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Ich verkaufe mein Produkt selbst und verliere ständig die Notizen und nächsten Schritte aus meinen Gesprächen. Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
+        "questions": [
+          "Was verkaufst du, und wer hat bisher bei dir gekauft?",
+          "Führst du Piloten oder Testphasen durch, und sind sie bezahlt?",
+          "Wie lange läufst du einem stillen Deal nach, bevor du ihn zurückstellst?",
+          "Wo beginnen deine Gespräche: im Netzwerk, durch Vorstellungen, per Anfrage oder auf Veranstaltungen?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Founder sales pipeline",
+      "summary": "Sell as the founder without losing the thread of your conversations. A short pipeline from first conversation to won, with an optional pilot that has an end date and a parked state with a date to come back.",
+      "description": "When you sell personally, every conversation teaches you who buys and why, but the notes and the next step live in your head and a stack of tabs. This template keeps a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged. A pilot has an end date and says whether it is paid, and a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people you talk to, with their role in the buying decision."
+        },
+        "companies": {
+          "label": "Company",
+          "pluralLabel": "Companies",
+          "description": "Prospects, pilots, customers and partners."
+        },
+        "opportunities": {
+          "label": "Opportunity",
+          "pluralLabel": "Opportunities",
+          "description": "One possible sale, from the first conversation to won, lost or parked."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Buying role",
+          "options": {
+            "decision_maker": "Decision maker",
+            "budget_holder": "Budget holder",
+            "champion": "Champion",
+            "user": "User",
+            "other": "Other"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Agreed to be contacted",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relationship",
+          "options": {
+            "prospect": "Prospect",
+            "pilot": "Pilot",
+            "customer": "Customer",
+            "churned": "Churned",
+            "partner": "Partner"
+          }
+        },
+        "companies.size": {
+          "label": "Size",
+          "options": {
+            "micro": "1 to 10 people",
+            "small": "11 to 50 people",
+            "medium": "51 to 250 people",
+            "large": "More than 250 people"
+          }
+        },
+        "companies.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Stage",
+          "options": {
+            "new": "New conversation",
+            "discovery_done": "Discovery done",
+            "pilot": "Pilot or trial",
+            "proposal": "Proposal",
+            "won": "Won",
+            "lost": "Lost",
+            "parked": "Parked"
+          }
+        },
+        "opportunities.source": {
+          "label": "Source",
+          "options": {
+            "own_network": "Own network",
+            "introduction": "Introduction",
+            "inbound": "Inbound",
+            "community": "Community",
+            "outbound": "Outbound",
+            "event": "Event"
+          }
+        },
+        "opportunities.problem": {
+          "label": "The problem, in their words",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Urgency",
+          "options": {
+            "burning": "Burning",
+            "important": "Important",
+            "nice_to_have": "Nice to have"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Budget",
+          "options": {
+            "unknown": "Unknown",
+            "has_budget": "Has budget",
+            "needs_budget": "Needs budget",
+            "no_budget": "No budget"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Decision maker engaged",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Pilot ends",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "Pilot is paid",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Expected close",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Revisit on",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "no_budget": "No budget",
+            "no_urgency": "No urgency",
+            "competitor": "Chose a competitor",
+            "built_in_house": "Built in-house",
+            "wrong_buyer": "Wrong buyer",
+            "no_response": "No response",
+            "not_a_fit": "Not a fit"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Weighted value",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply with a recap",
+            "call": "Call",
+            "intro_request": "Ask for an introduction",
+            "pilot_check": "Check on the pilot",
+            "proposal": "Send the proposal",
+            "follow_up": "Follow up",
+            "handover": "Hand over",
+            "review": "Review",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Company",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Company",
+          "targetLabel": "Opportunities"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Contacts",
+          "targetLabel": "Opportunities"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Opportunity",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "opportunities_board": {
+          "name": "Opportunities by stage"
+        },
+        "opportunities_all": {
+          "name": "All opportunities"
+        },
+        "parked_to_revisit": {
+          "name": "Parked, to revisit"
+        },
+        "without_next_step": {
+          "name": "Open without a next step"
+        },
+        "companies_all": {
+          "name": "All companies"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "pipeline_funnel": {
+          "title": "Opportunities by stage"
+        },
+        "weighted_pipeline": {
+          "title": "Weighted pipeline"
+        },
+        "customers_won": {
+          "title": "Customers won"
+        },
+        "pilots_running": {
+          "title": "Pilots running"
+        },
+        "pilot_ends": {
+          "title": "Pilots ending"
+        },
+        "revisits_coming": {
+          "title": "Parked deals to revisit"
+        },
+        "urgency_split": {
+          "title": "Open deals by urgency"
+        },
+        "lost_reasons": {
+          "title": "Why deals were lost"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Founder sales playbook",
+          "sections": [
+            "Who we sell to and what we have learned",
+            "Weekly founder review"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Discovery call questions",
+          "sections": [
+            "Problem, urgency, budget and decision makers",
+            "What to write down after the call"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Pilot plan and scorecard",
+          "sections": [
+            "Fixed end date and success criteria",
+            "Paid by default and how a pilot converts"
+          ]
+        },
+        "when_to_hire": {
+          "title": "When to hire the first salesperson",
+          "sections": [
+            "Signals that the sale repeats without you",
+            "What to hand over first"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Create the contact, the company and the opportunity when the inquiry form is submitted",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Reply with a personal recap and one next step the day after a conversation starts",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Send the pilot plan or proposal 2 days after discovery is done",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Check on the pilot 14 days after it starts",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Hold the decision call 3 days before the pilot ends",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Follow up 3 days after a proposal is sent",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Set the revisit date to 90 days out when a deal is parked",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Reopen the conversation on the revisit date",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Hand the customer over the day after a deal is won",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Ask the customer for one introduction 30 days after a win",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every opportunity has a stage.",
+        "problem_field": "Every opportunity records the problem in the customer's words.",
+        "pilot_end_field": "Every pilot has an end date.",
+        "opportunities_board_view": "The opportunities open as a board by stage."
+      },
+      "page": {
+        "metaTitle": "Founder-Led Sales Pipeline: Track Every Conversation",
+        "metaDescription": "Founder-led sales without losing the thread. Paste this template into Claude, ChatGPT or Codex: your agent builds a pipeline with pilots and parked deals.",
+        "headline": "Founder-led sales without losing the thread: your AI agent builds the pipeline in your CRM",
+        "answer": "A founder-led sales pipeline is a short list of open conversations, each with the problem in the customer's words, a dated next step and, where you run one, a pilot with a fixed end date. Paste this template into your AI agent and it builds the pipeline in Customermates, with a parked state and a date to come back to quiet deals. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The Monday founder review",
+          "steps": [
+            "List every open conversation and give each one a dated next step. A conversation without a date is the one that goes quiet.",
+            "Write down what you learned since last week: the problem in the buyer's words, urgency, budget and who decides.",
+            "Check the pilots: is the end date set, are the success criteria written, is it paid? Hold the decision call a few days before it ends.",
+            "Decide about the quiet deals: send one honest closing message, then park them with a date to come back instead of chasing.",
+            "Look at who bought and who said no, and why. The pattern shows which segment to sell to, and when it is time to hire your first salesperson."
+          ]
+        },
+        "limits": [
+          "It is not outbound sequencing. Customermates has no sequences or mass outreach, and each message is individual and reviewed by you. LinkedIn or email at volume needs a specialist tool.",
+          "It is not an investor CRM. Fundraising has other stages and counterparties, so use a separate template for it.",
+          "It makes no quotes, invoices or contracts and has no e-signature. Proposals and agreements are made in other tools; only the dates and a link live here.",
+          "There is no lead scoring or data enrichment. How well a lead fits is a field you set yourself.",
+          "Weighted value is not a forecast. The weights are rough, because a founder has no close-rate history yet, and they are yours to change.",
+          "It is sized for one seller. Several salespeople with quotas and a team forecast need the sales pipeline template or a heavier CRM."
+        ],
+        "faq": [
+          {
+            "question": "When does a founder need a CRM?",
+            "answer": "Guides put it at the point where you have more leads and customers than fit in your head or a spreadsheet, often somewhere between 50 and 200 contacts, or when a second person starts to sell. A sheet is enough until then. The cost of waiting is that notes and next steps are already scattered when you do switch."
+          },
+          {
+            "question": "How many customers should a founder close personally?",
+            "answer": "Advice differs: Jason Lemkin says the first 10 customers, maybe 20, other guides say 10 to 50. Mercury says to hire your first salesperson when you can say 'I know I can sell my product to people like X who have problem Y'. The template shows how many customers you have won and does not enforce a number."
+          },
+          {
+            "question": "How long should I chase a quiet deal?",
+            "answer": "Practitioners disagree on the number but agree that you stop at some point. Mercury advises to stop chasing prospects who ignore you, others suggest a few follow-ups, a last email and a contact months later. The template does both: one closing message, then the deal is parked with a revisit date 90 days out."
+          },
+          {
+            "question": "Should I run a free pilot?",
+            "answer": "Advice summarised from Y Combinator's Startup School is to avoid open-ended free pilots and to run a short, scored, ideally paid one. The template gives a pilot a fixed end date and a flag for paid or unpaid, creates a check-in 14 days after it starts and an Action for the decision call 3 days before it ends."
+          },
+          {
+            "question": "Does the agent send messages to my prospects?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "I sell my product myself and keep losing the notes and next steps from my conversations. Set up a founder sales pipeline in my Customermates workspace: opportunities from the first conversation to won with discovery notes, an optional pilot with a fixed end date, a parked state with a revisit date, and dated follow-ups. Send nothing automatically.",
+        "questions": [
+          "What do you sell, and who has bought from you so far?",
+          "Do you run pilots or trials, and are they paid?",
+          "How long do you chase a quiet deal before you park it?",
+          "Where do your conversations start: your network, introductions, inbound or events?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Ventas lideradas por el fundador",
+      "summary": "Vende como fundador sin perder el hilo de tus conversaciones. Un pipeline corto de la primera conversación a ganada, con un piloto opcional con fecha de fin y un estado en pausa con fecha para retomar.",
+      "description": "Cuando vendes tú en persona, cada conversación te enseña quién compra y por qué, pero las notas y el siguiente paso viven en tu cabeza y en una pila de pestañas. Esta plantilla lleva entre un puñado y unas decenas de conversaciones abiertas: cada oportunidad registra el problema con las palabras del cliente, la urgencia, el estado del presupuesto y si el decisor está implicado. Un piloto tiene fecha de fin e indica si es de pago, y una operación silenciosa se pone en pausa con una fecha para retomarla en lugar de perseguirla. Las ponderaciones son aproximadas, porque un fundador aún no tiene historial de cierres, y las fijas tú. No sirve para enviar secuencias en volumen, captar inversión ni prever las ventas de un equipo con varios vendedores.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas con las que hablas, con su papel en la decisión de compra."
+        },
+        "companies": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Clientes potenciales, pilotos, clientes y socios."
+        },
+        "opportunities": {
+          "label": "Oportunidad",
+          "pluralLabel": "Oportunidades",
+          "description": "Una posible venta, de la primera conversación a ganada, perdida o en pausa."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Papel en la compra",
+          "options": {
+            "decision_maker": "Decisor",
+            "budget_holder": "Responsable del presupuesto",
+            "champion": "Impulsor interno",
+            "user": "Usuario",
+            "other": "Otro"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Acepta ser contactado",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relación",
+          "options": {
+            "prospect": "Cliente potencial",
+            "pilot": "Piloto",
+            "customer": "Cliente",
+            "churned": "Baja",
+            "partner": "Socio"
+          }
+        },
+        "companies.size": {
+          "label": "Tamaño",
+          "options": {
+            "micro": "De 1 a 10 personas",
+            "small": "De 11 a 50 personas",
+            "medium": "De 51 a 250 personas",
+            "large": "Más de 250 personas"
+          }
+        },
+        "companies.website": {
+          "label": "Sitio web",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Conversación",
+            "discovery_done": "Diagnóstico",
+            "pilot": "Piloto",
+            "proposal": "Propuesta",
+            "won": "Ganada",
+            "lost": "Perdida",
+            "parked": "En pausa"
+          }
+        },
+        "opportunities.source": {
+          "label": "Origen",
+          "options": {
+            "own_network": "Red personal",
+            "introduction": "Presentación por un conocido",
+            "inbound": "Entrante",
+            "community": "Comunidad",
+            "outbound": "Prospección",
+            "event": "Evento"
+          }
+        },
+        "opportunities.problem": {
+          "label": "El problema, con sus palabras",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Urgencia",
+          "options": {
+            "burning": "Muy urgente",
+            "important": "Importante",
+            "nice_to_have": "Deseable"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Presupuesto",
+          "options": {
+            "unknown": "Desconocido",
+            "has_budget": "Tiene presupuesto",
+            "needs_budget": "Necesita presupuesto",
+            "no_budget": "Sin presupuesto"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Decisor implicado",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Fin del piloto",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "El piloto es de pago",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Cierre previsto",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Fecha para retomar",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo de pérdida",
+          "options": {
+            "no_budget": "Sin presupuesto",
+            "no_urgency": "Sin urgencia",
+            "competitor": "Eligió a la competencia",
+            "built_in_house": "Lo desarrolló internamente",
+            "wrong_buyer": "Interlocutor equivocado",
+            "no_response": "Sin respuesta",
+            "not_a_fit": "No encaja"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder con un resumen",
+            "call": "Llamar",
+            "intro_request": "Pedir una presentación",
+            "pilot_check": "Revisar el piloto",
+            "proposal": "Enviar la propuesta",
+            "follow_up": "Hacer seguimiento",
+            "handover": "Traspasar",
+            "review": "Hacer balance",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contactos"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Oportunidades"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Contactos",
+          "targetLabel": "Oportunidades"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Oportunidad",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "opportunities_board": {
+          "name": "Oportunidades por fase"
+        },
+        "opportunities_all": {
+          "name": "Todas las oportunidades"
+        },
+        "parked_to_revisit": {
+          "name": "En pausa, por retomar"
+        },
+        "without_next_step": {
+          "name": "Abiertas sin siguiente paso"
+        },
+        "companies_all": {
+          "name": "Todas las empresas"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "pipeline_funnel": {
+          "title": "Oportunidades por fase"
+        },
+        "weighted_pipeline": {
+          "title": "Pipeline ponderado"
+        },
+        "customers_won": {
+          "title": "Clientes ganados"
+        },
+        "pilots_running": {
+          "title": "Pilotos en curso"
+        },
+        "pilot_ends": {
+          "title": "Pilotos que terminan"
+        },
+        "revisits_coming": {
+          "title": "Operaciones en pausa por retomar"
+        },
+        "urgency_split": {
+          "title": "Oportunidades abiertas por urgencia"
+        },
+        "lost_reasons": {
+          "title": "Por qué se pierden oportunidades"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Guía de ventas del fundador",
+          "sections": [
+            "A quién vendemos y qué hemos aprendido",
+            "Revisión semanal del fundador"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Preguntas de la llamada de diagnóstico",
+          "sections": [
+            "Problema, urgencia, presupuesto y decisores",
+            "Qué anotar después de la llamada"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Plan del piloto y hoja de evaluación",
+          "sections": [
+            "Fecha de fin fija y criterios de éxito",
+            "De pago por defecto y cómo el piloto pasa a contrato"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Cuándo contratar al primer vendedor",
+          "sections": [
+            "Señales de que la venta se repite sin ti",
+            "Qué traspasar primero"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Crear el contacto, la empresa y la oportunidad cuando se envía el formulario de consulta",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Responder con un resumen personal y un siguiente paso al día siguiente de empezar una conversación",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Enviar el plan del piloto o la propuesta 2 días después del diagnóstico",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Revisar el piloto 14 días después de empezar",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Hacer la llamada de decisión 3 días antes de que termine el piloto",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Hacer seguimiento 3 días después de enviar una propuesta",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Fijar la fecha para retomar dentro de 90 días cuando una operación se pone en pausa",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Reabrir la conversación en la fecha para retomar",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Traspasar al cliente al día siguiente de ganar una operación",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Pedir al cliente que te presente a otros contactos 30 días después de ganar",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada oportunidad tiene una fase.",
+        "problem_field": "Cada oportunidad registra el problema con las palabras del cliente.",
+        "pilot_end_field": "Cada piloto tiene una fecha de fin.",
+        "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
+      },
+      "page": {
+        "metaTitle": "Ventas del fundador: cada conversación con próximo paso",
+        "metaDescription": "Vende como fundador sin perder el hilo: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el pipeline con piloto y estado en pausa.",
+        "headline": "Vender como fundador sin perder el hilo: un pipeline que tu agente de IA monta en tu CRM",
+        "answer": "Un pipeline de ventas del fundador es una lista corta de conversaciones abiertas, cada una con el problema en palabras del cliente, un próximo paso con fecha y, si haces uno, un piloto con fecha de fin fija. Pega esta plantilla en tu agente de IA y él monta el pipeline en Customermates, con un estado En pausa y una fecha para volver a las oportunidades que se enfrían. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La revisión del fundador de los lunes",
+          "steps": [
+            "Lista cada conversación abierta y da a cada una un próximo paso con fecha. Una conversación sin fecha es la que se enfría.",
+            "Anota lo que has aprendido desde la semana pasada: el problema con las palabras del comprador, la urgencia, el presupuesto y quién decide.",
+            "Revisa los pilotos: ¿está puesta la fecha de fin, están escritos los criterios de éxito, es de pago? Fija la llamada de decisión unos días antes de que termine.",
+            "Decide sobre las oportunidades que se han enfriado: un último mensaje honesto y luego ponlas en pausa con una fecha para volver, en lugar de perseguirlas.",
+            "Mira quién compró y quién dijo que no, y por qué. El patrón muestra a qué segmento vender y cuándo toca contratar a tu primer vendedor."
+          ]
+        },
+        "limits": [
+          "No es una herramienta de secuencias de prospección. Customermates no tiene secuencias ni envíos masivos, y cada mensaje es individual y lo revisas tú. LinkedIn o el correo en volumen piden una herramienta especializada.",
+          "No es un CRM de inversores. La captación de fondos tiene otras etapas y otros interlocutores: usa otra plantilla.",
+          "No hace presupuestos, facturas ni contratos y no tiene firma electrónica. Las propuestas y los acuerdos se hacen en otras herramientas; aquí solo viven las fechas y un enlace.",
+          "No hay puntuación de leads ni enriquecimiento de datos. Cuánto encaja un lead es un campo que pones tú.",
+          "El valor ponderado no es una previsión. Los pesos son aproximados, porque un fundador aún no tiene historial de cierres, y son tuyos para cambiarlos.",
+          "Está pensado para un solo vendedor. Varios vendedores con objetivos y una previsión de equipo piden la plantilla de pipeline de ventas o un CRM más pesado."
+        ],
+        "faq": [
+          {
+            "question": "¿Cuándo necesita un fundador un CRM?",
+            "answer": "Las guías lo sitúan en el punto en que tienes más leads y clientes de los que caben en tu cabeza o en una hoja de cálculo, a menudo entre 50 y 200 contactos, o cuando una segunda persona empieza a vender. Hasta entonces basta una hoja. Esperar tiene un coste: cuando cambias, las notas y los próximos pasos ya están dispersos."
+          },
+          {
+            "question": "¿Cuántos clientes debe cerrar personalmente un fundador?",
+            "answer": "Los consejos difieren: Jason Lemkin habla de los 10 primeros clientes, quizá 20, otras guías de 10 a 50. Mercury aconseja contratar al primer vendedor cuando puedas decir: “Sé que puedo vender mi producto a gente como X que tiene el problema Y”. La plantilla muestra cuántos clientes has ganado y no impone ninguna cifra."
+          },
+          {
+            "question": "¿Cuánto tiempo debo perseguir una oportunidad que se ha enfriado?",
+            "answer": "Los profesionales no coinciden en el número, pero sí en que hay que parar en algún momento. Mercury aconseja dejar de perseguir a quien te ignora; otros sugieren unos cuantos seguimientos, un último correo y un nuevo contacto meses después. La plantilla hace las dos cosas: un mensaje de cierre y luego la oportunidad pasa a pausa, con una fecha para volver a los 90 días."
+          },
+          {
+            "question": "¿Debo ofrecer un piloto gratuito?",
+            "answer": "El consejo resumido de la Startup School de Y Combinator es evitar los pilotos gratuitos sin límite y hacer uno corto, evaluado y, si es posible, de pago. La plantilla da al piloto una fecha de fin fija y un indicador de pago o no, crea un control 14 días después del inicio y una tarea para la llamada de decisión 3 días antes del final."
+          },
+          {
+            "question": "¿El agente escribe a mis posibles clientes?",
+            "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Vendo mi producto en persona y no paro de perder las notas y los siguientes pasos de mis conversaciones. Configura en mi espacio de trabajo de Customermates un pipeline de ventas liderado por el fundador: oportunidades de la primera conversación a ganada con notas de diagnóstico, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
+        "questions": [
+          "¿Qué vendes y quién te ha comprado hasta ahora?",
+          "¿Haces pilotos o pruebas y son de pago?",
+          "¿Cuánto tiempo insistes con una operación silenciosa antes de ponerla en pausa?",
+          "¿Dónde empiezan tus conversaciones: tu red, presentaciones de conocidos, entrantes o eventos?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Pipeline commercial du fondateur",
+      "summary": "Vendez en tant que fondateur sans perdre le fil de vos conversations. Un pipeline court du premier échange à la signature, avec un pilote facultatif à date de fin fixe et un état en pause avec une date de relance.",
+      "description": "Quand vous vendez vous-même, chaque conversation vous apprend qui achète et pourquoi, mais les notes et la prochaine étape restent dans votre tête et dans une pile d’onglets. Ce modèle suit de quelques-unes à quelques dizaines de conversations ouvertes. Chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué. Un pilote a une date de fin et indique s’il est payant, et une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes avec qui vous parlez, avec leur rôle dans la décision d’achat."
+        },
+        "companies": {
+          "label": "Entreprise",
+          "pluralLabel": "Entreprises",
+          "description": "Prospects, pilotes, clients et partenaires."
+        },
+        "opportunities": {
+          "label": "Affaire",
+          "pluralLabel": "Affaires",
+          "description": "Une vente possible, du premier échange à signée, perdue ou en pause."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rôle dans l’achat",
+          "options": {
+            "decision_maker": "Décideur",
+            "budget_holder": "Détenteur du budget",
+            "champion": "Soutien interne",
+            "user": "Utilisateur",
+            "other": "Autre"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Accepte d’être contacté",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relation",
+          "options": {
+            "prospect": "Prospect",
+            "pilot": "Pilote",
+            "customer": "Client",
+            "churned": "Ancien client",
+            "partner": "Partenaire"
+          }
+        },
+        "companies.size": {
+          "label": "Taille",
+          "options": {
+            "micro": "1 à 10 personnes",
+            "small": "11 à 50 personnes",
+            "medium": "51 à 250 personnes",
+            "large": "Plus de 250 personnes"
+          }
+        },
+        "companies.website": {
+          "label": "Site web",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Étape",
+          "options": {
+            "new": "Nouvel échange",
+            "discovery_done": "Rendez-vous découverte",
+            "pilot": "Pilote (POC)",
+            "proposal": "Proposition",
+            "won": "Signé",
+            "lost": "Perdu",
+            "parked": "En pause"
+          }
+        },
+        "opportunities.source": {
+          "label": "Source",
+          "options": {
+            "own_network": "Réseau personnel",
+            "introduction": "Mise en relation",
+            "inbound": "Demande entrante",
+            "community": "Communauté",
+            "outbound": "Prospection",
+            "event": "Événement"
+          }
+        },
+        "opportunities.problem": {
+          "label": "Le problème, dans leurs mots",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Urgence",
+          "options": {
+            "burning": "Brûlante",
+            "important": "Importante",
+            "nice_to_have": "Souhaitable"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Budget",
+          "options": {
+            "unknown": "Inconnu",
+            "has_budget": "Budget disponible",
+            "needs_budget": "Doit obtenir un budget",
+            "no_budget": "Pas de budget"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Décideur impliqué",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Fin du pilote",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "Le pilote est payant",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Signature attendue",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Date de relance",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Prochaine action avant le",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motif de perte",
+          "options": {
+            "no_budget": "Pas de budget",
+            "no_urgency": "Pas d’urgence",
+            "competitor": "A choisi un concurrent",
+            "built_in_house": "Développé en interne",
+            "wrong_buyer": "Mauvais interlocuteur",
+            "no_response": "Sans réponse",
+            "not_a_fit": "Ne convient pas"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valeur pondérée",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Répondre avec un récapitulatif",
+            "call": "Appeler",
+            "intro_request": "Demander une mise en relation",
+            "pilot_check": "Faire le point sur le pilote",
+            "proposal": "Envoyer la proposition",
+            "follow_up": "Relancer",
+            "handover": "Passer le relais",
+            "review": "Faire le bilan",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Affaires"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Contacts",
+          "targetLabel": "Affaires"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Affaire",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "opportunities_board": {
+          "name": "Affaires par étape"
+        },
+        "opportunities_all": {
+          "name": "Toutes les affaires"
+        },
+        "parked_to_revisit": {
+          "name": "En pause, à relancer"
+        },
+        "without_next_step": {
+          "name": "Ouvertes sans prochaine action"
+        },
+        "companies_all": {
+          "name": "Toutes les entreprises"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "pipeline_funnel": {
+          "title": "Affaires par étape"
+        },
+        "weighted_pipeline": {
+          "title": "Pipeline pondéré"
+        },
+        "customers_won": {
+          "title": "Clients gagnés"
+        },
+        "pilots_running": {
+          "title": "Pilotes en cours"
+        },
+        "pilot_ends": {
+          "title": "Pilotes qui se terminent"
+        },
+        "revisits_coming": {
+          "title": "Affaires en pause à relancer"
+        },
+        "urgency_split": {
+          "title": "Affaires ouvertes par urgence"
+        },
+        "lost_reasons": {
+          "title": "Motifs de perte des affaires"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Guide de vente du fondateur",
+          "sections": [
+            "À qui nous vendons et ce que nous avons appris",
+            "Bilan hebdomadaire du fondateur"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Questions du rendez-vous découverte",
+          "sections": [
+            "Problème, urgence, budget et décideurs",
+            "Ce qu’il faut noter après l’échange"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Plan de pilote et grille d’évaluation",
+          "sections": [
+            "Date de fin fixe et critères de réussite",
+            "Payant par défaut et passage du pilote au contrat"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Quand recruter le premier commercial",
+          "sections": [
+            "Signes que la vente se reproduit sans vous",
+            "Ce qu’il faut transmettre en premier"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Créer le contact, l’entreprise et l’affaire quand le formulaire de demande est envoyé",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Répondre avec un récapitulatif personnel et une prochaine étape le lendemain du premier échange",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Envoyer le plan de pilote ou la proposition 2 jours après le rendez-vous découverte",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Faire le point 14 jours après le début du pilote",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Tenir l’appel de décision 3 jours avant la fin du pilote",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Relancer 3 jours après l’envoi d’une proposition",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Fixer la relance à 90 jours quand une affaire est mise en pause",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Rouvrir la conversation à la date de relance",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Passer le relais pour le client le lendemain d’une signature",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Demander une mise en relation au client 30 jours après une signature",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque affaire a une étape.",
+        "problem_field": "Chaque affaire consigne le problème dans les mots du client.",
+        "pilot_end_field": "Chaque pilote a une date de fin.",
+        "opportunities_board_view": "Les affaires s’ouvrent en board par étape."
+      },
+      "page": {
+        "metaTitle": "Pipeline commercial du fondateur : chaque échange suivi",
+        "metaDescription": "Vendre en fondateur sans perdre le fil : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit le pipeline, avec pilote et mise en pause.",
+        "headline": "Vendre en tant que fondateur sans perdre le fil : un pipeline que votre agent IA construit dans votre CRM",
+        "answer": "Un pipeline commercial de fondateur est une courte liste d’échanges ouverts, chacun avec le problème dans les mots du client, une prochaine action datée et, si vous en menez un, un pilote à date de fin fixe. Collez ce modèle dans votre agent IA : il construit le pipeline dans Customermates, avec un état « En pause » et une date de reprise pour les affaires silencieuses. Vous validez le plan avant que rien ne soit créé.",
+        "routine": {
+          "title": "La revue du fondateur le lundi",
+          "steps": [
+            "Listez chaque échange ouvert et donnez à chacun une prochaine action datée. Un échange sans date est celui qui s’éteint.",
+            "Notez ce que vous avez appris depuis la semaine dernière : le problème dans les mots de l’acheteur, l’urgence, le budget et qui décide.",
+            "Vérifiez les pilotes : la date de fin est-elle fixée, les critères de réussite sont-ils écrits, le pilote est-il payant ? Placez l’appel de décision quelques jours avant la fin.",
+            "Tranchez pour les affaires silencieuses : un dernier message honnête, puis mise en pause avec une date de reprise plutôt que des relances sans fin.",
+            "Regardez qui a acheté et qui a refusé, et pourquoi. Le schéma montre à quel segment vendre, et quand il est temps d’embaucher votre premier commercial."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas un outil de séquences de prospection. Customermates n’a ni séquences ni envoi en masse, et chaque message est individuel et relu par vous. LinkedIn ou l’email en volume demandent un outil spécialisé.",
+          "Ce n’est pas un CRM d’investisseurs. La levée de fonds a d’autres étapes et d’autres interlocuteurs : prenez un modèle à part.",
+          "Il ne produit ni devis, ni factures, ni contrats et n’a pas de signature électronique. Propositions et accords se font dans d’autres outils ; ici ne vivent que les dates et un lien.",
+          "Il n’y a ni scoring de leads ni enrichissement de données. L’adéquation d’un lead est un champ que vous renseignez vous-même.",
+          "La valeur pondérée n’est pas une prévision. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et elles sont à vous.",
+          "Il est dimensionné pour un seul vendeur. Plusieurs commerciaux avec des objectifs et une prévision d’équipe demandent le modèle de pipeline commercial ou un CRM plus lourd."
+        ],
+        "faq": [
+          {
+            "question": "À partir de quand un fondateur a-t-il besoin d’un CRM ?",
+            "answer": "Les guides le situent au moment où vous avez plus de prospects et de clients que votre tête ou un tableur n’en retient, souvent entre 50 et 200 contacts, ou quand une deuxième personne se met à vendre. Un tableur suffit jusque-là. Attendre a un coût : au moment de changer, notes et prochaines actions sont déjà éparpillées."
+          },
+          {
+            "question": "Combien de clients un fondateur doit-il conclure lui-même ?",
+            "answer": "Les avis divergent : Jason Lemkin parle des 10 premiers clients, peut-être 20, d’autres guides de 10 à 50. Mercury conseille d’embaucher le premier commercial quand vous pouvez dire : « Je sais que je peux vendre mon produit à des gens comme X qui ont le problème Y. » Le modèle montre combien de clients vous avez gagnés et n’impose aucun chiffre."
+          },
+          {
+            "question": "Combien de temps relancer une affaire silencieuse ?",
+            "answer": "Les praticiens ne s’accordent pas sur le nombre, mais tous s’arrêtent à un moment. Mercury conseille de ne plus relancer ceux qui ignorent vos messages ; d’autres suggèrent quelques relances, un dernier email et un nouveau contact des mois plus tard. Le modèle fait les deux : un message de clôture, puis l’affaire est mise en pause avec une date de reprise à 90 jours."
+          },
+          {
+            "question": "Faut-il proposer un pilote gratuit ?",
+            "answer": "Le conseil résumé de la Startup School de Y Combinator est d’éviter les pilotes gratuits sans limite et d’en mener un court, évalué et si possible payant. Le modèle donne au pilote une date de fin fixe et un indicateur payant ou non, crée un point de contrôle 14 jours après le début et une action pour l’appel de décision 3 jours avant la fin."
+          },
+          {
+            "question": "L’agent écrit-il à mes prospects ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Je vends mon produit moi-même et je perds sans cesse les notes et les prochaines étapes de mes conversations. Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
+        "questions": [
+          "Que vendez-vous, et qui a déjà acheté chez vous ?",
+          "Faites-vous des pilotes ou des essais, et sont-ils payants ?",
+          "Combien de temps relancez-vous une affaire silencieuse avant de la mettre en pause ?",
+          "D’où viennent vos conversations : réseau, mises en relation, demandes entrantes ou événements ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Pipeline commerciale del fondatore",
+      "summary": "Vendi da fondatore senza perdere il filo delle tue conversazioni. Una pipeline breve dalla prima conversazione alla vittoria, con un pilota facoltativo con data di fine e uno stato in pausa con una data per riprendere.",
+      "description": "Quando vendi di persona, ogni conversazione ti insegna chi compra e perché, ma gli appunti e il prossimo passo restano nella tua testa e in una pila di schede aperte. Questo modello tiene da una manciata a qualche decina di conversazioni aperte: ogni trattativa registra il problema con le parole del cliente, l'urgenza, lo stato del budget e se il decisore è coinvolto. Un pilota ha una data di fine e dice se è a pagamento, e una trattativa silenziosa va in pausa con una data per riprenderla invece di essere inseguita. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sta a te impostarli. Non è invio di sequenze in volume, raccolta di capitali né previsione per un team con più venditori.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Le persone con cui parli, con il loro ruolo nella decisione d'acquisto."
+        },
+        "companies": {
+          "label": "Azienda",
+          "pluralLabel": "Aziende",
+          "description": "Potenziali clienti, piloti, clienti e partner."
+        },
+        "opportunities": {
+          "label": "Trattativa",
+          "pluralLabel": "Trattative",
+          "description": "Una possibile vendita, dalla prima conversazione a vinta, persa o in pausa."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Ruolo nell'acquisto",
+          "options": {
+            "decision_maker": "Decisore",
+            "budget_holder": "Titolare del budget",
+            "champion": "Sostenitore interno",
+            "user": "Utilizzatore",
+            "other": "Altro"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Accetta di essere contattato",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relazione",
+          "options": {
+            "prospect": "Potenziale cliente",
+            "pilot": "Pilota",
+            "customer": "Cliente",
+            "churned": "Ex cliente",
+            "partner": "Partner"
+          }
+        },
+        "companies.size": {
+          "label": "Dimensione",
+          "options": {
+            "micro": "Da 1 a 10 persone",
+            "small": "Da 11 a 50 persone",
+            "medium": "Da 51 a 250 persone",
+            "large": "Più di 250 persone"
+          }
+        },
+        "companies.website": {
+          "label": "Sito web",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Nuova conversazione",
+            "discovery_done": "Analisi esigenze",
+            "pilot": "Pilota o prova",
+            "proposal": "Offerta",
+            "won": "Vinta",
+            "lost": "Persa",
+            "parked": "In pausa"
+          }
+        },
+        "opportunities.source": {
+          "label": "Origine",
+          "options": {
+            "own_network": "Rete personale",
+            "introduction": "Presentazione",
+            "inbound": "Richiesta in entrata",
+            "community": "Community",
+            "outbound": "Prospezione",
+            "event": "Evento"
+          }
+        },
+        "opportunities.problem": {
+          "label": "Il problema, con le parole del cliente",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Urgenza",
+          "options": {
+            "burning": "Urgentissima",
+            "important": "Importante",
+            "nice_to_have": "Auspicabile"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Budget",
+          "options": {
+            "unknown": "Sconosciuto",
+            "has_budget": "Ha il budget",
+            "needs_budget": "Deve ottenere il budget",
+            "no_budget": "Nessun budget"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Decisore coinvolto",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Fine pilota",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "Il pilota è a pagamento",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Chiusura attesa",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Riprendere il",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Prossimo passo entro",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "no_budget": "Nessun budget",
+            "no_urgency": "Nessuna urgenza",
+            "competitor": "Ha scelto un concorrente",
+            "built_in_house": "Sviluppato internamente",
+            "wrong_buyer": "Interlocutore sbagliato",
+            "no_response": "Nessuna risposta",
+            "not_a_fit": "Non adatto"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valore ponderato",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Rispondere con un riepilogo",
+            "call": "Chiamare",
+            "intro_request": "Chiedere una presentazione",
+            "pilot_check": "Verificare il pilota",
+            "proposal": "Inviare l'offerta",
+            "follow_up": "Fare follow-up",
+            "handover": "Passare la mano",
+            "review": "Fare il punto",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Referenti"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Trattative"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Referenti",
+          "targetLabel": "Trattative"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Trattativa",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "opportunities_board": {
+          "name": "Trattative per fase"
+        },
+        "opportunities_all": {
+          "name": "Tutte le trattative"
+        },
+        "parked_to_revisit": {
+          "name": "In pausa, da riprendere"
+        },
+        "without_next_step": {
+          "name": "Aperte senza prossimo passo"
+        },
+        "companies_all": {
+          "name": "Tutte le aziende"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "pipeline_funnel": {
+          "title": "Trattative per fase"
+        },
+        "weighted_pipeline": {
+          "title": "Pipeline ponderata"
+        },
+        "customers_won": {
+          "title": "Clienti acquisiti"
+        },
+        "pilots_running": {
+          "title": "Piloti in corso"
+        },
+        "pilot_ends": {
+          "title": "Piloti in scadenza"
+        },
+        "revisits_coming": {
+          "title": "Trattative in pausa da riprendere"
+        },
+        "urgency_split": {
+          "title": "Trattative aperte per urgenza"
+        },
+        "lost_reasons": {
+          "title": "Motivi di perdita delle trattative"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Guida alle vendite del fondatore",
+          "sections": [
+            "A chi vendiamo e che cosa abbiamo imparato",
+            "Revisione settimanale del fondatore"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Domande per la chiamata di analisi",
+          "sections": [
+            "Problema, urgenza, budget e decisori",
+            "Che cosa annotare dopo la chiamata"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Piano del pilota e scheda di valutazione",
+          "sections": [
+            "Data di fine fissa e criteri di successo",
+            "A pagamento per impostazione predefinita e come il pilota diventa contratto"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Quando assumere il primo venditore",
+          "sections": [
+            "Segnali che la vendita si ripete senza di te",
+            "Che cosa delegare per primo"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Creare referente, azienda e trattativa quando viene inviato il modulo di richiesta",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Rispondere con un riepilogo personale e un prossimo passo il giorno dopo l'inizio di una conversazione",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Inviare il piano del pilota o l'offerta 2 giorni dopo l'analisi delle esigenze",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Verificare il pilota 14 giorni dopo l'avvio",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Fare la chiamata di decisione 3 giorni prima della fine del pilota",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Fare follow-up 3 giorni dopo l'invio di un'offerta",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Fissare la ripresa a 90 giorni quando una trattativa viene messa in pausa",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Riaprire la conversazione alla data di ripresa",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Passare la mano per il cliente il giorno dopo una trattativa vinta",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Chiedere una presentazione al cliente 30 giorni dopo una trattativa vinta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni trattativa ha una fase.",
+        "problem_field": "Ogni trattativa registra il problema con le parole del cliente.",
+        "pilot_end_field": "Ogni pilota ha una data di fine.",
+        "opportunities_board_view": "Le trattative si aprono come board per fase."
+      },
+      "page": {
+        "metaTitle": "Vendite del fondatore: una pipeline per ogni conversazione",
+        "metaDescription": "Vendere da fondatore senza perdere il filo: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce la pipeline con pilota e pausa.",
+        "headline": "Vendere da fondatore senza perdere il filo: una pipeline che il tuo agente IA costruisce nel tuo CRM",
+        "answer": "Una pipeline di vendita del fondatore è un breve elenco di conversazioni aperte, ognuna con il problema nelle parole del cliente, un prossimo passo con scadenza e, se ne fai uno, un pilota con data di fine fissa. Incolla questo modello nel tuo agente IA e costruisce la pipeline in Customermates, con uno stato In pausa e una data di ripresa per le trattative silenziose. Approvi il piano prima che venga costruito qualcosa.",
+        "routine": {
+          "title": "La revisione del fondatore il lunedì",
+          "steps": [
+            "Elenca ogni conversazione aperta e dai a ciascuna un prossimo passo con scadenza. Una conversazione senza data è quella che si spegne.",
+            "Annota ciò che hai imparato dalla settimana scorsa: il problema con le parole di chi compra, l'urgenza, il budget e chi decide.",
+            "Controlla i piloti: la data di fine è fissata, i criteri di successo sono scritti, è a pagamento? Fissa la chiamata di decisione pochi giorni prima della fine.",
+            "Decidi sulle trattative silenziose: un messaggio di chiusura onesto, poi mettile in pausa con una data di ripresa invece di inseguirle.",
+            "Guarda chi ha comprato e chi ha detto no, e perché. Lo schema mostra a quale segmento vendere e quando è il momento di assumere il tuo primo venditore."
+          ]
+        },
+        "limits": [
+          "Non è uno strumento di sequenze in uscita. Customermates non ha sequenze né invii di massa, e ogni messaggio è singolo e riletto da te. LinkedIn o email in grandi numeri richiedono uno strumento specializzato.",
+          "Non è un CRM per investitori. Il fundraising ha altre fasi e altri interlocutori: usa un modello a parte.",
+          "Non produce preventivi, fatture o contratti e non ha la firma elettronica. Offerte e accordi nascono in altri strumenti; qui restano solo le date e un link.",
+          "Non c'è lead scoring né arricchimento dei dati. Quanto un lead è adatto è un campo che imposti tu.",
+          "Il valore ponderato non è una previsione. I pesi sono approssimativi, perché un fondatore non ha ancora uno storico di chiusure, e sono tuoi da modificare.",
+          "È pensato per un solo venditore. Più venditori con obiettivi e una previsione di team richiedono il modello di pipeline di vendita o un CRM più pesante."
+        ],
+        "faq": [
+          {
+            "question": "Quando serve un CRM a un fondatore?",
+            "answer": "Le guide lo indicano quando hai più lead e clienti di quanti ne stiano nella testa o in un foglio di calcolo, spesso tra 50 e 200 contatti, o quando una seconda persona comincia a vendere. Fino ad allora basta un foglio. Aspettare ha un costo: quando cambi, note e prossimi passi sono già sparsi ovunque."
+          },
+          {
+            "question": "Quanti clienti dovrebbe chiudere personalmente un fondatore?",
+            "answer": "I consigli divergono: Jason Lemkin parla dei primi 10 clienti, forse 20, altre guide da 10 a 50. Mercury consiglia di assumere il primo venditore quando puoi dire: “So di poter vendere il mio prodotto a persone come X che hanno il problema Y”. Il modello mostra quanti clienti hai conquistato e non impone alcun numero."
+          },
+          {
+            "question": "Per quanto tempo inseguire una trattativa silenziosa?",
+            "answer": "I professionisti non concordano sul numero, ma concordano che a un certo punto ci si ferma. Mercury consiglia di non inseguire più chi ignora i tuoi messaggi; altri suggeriscono qualche sollecito, un'ultima email e un nuovo contatto dopo mesi. Il modello fa entrambe le cose: un messaggio di chiusura, poi la trattativa va in pausa con una data di ripresa a 90 giorni."
+          },
+          {
+            "question": "Conviene fare un pilota gratuito?",
+            "answer": "Il consiglio riassunto dalla Startup School di Y Combinator è di evitare piloti gratuiti senza limite e di farne uno breve, valutato e possibilmente a pagamento. Il modello dà al pilota una data di fine fissa e un indicatore a pagamento o no, crea un controllo 14 giorni dopo l'inizio e un'attività per la chiamata di decisione 3 giorni prima della fine."
+          },
+          {
+            "question": "L'agente scrive ai miei potenziali clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Vendo il mio prodotto di persona e continuo a perdere gli appunti e i prossimi passi delle mie conversazioni. Imposta nel mio spazio di lavoro Customermates una pipeline commerciale del fondatore: trattative dalla prima conversazione a vinta con note di analisi, un pilota facoltativo con data di fine fissa, uno stato in pausa con data di ripresa e attività di follow-up con data. Non inviare nulla automaticamente.",
+        "questions": [
+          "Che cosa vendi e chi ha già comprato da te?",
+          "Fai piloti o prove e sono a pagamento?",
+          "Per quanto tempo insegui una trattativa silenziosa prima di metterla in pausa?",
+          "Da dove partono le tue conversazioni: rete personale, presentazioni, richieste in entrata o eventi?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Sales van de oprichter",
+      "summary": "Verkoop zelf als oprichter zonder de draad van je gesprekken kwijt te raken. Een korte pijplijn van eerste gesprek tot gewonnen, met een optionele pilot met einddatum en een gepauzeerde status met een datum om terug te komen.",
+      "description": "Als je zelf verkoopt, leert elk gesprek je wie koopt en waarom, maar de notities en de volgende stap zitten in je hoofd en in een stapel tabbladen. Dit sjabloon houdt een handvol tot enkele tientallen open gesprekken bij: elke deal legt het probleem in de woorden van de klant vast, de urgentie, de budgetstatus en of de beslisser betrokken is. Een pilot heeft een einddatum en zegt of hij betaald is, en een stille deal wordt gepauzeerd met een datum om terug te komen in plaats van achterna te worden gelopen. De gewichten zijn grof, want een oprichter heeft nog geen slagingspercentage, en jij stelt ze zelf in. Geen geautomatiseerde mailsequenties op volume, geen kapitaalronde en geen forecast voor een team met meerdere verkopers.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen met wie je praat, met hun rol in de koopbeslissing."
+        },
+        "companies": {
+          "label": "Bedrijf",
+          "pluralLabel": "Bedrijven",
+          "description": "Prospects, pilots, klanten en partners."
+        },
+        "opportunities": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "Eén mogelijke verkoop, van eerste gesprek tot gewonnen, verloren of gepauzeerd."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rol bij de koop",
+          "options": {
+            "decision_maker": "Beslisser",
+            "budget_holder": "Budgethouder",
+            "champion": "Pleitbezorger",
+            "user": "Gebruiker",
+            "other": "Overig"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Akkoord met contact",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relatie",
+          "options": {
+            "prospect": "Prospect",
+            "pilot": "Pilot",
+            "customer": "Klant",
+            "churned": "Vertrokken",
+            "partner": "Partner"
+          }
+        },
+        "companies.size": {
+          "label": "Grootte",
+          "options": {
+            "micro": "1 tot 10 medewerkers",
+            "small": "11 tot 50 medewerkers",
+            "medium": "51 tot 250 medewerkers",
+            "large": "Meer dan 250 medewerkers"
+          }
+        },
+        "companies.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Gesprek",
+            "discovery_done": "Behoefte helder",
+            "pilot": "Pilot of proef",
+            "proposal": "Offerte",
+            "won": "Gewonnen",
+            "lost": "Verloren",
+            "parked": "Gepauzeerd"
+          }
+        },
+        "opportunities.source": {
+          "label": "Bron",
+          "options": {
+            "own_network": "Eigen netwerk",
+            "introduction": "Introductie",
+            "inbound": "Inkomend",
+            "community": "Community",
+            "outbound": "Uitgaand",
+            "event": "Evenement"
+          }
+        },
+        "opportunities.problem": {
+          "label": "Het probleem, in hun woorden",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Urgentie",
+          "options": {
+            "burning": "Acuut",
+            "important": "Belangrijk",
+            "nice_to_have": "Leuk om te hebben"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Budget",
+          "options": {
+            "unknown": "Onbekend",
+            "has_budget": "Heeft budget",
+            "needs_budget": "Heeft budget nodig",
+            "no_budget": "Geen budget"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Beslisser betrokken",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Einde pilot",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "Pilot is betaald",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Verwachte afsluitdatum",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Terugkomen op",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Volgende stap uiterlijk op",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Reden van verlies",
+          "options": {
+            "no_budget": "Geen budget",
+            "no_urgency": "Geen urgentie",
+            "competitor": "Koos een concurrent",
+            "built_in_house": "Zelf gebouwd",
+            "wrong_buyer": "Verkeerde gesprekspartner",
+            "no_response": "Geen reactie",
+            "not_a_fit": "Past niet"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewogen waarde",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Reageren met een samenvatting",
+            "call": "Bellen",
+            "intro_request": "Om een introductie vragen",
+            "pilot_check": "De pilot nalopen",
+            "proposal": "Offerte sturen",
+            "follow_up": "Opvolgen",
+            "handover": "Overdragen",
+            "review": "Evalueren",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Contactpersonen"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Deals"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Contactpersonen",
+          "targetLabel": "Deals"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "opportunities_board": {
+          "name": "Deals per fase"
+        },
+        "opportunities_all": {
+          "name": "Alle deals"
+        },
+        "parked_to_revisit": {
+          "name": "Gepauzeerd, om op terug te komen"
+        },
+        "without_next_step": {
+          "name": "Open zonder volgende stap"
+        },
+        "companies_all": {
+          "name": "Alle bedrijven"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "pipeline_funnel": {
+          "title": "Deals per fase"
+        },
+        "weighted_pipeline": {
+          "title": "Gewogen pijplijn"
+        },
+        "customers_won": {
+          "title": "Gewonnen klanten"
+        },
+        "pilots_running": {
+          "title": "Lopende pilots"
+        },
+        "pilot_ends": {
+          "title": "Pilots die aflopen"
+        },
+        "revisits_coming": {
+          "title": "Gepauzeerde deals om op terug te komen"
+        },
+        "urgency_split": {
+          "title": "Open deals per urgentie"
+        },
+        "lost_reasons": {
+          "title": "Waarom deals verloren gingen"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Verkoopgids voor de oprichter",
+          "sections": [
+            "Aan wie we verkopen en wat we hebben geleerd",
+            "Wekelijkse terugblik van de oprichter"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Vragen voor het verkennende gesprek",
+          "sections": [
+            "Probleem, urgentie, budget en beslissers",
+            "Wat na het gesprek wordt vastgelegd"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Pilotplan en beoordelingsformulier",
+          "sections": [
+            "Vaste einddatum en succescriteria",
+            "Standaard betaald en hoe een pilot een contract wordt"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Wanneer de eerste verkoper komt",
+          "sections": [
+            "Signalen dat de verkoop zich zonder jou herhaalt",
+            "Wat eerst wordt overgedragen"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Maak een contactpersoon, een bedrijf en een deal aan als het aanvraagformulier is ingediend",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Reageer de dag nadat een gesprek begint met een persoonlijke samenvatting en één volgende stap",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Stuur 2 dagen nadat de behoefte helder is het pilotplan of de offerte",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Loop de pilot 14 dagen na de start na",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Voer 3 dagen voor het einde van de pilot het beslisgesprek",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Volg een offerte 3 dagen na het versturen op",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Zet de terugkomdatum op 90 dagen als een deal wordt gepauzeerd",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Heropen het gesprek op de terugkomdatum",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Draag de klant de dag na een gewonnen deal over",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Vraag de klant 30 dagen na een gewonnen deal om een introductie",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke deal heeft een fase.",
+        "problem_field": "Elke deal legt het probleem in de woorden van de klant vast.",
+        "pilot_end_field": "Elke pilot heeft een einddatum.",
+        "opportunities_board_view": "De deals openen als bord per fase."
+      },
+      "page": {
+        "metaTitle": "Sales van de oprichter: elk gesprek met een volgende stap",
+        "metaDescription": "Verkopen als oprichter zonder de draad kwijt te raken: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt de pijplijn met pilots en pauze.",
+        "headline": "Verkopen als oprichter zonder de draad kwijt te raken: een pijplijn die je AI-agent in je CRM bouwt",
+        "answer": "Een pijplijn voor oprichters is een korte lijst open gesprekken, elk met het probleem in de woorden van de klant, een volgende stap met een datum en, als je er een draait, een pilot met een vaste einddatum. Plak dit sjabloon in je AI-agent en die bouwt de pijplijn in Customermates, met de status Gepauzeerd en een datum om terug te komen op stilgevallen deals. Je keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De maandagse oprichtersronde",
+          "steps": [
+            "Zet elk open gesprek op een rij en geef elk een volgende stap met een datum. Een gesprek zonder datum is het gesprek dat stilvalt.",
+            "Schrijf op wat je sinds vorige week hebt geleerd: het probleem in de woorden van de koper, urgentie, budget en wie beslist.",
+            "Controleer de pilots: staat de einddatum vast, zijn de succescriteria opgeschreven, is hij betaald? Plan het beslissingsgesprek enkele dagen voor het einde.",
+            "Beslis over de stilgevallen deals: één eerlijk afsluitend bericht en zet ze dan op pauze met een datum om terug te komen, in plaats van achter ze aan te zitten.",
+            "Kijk wie er heeft gekocht en wie nee zei, en waarom. Het patroon laat zien aan welk segment je moet verkopen en wanneer het tijd is voor je eerste verkoper."
+          ]
+        },
+        "limits": [
+          "Het is geen tool voor uitgaande reeksen. Customermates heeft geen reeksen of massaverzending, en elk bericht is individueel en door jou gecontroleerd. LinkedIn of e-mail in grote aantallen vraagt om een gespecialiseerde tool.",
+          "Het is geen CRM voor investeerders. Fondsenwerving heeft andere fases en andere gesprekspartners, gebruik daarvoor een apart sjabloon.",
+          "Het maakt geen offertes, facturen of contracten en heeft geen elektronische handtekening. Voorstellen en overeenkomsten maak je in andere tools; hier staan alleen de data en een link.",
+          "Er is geen leadscoring of gegevensverrijking. Hoe goed een lead past is een veld dat je zelf invult.",
+          "De gewogen waarde is geen prognose. De gewichten zijn grof, omdat een oprichter nog geen historie van afgesloten deals heeft, en je mag ze zelf aanpassen.",
+          "Het is bedoeld voor één verkoper. Meerdere verkopers met targets en een teamprognose hebben het sjabloon voor een salespijplijn of een zwaarder CRM nodig."
+        ],
+        "faq": [
+          {
+            "question": "Wanneer heeft een oprichter een CRM nodig?",
+            "answer": "Gidsen noemen het punt waarop je meer leads en klanten hebt dan in je hoofd of een spreadsheet passen, vaak tussen 50 en 200 contactpersonen, of wanneer een tweede persoon gaat verkopen. Tot dan volstaat een spreadsheet. Wachten kost iets: als je overstapt, staan notities en volgende stappen al overal verspreid."
+          },
+          {
+            "question": "Hoeveel klanten moet een oprichter zelf binnenhalen?",
+            "answer": "De adviezen lopen uiteen: Jason Lemkin noemt de eerste 10 klanten, misschien 20, andere gidsen 10 tot 50. Mercury raadt aan je eerste verkoper aan te nemen wanneer je kunt zeggen: “Ik weet dat ik mijn product kan verkopen aan mensen als X met probleem Y.” Het sjabloon laat zien hoeveel klanten je hebt gewonnen en dwingt geen getal af."
+          },
+          {
+            "question": "Hoe lang moet ik een stilgevallen deal najagen?",
+            "answer": "Praktijkmensen verschillen van mening over het aantal, maar zijn het erover eens dat je ergens stopt. Mercury raadt aan mensen die je negeren niet langer na te jagen; anderen stellen een paar herinneringen, een laatste e-mail en maanden later een nieuw contact voor. Het sjabloon doet allebei: één afsluitend bericht, daarna wordt de deal gepauzeerd met een datum om na 90 dagen terug te komen."
+          },
+          {
+            "question": "Moet ik een gratis pilot aanbieden?",
+            "answer": "Het advies, samengevat uit de Startup School van Y Combinator, is om open gratis pilots te vermijden en een korte, beoordeelde en liefst betaalde pilot te doen. Het sjabloon geeft een pilot een vaste einddatum en een markering betaald of niet, maakt 14 dagen na de start een controle aan en 3 dagen voor het einde een taak voor het beslissingsgesprek."
+          },
+          {
+            "question": "Stuurt de agent berichten naar mijn prospects?",
+            "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en jij verstuurt ze zelf."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Ik verkoop mijn product zelf en verlies steeds de notities en volgende stappen uit mijn gesprekken. Richt in mijn Customermates-werkruimte een verkooppijplijn voor oprichters in: deals van eerste gesprek tot gewonnen met verkennende notities, een optionele pilot met vaste einddatum, een gepauzeerde status met terugkomdatum en opvolging met datum. Stuur niets automatisch.",
+        "questions": [
+          "Wat verkoop je en wie heeft er tot nu toe bij je gekocht?",
+          "Doe je pilots of proeven en zijn die betaald?",
+          "Hoe lang loop je een stille deal achterna voordat je hem pauzeert?",
+          "Waar beginnen je gesprekken: je netwerk, introducties, inkomend of evenementen?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Sprzedaż prowadzona przez założyciela",
+      "summary": "Sprzedawaj osobiście jako założyciel i nie gub wątku rozmów. Krótki lejek od pierwszej rozmowy do wygranej, z opcjonalnym pilotażem ze stałym terminem zakończenia i statusem wstrzymane z datą powrotu.",
+      "description": "Gdy sprzedajesz osobiście, każda rozmowa uczy Cię, kto kupuje i dlaczego, ale notatki i następny krok siedzą w głowie i w stosie otwartych kart w przeglądarce. Szablon pomaga prowadzić od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany. Pilotaż ma termin zakończenia i informację, czy jest płatny, a szansa, która ucichła, jest wstrzymywana z datą powrotu zamiast być ponaglana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie jest masowa wysyłka sekwencji wiadomości, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby, z którymi rozmawiasz, z ich rolą w decyzji zakupowej."
+        },
+        "companies": {
+          "label": "Firma",
+          "pluralLabel": "Firmy",
+          "description": "Potencjalni klienci, pilotaże, klienci i partnerzy."
+        },
+        "opportunities": {
+          "label": "Szansa sprzedaży",
+          "pluralLabel": "Szanse sprzedaży",
+          "description": "Jedna możliwa sprzedaż, od pierwszej rozmowy do wygranej, przegranej lub wstrzymanej."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rola w zakupie",
+          "options": {
+            "decision_maker": "Decydent",
+            "budget_holder": "Dysponent budżetu",
+            "champion": "Rzecznik wewnętrzny",
+            "user": "Użytkownik",
+            "other": "Inna"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Zgoda na kontakt",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relacja",
+          "options": {
+            "prospect": "Potencjalny klient",
+            "pilot": "Pilotaż",
+            "customer": "Klient",
+            "churned": "Utracony",
+            "partner": "Partner"
+          }
+        },
+        "companies.size": {
+          "label": "Wielkość",
+          "options": {
+            "micro": "1 do 10 osób",
+            "small": "11 do 50 osób",
+            "medium": "51 do 250 osób",
+            "large": "Ponad 250 osób"
+          }
+        },
+        "companies.website": {
+          "label": "Strona internetowa",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etap",
+          "options": {
+            "new": "Rozmowa",
+            "discovery_done": "Analiza potrzeb",
+            "pilot": "Pilotaż lub test",
+            "proposal": "Oferta",
+            "won": "Wygrana",
+            "lost": "Przegrana",
+            "parked": "Wstrzymane"
+          }
+        },
+        "opportunities.source": {
+          "label": "Źródło",
+          "options": {
+            "own_network": "Własna sieć kontaktów",
+            "introduction": "Polecenie z przedstawieniem",
+            "inbound": "Zapytanie przychodzące",
+            "community": "Społeczność",
+            "outbound": "Kontakt wychodzący",
+            "event": "Wydarzenie"
+          }
+        },
+        "opportunities.problem": {
+          "label": "Problem słowami klienta",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Pilność",
+          "options": {
+            "burning": "Palący",
+            "important": "Ważny",
+            "nice_to_have": "Niski priorytet"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Budżet",
+          "options": {
+            "unknown": "Nieznany",
+            "has_budget": "Ma budżet",
+            "needs_budget": "Musi zdobyć budżet",
+            "no_budget": "Brak budżetu"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Decydent zaangażowany",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Data zakończenia pilotażu",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "Pilotaż jest płatny",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Planowane zamknięcie",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Data powrotu do rozmowy",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Powód utraty",
+          "options": {
+            "no_budget": "Brak budżetu",
+            "no_urgency": "Brak pilności",
+            "competitor": "Klient wybrał konkurencję",
+            "built_in_house": "Zbudował to we własnym zakresie",
+            "wrong_buyer": "Niewłaściwy rozmówca",
+            "no_response": "Brak odpowiedzi",
+            "not_a_fit": "Nie pasuje"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Wartość ważona",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedzieć z podsumowaniem",
+            "call": "Zadzwonić",
+            "intro_request": "Poprosić o przedstawienie",
+            "pilot_check": "Sprawdzić pilotaż",
+            "proposal": "Wysłać ofertę",
+            "follow_up": "Przypomnieć o sobie",
+            "handover": "Przekazać",
+            "review": "Podsumować",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Kontakty"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Szanse sprzedaży"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Kontakty",
+          "targetLabel": "Szanse sprzedaży"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Szansa sprzedaży",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "opportunities_board": {
+          "name": "Szanse według etapu"
+        },
+        "opportunities_all": {
+          "name": "Wszystkie szanse sprzedaży"
+        },
+        "parked_to_revisit": {
+          "name": "Wstrzymane, do powrotu"
+        },
+        "without_next_step": {
+          "name": "Otwarte bez następnego kroku"
+        },
+        "companies_all": {
+          "name": "Wszystkie firmy"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "pipeline_funnel": {
+          "title": "Szanse według etapu"
+        },
+        "weighted_pipeline": {
+          "title": "Lejek ważony"
+        },
+        "customers_won": {
+          "title": "Pozyskani klienci"
+        },
+        "pilots_running": {
+          "title": "Trwające pilotaże"
+        },
+        "pilot_ends": {
+          "title": "Kończące się pilotaże"
+        },
+        "revisits_coming": {
+          "title": "Wstrzymane szanse do powrotu"
+        },
+        "urgency_split": {
+          "title": "Otwarte szanse według pilności"
+        },
+        "lost_reasons": {
+          "title": "Powody utraty szans"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Przewodnik sprzedaży założyciela",
+          "sections": [
+            "Komu sprzedajemy i czego się nauczyliśmy",
+            "Tygodniowy przegląd założyciela"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Pytania na rozmowę odkrywczą",
+          "sections": [
+            "Problem, pilność, budżet i decydenci",
+            "Co zapisać po rozmowie"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Plan pilotażu i karta oceny",
+          "sections": [
+            "Stały termin zakończenia i kryteria sukcesu",
+            "Płatny domyślnie i jak pilotaż zamienia się w umowę"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Kiedy zatrudnić pierwszego handlowca",
+          "sections": [
+            "Sygnały, że sprzedaż powtarza się bez Ciebie",
+            "Co przekazać najpierw"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Utwórz kontakt, firmę i szansę sprzedaży po wysłaniu formularza",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Odpowiedz z osobistym podsumowaniem i następnym krokiem dzień po rozpoczęciu rozmowy",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Wyślij plan pilotażu lub ofertę 2 dni po analizie potrzeb",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Zapytaj, jak idzie pilotaż, 14 dni po jego starcie",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Przeprowadź rozmowę decyzyjną 3 dni przed końcem pilotażu",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Ustaw datę powrotu do rozmowy na 90 dni naprzód, gdy szansa zostaje wstrzymana",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Wznów rozmowę w ustalonym dniu powrotu",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Przekaż klienta dzień po wygranej",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Poproś klienta o przedstawienie jednej osoby 30 dni po wygranej",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każda szansa sprzedaży ma etap.",
+        "problem_field": "Każda szansa zapisuje problem słowami klienta.",
+        "pilot_end_field": "Każdy pilotaż ma termin zakończenia.",
+        "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
+      },
+      "page": {
+        "metaTitle": "Sprzedaż prowadzona przez założyciela: lejek i terminy",
+        "metaDescription": "Sprzedawaj jako założyciel, nie gubiąc wątku: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje lejek z pilotażem i wstrzymanymi szansami.",
+        "headline": "Sprzedaż prowadzona przez założyciela bez gubienia wątku: lejek, który Twój agent AI buduje w Twoim CRM",
+        "answer": "Lejek sprzedaży założyciela to krótka lista otwartych rozmów, każda z problemem opisanym słowami klienta, następnym krokiem z terminem i, jeśli go prowadzisz, pilotażem ze stałą datą końca. Wklej ten szablon do swojego agenta AI, a zbuduje lejek w Customermates, ze stanem Wstrzymane i datą powrotu dla ucichłych szans. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Poniedziałkowy przegląd założyciela",
+          "steps": [
+            "Wypisz każdą otwartą rozmowę i dla każdej ustal następny krok z terminem. Rozmowa bez daty to ta, która cichnie.",
+            "Zapisz, co wiadomo od zeszłego tygodnia: problem słowami kupującego, pilność, budżet i kto decyduje.",
+            "Sprawdź pilotaże: czy jest data końca, czy kryteria sukcesu są spisane, czy jest płatny? Umów rozmowę decyzyjną na kilka dni przed końcem.",
+            "Zdecyduj o ucichłych szansach: jedna uczciwa wiadomość na zamknięcie, potem wstrzymaj je z datą powrotu zamiast ścigać.",
+            "Zobacz, kto kupił, a kto odmówił, i dlaczego. Wzór pokazuje, jakiemu segmentowi sprzedawać i kiedy czas zatrudnić pierwszego handlowca."
+          ]
+        },
+        "limits": [
+          "To nie jest narzędzie do sekwencji wychodzących. Customermates nie ma sekwencji ani masowych wysyłek, a każda wiadomość jest pojedyncza i sprawdzana przez Ciebie. LinkedIn lub e-mail w dużej skali wymagają wyspecjalizowanego narzędzia.",
+          "To nie jest CRM dla inwestorów. Pozyskiwanie kapitału ma inne etapy i innych rozmówców, więc użyj osobnego szablonu.",
+          "Nie tworzy ofert cenowych, faktur ani umów i nie ma podpisu elektronicznego. Oferty i umowy powstają w innych narzędziach; tu zostają tylko terminy i link.",
+          "Nie ma punktacji leadów ani wzbogacania danych. To, jak dobrze lead pasuje, to pole, które ustawiasz sam.",
+          "Wartość ważona to nie prognoza. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i możesz je zmieniać.",
+          "Jest dla jednego sprzedawcy. Kilku handlowców z planami sprzedaży i prognozą zespołu potrzebuje szablonu lejka sprzedaży albo cięższego CRM."
+        ],
+        "faq": [
+          {
+            "question": "Kiedy założyciel potrzebuje CRM?",
+            "answer": "Poradniki wskazują moment, gdy masz więcej leadów i klientów, niż mieści się w głowie lub w arkuszu, często między 50 a 200 kontaktami, albo gdy sprzedawać zaczyna druga osoba. Do tego czasu wystarczy arkusz. Czekanie ma swoją cenę: gdy zmieniasz narzędzie, notatki i kolejne kroki są już rozrzucone."
+          },
+          {
+            "question": "Ilu klientów powinien samodzielnie zamknąć założyciel?",
+            "answer": "Rady się różnią: Jason Lemkin mówi o pierwszych 10 klientach, może 20, inne poradniki o 10 do 50. Mercury radzi zatrudnić pierwszego handlowca, gdy możesz powiedzieć: „Wiem, że mogę sprzedać swój produkt ludziom takim jak X, którzy mają problem Y”. Szablon pokazuje, ilu klientów udało się zdobyć, i nie narzuca żadnej liczby."
+          },
+          {
+            "question": "Jak długo ścigać szansę, która ucichła?",
+            "answer": "Praktycy nie zgadzają się co do liczby, ale zgadzają się, że w pewnym momencie trzeba przestać. Mercury radzi nie ścigać dłużej osób, które Cię ignorują; inni sugerują kilka ponagleń, ostatni e-mail i nowy kontakt po miesiącach. Szablon robi jedno i drugie: jedna wiadomość na zamknięcie, potem szansa jest wstrzymywana z datą powrotu po 90 dniach."
+          },
+          {
+            "question": "Czy warto robić bezpłatny pilotaż?",
+            "answer": "Rada streszczona ze Startup School Y Combinator brzmi: unikaj bezterminowych bezpłatnych pilotaży i prowadź krótki, oceniany, najlepiej płatny. Szablon nadaje pilotażowi stałą datę końca i znacznik płatny lub nie, tworzy kontrolę 14 dni po starcie i zadanie rozmowy decyzyjnej 3 dni przed końcem."
+          },
+          {
+            "question": "Czy agent pisze do moich potencjalnych klientów?",
+            "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Sam sprzedaję swój produkt i ciągle gubię notatki oraz następne kroki z rozmów. Skonfiguruj w mojej przestrzeni roboczej Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane kolejne kroki. Niczego nie wysyłaj automatycznie.",
+        "questions": [
+          "Co sprzedajesz i kto już od Ciebie kupił?",
+          "Czy prowadzisz pilotaże lub testy i czy są płatne?",
+          "Jak długo ponaglasz szansę, która ucichła, zanim ją wstrzymasz?",
+          "Skąd biorą się Twoje rozmowy: z sieci kontaktów, poleceń, zapytań czy wydarzeń?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Venda consultiva do fundador",
+      "summary": "Venda como fundador sem perder o fio das suas conversas. Um funil curto da primeira conversa ao ganho, com um piloto opcional com data de término e um estado pausado com data para retomar.",
+      "description": "Quando você mesmo vende, cada conversa ensina quem compra e por quê, mas as anotações e o próximo passo ficam na sua cabeça e numa pilha de abas. Este modelo acompanha de um punhado a algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido. Um piloto tem data de término e diz se é pago, e um negócio que ficou em silêncio é pausado com uma data para retomar, em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não serve para disparar sequências em volume, captar investimento nem prever as vendas de uma equipe com vários vendedores.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas com quem você conversa, com o papel delas na decisão de compra."
+        },
+        "companies": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Prospects, pilotos, clientes e parceiros."
+        },
+        "opportunities": {
+          "label": "Negócio",
+          "pluralLabel": "Negócios",
+          "description": "Uma possível venda, da primeira conversa a ganho, perdido ou pausado."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Papel na compra",
+          "options": {
+            "decision_maker": "Decisor",
+            "budget_holder": "Responsável pelo orçamento",
+            "champion": "Defensor interno",
+            "user": "Usuário",
+            "other": "Outro"
+          }
+        },
+        "contacts.outreach_consent": {
+          "label": "Aceita ser contatado",
+          "options": {}
+        },
+        "companies.relationship": {
+          "label": "Relacionamento",
+          "options": {
+            "prospect": "Prospect",
+            "pilot": "Piloto",
+            "customer": "Cliente",
+            "churned": "Ex-cliente",
+            "partner": "Parceiro"
+          }
+        },
+        "companies.size": {
+          "label": "Porte",
+          "options": {
+            "micro": "De 1 a 10 pessoas",
+            "small": "De 11 a 50 pessoas",
+            "medium": "De 51 a 250 pessoas",
+            "large": "Mais de 250 pessoas"
+          }
+        },
+        "companies.website": {
+          "label": "Site",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "new": "Conversa",
+            "discovery_done": "Diagnóstico",
+            "pilot": "Piloto ou teste",
+            "proposal": "Proposta",
+            "won": "Ganho",
+            "lost": "Perdido",
+            "parked": "Pausado"
+          }
+        },
+        "opportunities.source": {
+          "label": "Origem",
+          "options": {
+            "own_network": "Rede pessoal",
+            "introduction": "Indicação",
+            "inbound": "Contato recebido",
+            "community": "Comunidade",
+            "outbound": "Prospecção ativa",
+            "event": "Evento"
+          }
+        },
+        "opportunities.problem": {
+          "label": "O problema, nas palavras do cliente",
+          "options": {}
+        },
+        "opportunities.urgency": {
+          "label": "Urgência",
+          "options": {
+            "burning": "Muito urgente",
+            "important": "Importante",
+            "nice_to_have": "Desejável"
+          }
+        },
+        "opportunities.budget_status": {
+          "label": "Orçamento",
+          "options": {
+            "unknown": "Desconhecido",
+            "has_budget": "Tem orçamento",
+            "needs_budget": "Precisa de orçamento",
+            "no_budget": "Sem orçamento"
+          }
+        },
+        "opportunities.decision_maker_engaged": {
+          "label": "Decisor envolvido",
+          "options": {}
+        },
+        "opportunities.pilot_end": {
+          "label": "Fim do piloto",
+          "options": {}
+        },
+        "opportunities.pilot_paid": {
+          "label": "O piloto é pago",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Previsão de fechamento",
+          "options": {}
+        },
+        "opportunities.revisit_on": {
+          "label": "Retomar em",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Data do próximo passo",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "no_budget": "Sem orçamento",
+            "no_urgency": "Sem urgência",
+            "competitor": "Escolheu a concorrência",
+            "built_in_house": "Desenvolveu internamente",
+            "wrong_buyer": "Interlocutor errado",
+            "no_response": "Sem resposta",
+            "not_a_fit": "Não se encaixa"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder com um resumo",
+            "call": "Ligar",
+            "intro_request": "Pedir uma indicação",
+            "pilot_check": "Acompanhar o piloto",
+            "proposal": "Enviar a proposta",
+            "follow_up": "Fazer o retorno",
+            "handover": "Passar o bastão",
+            "review": "Fazer o balanço",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_company": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contatos"
+        },
+        "opportunity_company": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Negócios"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Contatos",
+          "targetLabel": "Negócios"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Negócio",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "opportunities_board": {
+          "name": "Negócios por etapa"
+        },
+        "opportunities_all": {
+          "name": "Todos os negócios"
+        },
+        "parked_to_revisit": {
+          "name": "Pausados, a retomar"
+        },
+        "without_next_step": {
+          "name": "Abertos sem próximo passo"
+        },
+        "companies_all": {
+          "name": "Todas as empresas"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "pipeline_funnel": {
+          "title": "Negócios por etapa"
+        },
+        "weighted_pipeline": {
+          "title": "Funil ponderado"
+        },
+        "customers_won": {
+          "title": "Clientes conquistados"
+        },
+        "pilots_running": {
+          "title": "Pilotos em andamento"
+        },
+        "pilot_ends": {
+          "title": "Pilotos terminando"
+        },
+        "revisits_coming": {
+          "title": "Negócios pausados a retomar"
+        },
+        "urgency_split": {
+          "title": "Negócios abertos por urgência"
+        },
+        "lost_reasons": {
+          "title": "Por que perdemos negócios"
+        }
+      },
+      "knowledgePages": {
+        "founder_playbook": {
+          "title": "Guia de vendas do fundador",
+          "sections": [
+            "Para quem vendemos e o que aprendemos",
+            "Revisão semanal do fundador"
+          ]
+        },
+        "discovery_questions": {
+          "title": "Perguntas da conversa de diagnóstico",
+          "sections": [
+            "Problema, urgência, orçamento e decisores",
+            "O que anotar depois da conversa"
+          ]
+        },
+        "pilot_plan": {
+          "title": "Plano do piloto e ficha de avaliação",
+          "sections": [
+            "Data de término fixa e critérios de sucesso",
+            "Pago por padrão e como o piloto vira contrato"
+          ]
+        },
+        "when_to_hire": {
+          "title": "Quando contratar o primeiro vendedor",
+          "sections": [
+            "Sinais de que a venda se repete sem você",
+            "O que passar primeiro"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Criar o contato, a empresa e o negócio quando o formulário de solicitação for enviado",
+          "description": ""
+        },
+        "recap_reply": {
+          "title": "Responder com um resumo pessoal e um próximo passo no dia seguinte ao início de uma conversa",
+          "description": ""
+        },
+        "discovery_proposal": {
+          "title": "Enviar o plano do piloto ou a proposta 2 dias depois do diagnóstico",
+          "description": ""
+        },
+        "pilot_start_check": {
+          "title": "Acompanhar o piloto 14 dias depois do início",
+          "description": ""
+        },
+        "pilot_review": {
+          "title": "Fazer a conversa de decisão 3 dias antes do fim do piloto",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Fazer o retorno 3 dias depois de enviar uma proposta",
+          "description": ""
+        },
+        "parked_revisit_date": {
+          "title": "Definir a retomada para 90 dias quando um negócio é pausado",
+          "description": ""
+        },
+        "revisit_reopen": {
+          "title": "Reabrir a conversa na data de retomada",
+          "description": ""
+        },
+        "won_handover": {
+          "title": "Passar o cliente adiante no dia seguinte a um ganho",
+          "description": ""
+        },
+        "won_intro_request": {
+          "title": "Pedir indicações ao cliente 30 dias depois de um ganho",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Todo negócio tem uma etapa.",
+        "problem_field": "Todo negócio registra o problema nas palavras do cliente.",
+        "pilot_end_field": "Todo piloto tem uma data de término.",
+        "opportunities_board_view": "Os negócios abrem como quadro por etapa."
+      },
+      "page": {
+        "metaTitle": "Funil de vendas do fundador: nenhuma conversa solta",
+        "metaDescription": "Venda como fundador sem perder o fio: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o funil com piloto e etapa de pausa.",
+        "headline": "Vender como fundador sem perder o fio: um funil que seu agente de IA monta no seu CRM",
+        "answer": "Um funil de vendas do fundador é uma lista curta de conversas abertas, cada uma com o problema nas palavras do cliente, um próximo passo com data e, se você tiver um, um piloto com data final fixa. Cole este modelo no seu agente de IA e ele monta o funil no Customermates, com a etapa Pausado e uma data para voltar às conversas que esfriam. Você aprova o plano antes de qualquer coisa ser construída.",
+        "routine": {
+          "title": "A revisão do fundador de segunda-feira",
+          "steps": [
+            "Liste cada conversa aberta e dê a cada uma um próximo passo com data. Conversa sem data é a que esfria.",
+            "Anote o que você aprendeu desde a semana passada: o problema nas palavras do comprador, a urgência, o orçamento e quem decide.",
+            "Confira os pilotos: a data final está definida, os critérios de sucesso estão escritos, é pago? Marque a conversa de decisão alguns dias antes do fim.",
+            "Decida sobre as conversas que esfriaram: uma última mensagem honesta e depois pause com uma data para voltar, em vez de insistir.",
+            "Olhe quem comprou e quem disse não, e por quê. O padrão mostra para qual segmento vender e quando é hora de contratar seu primeiro vendedor."
+          ]
+        },
+        "limits": [
+          "Não é uma ferramenta de cadências de prospecção. O Customermates não tem sequências nem disparos em massa, e cada mensagem é individual e revisada por você. LinkedIn ou e-mail em volume pedem uma ferramenta especializada.",
+          "Não é um CRM de investidores. A captação de recursos tem outras etapas e outros interlocutores: use outro modelo.",
+          "Não faz orçamentos, notas fiscais nem contratos e não tem assinatura eletrônica. Propostas e acordos são feitos em outras ferramentas; aqui ficam só as datas e um link.",
+          "Não há pontuação de leads nem enriquecimento de dados. O quanto um lead combina é um campo que você mesmo define.",
+          "O valor ponderado não é uma previsão. Os pesos são aproximados, porque o fundador ainda não tem histórico de fechamentos, e são seus para mudar.",
+          "Foi pensado para um vendedor só. Vários vendedores com metas e uma previsão de equipe pedem o modelo de funil de vendas ou um CRM mais pesado."
+        ],
+        "faq": [
+          {
+            "question": "Quando um fundador precisa de um CRM?",
+            "answer": "Guias apontam o momento em que você tem mais leads e clientes do que cabem na cabeça ou em uma planilha, muitas vezes entre 50 e 200 contatos, ou quando uma segunda pessoa começa a vender. Até lá, uma planilha basta. Esperar tem um custo: quando você troca, as anotações e os próximos passos já estão espalhados."
+          },
+          {
+            "question": "Quantos clientes um fundador deve fechar pessoalmente?",
+            "answer": "Os conselhos variam: Jason Lemkin fala nos 10 primeiros clientes, talvez 20, outros guias de 10 a 50. A Mercury aconselha contratar o primeiro vendedor quando você puder dizer: “Sei que consigo vender meu produto para gente como X que tem o problema Y”. O modelo mostra quantos clientes você ganhou e não impõe nenhum número."
+          },
+          {
+            "question": "Por quanto tempo devo insistir numa conversa que esfriou?",
+            "answer": "Quem trabalha com vendas não concorda sobre o número, mas concorda que em algum momento se para. A Mercury aconselha parar de insistir com quem ignora você; outros sugerem alguns acompanhamentos, um último e-mail e um novo contato meses depois. O modelo faz as duas coisas: uma mensagem de encerramento e depois o negócio fica pausado, com uma data para voltar em 90 dias."
+          },
+          {
+            "question": "Devo oferecer um piloto gratuito?",
+            "answer": "O conselho resumido da Startup School da Y Combinator é evitar pilotos gratuitos sem limite e fazer um curto, avaliado e, se possível, pago. O modelo dá ao piloto uma data final fixa e um indicador de pago ou não, cria uma checagem 14 dias depois do início e uma tarefa para a conversa de decisão 3 dias antes do fim."
+          },
+          {
+            "question": "O agente escreve para meus prospects?",
+            "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e é você quem envia."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Eu vendo o meu produto pessoalmente e vivo perdendo as anotações e os próximos passos das minhas conversas. Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
+        "questions": [
+          "O que você vende e quem já comprou de você?",
+          "Você faz pilotos ou testes e eles são pagos?",
+          "Por quanto tempo você insiste em um negócio silencioso antes de pausá-lo?",
+          "Onde suas conversas começam: rede pessoal, indicações, contato recebido ou eventos?"
+        ]
+      }
+    }
+  }
+}

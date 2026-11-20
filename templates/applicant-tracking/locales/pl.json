@@ -1,0 +1,163 @@
+{
+  "locale": "pl",
+  "name": "Śledzenie kandydatów",
+  "summary": "Dopilnuj, żeby żaden kandydat nie czekał na odpowiedź bez końca. Jedna aplikacja na ofertę pracy w dziewięciu etapach, karta oceny od każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+  "description": "W małej firmie rekrutacja opiera się na e-mailach i pamięci: kandydaci za długo czekają na odpowiedź, notatki z rozmów są rozrzucone, a odrzucone aplikacje zalegają w skrzynce znacznie dłużej, niż powinny. Szablon zakłada oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydatów oraz aplikacje, które przechodzą od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia. Każda osoba prowadząca rozmowę wypełnia kartę oceny, a odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. Pasuje do firmy z kilkoma otwartymi ofertami naraz. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji ani narzędzie do podpisów elektronicznych i nie zastępuje porady prawnej w sprawie okresów przechowywania danych.",
+  "lists": {
+    "applicants": { "label": "Kandydat", "pluralLabel": "Kandydaci", "description": "Osoby, które aplikują, ze źródłem i zgodą na przyszłe rekrutacje." },
+    "jobs": { "label": "Oferta pracy", "pluralLabel": "Oferty pracy", "description": "Każde otwarte stanowisko z przyszłym przełożonym i widełkami wynagrodzenia." },
+    "applications": { "label": "Aplikacja", "pluralLabel": "Aplikacje", "description": "Jeden kandydat na jedną ofertę, od otrzymanej do zatrudnionej lub odrzuconej." },
+    "scorecards": { "label": "Karta oceny", "pluralLabel": "Karty ocen", "description": "Ocena i rekomendacja jednej osoby prowadzącej rozmowę dla jednej aplikacji." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Źródło",
+      "options": { "careers_page": "Strona kariery", "job_board": "Portal z ogłoszeniami", "referral": "Polecenie", "linkedin": "LinkedIn", "agency": "Agencja", "other": "Inne" }
+    },
+    "applicants.location": { "label": "Miejscowość" },
+    "applicants.salary_expectation": { "label": "Oczekiwania finansowe" },
+    "applicants.pool_consent": { "label": "Zgoda na przyszłe rekrutacje" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Szkic", "open": "Otwarta", "on_hold": "Wstrzymana", "filled": "Obsadzona", "cancelled": "Anulowana" }
+    },
+    "jobs.department": { "label": "Dział" },
+    "jobs.hiring_manager": { "label": "Przyszły przełożony" },
+    "jobs.pay_min": { "label": "Wynagrodzenie od" },
+    "jobs.pay_max": { "label": "Wynagrodzenie do" },
+    "jobs.apply_by": { "label": "Termin składania aplikacji" },
+    "applications.stage": {
+      "label": "Etap",
+      "options": { "new": "Otrzymana", "screening": "Wstępna selekcja", "interview_1": "Rozmowa wstępna", "interview_2": "Rozmowa kwalifikacyjna", "reference_check": "Weryfikacja referencji", "offer": "Oferta", "hired": "Zatrudniony", "rejected": "Odrzucona", "withdrawn": "Wycofana" }
+    },
+    "applications.interview_at": { "label": "Rozmowa" },
+    "applications.offer_decision_due": { "label": "Termin odpowiedzi na ofertę" },
+    "applications.rejection_reason": {
+      "label": "Powód odrzucenia",
+      "options": { "skills": "Umiejętności", "experience": "Doświadczenie", "salary_mismatch": "Rozbieżne oczekiwania finansowe", "other_offer": "Przyjął inną ofertę", "position_filled": "Stanowisko obsadzone", "other": "Inny" }
+    },
+    "applications.retain_until": { "label": "Usuń do" },
+    "scorecards.interviewer": { "label": "Osoba prowadząca rozmowę" },
+    "scorecards.round": { "label": "Runda", "options": { "screening": "Wstępna selekcja", "interview_1": "Rozmowa wstępna", "interview_2": "Rozmowa kwalifikacyjna" } },
+    "scorecards.rating": { "label": "Ocena" },
+    "scorecards.recommendation": { "label": "Rekomendacja", "options": { "strong_no": "Zdecydowanie nie", "no": "Nie", "yes": "Tak", "strong_yes": "Zdecydowanie tak" } },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "acknowledge": "Potwierdzić otrzymanie",
+        "screen": "Wstępnie ocenić aplikację",
+        "schedule_interview": "Umówić rozmowę",
+        "collect_scorecards": "Zebrać karty ocen",
+        "chase_offer": "Ponaglić odpowiedź na ofertę",
+        "close_message": "Wysłać wiadomość kończącą",
+        "retention_review": "Sprawdzić przechowywanie danych",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Kandydat", "targetLabel": "Aplikacje" },
+    "application_job": { "sourceLabel": "Oferta pracy", "targetLabel": "Aplikacje" },
+    "scorecard_application": { "sourceLabel": "Aplikacja", "targetLabel": "Karty ocen" },
+    "action_application": { "sourceLabel": "Aplikacja", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "applications_all": { "name": "Wszystkie aplikacje" },
+    "applications_board": { "name": "Tablica rekrutacji" },
+    "jobs_all": { "name": "Wszystkie oferty" },
+    "applicants_all": { "name": "Wszyscy kandydaci" },
+    "scorecards_all": { "name": "Wszystkie karty ocen" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Aplikacje według etapu" },
+    "applicants_by_source": { "title": "Kandydaci według źródła" },
+    "interviews_coming": { "title": "Nadchodzące rozmowy" },
+    "open_jobs": { "title": "Otwarte oferty" },
+    "rejection_reasons": { "title": "Powody odrzucenia" },
+    "retention_coming": { "title": "Wkrótce do usunięcia lub odnowienia zgody" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Proces rekrutacji i kto decyduje", "sections": ["Etapy i osoby odpowiedzialne", "Czego szukamy na selekcji i w rozmowach"] },
+    "form_and_retention": { "title": "Formularz aplikacyjny i przechowywanie danych", "sections": ["Jakie dane zbieramy i klauzula informacyjna", "Jak długo przechowujemy odrzucone aplikacje"] },
+    "candidate_messages": { "title": "Wiadomości do kandydatów", "sections": ["Potwierdzenie, zaproszenie, oferta", "Wiadomość kończąca dla każdego niewybranego kandydata"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Utwórz kandydata i aplikację po wysłaniu formularza aplikacyjnego" },
+    "acknowledge_application": { "title": "Potwierdź otrzymanie nowej aplikacji w ciągu 2 dni" },
+    "collect_scorecards": { "title": "Zbierz karty ocen w dniu rozmowy" },
+    "scorecard_reminder": { "title": "Przypomnij osobie odpowiedzialnej dzień po rozmowie" },
+    "chase_offer": { "title": "Ponagl kandydata o odpowiedź 5 dni po złożeniu oferty" },
+    "rejection_retention": {
+      "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji",
+      "variants": {
+        "PL": {
+          "title": "Ustaw datę przechowywania na 30 dni po odrzuceniu aplikacji (dłużej tylko za zgodą kandydata)",
+          "description": "Według poradnika UODO dane kandydata usuwa się po zakończeniu rekrutacji, chyba że kandydat zgodził się na udział w przyszłych rekrutacjach. To ustawienie domyślne: ustaw termin zgodny z polityką retencji firmy, a przy zgodzie kandydata późniejszą datę wpisz ręcznie."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Napisz do pozostałych kandydatów, gdy oferta zostanie obsadzona" },
+    "retention_review": { "title": "Sprawdź aplikację, gdy nadejdzie jej data przechowywania" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda aplikacja ma jeden z dziewięciu etapów.",
+    "retain_until_field": "Każda aplikacja zapisuje, jak długo jest przechowywana.",
+    "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
+  },
+  "page": {
+    "metaTitle": "Formularz rekrutacyjny i śledzenie kandydatów: szablon",
+    "metaDescription": "Formularz rekrutacyjny to dopiero początek: szablon dla Claude, ChatGPT lub Codex prowadzi kandydatów przez dziewięć etapów, z kartami ocen i datą usunięcia.",
+    "headline": "Odpowiedz każdemu kandydatowi i trzymaj notatki razem: śledzenie kandydatów, które buduje Twój agent AI",
+    "answer": "Śledzenie kandydatów w małej firmie to lista ofert pracy z jedną aplikacją na kandydata i ofertę, która przechodzi od otrzymanej do zatrudnionej lub odrzuconej, żeby żaden kandydat nie czekał na odpowiedź. Formularz rekrutacyjny czy e-mail to tylko wejście; ten szablon prowadzi aplikacje dalej. Wklej go do swojego agenta AI, a zbuduje on to w Customermates, z ofertami, kartą oceny dla każdej osoby prowadzącej rozmowę, kolejnymi krokami z terminem i datą przechowywania odrzuconych aplikacji. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Cotygodniowa runda rekrutacyjna",
+      "steps": [
+        "Sprawdź, czy każda nowa aplikacja dostała potwierdzenie i kolejną datę, i odpowiedz na te, które wciąż czekają.",
+        "Porównaj nowe aplikacje z wymaganiami obowiązkowymi oferty i zdecyduj, kogo zaprosić na rozmowę.",
+        "Zbierz kartę oceny od każdej osoby prowadzącej rozmowę następnego dnia po rozmowie, póki notatki są świeże.",
+        "Przypomnij się w sprawie ofert czekających na decyzję i wyślij wiadomość kończącą do kandydatów odrzuconych lub takich, dla których oferta pracy została obsadzona."
+      ]
+    },
+    "limits": [
+      "To nie jest portal z ogłoszeniami, narzędzie do multipostingu ani kreator stron kariery. Nie publikuje Twoich ogłoszeń.",
+      "To nie jest kreator formularzy. Aplikacje, które przychodzą e-mailem lub z Twojego formularza, zapisujesz w szablonie samodzielnie albo z pomocą agenta.",
+      "Nie czyta ani nie ocenia CV i nikogo nie odrzuca automatycznie. Karty ocen to oceny wystawiane przez człowieka.",
+      "To nie jest platforma do testów, ocen kompetencji ani rozmów wideo, ani narzędzie do ofert pracy i podpisów elektronicznych.",
+      "Nie sprawdza przeszłości ani prawa do pracy i nie jest systemem onboardingu, teczką osobową ani systemem płacowym. Po zatrudnieniu dokumentacja trafia do Twojego systemu kadrowego.",
+      "Nie wrzucaj tu kopii dokumentów tożsamości ani danych do monitorowania równych szans. Zbieraj tylko to, czego potrzebuje decyzja o zatrudnieniu.",
+      "Nie daje porad prawnych. Zapisuje datę przechowywania i osobę odpowiedzialną; okres ustalasz Ty z doradcą.",
+      "Jest dobrany do kilku otwartych ofert naraz. Przy rekrutacji masowej lub w wielu lokalizacjach lepiej sprawdzi się osobny system ATS."
+    ],
+    "faq": [
+      {
+        "question": "Co powinno zawierać śledzenie kandydatów?",
+        "answer": "Oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydatów oraz po jednej aplikacji na kandydata i ofertę z etapem, terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia. Praktycy dodają kartę oceny dla każdej osoby prowadzącej rozmowę, żeby opinie były uporządkowane, a nie rozrzucone po e-mailach i czatach."
+      },
+      {
+        "question": "Jakie etapy powinna mieć rekrutacja?",
+        "answer": "Typowe poradniki wymieniają otrzymaną aplikację, wstępną selekcję, rozmowę, weryfikację referencji i ofertę. Ten szablon ma dziewięć: otrzymana, wstępna selekcja, rozmowa wstępna, rozmowa kwalifikacyjna, weryfikacja referencji, oferta, zatrudniony, odrzucona i wycofana, bo mała firma rzadko potrzebuje więcej niż dwóch rund rozmów. Zmień nazwy etapów lub usuń niektóre w planie, który zaproponuje Twój agent."
+      },
+      {
+        "question": "Jak długo mogę przechowywać odrzucone aplikacje?",
+        "answer": "To zależy od kraju. W Niemczech odrzucone aplikacje przechowuje się zwykle około sześciu miesięcy po zakończeniu procesu, a bazę talentów tylko za zgodą; francuski organ ochrony danych dopuszcza bazę niewybranych kandydatów przez dwa lata od ostatniego kontaktu, jeśli zostali poinformowani. W Polsce obowiązuje RODO. Szablon ustawia datę przechowywania 180 dni po odrzuceniu, żeby usunąć aplikację albo poprosić o zgodę. Dopasuj okres do swojego kraju i zapytaj doradcę. To nie jest porada prawna."
+      },
+      {
+        "question": "Czy mogę prowadzić bazę talentów?",
+        "answer": "Tylko za zgodą kandydata. Gdy nadejdzie data przechowywania odrzuconej aplikacji, usuwasz ją albo zapisujesz zgodę kandydata na pozostanie w bazie. Źródła niemieckie wymagają zgody na bazę talentów, inne dopuszczają krótki okres na podstawie prawnie uzasadnionego interesu; sprawdź regułę obowiązującą w Twoim kraju."
+      },
+      {
+        "question": "Czy agent kontaktuje się z kandydatami albo kogoś odrzuca?",
+        "answer": "Nie. Prompt każe agentowi niczego nie wysyłać i nie tworzyć przykładowych danych. Wiadomości, takie jak potwierdzenie otrzymania czy odmowa, są szkicami, które powstają tylko na Twoją prośbę, a wysyłasz je samodzielnie. Nic nie jest odrzucane automatycznie."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Rekrutuję do swojej małej firmy: kandydaci za długo czekają na odpowiedź, a notatki z rozmów leżą w różnych miejscach. Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
+    "questions": [
+      "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
+      "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",
+      "Jak długo przechowujesz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
+      "Jakie rundy rozmów prowadzisz i kto wypełnia kartę oceny?"
+    ]
+  }
+}

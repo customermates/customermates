@@ -2,9 +2,12 @@ import type { LucideIcon } from "lucide-react";
 
 import {
   BookOpen,
+  Bot,
   Building,
   DoorOpen,
   Cable,
+  CircleHelp,
+  Columns3,
   Database,
   FileJson,
   Gauge,
@@ -20,6 +23,7 @@ import {
   PlugZap,
   Rocket,
   Repeat,
+  Scale,
   Search,
   Server,
   Shield,
@@ -90,6 +94,16 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
     ],
   },
   {
+    key: "licensing",
+    labelEn: "Licensing",
+    i18nKey: "DocsSidebar.licensing",
+    items: [
+      { slug: "licence", i18nKey: "DocsSidebar.licence", icon: Scale },
+      { slug: "licence-faq", i18nKey: "DocsSidebar.licenceFaq", icon: CircleHelp },
+      { slug: "compare-editions", i18nKey: "DocsSidebar.compareEditions", icon: Columns3 },
+    ],
+  },
+  {
     key: "app-guide",
     labelEn: "App guide",
     i18nKey: "DocsSidebar.appGuide",
@@ -100,6 +114,9 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
       { slug: "app-inbox", i18nKey: "DocsSidebar.appInbox", icon: Inbox },
       { slug: "app-records", i18nKey: "DocsSidebar.appRecords", icon: Database },
       { slug: "app-routines", i18nKey: "DocsSidebar.appRoutines", icon: Repeat },
+      { slug: "app-automations", i18nKey: "DocsSidebar.appAutomations", icon: Workflow },
+      { slug: "app-agents", i18nKey: "DocsSidebar.appAgents", icon: Bot },
+      { slug: "app-runners", i18nKey: "DocsSidebar.appRunners", icon: Bot },
       { slug: "app-profile", i18nKey: "DocsSidebar.appProfile", icon: UserCircle },
       { slug: "app-search", i18nKey: "DocsSidebar.appSearch", icon: Search },
       { slug: "app-trash", i18nKey: "DocsSidebar.appTrash", icon: Trash2 },

@@ -1,6 +1,6 @@
 # Customermates MCP server: install guide for AI agents
 
-Customermates is an open-source CRM. Its MCP server is part of the app and runs over Streamable HTTP at `<BASE_URL>/api/v1/mcp`. There is nothing to install or build. Use `https://customermates.com` as BASE_URL for the managed cloud, or the address of a self-hosted instance.
+Customermates is a source-available CRM. Its MCP server is part of the app and runs over Streamable HTTP at `<BASE_URL>/api/v1/mcp`. There is nothing to install or build. Use `https://customermates.com` as BASE_URL for the managed cloud, or the address of a self-hosted instance.
 
 ## What you need from the user
 

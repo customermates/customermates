@@ -1,7 +1,8 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
 
 import { Action, Resource, Status } from "@/generated/prisma";
-import { ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors/app-errors";
+import { AuthError, ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors/app-errors";
+import { runAsAgentJobRequest } from "@/features/agent-runners/agent-job-request-context";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
@@ -32,6 +33,7 @@ function serviceFor(
     storedVerified?: boolean;
     lastActiveAt?: Date | null;
     via?: { kind: "apiKey" | "oauthApplication"; name: string } | null;
+    agentJobKey?: { keyId: string } | null;
   } = {},
 ) {
   const user = {
@@ -48,6 +50,7 @@ function serviceFor(
     getSession: () => Promise.resolve({ user: { id: "auth-user-1", email: user.email, ...verification } }),
     isIntegrationCredentialRequest: () => Promise.resolve(options.apiKey ?? false),
     getCredentialVia,
+    getAgentJobApiKey: () => Promise.resolve(options.agentJobKey ?? null),
   } as unknown as AuthService;
   const repo = {
     findAuthUserAccountStateUnscoped: (id: string) =>
@@ -117,6 +120,35 @@ describe("UserService.getActiveUserOrThrow", () => {
     await expect(
       serviceFor(Status.active, { apiKey: true, role: API_READER }).getActiveUserOrThrow(),
     ).resolves.toMatchObject({ id: "user-1" });
+  });
+
+  it("refuses the key of a runner job everywhere except the MCP request that admitted that job", async () => {
+    const options = { apiKey: true, role: API_READER, agentJobKey: { keyId: "job-key-1" } };
+    const admitted = {
+      keyId: "job-key-1",
+      companyId: "company-1",
+      jobId: "job-1",
+      attempt: 1,
+      ruleChain: [],
+      untrusted: false,
+    };
+
+    const outside = await serviceFor(Status.active, options)
+      .getActiveUserOrThrow()
+      .catch((thrown: unknown) => thrown);
+    const otherJob = await runAsAgentJobRequest({ ...admitted, keyId: "job-key-2" }, () =>
+      serviceFor(Status.active, options)
+        .getActiveUserOrThrow()
+        .catch((thrown: unknown) => thrown),
+    );
+    const inside = await runAsAgentJobRequest(admitted, () =>
+      serviceFor(Status.active, options).getActiveUserOrThrow(),
+    );
+
+    expect(outside).toBeInstanceOf(AuthError);
+    expect(appErrorResponse(outside)?.statusCode).toBe(401);
+    expect(otherJob).toBeInstanceOf(AuthError);
+    expect(inside).toMatchObject({ id: "user-1" });
   });
 
   it("names the API key or application an integration request came through on the user", async () => {

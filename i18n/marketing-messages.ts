@@ -1,6 +1,5 @@
 export const MARKETING_NAMESPACES = [
   "AcquisitionConsent",
-  "AgplGithubBadge",
   "BrowserFrame",
   "Common",
   "ComparePage",
@@ -16,7 +15,9 @@ export const MARKETING_NAMESPACES = [
   "NavigationBar",
   "NotFoundPage",
   "OnboardingWizard",
+  "SourceBadge",
   "StructuredData",
+  "TemplatePages",
   "UserAvatar",
 ] as const;
 

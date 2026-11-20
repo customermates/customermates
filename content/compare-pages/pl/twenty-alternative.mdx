@@ -21,7 +21,7 @@ sections:
 
 hero:
   title: "Alternatywa dla Twenty CRM: porównanie Customermates i Twenty"
-  description: "Twenty też jest open source, a jego własny przewodnik obejmuje synchronizację e-maili i kalendarza. Customermates dodaje od planu Pro LinkedIn, WhatsApp, Instagram i Telegram przy rekordzie klienta, a Mate przygotowuje szkic odpowiedzi. Szczegóły Twenty sprawdzone 13 listopada 2026."
+  description: "Twenty jest open source, a jego własny przewodnik obejmuje synchronizację e-maili i kalendarza. Customermates (source-available) dodaje od planu Pro LinkedIn, WhatsApp, Instagram i Telegram przy rekordzie klienta, a Mate przygotowuje szkic odpowiedzi. Szczegóły Twenty sprawdzone 13 listopada 2026."
   buttonLeftText: Zacznij [[commercial.trial.days]]-dniowy okres próbny
   buttonLeftHref: /auth/signup
   buttonRightText: Zobacz demo na żywo
@@ -34,8 +34,8 @@ comparison:
   sections:
   - title: Licencja i hosting
     features:
-      - name: Licencja open source
-        source: Rdzeń na licencji AGPL-3.0; ee/ na osobnej licencji komercyjnej
+      - name: Licencja
+        source: Sustainable Use License (source-available, fair-code, nie open source); ee/ na osobnej licencji komercyjnej
         competitor: W większości AGPL-3.0; pliki oznaczone Enterprise na licencji komercyjnej
       - name: Self-hosting
         source: Docker Compose z aplikacją i PostgreSQL 16 (bez skrzynki odbiorczej i Mate)
@@ -172,7 +172,7 @@ Te wiersze nie kupują tego samego:
 
 ## Gdzie pasuje Customermates
 
-Twenty i Customermates są oba open source, więc różnica tkwi w rozmowie. Od planu Pro Customermates układa wątki z e-maila, LinkedIn, WhatsAppa, Instagramu i Telegrama przy rekordzie klienta, a Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi i kolejnego kroku. Ty sprawdzasz, poprawiasz i wysyłasz.
+Twenty jest open source, a Customermates source-available (fair-code): kod jest publiczny, a bezpłatną Community Edition możesz hostować do użytku wewnętrznego, ale nie wolno jej odsprzedawać ani hostować dla innych. Różnica tkwi w rozmowie. Od planu Pro Customermates układa wątki z e-maila, LinkedIn, WhatsAppa, Instagramu i Telegrama przy rekordzie klienta, a Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi i kolejnego kroku. Ty sprawdzasz, poprawiasz i wysyłasz.
 
 **Rozmowy obok szansy sprzedaży.** Od planu Pro [ujednolicona skrzynka odbiorcza](/features/unified-inbox) zbiera w jednej liście skrzynki Gmail, Outlook i IMAP, LinkedIn (także Sales Navigator i Recruiter), WhatsApp, Instagram i Telegram. Odpowiadasz w oryginalnym kanale, raz wiążesz uczestnika z kontaktem i otwierasz każdą rozmowę z tym kontaktem ze strony kontaktu.
 
@@ -180,7 +180,7 @@ Twenty i Customermates są oba open source, więc różnica tkwi w rozmowie. Od 
 
 **Twój własny klient AI przez MCP.** [Serwer MCP](/docs/mcp) oferuje [[derived.mcp.tools.total]] narzędzi w każdym planie i w instalacjach self-hosted. Claude, ChatGPT lub inny klient MCP działa wtedy u Twojego własnego dostawcy AI.
 
-**Open source z wyborem hostingu.** Rdzeń jest na licencji AGPL-3.0 i działa na Twoim serwerze z Docker Compose, razem z REST, webhookami i MCP. [Instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani kredytów w chmurze. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa powierzenia przetwarzania danych (DPA), a podmioty podprzetwarzające, w tym dostawcy z USA, są wymienione na stronach prawnych.
+**Source-available z wyborem hostingu.** Bezpłatna Community Edition jest na licencji Sustainable Use License i działa na Twoim serwerze z Docker Compose, razem z REST, webhookami i MCP. [Instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani kredytów w chmurze. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa powierzenia przetwarzania danych (DPA), a podmioty podprzetwarzające, w tym dostawcy z USA, są wymienione na stronach prawnych.
 
 ## Gdzie Customermates jest złym wyborem
 
@@ -231,7 +231,7 @@ Tę listę publikuje Customermates. Ceny i funkcje pochodzą ze stron samych dos
 
 <Faq>
 <FaqItem question="Czy Twenty CRM jest darmowy?">
-Self-hosting rdzenia open source jest bezpłatny. Twenty Cloud zaczyna się od Pro za 9 USD za użytkownika miesięcznie przy rozliczeniu rocznym (12 USD przy miesięcznym), a Organization kosztuje 39 USD (52 USD miesięcznie); oba mają 30-dniowy okres próbny bez karty kredytowej. Customermates Cloud ma plan bezpłatny dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn, [[commercial.trial.days]]-dniowy okres próbny oraz rdzeń self-hosted bez opłat licencyjnych.
+Self-hosting rdzenia open source jest bezpłatny. Twenty Cloud zaczyna się od Pro za 9 USD za użytkownika miesięcznie przy rozliczeniu rocznym (12 USD przy miesięcznym), a Organization kosztuje 39 USD (52 USD miesięcznie); oba mają 30-dniowy okres próbny bez karty kredytowej. Customermates Cloud ma plan bezpłatny dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn, [[commercial.trial.days]]-dniowy okres próbny oraz bezpłatną Community Edition self-hosted do użytku wewnętrznego.
 </FaqItem>
 
 <FaqItem question="Czy Twenty to dobry CRM dla małego zespołu?">
@@ -247,7 +247,7 @@ Tak. Twenty podaje, że każda przestrzeń Cloud ma natywny serwer MCP, z który
 </FaqItem>
 
 <FaqItem question="Jaka jest najlepsza alternatywa open source dla Twenty?">
-To zależy od tego, czego brakuje Ci w Twenty. EspoCRM to CRM open source w self-hostingu, który też obsługuje własne encje. Customermates to opcja open source, gdy najważniejsze są kanały czatu i asystent AI; jego skrzynka odbiorcza i Mate działają tylko w Customermates Cloud.
+To zależy od tego, czego brakuje Ci w Twenty. EspoCRM to CRM open source w self-hostingu, który też obsługuje własne encje. Customermates to opcja source-available (nie open source), gdy najważniejsze są kanały czatu i asystent AI; jego skrzynka odbiorcza i Mate działają tylko w Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="Gdzie są przechowywane moje dane w Twenty i w Customermates?">

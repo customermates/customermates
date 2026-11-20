@@ -1,6 +1,6 @@
 ---
 title: "Self-Hosted CRM mit Docker und PostgreSQL"
-description: "Customermates mit Docker Compose selbst betreiben: Anwendung und PostgreSQL auf Ihrer Infrastruktur, mit AGPL-Kern, MCP, REST und Webhooks."
+description: "Customermates mit Docker Compose selbst betreiben: Anwendung und PostgreSQL auf Ihrer Infrastruktur, mit Community Edition, MCP, REST und Webhooks."
 featureName: Self-Hosted CRM
 
 acquisition:
@@ -11,10 +11,10 @@ acquisition:
   primaryIntent: Self-Hosted-CRM-Deployment
   metadata:
     title: "Self-Hosted CRM mit Docker und PostgreSQL"
-    description: "Customermates mit Docker Compose selbst betreiben: Anwendung und PostgreSQL auf Ihrer Infrastruktur, mit AGPL-Kern, MCP, REST und Webhooks."
+    description: "Customermates mit Docker Compose selbst betreiben: Anwendung und PostgreSQL auf Ihrer Infrastruktur, mit Community Edition, MCP, REST und Webhooks."
   proof:
     factReferences:
-      - product:agpl-community-core
+      - product:source-available-community-core
       - product:docker-postgresql-deployment
       - product:self-hosted-starter-entitlements
       - product:core-crm-records
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Setup-Anleitung lesen"
   buttonRightHref: /docs/self-hosting
-  hint: "AGPL-Kern • Docker Compose • PostgreSQL 16"
+  hint: "Community Edition • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "Auch LinkedIn und E-Mail nachfassen? Testen Sie zuerst die Cloud"
@@ -132,9 +132,9 @@ cta:
   hint: "Der Betreiber ist für Infrastruktur, Updates, Backups und eingebundene Drittanbieter verantwortlich."
 ---
 
-Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Diensten besteht: der Anwendung und PostgreSQL 16. Es passt zu Teams, die ihre CRM-Infrastruktur selbst betreiben und einen quelloffenen Kern nutzen möchten. Es ist nicht die Self-Hosted-Ausgabe sämtlicher Customermates-Cloud-Funktionen.
+Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Diensten besteht: der Anwendung und PostgreSQL 16. Es passt zu Teams, die ihre CRM-Infrastruktur selbst betreiben und eine Community Edition mit einsehbarem Quellcode nutzen möchten. Es ist nicht die Self-Hosted-Ausgabe sämtlicher Customermates-Cloud-Funktionen.
 
-Ein selbst gehostetes CRM läuft auf Servern, die Sie kontrollieren, statt in der Cloud des Anbieters: Sie entscheiden, wo Anwendung und Datenbank liegen, und übernehmen Updates, Backups und Sicherheit. Ob der Code Open Source ist, ist eine eigene Frage der Lizenzrechte, die der [Leitfaden zum Open-Source-CRM](/blog/open-source-crm) behandelt. Diese Seite behandelt die betriebliche Seite für Customermates.
+Ein selbst gehostetes CRM läuft auf Servern, die Sie kontrollieren, statt in der Cloud des Anbieters: Sie entscheiden, wo Anwendung und Datenbank liegen, und übernehmen Updates, Backups und Sicherheit. Ob der Code Open Source ist, ist eine eigene Frage der Lizenzrechte: Customermates hat einsehbaren Quellcode unter der Sustainable Use License, und der [Leitfaden zum Open-Source-CRM](/blog/open-source-crm) behandelt den Unterschied. Diese Seite behandelt die betriebliche Seite für Customermates.
 
 **Wo das Nachfassen hineinpasst.** Self-Hosting hält Kundendatensätze, Termine für nächste Schritte, Dashboards und MCP auf Ihren eigenen Servern, sodass Ihr eigener KI-Client sie lesen und aktualisieren kann. Es gibt dort nicht den Posteingang, der LinkedIn- und E-Mail-Gespräche beim Kunden ablegt, und nicht Mate, das die Antworten entwirft. Wenn Sie das CRM vor allem für entworfene Nachfass-Nachrichten wollen, starten Sie in Customermates Cloud; Self-Hosting passt besser, wenn die Kontrolle darüber, wo die Daten laufen, wichtiger ist.
 
@@ -180,13 +180,13 @@ Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddie
 | Schreibgeschützte verbundene Kalenderansicht                | Nicht enthalten           |
 | Geteilte verbundene Konten                                  | Nicht enthalten           |
 
-Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Beim Self-Hosting stehen der quelloffene CRM-Kern und externe MCP-Clients im Mittelpunkt.
+Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Beim Self-Hosting stehen die Community Edition des CRM und externe MCP-Clients im Mittelpunkt.
 
-## Open-Source- und kommerzielle Code-Grenzen
+## Einsehbarer Quellcode und kommerzielle Code-Grenzen
 
-Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; ausgenommen sind die in Abschnitt 6 von `ee/LICENSE.md` beschriebenen clientseitigen Bilder, Schriften, CSS- und JavaScript-Bestandteile, die ebenfalls unter AGPL-3.0 stehen. Prüfen Sie beide Lizenzen, bevor Sie die Software für Ihren Anwendungsfall ändern, weitergeben oder betreiben.
+Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht unter der Sustainable Use License: Sie dürfen ihn für Ihre eigenen internen Geschäftszwecke oder für nicht kommerzielle und private Zwecke nutzen und ändern und nur unentgeltlich und nicht kommerziell weitergeben. Innerhalb von `ee/` gilt die Customermates Enterprise License. Prüfen Sie `LICENSE.md` und `ee/LICENSE.md`, bevor Sie die Software für Ihren Anwendungsfall ändern, weitergeben oder betreiben.
 
-Diese Trennung ist beim Vergleich eines [Open-Source-CRMs](/blog/open-source-crm) wichtig: Ein öffentliches Repository sagt allein noch nicht, welcher Code unter welchen Bedingungen genutzt werden darf. Wenn Sie andere selbst hostbare Projekte abwägen, zeigen die Vergleiche mit [EspoCRM](/compare/espocrm-alternative) und [Twenty](/compare/twenty-alternative), wie sich deren Bereitstellung und Lizenzen unterscheiden.
+Diese Trennung ist beim Vergleich eines [Open-Source-CRMs](/blog/open-source-crm) wichtig: Ein öffentliches Repository sagt allein noch nicht, welcher Code unter welchen Bedingungen genutzt werden darf, und Customermates selbst ist nicht Open Source, sondern hat einsehbaren Quellcode. Wenn Sie andere selbst hostbare Projekte abwägen, zeigen die Vergleiche mit [EspoCRM](/compare/espocrm-alternative) und [Twenty](/compare/twenty-alternative), wie sich deren Bereitstellung und Lizenzen unterscheiden.
 
 ## Welche Kontrolle bietet Self-Hosting?
 
@@ -203,7 +203,7 @@ Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitu
 | externe KI-Clients MCP verwenden sollen                 | Sie Cloud-Tarife und verwaltete verbundene Konten benötigen                     |
 | Sie Updates, Backups und Wiederherstellung verantworten | Sie einen verwalteten Betrieb bevorzugen                                        |
 
-Wenn Sie Customermates zuerst ohne eigenen Server ausprobieren möchten, zeigt die Seite [Open Source CRM in der Cloud oder Self-Hosted](/features/open-source-crm) beide Wege nebeneinander, mit der kostenlosen Cloud-Testphase als schnellstem Start.
+Wenn Sie Customermates zuerst ohne eigenen Server ausprobieren möchten, zeigt die Seite zur Frage, ob Customermates ein [Open Source CRM ist, in der Cloud oder Self-Hosted](/features/open-source-crm), beide Wege nebeneinander, mit der kostenlosen Cloud-Testphase als schnellstem Start.
 
 Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX-Arbeitsmappen (jeweils ein Datensatztyp, innerhalb der Zeilenlimits) oder über die REST-API, über die sich auch Dateien in Felder vom Typ Datei hochladen lassen. Ein XLSX-Import übernimmt keine Anhänge, und eine vollständige Kontoübertragung gibt es nicht. Planen Sie einen größeren Umzug daher als Migrationsprojekt, das Sie selbst prüfen.
 
@@ -211,7 +211,7 @@ Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX
 
 <Faq>
 <FaqItem question="Ist Customermates vollständig Open Source?">
-Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt AGPL-3.0 auch für die in Abschnitt 6 von `ee/LICENSE.md` definierten clientseitigen Bestandteile; der übrige von Customermates entwickelte Code unterliegt der kommerziellen Lizenz. Die exakte Grenze finden Sie in beiden Lizenzdateien.
+Nein. Customermates hat einsehbaren Quellcode unter der Sustainable Use License (Fair-Code) und ist nicht Open Source im Sinne der OSI-Definition. Der selbst entwickelte Code außerhalb von `ee/` steht unter dieser Lizenz; für den Code innerhalb von `ee/` gilt die Customermates Enterprise License. Die exakte Grenze finden Sie in beiden Lizenzdateien.
 </FaqItem>
 
 <FaqItem question="Enthält Self-Hosting den einheitlichen Posteingang?">

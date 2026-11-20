@@ -33,4 +33,7 @@ export enum FilterFieldKey {
   ownerUserId = "ownerUserId",
   trashKind = "trashKind",
   trashList = "trashList",
+  automationKind = "automationKind",
+  automationStatus = "automationStatus",
+  automationRunsOn = "automationRunsOn",
 }

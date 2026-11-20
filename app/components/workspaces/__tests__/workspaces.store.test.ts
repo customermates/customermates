@@ -1,10 +1,11 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({
   deleteWorkspaceAction: vi.fn(),
+  leaveInactiveWorkspaceAction: vi.fn(),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   withdrawWorkspaceRequestAction: vi.fn(),
@@ -21,7 +22,9 @@ function workspace(companyId: string, overrides: Partial<WorkspaceSummary> = {})
     companyId,
     name: `Workspace ${companyId}`,
     slug: `workspace-${companyId}`,
+    logoUrl: null,
     status: "active",
+    inactiveReason: null,
     roleName: "Admin",
     isAdmin: true,
     isCurrent: false,
@@ -49,6 +52,14 @@ function storeFor(appMode: "cloud" | "self-hosted" | "demo" = "cloud") {
 beforeEach(() => {
   vi.clearAllMocks();
 });
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+function openPage(pathname: string, search = "") {
+  vi.stubGlobal("window", { location: { pathname, search } });
+}
 
 describe("WorkspacesStore", () => {
   it("exposes the current workspace, the others and creation outside the demo", () => {
@@ -176,6 +187,137 @@ describe("WorkspacesStore", () => {
     expect(store.unavailable).toBe(true);
     expect(toastZodErrorTree).not.toHaveBeenCalled();
     expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("leaves another workspace the person is active in from the list and reloads that list", async () => {
+    const { store, navigationGuard } = storeFor();
+    openPage("/de/w/workspace-a/settings/workspaces");
+    store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "b" } });
+
+    await expect(store.leaveActive("b")).resolves.toBe(true);
+
+    expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ companyId: "b", status: "active" });
+    expect(actions.leaveWorkspaceAction).not.toHaveBeenCalled();
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith("/de/w/workspace-a/settings/workspaces");
+  });
+
+  it("reloads the list when the other workspace changed meanwhile, and keeps this workspace available", async () => {
+    const { store, navigationGuard } = storeFor();
+    openPage("/de/w/workspace-a/settings/workspaces");
+    store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    const error = { errors: ["Common.errors.workspaceChanged"] };
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceChanged" });
+
+    await expect(store.leaveActive("b")).resolves.toBe(false);
+
+    expect(store.unavailable).toBe(false);
+    expect(toastZodErrorTree).not.toHaveBeenCalled();
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith("/de/w/workspace-a/settings/workspaces");
+  });
+
+  it.each(["inactive", "pendingAuthorization"] as const)(
+    "does not leave a workspace whose membership is %s through the leave of an active member",
+    async (status) => {
+      const { store } = storeFor();
+      store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b", { status })]);
+
+      await expect(store.leaveActive("b")).resolves.toBe(false);
+      await expect(store.leaveActive("missing")).resolves.toBe(false);
+
+      expect(actions.leaveWorkspaceAction).not.toHaveBeenCalled();
+      expect(actions.leaveInactiveWorkspaceAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it("leaves the inactive workspace this tab shows and opens the generic dashboard entry", async () => {
+    const { store, navigationGuard, loadingOverlayStore } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true, status: "inactive" }), workspace("b")]);
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "a" } });
+
+    await expect(store.leaveInactive("a")).resolves.toBe(true);
+
+    expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ companyId: "a" });
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith("/de/dashboard");
+    expect(loadingOverlayStore.setIsLoading).not.toHaveBeenCalledWith(false);
+    await expect(store.leaveInactive("a")).resolves.toBe(false);
+    expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("stays on the invitation page after leaving the inactive workspace this tab shows, so the person can ask to join again", async () => {
+    const { store, navigationGuard } = storeFor();
+    openPage("/de/auth/invitation", "?intent=signed-intent");
+    store.setWorkspaces([workspace("a", { isCurrent: true, status: "inactive" }), workspace("b")]);
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "a" } });
+
+    await expect(store.leaveInactive("a", { stayOnPage: true })).resolves.toBe(true);
+
+    expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ companyId: "a" });
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith(
+      "/de/auth/invitation?intent=signed-intent",
+    );
+  });
+
+  it("leaves an inactive workspace from the list of an active one and reloads that list", async () => {
+    const { store, navigationGuard } = storeFor();
+    openPage("/de/w/workspace-a/settings/workspaces", "?from=menu");
+    store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b", { status: "inactive" })]);
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "b" } });
+
+    await expect(store.leaveInactive("b")).resolves.toBe(true);
+
+    expect(actions.leaveInactiveWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ companyId: "b" });
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith(
+      "/de/w/workspace-a/settings/workspaces?from=menu",
+    );
+  });
+
+  it.each(["active", "pendingAuthorization"] as const)(
+    "does not offer this way out of a workspace whose membership is %s",
+    async (status) => {
+      const { store, navigationGuard } = storeFor();
+      store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b", { status })]);
+
+      await expect(store.leaveInactive("b")).resolves.toBe(false);
+      await expect(store.leaveInactive("missing")).resolves.toBe(false);
+
+      expect(actions.leaveInactiveWorkspaceAction).not.toHaveBeenCalled();
+      expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["workspaceChanged", "workspaceNotFound"])(
+    "reloads the page to show the real state when the server answers %s",
+    async (code) => {
+      const { store, navigationGuard } = storeFor();
+      openPage("/de/auth/paused");
+      store.setWorkspaces([workspace("a", { isCurrent: true, status: "inactive" })]);
+      const error = { errors: [`Common.errors.${code}`] };
+      actions.leaveInactiveWorkspaceAction.mockResolvedValue({ ok: false, error, code });
+
+      await expect(store.leaveInactive("a")).resolves.toBe(false);
+
+      expect(navigationGuard.navigateDocument).toHaveBeenCalledExactlyOnceWith("/de/auth/paused");
+      expect(toastZodErrorTree).not.toHaveBeenCalled();
+      expect(store.unavailable).toBe(false);
+    },
+  );
+
+  it("keeps the inactive workspace and shows the reason when leaving it is refused", async () => {
+    const { store, navigationGuard, loadingOverlayStore } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true, status: "inactive" })]);
+    const error = { errors: ["Common.errors.workspaceMemberPlatformOperator"] };
+    actions.leaveInactiveWorkspaceAction.mockResolvedValue({
+      ok: false,
+      error,
+      code: "workspaceMemberPlatformOperator",
+    });
+
+    await expect(store.leaveInactive("a")).resolves.toBe(false);
+
+    expect(toastZodErrorTree).toHaveBeenCalledExactlyOnceWith(error);
+    expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+    expect(loadingOverlayStore.setIsLoading).toHaveBeenLastCalledWith(false);
   });
 
   it("deletes the current workspace once and opens the generic dashboard entry", async () => {

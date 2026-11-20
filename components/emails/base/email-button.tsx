@@ -6,9 +6,10 @@ type Props = {
   href: string;
   children: string;
   className?: string;
+  color?: { background: string; text: string };
 };
 
-export function EmailButton({ href, children, className }: Props) {
+export function EmailButton({ href, children, className, color }: Props) {
   return (
     <Button
       className={className}
@@ -17,8 +18,8 @@ export function EmailButton({ href, children, className }: Props) {
         display: "inline-block",
         padding: "11px 18px",
         borderRadius: "6px",
-        backgroundColor: EMAIL_INK,
-        color: "#ffffff",
+        backgroundColor: color?.background ?? EMAIL_INK,
+        color: color?.text ?? "#ffffff",
         fontSize: "14px",
         lineHeight: "18px",
         fontWeight: 600,

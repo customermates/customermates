@@ -9,7 +9,8 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
 
 const STORE_REPOSITORY: Record<string, string> = {
-  "app/[locale]/(protected)/w/[workspace]/routines/components/routines.store.ts": "ee/routines/prisma-routine.repository.ts",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/automations.store.ts":
+    "features/automation-rules/automations-list.composer.ts",
   "app/[locale]/(protected)/w/[workspace]/trash/components/trash.store.ts": "features/trash/prisma-trash.repository.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/users.store.ts": "features/user/prisma-user.repository.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/roles.store.tsx": "features/role/prisma-role.repository.ts",
@@ -23,13 +24,15 @@ const STORE_REPOSITORY: Record<string, string> = {
     "ee/operator/prisma-operator-workspaces.repository.ts",
   "app/[locale]/(protected)/operator/components/audit/operator-audit.store.ts":
     "ee/operator/prisma-operator-audit.repository.ts",
+  "components/incoming-webhook/incoming-webhooks.store.ts":
+    "features/incoming-webhook/prisma-incoming-webhook.repository.ts",
 };
 
 const COLUMN_HOOK_STORE: Record<string, string> = {
   "app/[locale]/(protected)/w/[workspace]/trash/components/use-trash-columns.tsx":
     "app/[locale]/(protected)/w/[workspace]/trash/components/trash.store.ts",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/use-routine-columns.tsx":
-    "app/[locale]/(protected)/w/[workspace]/routines/components/routines.store.ts",
+  "app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns.tsx":
+    "app/[locale]/(protected)/w/[workspace]/automations/components/automations.store.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/use-member-columns.tsx":
     "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/users.store.ts",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/use-role-columns.tsx":
@@ -44,6 +47,7 @@ const COLUMN_HOOK_STORE: Record<string, string> = {
     "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store.ts",
   "app/[locale]/(protected)/operator/components/audit/use-operator-audit-columns.tsx":
     "app/[locale]/(protected)/operator/components/audit/operator-audit.store.ts",
+  "components/incoming-webhook/use-incoming-webhook-columns.tsx": "components/incoming-webhook/incoming-webhooks.store.ts",
 };
 
 const REPOSITORY_MODEL: Record<string, string> = {
@@ -59,6 +63,7 @@ const REPOSITORY_MODEL: Record<string, string> = {
   "ee/messaging/persistence/prisma-messaging.repository.ts": "MessagingThread",
   "ee/calendar/prisma-calendar.repository.ts": "Calendar",
   "ee/calendar/prisma-calendar-events.repository.ts": "CalendarEvent",
+  "features/incoming-webhook/prisma-incoming-webhook.repository.ts": "IncomingWebhook",
 };
 
 const COMPUTED_SORT_REPOSITORIES: string[] = [];
@@ -310,7 +315,11 @@ describe("every sort option a surface offers is one its repository applies", () 
 
 describe("every column header that sorts is one its repository applies", () => {
   it("maps every column hook to the store behind its page", () => {
-    const hooks = walkFiles(REPO_ROOT, (path) => /\/use-[a-z-]+-columns\.tsx$/.test(path) && path.includes("/app/"))
+    const hooks = walkFiles(
+      REPO_ROOT,
+      (path) =>
+        /\/use-[a-z-]+-columns\.tsx$/.test(path) && (path.includes("/app/") || path.includes("/components/")),
+    )
       .map((path) => relative(REPO_ROOT, path))
       .filter((path) => !path.includes("/__tests__/"));
 

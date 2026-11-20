@@ -17,6 +17,8 @@ import type { ProcessLemonSqueezyWebhookRepo } from "@/ee/subscription/process-l
 import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
+import type { RecordAgentFirstCallRepo } from "@/features/onboarding-funnel/record-agent-first-call.repo";
+import type { DiscoveryAnswerRepo, DiscoveryAnswerWrite } from "@/features/onboarding-funnel/discovery-answer.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
@@ -72,6 +74,8 @@ export class PrismaCompanyRepo
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo,
+    RecordAgentFirstCallRepo,
+    DiscoveryAnswerRepo,
     WorkspaceDeletionRepo,
     WorkspaceSlugRepo,
     PlanInviteRepo
@@ -488,6 +492,10 @@ export class PrismaCompanyRepo
             name: setup.name ?? null,
             slug,
             createdByAuthUserId: setup.createdByAuthUserId ?? null,
+            signupTemplate: setup.signupTemplate ?? null,
+            signupLastPage: setup.signupLastPage ?? null,
+            ...(setup.signupCampaign ? { signupCampaign: setup.signupCampaign } : {}),
+            teamSize: setup.teamSize ?? null,
           },
         ],
         skipDuplicates: true,
@@ -536,6 +544,37 @@ export class PrismaCompanyRepo
 
   async recordSignupSource(companyId: string, source: RegistrationSignupSource) {
     await this.prisma.companySignupSource.createMany({ data: [{ companyId, ...source }], skipDuplicates: true });
+  }
+
+  async recordAgentFirstCall() {
+    const { count } = await this.prisma.company.updateMany({
+      where: { id: this.user.companyId, agentFirstCallAt: null },
+      data: { agentFirstCallAt: new Date() },
+    });
+    return count === 1;
+  }
+
+  async recordAgentCall(staleBefore: Date) {
+    await this.prisma.company.updateMany({
+      where: {
+        id: this.user.companyId,
+        OR: [{ agentLastCallAt: null }, { agentLastCallAt: { lt: staleBefore } }],
+      },
+      data: { agentLastCallAt: new Date() },
+    });
+  }
+
+  async recordDiscoveryAnswer({ userId, choice, detail }: DiscoveryAnswerWrite) {
+    const { count } = await this.prisma.company.updateMany({
+      where: { id: this.user.companyId, discoveryAnsweredAt: null },
+      data: {
+        discoveryChoice: choice,
+        discoveryDetail: detail,
+        discoveryUserId: userId,
+        discoveryAnsweredAt: new Date(),
+      },
+    });
+    return count === 1;
   }
 
   @BypassTenantGuard

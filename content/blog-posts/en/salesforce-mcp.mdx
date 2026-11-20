@@ -154,7 +154,7 @@ Still deciding between an MCP server and a plain API integration? [MCP vs API](/
 
 ## A CRM with a built-in MCP server
 
-If you have not committed to Salesforce yet, there is a different model: a CRM whose MCP server is part of the product. Customermates is one. It is an open-source, AI-native CRM for small client-facing teams, and it exposes one MCP endpoint at `/api/v1/mcp` on every cloud plan and on self-hosted installations. A connected client discovers [[derived.mcp.tools.total]] tools for contacts, organizations, deals, services, tasks and your own lists, the data model, saved views, dashboards, routines and webhooks. On Pro and higher, in Customermates Cloud, the unified inbox tools for email, LinkedIn, WhatsApp, Instagram and Telegram are added.
+If you have not committed to Salesforce yet, there is a different model: a CRM whose MCP server is part of the product. Customermates is one. It is a source-available, AI-native CRM for small client-facing teams, and it exposes one MCP endpoint at `/api/v1/mcp` on every cloud plan and on self-hosted installations. A connected client discovers [[derived.mcp.tools.total]] tools for contacts, organizations, deals, services, tasks and your own lists, the data model, saved views, dashboards, routines and webhooks. On Pro and higher, in Customermates Cloud, the unified inbox tools for email, LinkedIn, WhatsApp, Instagram and Telegram are added.
 
 Connection works two ways, as the [MCP documentation](/docs/mcp) describes. Claude and ChatGPT connect as a custom connector: paste the URL, sign in, approve. Claude Code, Codex, Cursor and Gemini CLI use an [API key](/docs/api-keys) that inherits its creator's permissions. To expose only part of the tool surface, append `?toolsets=` to the endpoint URL, for example `?toolsets=records`.
 
@@ -165,7 +165,7 @@ Connection works two ways, as the [MCP documentation](/docs/mcp) describes. Clau
 | Usage cost | Flex Credits; per-call HPI metering announced, rate TBA | No per-call charge; your AI client uses your own AI provider |
 | Scope control | Separate read, write and delete servers; field-level security | Role permissions per resource and action; toolset narrowing by URL; no field-level permissions |
 | Custom tools | Apex, Flows, named queries, API Catalog, prompt templates | Fixed tool catalog; extend through REST and webhooks |
-| Licence | Proprietary hosted service; Salesforce's community repository holds documentation, not the server | AGPL core, self-hostable |
+| Licence | Proprietary hosted service; Salesforce's community repository holds documentation, not the server | Community Edition, self-hostable |
 
 The cost arithmetic is plain. A five-person team on Starter pays [[commercial.price.starter.monthly.seats.5]] per month and gets the full CRM tool set over MCP. The inbox tools need Pro, [[commercial.price.pro.monthly.seats.5]] per month for the same team. The AI client's own subscription comes on top, from Anthropic, OpenAI or whichever provider you use. Current prices are on the [pricing page](/pricing).
 

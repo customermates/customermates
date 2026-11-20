@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - IA per le vendite
     - CRM
-    - Open source
+    - Source-available
 ---
 
 # Copilot for Sales: Sales agent, licenze e costi
@@ -112,7 +112,7 @@ Su «ne vale la pena»: Sales agent rende quando i venditori passano già la gio
 
 ## Dove si colloca Customermates
 
-Customermates è un CRM open source nativo per l’IA per piccoli team a contatto con i clienti, come società di consulenza e agenzie, costruito in Germania. È un’opzione per l’ultima riga della tabella e non sostituisce Sales agent per un’azienda che usa Dynamics 365 e registra le chiamate con i clienti in Teams.
+Customermates è un CRM source-available nativo per l’IA per piccoli team a contatto con i clienti, come società di consulenza e agenzie, costruito in Germania. È un’opzione per l’ultima riga della tabella e non sostituisce Sales agent per un’azienda che usa Dynamics 365 e registra le chiamate con i clienti in Teams.
 
 Una configurazione tipica per un team di cinque persone:
 
@@ -122,7 +122,7 @@ Una configurazione tipica per un team di cinque persone:
 - **Una routine, in Customermates Cloud.** Attivazione «Quando qualcosa cambia», evento «Record aggiornato» per le Trattative, sotto «Campi modificati» il campo Fase. Istruzioni: «Quando una trattativa passa a Proposta, leggi l’ultima conversazione con il contatto e salva una bozza di risposta. Non inviare nulla.» La routine gira come il suo proprietario, con i canali di quel proprietario. Vedi le [routine](/docs/app-routines).
 - **Il tuo client IA.** Se il tuo team usa già Claude o ChatGPT, collegalo tramite MCP con il [connettore personalizzato](/docs/connect-custom-connector). Microsoft documenta che gli agenti di Copilot Studio possono collegarsi a un server MCP esistente; per quel client Customermates non ha ancora una guida pubblicata, quindi prova una lettura prima di fare affidamento su di esso.
 
-**Costo.** Cinque utenti su Pro costano [[commercial.price.pro.monthly.seats.5]] al mese, con fatturazione mensile, compresi la posta in arrivo e i crediti IA ospitati mensili per utente attivo ([vedi i prezzi](/pricing)). Starter a [[commercial.price.starter.monthly]] per utente non ha la posta in arrivo. Il self-hosting del nucleo AGPL è senza costi di licenza e mantiene REST, webhook e MCP, ma non ha posta in arrivo né Mate.
+**Costo.** Cinque utenti su Pro costano [[commercial.price.pro.monthly.seats.5]] al mese, con fatturazione mensile, compresi la posta in arrivo e i crediti IA ospitati mensili per utente attivo ([vedi i prezzi](/pricing)). Starter a [[commercial.price.starter.monthly]] per utente non ha la posta in arrivo. Il self-hosting della Community Edition è senza costi di licenza e mantiene REST, webhook e MCP, ma non ha posta in arrivo né Mate.
 
 Quello che un piccolo team ottiene con quella postazione è il follow up senza uno stack Microsoft: conversazioni sulla scheda del cliente, una bozza di risposta e un prossimo passo preparati da Mate o dal tuo client IA, e tu rivedi e invii. Per provarlo con la tua casella o con LinkedIn, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup). Senza carta di credito.
 

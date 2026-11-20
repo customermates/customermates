@@ -1,0 +1,157 @@
+{
+  "locale": "nl",
+  "name": "Klantenservice",
+  "summary": "Beantwoord elke klant op tijd, zonder zwaar helpdesksysteem. Tickets met een prioriteit, een tijd voor de eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
+  "description": "Als klanten via meerdere kanalen schrijven, raken vragen zoek en weet niemand welke te laat zijn. Dit sjabloon zet tickets op met een status, een prioriteit, een type en een eigenaar, de uiterste datum voor een eerste reactie en een oplossing, en bekende problemen die meerdere tickets aan één oorzaak koppelen, zodat je iedereen kunt laten weten wanneer het is opgelost. De termijn van één maand van een AVG-verzoek blijft in beeld. Bedoeld voor enkele tientallen tickets per week in een bedrijf of bureau van één tot acht personen. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
+  "lists": {
+    "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "De mensen die je om hulp vragen." },
+    "accounts": { "label": "Account", "pluralLabel": "Accounts", "description": "De bedrijven achter je klanten, met hun supportplan." },
+    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Eén hulpvraag, van het eerste bericht tot de oplossing." },
+    "known_issues": { "label": "Bekend probleem", "pluralLabel": "Bekende problemen", "description": "Eén oorzaak achter meerdere tickets, met tijdelijke oplossing en hersteldatum." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Aanvraagformulier", "phone": "Telefoon" } },
+    "customers.language": { "label": "Taal" },
+    "accounts.support_plan": { "label": "Supportplan", "options": { "standard": "Standaard", "priority": "Prioriteit", "none": "Geen" } },
+    "accounts.contract_end": { "label": "Einde contract" },
+    "tickets.status": {
+      "label": "Status",
+      "options": { "new": "Nieuw", "open": "Open", "pending_customer": "Wacht op klant", "on_hold": "Wacht op een derde", "solved": "Opgelost", "closed": "Gesloten", "spam_or_duplicate": "Spam of dubbel" }
+    },
+    "tickets.priority": { "label": "Prioriteit", "options": { "urgent": "Urgent", "high": "Hoog", "normal": "Normaal", "low": "Laag" } },
+    "tickets.type": { "label": "Type", "options": { "question": "Vraag", "problem": "Probleem", "request": "Verzoek", "complaint": "Klacht", "data_request": "AVG-verzoek" } },
+    "tickets.channel": { "label": "Kanaal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Aanvraagformulier", "phone": "Telefoon", "webhook": "Melding van een ander systeem" } },
+    "tickets.assignee": { "label": "Toegewezen aan" },
+    "tickets.first_response_due": { "label": "Eerste reactie uiterlijk" },
+    "tickets.resolution_due": { "label": "Oplossing uiterlijk" },
+    "tickets.solved_on": { "label": "Opgelost op" },
+    "tickets.rating": { "label": "Beoordeling" },
+    "known_issues.status": {
+      "label": "Status",
+      "options": { "investigating": "In onderzoek", "workaround_available": "Tijdelijke oplossing beschikbaar", "fixed": "Opgelost", "wont_fix": "Wordt niet opgelost" }
+    },
+    "known_issues.workaround": { "label": "Tijdelijke oplossing" },
+    "known_issues.fixed_on": { "label": "Opgelost op" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "reply": "Reageren",
+        "nudge_customer": "Klant een herinnering sturen",
+        "send_survey": "Tevredenheidsenquête versturen",
+        "close_ticket": "Ticket sluiten",
+        "tell_customer_fixed": "Klant laten weten dat het is opgelost",
+        "verify_identity": "Identiteit controleren",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Account", "targetLabel": "Klanten" },
+    "ticket_customer": { "sourceLabel": "Klant", "targetLabel": "Tickets" },
+    "ticket_known_issue": { "sourceLabel": "Bekend probleem", "targetLabel": "Tickets" },
+    "action_ticket": { "sourceLabel": "Ticket", "targetLabel": "Acties" }
+  },
+  "views": {
+    "tickets_all": { "name": "Alle tickets" },
+    "tickets_board": { "name": "Ticketbord" },
+    "waiting_on_us": { "name": "Wacht op ons" },
+    "known_issues_all": { "name": "Alle bekende problemen" },
+    "customers_all": { "name": "Alle klanten" },
+    "accounts_all": { "name": "Alle accounts" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Tickets per status" },
+    "open_by_priority": { "title": "Open tickets per prioriteit" },
+    "waiting_on_us_count": { "title": "Tickets die op ons wachten" },
+    "responses_due": { "title": "Openstaande eerste reacties" },
+    "average_rating": { "title": "Gemiddelde tevredenheidsscore" },
+    "tickets_by_type": { "title": "Tickets per type" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "Hoe wij onze klantenservice organiseren", "sections": ["Statussen en prioriteiten", "Doelen voor eerste reactie en oplossing", "Wie dienst heeft"] },
+    "triage_and_replies": { "title": "Triage en standaardantwoorden", "sections": ["Type, prioriteit en eigenaar", "Eerste reactie, meer informatie nodig, opgelost, geen reactie"] },
+    "data_requests": { "title": "AVG-verzoeken", "sections": ["Identiteit controleren, registreren, binnen de wettelijke termijn antwoorden (een maand volgens de AVG, 15 dagen volgens de LGPD)", "Wie beslist"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Maak een actie om te reageren aan zodra een ticket binnenkomt" },
+    "first_response_missed": { "title": "Waarschuw de leiding als de eerste reactie te laat is" },
+    "nudge_customer": { "title": "Stuur de klant een herinnering na 3 dagen wachten" },
+    "send_survey": { "title": "Verstuur de dag na het oplossen de tevredenheidsenquête" },
+    "close_solved": { "title": "Sluit een ticket dat 4 dagen opgelost bleef" },
+    "data_request_clock": {
+      "title": "Zet de oplostermijn op 30 dagen als een ticket een AVG-verzoek wordt",
+      "variants": {
+        "BR": {
+          "title": "Zet de oplostermijn op 15 dagen als een ticket een LGPD-verzoek wordt (Brazilië)",
+          "description": "Volgens art. 19 LGPD is een volledig antwoord op een inzage- of bevestigingsverzoek binnen 15 dagen verschuldigd."
+        }
+      }
+    },
+    "known_issue_fixed": { "title": "Informeer klanten als een bekend probleem is opgelost" },
+    "ticket_from_webhook": { "title": "Maak een ticket aan als een ander systeem een melding stuurt" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elk ticket heeft een status.",
+    "first_response_field": "Elk ticket legt vast wanneer de eerste reactie uiterlijk moet komen.",
+    "tickets_board_view": "De tickets openen als bord per status."
+  },
+  "page": {
+    "metaTitle": "Ticketsysteem: lichte klantenservice in je CRM",
+    "metaDescription": "Een licht ticketsysteem dat je AI-agent in je CRM bouwt: tickets met prioriteit en reactietermijnen, bekende problemen en een tevredenheidsscore.",
+    "headline": "Een ticketsysteem voor enkele tientallen tickets per week, gebouwd door je AI-agent in je CRM",
+    "answer": "Een licht ticketsysteem geeft elk klantbericht een ticket met een eigenaar, een prioriteit en een termijn waarbinnen je moet antwoorden. Dit template richt tickets in, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore. Plak het in je AI-agent en die bouwt de klantenservice in Customermates. Jij keurt het plan goed voordat er iets wordt aangemaakt. Het is bedoeld voor een bedrijf of bureau van één tot acht mensen, niet voor een groot supportteam.",
+    "routine": {
+      "title": "De wekelijkse supportreview",
+      "steps": [
+        "Begin met de tickets waarvan de eerste reactie of de oplossing te laat is, en ga dan naar de tickets die al langer dan twee dagen op jou wachten.",
+        "Stuur klanten die al 3 dagen niet reageerden een herinnering, en zet tickets na 7 dagen stilte op opgelost met de notitie dat er geen antwoord kwam.",
+        "Bekijk heropende tickets en opgeloste tickets zonder beoordeling, en neem opnieuw contact op na elke beoordeling van 1 of 2.",
+        "Loop de openstaande bekende problemen langs: is er een opgelost, laat het dan elke klant met een gekoppeld ticket weten, en noteer de meest voorkomende categorieën van de week."
+      ]
+    },
+    "limits": [
+      "Het is geen telefoon- of sms-systeem en geen livechatwidget. Tickets ontstaan uit e-mail-, WhatsApp-, LinkedIn-, Instagram- en Telegram-berichten in de inbox, of via je agent.",
+      "Een klantportaal en een openbaar ticketformulier bestaan vandaag niet in Customermates. Klanten kunnen niet inloggen om een ticket te volgen.",
+      "Het rekent geen kantooruren of feestdagen uit. Termijnen komen uit de tabel met supportplannen in je kennisbank, gezet door een regel of door je agent.",
+      "Het is geen ITIL-beheerder voor wijzigingen of assets, geen statuspagina en geen tool voor massaverzending, en het heeft geen SSO. Voor veel tickets of grote bedrijven passen Zendesk, Freshdesk of Zammad beter.",
+      "Antwoorden zijn concepten die je nakijkt en zelf verstuurt. Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert; het template stelt ze voor en jij beslist welke je aanzet.",
+      "Houd kaartnummers, wachtwoorden, kopieën van identiteitsbewijzen en gezondheidsgegevens buiten tickets. Een inzageverzoek bewaart de identiteitscontrole als ja of nee met een datum, niet als kopieën.",
+      "E-mail of WhatsApp koppelen aan het CRM vraagt een plan met de inbox, en een mailbox die het hele team deelt een plan met gedeelde accounts. De prijzenpagina laat zien wat elk plan bevat."
+    ],
+    "faq": [
+      {
+        "question": "Wat is het eenvoudigste ticketsysteem voor een klein bedrijf?",
+        "answer": "Een lijst met tickets met elk één eigenaar, een status, een prioriteit en twee termijnen: eerste reactie en oplossing. Voeg een lijst met bekende problemen en een tevredenheidsscore toe en loop het eens per week door. Dat is genoeg voor enkele tientallen tickets per week; daarboven loont een speciale tool."
+      },
+      {
+        "question": "Welke statussen hoort een supportticket te hebben?",
+        "answer": "Gangbare sets zijn nieuw, open, in afwachting, opgelost en gesloten. Dit template gebruikt Nieuw, Open, Wacht op klant, Wacht op derde, Opgelost en Gesloten, plus Spam of dubbel. Aanbieders zijn het niet eens over de vraag of een wachtstatus de klok stopt; de huisregel van het template: wachten op de klant pauzeert hem, wachten op een derde niet. Je kunt dat aanpassen."
+      },
+      {
+        "question": "Welke reactietijden moet ik beloven?",
+        "answer": "Er is geen algemene norm. Aanbieders noemen als voorbeeld kritieke problemen binnen 4 uur en kleine verzoeken binnen 72 uur, bij een storing 1 uur tot de eerste reactie en 4 uur tot de oplossing. Begin met zulke waarden in de tabel met supportplannen en vervang ze door wat je kunt waarmaken."
+      },
+      {
+        "question": "Hoe ga ik om met een AVG-inzageverzoek dat als ticket binnenkomt?",
+        "answer": "Een inzageverzoek moet zo snel mogelijk worden beantwoord en uiterlijk binnen een maand; die termijn kan met nog twee maanden worden verlengd als dat nodig is, waarbij je binnen de eerste maand de redenen meldt. Het template voegt een type inzageverzoek toe met de maandtermijn in beeld. Dit is geen juridisch advies; betrek je contactpersoon voor gegevensbescherming."
+      },
+      {
+        "question": "Kan dit Zendesk of Freshdesk vervangen?",
+        "answer": "Voor een team met enkele tientallen tickets per week dat opvolging met datum en een tevredenheidsscore wil: ja. Voor veel tickets, veel kanalen of grote bedrijven blijven Zendesk, Freshdesk, Zammad, Help Scout of Front beter passen, met SLA-engines, macro's, kantooruurkalenders en portalen die dit template bewust weglaat."
+      },
+      {
+        "question": "Antwoordt de agent mijn klanten?",
+        "answer": "De agent schrijft antwoorden op basis van het gekoppelde gesprek, en jij leest ze na en verstuurt ze. De prompt zegt hem niets te versturen en geen voorbeeldgegevens aan te maken."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Klantvragen komen binnen via e-mail en chat en ik kan niet zien welke nog op antwoord wachten. Richt in mijn Customermates-werkruimte een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
+    "questions": [
+      "Hoeveel tickets behandel je per week en via welke kanalen komen ze binnen?",
+      "Welke termijnen beloof je voor de eerste reactie en de oplossing, per prioriteit of supportplan?",
+      "Wie antwoordt en wie wordt gewaarschuwd als een ticket te laat is?",
+      "Krijg je AVG-verzoeken of meldingen van andere systemen die tickets moeten worden?"
+    ]
+  }
+}

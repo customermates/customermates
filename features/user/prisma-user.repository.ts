@@ -17,7 +17,7 @@ import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo"
 import type { FindUserSummariesRepo } from "@/features/user/find-user-summaries.repo";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.repo";
 import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
-import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
+import type { RegisterUserRepo, SignupAttribution } from "@/features/user/register/register-user.repo";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.repo";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.repo";
 import type { Prisma } from "@/generated/prisma";
@@ -43,8 +43,11 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { AUTOMATION_DISABLED_REASON_PLAN_PAUSED } from "@/features/automation-rules/automation-disabled-reason";
 import { seatChange } from "@/features/billing-usage/billing-usage-changes";
 import { strandsLastPlatformOperator } from "@/features/user/platform-operator-logins";
+
+const NO_PLAN_PAUSE = { pausedByPlanAt: null, planPauseNoticeSentAt: null } as const;
 
 function recordActorSelect(companyId: string) {
   return {
@@ -119,6 +122,7 @@ export class PrismaUserRepo
       data: {
         status,
         ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }),
+        ...(status === Status.active ? NO_PLAN_PAUSE : {}),
       },
     });
     await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, status));
@@ -437,6 +441,14 @@ export class PrismaUserRepo
     });
   }
 
+  async reopenOnboardingSetupStep(args: RepoArgs<CompleteOnboardingSetupStepRepo, "reopenOnboardingSetupStep">) {
+    const { companyId } = this.user;
+    await this.prisma.user.updateMany({
+      data: { onboardingWikiStepCompletedAt: null },
+      where: { id: args.userId, companyId },
+    });
+  }
+
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
@@ -452,6 +464,7 @@ export class PrismaUserRepo
         status: args.status,
         avatarUrl: args.avatarUrl,
         roleId: args.roleId,
+        ...(args.status === Status.active ? NO_PLAN_PAUSE : {}),
       },
       where: { id: args.userId, companyId },
     });
@@ -542,6 +555,8 @@ export class PrismaUserRepo
             leftAt: null,
             roleId: null,
             agentCreditActivatedAt: null,
+            pausedByPlanAt: null,
+            planPauseNoticeSentAt: null,
           },
         })
       : await this.prisma.user.create({
@@ -561,7 +576,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  private async strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }) {
+  async strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }) {
     return strandsLastPlatformOperator(this.prisma, ending);
   }
 
@@ -618,13 +633,14 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async listWorkspaceMembershipsUnscoped(email: string) {
-    return this.prisma.user.findMany({
+    const memberships = await this.prisma.user.findMany({
       where: { email, leftAt: null },
       orderBy: { createdAt: "asc" },
       select: {
         id: true,
         companyId: true,
         status: true,
+        pausedByPlanAt: true,
         createdAt: true,
         role: { select: { name: true, isSystemRole: true } },
         company: {
@@ -632,14 +648,25 @@ export class PrismaUserRepo
             name: true,
             slug: true,
             createdAt: true,
+            brand: { select: { logoKey: true } },
             subscription: {
               select: { status: true, plan: true, trialEndDate: true },
+            },
+            users: {
+              where: { status: Status.active, leftAt: null, role: { isSystemRole: true } },
+              select: { id: true },
+              take: 1,
             },
             _count: { select: { users: { where: { status: Status.active } } } },
           },
         },
       },
     });
+
+    return memberships.map(({ company: { users: activeAdmins, ...company }, ...membership }) => ({
+      ...membership,
+      company: { ...company, hasActiveAdmin: activeAdmins.length > 0 },
+    }));
   }
 
   @BypassTenantGuard
@@ -670,11 +697,54 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
+  async listActiveAdminIdsUnscoped(companyId: string) {
+    const admins = await this.prisma.user.findMany({
+      where: { companyId, leftAt: null, status: Status.active, role: { isSystemRole: true } },
+      select: { id: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    return admins.map((admin) => admin.id);
+  }
+
+  @BypassTenantGuard
   async markTrialConsumedUnscoped(authUserId: string) {
     await this.prisma.authUser.updateMany({
       where: { id: authUserId, trialConsumedAt: null },
       data: { trialConsumedAt: new Date() },
     });
+  }
+
+  @BypassTenantGuard
+  async recordSignupAttributionUnscoped(authUserId: string, attribution: Partial<SignupAttribution>) {
+    const { lastPage, campaign } = attribution;
+    if (lastPage) {
+      await this.prisma.authUser.updateMany({
+        where: { id: authUserId, companyId: null, signupLastPage: null },
+        data: { signupLastPage: lastPage },
+      });
+    }
+    if (campaign) {
+      await this.prisma.authUser.updateMany({
+        where: { id: authUserId, companyId: null, signupCampaign: null },
+        data: { signupCampaign: campaign },
+      });
+    }
+  }
+
+  @BypassTenantGuard
+  async takeSignupAttributionUnscoped(authUserId: string): Promise<SignupAttribution> {
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { id: authUserId },
+      select: { signupLastPage: true, signupCampaign: true },
+    });
+    const taken = { lastPage: authUser?.signupLastPage ?? null, campaign: authUser?.signupCampaign ?? null };
+    if (taken.lastPage || taken.campaign) {
+      await this.prisma.authUser.updateMany({
+        where: { id: authUserId },
+        data: { signupLastPage: null, signupCampaign: null },
+      });
+    }
+    return taken;
   }
 
   @BypassTenantGuard
@@ -733,6 +803,8 @@ export class PrismaUserRepo
         status: Status.inactive,
         leftAt: new Date(),
         agentCreditActivatedAt: null,
+        pausedByPlanAt: null,
+        planPauseNoticeSentAt: null,
       },
     });
     if (count > 0) await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, Status.inactive));
@@ -1040,7 +1112,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number): Promise<string[]> {
+  async findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number, maxActiveRules: number): Promise<string[]> {
     const free = await this.prisma.subscription.findMany({
       where: {
         plan: { not: SubscriptionPlan.enterprise },
@@ -1051,7 +1123,7 @@ export class PrismaUserRepo
     });
     const companyIds = free.map((row) => row.companyId);
     if (companyIds.length === 0) return [];
-    const [crowded, dormant, pending, invites, routines] = await Promise.all([
+    const [crowded, dormant, pending, invites, routines, rules] = await Promise.all([
       this.prisma.user.groupBy({
         by: ["companyId"],
         where: { companyId: { in: companyIds }, status: Status.active, leftAt: null },
@@ -1077,6 +1149,11 @@ export class PrismaUserRepo
         select: { companyId: true },
         distinct: ["companyId"],
       }),
+      this.prisma.automationRule.groupBy({
+        by: ["companyId"],
+        where: { companyId: { in: companyIds }, enabled: true },
+        _count: { _all: true },
+      }),
     ]);
     const staffed = new Set(crowded.map((group) => group.companyId));
     return [
@@ -1086,13 +1163,14 @@ export class PrismaUserRepo
         ...pending.map((row) => row.companyId),
         ...invites.map((row) => row.companyId),
         ...routines.map((row) => row.companyId),
+        ...rules.filter((group) => group._count._all > maxActiveRules).map((group) => group.companyId),
       ]),
     ];
   }
 
   @BypassTenantGuard
   async findWorkspacesWithPlanPausesUnscoped(now: Date): Promise<string[]> {
-    const [members, routines] = await Promise.all([
+    const [members, routines, rules] = await Promise.all([
       this.prisma.user.findMany({
         where: { pausedByPlanAt: { not: null } },
         select: { companyId: true },
@@ -1103,8 +1181,13 @@ export class PrismaUserRepo
         select: { companyId: true },
         distinct: ["companyId"],
       }),
+      this.prisma.automationRule.findMany({
+        where: { enabled: false, disabledReason: AUTOMATION_DISABLED_REASON_PLAN_PAUSED },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
     ]);
-    const companyIds = [...new Set([...members, ...routines].map((row) => row.companyId))];
+    const companyIds = [...new Set([...members, ...routines, ...rules].map((row) => row.companyId))];
     if (companyIds.length === 0) return [];
     const usable = await this.prisma.subscription.findMany({
       where: {
@@ -1183,6 +1266,7 @@ export class PrismaUserRepo
       const where = {
         companyId: args.companyId,
         leftAt: null,
+        status: Status.inactive,
         pausedByPlanAt: { not: null },
         ...(args.userIds ? { id: { in: args.userIds } } : {}),
       };

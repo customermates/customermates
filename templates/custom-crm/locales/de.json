@@ -1,0 +1,143 @@
+{
+  "locale": "de",
+  "name": "Eigenes CRM",
+  "summary": "Von der Tabelle oder dem alten Werkzeug umziehen, ohne ein großes Migrationsprojekt. Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben nach Ihrer Arbeitsweise, mit Import Ihrer Daten und wöchentlicher Durchsicht.",
+  "description": "Ihre Kundendaten verteilen sich auf eine Tabelle, eine Notion-Seite oder ein altes Werkzeug, und niemand möchte dafür ein Migrationsprojekt starten. Diese Vorlage beginnt mit den vier Listen, die jedes CRM braucht, Kontakte, Firmen, Verkaufschancen und Aufgaben, und Ihr Agent passt Phasen, Felder und Ansichten an Ihre Arbeitsweise an. Danach importiert er Ihre Daten und notiert, woher jeder Datensatz stammt. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, mit denen du zu tun hast." },
+    "organizations": { "label": "Firma", "pluralLabel": "Firmen", "description": "Unternehmen und andere Einrichtungen." },
+    "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Eine Chance vom Lead bis gewonnen oder verloren." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Phase",
+      "options": { "lead": "Lead", "qualified": "Qualifiziert", "proposal": "Angebot", "negotiation": "Verhandlung", "won": "Gewonnen", "lost": "Verloren" }
+    },
+    "contacts.job_title": { "label": "Position" },
+    "contacts.contact_role": {
+      "label": "Rolle",
+      "options": { "decision_maker": "Entscheider", "influencer": "Einflussnehmer", "user": "Anwender", "billing": "Rechnungsempfänger", "other": "Sonstige" }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "contacts.last_contact": { "label": "Letzter Kontakt" },
+    "contacts.consent": { "label": "Einwilligung zur Kontaktaufnahme" },
+    "organizations.relationship": {
+      "label": "Beziehung",
+      "options": { "prospect": "Interessent", "customer": "Kunde", "former_customer": "Ehemaliger Kunde", "partner": "Partner", "other": "Sonstige" }
+    },
+    "organizations.owner": { "label": "Betreuer" },
+    "organizations.source": {
+      "label": "Herkunft",
+      "options": { "referral": "Empfehlung", "website": "Website", "event": "Veranstaltung", "outbound": "Eigene Akquise", "import": "Import", "other": "Sonstige" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.address": { "label": "Anschrift" },
+    "organizations.imported_from": { "label": "Importiert aus" },
+    "opportunities.owner": { "label": "Zuständig" },
+    "opportunities.expected_close": { "label": "Erwarteter Abschluss" },
+    "opportunities.next_step": { "label": "Nächster Schritt" },
+    "opportunities.next_step_due": { "label": "Wiedervorlage am" },
+    "opportunities.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "price": "Preis", "competitor": "Wettbewerber", "no_decision": "Keine Entscheidung", "timing": "Zeitpunkt", "no_response": "Keine Antwort", "not_a_fit": "Passt nicht", "other": "Sonstiges" }
+    },
+    "opportunities.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "call": "Anruf", "email": "E-Mail", "meeting": "Termin", "follow_up": "Nachfassen", "review": "Prüfung", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Firma", "targetLabel": "Kontakte" },
+    "opportunity_organization": { "sourceLabel": "Firma", "targetLabel": "Verkaufschancen" },
+    "action_opportunity": { "sourceLabel": "Verkaufschance", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Alle Verkaufschancen" },
+    "no_next_step": { "name": "Ohne nächsten Schritt" },
+    "organizations_all": { "name": "Alle Firmen" },
+    "contacts_all": { "name": "Alle Kontakte" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Offene Verkaufschancen nach Phase" },
+    "open_value": { "title": "Offener Wert" },
+    "open_weighted_value": { "title": "Offener gewichteter Wert" },
+    "lost_reasons": { "title": "Verlustgründe" },
+    "deals_without_next_step": { "title": "Chancen ohne nächsten Schritt" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "So nutzen wir dieses CRM", "sections": ["Was hineingehört und wer es pflegt", "Phasen und wann eine Chance weiterrückt"] },
+    "data_entry_rules": { "title": "Regeln für die Dateneingabe", "sections": ["Namen, E-Mails und ein Datensatz pro Person", "Ein nächster Schritt mit Datum bei jeder offenen Chance"] },
+    "import_notes": { "title": "Importnotizen: was woher kam", "sections": ["Quellsystem und Exportdatum", "Was nicht mitgekommen ist und warum"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Eine Folgeaufgabe anlegen, wenn eine Verkaufschance die Phase wechselt" },
+    "set_a_next_step": { "title": "Bei jeder offenen Chance ohne nächsten Schritt einen verlangen" },
+    "next_step_notice": { "title": "Den Zuständigen informieren, wenn ein nächster Schritt fällig ist" },
+    "expected_close_passed": { "title": "Eine offene Chance am Tag nach dem erwarteten Abschluss prüfen" },
+    "weekly_review": { "title": "Jeden Freitag die wöchentliche Durchsicht durchführen" },
+    "enquiry_form_records": { "title": "Kontakt, Firma und Verkaufschance aus einem Anfrageformular anlegen" },
+    "webhook_upsert": { "title": "Datensätze aus dem alten Werkzeug über einen eingehenden Webhook anlegen oder aktualisieren" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Verkaufschance hat eine Phase.",
+    "board_view": "Die Pipeline öffnet sich als Board nach Phase mit Summen.",
+    "how_we_use_page": "Die Wissensdatenbank erklärt, wie das Team das CRM nutzt."
+  },
+  "page": {
+    "metaTitle": "CRM selbst erstellen: Alternative zu Excel und Tabellen",
+    "metaDescription": "CRM selbst erstellen statt Tabelle pflegen: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut das CRM und übernimmt Ihre Daten.",
+    "headline": "Eigenes CRM statt Tabelle: ein CRM, das Ihr KI-Agent in Customermates aufbaut und mit Ihren Daten füllt",
+    "answer": "Wenn Ihre Kunden und Verkaufschancen in einer Tabelle, einer Notion-Seite oder einem alten Programm stehen, ersetzt ein eigenes CRM sie ohne Migrationsprojekt: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, zugeschnitten auf Ihren Vertrieb. Fügen Sie diese Vorlage in Ihren KI-Agenten ein. Er fragt, wie Sie arbeiten, baut das CRM in Customermates auf und übernimmt Ihre Daten. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die Durchsicht Ihres CRM am Freitag",
+      "steps": [
+        "Öffnen Sie die Pipeline als Tafel und sehen Sie sich jede Phase an: was sich diese Woche bewegt hat und was nicht.",
+        "Öffnen Sie die Verkaufschancen ohne nächsten Schritt und geben Sie jeder einen terminierten nächsten Schritt oder schließen Sie sie.",
+        "Prüfen Sie die Verkaufschancen, deren erwarteter Abschluss im kommenden Monat liegt, und verschieben Sie überholte Termine.",
+        "Räumen Sie die überfälligen Aufgaben auf: erledigen, verschieben oder streichen.",
+        "Beheben Sie, was der Import hinterlassen hat: doppelte Kontakte, einen fehlenden Verantwortlichen, einen Datensatz ohne nächsten Schritt."
+      ]
+    },
+    "limits": [
+      "Es ist kein No-Code-Baukasten für Anwendungen. Es gibt keine eigenen Bildschirme, Kundenportale oder Skripte: Sie bekommen Listen, Verknüpfungen, Tabellen-, Tafel- und Kalenderansichten, Dashboards und Ihren Agenten. Wer einen App-Baukasten braucht, nimmt einen.",
+      "Es ist kein freier Arbeitsbereich. Für Seiten, Wikis und Daten, die nichts mit Kunden zu tun haben, bleiben Notion und Airtable besser geeignet.",
+      "Es gibt keine Synchronisation in beide Richtungen mit Ihrem alten Werkzeug und kein Rückgängigmachen eines Imports. Der Import ist eine einmalige Kopie, nachdem Sie die Zuordnung geprüft haben; in der Quelle wird nichts geändert oder gelöscht.",
+      "Es gibt keine Gantt-Diagramme, Ressourcenplanung oder Zeitleisten. Das bleibt Projektwerkzeugen vorbehalten.",
+      "Es gibt keine Berechtigungen auf Feldebene. Sollen einzelne Spalten vor Kollegen verborgen bleiben, legen Sie sie in eine eigene Liste mit eigenem Zugriff.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+    ],
+    "faq": [
+      {
+        "question": "Wie wechsle ich von Google Sheets oder Excel zu einem CRM?",
+        "answer": "Sagen Sie dem Agenten, welche Spalten Sie wirklich nutzen. Er schlägt Listen und Felder vor, prüft eine Stichprobe der Zeilen auf Dubletten und unbekannte Werte und importiert, sobald Sie die Zuordnung genehmigt haben. Customermates importiert Excel- und CSV-Dateien über einen Assistenten zur Spaltenzuordnung, und Ihr Agent kann Datensätze über MCP importieren. Der Import ist eine Kopie: Ihre Tabelle bleibt unverändert, bis Sie sie nicht mehr nutzen."
+      },
+      {
+        "question": "Wann reicht eine Tabelle für Kunden und Verkaufschancen nicht mehr?",
+        "answer": "Ratgeber von CRM-Anbietern nennen eine Grenze zwischen etwa 25 und 200 Kontakten oder den Punkt, an dem mehrere Personen dieselbe Datei bearbeiten oder niemand mehr an eine Wiedervorlage erinnert wird. Dann hilft ein CRM: Kontakte sind mit Firmen und Verkaufschancen verknüpft, nächste Schritte sind terminierte Aufgaben, und die Gespräche stehen neben jedem Datensatz."
+      },
+      {
+        "question": "Muss ich das CRM selbst entwerfen?",
+        "answer": "Nein. Der Agent befragt Sie zuerst: was Sie verkaufen, welche Phasen es wirklich vom ersten Kontakt bis zum Abschluss gibt, was Sie jeden Morgen und jeden Freitag sehen wollen, wer sonst damit arbeitet, wo Ihre Daten heute liegen und was in einem anderen Werkzeug bleibt. Er schlägt das Modell vor und baut es nach Ihrer Freigabe. Phasen, Felder und Ansichten ändern Sie später, indem Sie darum bitten."
+      },
+      {
+        "question": "Was kommt aus meinem alten Werkzeug nicht mit?",
+        "answer": "Der Import kopiert Datensätze. Automatisierungen, Formulare, Ansichten, Kommentare und Anhänge werden nicht übernommen, und Verknüpfungen, die Ihr altes Werkzeug als reinen Text exportiert hat, müssen neu aufgebaut werden. Der Agent hält fest, woher jeder importierte Datensatz stammt, damit Sie es später nachvollziehen können."
+      },
+      {
+        "question": "Wodurch unterscheidet sich das von einem maßgeschneiderten CRM einer Agentur?",
+        "answer": "Agenturen, die ein individuelles CRM entwickeln, nennen mehrere Monate Projektdauer. Hier gibt es das CRM bereits, mit Rollen und Zugriff je Liste, und nur sein Inhalt gehört Ihnen: die Phasen, Felder und Ansichten. Eine erste funktionierende Pipeline kann aus einem Gespräch entstehen, und Sie prüfen sie selbst, bevor Sie sich darauf verlassen."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Meine Kunden und Geschäfte stehen in einer Tabelle oder einem alten Werkzeug, und ich möchte ein CRM, das zu meiner Arbeitsweise passt. Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
+    "questions": [
+      "Aus welchem Werkzeug oder welcher Tabelle stammen deine Datensätze, und lässt sie sich exportieren?",
+      "Welche Phasen durchläuft eine Chance in deinem Geschäft?",
+      "Welche Felder nutzt du heute wirklich, und welche lässt du zurück?",
+      "Wer arbeitet im CRM, und wer betreut welche Datensätze?"
+    ]
+  }
+}

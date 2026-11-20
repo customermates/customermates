@@ -28,6 +28,10 @@ const catalogPricingRowSchema = z.object({
     "maxRecords",
     "webhooks",
     "apiRequestLimit",
+    "activeAutomationRules",
+    "agentOwnKey",
+    "formSubmissionsPerMonth",
+    "formBadge",
   ]),
 });
 

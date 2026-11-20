@@ -1,0 +1,172 @@
+{
+  "locale": "nl",
+  "name": "Leveranciersvragenlijst",
+  "summary": "Weet welke leveranciers zijn goedgekeurd en welk certificaat als eerste verloopt. Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier.",
+  "description": "Certificaten van leveranciers verlopen en herbeoordelingen worden overgeslagen als de antwoorden in e-mails en mappen staan. Dit sjabloon kwalificeert leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. Het sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Mensen bij je leveranciers die vragenlijsten invullen en documenten sturen." },
+    "suppliers": { "label": "Leverancier", "pluralLabel": "Leveranciers", "description": "Elke leverancier of onderaannemer, van kandidaat tot goedgekeurd of geblokkeerd." },
+    "questionnaires": { "label": "Vragenlijst", "pluralLabel": "Vragenlijsten", "description": "Eén vragenlijst aan één leverancier, met deadline en beslissing." },
+    "documents": { "label": "Document", "pluralLabel": "Documenten", "description": "Certificaten, verklaringen en overeenkomsten met hun geldigheidsdatum." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Functie",
+      "options": { "sales": "Verkoop", "quality": "Kwaliteit", "compliance": "Compliance", "finance": "Financiën", "other": "Overig" }
+    },
+    "contacts.language": { "label": "Taal" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Kandidaat", "questionnaire_sent": "Vragenlijst verstuurd", "under_review": "In beoordeling", "approved": "Goedgekeurd", "approved_with_conditions": "Voorwaardelijk goedgekeurd", "blocked": "Geblokkeerd", "offboarded": "Uitgefaseerd" }
+    },
+    "suppliers.risk_tier": { "label": "Risiconiveau", "options": { "low": "Laag", "moderate": "Gemiddeld", "high": "Hoog", "critical": "Kritiek" } },
+    "suppliers.category": {
+      "label": "Categorie",
+      "options": { "raw_materials": "Grondstoffen", "components": "Componenten", "services": "Diensten", "subcontracting": "Onderaanneming", "software_it": "Software en IT", "logistics": "Logistiek" }
+    },
+    "suppliers.country": { "label": "Land" },
+    "suppliers.critical_supplier": { "label": "Kritieke leverancier" },
+    "suppliers.processes_personal_data": { "label": "Verwerkt persoonsgegevens" },
+    "suppliers.review_owner": { "label": "Verantwoordelijk voor de beoordeling" },
+    "suppliers.qualified_on": { "label": "Gekwalificeerd op" },
+    "suppliers.next_review": { "label": "Volgende beoordeling" },
+    "questionnaires.kind": {
+      "label": "Soort",
+      "options": { "registration": "Registratie", "qualification": "Kwalificatie", "re_evaluation": "Herbeoordeling", "regulatory_evidence": "Bewijs voor regelgeving" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Concept", "sent": "Verstuurd", "partial": "Gedeeltelijk beantwoord", "received": "Ontvangen", "reviewed": "Beoordeeld" }
+    },
+    "questionnaires.sent_on": { "label": "Verstuurd op" },
+    "questionnaires.due_on": { "label": "Deadline" },
+    "questionnaires.received_on": { "label": "Ontvangen op" },
+    "questionnaires.score": { "label": "Score" },
+    "questionnaires.decision": {
+      "label": "Beslissing",
+      "options": { "approve": "Goedkeuren", "approve_with_conditions": "Voorwaardelijk goedkeuren", "escalate": "Escaleren", "reject": "Afwijzen" }
+    },
+    "questionnaires.reviewer": { "label": "Beoordelaar" },
+    "questionnaires.form_link": { "label": "Link naar het formulier" },
+    "documents.doc_type": {
+      "label": "Soort document",
+      "options": { "quality_certificate": "Kwaliteitscertificaat", "environmental_certificate": "Milieucertificaat", "security_certificate": "Beveiligingscertificaat", "insurance": "Verzekeringsbewijs", "tax_clearance": "Verklaring betalingsgedrag", "registration_extract": "KvK-uittreksel", "data_processing_agreement": "Verwerkersovereenkomst", "other": "Overig" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Opgevraagd", "received": "Ontvangen", "under_review": "In beoordeling", "accepted": "Geaccepteerd", "rejected": "Afgewezen", "expired": "Verlopen" }
+    },
+    "documents.requested_on": { "label": "Opgevraagd op" },
+    "documents.received_on": { "label": "Ontvangen op" },
+    "documents.valid_until": { "label": "Geldig tot" },
+    "documents.evidence_link": { "label": "Link naar het bestand" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "send_questionnaire": "Vragenlijst versturen",
+        "chase_supplier": "Leverancier een herinnering sturen",
+        "review_answers": "Antwoorden beoordelen",
+        "request_document": "Document opvragen",
+        "verify_document": "Document controleren",
+        "decide": "Beslissen",
+        "re_evaluate": "Herbeoordelen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Contactpersonen" },
+    "questionnaire_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Vragenlijsten" },
+    "document_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Documenten" },
+    "action_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Acties" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Alle leveranciers" },
+    "suppliers_board": { "name": "Kwalificatiebord" },
+    "documents_all": { "name": "Alle documenten" },
+    "expired_documents": { "name": "Verlopen of afgewezen" },
+    "questionnaires_all": { "name": "Alle vragenlijsten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Leveranciers per status" },
+    "suppliers_by_risk": { "title": "Leveranciers per risiconiveau" },
+    "documents_expiring": { "title": "Documenten die verlopen" },
+    "questionnaires_open": { "title": "Vragenlijsten die op antwoord wachten" },
+    "reviews_coming": { "title": "Komende beoordelingen" },
+    "documents_expired": { "title": "Verlopen documenten" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Procedure voor leveranciersgoedkeuring", "sections": ["Behoefte, criteria en wie goedkeurt", "Vragenlijst, documenten, beslissing"] },
+    "document_requirements": { "title": "Certificaten en verklaringen die we opvragen", "sections": ["Per categorie en risiconiveau", "Hoe lang elk document geldig is"] },
+    "re_evaluation": { "title": "Planning van herbeoordelingen", "sections": ["Beoordelingsdata per risiconiveau", "Gebeurtenissen die een eerdere beoordeling uitlokken"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Stuur de leverancier een herinnering als een vragenlijst de deadline overschrijdt" },
+    "review_answers": { "title": "Beoordeel de antwoorden 3 dagen na ontvangst van een vragenlijst" },
+    "renew_document": { "title": "Vraag een vernieuwd document op 30 dagen voordat het verloopt" },
+    "document_expiry_notice": { "title": "Waarschuw de verantwoordelijke als een document verloopt" },
+    "re_evaluate_supplier": { "title": "Start een herbeoordeling 14 dagen voor de volgende beoordeling" },
+    "decide_after_review": { "title": "Beslis binnen 5 dagen als een leverancier in beoordeling gaat" },
+    "registration_form_records": { "title": "Maak de leverancier en de contactpersoon aan als het registratieformulier is ingediend" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke leverancier heeft een kwalificatiestatus.",
+    "valid_until_field": "Elk document legt vast tot wanneer het geldig is.",
+    "suppliers_board_view": "De leveranciers openen als bord per status."
+  },
+  "page": {
+    "metaTitle": "Leveranciersmanagement sjabloon: register met vervaldata",
+    "metaDescription": "Leveranciersmanagement en leveranciersbeoordeling in één register: vragenlijst, certificaten met vervaldatum, risiconiveau. Plak het sjabloon in je AI-agent.",
+    "headline": "Leveranciersmanagement dat laat zien welk certificaat het eerst verloopt, gebouwd door je AI-agent in je CRM",
+    "answer": "Leveranciersmanagement voor een klein team draait om een register met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau en een beslissing per leverancier. Plak dit sjabloon in je AI-agent en hij bouwt het register in Customermates, met opvolgacties met datum voor vragenlijsten, verlengingen en herbeoordelingen. Jij keurt het plan goed voordat er iets wordt gebouwd. Het register legt verzoeken en beslissingen vast en beslist niet over naleving van wetgeving.",
+    "routine": {
+      "title": "De wekelijkse leverancierscheck",
+      "steps": [
+        "Spreek de leveranciers aan van wie de vragenlijst over de deadline is.",
+        "Bekijk de antwoorden op de vragenlijsten van de afgelopen dagen en noteer welke antwoorden nog geen actueel bewijs hebben.",
+        "Vraag verlenging van certificaten en verklaringen die binnen 30 dagen verlopen en regel de al verlopen: de leverancier schorsen of het risico schriftelijk accepteren.",
+        "Leg de beslissing vast voor leveranciers in beoordeling (goedkeuren, voorwaardelijk goedkeuren, escaleren of afwijzen) en zet de volgende beoordeling naar risiconiveau.",
+        "Start de herbeoordeling van leveranciers van wie de volgende beoordeling binnen 14 dagen valt."
+      ]
+    },
+    "limits": [
+      "Het beslist niet dat een leverancier, product of keten aan een wet voldoet en dient geen zorgvuldigheidsverklaring of rapport in. Het legt verzoeken, bewijs en beslissingen vast.",
+      "Het is geen screeningsdienst: geen controle op sancties, negatieve berichtgeving of financieel risico en geen verrijking van bedrijfsgegevens.",
+      "Het is geen ERP, inkoop- of factureringssysteem. Er zijn geen inkooporders, bestedingen of facturen.",
+      "Het is geen documentarchief. Bestanden zijn alleen doorzoekbaar met een tekstlaag, gescande certificaten worden niet gelezen en er is geen onveranderlijk of onafhankelijk bewaard auditspoor. Bewaar de originelen in je documentsysteem en voeg de link toe.",
+      "Leveranciers kunnen niet inloggen om te antwoorden of bestanden te uploaden, en er is geen elektronische handtekening of rechten per veld. Vertrouwelijk materiaal hoort in een aparte lijst of werkruimte. Platforms als EcoVadis, Sedex of SAP Ariba doen wat hier ontbreekt."
+    ],
+    "faq": [
+      {
+        "question": "Hoe vaak moet ik leveranciers opnieuw beoordelen?",
+        "answer": "Gidsen noemen minimaal één keer per jaar. In de praktijk worden kritieke leveranciers elke zes of twaalf maanden bekeken en ook na een gebeurtenis zoals een overname, een nieuwe onderaannemer of een incident, terwijl leveranciers met een laag risico een jaar of langer kunnen wachten. Het sjabloon zet de volgende beoordeling naar risiconiveau; na een gebeurtenis start je de herbeoordeling zelf."
+      },
+      {
+        "question": "Welke criteria horen bij een leveranciersbeoordeling?",
+        "answer": "Gebruikelijk zijn zes: kwaliteit, prijs-kwaliteit, leverbetrouwbaarheid, flexibiliteit, communicatie en duurzaamheid. Of je nu met punten, een nuttigheidsanalyse of een ABC-analyse werkt: ISO 9001 schrijft geen methode voor, maar eist gedocumenteerde, herleidbare criteria. Certificaten zijn aanwijzingen en vervangen je eigen beoordeling niet."
+      },
+      {
+        "question": "Moet ik leveranciers indelen naar inkoopbedrag?",
+        "answer": "Nee. De diepgang moet het risico volgen: de gegevens die een leverancier verwerkt, zijn toegang, hoe kritiek hij is en hoe makkelijk je hem vervangt. Gebruik vier niveaus, van laag tot kritiek, met een korte vragenlijst voor leveranciers met een laag risico en een volledige voor kritieke. Het inkoopbedrag is geen veld in dit sjabloon."
+      },
+      {
+        "question": "Heb ik een verwerkersovereenkomst nodig en kan ik die hier bijhouden?",
+        "answer": "Verwerkt een leverancier persoonsgegevens voor jou, dan is een verwerkersovereenkomst nodig (artikel 28 AVG). Het sjabloon helpt bij te houden of die er is en geldig blijft, maar het zegt nooit dat een leverancier voldoet aan de wet. Wat voor jouw sector verder nodig is, stem je af met je adviseur."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn leveranciers?",
+        "answer": "Nee. De prompt zegt de agent niets te versturen en geen voorbeeldgegevens aan te maken. Concepten bestaan alleen als je erom vraagt, en je verstuurt ze zelf."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ik werk met veel leveranciers en kan niet zien van wie de certificaten zijn verlopen of wie aan een herbeoordeling toe is. Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
+    "questions": [
+      "Hoeveel leveranciers heb je en hoe deel je ze in naar risico?",
+      "Welke certificaten of verklaringen vraag je op en hoe lang is elk geldig?",
+      "Wie beoordeelt de antwoorden en wie keurt een leverancier goed?",
+      "Hoe vaak beoordeel je een leverancier opnieuw? Bestanden blijven in je documentsysteem en hier wordt alleen een link bewaard."
+    ]
+  }
+}

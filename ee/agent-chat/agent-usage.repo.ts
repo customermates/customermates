@@ -1,5 +1,6 @@
 import type { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
+import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import type {
   AgentRetrievalPayer,
   AgentWorkspaceCreditPool,
@@ -8,6 +9,28 @@ import type {
   AgentTurnCreditState,
   WorkspacePlatformReservation,
 } from "./agent-usage.service";
+
+export type AgentUsageReservationExtension =
+  | { disposition: "extended"; reservedMicrocents: number }
+  | { disposition: "credit_limit" }
+  | { disposition: "run_credit_limit"; ceilingMicrocents: number }
+  | { disposition: "hosted_ai_unavailable" }
+  | { disposition: "turn_error" };
+
+export type AgentUsageReservationOutcome = "reserved" | "allowance" | "unavailable";
+
+export type AgentUsageReservationEvent = {
+  id: string;
+  companyId: string;
+  userId: string;
+  sessionId: string;
+  reservedMicrocents: number;
+  planSnapshot: SubscriptionPlan;
+  subscriptionStatusSnapshot: SubscriptionStatus;
+  allowanceMicrocentsSnapshot: number;
+  periodStart: Date;
+  periodEnd: Date;
+};
 
 export abstract class AgentUsageRepo {
   abstract getUserCreditUsageUnscoped(
@@ -52,12 +75,44 @@ export abstract class AgentUsageRepo {
     },
     creditState?: AgentTurnCreditState,
   ): Promise<boolean>;
+  abstract reserveAgentJobUsageEventUnscoped(event: AgentUsageReservationEvent): Promise<AgentUsageReservationOutcome>;
   abstract releaseUsageReservationUnscoped(args: {
     id: string;
     companyId: string;
     userId: string;
     releasedAt: Date;
   }): Promise<void>;
+  abstract settleUsageReservationUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    settlement: AgentUsageSettlement;
+    settledAt: Date;
+  }): Promise<boolean>;
+  abstract extendAgentJobUsageReservationUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    requiredMicrocents: number;
+    ceilingMicrocents: number;
+  }): Promise<AgentUsageReservationExtension>;
+  abstract admitAgentJobProviderRoundUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    now: Date;
+  }): Promise<boolean>;
+  abstract findAbandonedAgentJobUsageUnscoped(args: {
+    reservedBefore: Date;
+    limit: number;
+  }): Promise<Array<{ id: string; companyId: string; userId: string }>>;
+  abstract closeInterruptedAgentJobUsageUnscoped(args: {
+    id: string;
+    companyId: string;
+    userId: string;
+    model: string;
+    now: Date;
+  }): Promise<"retained" | "released" | "none">;
   abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
   abstract getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null>;
   abstract accruePlatformUsageUnscoped(args: {

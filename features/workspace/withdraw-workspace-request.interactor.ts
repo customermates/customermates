@@ -45,7 +45,7 @@ export class WithdrawWorkspaceRequestInteractor {
           if (!(await this.repo.withdrawPendingMembershipUnscoped(email, membership.companyId)))
             return failNotFound(CustomErrorCode.workspaceNotFound, ["companyId"]);
           try {
-            await this.departure.announce(membership);
+            await this.departure.announce(membership, "left");
           } catch (error) {
             return unwoundFailure(error);
           }

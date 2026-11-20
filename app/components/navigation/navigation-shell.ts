@@ -5,7 +5,7 @@ import { isRestrictedAccountState } from "@/features/auth/account-state";
 type NavigationShell = "bare" | "public" | "restricted" | "app";
 
 export function isPublicLinkPathname(pathname: string): boolean {
-  return pathname.startsWith("/p/");
+  return pathname.startsWith("/p/") || pathname.startsWith("/book/");
 }
 
 export function resolveNavigationShell({

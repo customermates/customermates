@@ -1,0 +1,153 @@
+{
+  "locale": "fr",
+  "name": "Missions de conseil",
+  "summary": "Sachez où en est chaque proposition et ne laissez plus un prospect sans suite après l’appel. Missions de la prospection à la signature, date de relance convenue lors de l’appel, livrables qui encadrent l’exécution et la clôture.",
+  "description": "Quand vous êtes consultant indépendant, vous menez quelques conversations et une proposition à la fois, et les affaires se perdent dans le silence qui suit l’appel sur la proposition ou entre la signature et le lancement. Ce modèle met en place les missions à travers la qualification, le cadrage, la proposition commerciale et la décision, avec la date de relance convenue avec le sponsor, un contrôle d’acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Il conserve le pipeline, les relations et les jalons de livraison. Ce n’est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Sponsors, interlocuteurs du quotidien, signataires et prescripteurs." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, anciens clients et partenaires apporteurs." },
+    "engagements": { "label": "Mission", "pluralLabel": "Missions", "description": "Une mission de conseil, de la première prise de contact à la livraison et à la clôture." },
+    "deliverables": { "label": "Livrable", "pluralLabel": "Livrables", "description": "Un jalon que vous remettez, avec son échéance et sa validation." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Rôle", "options": { "sponsor": "Sponsor", "day_to_day": "Interlocuteur du quotidien", "signs_off": "Valide et signe", "referrer": "Prescripteur", "influencer": "Influenceur" } },
+    "contacts.relationship_strength": { "label": "Relation", "options": { "strong": "Forte", "warm": "Bonne", "new": "Nouvelle" } },
+    "contacts.last_meeting": { "label": "Dernière rencontre" },
+    "clients.relationship": { "label": "Relation", "options": { "prospect": "Prospect", "client": "Client", "former_client": "Ancien client", "referral_partner": "Partenaire apporteur" } },
+    "clients.industry": { "label": "Secteur" },
+    "engagements.stage": {
+      "label": "Étape",
+      "options": { "introduction": "Prospection", "discovery": "Qualification", "scoping": "Cadrage", "proposal_sent": "Proposition commerciale", "decision": "Décision", "won": "Mission signée", "lost": "Perdue" }
+    },
+    "engagements.engagement_type": { "label": "Type", "options": { "diagnostic": "Diagnostic", "advisory_review": "Revue-conseil", "workshop": "Atelier", "interim": "Management de transition", "retainer": "Accompagnement récurrent", "training": "Formation" } },
+    "engagements.referral_source": { "label": "Origine de la mission", "options": { "client_referral": "Recommandation d’un client", "peer_referral": "Recommandation d’un confrère", "event_or_talk": "Événement ou conférence", "content": "Contenu publié", "existing_client": "Client existant", "marketplace": "Plateforme" } },
+    "engagements.day_rate": { "label": "Taux journalier (TJM)" },
+    "engagements.days_estimated": { "label": "Jours estimés" },
+    "engagements.estimated_fee": { "label": "Honoraires estimés" },
+    "engagements.acceptance_checked_on": { "label": "Acceptation contrôlée le" },
+    "engagements.proposal_follow_up_on": { "label": "Relance convenue pour le" },
+    "engagements.decision_expected": { "label": "Décision attendue" },
+    "engagements.start_date": { "label": "Début" },
+    "engagements.end_date": { "label": "Fin" },
+    "engagements.delivery_status": { "label": "Exécution", "options": { "not_started": "Pas commencée", "kickoff_scheduled": "Lancement planifié", "in_delivery": "En cours", "wrapping_up": "En clôture", "completed": "Terminée" } },
+    "engagements.next_step_due": { "label": "Prochaine étape avant le" },
+    "engagements.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "timing": "Calendrier", "budget": "Budget", "in_house": "Réalisé en interne", "other_advisor": "A choisi un autre consultant", "scope_changed": "Périmètre modifié", "no_decision": "Pas de décision", "no_response": "Sans réponse" }
+    },
+    "deliverables.status": { "label": "Statut", "options": { "planned": "Prévu", "in_progress": "En cours", "delivered": "Remis", "accepted": "Validé" } },
+    "deliverables.kind": { "label": "Type", "options": { "interview_summary": "Synthèse d’entretiens", "workshop": "Atelier", "report": "Rapport", "recommendation": "Recommandation", "training_session": "Session de formation", "handover": "Passation" } },
+    "deliverables.due_date": { "label": "Échéance" },
+    "deliverables.owner": { "label": "Responsable" },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre", "write_up": "Rédiger le compte rendu", "acceptance_check": "Contrôler l’acceptation", "proposal": "Rédiger la proposition", "follow_up": "Relancer", "kickoff": "Lancement", "deliver": "Livrer", "feedback": "Demander un retour", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "engagement_client": { "sourceLabel": "Client", "targetLabel": "Missions" },
+    "engagement_sponsor": { "sourceLabel": "Sponsor et contacts", "targetLabel": "Missions" },
+    "deliverable_engagement": { "sourceLabel": "Mission", "targetLabel": "Livrables" },
+    "action_engagement": { "sourceLabel": "Mission", "targetLabel": "Actions" }
+  },
+  "views": {
+    "engagements_board": { "name": "Missions par étape" },
+    "engagements_all": { "name": "Toutes les missions" },
+    "in_delivery": { "name": "Signées et pas encore terminées" },
+    "deliverables_all": { "name": "Tous les livrables" },
+    "clients_all": { "name": "Tous les clients" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Missions par étape" },
+    "open_value": { "title": "Montant des propositions en cours" },
+    "decisions_coming": { "title": "Décisions attendues" },
+    "deliverables_due": { "title": "Livrables à remettre" },
+    "engagements_ending": { "title": "Missions qui se terminent" },
+    "by_type": { "title": "Missions signées par type" },
+    "lost_reasons": { "title": "Motifs de perte des missions" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Comment fonctionne l’activité", "sections": ["Les étapes et la règle d’une prochaine étape datée par mission ouverte", "Ce qui reste hors de l’outil : suivi du temps et facturation"] },
+    "discovery_guide": { "title": "Guide de l’entretien de qualification", "sections": ["Le problème dans les mots du client, les parties prenantes et les signaux de budget", "Ce qu’il faut rédiger le lendemain"] },
+    "acceptance_check": { "title": "Contrôle d’acceptation avant la proposition", "sections": ["Capacité, indépendance, confidentialité et adéquation", "Qui décide d’accepter la mission"] },
+    "proposal_and_follow_up": { "title": "Structure de la proposition et relance", "sections": ["Options proposées et option recommandée", "Convenir de la date de relance lors de l’appel sur la proposition"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Rédiger le compte rendu de l’entretien de qualification le lendemain" },
+    "acceptance_check": { "title": "Contrôler l’acceptation le lendemain de l’entrée en cadrage" },
+    "proposal_follow_up": { "title": "Relancer 3 jours après l’envoi de la proposition" },
+    "decision_date": { "title": "Demander la décision à la date de décision attendue" },
+    "won_kickoff": { "title": "Planifier le lancement le lendemain d’une mission signée" },
+    "lost_review": { "title": "Demander ce qui aurait pu être fait autrement 2 jours après une perte" },
+    "deliverable_due_notice": { "title": "Prévenir le responsable 3 jours avant l’échéance d’un livrable" },
+    "closeout_report": { "title": "Remettre le rapport final à la date de fin" },
+    "testimonial_ask": { "title": "Demander un témoignage 14 jours après la date de fin" },
+    "followup_after_end": { "title": "Proposer une suite 30 jours après la date de fin" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque mission a une étape.",
+    "follow_up_field": "Chaque proposition indique la date de relance convenue avec le sponsor.",
+    "acceptance_checked_field": "Chaque mission indique quand l’acceptation a été contrôlée.",
+    "engagements_board_view": "Les missions s’ouvrent en board par étape."
+  },
+  "page": {
+    "metaTitle": "Missions de conseil : suivi des propositions et relances",
+    "metaDescription": "Missions de conseil : votre agent IA construit dans votre CRM le suivi, de la prospection à la signature, avec une date de relance convenue à l’appel.",
+    "headline": "Ne perdez plus une proposition dans le silence après l’appel : un CRM de conseil construit par votre agent IA",
+    "answer": "Un CRM de conseil suit quelques missions à forte valeur de la prospection à la signature et, surtout, la date à laquelle vous relancez une proposition. Ce modèle met en place des missions avec qualification, cadrage, proposition et décision, un contrôle d’acceptation avant l’offre, des livrables avec dates d’échéance et de validation, et une clôture. Collez-le dans votre agent IA : il construit tout dans Customermates, et vous validez le plan avant que quoi que ce soit ne soit créé.",
+    "routine": {
+      "title": "La revue du lundi des missions",
+      "steps": [
+        "Parcourez le pipeline par étape et ajoutez une prochaine étape datée à chaque mission qui n’en a pas, ou clôturez-la.",
+        "Vérifiez les propositions en cours : chacune demande une date de relance convenue avec le décideur pendant l’appel, puis une seconde relance vers le dixième jour et la demande de décision à la date prévue.",
+        "Regardez les livrables à remettre dans les 14 prochains jours et confirmez le créneau de relecture avec le client.",
+        "Reprenez contact avec les relations fortes ou chaudes que vous n’avez pas vues depuis 60 jours, et remerciez celui qui vous a recommandé pour votre dernière mission."
+      ]
+    },
+    "limits": [
+      "Ce n’est ni un outil de suivi du temps ni de facturation. Heures et factures restent dans vos outils de temps passé et de comptabilité ; une action sur jalon ne fait que vous rappeler de facturer.",
+      "Il ne rédige pas de propositions et ne recueille pas de signatures. Une proposition et un contrat signé sont des liens vers des documents ailleurs.",
+      "Ce n’est ni de la planification de ressources, ni de la gestion de projet au-delà des livrables et des dates. Les tâches du travail lui-même relèvent de votre outil de projet.",
+      "Gardez-en hors les documents confidentiels des clients et les données d’entretiens. Il n’y a pas de droits au niveau du champ : notez un titre de mission neutre et un lien.",
+      "Il n’envoie pas de séquences. Chaque relance est une action datée et un brouillon que vous relisez et envoyez vous-même ; Customermates n’a pas de moteur d’envoi automatique ou en masse.",
+      "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+    ],
+    "faq": [
+      {
+        "question": "Quel CRM utilisent les consultants ?",
+        "answer": "Beaucoup de consultants indépendants démarrent avec un tableur ou un CRM commercial généraliste. Ce dont un consultant a besoin est limité : quelques contacts et missions, une prochaine étape datée sur chacune, la date de relance d’une proposition et les étapes de validation après la vente. Ce modèle met cela en place dans Customermates."
+      },
+      {
+        "question": "Quand relancer après l’envoi d’une proposition ?",
+        "answer": "Convenez de la date pendant l’appel sur la proposition, comme le décrit Alan Weiss : donnez un jour et une heure précis, appelez d’abord et n’écrivez que si l’acheteur reste injoignable. Le modèle propose par défaut une première relance après 3 jours et une seconde après 10 jours ; vous pouvez changer les deux."
+      },
+      {
+        "question": "Qu’est-ce qu’un contrôle d’acceptation ?",
+        "answer": "Un court contrôle avant de rédiger une offre : avez-vous la capacité, êtes-vous indépendant des autres parties du client, la confidentialité peut-elle être tenue, la mission vous convient-elle ? Une association allemande de consultants recommande de vérifier si un mandat peut être accepté avant de formuler l’offre, et de refuser sinon."
+      },
+      {
+        "question": "Quand organiser la réunion de lancement après la signature ?",
+        "answer": "Un guide d’éditeur vise une réunion de lancement dans les 48 heures après la signature, avec un document préparatoire envoyé 24 heures avant une réunion de 60 minutes ; il note que les missions réglementées ou sous-traitées demandent plus de temps. Le modèle crée une étape de lancement le lendemain de la signature."
+      },
+      {
+        "question": "Que faire après avoir perdu une proposition ?",
+        "answer": "Notez le motif, puis demandez au décideur, deux jours plus tard, ce que vous auriez pu faire autrement. Alan Weiss recommande précisément cette question quand la réponse est non. Le modèle crée cette étape pour vous."
+      },
+      {
+        "question": "L’agent écrit-il à mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucune donnée d’exemple. Des brouillons n’existent que sur votre demande, et vous les envoyez vous-même."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Je mène une activité de conseil en indépendant et je perds des affaires dans le silence qui suit l’appel sur une proposition. Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
+    "questions": [
+      "Quels types de missions vendez-vous, et à quel taux journalier ?",
+      "Comment décidez-vous d’accepter ou non une mission ?",
+      "Combien de temps attendez-vous après une proposition avant de relancer ?",
+      "Quels livrables marquent un jalon que vous facturez ?"
+    ]
+  }
+}

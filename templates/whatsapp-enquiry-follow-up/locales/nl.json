@@ -1,0 +1,139 @@
+{
+  "locale": "nl",
+  "name": "WhatsApp-aanvragen opvolgen",
+  "summary": "Verlies geen klanten meer die je via WhatsApp schrijven. Elk gesprek wordt een aanvraag met offerte, een volgende stap met datum en een terugkomdatum, zodat je snel antwoordt, binnen dagen opvolgt en aan de herhaalaankoop denkt.",
+  "description": "Als klanten via WhatsApp om een prijs vragen, scrolt het gesprek weg en wordt de offerte nooit opgevolgd. Dit sjabloon maakt van WhatsApp-gesprekken opgevolgde aanvragen: elk gesprek wordt een aanvraag met wat de klant wil, de offerte en de geldigheid, een volgende stap met datum, een betalingsfase en een datum om terug te komen als de klant later wil beslissen. Elk contact legt vast of het berichten heeft toegestaan en wanneer een nabestelling wordt verwacht. Antwoorden worden stuk voor stuk geschreven en gecontroleerd. Geen massaberichten, campagnes of chatbotmenu's, en het gebruikt het officiële WhatsApp Business Platform niet. WhatsApp kan een account beperken dat wordt gebruikt op een manier die het beleid verbiedt.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die je schrijven, met hun WhatsApp-toestemming en de verwachte nabestelling." },
+    "enquiries": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén verzoek uit een gesprek, van eerste bericht tot besteld, verloren of later." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "WhatsApp-toestemming",
+      "options": { "customer_started_chat": "Klant begon het gesprek", "gave_permission": "Gaf toestemming", "unknown": "Onbekend", "opted_out": "Vroeg om te stoppen" }
+    },
+    "contacts.last_order_on": { "label": "Laatste bestelling" },
+    "contacts.reorder_due": { "label": "Nabestelling verwacht" },
+    "enquiries.stage": {
+      "label": "Fase",
+      "options": { "new_chat": "Nieuw bericht", "qualifying": "Kwalificatie", "quote_sent": "Offerte verstuurd", "awaiting_payment": "Wacht op betaling", "won": "Bestelling bevestigd", "lost": "Verloren", "later": "Later" }
+    },
+    "enquiries.source": { "label": "Bron", "options": { "click_to_chat": "WhatsApp-link", "website": "Website", "instagram": "Instagram", "referral": "Aanbeveling", "walk_in": "Binnengelopen", "phone": "Telefoon", "ad": "Advertentie" } },
+    "enquiries.interest": { "label": "Interesse" },
+    "enquiries.received_at": { "label": "Eerste bericht ontvangen" },
+    "enquiries.quote_valid_until": { "label": "Offerte geldig tot" },
+    "enquiries.ordered_on": { "label": "Besteld op" },
+    "enquiries.service_date": { "label": "Leverdatum of afspraak" },
+    "enquiries.next_step_due": { "label": "Volgende stap uiterlijk op" },
+    "enquiries.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "chose_competitor": "Koos een concurrent", "no_response": "Geen reactie", "timing": "Timing", "not_available": "Niet beschikbaar", "not_a_fit": "Past niet" }
+    },
+    "enquiries.revisit_on": { "label": "Terugkomen op" },
+    "enquiries.weighted_value": { "label": "Gewogen waarde" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "reply": "Antwoorden", "send_quote": "Offerte sturen", "follow_up": "Opvolgen", "confirm_order": "Bestelling bevestigen", "request_payment": "Betaling vragen", "confirm_appointment": "Afspraak bevestigen", "reorder_reminder": "Herinnering voor nabestelling", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Aanvragen" },
+    "action_enquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Acties" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Aanvragen per fase" },
+    "enquiries_all": { "name": "Alle aanvragen" },
+    "open_quotes": { "name": "Offertes die op antwoord wachten" },
+    "later_to_revisit": { "name": "Later, om op terug te komen" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Aanvragen per fase" },
+    "open_quotes_value": { "title": "Waarde van wachtende offertes" },
+    "new_chats": { "title": "Nieuwe berichten om te beantwoorden" },
+    "reorders_due": { "title": "Komende nabestellingen" },
+    "services_coming": { "title": "Komende leveringen en afspraken" },
+    "by_source": { "title": "Aanvragen per bron" },
+    "lost_reasons": { "title": "Waarom aanvragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Draaiboek voor WhatsApp-aanvragen", "sections": ["Antwoorden, vastleggen, offerte maken, opvolgen, bevestigen, onthouden", "Wie antwoordt en hoe snel"] },
+    "opt_in_rules": { "title": "Toestemming en afmelden", "sections": ["Wanneer een klant berichten heeft toegestaan", "Wat er gebeurt als iemand vraagt om te stoppen"] },
+    "follow_up_rhythm": { "title": "Opvolgritme en wanneer te stoppen", "sections": ["Dagen tussen opvolgingen na een offerte", "Het afsluitende bericht en de terugkomdatum"] },
+    "what_whatsapp_allows": { "title": "Wat WhatsApp toestaat en wat deze opzet niet doet", "sections": ["Geen massaberichten, campagnes of chatbots", "Het risico van een gekoppeld account"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als het formulier met het WhatsApp-vakje is ingediend" },
+    "reply_new_chat": { "title": "Maak een taak aan om te antwoorden als een aanvraag binnenkomt" },
+    "first_reply_missed": { "title": "Waarschuw de verantwoordelijke als een aanvraag een dag later nog een nieuw bericht is" },
+    "quote_follow_up": { "title": "Volg 2 dagen na het versturen van een offerte op" },
+    "quote_expiring": { "title": "Vraag na of sluit af als een offerte zijn geldigheidsdatum bereikt" },
+    "payment_request": { "title": "Vraag om de betaling op de dag nadat een aanvraag in de fase Wacht op betaling komt" },
+    "won_reorder": { "title": "Maak 90 dagen na een bevestigde bestelling een herinnering voor nabestelling aan" },
+    "service_calendar": { "title": "Zet de levering of afspraak in de agenda als de bestelling is bevestigd" },
+    "appointment_confirm": { "title": "Bevestig de afspraak de dag ervoor" },
+    "later_revisit_date": { "title": "Zet de terugkomdatum op 90 dagen als een aanvraag naar later gaat" },
+    "revisit_follow_up": { "title": "Volg op de terugkomdatum op" },
+    "unanswered_sweep": { "title": "Maak elke dag voor elk onbeantwoord nieuw bericht een taak aan om te antwoorden" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke aanvraag heeft een fase.",
+    "opt_in_field": "Elk contact legt zijn WhatsApp-toestemming vast.",
+    "quote_valid_field": "Elke offerte legt vast hoe lang ze geldig is.",
+    "enquiries_board_view": "De aanvragen openen als bord per fase."
+  },
+  "page": {
+    "metaTitle": "WhatsApp CRM: sjabloon voor aanvragen en offertes",
+    "metaDescription": "WhatsApp CRM: elk gesprek wordt een aanvraag met offerte en een volgende stap met datum. Plak het sjabloon in je AI-agent. Niet de officiële WhatsApp-API.",
+    "headline": "Een WhatsApp CRM dat elk gesprek een aanvraag met een volgende stap met datum maakt, gebouwd door je AI-agent",
+    "answer": "Om op WhatsApp op te volgen, antwoord je snel, leg je elk gesprek vast als aanvraag met de offerte en de geldigheid, geef je het een volgende stap met datum en noteer je wanneer je terugkomt. Plak dit sjabloon in je AI-agent en hij bouwt de lijst met aanvragen in Customermates, met elk gesprek gekoppeld aan zijn aanvraag. Jij keurt het plan goed voordat er iets wordt gebouwd. Het werkt met antwoorden die je een voor een controleert, zonder massaberichten, bots of de officiële Business-API.",
+    "routine": {
+      "title": "De dagelijkse WhatsApp-check",
+      "steps": [
+        "Open de WhatsApp-inbox en antwoord op elk nieuw gesprek. Bevestig standaard binnen ongeveer een uur tijdens kantooruren en antwoord dezelfde dag volledig.",
+        "Zorg dat elk gesprek van de afgelopen dag in precies één toestand zit: beantwoord, voorzien van een volgende stap met datum of gesloten met een reden.",
+        "Volg offertes twee dagen na verzending op en nog eens enkele dagen later. Stuur daarna een afsluitend bericht en zet een terugkomdatum.",
+        "Vraag de dag nadat een aanvraag op wacht op betaling komt om betaling en bevestig de levering of afspraak de dag ervoor.",
+        "Bekijk de terugkomdata en herbestelherinneringen die aan de beurt zijn en schrijf die klanten een voor een."
+      ]
+    },
+    "limits": [
+      "Het is niet het officiële WhatsApp Business Platform. Het account wordt met een QR-code gekoppeld, dus er zijn geen berichtsjablonen, broadcasts, campagnes, sequenties, chatbots of flows, geen catalogussynchronisatie en geen functies voor geverifieerde bedrijven.",
+      "Het accountrisico is van jou. WhatsApp kan een account beperken of verwijderen dat wordt gebruikt op een manier die het beleid verbiedt, bijvoorbeeld door veel mensen te berichten. Houd het volume laag, met toestemming en menselijk.",
+      "Een gesprek wordt niet automatisch aan een aanvraag gekoppeld. Jij of je agent koppelt het, en groepsgesprekken horen niet bij een klant.",
+      "Er zijn geen offertes, facturen, betaallinks of orderbeheer. Die blijven in je boekhoudpakket of webshop, het sjabloon bewaart offertebedrag, geldigheid en fase.",
+      "Voor de WhatsApp-koppeling is een abonnement met inbox nodig. Zonder kun je aanvragen nog steeds met de hand bijhouden."
+    ],
+    "faq": [
+      {
+        "question": "Hoe snel moet ik op een WhatsApp-aanvraag antwoorden?",
+        "answer": "Elke bron zegt snel en geen enkele noemt een officieel getal. Onderzoek naar online aanvragen vond dat de meeste bedrijven veel te langzaam reageren, en het vaak aangehaalde getal van vijf minuten kon niet worden bevestigd. Het sjabloon gebruikt standaard ongeveer een uur tijdens kantooruren voor een eerste antwoord en het volledige antwoord dezelfde dag. Pas het aan je bedrijf aan."
+      },
+      {
+        "question": "Is de WhatsApp Business-app met labels genoeg?",
+        "answer": "Gidsen voor kleine bedrijven raden drie tot vijf labels aan als pijplijn, bijvoorbeeld nieuwe klant, bestelling bevestigd en wacht op betaling. De zwakte: geen geschiedenis over personen heen, geen opvolgdata en niets overleeft het vertrek van een medewerker. Het sjabloon maakt van labels fasen en voegt data en een eigenaar toe, terwijl het gesprek het bewijs blijft."
+      },
+      {
+        "question": "Hoe vaak moet ik een offerte opvolgen?",
+        "answer": "Op WhatsApp is het ritme korter dan bij e-mail. Een goede standaard: twee dagen na de offerte, een tweede keer enkele dagen later, daarna een afsluitend bericht dat het misschien niet het goede moment is en een terugkomdatum na ongeveer 90 dagen. Het sjabloon plant de eerste opvolging als actie met een datum; de termijnen stel je zelf in."
+      },
+      {
+        "question": "Heb ik toestemming van de klant nodig om hem op WhatsApp te berichten?",
+        "answer": "Het WhatsApp-beleid voor bedrijven zegt dat je alleen mensen benadert die hun nummer en toestemming hebben gegeven en dat je verzoeken om te stoppen respecteert. Het sjabloon noteert per contact of de klant het gesprek begon, toestemming gaf of vroeg om te stoppen. Je hebt daarnaast een grondslag en een privacyverklaring nodig volgens de AVG."
+      },
+      {
+        "question": "Stuurt de agent berichten naar mijn klanten?",
+        "answer": "Nee. De prompt vraagt om antwoorden die een voor een ter controle worden geschreven, niets in bulk en geen voorbeeldgegevens. Elk antwoord verstuur je zelf."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Klanten vragen via WhatsApp om prijzen en ik raak het gesprek kwijt voordat ik opvolg. Richt in mijn Customermates-werkruimte het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een verwachte nabestelling per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
+    "questions": [
+      "Waar vragen klanten je op WhatsApp naar en hoe maak je een offerte?",
+      "Hoe snel wil je op een nieuw bericht antwoorden?",
+      "Hoeveel dagen wacht je na een offerte voordat je opvolgt en wanneer stop je?",
+      "Bestellen klanten opnieuw en na hoe lang?"
+    ]
+  }
+}

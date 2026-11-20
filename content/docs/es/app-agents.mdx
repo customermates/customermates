@@ -1,0 +1,59 @@
+---
+title: "Agentes: claves de proveedor, runtimes y ejecuciones"
+description: "Los pasos de agente se ejecutan en Mate, con tu propia clave de IA o en tu propio runner: añade una clave, modelos, límites por ejecución e historial."
+---
+
+Un agente es una IA que ejecuta el paso de agente de una [automatización](/docs/app-automations): lee el registro que inició la automatización, usa las mismas herramientas de CRM que Mate e informa de lo que hizo. Dónde se ejecuta un agente es el **runtime** del paso: **Mate** (el agente alojado de Customermates, pagado con los créditos de IA de tu plan, solo Cloud), **Tu propia clave** (un agente en la nube de Customermates o en tu instancia autoalojada que usa una clave de API de tu proveedor de IA, facturada por el proveedor) o **Tu propio runner** (Claude Code o Codex en tu propio equipo, con tu propio acceso).
+
+Abre [Agentes](app:settings/agents), en los ajustes, para ver qué runtimes están disponibles, añadir claves de proveedor, ver los runners del espacio de trabajo y leer las últimas ejecuciones. La página es para quienes pueden cambiar los ajustes del espacio de trabajo.
+
+## ¿Cómo añado una clave de proveedor? [#how-do-i-add-a-provider-key]
+
+Abre **Agentes**, haz clic en **Añadir clave** y elige el **Proveedor** (Anthropic, OpenAI o Google). Ponle una **Etiqueta** a la clave, pega la **Clave de API** de la consola del proveedor y elige un **Modelo predeterminado**. Customermates pregunta al proveedor si la clave funciona antes de conservarla. Una clave que el proveedor rechaza no se guarda, y si el proveedor no está disponible en ese momento, se te pide que lo intentes de nuevo. Una clave que el proveedor acepta pero a la que no deja listar sus modelos, por ejemplo una clave de OpenAI restringida, se guarda con una nota que indica que no se pudo comprobar.
+
+La clave se guarda cifrada y no se vuelve a mostrar: la lista muestra solo la etiqueta, el proveedor y los últimos cuatro caracteres. Un espacio de trabajo tiene una clave por proveedor, así que añadir una clave para un proveedor que ya tiene una la sustituye. **Probar** vuelve a preguntar al proveedor y actualiza **Última comprobación**, **Quitar** elimina la clave de forma definitiva. Si el secreto de cifrado del servidor cambió después de guardar la clave, **Probar** y las ejecuciones de agentes indican que la clave no se puede leer, y la guardas de nuevo. Las claves funcionan en todos los planes de pago y en instancias autoalojadas, donde la clave es tuya de todos modos; el plan Free no puede añadir ninguna.
+
+## ¿Cuánto cuesta? [#what-does-it-cost]
+
+Un agente con tu propia clave te cuesta lo que el proveedor cobra por las llamadas, en la factura del proveedor. No usa los créditos de IA de tu plan de Customermates. Un agente en Mate usa los créditos de la persona propietaria de la automatización, la misma asignación que usan los chats de Mate y las rutinas, y cada ejecución muestra los créditos usados. Una ejecución en Mate reserva créditos ronda a ronda y se detiene antes de usar más de 10 créditos o más de lo que queda de esa asignación.
+
+## ¿Qué modelos puedo usar? [#which-models-can-i-use]
+
+La lista por proveedor la mantiene Customermates y muestra los modelos de los proveedores para los que añadiste una clave:
+
+- **Anthropic:** Claude Sonnet 5.5 (el predeterminado), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 y Claude Haiku 4.5.
+- **OpenAI:** GPT-5 mini (el predeterminado), GPT-5, GPT-5 nano, GPT-4.1 y GPT-4.1 mini.
+- **Google:** Gemini 2.5 Flash (el predeterminado), Gemini 2.5 Pro y Gemini 2.5 Flash-Lite.
+
+Un paso guardado sin modelo conserva desde entonces el modelo predeterminado de la única clave de proveedor del espacio de trabajo. Con varias claves el paso necesita un modelo, de modo que quitar una clave nunca mueve un paso a otro proveedor. Cuando el modelo predeterminado de una clave ya no se ofrece, la ejecución usa el modelo predeterminado del proveedor y lo indica en su transcripción. Customermates nunca pide un acceso de Claude Pro o Max: el runtime con clave propia solo funciona con una clave de API de la consola del proveedor.
+
+## ¿Qué puede hacer un paso de agente? [#what-may-an-agent-step-do]
+
+Un paso de agente se ejecuta como propietario de la automatización, con sus permisos, sin que nadie mire. Puede leer y cambiar registros, leer la base de conocimiento y usar las demás herramientas del espacio de trabajo de Mate. No puede usar la interfaz y no tiene búsqueda web. Todo lo que necesita una aprobación, como eliminar registros o invitar a personas, se rechaza y el agente informa de lo que queda pendiente.
+
+Una ejecución tiene dos límites: como máximo 25 llamadas a herramientas y 10 minutos. Cuando se alcanza un límite, la ejecución se detiene y lo dice. Cuando el evento que inició la automatización viene de fuera del espacio de trabajo, por ejemplo un formulario, un webhook o un mensaje entrante, el agente trata el registro y todo su contenido como datos, nunca como instrucciones. Lo mismo vale para el nombre de un registro que la instrucción usa con `{{record.name}}`: llega al agente marcado como dato y limitado a 200 caracteres. Una ejecución a la que un texto externo puede llegar por una de estas vías no puede enviar correos ni mensajes de chat, enviar invitaciones de conexión, ni crear, cambiar o iniciar webhooks y rutinas: el agente dice en su informe qué habría que enviar o cambiar. Lo mismo vale cuando el registro que inició la automatización fue escrito por un formulario público, un webhook entrante o un paso de agente al que un texto externo podía llegar, sea cual sea el disparador de la automatización. Ningún paso de agente crea, cambia ni elimina páginas de la base de conocimiento. Tampoco inicia una rutina, ni crea o cambia una rutina que reacciona a eventos, porque una rutina así podría volver a iniciar la automatización sin fin. Un paso iniciado por un mensaje entrante recibe la indicación de qué conversación leer. Una ejecución interrumpida después de iniciarse, por ejemplo por un reinicio del servidor, nunca se inicia una segunda vez, porque puede haber enviado o cambiado algo ya: termina como tiempo agotado unos minutos después de que venza su límite de tiempo. Un espacio de trabajo ejecuta como máximo cinco pasos de agente a la vez en Mate o con su propia clave; los demás esperan en la cola hasta que uno termina. Una ejecución que no pudo iniciarse se vuelve a intentar en pocos minutos y termina como tiempo agotado si a los 15 minutos todavía no ha empezado. Una ejecución que falla por el proveedor muestra la clase de error del proveedor, nunca la clave.
+
+## ¿Dónde veo lo que hizo un agente? [#where-do-i-see-what-an-agent-did]
+
+**Últimas ejecuciones de agentes** en la página **Agentes** lista las ejecuciones, las más recientes primero, con el estado (**En cola**, **Iniciando**, **En curso**, **Completada**, **Fallida**, **Tiempo agotado** o **Cancelada**), el runtime, el modelo, los tokens y, en Mate, los créditos usados. Abre una ejecución para leer su transcripción: la instrucción, cada herramienta llamada con un breve resumen de los argumentos, un breve resumen de cada resultado y el informe final. Las ejecuciones se conservan 90 días. Quienes ven todas las automatizaciones ven todas las ejecuciones, el resto ve las de sus propias automatizaciones. La instrucción, la transcripción y el informe final de una ejecución solo se muestran al propietario de la automatización y a los administradores; las demás personas que ven la ejecución ven su estado, el runtime, el modelo, los tokens y las horas.
+
+## Para agentes [#for-agents]
+
+El paso de agente es el efecto `agent` de una regla en `manage_rules` por [MCP](/docs/mcp): `runtime` es `mate`, `ownKey` o `runner`, `prompt` es la tarea (puede usar `{{record.name}}` y `{{rule.name}}`), `model` elige para `ownKey` un modelo del proveedor de la clave y `runnerId` fija para `runner` un runner concreto. Un runtime no disponible hace fallar el efecto con el motivo `plan`, `noKey`, `noRunner`, `selfHosted` o `notConfigured`.
+
+## Preguntas frecuentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="¿Puedo usar mi suscripción de Claude Pro o Max?">
+No. Customermates ejecuta los agentes con una clave de API de la consola del proveedor, que el proveedor factura por uso. Un acceso de Claude Pro o Max pertenece a Claude y Customermates no lo usa.
+</FaqItem>
+<FaqItem question="¿Está segura mi clave?">
+La clave se comprueba con el proveedor, se guarda cifrada y no se vuelve a mostrar en ningún sitio, ni siquiera a los administradores. Solo se abre durante una ejecución, para las llamadas de esa ejecución al proveedor, y nunca se escribe en el historial de ejecuciones.
+</FaqItem>
+<FaqItem question="¿Por qué no está disponible Tu propia clave?">
+La página **Agentes** indica el motivo junto a cada runtime: tu plan no lo incluye, o todavía no se ha añadido ninguna clave de proveedor. Un runner está disponible si se ha visto alguno en los últimos dos minutos.
+</FaqItem>
+<FaqItem question="¿Una ejecución sigue si cierro la página?">
+Sí. Una ejecución la inicia la automatización en el servidor y termina allí. La página solo muestra lo que se registró.
+</FaqItem>
+</Faq>

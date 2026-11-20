@@ -1,4 +1,7 @@
+import { randomUUID } from "node:crypto";
+
 import type { Page } from "@playwright/test";
+import type { BrowserWorkspace } from "./workspace";
 import { Client } from "pg";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -6,7 +9,7 @@ import { expect } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { insertStarterModel } from "./workspace";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
-import { anyWorkspaceUrlPattern, pagePath, slugFromUrl, slugInUrl } from "./app-paths";
+import { anyWorkspaceUrlPattern, appPath, pagePath, slugFromUrl, slugInUrl } from "./app-paths";
 
 export async function createWorkspaceFromSettings(page: Page, name: string) {
   await page.goto(pagePath(page, "/settings/workspaces"));
@@ -54,26 +57,73 @@ async function completeSetupStepInDatabase(page: Page) {
   }
 }
 
+export async function skipSourceQuestion(page: Page) {
+  const source = page.getByRole("heading", {
+    level: 1,
+    name: englishMessages.OnboardingWizard.steps.source.title,
+    exact: true,
+  });
+  const goal = page.getByRole("heading", {
+    level: 1,
+    name: englishMessages.OnboardingWizard.steps.goal.title,
+    exact: true,
+  });
+  await expect(source.or(goal)).toBeVisible();
+  if (await source.isVisible()) await clickHydrated(page.locator("#onboarding-source-skip"));
+}
+
+// A legacy workspace another administrator set up leaves the login its trial, so the new workspace opens its wizard.
+export async function openGoalOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
+  const companyId = await openWizardOfNewWorkspace(page, database, workspace, name);
+  await skipSourceQuestion(page);
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
+  ).toBeVisible();
+  return companyId;
+}
+
+export async function openWizardOfNewWorkspace(
+  page: Page,
+  database: Client,
+  workspace: BrowserWorkspace,
+  name: string,
+) {
+  await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
+  await database.query(
+    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","createdAt","updatedAt") SELECT $1,"companyId","roleId",$2,\'Clara\',\'Founder\',\'active\',true,NOW(),"createdAt" - interval \'1 day\',NOW() FROM "User" WHERE id=$3',
+    [randomUUID(), `clara-${randomUUID()}@example.test`, workspace.userId],
+  );
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
+  await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
+  const dialog = page.getByRole("dialog", { name: "Create workspace" });
+  await dialog.locator("#create-workspace-name").fill(name);
+  await dialog.locator("#create-workspace-terms").click();
+  await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
+  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
+  const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
+  return rows[0].id;
+}
+
 export async function finishOnboarding(page: Page) {
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   const heading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
-  const setup = heading(englishMessages.OnboardingWizard.steps.setup.startTitle).or(
-    heading(englishMessages.OnboardingWizard.steps.setup.title),
-  );
-  const invite = heading(englishMessages.OnboardingWizard.steps.invite.title);
-  const goal = heading(englishMessages.OnboardingWizard.steps.goal.title);
+  const steps = englishMessages.OnboardingWizard.steps;
+  const setup = heading(steps.setup.startTitle).or(heading(steps.setup.title));
+  const invite = heading(steps.invite.title);
+  const goal = heading(steps.goal.title).or(heading(steps.goal.titleSelfHosted));
+  await expect(heading(steps.source.title).or(goal).or(setup).or(invite)).toBeVisible();
+  if (await heading(steps.source.title).isVisible()) await clickHydrated(page.locator("#onboarding-source-skip"));
   await expect(goal.or(setup).or(invite)).toBeVisible();
-  if (await goal.isVisible()) {
-    await clickHydrated(page.locator("#onboarding-goal-continue"));
-    await expect(setup.or(invite)).toBeVisible();
-  }
-  if (await setup.isVisible()) {
+  if (!(await invite.isVisible())) {
     await completeSetupStepInDatabase(page);
     await page.reload();
   }
   await expect(invite).toBeVisible();
   await clickHydrated(page.locator("#onboarding-next"));
-  await expect(heading(englishMessages.OnboardingWizard.steps.ai.title)).toBeVisible();
+  const ai = heading(englishMessages.OnboardingWizard.steps.ai.title);
+  await expect(heading(steps.channel.title).or(ai)).toBeVisible();
+  if (!(await ai.isVisible())) await clickHydrated(page.locator("#onboarding-channel-skip"));
+  await expect(ai).toBeVisible();
   await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }));
   await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"));
   return slugFromUrl(page.url());

@@ -189,18 +189,21 @@ export function RecordWidgetChart({
       ? inlineListLabel(count === 1 ? listLabels.label : listLabels.pluralLabel, language)
       : t("RecordWidgets.numberRecords", { count });
     const average = measure.aggregation === "sum" && numeric !== null ? widgetNumberAverage(numeric, count) : null;
+    const countedLabel = valueFormat.decimal(count, { maximumFractionDigits: 0 });
+    const averageDisplay = average === null ? "" : formatWidgetNumber(average, options, valueFormat.decimal).display;
+    const averageContext = listLabels
+      ? t("RecordWidgets.numberContextAverageList", { count, label, average: averageDisplay })
+      : t("RecordWidgets.numberContextAverage", { count, label, average: averageDisplay });
     const context =
       measure.aggregation === "count"
         ? listLabels
           ? inlineListLabel(listLabels.pluralLabel, language)
           : t("RecordWidgets.numberRecords", { count: 2 })
         : average === null
-          ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
-          : t("RecordWidgets.numberContextAverage", {
-              count,
-              label,
-              average: formatWidgetNumber(average, options, valueFormat.decimal).display,
-            });
+          ? listLabels
+            ? t("RecordModel.listCount", { count: countedLabel, label })
+            : `${countedLabel} ${label}`
+          : averageContext;
     return frame(
       <WidgetNumber
         color={getChartTextColors()[displayOptions.barColors?.[0] ?? ChartColor.primary1]}

@@ -1,0 +1,144 @@
+{
+  "locale": "en",
+  "name": "Founder sales pipeline",
+  "summary": "Sell as the founder without losing the thread of your conversations. A short pipeline from first conversation to won, with an optional pilot that has an end date and a parked state with a date to come back.",
+  "description": "When you sell personally, every conversation teaches you who buys and why, but the notes and the next step live in your head and a stack of tabs. This template keeps a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged. A pilot has an end date and says whether it is paid, and a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you talk to, with their role in the buying decision." },
+    "companies": { "label": "Company", "pluralLabel": "Companies", "description": "Prospects, pilots, customers and partners." },
+    "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "One possible sale, from the first conversation to won, lost or parked." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Buying role", "options": { "decision_maker": "Decision maker", "budget_holder": "Budget holder", "champion": "Champion", "user": "User", "other": "Other" } },
+    "contacts.outreach_consent": { "label": "Agreed to be contacted" },
+    "companies.relationship": { "label": "Relationship", "options": { "prospect": "Prospect", "pilot": "Pilot", "customer": "Customer", "churned": "Churned", "partner": "Partner" } },
+    "companies.size": { "label": "Size", "options": { "micro": "1 to 10 people", "small": "11 to 50 people", "medium": "51 to 250 people", "large": "More than 250 people" } },
+    "companies.website": { "label": "Website" },
+    "opportunities.stage": {
+      "label": "Stage",
+      "options": { "new": "New conversation", "discovery_done": "Discovery done", "pilot": "Pilot or trial", "proposal": "Proposal", "won": "Won", "lost": "Lost", "parked": "Parked" }
+    },
+    "opportunities.source": { "label": "Source", "options": { "own_network": "Own network", "introduction": "Introduction", "inbound": "Inbound", "community": "Community", "outbound": "Outbound", "event": "Event" } },
+    "opportunities.problem": { "label": "The problem, in their words" },
+    "opportunities.urgency": { "label": "Urgency", "options": { "burning": "Burning", "important": "Important", "nice_to_have": "Nice to have" } },
+    "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Unknown", "has_budget": "Has budget", "needs_budget": "Needs budget", "no_budget": "No budget" } },
+    "opportunities.decision_maker_engaged": { "label": "Decision maker engaged" },
+    "opportunities.pilot_end": { "label": "Pilot ends" },
+    "opportunities.pilot_paid": { "label": "Pilot is paid" },
+    "opportunities.expected_close": { "label": "Expected close" },
+    "opportunities.revisit_on": { "label": "Revisit on" },
+    "opportunities.next_step_due": { "label": "Next step due" },
+    "opportunities.lost_reason": {
+      "label": "Lost reason",
+      "options": { "no_budget": "No budget", "no_urgency": "No urgency", "competitor": "Chose a competitor", "built_in_house": "Built in-house", "wrong_buyer": "Wrong buyer", "no_response": "No response", "not_a_fit": "Not a fit" }
+    },
+    "opportunities.weighted_value": { "label": "Weighted value" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "reply": "Reply with a recap", "call": "Call", "intro_request": "Ask for an introduction", "pilot_check": "Check on the pilot", "proposal": "Send the proposal", "follow_up": "Follow up", "handover": "Hand over", "review": "Review", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Company", "targetLabel": "Contacts" },
+    "opportunity_company": { "sourceLabel": "Company", "targetLabel": "Opportunities" },
+    "opportunity_contacts": { "sourceLabel": "Contacts", "targetLabel": "Opportunities" },
+    "action_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Actions" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Opportunities by stage" },
+    "opportunities_all": { "name": "All opportunities" },
+    "parked_to_revisit": { "name": "Parked, to revisit" },
+    "without_next_step": { "name": "Open without a next step" },
+    "companies_all": { "name": "All companies" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Opportunities by stage" },
+    "weighted_pipeline": { "title": "Weighted pipeline" },
+    "customers_won": { "title": "Customers won" },
+    "pilots_running": { "title": "Pilots running" },
+    "pilot_ends": { "title": "Pilots ending" },
+    "revisits_coming": { "title": "Parked deals to revisit" },
+    "urgency_split": { "title": "Open deals by urgency" },
+    "lost_reasons": { "title": "Why deals were lost" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Founder sales playbook", "sections": ["Who we sell to and what we have learned", "Weekly founder review"] },
+    "discovery_questions": { "title": "Discovery call questions", "sections": ["Problem, urgency, budget and decision makers", "What to write down after the call"] },
+    "pilot_plan": { "title": "Pilot plan and scorecard", "sections": ["Fixed end date and success criteria", "Paid by default and how a pilot converts"] },
+    "when_to_hire": { "title": "When to hire the first salesperson", "sections": ["Signals that the sale repeats without you", "What to hand over first"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Create the contact, the company and the opportunity when the inquiry form is submitted" },
+    "recap_reply": { "title": "Reply with a personal recap and one next step the day after a conversation starts" },
+    "discovery_proposal": { "title": "Send the pilot plan or proposal 2 days after discovery is done" },
+    "pilot_start_check": { "title": "Check on the pilot 14 days after it starts" },
+    "pilot_review": { "title": "Hold the decision call 3 days before the pilot ends" },
+    "proposal_follow_up": { "title": "Follow up 3 days after a proposal is sent" },
+    "parked_revisit_date": { "title": "Set the revisit date to 90 days out when a deal is parked" },
+    "revisit_reopen": { "title": "Reopen the conversation on the revisit date" },
+    "won_handover": { "title": "Hand the customer over the day after a deal is won" },
+    "won_intro_request": { "title": "Ask the customer for one introduction 30 days after a win" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every opportunity has a stage.",
+    "problem_field": "Every opportunity records the problem in the customer's words.",
+    "pilot_end_field": "Every pilot has an end date.",
+    "opportunities_board_view": "The opportunities open as a board by stage."
+  },
+  "page": {
+    "metaTitle": "Founder-Led Sales Pipeline: Track Every Conversation",
+    "metaDescription": "Founder-led sales without losing the thread. Paste this template into Claude, ChatGPT or Codex: your agent builds a pipeline with pilots and parked deals.",
+    "headline": "Founder-led sales without losing the thread: your AI agent builds the pipeline in your CRM",
+    "answer": "A founder-led sales pipeline is a short list of open conversations, each with the problem in the customer's words, a dated next step and, where you run one, a pilot with a fixed end date. Paste this template into your AI agent and it builds the pipeline in Customermates, with a parked state and a date to come back to quiet deals. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The Monday founder review",
+      "steps": [
+        "List every open conversation and give each one a dated next step. A conversation without a date is the one that goes quiet.",
+        "Write down what you learned since last week: the problem in the buyer's words, urgency, budget and who decides.",
+        "Check the pilots: is the end date set, are the success criteria written, is it paid? Hold the decision call a few days before it ends.",
+        "Decide about the quiet deals: send one honest closing message, then park them with a date to come back instead of chasing.",
+        "Look at who bought and who said no, and why. The pattern shows which segment to sell to, and when it is time to hire your first salesperson."
+      ]
+    },
+    "limits": [
+      "It is not outbound sequencing. Customermates has no sequences or mass outreach, and each message is individual and reviewed by you. LinkedIn or email at volume needs a specialist tool.",
+      "It is not an investor CRM. Fundraising has other stages and counterparties, so use a separate template for it.",
+      "It makes no quotes, invoices or contracts and has no e-signature. Proposals and agreements are made in other tools; only the dates and a link live here.",
+      "There is no lead scoring or data enrichment. How well a lead fits is a field you set yourself.",
+      "Weighted value is not a forecast. The weights are rough, because a founder has no close-rate history yet, and they are yours to change.",
+      "It is sized for one seller. Several salespeople with quotas and a team forecast need the sales pipeline template or a heavier CRM."
+    ],
+    "faq": [
+      {
+        "question": "When does a founder need a CRM?",
+        "answer": "Guides put it at the point where you have more leads and customers than fit in your head or a spreadsheet, often somewhere between 50 and 200 contacts, or when a second person starts to sell. A sheet is enough until then. The cost of waiting is that notes and next steps are already scattered when you do switch."
+      },
+      {
+        "question": "How many customers should a founder close personally?",
+        "answer": "Advice differs: Jason Lemkin says the first 10 customers, maybe 20, other guides say 10 to 50. Mercury says to hire your first salesperson when you can say 'I know I can sell my product to people like X who have problem Y'. The template shows how many customers you have won and does not enforce a number."
+      },
+      {
+        "question": "How long should I chase a quiet deal?",
+        "answer": "Practitioners disagree on the number but agree that you stop at some point. Mercury advises to stop chasing prospects who ignore you, others suggest a few follow-ups, a last email and a contact months later. The template does both: one closing message, then the deal is parked with a revisit date 90 days out."
+      },
+      {
+        "question": "Should I run a free pilot?",
+        "answer": "Advice summarised from Y Combinator's Startup School is to avoid open-ended free pilots and to run a short, scored, ideally paid one. The template gives a pilot a fixed end date and a flag for paid or unpaid, creates a check-in 14 days after it starts and an Action for the decision call 3 days before it ends."
+      },
+      {
+        "question": "Does the agent send messages to my prospects?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "I sell my product myself and keep losing the notes and next steps from my conversations. Set up a founder sales pipeline in my Customermates workspace: opportunities from the first conversation to won with discovery notes, an optional pilot with a fixed end date, a parked state with a revisit date, and dated follow-ups. Send nothing automatically.",
+    "questions": [
+      "What do you sell, and who has bought from you so far?",
+      "Do you run pilots or trials, and are they paid?",
+      "How long do you chase a quiet deal before you park it?",
+      "Where do your conversations start: your network, introductions, inbound or events?"
+    ]
+  }
+}

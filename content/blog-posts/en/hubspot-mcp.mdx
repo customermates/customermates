@@ -31,7 +31,7 @@ Yes, HubSpot has an official MCP server. The remote server at `https://mcp.hubsp
 
 HubSpot also ships a second, unrelated server for developers that runs locally through the HubSpot CLI, a [local MCP server](/blog/what-is-an-mcp-server) in the protocol's terms. Most confusion around "HubSpot MCP" comes from mixing the two up, or from mixing HubSpot's server with the many community servers on GitHub.
 
-Disclosure: Customermates, an open-source CRM with its own MCP server, publishes this guide. The HubSpot details were checked on 8 October 2026 against HubSpot's own pages, linked in the sources line at the end.
+Disclosure: Customermates, a source-available CRM with its own MCP server, publishes this guide. The HubSpot details were checked on 8 October 2026 against HubSpot's own pages, linked in the sources line at the end.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Remote server">
@@ -137,7 +137,7 @@ If you are choosing a CRM rather than connecting an existing one, an MCP server 
 | Delete records | Not in the documented write access | Possible, within the user's permissions |
 | Marketing content | Landing pages, blog posts, campaigns, marketing emails | Not part of the product |
 | Customer conversations | Reads HubSpot inbox conversations | Reads, drafts and sends email, LinkedIn, WhatsApp, Instagram and Telegram messages on Pro and above, cloud only |
-| Self-hosting | No, hosted by HubSpot | AGPL core with MCP, without the inbox |
+| Self-hosting | No, hosted by HubSpot | Community Edition with MCP, without the inbox |
 
 Being able to delete and send cuts both ways. The Customermates server tells connected clients to ask for confirmation before deleting or sending, but that is guidance to the client, not a gate in the server: once an authorized client calls a tool, it runs. Check how your client handles tool approvals, and start with reads and drafts, the same as with HubSpot.
 

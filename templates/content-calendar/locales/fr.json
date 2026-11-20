@@ -1,0 +1,211 @@
+{
+  "locale": "fr",
+  "name": "Calendrier éditorial",
+  "summary": "Sachez ce qui sort cette semaine et qui bloque. Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
+  "description": "Les articles, les newsletters et les vidéos prennent du retard quand les plans vivent dans plusieurs documents et que personne ne sait qui relit quoi. Ce modèle met en place un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il convient aux créateurs, aux responsables marketing en entreprise et aux agences. Il planifie et suit, il ne publie pas.",
+  "lists": {
+    "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Auteurs, rédacteurs en chef, relecteurs, validateurs et invités." },
+    "pieces": { "label": "Contenu", "pluralLabel": "Contenus", "description": "Un contenu de l’idée à la publication." },
+    "campaigns": { "label": "Campagne", "pluralLabel": "Campagnes", "description": "Un thème qui regroupe plusieurs contenus." },
+    "key_dates": { "label": "Date clé", "pluralLabel": "Dates clés", "description": "Fêtes, événements et lancements autour desquels planifier." }
+  },
+  "fields": {
+    "pieces.stage": {
+      "label": "Statut",
+      "options": { "idea": "Idée", "drafting": "Rédaction", "in_review": "Relecture", "approved": "Validé", "scheduled": "Programmé", "published": "Publié", "killed": "Abandonné" }
+    },
+    "campaigns.status": {
+      "label": "Statut",
+      "options": { "planned": "Prévue", "running": "En cours", "done": "Terminée", "dropped": "Abandonnée" }
+    },
+    "people.person_role": {
+      "label": "Rôle",
+      "options": { "author": "Auteur", "editor": "Rédacteur en chef", "reviewer": "Relecteur", "approver": "Validateur", "client_contact": "Contact client", "guest": "Invité ou interviewé" }
+    },
+    "people.profile_url": { "label": "Lien du profil" },
+    "pieces.owner": { "label": "Responsable" },
+    "pieces.reviewer": { "label": "Relecteur" },
+    "pieces.format": {
+      "label": "Format",
+      "options": {
+        "blog_post": "Article de blog",
+        "newsletter": "Newsletter",
+        "short_video": "Vidéo courte",
+        "long_video": "Vidéo longue",
+        "carousel": "Carrousel",
+        "image_post": "Post image",
+        "text_post": "Post texte",
+        "podcast": "Épisode de podcast",
+        "webinar": "Webinaire",
+        "case_study": "Étude de cas"
+      }
+    },
+    "pieces.pillar": {
+      "label": "Pilier de contenu",
+      "options": { "educate": "Éduquer", "prove": "Preuves", "product": "Produit", "community": "Communauté", "behind_the_scenes": "Coulisses" }
+    },
+    "pieces.channels": {
+      "label": "Canaux",
+      "options": {
+        "blog": "Blog",
+        "newsletter": "Newsletter",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "podcast": "Podcast",
+        "other": "Autre"
+      }
+    },
+    "pieces.brief_url": { "label": "Lien du brief" },
+    "pieces.draft_url": { "label": "Lien du brouillon" },
+    "pieces.target_keyword": { "label": "Mot-clé cible" },
+    "pieces.call_to_action": { "label": "Appel à l’action" },
+    "pieces.draft_due": { "label": "Brouillon pour le" },
+    "pieces.review_due": { "label": "Relecture pour le" },
+    "pieces.publish_at": { "label": "Publication le" },
+    "pieces.ad_disclosure": {
+      "label": "Mention de partenariat",
+      "options": { "none": "Aucune", "paid_partnership": "Partenariat rémunéré ou publicité", "gifted_product": "Produit offert", "affiliate_link": "Lien d’affiliation" }
+    },
+    "pieces.disclosure_checked": { "label": "Mention vérifiée" },
+    "pieces.published_url": { "label": "Lien du contenu publié" },
+    "pieces.published_on": { "label": "Publié le" },
+    "pieces.reach": { "label": "Portée" },
+    "pieces.engagements": { "label": "Interactions" },
+    "pieces.clicks": { "label": "Clics" },
+    "pieces.killed_reason": {
+      "label": "Motif d’abandon",
+      "options": { "off_topic": "Hors sujet", "duplicate": "Doublon", "no_owner": "Sans responsable", "stale": "Obsolète", "replaced": "Remplacé", "client_declined": "Refusé par le client" }
+    },
+    "campaigns.goal": { "label": "Objectif" },
+    "campaigns.start_date": { "label": "Début" },
+    "campaigns.end_date": { "label": "Fin" },
+    "campaigns.budget": { "label": "Budget" },
+    "campaigns.owner": { "label": "Responsable" },
+    "key_dates.date": { "label": "Date" },
+    "key_dates.date_type": {
+      "label": "Type",
+      "options": { "holiday": "Jour férié", "industry_event": "Événement du secteur", "product_launch": "Lancement de produit", "awareness_day": "Journée thématique", "own_event": "Notre événement", "deadline": "Échéance" }
+    },
+    "key_dates.idea_note": { "label": "Idée de contenu" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "write_brief": "Rédiger le brief",
+        "draft": "Rédaction",
+        "review": "Relecture",
+        "revise": "Révision",
+        "approve": "Validation",
+        "schedule": "Programmation",
+        "publish": "Publication",
+        "measure": "Mesure des résultats",
+        "plan": "Planification",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "piece_campaign": { "sourceLabel": "Campagne", "targetLabel": "Contenus" },
+    "piece_author": { "sourceLabel": "Auteur", "targetLabel": "Contenus" },
+    "action_piece": { "sourceLabel": "Contenu", "targetLabel": "Actions" }
+  },
+  "views": {
+    "pieces_all": { "name": "Tous les contenus" },
+    "pieces_board": { "name": "Contenus par statut" },
+    "in_review_pieces": { "name": "En relecture" },
+    "campaigns_all": { "name": "Toutes les campagnes" },
+    "key_dates_all": { "name": "Dates clés" },
+    "people_all": { "name": "Toutes les personnes" }
+  },
+  "widgets": {
+    "publishing_calendar": { "title": "Calendrier de publication" },
+    "pieces_by_stage": { "title": "Contenus par statut" },
+    "open_pieces_by_owner": { "title": "Contenus ouverts par responsable" },
+    "pieces_by_pillar": { "title": "Contenus par pilier" },
+    "published_per_month": { "title": "Publiés par mois" },
+    "reach_by_pillar": { "title": "Portée par pilier" },
+    "key_dates_coming": { "title": "Dates clés à venir" }
+  },
+  "knowledgePages": {
+    "content_pillars": { "title": "Piliers de contenu et répartition", "sections": ["Les piliers et la part de chacun", "Ce qui relève de chaque pilier"] },
+    "editorial_rhythm": { "title": "Rythme de publication et point éditorial hebdomadaire", "sections": ["Créneaux par canal", "Publié, à risque, bloqué", "Statuts et qui les change"] },
+    "review_and_approval": { "title": "Délais de relecture et de validation", "sections": ["Qui relit et en combien de jours", "Validation client si besoin"] },
+    "disclosure_checklist": { "title": "Check-list des mentions de publicité et de partenariat", "sections": ["Quand un post doit être signalé", "Formulation et emplacement", "Vérification avant publication"] }
+  },
+  "rules": {
+    "review_task": { "title": "Créer une tâche de relecture quand un contenu passe en relecture" },
+    "schedule_task": { "title": "Créer une tâche de programmation quand un contenu est validé" },
+    "at_risk_before_publish": { "title": "Signaler un contenu encore en brouillon trois jours avant sa publication" },
+    "measure_after_30_days": { "title": "Créer un point sur les résultats après la publication d’un contenu" },
+    "stale_piece": { "title": "Revoir un contenu resté 14 jours en rédaction ou en relecture" },
+    "weekly_editorial_prep": { "title": "Préparer le point éditorial chaque lundi" },
+    "plan_for_key_date": { "title": "Planifier les contenus trois semaines avant une date clé" },
+    "idea_form_piece": { "title": "Créer un contenu à partir d’une idée envoyée par formulaire" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque contenu a l’un des sept statuts.",
+    "publish_field": "Chaque contenu a une date et une heure de publication.",
+    "calendar_widget": "Le tableau de bord montre le calendrier de publication."
+  },
+  "page": {
+    "metaTitle": "Calendrier éditorial réseaux sociaux : modèle CRM",
+    "metaDescription": "Calendrier éditorial réseaux sociaux que votre agent IA crée dans votre CRM : responsable, relecteur et date par contenu, campagnes et dates clés.",
+    "headline": "Un calendrier éditorial pour les réseaux sociaux qui montre qui bloque quoi, construit par votre agent IA",
+    "answer": "Un calendrier éditorial liste chaque publication, newsletter et vidéo avec un statut, un responsable, un relecteur et une date de publication, pour voir ce qui sort cette semaine. Collez ce modèle dans votre agent IA : il construit le calendrier dans Customermates, avec campagnes, dates clés, un contrôle des mentions de partenariat et une routine éditoriale hebdomadaire. Il planifie et suit, mais ne publie pas. Vous validez le plan avant que quoi que ce soit ne soit créé.",
+    "routine": {
+      "title": "La réunion éditoriale hebdomadaire de 15 minutes",
+      "steps": [
+        "Passez en revue ce qui est sorti la semaine passée et notez le lien de publication.",
+        "Regardez ce qui doit sortir dans les 7 prochains jours sans être encore validé ou programmé : décalez, supprimez ou accélérez.",
+        "Pour chaque contenu bloqué, nommez qui peut le débloquer et pour quand. Un contenu immobile depuis 14 jours est débloqué ou abandonné.",
+        "En début de mois, planifiez le suivant : remplissez les créneaux à 70 à 85 % de la capacité environ et gardez deux ou trois contenus de remplacement."
+      ]
+    },
+    "limits": [
+      "Il planifie et suit, mais ne publie ni ne programme les publications. C’est le rôle de votre outil de publication ou de votre CMS, qui fournit aussi les statistiques ; le modèle ne poste jamais de lui-même.",
+      "Il ne collecte pas de statistiques. Portée, interactions et clics sont saisis ou importés, et il n’y a ni raccourcisseur de liens ni générateur d’UTM.",
+      "Ce n’est ni un outil de création graphique ni une bibliothèque de médias. Images et vidéos restent dans votre outil de design, le calendrier garde le lien.",
+      "La validation est une décision enregistrée, pas une validation juridique ni une piste d’audit pour des contenus réglementés. Les secteurs réglementés gardent leur propre système de conformité.",
+      "Gardez-en hors les textes confidentiels non publiés, les contenus sous embargo, les coordonnées du public et les mots de passe des comptes sociaux.",
+      "Les rappels viennent de règles d’automatisation et de notifications, ou d’une routine que votre agent exécute selon un calendrier. Le modèle les propose, vous choisissez lesquels activer."
+    ],
+    "faq": [
+      {
+        "question": "Que doit contenir un calendrier éditorial ?",
+        "answer": "Dix colonnes font l’essentiel : date de publication, statut, titre, canal, format, responsable, lien vers le brief, URL publiée, pilier ou campagne et résultat à 30 jours. Ajoutez un relecteur et une date de relecture dès que plusieurs personnes interviennent."
+      },
+      {
+        "question": "Combien de temps à l’avance planifier ?",
+        "answer": "Planifiez 2 à 4 semaines en détail, gardez le mois et le trimestre en grandes lignes et retrouvez-vous 15 minutes chaque semaine. Le guide allemand de HubSpot parle d’un horizon glissant de deux à quatre semaines et d’une réunion éditoriale hebdomadaire pour les 7 à 14 jours suivants."
+      },
+      {
+        "question": "Faut-il signaler les contenus sponsorisés ou offerts ?",
+        "answer": "En général, oui. Les règles varient selon les pays ; en France, la publicité par des influenceurs est encadrée, vérifiez la mention exigée pour votre cas. À titre d’exemple, l’autorité américaine FTC veut que l’information figure avec la publication, en mots clairs comme pub ou sponsorisé, pas noyée dans les hashtags et, en vidéo, à l’oral et à l’écrit. Le modèle propose un champ de mention et une étape de contrôle. Ce n’est pas un conseil juridique."
+      },
+      {
+        "question": "Tableur ou CRM pour un calendrier éditorial ?",
+        "answer": "Un tableur suffit pour une personne et un canal. Dès qu’il faut relier personnes, marques et campagnes, qu’une relecture a une échéance et qu’un contenu publié doit déclencher une tâche, un CRM garde cela sous forme de fiches plutôt que de colonnes. Le modèle le fait et laisse la publication à votre outil de publication."
+      },
+      {
+        "question": "Combien de contenus une personne peut-elle mener de front ?",
+        "answer": "Rework recommande six au plus par personne (deux en rédaction, deux en relecture, deux programmés) et une règle d’abandon pour tout ce qui n’a pas bougé depuis 14 jours. Bitrix24 retient trois pour un rédacteur, cinq pour un éditeur et six pour un manager. Le modèle garde ce plafond comme règle de la réunion hebdomadaire, pas comme limite du système."
+      },
+      {
+        "question": "L’agent publie-t-il à ma place ?",
+        "answer": "Non. Le modèle planifie et suit ; la publication se fait dans votre outil de publication ou votre CMS. Le prompt demande à l’agent de ne créer aucune donnée d’exemple."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Nos publications, newsletters et vidéos sortent en retard, car je ne vois pas qui relit quoi ni quand tout part. Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
+    "questions": [
+      "Que publiez-vous, sur quels canaux, et à quel rythme ?",
+      "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
+      "Quels piliers de contenu utilisez-vous, et lesquels des sept statuts vous servent ?",
+      "Quel outil publie les contenus ? Ils y restent, et seuls le lien et la date sont gardés ici."
+    ]
+  }
+}

@@ -186,6 +186,21 @@ describeDatabase("plan usage reads", () => {
           { companyId: id, url: "https://example.test/b", events: ["record.created"], enabled: false },
         ],
       });
+      await prisma.automationRule.createMany({
+        data: [
+          { companyId: id, name: "On", enabled: true, triggerKind: "recordCreated", trigger: {}, effects: [] },
+          { companyId: id, name: "Also on", enabled: true, triggerKind: "recordCreated", trigger: {}, effects: [] },
+          { companyId: id, name: "Off", enabled: false, triggerKind: "recordCreated", trigger: {}, effects: [] },
+          {
+            companyId: other,
+            name: "Elsewhere",
+            enabled: true,
+            triggerKind: "recordCreated",
+            trigger: {},
+            effects: [],
+          },
+        ],
+      });
       const period = { periodStart: new Date(Date.now() - DAY_MS), periodEnd: new Date(Date.now() + DAY_MS) };
       const usageEvent = {
         companyId: id,
@@ -257,6 +272,8 @@ describeDatabase("plan usage reads", () => {
         openDrafts: 1,
         activeRoutines: 3,
         maxRoutinesPerOwner: 2,
+        activeAutomationRules: 2,
+        formSubmissionsThisMonth: 0,
         webhooks: 1,
         mateRequests: 1,
         apiClients: 2,
@@ -266,6 +283,7 @@ describeDatabase("plan usage reads", () => {
         connectedAccounts: 1,
         openDrafts: 0,
         activeRoutines: 0,
+        activeAutomationRules: 1,
         webhooks: 1,
         mateRequests: 0,
         apiClients: 0,

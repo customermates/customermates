@@ -1,0 +1,162 @@
+{
+  "locale": "es",
+  "name": "Seguimiento de candidaturas",
+  "summary": "Mantén cada proceso en marcha y responde a todos los candidatos. Una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar las candidaturas descartadas.",
+  "description": "En una pequeña empresa la selección se hace con el correo y de memoria: los candidatos esperan demasiado una respuesta, las notas de las entrevistas están repartidas y las candidaturas descartadas se quedan en la bandeja de entrada mucho más tiempo del debido. Esta plantilla prepara vacantes con responsable y rango salarial, candidatos y candidaturas que avanzan de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte. Cada entrevistador rellena una ficha de evaluación, y las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. Encaja con una empresa que tiene pocas vacantes abiertas a la vez. No es un portal de empleo, un lector de currículos, una plataforma de pruebas ni una herramienta de firma electrónica, y no da asesoramiento legal sobre los plazos de conservación.",
+  "lists": {
+    "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "Las personas que se presentan, con su origen y su consentimiento para futuros procesos." },
+    "jobs": { "label": "Vacante", "pluralLabel": "Vacantes", "description": "Cada puesto abierto con su responsable y su rango salarial." },
+    "applications": { "label": "Candidatura", "pluralLabel": "Candidaturas", "description": "Un candidato para una vacante, de recibida a incorporado o descartado." },
+    "scorecards": { "label": "Ficha de evaluación", "pluralLabel": "Fichas de evaluación", "description": "La puntuación y la recomendación de un entrevistador para una candidatura." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Origen",
+      "options": { "careers_page": "Página de empleo", "job_board": "Portal de empleo", "referral": "Recomendación", "linkedin": "LinkedIn", "agency": "Agencia", "other": "Otro" }
+    },
+    "applicants.location": { "label": "Localidad" },
+    "applicants.salary_expectation": { "label": "Pretensión salarial" },
+    "applicants.pool_consent": { "label": "Consentimiento para futuros procesos" },
+    "jobs.status": {
+      "label": "Estado",
+      "options": { "draft": "Borrador", "open": "Abierta", "on_hold": "En pausa", "filled": "Cubierta", "cancelled": "Cancelada" }
+    },
+    "jobs.department": { "label": "Departamento" },
+    "jobs.hiring_manager": { "label": "Responsable de la selección" },
+    "jobs.pay_min": { "label": "Salario desde" },
+    "jobs.pay_max": { "label": "Salario hasta" },
+    "jobs.apply_by": { "label": "Inscripción hasta" },
+    "applications.stage": {
+      "label": "Fase",
+      "options": { "new": "Recibida", "screening": "Preselección", "interview_1": "Entrevista inicial", "interview_2": "Entrevista con responsable", "reference_check": "Referencias", "offer": "Oferta", "hired": "Incorporado", "rejected": "Descartado", "withdrawn": "Retirado" }
+    },
+    "applications.interview_at": { "label": "Entrevista" },
+    "applications.offer_decision_due": { "label": "Respuesta a la oferta antes de" },
+    "applications.rejection_reason": {
+      "label": "Motivo de descarte",
+      "options": { "skills": "Competencias", "experience": "Experiencia", "salary_mismatch": "Salario no encaja", "other_offer": "Aceptó otra oferta", "position_filled": "Vacante cubierta", "other": "Otro" }
+    },
+    "applications.retain_until": { "label": "Conservar hasta" },
+    "scorecards.interviewer": { "label": "Entrevistador" },
+    "scorecards.round": { "label": "Ronda", "options": { "screening": "Preselección", "interview_1": "Entrevista inicial", "interview_2": "Entrevista con responsable" } },
+    "scorecards.rating": { "label": "Puntuación" },
+    "scorecards.recommendation": { "label": "Recomendación", "options": { "strong_no": "Claramente no", "no": "No", "yes": "Sí", "strong_yes": "Claramente sí" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "acknowledge": "Confirmar la recepción",
+        "screen": "Preseleccionar la candidatura",
+        "schedule_interview": "Programar una entrevista",
+        "collect_scorecards": "Recoger las fichas",
+        "chase_offer": "Reclamar la respuesta a la oferta",
+        "close_message": "Enviar un mensaje de cierre",
+        "retention_review": "Revisar la conservación",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Candidato", "targetLabel": "Candidaturas" },
+    "application_job": { "sourceLabel": "Vacante", "targetLabel": "Candidaturas" },
+    "scorecard_application": { "sourceLabel": "Candidatura", "targetLabel": "Fichas de evaluación" },
+    "action_application": { "sourceLabel": "Candidatura", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "applications_all": { "name": "Todas las candidaturas" },
+    "applications_board": { "name": "Tablero de selección" },
+    "jobs_all": { "name": "Todas las vacantes" },
+    "applicants_all": { "name": "Todos los candidatos" },
+    "scorecards_all": { "name": "Todas las fichas de evaluación" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Candidaturas por fase" },
+    "applicants_by_source": { "title": "Candidatos por origen" },
+    "interviews_coming": { "title": "Entrevistas próximas" },
+    "open_jobs": { "title": "Vacantes abiertas" },
+    "rejection_reasons": { "title": "Motivos de descarte" },
+    "retention_coming": { "title": "Candidaturas por eliminar o renovar pronto" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Proceso de selección y quién decide", "sections": ["Fases y responsables", "Qué buscamos en la preselección y en las entrevistas"] },
+    "form_and_retention": { "title": "Formulario de candidatura y conservación de datos", "sections": ["Datos que pedimos y aviso de privacidad", "Cuánto tiempo conservamos las candidaturas descartadas"] },
+    "candidate_messages": { "title": "Mensajes a los candidatos", "sections": ["Confirmación, invitación, oferta", "Mensaje de cierre para cada candidato no seleccionado"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Crear el candidato y la candidatura cuando se envía el formulario de candidatura" },
+    "acknowledge_application": { "title": "Confirmar una candidatura nueva en un plazo de 2 días" },
+    "collect_scorecards": { "title": "Recoger las fichas el día de la entrevista" },
+    "scorecard_reminder": { "title": "Recordar al responsable al día siguiente de una entrevista" },
+    "chase_offer": { "title": "Reclamar la respuesta 5 días después de una oferta" },
+    "rejection_retention": {
+      "title": "Fijar la conservación a 180 días cuando se descarta una candidatura",
+      "variants": {
+        "PL": {
+          "title": "Fijar la conservación a 30 días cuando se descarta una candidatura (Polonia: más tiempo solo con consentimiento)",
+          "description": "La autoridad polaca de protección de datos (UODO) espera que los datos del candidato se supriman al terminar el proceso, salvo que haya consentido futuros procesos. Es un valor por defecto: fija el plazo de tu propia política de conservación y, si hay consentimiento, una fecha posterior a mano."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Escribir al resto de candidatos cuando se cubre una vacante" },
+    "retention_review": { "title": "Revisar una candidatura cuando llega su fecha de conservación" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada candidatura tiene una de las nueve fases.",
+    "retain_until_field": "Cada candidatura indica hasta cuándo se conserva.",
+    "applications_board_view": "Las candidaturas se abren como tablero por fase."
+  },
+  "page": {
+    "metaTitle": "ATS software: plantilla de seguimiento de candidaturas",
+    "metaDescription": "ATS software para una pyme: pega esta plantilla en Claude, ChatGPT o Codex y gestiona vacantes, nueve fases, fichas de evaluación y fecha de eliminación.",
+    "headline": "Responde a cada candidato y guarda las notas juntas: un seguimiento de candidaturas que tu agente de IA construye",
+    "answer": "Un ATS para una pequeña empresa es una lista de vacantes con una candidatura por candidato y vacante, que avanza de recibida a incorporada o descartada, para que ningún candidato espere sin respuesta. Pega esta plantilla en tu agente de IA y lo construye en Customermates, con vacantes, una ficha de evaluación por entrevistador, seguimientos con fecha y una fecha de conservación para las candidaturas descartadas. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La ronda semanal de candidaturas",
+      "steps": [
+        "Comprueba que cada candidatura nueva tiene acuse de recibo y una fecha siguiente, y responde a las que aún esperan.",
+        "Contrasta las candidaturas nuevas con los requisitos imprescindibles de la vacante y decide a quién invitar a una entrevista.",
+        "Recoge la ficha de cada entrevistador al día siguiente de cada entrevista, mientras las notas están frescas.",
+        "Reclama las ofertas que esperan una decisión y envía el mensaje de cierre a los candidatos descartados o cuya vacante se ha cubierto."
+      ]
+    },
+    "limits": [
+      "No es un portal de empleo, una herramienta de multipublicación ni un creador de páginas de empleo. No publica tus ofertas.",
+      "No lee ni clasifica currículos y no descarta a nadie automáticamente. Las fichas de evaluación son valoraciones que da una persona.",
+      "No es una plataforma de pruebas, evaluación o entrevistas en vídeo, ni una herramienta de cartas de oferta y firma electrónica.",
+      "No hace comprobaciones de antecedentes ni del derecho a trabajar, y no es un sistema de incorporación, de expedientes de personal o de nóminas. Tras la contratación, el expediente pasa a tu sistema de recursos humanos.",
+      "Deja fuera copias de documentos de identidad y datos de seguimiento de igualdad de oportunidades. Recoge solo lo que necesita la decisión de contratación.",
+      "No da asesoramiento legal. Guarda una fecha de conservación y un responsable; el plazo lo decides tú con tu asesor.",
+      "Está dimensionada para pocas vacantes abiertas a la vez. Para una contratación de gran volumen o en varias sedes encaja mejor un ATS específico."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe contener un seguimiento de candidaturas?",
+        "answer": "Vacantes con un responsable y un rango salarial, candidatos y una candidatura por candidato y vacante con su fase, la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte. Los profesionales añaden una ficha de evaluación por entrevistador, para que las opiniones estén estructuradas y no repartidas entre correos y chats."
+      },
+      {
+        "question": "¿Qué fases debe tener un proceso de selección?",
+        "answer": "Las guías habituales citan candidatura recibida, preselección, entrevista, comprobación de referencias y oferta. Esta plantilla tiene nueve: recibida, preselección, entrevista inicial, entrevista con responsable, referencias, oferta, incorporado, descartado y retirado, porque una empresa pequeña rara vez necesita más de dos rondas de entrevistas. Renombra o quita fases en el plan que te proponga tu agente."
+      },
+      {
+        "question": "¿Cuánto tiempo puedo conservar las candidaturas descartadas?",
+        "answer": "Depende del país. En Francia, la autoridad de protección de datos admite en principio una bolsa de candidatos no seleccionados durante dos años desde el último contacto, si se les ha informado; en Alemania se suelen conservar unos seis meses tras el fin del proceso, y una bolsa de talento solo con consentimiento. En España el RGPD obliga a informar del plazo de conservación. La plantilla fija la fecha de conservación 180 días después de un descarte, para que elimines la candidatura o pidas consentimiento. Ajusta el plazo a tu país y consúltalo con tu asesor. Esto no es asesoramiento legal."
+      },
+      {
+        "question": "¿Puedo mantener una bolsa de talento?",
+        "answer": "Sí, si se informa a los candidatos y, según el país, con su consentimiento. Cuando llega la fecha de conservación de una candidatura descartada, la eliminas o anotas el consentimiento del candidato para seguir en tu bolsa. Las fuentes alemanas exigen consentimiento, otras admiten un periodo breve por interés legítimo; comprueba la regla de tu país."
+      },
+      {
+        "question": "¿El agente contacta con los candidatos o descarta a alguien?",
+        "answer": "No. El prompt le indica que no envíe nada y que no cree datos de ejemplo. Los mensajes, como un acuse de recibo o un rechazo, son borradores que solo existen si los pides, y los envías tú. Nada se descarta automáticamente."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Tengo una pequeña empresa y contrato personal: los candidatos esperan demasiado una respuesta y las notas de las entrevistas están en sitios distintos. Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para las candidaturas descartadas y seguimientos con fecha.",
+    "questions": [
+      "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
+      "¿De dónde vienen los candidatos y usas un formulario de candidatura?",
+      "¿Cuánto tiempo conservas las candidaturas descartadas y mantienes una bolsa de talento con consentimiento?",
+      "¿Qué rondas de entrevistas haces y quién rellena una ficha de evaluación?"
+    ]
+  }
+}

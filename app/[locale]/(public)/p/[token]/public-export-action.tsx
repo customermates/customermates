@@ -6,8 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { ResponsiveOverlay } from "@/components/modal";
 import { Button } from "@/components/ui/button";
-
-import { publicSignupHref } from "./public-signup";
+import { publicSignupHref } from "@/core/utils/public-signup";
 
 export function PublicExportAction({ id, count }: { id: string; count: number }) {
   const t = useTranslations();

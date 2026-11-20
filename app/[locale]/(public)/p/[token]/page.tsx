@@ -5,9 +5,9 @@ import { getTranslations } from "next-intl/server";
 import { PublicDashboardView } from "./public-dashboard-view";
 import { PublicLinkUnavailable } from "./public-link-frame";
 import { PublicListView } from "./public-list-view";
-import { visitorKey } from "./visitor-key";
 
 import { getReadPublicLinkInteractor } from "@/core/di";
+import { visitorKey } from "@/core/network/visitor-key";
 
 export const dynamic = "force-dynamic";
 

@@ -28,7 +28,7 @@ export type ControlPage = {
 };
 
 export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
-  { scope: "routines", route: "/routines", label: "routines" },
+  { scope: "automations", route: "/automations", label: "automations (rules and routines)" },
   {
     scope: "settings-members",
     route: settingsHref("members"),
@@ -90,9 +90,9 @@ export const FORM_PAGES: FormAnchorPage[] = [
   },
   {
     scope: "routine-modal",
-    route: "/routines",
-    label: "routine dialog (open it first)",
-    opener: "routines-add",
+    route: "/automations",
+    label: "routine dialog (open it first: New, then Routine in its menu)",
+    opener: "automations-add",
     discard: "cancel",
   },
 ];
@@ -481,12 +481,11 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     labelKeys: ["RecordModel.configure"],
   },
   {
-    key: "routines",
-    route: "/routines",
-    description: "Sidebar link to the scheduled assistant routines",
-    labelKeys: ["NavigationBar.routines"],
+    key: "automations",
+    route: "/automations",
+    description: "Sidebar link to Automations, one list of the workspace's rules and scheduled assistant routines",
+    labelKeys: ["NavigationBar.automations"],
     resource: Resource.routines,
-    cloudOnly: true,
   },
   {
     key: "trash",
@@ -527,8 +526,12 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   roles: "Settings link to Roles and their permissions",
   billing: "Settings link to Billing, the plan, subscription, trial status and invoices",
   activity: "Settings link to Audit log, the log of changes in the workspace",
+  agents:
+    "Settings link to Agents, the workspace's own AI provider keys, the runners that work for it and their recent runs",
   webhooks: "Settings link to Webhooks; each webhook row offers Show deliveries for its sent deliveries",
-  "webhook-deliveries": "Settings link to Webhook log, the sent webhook deliveries, directly below Webhooks",
+  "incoming-webhooks":
+    "Settings link to Incoming webhooks, the addresses other systems post to so a record is created in a list",
+  "webhook-deliveries": "Settings link to Webhook log, the sent webhook deliveries, directly below Incoming webhooks",
 };
 
 function settingsNavKeys(section: SettingsSection): string[] {

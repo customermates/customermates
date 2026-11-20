@@ -1,0 +1,144 @@
+{
+  "locale": "de",
+  "name": "Vertrieb im Gründerteam",
+  "summary": "Selbst verkaufen, ohne den Faden der Gespräche zu verlieren. Eine kurze Pipeline vom ersten Gespräch bis gewonnen, mit optionalem Pilot mit Enddatum und einem Zurückgestellt-Status mit Wiedervorlage.",
+  "description": "Wer selbst verkauft, lernt in jedem Gespräch, wer kauft und warum, aber die Notizen und der nächste Schritt stecken im Kopf und in einem Stapel Tabs. Diese Vorlage führt eine Handvoll bis einige Dutzend offene Gespräche: Jede Verkaufschance hält das Problem in den Worten des Kunden fest, die Dringlichkeit, den Budgetstand und ob der Entscheider eingebunden ist. Ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird, und ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen du sprichst, mit ihrer Rolle in der Kaufentscheidung." },
+    "companies": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Interessenten, Pilotkunden, Kunden und Partner." },
+    "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Ein möglicher Verkauf, vom ersten Gespräch bis gewonnen, verloren oder zurückgestellt." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Rolle beim Kauf", "options": { "decision_maker": "Entscheider", "budget_holder": "Budgetverantwortlicher", "champion": "Fürsprecher", "user": "Anwender", "other": "Sonstige" } },
+    "contacts.outreach_consent": { "label": "Kontakt erlaubt" },
+    "companies.relationship": { "label": "Beziehung", "options": { "prospect": "Interessent", "pilot": "Pilotkunde", "customer": "Kunde", "churned": "Abgewandert", "partner": "Partner" } },
+    "companies.size": { "label": "Größe", "options": { "micro": "1 bis 10 Personen", "small": "11 bis 50 Personen", "medium": "51 bis 250 Personen", "large": "Mehr als 250 Personen" } },
+    "companies.website": { "label": "Website" },
+    "opportunities.stage": {
+      "label": "Phase",
+      "options": { "new": "Gespräch", "discovery_done": "Bedarf geklärt", "pilot": "Pilot oder Testphase", "proposal": "Angebot", "won": "Gewonnen", "lost": "Verloren", "parked": "Zurückgestellt" }
+    },
+    "opportunities.source": { "label": "Quelle", "options": { "own_network": "Eigenes Netzwerk", "introduction": "Vorstellung", "inbound": "Anfrage", "community": "Community", "outbound": "Direktansprache", "event": "Veranstaltung" } },
+    "opportunities.problem": { "label": "Das Problem in den Worten des Kunden" },
+    "opportunities.urgency": { "label": "Dringlichkeit", "options": { "burning": "Brennt", "important": "Wichtig", "nice_to_have": "Wünschenswert" } },
+    "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Unbekannt", "has_budget": "Budget vorhanden", "needs_budget": "Braucht Budget", "no_budget": "Kein Budget" } },
+    "opportunities.decision_maker_engaged": { "label": "Entscheider eingebunden" },
+    "opportunities.pilot_end": { "label": "Pilotende" },
+    "opportunities.pilot_paid": { "label": "Pilot ist bezahlt" },
+    "opportunities.expected_close": { "label": "Erwarteter Abschluss" },
+    "opportunities.revisit_on": { "label": "Wiedervorlage" },
+    "opportunities.next_step_due": { "label": "Nächster Schritt bis" },
+    "opportunities.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "no_budget": "Kein Budget", "no_urgency": "Keine Dringlichkeit", "competitor": "Wettbewerber gewählt", "built_in_house": "Selbst gebaut", "wrong_buyer": "Falscher Ansprechpartner", "no_response": "Keine Rückmeldung", "not_a_fit": "Passt nicht" }
+    },
+    "opportunities.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "reply": "Mit Zusammenfassung antworten", "call": "Anrufen", "intro_request": "Um eine Vorstellung bitten", "pilot_check": "Pilot prüfen", "proposal": "Angebot senden", "follow_up": "Nachfassen", "handover": "Übergeben", "review": "Auswerten", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Unternehmen", "targetLabel": "Ansprechpartner" },
+    "opportunity_company": { "sourceLabel": "Unternehmen", "targetLabel": "Verkaufschancen" },
+    "opportunity_contacts": { "sourceLabel": "Ansprechpartner", "targetLabel": "Verkaufschancen" },
+    "action_opportunity": { "sourceLabel": "Verkaufschance", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Verkaufschancen nach Phase" },
+    "opportunities_all": { "name": "Alle Verkaufschancen" },
+    "parked_to_revisit": { "name": "Zurückgestellt, zur Wiedervorlage" },
+    "without_next_step": { "name": "Offen ohne nächsten Schritt" },
+    "companies_all": { "name": "Alle Unternehmen" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Verkaufschancen nach Phase" },
+    "weighted_pipeline": { "title": "Gewichtete Pipeline" },
+    "customers_won": { "title": "Gewonnene Kunden" },
+    "pilots_running": { "title": "Laufende Piloten" },
+    "pilot_ends": { "title": "Endende Piloten" },
+    "revisits_coming": { "title": "Zurückgestellte Deals zur Wiedervorlage" },
+    "urgency_split": { "title": "Offene Deals nach Dringlichkeit" },
+    "lost_reasons": { "title": "Warum Deals verloren gingen" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Vertriebsleitfaden für Gründer", "sections": ["An wen wir verkaufen und was wir gelernt haben", "Wöchentlicher Rückblick des Gründers"] },
+    "discovery_questions": { "title": "Fragen im Erstgespräch", "sections": ["Problem, Dringlichkeit, Budget und Entscheider", "Was nach dem Gespräch festgehalten wird"] },
+    "pilot_plan": { "title": "Pilotplan und Bewertungsbogen", "sections": ["Festes Enddatum und Erfolgskriterien", "Bezahlt als Standard und wie ein Pilot zum Vertrag wird"] },
+    "when_to_hire": { "title": "Wann der erste Vertriebsmitarbeiter kommt", "sections": ["Anzeichen, dass sich der Verkauf ohne dich wiederholt", "Was zuerst übergeben wird"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Ansprechpartner, Unternehmen und Verkaufschance anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "recap_reply": { "title": "Am Tag nach Beginn eines Gesprächs mit persönlicher Zusammenfassung und einem nächsten Schritt antworten" },
+    "discovery_proposal": { "title": "2 Tage nach geklärtem Bedarf Pilotplan oder Angebot senden" },
+    "pilot_start_check": { "title": "14 Tage nach Pilotbeginn nachsehen" },
+    "pilot_review": { "title": "3 Tage vor Pilotende das Entscheidungsgespräch führen" },
+    "proposal_follow_up": { "title": "3 Tage nach dem Angebot nachfassen" },
+    "parked_revisit_date": { "title": "Die Wiedervorlage auf 90 Tage setzen, wenn ein Deal zurückgestellt wird" },
+    "revisit_reopen": { "title": "Zur Wiedervorlage das Gespräch wieder aufnehmen" },
+    "won_handover": { "title": "Am Tag nach dem Abschluss den Kunden übergeben" },
+    "won_intro_request": { "title": "30 Tage nach dem Abschluss den Kunden um eine Vorstellung bitten" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Verkaufschance hat eine Phase.",
+    "problem_field": "Jede Verkaufschance hält das Problem in den Worten des Kunden fest.",
+    "pilot_end_field": "Jeder Pilot hat ein Enddatum.",
+    "opportunities_board_view": "Die Verkaufschancen öffnen sich als Board nach Phase."
+  },
+  "page": {
+    "metaTitle": "Vertriebspipeline für Gründer: jedes Gespräch im Blick",
+    "metaDescription": "Selbst verkaufen, ohne den Faden zu verlieren: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut die Pipeline mit Pilot und Wiedervorlage.",
+    "headline": "Als Gründer selbst verkaufen, ohne den Faden zu verlieren: eine Pipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Vertriebspipeline für Gründer ist eine kurze Liste offener Gespräche, jedes mit dem Problem in den Worten des Kunden, einem terminierten nächsten Schritt und, wo Sie einen fahren, einem Pilot mit festem Enddatum. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf, mit dem Status „Zurückgestellt“ und einem Datum zum Wiederaufgreifen für stille Chancen. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die Gründer-Durchsicht am Montag",
+      "steps": [
+        "Listen Sie jedes offene Gespräch auf und geben Sie jedem einen terminierten nächsten Schritt. Ein Gespräch ohne Datum ist das, das einschläft.",
+        "Halten Sie fest, was Sie seit letzter Woche gelernt haben: das Problem in den Worten des Käufers, Dringlichkeit, Budget und wer entscheidet.",
+        "Prüfen Sie die Piloten: Ist das Enddatum gesetzt, sind die Erfolgskriterien aufgeschrieben, ist er bezahlt? Legen Sie das Entscheidungsgespräch wenige Tage vor das Ende.",
+        "Entscheiden Sie über die stillen Chancen: eine ehrliche Abschlussnachricht senden und sie dann mit einem Datum zum Wiederaufgreifen zurückstellen, statt nachzujagen.",
+        "Sehen Sie sich an, wer gekauft hat und wer abgesagt hat, und warum. Das Muster zeigt, an welches Segment Sie verkaufen sollten und wann es Zeit für Ihren ersten Vertriebsmitarbeiter ist."
+      ]
+    },
+    "limits": [
+      "Es ist kein Werkzeug für Outbound-Sequenzen. Customermates hat keine Sequenzen und keinen Massenversand, und jede Nachricht ist einzeln und wird von Ihnen geprüft. LinkedIn oder E-Mail in großer Zahl braucht ein Spezialwerkzeug.",
+      "Es ist kein CRM für Investoren. Fundraising hat andere Phasen und Gegenüber, nehmen Sie dafür eine eigene Vorlage.",
+      "Es erstellt keine Angebote, Rechnungen oder Verträge und hat keine elektronische Unterschrift. Angebote und Vereinbarungen entstehen in anderen Werkzeugen; hier liegen nur die Termine und ein Link.",
+      "Es gibt kein Lead-Scoring und keine Datenanreicherung. Wie gut ein Lead passt, ist ein Feld, das Sie selbst setzen.",
+      "Der gewichtete Wert ist keine Prognose. Die Gewichte sind grob, weil ein Gründer noch keine Abschlussquoten kennt, und Sie dürfen sie ändern.",
+      "Es ist für einen Verkäufer ausgelegt. Mehrere Vertriebsmitarbeiter mit Zielvorgaben und eine Teamprognose brauchen die Vorlage für die Vertriebspipeline oder ein größeres CRM."
+    ],
+    "faq": [
+      {
+        "question": "Ab wann braucht ein Gründer ein CRM?",
+        "answer": "Ratgeber nennen den Punkt, an dem Sie mehr Leads und Kunden haben, als in Ihren Kopf oder eine Tabelle passen, oft zwischen 50 und 200 Kontakten, oder an dem eine zweite Person zu verkaufen beginnt. Bis dahin reicht eine Tabelle. Wer wartet, hat beim Wechsel Notizen und nächste Schritte schon überall verstreut."
+      },
+      {
+        "question": "Wie viele Kunden sollte ein Gründer selbst gewinnen?",
+        "answer": "Die Ratschläge gehen auseinander: Jason Lemkin nennt die ersten 10 Kunden, vielleicht 20, andere Ratgeber 10 bis 50. Mercury empfiehlt, den ersten Vertriebsmitarbeiter einzustellen, wenn Sie sagen können: „Ich weiß, dass ich mein Produkt an Leute wie X mit Problem Y verkaufen kann.“ Die Vorlage zeigt, wie viele Kunden Sie gewonnen haben, und erzwingt keine Zahl."
+      },
+      {
+        "question": "Wie lange sollte ich einer stillen Chance nachgehen?",
+        "answer": "Über die Zahl sind sich Praktiker uneinig, aber darin, dass man irgendwann aufhört, einig. Mercury rät, Interessenten, die nicht reagieren, nicht länger nachzujagen; andere empfehlen ein paar Nachfragen, eine letzte E-Mail und Monate später einen neuen Kontakt. Die Vorlage tut beides: eine Abschlussnachricht, dann wird die Chance zurückgestellt, mit einem Termin zum Wiederaufgreifen in 90 Tagen."
+      },
+      {
+        "question": "Sollte ich einen kostenlosen Pilot anbieten?",
+        "answer": "Der Rat, wie er aus der Startup School von Y Combinator zusammengefasst wird, lautet: offene kostenlose Piloten vermeiden und einen kurzen, bewerteten, möglichst bezahlten fahren. Die Vorlage gibt einem Pilot ein festes Enddatum und ein Kennzeichen bezahlt oder unbezahlt, legt 14 Tage nach dem Start eine Kontrolle an und 3 Tage vor dem Ende eine Aufgabe für das Entscheidungsgespräch."
+      },
+      {
+        "question": "Schreibt der Agent meine Interessenten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ich verkaufe mein Produkt selbst und verliere ständig die Notizen und nächsten Schritte aus meinen Gesprächen. Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
+    "questions": [
+      "Was verkaufst du, und wer hat bisher bei dir gekauft?",
+      "Führst du Piloten oder Testphasen durch, und sind sie bezahlt?",
+      "Wie lange läufst du einem stillen Deal nach, bevor du ihn zurückstellst?",
+      "Wo beginnen deine Gespräche: im Netzwerk, durch Vorstellungen, per Anfrage oder auf Veranstaltungen?"
+    ]
+  }
+}

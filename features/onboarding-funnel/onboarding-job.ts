@@ -4,6 +4,7 @@ export const ONBOARDING_JOBS = ["workspace", "followup", "agent"] as const;
 export type OnboardingJob = (typeof ONBOARDING_JOBS)[number];
 
 export const DEFAULT_ONBOARDING_JOB: OnboardingJob = "workspace";
+export const PRESELECTED_ONBOARDING_JOB: OnboardingJob = "agent";
 export const SIGNUP_JOB_QUERY_PARAM = "job";
 export const ONBOARDING_ORIGIN_QUERY_PARAM = "from";
 export const ONBOARDING_ORIGIN_VALUE = "onboarding";
@@ -21,5 +22,5 @@ export function preselectedOnboardingJob(choice: {
   selectedJob: OnboardingJob | null;
   signupJob: OnboardingJob | null;
 }): OnboardingJob {
-  return choice.selectedJob ?? choice.signupJob ?? DEFAULT_ONBOARDING_JOB;
+  return choice.selectedJob ?? choice.signupJob ?? PRESELECTED_ONBOARDING_JOB;
 }

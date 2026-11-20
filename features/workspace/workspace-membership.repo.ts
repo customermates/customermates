@@ -5,12 +5,15 @@ export type WorkspaceMembershipRow = {
   id: string;
   companyId: string;
   status: Status;
+  pausedByPlanAt: Date | null;
   createdAt: Date;
   role: { name: string; isSystemRole: boolean } | null;
   company: {
     name: string | null;
     slug: string;
     createdAt: Date;
+    hasActiveAdmin: boolean;
+    brand?: { logoKey: string | null } | null;
     subscription: { status: SubscriptionStatus; plan: SubscriptionPlan; trialEndDate: Date | null } | null;
     _count: { users: number };
   };
@@ -33,6 +36,8 @@ export abstract class WorkspaceMembershipRepo {
   abstract hasConsumedTrialUnscoped(authUserId: string): Promise<boolean>;
   abstract markTrialConsumedUnscoped(authUserId: string): Promise<void>;
   abstract listCompanyMembersUnscoped(companyId: string): Promise<{ id: string; email: string }[]>;
+  abstract listActiveAdminIdsUnscoped(companyId: string): Promise<string[]>;
+  abstract strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }): Promise<boolean>;
   abstract detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number>;
   abstract countCreatedWorkspacesUnscoped(authUserId: string): Promise<number>;
   abstract findLoginIdUnscoped(email: string): Promise<string | null>;

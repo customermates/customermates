@@ -1,0 +1,139 @@
+{
+  "locale": "it",
+  "name": "Follow-up delle richieste WhatsApp",
+  "summary": "Smetti di perdere i clienti che ti scrivono su WhatsApp. Ogni chat diventa una richiesta con preventivo e un prossimo passo con data, così rispondi in fretta, solleciti dopo pochi giorni e ricordi il riacquisto.",
+  "description": "Quando i clienti chiedono un prezzo su WhatsApp, la chat scorre via e il preventivo non viene mai sollecitato. Questo modello trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
+  "lists": {
+    "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che ti scrivono, con il loro consenso WhatsApp e la data di riordino." },
+    "enquiries": { "label": "Richiesta", "pluralLabel": "Richieste (trattative)", "description": "Una richiesta da una chat, dal primo messaggio a ordine confermato, perso o più avanti." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "Consenso WhatsApp",
+      "options": { "customer_started_chat": "Il cliente ha avviato la chat", "gave_permission": "Ha dato il consenso", "unknown": "Sconosciuto", "opted_out": "Ha chiesto di smettere" }
+    },
+    "contacts.last_order_on": { "label": "Ultimo ordine" },
+    "contacts.reorder_due": { "label": "Riordino previsto" },
+    "enquiries.stage": {
+      "label": "Fase",
+      "options": { "new_chat": "Nuova chat", "qualifying": "Qualificazione", "quote_sent": "Preventivo inviato", "awaiting_payment": "In attesa di pagamento", "won": "Ordine confermato", "lost": "Persa", "later": "Più avanti" }
+    },
+    "enquiries.source": { "label": "Origine", "options": { "click_to_chat": "Link WhatsApp", "website": "Sito web", "instagram": "Instagram", "referral": "Segnalazione", "walk_in": "Di persona", "phone": "Telefono", "ad": "Annuncio" } },
+    "enquiries.interest": { "label": "Prodotto o servizio richiesto" },
+    "enquiries.received_at": { "label": "Primo messaggio ricevuto" },
+    "enquiries.quote_valid_until": { "label": "Preventivo valido fino al" },
+    "enquiries.ordered_on": { "label": "Ordinato il" },
+    "enquiries.service_date": { "label": "Data di consegna o appuntamento" },
+    "enquiries.next_step_due": { "label": "Prossimo contatto" },
+    "enquiries.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "price": "Prezzo", "chose_competitor": "Ha scelto un concorrente", "no_response": "Nessuna risposta", "timing": "Tempi", "not_available": "Non disponibile", "not_a_fit": "Non adatto" }
+    },
+    "enquiries.revisit_on": { "label": "Ricontattare il" },
+    "enquiries.weighted_value": { "label": "Valore ponderato" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Rispondere", "send_quote": "Inviare il preventivo", "follow_up": "Sollecitare", "confirm_order": "Confermare l'ordine", "request_payment": "Chiedere il pagamento", "confirm_appointment": "Confermare l'appuntamento", "reorder_reminder": "Promemoria di riordino", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Contatto", "targetLabel": "Richieste (trattative)" },
+    "action_enquiry": { "sourceLabel": "Richiesta", "targetLabel": "Attività" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Richieste per fase" },
+    "enquiries_all": { "name": "Tutte le richieste" },
+    "open_quotes": { "name": "Preventivi in attesa di risposta" },
+    "later_to_revisit": { "name": "Più avanti, da ricontattare" },
+    "contacts_all": { "name": "Tutti i contatti" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Richieste per fase" },
+    "open_quotes_value": { "title": "Valore dei preventivi in attesa" },
+    "new_chats": { "title": "Nuove chat a cui rispondere" },
+    "reorders_due": { "title": "Riordini in arrivo" },
+    "services_coming": { "title": "Consegne e appuntamenti in arrivo" },
+    "by_source": { "title": "Richieste per origine" },
+    "lost_reasons": { "title": "Motivi di perdita delle richieste" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Guida alle richieste WhatsApp", "sections": ["Rispondere, registrare, fare il preventivo, sollecitare, confermare, ricordare", "Chi risponde e in che tempi"] },
+    "opt_in_rules": { "title": "Consenso e interruzione dei messaggi", "sections": ["Quando un cliente ha accettato di ricevere messaggi", "Che cosa succede quando qualcuno chiede di smettere"] },
+    "follow_up_rhythm": { "title": "Ritmo dei solleciti e quando fermarsi", "sections": ["Giorni tra i solleciti dopo un preventivo", "Il messaggio di chiusura e la data per ricontattare"] },
+    "what_whatsapp_allows": { "title": "Che cosa consente WhatsApp e che cosa questa impostazione non fa", "sections": ["Nessun messaggio di massa, campagna o chatbot", "Il rischio di usare un account collegato"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Creare contatto e richiesta quando viene inviato il modulo con la casella WhatsApp" },
+    "reply_new_chat": { "title": "Creare un'attività di risposta quando nasce una richiesta" },
+    "first_reply_missed": { "title": "Avvisare il responsabile quando una richiesta è ancora una nuova chat un giorno dopo" },
+    "quote_follow_up": { "title": "Sollecitare 2 giorni dopo l'invio di un preventivo" },
+    "quote_expiring": { "title": "Chiedere o chiudere quando un preventivo raggiunge la data di validità" },
+    "payment_request": { "title": "Chiedere il pagamento il giorno dopo l'ingresso in attesa di pagamento" },
+    "won_reorder": { "title": "Creare un promemoria di riordino 90 giorni dopo la conferma di un ordine" },
+    "service_calendar": { "title": "Aggiungere consegna o appuntamento all'agenda quando l'ordine è confermato" },
+    "appointment_confirm": { "title": "Confermare l'appuntamento il giorno prima" },
+    "later_revisit_date": { "title": "Fissare la data per ricontattare a 90 giorni quando una richiesta passa a più avanti" },
+    "revisit_follow_up": { "title": "Sollecitare alla data per ricontattare" },
+    "unanswered_sweep": { "title": "Ogni giorno, creare un'attività di risposta per ogni nuova chat senza risposta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni richiesta ha una fase.",
+    "opt_in_field": "Ogni contatto registra il suo consenso WhatsApp.",
+    "quote_valid_field": "Ogni preventivo indica per quanto tempo è valido.",
+    "enquiries_board_view": "Le richieste si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "CRM WhatsApp: modello per richieste e preventivi",
+    "metaDescription": "CRM WhatsApp: ogni chat diventa una richiesta con preventivo e prossimo passo con data. Incolla il modello nel tuo agente IA. Non è l’API ufficiale.",
+    "headline": "Un CRM WhatsApp che trasforma ogni chat in una richiesta con un prossimo passo con data, costruito dal tuo agente IA",
+    "answer": "Per fare follow-up su WhatsApp rispondi in fretta, registra ogni chat come richiesta con il preventivo e la sua validità, dalle un prossimo passo con data e annota quando tornare. Incolla questo modello nel tuo agente IA e lui costruisce l’elenco delle richieste in Customermates, con ogni chat collegata alla sua richiesta. Approvi tu il piano prima che venga costruito qualcosa. Funziona con risposte riviste una per una, senza invii di massa, bot né API ufficiale.",
+    "routine": {
+      "title": "Il controllo quotidiano di WhatsApp",
+      "steps": [
+        "Apri la casella WhatsApp e rispondi a ogni nuova chat. Come impostazione di base, conferma entro circa un’ora nell’orario di lavoro e rispondi per intero lo stesso giorno.",
+        "Verifica che ogni chat dell’ultimo giorno sia in un solo stato: risposta, con un prossimo passo con data oppure chiusa con un motivo.",
+        "Sollecita i preventivi due giorni dopo l’invio e ancora una volta qualche giorno dopo. Poi invia un messaggio di chiusura e fissa una data per tornare.",
+        "Chiedi il pagamento il giorno dopo che una richiesta arriva in attesa di pagamento e conferma la consegna o l’appuntamento il giorno prima.",
+        "Guarda le date per tornare e i promemoria di riordino in scadenza e scrivi a questi clienti uno per uno."
+      ]
+    },
+    "limits": [
+      "Non è la piattaforma ufficiale WhatsApp Business. L’account si collega con un codice QR, quindi non ci sono modelli di messaggio, liste di broadcast, campagne, sequenze, chatbot o flow, né sincronizzazione del catalogo né funzioni per le aziende verificate.",
+      "Il rischio per l’account è tuo. WhatsApp può limitare o rimuovere un account usato in un modo vietato dalle sue regole, per esempio scrivendo a molte persone. Tieni il volume basso, con consenso e umano.",
+      "Una chat non viene collegata automaticamente a una richiesta. La colleghi tu o il tuo agente, e le chat di gruppo non vanno collegate a un cliente.",
+      "Non ci sono preventivi, fatture, link di pagamento né gestione ordini. Restano nel tuo programma di contabilità o nel negozio online; il modello conserva importo, validità e fase.",
+      "Per collegare WhatsApp serve un piano che comprenda la casella di posta. Senza, puoi comunque seguire le richieste a mano."
+    ],
+    "faq": [
+      {
+        "question": "Con quale rapidità rispondere a una richiesta WhatsApp?",
+        "answer": "Tutte le fonti dicono in fretta e nessuna indica un numero ufficiale. Uno studio sulle richieste online ha rilevato che la maggior parte delle aziende risponde troppo lentamente, e la cifra spesso citata di cinque minuti non ha potuto essere confermata. Il modello usa come impostazione di base circa un’ora nell’orario di lavoro per la prima risposta e la risposta completa lo stesso giorno. Adattala alla tua attività."
+      },
+      {
+        "question": "Basta l’app WhatsApp Business con le etichette?",
+        "answer": "Le guide per le piccole imprese consigliano da tre a cinque etichette come pipeline, per esempio nuovo cliente, ordine confermato e in attesa di pagamento. Il limite: nessuna storia tra le persone, nessuna data di sollecito e niente sopravvive all’uscita di un collaboratore. Il modello trasforma le etichette in fasi e aggiunge date e responsabile, mentre la chat resta la prova."
+      },
+      {
+        "question": "Ogni quanto sollecitare un preventivo?",
+        "answer": "Su WhatsApp il ritmo è più breve che per e-mail. Un buon valore di base: due giorni dopo il preventivo, una seconda volta qualche giorno dopo, poi un messaggio di chiusura che dice che forse non è il momento giusto e una data per tornare dopo circa 90 giorni. Il modello programma il primo sollecito come attività con data; le scadenze le regoli tu."
+      },
+      {
+        "question": "Serve il consenso del cliente per scrivergli su WhatsApp?",
+        "answer": "La politica WhatsApp per le aziende dice di contattare solo chi ha dato il proprio numero e il proprio consenso e di rispettare i rifiuti. Il modello annota per ogni contatto se il cliente ha avviato la chat, ha dato il consenso o ha chiesto di smettere. Ti servono anche una base giuridica e un’informativa conformi al GDPR. Tieni fuori dal modello i dati sanitari: la scheda cliente di una clinica non va qui."
+      },
+      {
+        "question": "L’agente invia messaggi ai miei clienti?",
+        "answer": "No. Il prompt chiede risposte scritte una per una per la tua revisione, nulla in massa e nessun dato di esempio. Ogni risposta la invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "I clienti mi chiedono i prezzi su WhatsApp e perdo la chat prima di fare il sollecito. Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
+    "questions": [
+      "Che cosa ti chiedono i clienti su WhatsApp e come fai i preventivi?",
+      "In quanto tempo vuoi rispondere a una nuova chat?",
+      "Quanti giorni aspetti dopo un preventivo prima di sollecitare e quando smetti?",
+      "I clienti riordinano e dopo quanto tempo?"
+    ]
+  }
+}

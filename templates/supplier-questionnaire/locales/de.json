@@ -1,0 +1,172 @@
+{
+  "locale": "de",
+  "name": "Lieferantenfragebogen",
+  "summary": "Wissen, welche Lieferanten freigegeben sind und welches Zertifikat als Nächstes abläuft. Ein Lieferantenregister mit Fragebogen, Zertifikaten mit Ablaufdatum, Risikoklasse und einer Entscheidung je Lieferant.",
+  "description": "Zertifikate von Lieferanten laufen ab und Neubewertungen fallen aus, wenn die Antworten in E-Mails und Ordnern liegen. Diese Vorlage qualifiziert Lieferanten und Auftragnehmer an einem Ort: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Sie koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei deinen Lieferanten, die Fragebögen beantworten und Dokumente schicken." },
+    "suppliers": { "label": "Lieferant", "pluralLabel": "Lieferanten", "description": "Jeder Lieferant und Auftragnehmer, vom Kandidaten bis freigegeben oder gesperrt." },
+    "questionnaires": { "label": "Fragebogen", "pluralLabel": "Fragebögen", "description": "Ein Fragebogen an einen Lieferanten, mit Frist und Entscheidung." },
+    "documents": { "label": "Dokument", "pluralLabel": "Dokumente", "description": "Zertifikate, Bescheinigungen und Verträge mit ihrem Gültig-bis-Datum." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Funktion",
+      "options": { "sales": "Vertrieb", "quality": "Qualität", "compliance": "Compliance", "finance": "Finanzen", "other": "Sonstige" }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Kandidat", "questionnaire_sent": "Fragebogen versendet", "under_review": "In Prüfung", "approved": "Freigegeben", "approved_with_conditions": "Bedingt freigegeben", "blocked": "Gesperrt", "offboarded": "Ausgeschieden" }
+    },
+    "suppliers.risk_tier": { "label": "Risikoklasse", "options": { "low": "Niedrig", "moderate": "Mittel", "high": "Hoch", "critical": "Kritisch" } },
+    "suppliers.category": {
+      "label": "Kategorie",
+      "options": { "raw_materials": "Rohstoffe", "components": "Bauteile", "services": "Dienstleistungen", "subcontracting": "Lohnfertigung", "software_it": "Software und IT", "logistics": "Logistik" }
+    },
+    "suppliers.country": { "label": "Land" },
+    "suppliers.critical_supplier": { "label": "Kritischer Lieferant" },
+    "suppliers.processes_personal_data": { "label": "Verarbeitet personenbezogene Daten" },
+    "suppliers.review_owner": { "label": "Verantwortlich für die Bewertung" },
+    "suppliers.qualified_on": { "label": "Qualifiziert am" },
+    "suppliers.next_review": { "label": "Nächste Bewertung" },
+    "questionnaires.kind": {
+      "label": "Art",
+      "options": { "registration": "Selbstauskunft", "qualification": "Qualifizierung", "re_evaluation": "Neubewertung", "regulatory_evidence": "Nachweis zu Vorschriften" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Entwurf", "sent": "Versendet", "partial": "Teilweise beantwortet", "received": "Eingegangen", "reviewed": "Geprüft" }
+    },
+    "questionnaires.sent_on": { "label": "Versendet am" },
+    "questionnaires.due_on": { "label": "Frist" },
+    "questionnaires.received_on": { "label": "Eingegangen am" },
+    "questionnaires.score": { "label": "Punktzahl" },
+    "questionnaires.decision": {
+      "label": "Entscheidung",
+      "options": { "approve": "Freigeben", "approve_with_conditions": "Bedingt freigeben", "escalate": "Eskalieren", "reject": "Ablehnen" }
+    },
+    "questionnaires.reviewer": { "label": "Prüfer" },
+    "questionnaires.form_link": { "label": "Link zum Formular" },
+    "documents.doc_type": {
+      "label": "Dokumentart",
+      "options": { "quality_certificate": "Qualitätszertifikat", "environmental_certificate": "Umweltzertifikat", "security_certificate": "Sicherheitszertifikat", "insurance": "Versicherungsnachweis", "tax_clearance": "Unbedenklichkeitsbescheinigung", "registration_extract": "Handelsregisterauszug", "data_processing_agreement": "Auftragsverarbeitungsvertrag", "other": "Sonstiges" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Angefordert", "received": "Eingegangen", "under_review": "In Prüfung", "accepted": "Akzeptiert", "rejected": "Abgelehnt", "expired": "Abgelaufen" }
+    },
+    "documents.requested_on": { "label": "Angefordert am" },
+    "documents.received_on": { "label": "Eingegangen am" },
+    "documents.valid_until": { "label": "Gültig bis" },
+    "documents.evidence_link": { "label": "Link zur Datei" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "send_questionnaire": "Fragebogen senden",
+        "chase_supplier": "Lieferanten erinnern",
+        "review_answers": "Antworten prüfen",
+        "request_document": "Dokument anfordern",
+        "verify_document": "Dokument prüfen",
+        "decide": "Entscheiden",
+        "re_evaluate": "Neu bewerten",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Ansprechpartner" },
+    "questionnaire_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Fragebögen" },
+    "document_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Dokumente" },
+    "action_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Alle Lieferanten" },
+    "suppliers_board": { "name": "Qualifizierungs-Board" },
+    "documents_all": { "name": "Alle Dokumente" },
+    "expired_documents": { "name": "Abgelaufen oder abgelehnt" },
+    "questionnaires_all": { "name": "Alle Fragebögen" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Lieferanten nach Status" },
+    "suppliers_by_risk": { "title": "Lieferanten nach Risikoklasse" },
+    "documents_expiring": { "title": "Ablaufende Dokumente" },
+    "questionnaires_open": { "title": "Fragebögen ohne Antwort" },
+    "reviews_coming": { "title": "Anstehende Bewertungen" },
+    "documents_expired": { "title": "Abgelaufene Dokumente" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Ablauf der Lieferantenqualifizierung", "sections": ["Bedarf, Kriterien und wer freigibt", "Fragebogen, Dokumente, Entscheidung"] },
+    "document_requirements": { "title": "Zertifikate und Bescheinigungen, die wir verlangen", "sections": ["Nach Kategorie und Risikoklasse", "Wie lange jedes Dokument gilt"] },
+    "re_evaluation": { "title": "Turnus der Lieferantenbewertung", "sections": ["Bewertungstermine nach Risikoklasse", "Anlässe für eine vorzeitige Bewertung"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Lieferanten erinnern, wenn die Frist eines Fragebogens verstrichen ist" },
+    "review_answers": { "title": "Antworten 3 Tage nach Eingang des Fragebogens prüfen" },
+    "renew_document": { "title": "Erneuertes Dokument 30 Tage vor Ablauf anfordern" },
+    "document_expiry_notice": { "title": "Zuständige informieren, wenn ein Dokument abläuft" },
+    "re_evaluate_supplier": { "title": "Neubewertung 14 Tage vor dem nächsten Bewertungstermin starten" },
+    "decide_after_review": { "title": "Innerhalb von 5 Tagen entscheiden, wenn ein Lieferant in Prüfung geht" },
+    "registration_form_records": { "title": "Lieferant und Ansprechpartner anlegen, wenn das Formular zur Selbstauskunft abgeschickt wird" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jeder Lieferant hat einen Qualifizierungsstatus.",
+    "valid_until_field": "Jedes Dokument hält fest, bis wann es gültig ist.",
+    "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
+  },
+  "page": {
+    "metaTitle": "Lieferantenbewertung Vorlage: Register mit Ablaufdaten",
+    "metaDescription": "Lieferantenbewertung mit Fragebogen, Zertifikaten und Ablaufdaten in einem Register. Vorlage in Claude, ChatGPT oder Codex einfügen und aufbauen lassen.",
+    "headline": "Lieferantenbewertung mit Ablaufdaten: ein Lieferantenregister, das Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Lieferantenbewertung hält für jeden Lieferanten Fragebogen, Zertifikate mit Gültig-bis-Datum, Risikoklasse und Entscheidung an einem Ort fest und zeigt, wann die nächste Bewertung fällig ist. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut das Lieferantenregister in Customermates auf, mit terminierten Folgeaufgaben für Fragebögen, Erneuerungen und Neubewertungen. Sie genehmigen den Plan, bevor etwas aufgebaut wird. Das Register dokumentiert Anforderungen und Entscheidungen, es entscheidet nicht über Rechtskonformität.",
+    "routine": {
+      "title": "Der wöchentliche Lieferantencheck",
+      "steps": [
+        "Haken Sie bei jedem Lieferanten nach, dessen Fragebogen über die Frist hinaus ist.",
+        "Prüfen Sie die Antworten der zuletzt eingegangenen Fragebögen und vermerken Sie, welche Antworten noch keinen aktuellen Nachweis haben.",
+        "Fordern Sie erneuerte Zertifikate und Bescheinigungen an, die innerhalb von 30 Tagen ablaufen, und klären Sie die bereits abgelaufenen: Lieferant sperren oder das Risiko schriftlich akzeptieren.",
+        "Halten Sie bei Lieferanten in Prüfung die Entscheidung fest (freigeben, bedingt freigeben, eskalieren oder ablehnen) und setzen Sie den nächsten Bewertungstermin nach Risikoklasse.",
+        "Starten Sie die Neubewertung der Lieferanten, deren nächster Bewertungstermin innerhalb von 14 Tagen liegt."
+      ]
+    },
+    "limits": [
+      "Es entscheidet nicht, ob ein Lieferant, ein Produkt oder eine Lieferkette ein Gesetz einhält, und reicht keine Sorgfaltserklärung und keinen Bericht ein. Es hält Anforderungen, Nachweise und Entscheidungen fest.",
+      "Es ist kein Prüfdienst: keine Sanktionslisten-, Negativpresse- oder Bonitätsprüfung und keine Anreicherung von Firmendaten.",
+      "Es ist kein ERP-, Einkaufs- oder Rechnungssystem. Bestellungen, Umsätze und Rechnungen gibt es hier nicht.",
+      "Es ist kein Dokumentenarchiv. Dateien sind nur durchsuchbar, wenn sie eine Textebene haben, eingescannte Zertifikate werden nicht gelesen, und es gibt keinen unveränderlichen oder unabhängig aufbewahrten Prüfpfad. Die Originale bleiben in Ihrem Dokumentensystem, hier steht der Link.",
+      "Lieferanten können sich nicht anmelden, um zu antworten oder Dateien hochzuladen, und es gibt weder elektronische Signatur noch Rechte auf Feldebene. Vertrauliches gehört in eine eigene Liste oder einen eigenen Workspace. Plattformen wie EcoVadis, Sedex oder SAP Ariba übernehmen, was hier fehlt."
+    ],
+    "faq": [
+      {
+        "question": "Wie oft sollte ich Lieferanten neu bewerten?",
+        "answer": "Die Fachliteratur nennt mindestens einmal jährlich. In der Praxis werden kritische Lieferanten halbjährlich oder jährlich geprüft und zusätzlich nach einem Anlass wie einer Übernahme, einem neuen Unterlieferanten oder einem Vorfall, unkritische Lieferanten auch ein Jahr oder länger nicht. Die Vorlage setzt den nächsten Bewertungstermin nach Risikoklasse; bei einem Anlass lösen Sie die Neubewertung selbst aus."
+      },
+      {
+        "question": "Welche Kriterien gehören in eine Lieferantenbewertung?",
+        "answer": "Üblich sind sechs: Qualität, Preis-Leistung, Lieferzuverlässigkeit, Flexibilität, Kommunikation und Nachhaltigkeit. Ob Punktbewertung, Nutzwertanalyse oder ABC-Analyse: Die ISO 9001 schreibt keine Methode vor, verlangt aber dokumentierte, nachvollziehbare Kriterien. Zertifikate sind Hinweise und ersetzen die eigene Bewertung nicht."
+      },
+      {
+        "question": "Was gehört in eine Lieferantenselbstauskunft?",
+        "answer": "Firmendaten und Ansprechpartner, Zertifikate wie ISO 9001, ISO 14001 oder ISO 45001, Versicherungsnachweise und, wenn der Lieferant personenbezogene Daten verarbeitet, ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO. Zu jeder Antwort, die eine Entscheidung beeinflusst, gehören Nachweis und Datum; ein Ja ohne aktuellen Nachweis bleibt offen."
+      },
+      {
+        "question": "Entscheidet die Vorlage, ob wir das Lieferkettengesetz einhalten?",
+        "answer": "Nein. Sie sammelt Anforderungen und Nachweise und hält Termine und Entscheidungen fest. Geltungsbereich und Fristen von Regelungen wie dem Lieferkettengesetz oder der EU-Entwaldungsverordnung ändern sich weiter, klären Sie sie mit Ihrer Rechtsberatung. Die Vorlage sagt nie, dass ein Lieferant oder ein Produkt konform ist."
+      },
+      {
+        "question": "Schreibt der Agent meine Lieferanten an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ich arbeite mit vielen Lieferanten und sehe nicht, wessen Zertifikate abgelaufen sind und wer neu bewertet werden muss. Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
+    "questions": [
+      "Wie viele Lieferanten hast du, und wie teilst du sie nach Risiko ein?",
+      "Welche Zertifikate oder Bescheinigungen verlangst du, und wie lange ist jedes gültig?",
+      "Wer prüft die Antworten, und wer gibt einen Lieferanten frei?",
+      "Wie oft bewertest du einen Lieferanten neu? Dateien bleiben in deinem Dokumentensystem, hier steht nur ein Link."
+    ]
+  }
+}

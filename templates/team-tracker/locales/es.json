@@ -1,0 +1,137 @@
+{
+  "locale": "es",
+  "name": "Seguimiento del equipo",
+  "summary": "Ve quién hace qué y para cuándo, sin una herramienta de proyectos pesada. Proyectos y tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes de fuera del equipo en la misma lista.",
+  "description": "En un equipo pequeño las tareas se esconden en el chat, en tableros y en la cabeza de cada uno, y una tarea bloqueada pasa desapercibida hasta el día de su vencimiento. Esta plantilla mantiene a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+  "lists": {
+    "requesters": { "label": "Solicitante", "pluralLabel": "Solicitantes", "description": "Las personas ajenas al equipo que piden trabajo." },
+    "projects": { "label": "Proyecto", "pluralLabel": "Proyectos", "description": "Un conjunto de tareas con responsable, estado de salud y vencimiento." },
+    "tasks": { "label": "Tarea", "pluralLabel": "Tareas", "description": "Un trabajo con un responsable y un vencimiento." },
+    "recurring": { "label": "Tarea recurrente", "pluralLabel": "Tareas recurrentes", "description": "Una tarea que vuelve cada semana, mes, trimestre o año." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relación",
+      "options": { "customer": "Cliente", "colleague": "Compañero", "partner": "Socio", "vendor": "Proveedor", "other": "Otro" }
+    },
+    "requesters.team": { "label": "Equipo" },
+    "projects.status": {
+      "label": "Estado",
+      "options": { "planned": "Planificado", "active": "Activo", "on_hold": "En pausa", "done": "Terminado", "cancelled": "Cancelado" }
+    },
+    "projects.health": { "label": "Salud", "options": { "on_track": "En plazo", "at_risk": "En riesgo", "off_track": "Desviado" } },
+    "projects.owner": { "label": "Responsable" },
+    "projects.due_date": { "label": "Vencimiento" },
+    "projects.repo_url": { "label": "Enlace al repositorio" },
+    "tasks.status": {
+      "label": "Estado",
+      "options": { "backlog": "Backlog", "todo": "Por hacer", "in_progress": "En curso", "in_review": "En revisión", "blocked": "Bloqueada", "done": "Hecha", "cancelled": "Cancelada" }
+    },
+    "tasks.kind": { "label": "Tipo", "options": { "task": "Tarea", "bug": "Error", "feature": "Funcionalidad", "chore": "Mantenimiento", "request": "Solicitud" } },
+    "tasks.priority": { "label": "Prioridad", "options": { "urgent": "Urgente", "high": "Alta", "medium": "Media", "low": "Baja" } },
+    "tasks.owner": { "label": "Responsable" },
+    "tasks.due": { "label": "Vencimiento" },
+    "tasks.original_due": { "label": "Vencimiento original" },
+    "tasks.done_on": { "label": "Hecha el" },
+    "tasks.blocked_reason": { "label": "Motivo del bloqueo" },
+    "tasks.external_url": { "label": "Enlace (pull request o ticket)" },
+    "recurring.cadence": { "label": "Se repite", "options": { "weekly": "Cada semana", "monthly": "Cada mes", "quarterly": "Cada trimestre", "yearly": "Cada año" } },
+    "recurring.next_due": { "label": "Próximo vencimiento" },
+    "recurring.owner": { "label": "Responsable" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Proyecto", "targetLabel": "Tareas" },
+    "task_requester": { "sourceLabel": "Solicitante", "targetLabel": "Tareas" },
+    "recurring_project": { "sourceLabel": "Proyecto", "targetLabel": "Tareas recurrentes" }
+  },
+  "views": {
+    "tasks_all": { "name": "Todas las tareas" },
+    "tasks_board": { "name": "Tablero de tareas" },
+    "blocked_tasks": { "name": "Tareas bloqueadas" },
+    "projects_all": { "name": "Todos los proyectos" },
+    "recurring_all": { "name": "Todas las tareas recurrentes" },
+    "requesters_all": { "name": "Todos los solicitantes" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Tareas por estado" },
+    "open_by_priority": { "title": "Tareas abiertas por prioridad" },
+    "overdue_tasks": { "title": "Tareas vencidas" },
+    "due_soon": { "title": "Tareas que vencen pronto" },
+    "blocked_count": { "title": "Tareas bloqueadas" },
+    "activity_timeline": { "title": "Actividad reciente" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Cómo trabajamos", "sections": ["Estados, prioridades y qué significa hecha", "Un responsable y una fecha por tarea"] },
+    "weekly_review": { "title": "Revisión semanal", "sections": ["Retrasos, bloqueos y tareas sin responsable", "Qué cambia esta semana"] },
+    "triage": { "title": "Clasificación de solicitudes y errores", "sections": ["Quién decide lo que entra", "Gravedad y prioridad"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Avisar al nuevo responsable cuando se le asigna una tarea" },
+    "due_tomorrow": { "title": "Avisar al responsable el día antes del vencimiento" },
+    "overdue_task": { "title": "Avisar a la persona a cargo al día siguiente del vencimiento" },
+    "blocked_stale": { "title": "Avisar a la persona a cargo cuando una tarea sigue bloqueada 3 días" },
+    "stale_in_progress": { "title": "Recordar al responsable cuando una tarea lleva 5 días sin moverse" },
+    "recurring_due": { "title": "Crear una tarea cuando vence una tarea recurrente" },
+    "task_from_git": { "title": "Crear una tarea cuando el servicio de Git envía un evento" },
+    "request_form": { "title": "Crear la tarea y el solicitante cuando se envía el formulario de solicitud" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada tarea tiene un estado.",
+    "due_field": "Cada tarea tiene un vencimiento.",
+    "tasks_board_view": "Las tareas se abren como tablero por estado."
+  },
+  "page": {
+    "metaTitle": "Kanban online para equipos pequeños: plantilla de tareas",
+    "metaDescription": "Un kanban online sencillo para 2 a 15 personas: un responsable y un vencimiento por tarea, errores y tareas recurrentes. Pega la plantilla en tu agente de IA.",
+    "headline": "Un kanban online para equipos pequeños: un responsable y un vencimiento por tarea, montado por tu agente de IA",
+    "answer": "Un kanban online para un equipo pequeño es una sola lista de tareas, cada una con un responsable, un estado, una prioridad y un vencimiento, más un tablero y una revisión semanal corta de lo que va con retraso o está bloqueado. Pega esta plantilla en tu agente de IA y él monta la lista en Customermates, con proyectos, tareas recurrentes y solicitudes de fuera del equipo. Tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La reunión semanal del equipo en 30 minutos",
+      "steps": [
+        "Abre la lista de la semana pasada y empieza por lo prometido: qué está hecho y qué se ha retrasado.",
+        "Repasa las tareas atrasadas y bloqueadas y decide para cada una: volver a comprometerse, reducir el alcance o reasignar. Cuando una fecha se retrasa, conserva la original y anota la nueva con el motivo.",
+        "Mira las tareas que llevan cinco días sin moverse y pregúntate si son vagas o demasiado grandes. Cierra las que nadie necesita.",
+        "Clasifica las solicitudes y los errores nuevos: dale a cada uno un tipo, una prioridad y un responsable.",
+        "Termina releyendo la lista, para que cada tarea tenga un responsable con nombre y un vencimiento antes de cerrar la reunión."
+      ]
+    },
+    "limits": [
+      "No es una herramienta de sprints ni de velocidad: no hay sprints, puntos de historia ni gráficos burn-down. Un equipo que los necesite se queda con Linear o Jira.",
+      "No es un planificador Gantt, de dependencias o de capacidad, ni un control de horas ni un gestor de versiones.",
+      "No es un alojamiento de código, un sistema de integración continua ni un servicio de atención con tiempos de respuesta. El enlace a una pull request o a un ticket es un simple campo de enlace.",
+      "No hay integración nativa con Slack ni con Teams ni aplicación móvil. Para Slack, el camino es n8n.",
+      "No es un sistema de recursos humanos ni de evaluación del desempeño, y no tiene inicio de sesión único ni permisos por campo."
+    ],
+    "faq": [
+      {
+        "question": "¿Puede una herramienta sencilla sustituir a Trello, Jira o una hoja de cálculo?",
+        "answer": "Para entre dos y quince personas que quieren un responsable y un vencimiento por tarea, una revisión semanal y las solicitudes externas en la misma lista, sí. Exporta tu tablero u hoja a CSV o Excel e impórtalos con el asistente de asignación de columnas, o deja que tu agente asigne e importe. Si necesitas sprints, velocidad o dependencias, quédate con Linear, Jira o ClickUp."
+      },
+      {
+        "question": "¿Qué estados debería usar un equipo pequeño?",
+        "answer": "Menos de los que se cree. Por hacer, En curso y Hecho de Trello, o Backlog, Todo, In Progress, Done y Canceled de Linear, son típicos. La plantilla parte de siete estados (Backlog, Por hacer, En curso, En revisión, Bloqueada, Hecha, Cancelada) que puedes renombrar o quitar. Bloqueada tiene su sitio, porque si no una tarea bloqueada pasa desapercibida hasta su vencimiento."
+      },
+      {
+        "question": "¿Conviene trabajar por sprints o con un tablero?",
+        "answer": "Las guías de kanban apuestan por el flujo y por limitar el trabajo en curso; Linear y Jira, más bien por los sprints. Esta plantilla usa un tablero y un vencimiento y no tiene un objeto sprint, así que un equipo que necesite velocidad se queda con una herramienta de sprints."
+      },
+      {
+        "question": "¿Deben cerrarse solas las tareas estancadas?",
+        "answer": "No. Un aviso tras cinco días sin movimiento es más seguro que un cierre automático, y las guías de reuniones aconsejan cerrar de forma explícita lo que se estanca. La plantilla avisa al responsable y él decide. Una tarea que sigue abierta semana tras semana suele ser vaga o demasiado grande: corrige la definición, no a la persona."
+      },
+      {
+        "question": "¿El agente escribe a mi equipo?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "El trabajo de nuestro equipo está repartido entre el chat, un tablero y una hoja de cálculo, y no veo qué va con retraso ni qué está bloqueado. Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+    "questions": [
+      "¿Cuántas personas tiene el equipo y en qué trabajan?",
+      "¿Qué estados usas hoy en Trello, Jira, Asana o una hoja de cálculo?",
+      "¿Qué tareas vuelven cada semana o cada mes y quién es responsable?",
+      "¿De dónde vienen las solicitudes y deben llegar por un formulario?"
+    ]
+  }
+}

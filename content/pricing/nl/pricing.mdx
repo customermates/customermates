@@ -13,7 +13,7 @@ pricing:
   totalSuffixPlural: "/maand in totaal voor {count} gebruikers"
   moreTitle: "Meer gebruik of een setup op maat"
   selfHost:
-    text: "Liever zelf draaien? De open source editie kun je gratis zelf hosten."
+    text: "Liever zelf draaien? De zelf gehoste Community Edition staat op GitHub: broncode beschikbaar, gratis voor je eigen bedrijf."
     linkLabel: "Gids voor zelf hosten"
     href: /docs/self-hosting
   pricingCards:
@@ -187,6 +187,10 @@ comparison:
     rows:
       - label: Routines per gebruiker
         catalogFact: includedRoutinesPerUser
+      - label: Actieve automatiseringen
+        catalogFact: activeAutomationRules
+      - label: Agents met je eigen AI-sleutel
+        catalogFact: agentOwnKey
       - label: Bestandsopslag per gebruiker, gedeeld in de werkruimte
         catalogFact: fileStoragePerActiveUser
       - label: "API- en MCP-verzoeken per werkruimte"
@@ -221,6 +225,10 @@ comparison:
         enterprise: true
       - label: "Webhooks en de n8n-trigger"
         catalogFact: webhooks
+      - label: Formulierinzendingen per maand
+        catalogFact: formSubmissionsPerMonth
+      - label: Formulieren zonder Customermates-vermelding
+        catalogFact: formBadge
       - label: MCP-toegang voor een externe AI-client
         free: true
         starter: true
@@ -244,13 +252,13 @@ comparison:
         business: false
         max: false
         enterprise: "Op aanvraag"
-      - label: White-label (nog niet gebouwd, op afspraak)
+      - label: Insluiten en white-label (nog niet gebouwd, op afspraak)
         free: false
         starter: false
         pro: false
         business: false
         max: false
-        enterprise: "Op aanvraag"
+        enterprise: "Op afspraak, de branding blijft zichtbaar"
       - label: Contractueel afgesproken workflow voor eigen agents (niet ingebouwd)
         free: false
         starter: false
@@ -321,7 +329,10 @@ faq:
     content: "Je eerste Cloud-werkruimte begint met de Pro-proefperiode van [[commercial.trial.days]] dagen, zonder creditcard; elke volgende werkruimte begint met het kiezen van een abonnement. Als de proefperiode eindigt zonder betaald abonnement, gaat de werkruimte over naar Free in plaats van te worden vergrendeld, en er wordt niets verwijderd. Free is om Customermates alleen uit te proberen: [[commercial.limit.free.maxMembers]] persoon, maximaal [[commercial.limit.free.maxRecords]] records en [[commercial.limit.free.fileStorageBytes]] bestandsopslag per werkruimte. Het heeft geen inbox of gekoppelde accounts, geen Mate, geen routines, geen webhooks en geen n8n-trigger. De REST API en MCP zijn inbegrepen met maximaal [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag per werkruimte, zodat je je eigen Claude of ChatGPT kunt meenemen. Records en bestanden boven een limiet blijven staan; alleen meer toevoegen wordt geweigerd. Je kunt op elk moment overstappen op een betaald abonnement. Een zelf gehoste instantie blijft gratis zonder deze limieten."
   - id: pricing-faq-13
     title: "Wat gebeurt er met mijn team als een werkruimte overgaat naar Free?"
-    content: "Free houdt [[commercial.limit.free.maxMembers]] actieve persoon per werkruimte: degene die de werkruimte heeft aangemaakt, of anders de eerste beheerder. Alle anderen worden gepauzeerd, niet verwijderd. Gepauzeerde mensen kunnen de werkruimte niet openen, en hun records, notities en geschiedenis blijven bestaan. Openstaande uitnodigingen en verzoeken om lid te worden worden geannuleerd, routines worden gepauzeerd en bestaande webhooks stoppen met verzenden. Een beheerder kan de actieve plek aan een andere beheerder overdragen. Zodra de werkruimte een betaald abonnement kiest, komt iedere gepauzeerde persoon automatisch terug en telt weer als betaalde plek, en routines en webhooks hervatten."
+    content: "Free houdt [[commercial.limit.free.maxMembers]] actieve persoon per werkruimte: degene die de werkruimte heeft aangemaakt, of anders de eerste beheerder. Alle anderen worden gepauzeerd, niet verwijderd. Gepauzeerde mensen kunnen de werkruimte niet openen, en hun records, notities en geschiedenis blijven bestaan. Openstaande uitnodigingen en verzoeken om lid te worden worden geannuleerd, routines worden gepauzeerd, automatiseringen boven de Free-limiet van [[commercial.entitlement.free.activeAutomationRules]] worden uitgezet, openbare formulieren nemen boven de maandlimiet van [[commercial.entitlement.free.formSubmissionsPerMonth]] geen inzendingen meer aan en bestaande webhooks stoppen met verzenden. Een beheerder kan de actieve plek aan een andere beheerder overdragen. Zodra de werkruimte een betaald abonnement kiest, komt iedere gepauzeerde persoon automatisch terug en telt weer als betaalde plek, en routines, automatiseringen, formulieren en webhooks hervatten."
+  - id: pricing-faq-14
+    title: "Hoe controleren jullie het gebruik van een zelf gehoste instantie?"
+    content: "Dat doen we niet. Een zelf gehoste Community Edition heeft geen licentiesleutel en meldt geen gebruik aan Customermates: het gepubliceerde image heeft geen licentie-ping en zet de telemetrie van Next.js en Prisma uit, en fouten van de app blijven in je eigen logs. De licentie geldt door haar voorwaarden, niet door telemetrie: de Sustainable Use License beperkt het gebruik tot je eigen bedrijf, en Enterprise-functies, insluiten en white-label vragen een overeenkomst. Een Cloud-abonnement ontgrendelt niets op een zelf gehoste instantie. Meer: https://customermates.com/docs/licence-faq en https://customermates.com/docs/compare-editions"
 
 cta:
   action: "Klaar om elke klant op te volgen?"

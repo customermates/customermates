@@ -113,11 +113,11 @@ Microsoft zegt dat de Sales-agent in Microsoft 365 Copilot de voorkeursmanier wo
 
 ## Customermates als AI-native CRM
 
-Customermates is een open-source CRM, gebouwd in Duitsland voor kleine teams die met klanten werken: consultants, bureaus, andere dienstverleners en oprichters. Contacten, organisaties, deals, diensten en taken staan in één werkruimte; op Pro en hoger staan de e-mail-, LinkedIn- en WhatsApp-gesprekken erover ernaast. AI bereikt die gegevens op twee manieren, en zelf hosten bepaalt welke van de twee je krijgt.
+Customermates is een source-available CRM, gebouwd in Duitsland voor kleine teams die met klanten werken: consultants, bureaus, andere dienstverleners en oprichters. Contacten, organisaties, deals, diensten en taken staan in één werkruimte; op Pro en hoger staan de e-mail-, LinkedIn- en WhatsApp-gesprekken erover ernaast. AI bereikt die gegevens op twee manieren, en zelf hosten bepaalt welke van de twee je krijgt.
 
 | | Mate | Je eigen AI-client via MCP | Zelf gehost |
 |---|---|---|---|
-| Waar het draait | Customermates Cloud, elk betaald abonnement | Customermates Cloud op elk abonnement, en zelf gehost | Je eigen server, met de AGPL-kern |
+| Waar het draait | Customermates Cloud, elk betaald abonnement | Customermates Cloud op elk abonnement, en zelf gehost | Je eigen server, met de Community Edition |
 | Wie het model betaalt | Maandelijkse gehoste AI-credits per actieve gebruiker | Je eigen AI-abonnement of -aanbieder; clients zijn onder meer Claude, ChatGPT, Cursor, Codex en Gemini CLI | Je eigen AI-aanbieder, via MCP |
 | Inbox | Pro en hoger | Berichtentools op Pro en hoger, alleen cloud | Geen inbox |
 | Uitvoeringen zonder toezicht | Routines | Alleen als je client ze inplant | Geen Mate en geen routines |
@@ -168,7 +168,7 @@ Zo ziet opvolging er in de praktijk uit: LinkedIn- en e-mailthreads bij de klant
 - Geen e-mailsequenties of massaverzending. Routines hebben geen ontvangerslijsten of sequentiestappen, en Mate verstuurt losse berichten.
 - Geen agenda-afspraken inplannen. Pro en hoger lezen gekoppelde agenda's zonder ernaar te schrijven.
 - Geen native mobiele app.
-- Geen inbox, Mate of routines als je zelf host. Zelf hosten geeft je de AGPL-kern met REST, webhooks en MCP.
+- Geen inbox, Mate of routines als je zelf host. Zelf hosten geeft je de Community Edition met REST, webhooks en MCP.
 
 Is voorspellende scoring voor een groot salesteam de reden dat je AI wilt, dan past Customermates niet: kijk naar Zoho CRM met Zia of naar Salesforce, waarvan de eigen pagina's voorspellende functies beschrijven.
 
@@ -218,7 +218,7 @@ Niet het record zelf. Een AI-model heeft een plek nodig waar staat wie de klant 
 </FaqItem>
 
 <FaqItem question="Is AI in een CRM veilig voor klantgegevens onder de AVG?">
-Dat hangt af van waar het model draait en wie de gegevens verwerkt, dus vraag elke aanbieder om de lijst met subverwerkers en een verwerkersovereenkomst. In Customermates Cloud is de primaire database geconfigureerd in de AWS-regio Frankfurt. De pagina met subverwerkers noemt Google Cloud Vertex AI, Exa en TypeSafe AI voor werk aan modellen, webzoekopdrachten en ranking. De primaire chatroute van Mate is aan de EU vastgepind, maar embeddings en andere verwerking kunnen de Verenigde Staten betreffen. Microsoft Azure bedient geen enkel Mate-verzoek. Met je eigen AI-client via MCP gaan de gegevens die de client leest naar de AI-aanbieder die je hebt gekozen. Zelf hosten van de open-sourcekern houdt de CRM-gegevens op je eigen servers.
+Dat hangt af van waar het model draait en wie de gegevens verwerkt, dus vraag elke aanbieder om de lijst met subverwerkers en een verwerkersovereenkomst. In Customermates Cloud is de primaire database geconfigureerd in de AWS-regio Frankfurt. De pagina met subverwerkers noemt Google Cloud Vertex AI, Exa en TypeSafe AI voor werk aan modellen, webzoekopdrachten en ranking. De primaire chatroute van Mate is aan de EU vastgepind, maar embeddings en andere verwerking kunnen de Verenigde Staten betreffen. Microsoft Azure bedient geen enkel Mate-verzoek. Met je eigen AI-client via MCP gaan de gegevens die de client leest naar de AI-aanbieder die je hebt gekozen. Zelf hosten van de Community Edition houdt de CRM-gegevens op je eigen servers.
 </FaqItem>
 </Faq>
 

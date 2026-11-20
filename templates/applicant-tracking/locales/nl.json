@@ -1,0 +1,163 @@
+{
+  "locale": "nl",
+  "name": "Sollicitatiebeheer",
+  "summary": "Zorg dat elke sollicitant antwoord krijgt en geen sollicitatie blijft liggen. Eén sollicitatie per vacature door negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
+  "description": "In een klein bedrijf loopt werving op e-mail en geheugen: sollicitanten wachten te lang op antwoord, aantekeningen van gesprekken liggen verspreid en afgewezen sollicitaties blijven veel langer in de inbox staan dan zou moeten. Dit sjabloon zet vacatures op met een leidinggevende en salarisrange, sollicitanten en sollicitaties die van ontvangen naar aangenomen of afgewezen gaan, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing. Elke interviewer vult een beoordelingsformulier in en afgewezen sollicitaties krijgen een bewaardatum, zodat je ze op tijd verwijdert of om toestemming vraagt. Past bij een bedrijf met een paar open vacatures tegelijk. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
+  "lists": {
+    "applicants": { "label": "Sollicitant", "pluralLabel": "Sollicitanten", "description": "De mensen die solliciteren, met bron en toestemming voor de talentpool." },
+    "jobs": { "label": "Vacature", "pluralLabel": "Vacatures", "description": "Elke open functie met leidinggevende en salarisrange." },
+    "applications": { "label": "Sollicitatie", "pluralLabel": "Sollicitaties", "description": "Eén sollicitant voor één vacature, van ontvangen tot aangenomen of afgewezen." },
+    "scorecards": { "label": "Beoordelingsformulier", "pluralLabel": "Beoordelingsformulieren", "description": "De score en aanbeveling van één interviewer voor één sollicitatie." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Bron",
+      "options": { "careers_page": "Werken-bij-pagina", "job_board": "Vacaturesite", "referral": "Aanbeveling", "linkedin": "LinkedIn", "agency": "Bureau", "other": "Overig" }
+    },
+    "applicants.location": { "label": "Woonplaats" },
+    "applicants.salary_expectation": { "label": "Salarisverwachting" },
+    "applicants.pool_consent": { "label": "Toestemming voor talentpool" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Concept", "open": "Open", "on_hold": "On hold", "filled": "Vervuld", "cancelled": "Geannuleerd" }
+    },
+    "jobs.department": { "label": "Afdeling" },
+    "jobs.hiring_manager": { "label": "Leidinggevende" },
+    "jobs.pay_min": { "label": "Salaris vanaf" },
+    "jobs.pay_max": { "label": "Salaris tot" },
+    "jobs.apply_by": { "label": "Solliciteren tot" },
+    "applications.stage": {
+      "label": "Fase",
+      "options": { "new": "Ontvangen", "screening": "Voorselectie", "interview_1": "Eerste gesprek", "interview_2": "Tweede gesprek", "reference_check": "Referentiecheck", "offer": "Aanbod", "hired": "Aangenomen", "rejected": "Afgewezen", "withdrawn": "Ingetrokken" }
+    },
+    "applications.interview_at": { "label": "Gesprek" },
+    "applications.offer_decision_due": { "label": "Antwoord op aanbod voor" },
+    "applications.rejection_reason": {
+      "label": "Reden van afwijzing",
+      "options": { "skills": "Vaardigheden", "experience": "Ervaring", "salary_mismatch": "Salaris past niet", "other_offer": "Ander aanbod aangenomen", "position_filled": "Vacature vervuld", "other": "Overig" }
+    },
+    "applications.retain_until": { "label": "Bewaren tot" },
+    "scorecards.interviewer": { "label": "Interviewer" },
+    "scorecards.round": { "label": "Ronde", "options": { "screening": "Voorselectie", "interview_1": "Eerste gesprek", "interview_2": "Tweede gesprek" } },
+    "scorecards.rating": { "label": "Score" },
+    "scorecards.recommendation": { "label": "Aanbeveling", "options": { "strong_no": "Zeker niet", "no": "Nee", "yes": "Ja", "strong_yes": "Zeker wel" } },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "acknowledge": "Ontvangst bevestigen",
+        "screen": "Sollicitatie voorselecteren",
+        "schedule_interview": "Gesprek inplannen",
+        "collect_scorecards": "Beoordelingsformulieren verzamelen",
+        "chase_offer": "Antwoord op aanbod opvragen",
+        "close_message": "Afsluitend bericht sturen",
+        "retention_review": "Bewaartermijn nalopen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Sollicitant", "targetLabel": "Sollicitaties" },
+    "application_job": { "sourceLabel": "Vacature", "targetLabel": "Sollicitaties" },
+    "scorecard_application": { "sourceLabel": "Sollicitatie", "targetLabel": "Beoordelingsformulieren" },
+    "action_application": { "sourceLabel": "Sollicitatie", "targetLabel": "Acties" }
+  },
+  "views": {
+    "applications_all": { "name": "Alle sollicitaties" },
+    "applications_board": { "name": "Wervingsbord" },
+    "jobs_all": { "name": "Alle vacatures" },
+    "applicants_all": { "name": "Alle sollicitanten" },
+    "scorecards_all": { "name": "Alle beoordelingsformulieren" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Sollicitaties per fase" },
+    "applicants_by_source": { "title": "Sollicitanten per bron" },
+    "interviews_coming": { "title": "Komende gesprekken" },
+    "open_jobs": { "title": "Open vacatures" },
+    "rejection_reasons": { "title": "Redenen van afwijzing" },
+    "retention_coming": { "title": "Sollicitaties die binnenkort verwijderd of verlengd moeten worden" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Wervingsproces en wie beslist", "sections": ["Fasen en eigenaren", "Waar we op letten bij voorselectie en gesprekken"] },
+    "form_and_retention": { "title": "Sollicitatieformulier en bewaartermijn", "sections": ["Gevraagde gegevens en privacyverklaring", "Hoe lang we afgewezen sollicitaties bewaren"] },
+    "candidate_messages": { "title": "Berichten aan kandidaten", "sections": ["Ontvangstbevestiging, uitnodiging, aanbod", "Afsluitend bericht voor elke afgewezen kandidaat"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Maak een sollicitant en een sollicitatie aan zodra het sollicitatieformulier is ingediend" },
+    "acknowledge_application": { "title": "Bevestig een nieuwe sollicitatie binnen 2 dagen" },
+    "collect_scorecards": { "title": "Verzamel de beoordelingsformulieren op de dag van het gesprek" },
+    "scorecard_reminder": { "title": "Stuur de verantwoordelijke de dag na een gesprek een herinnering" },
+    "chase_offer": { "title": "Vraag 5 dagen na een aanbod naar het antwoord" },
+    "rejection_retention": {
+      "title": "Zet de bewaardatum op 180 dagen als een sollicitatie wordt afgewezen",
+      "variants": {
+        "PL": {
+          "title": "Zet de bewaardatum op 30 dagen als een sollicitatie wordt afgewezen (Polen: langer alleen met toestemming)",
+          "description": "De Poolse toezichthouder (UODO) verwacht dat sollicitantgegevens worden verwijderd zodra de procedure is afgerond, tenzij de kandidaat toestemming gaf voor toekomstige procedures. Dit is een standaardwaarde: stel de termijn van je eigen bewaarbeleid in en bij toestemming handmatig een latere datum."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Stuur de overige kandidaten een afsluitend bericht als een vacature is vervuld" },
+    "retention_review": { "title": "Loop een sollicitatie na als de bewaardatum is bereikt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke sollicitatie zit in een van de negen fasen.",
+    "retain_until_field": "Elke sollicitatie legt vast hoe lang ze wordt bewaard.",
+    "applications_board_view": "De sollicitaties openen als bord per fase."
+  },
+  "page": {
+    "metaTitle": "Sollicitatieformulier en sollicitatiebeheer in één sjabloon",
+    "metaDescription": "Een sollicitatieformulier is pas het begin: plak dit sjabloon in Claude, ChatGPT of Codex en volg sollicitaties door negen fasen met bewaardatum.",
+    "headline": "Geef elke sollicitant antwoord en houd je aantekeningen bij elkaar: sollicitatiebeheer dat je AI-agent opbouwt",
+    "answer": "Sollicitatiebeheer voor een klein bedrijf is een lijst met vacatures met één sollicitatie per sollicitant en vacature, die van ontvangen naar aangenomen of afgewezen loopt, zodat geen sollicitant zonder antwoord blijft. Een sollicitatieformulier of een e-mail is alleen de ingang; dit sjabloon volgt de sollicitatie daarna. Plak het in je AI-agent en die bouwt het op in Customermates, met vacatures, een beoordelingsformulier per interviewer, opvolging met datum en een bewaardatum voor afgewezen sollicitaties. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse sollicitatieronde",
+      "steps": [
+        "Controleer of elke nieuwe sollicitatie een ontvangstbevestiging en een volgende datum heeft, en beantwoord de sollicitaties die nog wachten.",
+        "Leg nieuwe sollicitaties naast de knock-outcriteria van de vacature en beslis wie je uitnodigt voor een gesprek.",
+        "Haal de dag na elk gesprek het beoordelingsformulier van elke interviewer op, zolang de aantekeningen vers zijn.",
+        "Volg aanbiedingen op die op een beslissing wachten en stuur het afsluitende bericht aan afgewezen sollicitanten en aan sollicitanten van een vervulde vacature."
+      ]
+    },
+    "limits": [
+      "Het is geen vacaturesite, multiposting-tool of bouwer van carrièrepagina’s. Het publiceert je vacatures niet.",
+      "Het is ook geen formulierenbouwer. Sollicitaties die per e-mail of via je eigen formulier binnenkomen, leg je zelf of met je agent vast in het sjabloon.",
+      "Het leest of rangschikt geen cv’s en wijst niemand automatisch af. Beoordelingsformulieren zijn beoordelingen van een mens.",
+      "Het is geen test-, assessment- of videogespreksplatform en geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen.",
+      "Het doet geen antecedenten- of werkvergunningscontroles en is geen onboarding-, personeelsdossier- of salarissysteem. Na de indiensttreding gaat het dossier naar je hr-systeem.",
+      "Houd kopieën van identiteitsbewijzen en gegevens voor monitoring van gelijke kansen erbuiten. Verzamel alleen wat de aannamebeslissing nodig heeft.",
+      "Het geeft geen juridisch advies. Het slaat een bewaardatum en een eigenaar op; de termijn bepaal je zelf met je adviseur.",
+      "Het is bedoeld voor een paar open vacatures tegelijk. Voor grootschalige werving of meerdere vestigingen past een eigen ATS beter."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in sollicitatiebeheer?",
+        "answer": "Vacatures met een leidinggevende en een salarisrange, sollicitanten en één sollicitatie per sollicitant en vacature met fase, gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing. Praktijkmensen voegen een beoordelingsformulier per interviewer toe, zodat feedback gestructureerd is in plaats van verspreid over e-mails en chats."
+      },
+      {
+        "question": "Welke fasen horen in een wervingsproces?",
+        "answer": "Gangbare gidsen noemen ontvangen, voorselectie, gesprek, referentiecheck en aanbod. Dit sjabloon heeft er negen: ontvangen, voorselectie, eerste gesprek, tweede gesprek, referentiecheck, aanbod, aangenomen, afgewezen en ingetrokken, omdat een klein bedrijf zelden meer dan twee gespreksrondes nodig heeft. Hernoem of schrap fasen in het plan dat je agent voorstelt."
+      },
+      {
+        "question": "Hoe lang mag ik afgewezen sollicitaties bewaren?",
+        "answer": "Dat hangt af van het land. In Duitsland bewaart men afgewezen sollicitaties meestal ongeveer zes maanden na afloop van de procedure en een talentenpool alleen met toestemming; de Franse privacytoezichthouder staat een pool van niet-geselecteerde kandidaten toe tot twee jaar na het laatste contact, als ze zijn geïnformeerd. In Nederland geldt de AVG. Het sjabloon zet de bewaardatum 180 dagen na een afwijzing, zodat je de sollicitatie verwijdert of om toestemming vraagt. Pas de termijn aan op je land en vraag je adviseur. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Mag ik een talentenpool bijhouden?",
+        "answer": "Alleen met toestemming van de sollicitant. Als de bewaardatum van een afgewezen sollicitatie is bereikt, verwijder je haar of leg je de toestemming van de sollicitant vast om in je pool te blijven. Duitse bronnen eisen toestemming voor een talentenpool, andere laten voor korte tijd een gerechtvaardigd belang volstaan; controleer de regel in je land."
+      },
+      {
+        "question": "Neemt de agent contact op met sollicitanten of wijst hij iemand af?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Berichten zoals een ontvangstbevestiging of een afwijzing zijn concepten die alleen bestaan als je erom vraagt, en je verstuurt ze zelf. Niets wordt automatisch afgewezen."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ik werf voor mijn kleine bedrijf en sollicitanten wachten te lang op antwoord, terwijl de aantekeningen van gesprekken overal verspreid liggen. Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
+    "questions": [
+      "Hoeveel vacatures staan er tegelijk open en wie neemt voor elke vacature aan?",
+      "Waar komen sollicitanten vandaan en gebruik je een sollicitatieformulier?",
+      "Hoe lang bewaar je afgewezen sollicitaties en houd je een talentpool bij met toestemming?",
+      "Welke gespreksrondes houd je en wie vult een beoordelingsformulier in?"
+    ]
+  }
+}

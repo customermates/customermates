@@ -37,7 +37,8 @@ const config = {
 const PRODUCTION_LOGO_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
 
 export type EmailLayoutSharedProps = {
-  logoUrl?: string;
+  logoUrl?: string | null;
+  brandName?: string;
   locale: AppLocale;
   layoutCopy: EmailLayoutCopy;
 };
@@ -49,7 +50,15 @@ type Props = PropsWithChildren<
   }
 >;
 
-export function EmailLayout({ preview, title, logoUrl = PRODUCTION_LOGO_URL, locale, layoutCopy, children }: Props) {
+export function EmailLayout({
+  preview,
+  title,
+  logoUrl = PRODUCTION_LOGO_URL,
+  brandName = EMAIL_BRAND,
+  locale,
+  layoutCopy,
+  children,
+}: Props) {
   const year = new Date().getFullYear();
 
   return (
@@ -65,13 +74,15 @@ export function EmailLayout({ preview, title, logoUrl = PRODUCTION_LOGO_URL, loc
           <Container style={{ maxWidth: "560px", margin: "0 auto", padding: "0 24px" }}>
             <Section style={{ paddingBottom: "28px" }}>
               <Row>
-                <Column style={{ width: "36px", verticalAlign: "middle" }}>
-                  <EmailImage alt="" height={28} src={logoUrl} style={{ display: "block" }} width={28} />
-                </Column>
+                {logoUrl ? (
+                  <Column style={{ width: "36px", verticalAlign: "middle" }}>
+                    <EmailImage alt="" height={28} src={logoUrl} style={{ display: "block" }} width={28} />
+                  </Column>
+                ) : null}
 
                 <Column style={{ verticalAlign: "middle" }}>
                   <Text style={{ margin: 0, fontSize: "16px", lineHeight: "24px", fontWeight: 600, color: EMAIL_INK }}>
-                    {EMAIL_BRAND}
+                    {brandName}
                   </Text>
                 </Column>
               </Row>

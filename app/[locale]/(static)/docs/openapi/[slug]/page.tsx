@@ -6,6 +6,7 @@ import { cn } from "@/core/utils/cn";
 
 import { getDocMethod, getDocMethodColor } from "../../docs.utils";
 import { apiDocsSource } from "@/core/fumadocs/source";
+import { apiDocsBodySource } from "@/core/fumadocs/body-sources/api-docs";
 import { getApiMDXComponents } from "@/core/fumadocs/api-mdx-components";
 import { PageContainer } from "@/components/shared/page-container";
 import { AppLink } from "@/components/shared/app-link";
@@ -35,7 +36,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ loc
   const { slug } = await params;
   const locale = await getLocale();
   const t = await getTranslations();
-  const page = apiDocsSource.getPage([slug], locale);
+  const page = apiDocsBodySource.getPage([slug], locale);
   const collator = new Intl.Collator(formattingTagFor(contentLocaleOrDefault(locale)));
   const apiDocs = [...apiDocsSource.getPages(locale)].sort((a, b) =>
     collator.compare(a.data.title ?? "", b.data.title ?? ""),

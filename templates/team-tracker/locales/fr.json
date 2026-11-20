@@ -1,0 +1,137 @@
+{
+  "locale": "fr",
+  "name": "Suivi d’équipe",
+  "summary": "Voyez qui fait quoi pour quand, sans outil de projet lourd. Des projets et des tâches avec un responsable et une échéance, les tâches récurrentes et les demandes venues de l’extérieur sur la même liste.",
+  "description": "Dans une petite équipe, les tâches se cachent dans les messages, les tableaux et les têtes, et une tâche bloquée passe inaperçue jusqu’au jour de l’échéance. Ce modèle garde une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
+  "lists": {
+    "requesters": { "label": "Demandeur", "pluralLabel": "Demandeurs", "description": "Les personnes extérieures à l’équipe qui demandent du travail." },
+    "projects": { "label": "Projet", "pluralLabel": "Projets", "description": "Un ensemble de tâches avec un responsable, un état de santé et une échéance." },
+    "tasks": { "label": "Tâche", "pluralLabel": "Tâches", "description": "Un travail avec un responsable et une échéance." },
+    "recurring": { "label": "Tâche récurrente", "pluralLabel": "Tâches récurrentes", "description": "Une tâche qui revient chaque semaine, mois, trimestre ou année." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relation",
+      "options": { "customer": "Client", "colleague": "Collègue", "partner": "Partenaire", "vendor": "Fournisseur", "other": "Autre" }
+    },
+    "requesters.team": { "label": "Équipe" },
+    "projects.status": {
+      "label": "Statut",
+      "options": { "planned": "Prévu", "active": "Actif", "on_hold": "En pause", "done": "Terminé", "cancelled": "Annulé" }
+    },
+    "projects.health": { "label": "Santé du projet", "options": { "on_track": "Dans les temps", "at_risk": "À risque", "off_track": "En dérive" } },
+    "projects.owner": { "label": "Responsable" },
+    "projects.due_date": { "label": "Échéance" },
+    "projects.repo_url": { "label": "Lien du dépôt" },
+    "tasks.status": {
+      "label": "Statut",
+      "options": { "backlog": "Backlog", "todo": "À faire", "in_progress": "En cours", "in_review": "En revue", "blocked": "Bloquée", "done": "Terminée", "cancelled": "Annulée" }
+    },
+    "tasks.kind": { "label": "Type", "options": { "task": "Tâche", "bug": "Bug", "feature": "Fonctionnalité", "chore": "Routine", "request": "Demande" } },
+    "tasks.priority": { "label": "Priorité", "options": { "urgent": "Urgente", "high": "Haute", "medium": "Moyenne", "low": "Basse" } },
+    "tasks.owner": { "label": "Responsable" },
+    "tasks.due": { "label": "Échéance" },
+    "tasks.original_due": { "label": "Échéance d’origine" },
+    "tasks.done_on": { "label": "Terminée le" },
+    "tasks.blocked_reason": { "label": "Motif du blocage" },
+    "tasks.external_url": { "label": "Lien (pull request ou ticket)" },
+    "recurring.cadence": { "label": "Répétition", "options": { "weekly": "Chaque semaine", "monthly": "Chaque mois", "quarterly": "Chaque trimestre", "yearly": "Chaque année" } },
+    "recurring.next_due": { "label": "Prochaine échéance" },
+    "recurring.owner": { "label": "Responsable" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Projet", "targetLabel": "Tâches" },
+    "task_requester": { "sourceLabel": "Demandeur", "targetLabel": "Tâches" },
+    "recurring_project": { "sourceLabel": "Projet", "targetLabel": "Tâches récurrentes" }
+  },
+  "views": {
+    "tasks_all": { "name": "Toutes les tâches" },
+    "tasks_board": { "name": "Board des tâches" },
+    "blocked_tasks": { "name": "Tâches bloquées" },
+    "projects_all": { "name": "Tous les projets" },
+    "recurring_all": { "name": "Toutes les tâches récurrentes" },
+    "requesters_all": { "name": "Tous les demandeurs" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Tâches par statut" },
+    "open_by_priority": { "title": "Tâches ouvertes par priorité" },
+    "overdue_tasks": { "title": "Tâches en retard" },
+    "due_soon": { "title": "Tâches bientôt à échéance" },
+    "blocked_count": { "title": "Tâches bloquées" },
+    "activity_timeline": { "title": "Activité récente" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Notre façon de travailler", "sections": ["Statuts, priorités et ce que « terminé » veut dire", "Un responsable et une date par tâche"] },
+    "weekly_review": { "title": "Revue hebdomadaire", "sections": ["Retards, blocages et tâches sans responsable", "Ce qui change cette semaine"] },
+    "triage": { "title": "Tri des demandes et des bugs", "sections": ["Qui décide de ce qui entre", "Gravité et priorité"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Prévenir le nouveau responsable quand une tâche lui est attribuée" },
+    "due_tomorrow": { "title": "Prévenir le responsable la veille de l’échéance" },
+    "overdue_task": { "title": "Prévenir le chef d’équipe le lendemain de l’échéance" },
+    "blocked_stale": { "title": "Prévenir le chef d’équipe quand une tâche reste bloquée 3 jours" },
+    "stale_in_progress": { "title": "Relancer le responsable quand une tâche n’a pas bougé depuis 5 jours" },
+    "recurring_due": { "title": "Créer une tâche quand une tâche récurrente arrive à échéance" },
+    "task_from_git": { "title": "Créer une tâche quand l’hébergeur Git envoie un événement" },
+    "request_form": { "title": "Créer la tâche et le demandeur quand le formulaire de demande est envoyé" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque tâche a un statut.",
+    "due_field": "Chaque tâche a une échéance.",
+    "tasks_board_view": "Les tâches s’ouvrent en board par statut."
+  },
+  "page": {
+    "metaTitle": "Outil gestion de projet pour petite équipe : modèle de suivi",
+    "metaDescription": "Un outil de gestion de projet pour 2 à 15 personnes : un responsable et une échéance par tâche, tâches récurrentes. Collez le modèle dans votre agent IA.",
+    "headline": "Un outil de gestion de projet pour petite équipe : un responsable, une échéance, construit par votre agent IA",
+    "answer": "Un outil de gestion de projet pour une petite équipe, c’est une seule liste de tâches avec, pour chacune, un responsable, un statut, une priorité et une échéance, plus un tableau et une courte revue hebdomadaire de ce qui est en retard ou bloqué. Collez ce modèle dans votre agent IA et il construit la liste dans Customermates, avec les projets, les tâches récurrentes et les demandes venues de l’extérieur. Vous validez le plan avant toute construction.",
+    "routine": {
+      "title": "La revue d’équipe hebdomadaire en 30 minutes",
+      "steps": [
+        "Ouvrez la liste de la semaine dernière et commencez par ce qui était promis : ce qui est fait et ce qui a glissé.",
+        "Passez en revue les tâches en retard et bloquées et décidez pour chacune : s’engager à nouveau, réduire le périmètre ou réaffecter. Quand une date glisse, gardez la date d’origine et notez la nouvelle avec la raison.",
+        "Regardez les tâches qui n’ont pas bougé depuis cinq jours et demandez-vous si elles sont floues ou trop grosses. Fermez celles dont personne n’a besoin.",
+        "Triez les nouvelles demandes et les bugs : donnez à chacun un type, une priorité et un responsable.",
+        "Terminez par une relecture de la liste, pour que chaque tâche ait un responsable nommé et une échéance avant la fin de la réunion."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un outil de sprints ni de vélocité : il n’y a ni sprints, ni points d’effort, ni burn-down. Une équipe qui en a besoin reste sur Linear ou Jira.",
+      "Ce n’est ni un planificateur Gantt, de dépendances ou de capacité, ni un outil de suivi du temps, ni un gestionnaire de versions.",
+      "Ce n’est ni un hébergeur de code, ni un outil d’intégration continue, ni un service d’assistance avec des délais de réponse. Le lien vers une pull request ou un ticket est un simple champ de lien.",
+      "Il n’y a pas d’intégration native avec Slack ou Teams, ni d’application mobile. Pour Slack, la voie passe par n8n.",
+      "Ce n’est pas un système RH ou d’évaluation des performances, et il n’a ni authentification unique ni droits par champ."
+    ],
+    "faq": [
+      {
+        "question": "Un outil simple peut-il remplacer Trello, Jira ou un tableur ?",
+        "answer": "Pour deux à quinze personnes qui veulent un responsable et une échéance par tâche, une revue hebdomadaire et les demandes extérieures sur la même liste, oui. Exportez votre tableau ou votre feuille en CSV ou Excel et importez-les avec l’assistant de correspondance des colonnes, ou laissez votre agent faire la correspondance et l’import. Pour des sprints, de la vélocité ou des dépendances, restez sur Linear, Jira ou ClickUp."
+      },
+      {
+        "question": "Existe-t-il un outil de gestion de projet gratuit pour une petite équipe ?",
+        "answer": "Beaucoup d’outils proposent une offre gratuite limitée. Avec Customermates, vous créez un espace de travail et vous l’essayez avec votre équipe ; l’offre gratuite et ses limites, notamment le nombre de personnes actives, sont décrites sur la page des tarifs. Regardez-les avant de compter dessus pour toute l’équipe."
+      },
+      {
+        "question": "Quels statuts une petite équipe devrait-elle utiliser ?",
+        "answer": "Moins qu’on ne croit. À faire, En cours et Terminé de Trello, ou Backlog, Todo, In Progress, Done et Canceled de Linear, sont typiques. Le modèle part de sept statuts (Backlog, À faire, En cours, En revue, Bloquée, Terminée, Annulée) que vous renommez ou retirez. Bloquée a sa place, car sinon une tâche bloquée passe inaperçue jusqu’à son échéance."
+      },
+      {
+        "question": "Faut-il travailler par sprints ou sur un tableau ?",
+        "answer": "Les guides kanban misent sur le flux et sur la limite du travail en cours, Linear et Jira plutôt sur les sprints. Ce modèle utilise un tableau et une échéance, sans objet sprint : une équipe qui a besoin de vélocité reste sur un outil à sprints."
+      },
+      {
+        "question": "Faut-il fermer automatiquement les tâches qui n’avancent plus ?",
+        "answer": "Non. Un rappel après cinq jours sans mouvement est plus sûr qu’une fermeture automatique, et les guides de réunion conseillent de fermer explicitement les points qui traînent. Le modèle rappelle le responsable et c’est lui qui décide. Une tâche qui reste ouverte semaine après semaine est souvent floue ou trop grosse : corrigez la définition, pas la personne."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Le travail de notre équipe est éparpillé entre une messagerie, un tableau et un tableur, et je ne vois pas ce qui est en retard ou bloqué. Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
+    "questions": [
+      "Combien de personnes compte l’équipe, et sur quoi travaillent-elles ?",
+      "Quels statuts utilisez-vous aujourd’hui dans Trello, Jira, Asana ou un tableur ?",
+      "Quelles tâches reviennent chaque semaine ou chaque mois, et qui en est responsable ?",
+      "D’où viennent les demandes, et doivent-elles arriver par un formulaire ?"
+    ]
+  }
+}

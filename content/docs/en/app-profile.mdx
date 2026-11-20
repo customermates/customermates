@@ -5,7 +5,7 @@ description: "Your personal Customermates settings: name, language, formats, the
 
 ## What belongs to you rather than the workspace? [#what-lives-on-the-profile-screen]
 
-The Account part of Settings holds four pages: [Profile & preferences](app:settings/profile) (name, avatar, language, formats, theme), [Workspaces](app:settings/workspaces) (the workspaces you belong to), [Channels & calendars](app:settings/channels) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys & connectors](app:settings/api-keys) (keys for MCP and REST clients). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (the workspace name at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace. Your profile is the same in every workspace you belong to, while channels and API keys belong to the workspace you connected or created them in; see [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+The Account part of Settings holds four pages: [Profile & preferences](app:settings/profile) (name, avatar, language, formats, theme, notification emails), [Workspaces](app:settings/workspaces) (the workspaces you belong to), [Channels & calendars](app:settings/channels) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys & connectors](app:settings/api-keys) (keys for MCP and REST clients). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (the workspace name at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace. Your profile is the same in every workspace you belong to, while channels and API keys belong to the workspace you connected or created them in; see [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
 
 Every member sees Profile & preferences. Channels & calendars needs **Read access** **All** on your role's **Inbox messages** row and exists on Customermates Cloud only. API keys & connectors needs **Read access** **All** on **API & Webhooks**. A new custom role starts with **None** on both rows; roles are edited in [Roles](app:settings/roles), see [App guide, Company](/docs/app-company).
 
@@ -35,7 +35,11 @@ While your address is unverified, your avatar in the sidebar and the **Profile &
 
 ### What can I not change here, such as my password? [#what-can-i-not-change-here]
 
-There is no setting for password, email address, time zone, notifications or deleting your account. For a new password, sign out and use **Forgot password?** on the sign-in page. Email signatures belong to each email channel, see [email appearance and signature](#email-appearance-and-signature).
+There is no setting for password, email address, time zone or deleting your account. For a new password, sign out and use **Forgot password?** on the sign-in page. Email signatures belong to each email channel, see [email appearance and signature](#email-appearance-and-signature).
+
+## Notification emails [#notification-emails]
+
+The **Notification emails** card on [Profile & preferences](app:settings/profile) is a table with one row per kind of notification: **Due today**, **Replies received** and **Automation alerts**. Each row has three choices, **Email right away**, **Daily digest** and **No email**, and a change saves at once. **Pause emails from this workspace until** holds every notification email of this workspace until the day you pick. The pause applies on every device, your choices above stay as they are, and emails resume when that day begins in your time zone. The choices and the pause belong to this workspace; other workspaces you are a member of keep their own. Every notification email ends with why you got it and two links, **Turn off this kind** and **Manage notifications**; see [How do notifications and email preferences work?](/docs/app-automations#how-do-notifications-work).
 
 ## API keys & connectors [#api--connectors-tab]
 
@@ -47,6 +51,8 @@ There is no setting for password, email address, time zone, notifications or del
 A key card shows **Created at**, **Expires at** and **Last used**; open it to **Delete** the key (needs **Delete**), which stops it at once. To rotate, create a new key, update the client, then delete the old one. Removing **Read access** **All** on **API & Webhooks** from a role stops its members' keys for MCP and REST alike; setting a member **Inactive** in [Members](app:settings/members) stops every key too. Full rules: [API keys](/docs/api-keys).
 
 ## Channels & calendars [#channels-tab]
+
+Connecting a channel here, for example WhatsApp, brings its conversations into the [Inbox](app:inbox).
 
 [Channels & calendars](app:settings/channels) lists your email, LinkedIn, WhatsApp, Instagram, Telegram and Messenger accounts first, then every channel a teammate shared. When channels show **Reconnect needed**, **Permission issue** or **Error**, the Channels & calendars entry shows their count. Clicking a card opens the channel dialog with the tabs **Details** (provider, status, **Visibility**, owner, folders, connected and last synced), **Email** and **Folders**. Whatever your role, you can change only channels you own. Each channel belongs to the workspace you connected it in.
 

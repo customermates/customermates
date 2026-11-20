@@ -11,7 +11,13 @@ const actions = vi.hoisted(() => ({
 }));
 const assign = vi.hoisted(() => vi.fn());
 
+const agentActions = vi.hoisted(() => ({
+  getOnboardingAgentStatusAction: vi.fn(),
+  getOnboardingTemplatePromptAction: vi.fn(),
+}));
+
 vi.mock("../../actions", () => actions);
+vi.mock("../../onboarding-agent-actions", () => agentActions);
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => ({ createApiKeyAction: vi.fn() }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
@@ -220,7 +226,18 @@ describe("OnboardingWizardStore", () => {
   it("contains Profile, the workspace setup, Invite, and AI in order", () => {
     const store = new OnboardingWizardStore(rootStore);
 
-    expect(WIZARD_STEPS).toEqual(["profile", "goal", "playbook", "setup", "invite", "ai"]);
+    expect(WIZARD_STEPS).toEqual([
+      "profile",
+      "goal",
+      "playbook",
+      "setup",
+      "invite",
+      "channel",
+      "ai",
+      "template",
+      "prompt",
+      "source",
+    ]);
     expect(store.totalSteps).toBe(5);
     expect(store.currentStep).toBe("profile");
   });

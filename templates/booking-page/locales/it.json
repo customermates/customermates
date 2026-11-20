@@ -1,0 +1,150 @@
+{
+  "locale": "it",
+  "name": "Prenotazione online",
+  "summary": "Tieni ogni chiamata, consulenza e visita in un unico posto, dalla richiesta all'esito. Tipi di appuntamento con durata e preavviso, uno stato e promemoria su ogni prenotazione e un prossimo passo dopo ciascuna.",
+  "description": "Le prenotazioni che esistono solo in un calendario e in una casella di posta si dimenticano: il cliente non si presenta perché nessuno gli ha ricordato l'appuntamento e nessuno annota com'è andata la chiamata. Questo modello imposta pochi tipi di appuntamento con durata, pausa e preavviso minimo, una prenotazione che crea la persona e l'appuntamento, un evento in agenda una volta confermato, due promemoria e un esito registrato dopo ogni appuntamento. Adatto a chi offre servizi e riceve chiamate, consulenze, sedute o visite: prenota solo il tempo delle persone. Non è un sistema per prenotare sale o risorse, uno strumento per biglietti, un gestionale per appuntamenti medici né un servizio di pagamento.",
+  "lists": {
+    "people": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che prenotano con te." },
+    "appointment_types": { "label": "Tipo di appuntamento", "pluralLabel": "Tipi di appuntamento", "description": "Un tipo di appuntamento con durata, pausa, preavviso e prezzo." },
+    "appointments": { "label": "Appuntamento", "pluralLabel": "Appuntamenti", "description": "Una prenotazione, da richiesta a svolta, mancata o annullata." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Canale preferito", "options": { "email": "Email", "whatsapp": "WhatsApp", "phone": "Telefono" } },
+    "people.time_zone": { "label": "Fuso orario" },
+    "appointment_types.duration_minutes": { "label": "Durata (minuti)" },
+    "appointment_types.buffer_minutes": { "label": "Pausa dopo (minuti)" },
+    "appointment_types.min_notice_hours": { "label": "Preavviso minimo (ore)" },
+    "appointment_types.booking_window_days": { "label": "Prenotabile fino a (giorni prima)" },
+    "appointment_types.daily_limit": { "label": "Limite giornaliero" },
+    "appointment_types.location_type": {
+      "label": "Dove",
+      "options": { "video_call": "Videochiamata", "phone": "Telefono", "office": "In studio", "client_site": "Dal cliente" }
+    },
+    "appointment_types.price": { "label": "Prezzo" },
+    "appointment_types.active": { "label": "Attivo" },
+    "appointments.status": {
+      "label": "Stato",
+      "options": { "requested": "Richiesto", "confirmed": "Confermato", "rescheduled": "Spostato", "held": "Svolto", "no_show": "Assente", "cancelled_by_client": "Annullato dal cliente", "cancelled_by_us": "Annullato da noi" }
+    },
+    "appointments.start_at": { "label": "Inizio" },
+    "appointments.source": { "label": "Fonte", "options": { "booking_page": "Pagina di prenotazione", "email": "Email", "whatsapp": "WhatsApp", "phone": "Telefono", "manual": "Inserito manualmente" } },
+    "appointments.meeting_url": { "label": "Link alla riunione" },
+    "appointments.outcome": {
+      "label": "Esito",
+      "options": { "not_decided": "Non ancora deciso", "qualified": "Qualificato", "second_call": "Serve una seconda chiamata", "proposal_needed": "Serve una proposta", "won": "Chiuso durante la chiamata", "not_a_fit": "Non adatto" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Motivo dell'annullamento",
+      "options": { "schedule_conflict": "Impegno concomitante", "other_provider": "Ha scelto un altro professionista", "no_longer_needed": "Non serve più", "personal": "Motivo personale", "other": "Altro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "confirm_booking": "Confermare la prenotazione",
+        "send_reminder": "Inviare un promemoria",
+        "prepare_call": "Preparare l'appuntamento",
+        "send_follow_up": "Inviare il follow-up",
+        "offer_new_slot": "Proporre un nuovo orario",
+        "record_outcome": "Registrare l'esito",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contatto", "targetLabel": "Appuntamenti" },
+    "appointment_type": { "sourceLabel": "Tipo di appuntamento", "targetLabel": "Appuntamenti" },
+    "action_appointment": { "sourceLabel": "Appuntamento", "targetLabel": "Attività" }
+  },
+  "views": {
+    "appointments_all": { "name": "Tutti gli appuntamenti" },
+    "appointments_board": { "name": "Board degli appuntamenti" },
+    "missed_or_cancelled": { "name": "Mancati o annullati" },
+    "appointment_types_all": { "name": "Tutti i tipi di appuntamento" },
+    "people_all": { "name": "Tutti i contatti" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Prossimi appuntamenti" },
+    "appointments_by_status": { "title": "Appuntamenti per stato" },
+    "outcomes_of_held": { "title": "Esiti degli appuntamenti svolti" },
+    "requests_waiting": { "title": "Richieste in attesa di risposta" },
+    "no_shows": { "title": "Assenze" },
+    "bookings_by_source": { "title": "Prenotazioni per fonte" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Tipi di appuntamento e disponibilità", "sections": ["Tipi, durate, pause e preavviso", "Orari e limiti giornalieri"] },
+    "reminder_policy": { "title": "Promemoria e assenze", "sections": ["Promemoria 3 giorni e 1 giorno prima", "Che cosa facciamo dopo un'assenza"] },
+    "cancellation_policy": { "title": "Annullamento e spostamento", "sections": ["Fino a quando un cliente può annullare", "Come viene proposto un nuovo orario"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Creare contatto e appuntamento quando viene inviato il modulo di prenotazione" },
+    "confirm_event": { "title": "Aggiungere un evento in agenda quando un appuntamento viene confermato" },
+    "notify_new_booking": { "title": "Avvisare il titolare quando arriva una prenotazione" },
+    "first_reminder": { "title": "Inviare un primo promemoria 3 giorni prima di un appuntamento confermato" },
+    "second_reminder": { "title": "Inviare un secondo promemoria 1 giorno prima di un appuntamento confermato" },
+    "record_outcome": { "title": "Registrare l'esito dopo che un appuntamento confermato ha avuto luogo" },
+    "no_show_new_slot": { "title": "Proporre un nuovo orario il giorno dopo un'assenza" },
+    "follow_up_held": { "title": "Inviare il follow-up il giorno dopo un appuntamento svolto" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Ogni appuntamento ha uno stato.",
+    "start_field": "Ogni appuntamento indica quando inizia.",
+    "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
+  },
+  "page": {
+    "metaTitle": "Sistema prenotazione online: appuntamenti con follow-up",
+    "metaDescription": "Sistema prenotazione online per consulenze e visite: il tuo agente IA crea nel CRM tipi di appuntamento, stato, promemoria e l'esito dopo ogni chiamata.",
+    "headline": "Un sistema di prenotazione online che registra l'esito di ogni appuntamento, costruito dal tuo agente IA",
+    "answer": "Un sistema di prenotazione online porta una chiamata, una consulenza o una visita dalla richiesta a un orario confermato e registra com'è andata. Questo modello imposta tipi di appuntamento con durata, pausa e preavviso, uno stato per ogni prenotazione, promemoria prima e un esito dopo. Incollalo nel tuo agente IA: costruisce tutto in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+    "routine": {
+      "title": "La revisione settimanale degli appuntamenti",
+      "steps": [
+        "Rivedi gli appuntamenti della settimana scorsa e registra un esito su ogni appuntamento tenuto: qualificato, seconda chiamata, serve una proposta o non è adatto.",
+        "Offri un nuovo orario, senza rimproveri, a chi non si è presentato o ha disdetto.",
+        "Rispondi alle richieste in attesa da più di un giorno, poi controlla i prossimi 14 giorni: buchi in agenda e promemoria ancora da inviare. Per impostazione predefinita, un promemoria 3 giorni e uno 1 giorno prima.",
+        "Cambia una sola cosa: una pausa, un preavviso o un termine di disdetta. All'inizio di ogni trimestre rivedi disponibilità e regole."
+      ]
+    },
+    "limits": [
+      "Prenota solo il tempo delle persone. Sale, attrezzature, soggiorni in hotel, corsi con lista d'attesa ed eventi con biglietti richiedono uno strumento adatto.",
+      "Non è un sistema di appuntamenti medici. Lascia fuori dal modulo diagnosi e motivo di un appuntamento medico, terapeutico o legale e chiedi piuttosto di che cosa la persona vorrebbe parlare.",
+      "Non incassa pagamenti e non ospita chiamate. L'evento del calendario porta il link del tuo strumento di videochiamata e un eventuale acconto resta nel tuo strumento di pagamento.",
+      "Le pagine di prenotazione pubbliche e la scrittura degli appuntamenti nel tuo calendario Google o Microsoft richiedono Customermates Cloud con il piano Pro o superiore, non il self-hosting. Senza di esse, un modulo pubblico raccoglie le richieste e tu inserisci qui l'orario confermato.",
+      "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare. Customermates non invia SMS."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve includere un sistema di prenotazione online?",
+        "answer": "Ogni tipo di appuntamento con durata, pausa, preavviso e con quanto anticipo si può prenotare; un modulo breve con nome, contatto e solo le domande che cambiano l'appuntamento; una conferma e dei promemoria; e un posto dove annotare se l'appuntamento c'è stato e che cosa è seguito."
+      },
+      {
+        "question": "Quanti promemoria riducono le assenze?",
+        "answer": "In uno studio sanitario, promemoria 3 giorni e 1 giorno prima hanno lasciato il 4,4% degli appuntamenti saltati, contro il 5,8% con il solo promemoria a 3 giorni e il 5,3% con il solo promemoria a 1 giorno. Una revisione di studi randomizzati non ha trovato differenze significative tra promemoria inviati 24, 48 o 72 ore prima. I dati vengono dalla sanità: considera 3 giorni e 1 giorno un punto di partenza."
+      },
+      {
+        "question": "Che cosa non va mai chiesto in un modulo di prenotazione?",
+        "answer": "Limitati a ciò che serve all'appuntamento: nome, email, facoltativamente il telefono e una o due domande che cambiano l'appuntamento. Non chiedere diagnosi, dettagli di un caso, dati di carte di pagamento, documenti d'identità né nulla che riveli salute, religione od orientamento. Le risposte libere sono salvate come dati nella scheda: tieni il modulo essenziale."
+      },
+      {
+        "question": "Posso prendere appuntamenti senza una pagina di prenotazione pubblica?",
+        "answer": "Sì. Un modulo pubblico funziona con tutti i piani, con un limite mensile e un badge su Free: raccoglie la richiesta e crea l'appuntamento, collegato a una persona trovata o creata tramite l'email. Quando qualcuno scrive via email o WhatsApp, il tuo agente propone orari liberi dal calendario collegato e prepara la risposta; tu la rivedi e la invii. Con Customermates Cloud e il piano Pro o superiore, pianificare una riunione da un record scrive l'evento nel tuo calendario Google o Microsoft, e una pagina di prenotazione pubblica permette alle persone di scegliere da sole un orario libero."
+      },
+      {
+        "question": "Devo chiedere un acconto o una penale per le assenze?",
+        "answer": "I pagamenti restano nel tuo strumento di pagamento. Il modello registra il prezzo di ogni tipo di appuntamento e contiene una pagina sulla politica di disdetta. Non abbiamo trovato studi che dimostrino che acconti o penali riducano le assenze, quindi il modello non lo afferma."
+      },
+      {
+        "question": "L'agente scrive ai miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Ricevo chiamate, consulenze e visite e perdo il filo di chi è prenotato, chi ha confermato e com'è andata. Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
+    "questions": [
+      "Quali tipi di appuntamento offri e quanto dura ciascuno?",
+      "Quanto preavviso ti serve e con quanto anticipo si può prenotare?",
+      "Quali domande deve compilare un cliente al momento della prenotazione?",
+      "Come gestisci oggi le assenze e le disdette tardive?"
+    ]
+  }
+}

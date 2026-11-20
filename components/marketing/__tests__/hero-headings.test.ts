@@ -9,7 +9,7 @@ vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) => createElement("a", props, children),
   usePathname: () => "/",
 }));
-vi.mock("@/components/marketing/agpl-github-badge", () => ({ AgplGithubBadge: () => null }));
+vi.mock("@/components/marketing/source-badge", () => ({ SourceBadge: () => null }));
 
 import { HomepageHero } from "@/app/[locale]/(static)/components/homepage-hero";
 import { PageHero } from "../page-hero";

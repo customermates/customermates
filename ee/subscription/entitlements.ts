@@ -26,6 +26,7 @@ export function getEffectiveEntitlements(input: { appMode: AppMode; plan: Subscr
   if (input.appMode === "self-hosted") {
     return {
       ...PLAN_CATALOG.starter.entitlements,
+      activeAutomationRules: "unlimited",
       hostedAiUsageMultiplier: null,
       hostedAiCreditsPerActiveUser: null,
       fileStorageBytesPerActiveUser: null,
@@ -57,6 +58,10 @@ export function isOnFreePlan(subscription: PlanSubscription, now: Date = new Dat
 
 export function effectivePlanId(subscription: PlanSubscription, now: Date = new Date()): PlanId {
   return isOnFreePlan(subscription, now) ? FREE_PLAN_ID : subscription.plan;
+}
+
+export function routineAllowanceOf(subscription: PlanSubscription, now: Date = new Date()): number | "unlimited" {
+  return getEntitlements(effectivePlanId(subscription, now)).includedRoutinesPerUser;
 }
 
 export function isSubscriptionLocked(subscription: PlanSubscription): boolean {

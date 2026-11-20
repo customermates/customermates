@@ -1,0 +1,162 @@
+{
+  "locale": "en",
+  "name": "Applicant tracking",
+  "summary": "Keep every applicant moving and every candidate answered. One application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
+  "description": "In a small business hiring runs on email and memory: applicants wait too long for an answer, interview notes are scattered and rejected applications stay in the inbox far longer than they should. This template sets up jobs with a hiring manager and pay range, applicants, and applications that move from new to hired or rejected with interview time, offer deadline and rejection reason. Every interviewer files a scorecard, and rejected applications get a retention date so you remember to delete them or ask for consent. It fits a business with a few open jobs at a time. It is not a job board, CV parser, assessment platform or e-signature tool, and it gives no legal advice on retention periods.",
+  "lists": {
+    "applicants": { "label": "Applicant", "pluralLabel": "Applicants", "description": "The people who apply, with their source and talent pool consent." },
+    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "Each open position with its hiring manager and pay range." },
+    "applications": { "label": "Application", "pluralLabel": "Applications", "description": "One applicant for one job, from received to hired or rejected." },
+    "scorecards": { "label": "Scorecard", "pluralLabel": "Scorecards", "description": "One interviewer's rating and recommendation for one application." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Source",
+      "options": { "careers_page": "Careers page", "job_board": "Job board", "referral": "Referral", "linkedin": "LinkedIn", "agency": "Agency", "other": "Other" }
+    },
+    "applicants.location": { "label": "Location" },
+    "applicants.salary_expectation": { "label": "Salary expectation" },
+    "applicants.pool_consent": { "label": "Talent pool consent" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Draft", "open": "Open", "on_hold": "On hold", "filled": "Filled", "cancelled": "Cancelled" }
+    },
+    "jobs.department": { "label": "Department" },
+    "jobs.hiring_manager": { "label": "Hiring manager" },
+    "jobs.pay_min": { "label": "Pay from" },
+    "jobs.pay_max": { "label": "Pay up to" },
+    "jobs.apply_by": { "label": "Apply by" },
+    "applications.stage": {
+      "label": "Stage",
+      "options": { "new": "New", "screening": "Screening", "interview_1": "First interview", "interview_2": "Second interview", "reference_check": "Reference check", "offer": "Offer", "hired": "Hired", "rejected": "Rejected", "withdrawn": "Withdrawn" }
+    },
+    "applications.interview_at": { "label": "Interview" },
+    "applications.offer_decision_due": { "label": "Offer decision due" },
+    "applications.rejection_reason": {
+      "label": "Rejection reason",
+      "options": { "skills": "Skills", "experience": "Experience", "salary_mismatch": "Salary mismatch", "other_offer": "Took another offer", "position_filled": "Position filled", "other": "Other" }
+    },
+    "applications.retain_until": { "label": "Keep until" },
+    "scorecards.interviewer": { "label": "Interviewer" },
+    "scorecards.round": { "label": "Round", "options": { "screening": "Screening", "interview_1": "First interview", "interview_2": "Second interview" } },
+    "scorecards.rating": { "label": "Rating" },
+    "scorecards.recommendation": { "label": "Recommendation", "options": { "strong_no": "Strong no", "no": "No", "yes": "Yes", "strong_yes": "Strong yes" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "acknowledge": "Acknowledge the application",
+        "screen": "Screen the application",
+        "schedule_interview": "Schedule an interview",
+        "collect_scorecards": "Collect the scorecards",
+        "chase_offer": "Chase the offer decision",
+        "close_message": "Send a closing message",
+        "retention_review": "Review retention",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Applicant", "targetLabel": "Applications" },
+    "application_job": { "sourceLabel": "Job", "targetLabel": "Applications" },
+    "scorecard_application": { "sourceLabel": "Application", "targetLabel": "Scorecards" },
+    "action_application": { "sourceLabel": "Application", "targetLabel": "Actions" }
+  },
+  "views": {
+    "applications_all": { "name": "All applications" },
+    "applications_board": { "name": "Hiring board" },
+    "jobs_all": { "name": "All jobs" },
+    "applicants_all": { "name": "All applicants" },
+    "scorecards_all": { "name": "All scorecards" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Applications by stage" },
+    "applicants_by_source": { "title": "Applicants by source" },
+    "interviews_coming": { "title": "Interviews coming up" },
+    "open_jobs": { "title": "Open jobs" },
+    "rejection_reasons": { "title": "Rejection reasons" },
+    "retention_coming": { "title": "Applications due for deletion or fresh consent" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Hiring process and who decides", "sections": ["Stages and owners", "What we look for in screening and interviews"] },
+    "form_and_retention": { "title": "Application form and data retention", "sections": ["Fields we ask for and the privacy notice", "How long we keep rejected applications"] },
+    "candidate_messages": { "title": "Candidate messages", "sections": ["Acknowledgement, invitation, offer", "Closing message for every unsuccessful applicant"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Create the applicant and the application when the application form is submitted" },
+    "acknowledge_application": { "title": "Acknowledge a new application within 2 days" },
+    "collect_scorecards": { "title": "Collect the scorecards on the day of an interview" },
+    "scorecard_reminder": { "title": "Remind the owner the day after an interview" },
+    "chase_offer": { "title": "Chase the decision 5 days after an offer" },
+    "rejection_retention": {
+      "title": "Set the retention date to 180 days out when an application is rejected",
+      "variants": {
+        "PL": {
+          "title": "Set the retention date to 30 days out when an application is rejected (Poland: longer only with consent)",
+          "description": "Poland's data protection authority (UODO) expects candidate data to be deleted once the recruitment ends, unless the candidate consented to future recruitment. This is a default: set the period your own retention policy requires, and a later date by hand where there is consent."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Send a closing message to the other applicants when a job is filled" },
+    "retention_review": { "title": "Review an application when its retention date arrives" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every application has one of nine stages.",
+    "retain_until_field": "Every application records how long it is kept.",
+    "applications_board_view": "The applications open as a board by stage."
+  },
+  "page": {
+    "metaTitle": "Applicant Tracking System Template for Small Businesses",
+    "metaDescription": "Paste this applicant tracking template into Claude, ChatGPT or Codex: jobs, nine stages, interview scorecards and a retention date for rejections.",
+    "headline": "Answer every applicant and keep your notes in one place: an applicant tracker your AI agent builds",
+    "answer": "An applicant tracking system for a small business is a list of jobs plus one application per applicant and job, moving through stages from new to hired or rejected, so no applicant waits without an answer. Paste this template into your AI agent and it builds it in Customermates, with jobs, a scorecard for every interviewer, dated follow-ups and a retention date for rejected applications. You approve the plan before anything is built.",
+    "routine": {
+      "title": "The weekly hiring round",
+      "steps": [
+        "Check that every new application has been acknowledged and has a next date, and answer the ones that are still waiting.",
+        "Screen new applications against the must-haves of the job and decide who gets an interview.",
+        "Collect the scorecard from every interviewer the day after each interview, while the notes are fresh.",
+        "Chase offers that wait for a decision, and send the closing message to applicants who were rejected or whose job was filled."
+      ]
+    },
+    "limits": [
+      "It is not a job board, a multiposting tool or a career-site builder. It does not publish your job ads.",
+      "It does not parse or rank CVs and it rejects nobody automatically. Scorecards are ratings that a person gives.",
+      "It is not an assessment, video-interview or testing platform, and not an offer-letter or e-signature tool.",
+      "It does not run background or right-to-work checks and is not an onboarding, HR record or payroll system. After the hire, the file moves to your HR system.",
+      "Keep copies of identity documents and any equal-opportunity monitoring data out of it. Collect only what the hiring decision needs.",
+      "It gives no legal advice. It stores a retention date and an owner; the period is your decision, with your adviser.",
+      "It is sized for a few open jobs at a time. High-volume or multi-site hiring is better served by a dedicated applicant tracking system."
+    ],
+    "faq": [
+      {
+        "question": "What should an applicant tracker hold?",
+        "answer": "Jobs with a hiring manager and a pay range, applicants, and one application per applicant and job with its stage, interview time, offer deadline and rejection reason. Practitioners add a scorecard per interviewer, so feedback is structured instead of scattered across emails and chats."
+      },
+      {
+        "question": "Which stages should a hiring pipeline have?",
+        "answer": "Common guides list application received, screening, interview, reference check and offer. This template uses nine: new, screening, first and second interview, reference check, offer, hired, rejected and withdrawn, because a small employer rarely needs more than two interview rounds. Rename or drop stages in the plan your agent proposes."
+      },
+      {
+        "question": "How long can I keep rejected applications?",
+        "answer": "It depends on the country. In Germany, rejected applicants are usually kept for about six months after the process ends, and a talent pool only with consent; the French data protection authority allows a pool of unsuccessful candidates for two years from the last contact if they were informed. The template sets a retention date 180 days after a rejection, so you delete the application or ask for consent. Adjust the period to your country and ask your adviser. This is not legal advice."
+      },
+      {
+        "question": "Can I keep a talent pool?",
+        "answer": "Only with the applicant's consent. When the retention date of a rejected application arrives, you either delete it or record the applicant's consent to stay in your pool. German sources require consent for a talent pool, others allow a short period on a legitimate interest, so check the rule in your country."
+      },
+      {
+        "question": "Does the agent contact applicants or reject anyone?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Messages such as an acknowledgement or a rejection are drafts that exist only when you ask for them, and you send them yourself. Nothing is rejected automatically."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "I hire for my small business and applicants wait too long for an answer while interview notes sit in different places. Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
+    "questions": [
+      "How many jobs are open at a time, and who hires for each?",
+      "Where do applicants come from, and do you use an application form?",
+      "How long do you keep rejected applications, and do you keep a talent pool with consent?",
+      "Which interview rounds do you run, and who files a scorecard?"
+    ]
+  }
+}

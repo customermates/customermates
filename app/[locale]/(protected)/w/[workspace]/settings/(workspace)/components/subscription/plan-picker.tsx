@@ -8,6 +8,7 @@ import { observer } from "mobx-react-lite";
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
+import { usePlanFit } from "@/app/components/upsell/use-plan-fit";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import {
   CLOUD_TRIAL,
@@ -51,6 +52,7 @@ export const PlanPicker = observer(function PlanPicker({
   const focusedPlan = focusPlan ?? recommendedPlan ?? undefined;
   const highlightedPlan = focusedPlan ?? CLOUD_TRIAL.plan;
   const focusedCard = useRef<HTMLDivElement | null>(null);
+  const connectedPerUser = usePlanFit(true)?.maxAccountsPerUser ?? 0;
 
   useEffect(() => {
     if (focusPlan) focusedCard.current?.scrollIntoView?.({ block: "center" });
@@ -183,6 +185,12 @@ export const PlanPicker = observer(function PlanPicker({
                 </span>
               ))}
             </span>
+
+            {typeof accountAllowance === "number" && accountAllowance > 0 && connectedPerUser > accountAllowance ? (
+              <span className="text-xs text-foreground" data-account-overage="">
+                {t("Subscription.picker.keepsAccounts", { kept: accountAllowance, connected: connectedPerUser })}
+              </span>
+            ) : null}
           </div>
         );
       })}

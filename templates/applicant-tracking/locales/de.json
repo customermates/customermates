@@ -1,0 +1,162 @@
+{
+  "locale": "de",
+  "name": "Bewerbermanagement",
+  "summary": "Kein Bewerber soll auf eine Antwort warten müssen. Eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschdatum für abgelehnte Bewerbungen.",
+  "description": "In einem kleinen Betrieb läuft die Personalsuche über das Postfach und das Gedächtnis: Bewerber warten zu lange auf eine Antwort, Interviewnotizen liegen an verschiedenen Orten, und abgelehnte Bewerbungen bleiben viel länger im Postfach, als sie sollten. Diese Vorlage richtet Stellen mit Fachvorgesetztem und Gehaltsspanne ein, dazu Bewerber und Bewerbungen, die von neu bis eingestellt oder abgelehnt laufen, mit Gesprächstermin, Angebotsfrist und Absagegrund. Jeder Interviewer legt einen Interviewbogen ab, und abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Sie passt zu einem Unternehmen mit wenigen offenen Stellen gleichzeitig. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
+  "lists": {
+    "applicants": { "label": "Bewerber", "pluralLabel": "Bewerber", "description": "Die Personen, die sich bewerben, mit Quelle und Einwilligung zum Talentpool." },
+    "jobs": { "label": "Stelle", "pluralLabel": "Stellen", "description": "Jede offene Position mit Fachvorgesetztem und Gehaltsspanne." },
+    "applications": { "label": "Bewerbung", "pluralLabel": "Bewerbungen", "description": "Ein Bewerber für eine Stelle, vom Eingang bis zur Einstellung oder Absage." },
+    "scorecards": { "label": "Interviewbogen", "pluralLabel": "Interviewbögen", "description": "Bewertung und Empfehlung eines Interviewers zu einer Bewerbung." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Quelle",
+      "options": { "careers_page": "Karriereseite", "job_board": "Jobbörse", "referral": "Empfehlung", "linkedin": "LinkedIn", "agency": "Agentur", "other": "Sonstige" }
+    },
+    "applicants.location": { "label": "Wohnort" },
+    "applicants.salary_expectation": { "label": "Gehaltsvorstellung" },
+    "applicants.pool_consent": { "label": "Einwilligung Talentpool" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Entwurf", "open": "Offen", "on_hold": "Pausiert", "filled": "Besetzt", "cancelled": "Abgebrochen" }
+    },
+    "jobs.department": { "label": "Abteilung" },
+    "jobs.hiring_manager": { "label": "Fachvorgesetzter" },
+    "jobs.pay_min": { "label": "Gehalt ab" },
+    "jobs.pay_max": { "label": "Gehalt bis" },
+    "jobs.apply_by": { "label": "Bewerbung bis" },
+    "applications.stage": {
+      "label": "Phase",
+      "options": { "new": "Eingang", "screening": "Vorauswahl", "interview_1": "Erstgespräch", "interview_2": "Zweitgespräch", "reference_check": "Referenzprüfung", "offer": "Angebot", "hired": "Eingestellt", "rejected": "Absage", "withdrawn": "Zurückgezogen" }
+    },
+    "applications.interview_at": { "label": "Gespräch am" },
+    "applications.offer_decision_due": { "label": "Antwort auf Angebot bis" },
+    "applications.rejection_reason": {
+      "label": "Absagegrund",
+      "options": { "skills": "Qualifikation", "experience": "Erfahrung", "salary_mismatch": "Gehalt passt nicht", "other_offer": "Hat ein anderes Angebot angenommen", "position_filled": "Stelle besetzt", "other": "Sonstiger" }
+    },
+    "applications.retain_until": { "label": "Löschen am" },
+    "scorecards.interviewer": { "label": "Interviewer" },
+    "scorecards.round": { "label": "Runde", "options": { "screening": "Vorauswahl", "interview_1": "Erstgespräch", "interview_2": "Zweitgespräch" } },
+    "scorecards.rating": { "label": "Bewertung" },
+    "scorecards.recommendation": { "label": "Empfehlung", "options": { "strong_no": "Klar nein", "no": "Nein", "yes": "Ja", "strong_yes": "Klar ja" } },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "acknowledge": "Eingang bestätigen",
+        "screen": "Bewerbung vorauswählen",
+        "schedule_interview": "Gespräch terminieren",
+        "collect_scorecards": "Interviewbögen einsammeln",
+        "chase_offer": "Antwort auf Angebot nachfassen",
+        "close_message": "Absage schicken",
+        "retention_review": "Aufbewahrung prüfen",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Bewerber", "targetLabel": "Bewerbungen" },
+    "application_job": { "sourceLabel": "Stelle", "targetLabel": "Bewerbungen" },
+    "scorecard_application": { "sourceLabel": "Bewerbung", "targetLabel": "Interviewbögen" },
+    "action_application": { "sourceLabel": "Bewerbung", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "applications_all": { "name": "Alle Bewerbungen" },
+    "applications_board": { "name": "Bewerbungs-Board" },
+    "jobs_all": { "name": "Alle Stellen" },
+    "applicants_all": { "name": "Alle Bewerber" },
+    "scorecards_all": { "name": "Alle Interviewbögen" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Bewerbungen nach Phase" },
+    "applicants_by_source": { "title": "Bewerber nach Quelle" },
+    "interviews_coming": { "title": "Anstehende Gespräche" },
+    "open_jobs": { "title": "Offene Stellen" },
+    "rejection_reasons": { "title": "Absagegründe" },
+    "retention_coming": { "title": "Bald zu löschende oder zu erneuernde Bewerbungen" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Ablauf der Einstellung und wer entscheidet", "sections": ["Phasen und Zuständigkeiten", "Worauf wir bei Vorauswahl und Gesprächen achten"] },
+    "form_and_retention": { "title": "Bewerbungsformular und Aufbewahrung", "sections": ["Abgefragte Angaben und Datenschutzhinweis", "Wie lange wir Absagen aufbewahren"] },
+    "candidate_messages": { "title": "Nachrichten an Bewerber", "sections": ["Eingangsbestätigung, Einladung, Angebot", "Absage an jeden nicht berücksichtigten Bewerber"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Bewerber und Bewerbung anlegen, wenn das Bewerbungsformular abgeschickt wird" },
+    "acknowledge_application": { "title": "Eine neue Bewerbung innerhalb von 2 Tagen bestätigen" },
+    "collect_scorecards": { "title": "Am Gesprächstag die Interviewbögen einsammeln" },
+    "scorecard_reminder": { "title": "Den Zuständigen am Tag nach dem Gespräch erinnern" },
+    "chase_offer": { "title": "5 Tage nach einem Angebot nach der Entscheidung fragen" },
+    "rejection_retention": {
+      "title": "Löschdatum auf 180 Tage setzen, wenn eine Bewerbung abgelehnt wird",
+      "variants": {
+        "PL": {
+          "title": "Löschdatum auf 30 Tage setzen, wenn eine Bewerbung abgelehnt wird (Polen: länger nur mit Einwilligung)",
+          "description": "Die polnische Datenschutzbehörde (UODO) erwartet, dass Bewerberdaten nach Abschluss des Verfahrens gelöscht werden, außer der Bewerber hat in künftige Verfahren eingewilligt. Das ist ein Standardwert: Setze die Frist deiner eigenen Aufbewahrungsrichtlinie und bei Einwilligung ein späteres Datum von Hand."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Den übrigen Bewerbern absagen, wenn eine Stelle besetzt ist" },
+    "retention_review": { "title": "Eine Bewerbung prüfen, wenn ihr Löschdatum erreicht ist" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Bewerbung hat eine von neun Phasen.",
+    "retain_until_field": "Jede Bewerbung hält fest, wie lange sie aufbewahrt wird.",
+    "applications_board_view": "Die Bewerbungen öffnen sich als Board nach Phase."
+  },
+  "page": {
+    "metaTitle": "Bewerbermanagement Software: Vorlage für kleine Betriebe",
+    "metaDescription": "Applicant Tracking System für kleine Betriebe: Vorlage für Claude, ChatGPT oder Codex mit Stellen, neun Phasen, Interviewbögen und Löschdatum für Absagen.",
+    "headline": "Jede Bewerbung beantworten, alle Notizen an einem Ort: ein Bewerbermanagement, das Ihr KI-Agent aufbaut",
+    "answer": "Ein Bewerbermanagement für einen kleinen Betrieb ist eine Liste von Stellen mit je einer Bewerbung pro Bewerber und Stelle, die durch die Phasen von Eingang bis eingestellt oder Absage läuft, damit kein Bewerber ohne Antwort bleibt. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut sie in Customermates auf, mit Stellen, einem Interviewbogen je Interviewer, terminierten Folgeaufgaben und einem Löschdatum für abgelehnte Bewerbungen. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Bewerbungsrunde",
+      "steps": [
+        "Prüfen Sie, ob jede neue Bewerbung bestätigt wurde und ein nächstes Datum hat, und beantworten Sie die, die noch warten.",
+        "Gleichen Sie neue Bewerbungen mit den Muss-Kriterien der Stelle ab und entscheiden Sie, wer zum Gespräch eingeladen wird.",
+        "Holen Sie am Tag nach jedem Gespräch den Interviewbogen jedes Interviewers ein, solange die Notizen frisch sind.",
+        "Fassen Sie bei Angeboten nach, die auf eine Entscheidung warten, und senden Sie die Abschlussnachricht an Bewerber, die eine Absage erhalten haben oder deren Stelle besetzt wurde."
+      ]
+    },
+    "limits": [
+      "Es ist keine Jobbörse, kein Multiposting-Werkzeug und kein Karriereseiten-Baukasten. Es veröffentlicht Ihre Stellenanzeigen nicht.",
+      "Es liest und bewertet keine Lebensläufe automatisch und lehnt niemanden automatisch ab. Interviewbögen sind Bewertungen, die ein Mensch abgibt.",
+      "Es ist keine Test-, Assessment- oder Video-Interview-Plattform und kein Werkzeug für Vertragsangebote oder elektronische Unterschriften.",
+      "Es führt keine Hintergrund- oder Arbeitserlaubnisprüfungen durch und ist kein Onboarding-, Personalakten- oder Lohnabrechnungssystem. Nach der Einstellung wandert die Akte in Ihr Personalsystem.",
+      "Kopien von Ausweisen und Daten zur Chancengleichheit gehören nicht hinein. Erfassen Sie nur, was die Einstellungsentscheidung braucht.",
+      "Es gibt keine Rechtsberatung. Es speichert ein Löschdatum und einen Verantwortlichen; die Frist legen Sie mit Ihrer Beratung fest.",
+      "Ausgelegt ist es für wenige offene Stellen gleichzeitig. Für Massenrekrutierung oder mehrere Standorte passt ein eigenes Bewerbermanagementsystem besser."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in ein Bewerbermanagement?",
+        "answer": "Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber und je eine Bewerbung pro Bewerber und Stelle mit Phase, Gesprächstermin, Angebotsfrist und Absagegrund. Praktiker ergänzen einen Interviewbogen je Interviewer, damit Rückmeldungen strukturiert sind und nicht in E-Mails und Chats verstreut liegen."
+      },
+      {
+        "question": "Welche Phasen braucht ein Bewerbungsprozess?",
+        "answer": "Gängige Leitfäden nennen Eingang, Vorauswahl, Gespräch, Referenzprüfung und Angebot. Diese Vorlage hat neun: Eingang, Vorauswahl, Erstgespräch, Zweitgespräch, Referenzprüfung, Angebot, Eingestellt, Absage und Zurückgezogen, weil ein kleiner Betrieb selten mehr als zwei Gesprächsrunden braucht. Benennen Sie Phasen im Plan, den Ihr Agent vorschlägt, um oder lassen Sie welche weg."
+      },
+      {
+        "question": "Wie lange darf ich abgelehnte Bewerbungen aufbewahren?",
+        "answer": "Das hängt vom Land ab. In Deutschland werden Bewerbungen abgelehnter Bewerber meist etwa sechs Monate nach Ende des Verfahrens aufbewahrt, ein Talentpool nur mit Einwilligung; die französische Datenschutzbehörde erlaubt einen Pool nicht berücksichtigter Kandidaten für zwei Jahre ab dem letzten Kontakt, wenn die Betroffenen informiert wurden. Die Vorlage setzt das Löschdatum 180 Tage nach einer Absage, damit Sie die Bewerbung löschen oder eine Einwilligung einholen. Passen Sie die Frist an Ihr Land an und fragen Sie Ihre Beratung. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Darf ich einen Talentpool führen?",
+        "answer": "Nur mit Einwilligung des Bewerbers. Wenn das Löschdatum einer abgelehnten Bewerbung erreicht ist, löschen Sie sie oder halten die Einwilligung zum Verbleib im Pool fest. Deutsche Quellen verlangen für einen Talentpool eine Einwilligung, andere lassen für kurze Zeit ein berechtigtes Interesse genügen; prüfen Sie die Regel für Ihr Land."
+      },
+      {
+        "question": "Schreibt der Agent Bewerber an oder lehnt er jemanden ab?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Nachrichten wie eine Eingangsbestätigung oder eine Absage sind Entwürfe, die es nur auf Ihre Bitte gibt, und Sie senden sie selbst. Nichts wird automatisch abgelehnt."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ich stelle für mein kleines Unternehmen ein, Bewerber warten zu lange auf eine Antwort, und die Interviewnotizen liegen an verschiedenen Orten. Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
+    "questions": [
+      "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
+      "Woher kommen die Bewerber, und nutzt du ein Bewerbungsformular?",
+      "Wie lange bewahrst du Absagen auf, und führst du einen Talentpool mit Einwilligung?",
+      "Welche Gesprächsrunden gibt es, und wer legt einen Interviewbogen ab?"
+    ]
+  }
+}

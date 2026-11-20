@@ -101,7 +101,7 @@ export class PrismaRecordEventSubscriptionRepo
     const companyId = this.companyId;
     const { model, state, policy } = await this.actorAccess();
     if (
-      !policy.allowedSystem(input.kind === "routine" ? "routines" : "api", action) ||
+      !policy.allowedSystem(input.kind === "webhook" ? "api" : "routines", action) ||
       (!policy.isAdmin && input.ownerUserId !== this.userId)
     )
       throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
@@ -136,6 +136,15 @@ export class PrismaRecordEventSubscriptionRepo
   async pause(id: string) {
     await this.prisma.recordEventSubscription.updateMany({
       where: { companyId: this.companyId, id },
+      data: { enabled: false, revision: { increment: 1 } },
+    });
+  }
+
+  @BypassTenantGuard
+  async pauseUnscoped(companyId: string, ids: string[]) {
+    if (!ids.length) return;
+    await this.prisma.recordEventSubscription.updateMany({
+      where: { companyId, id: { in: ids }, enabled: true },
       data: { enabled: false, revision: { increment: 1 } },
     });
   }

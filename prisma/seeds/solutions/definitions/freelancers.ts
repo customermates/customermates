@@ -82,7 +82,6 @@ type InboxKey =
 const en = {
   countryCode: "us",
   company: "Linwood Product Design",
-  workspaceName: "Freelancers",
   website: "https://linwood-design.example",
   phones: { mobile: { templates: ["+1 202 555 01##"], start: 20 } },
   selfTitle: "Freelance UX and product designer",
@@ -629,7 +628,6 @@ export type Strings = typeof en;
 const de: Strings = {
   countryCode: "de",
   company: "Feldmark Produktdesign",
-  workspaceName: "Selbstständige",
   website: "https://feldmark-design.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 300 } },
   selfTitle: "Freiberuflicher UX- und Produktdesigner",
@@ -1794,7 +1792,6 @@ export default defineSolution<Strings>({
     const thread = t.threads;
     const routine = t.routines;
     return {
-      workspaceName: t.workspaceName,
       valueLabels: { value: t.fields.dealValue, weighted: t.fields.weightedValue },
       companyName: t.company,
       lists: (["organization", "contact", "deal", "project", "task"] as const).map((key) => ({

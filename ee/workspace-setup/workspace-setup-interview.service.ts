@@ -1,5 +1,11 @@
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
-import type { StoredSetupInterview, WorkspaceSetupFailure, WorkspaceSetupRecord } from "./workspace-setup.schema";
+import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
+import type {
+  StoredSetupInterview,
+  WorkspaceSetupFailure,
+  WorkspaceSetupPatch,
+  WorkspaceSetupRecord,
+} from "./workspace-setup.schema";
 import type { WorkspaceSetupModelService } from "./workspace-setup-model.service";
 import type {
   SetupPlanInput,
@@ -43,7 +49,7 @@ const PREFILL_WEBSITE = { characters: 36_000, perSource: 3_000 };
 const CRAWL_READING = new Set(["queued", "discovering", "fetching"]);
 
 type Claimable = "prefill" | "plan";
-type PlanClaim = { status: "claimed"; revision: number } | { status: "busy" | "skip" };
+export type PlanClaim = { status: "claimed"; revision: number } | { status: "planned" | "busy" | "skip" };
 
 function planPartKey(part: SetupPlanPart): string {
   return `plan:${part}`;
@@ -84,6 +90,15 @@ function planning(setup: WorkspaceSetupRecord, revision: number) {
   return setup.status === "planning" && setup.planRevision === revision && setup.interview.plan === "running";
 }
 
+function plannedPatch(setup: WorkspaceSetupRecord, plan: SetupPlan): WorkspaceSetupPatch {
+  return {
+    status: "planned",
+    plan,
+    artifacts: withoutPlanParts(setup.artifacts, () => false),
+    interview: { ...setup.interview, plan: "completed", planError: null, planClaimedAt: null },
+  };
+}
+
 function stale(claimedAt: string | null, now: Date, limitMs = SETUP_GENERATION_STALE_MS) {
   return !claimedAt || new Date(claimedAt).getTime() < now.getTime() - limitMs;
 }
@@ -116,7 +131,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
   constructor(
     private repo: WorkspaceSetupRepo,
     private models: Pick<WorkspaceSetupModelService, "generate" | "drainWarnings">,
-    private planner: Pick<WorkspaceSetupPlanner, "attempt" | "assemble">,
+    private planner: Pick<WorkspaceSetupPlanner, "attempt" | "assemble" | "fromTemplate">,
   ) {
     super();
   }
@@ -222,6 +237,14 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const setup = await this.repo.get(setupId);
     if (!setup || setup.status !== "planning") return "skip";
     if (setup.interview.followUps !== "idle") return "none";
+    if (setup.interview.templateSlug) {
+      await this.repo.mutate(setupId, (current) =>
+        current.status === "planning" && current.interview.followUps === "idle"
+          ? { interview: { ...current.interview, followUps: "skipped" } }
+          : null,
+      );
+      return "none";
+    }
     const catalog = await setupInterviewCatalog();
     const result = await this.models.generate({
       label: "Workspace setup follow-ups",
@@ -259,9 +282,21 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
 
   async claimPlan(setupId: string): Promise<PlanClaim> {
     const claimed = await this.claim(setupId, "plan", ["queued"]);
-    if (claimed) return { status: "claimed", revision: claimed.planRevision };
-    const setup = await this.repo.get(setupId);
-    return setup?.status === "planning" && setup.interview.plan === "running" ? { status: "busy" } : { status: "skip" };
+    if (!claimed) {
+      const setup = await this.repo.get(setupId);
+      return setup?.status === "planning" && setup.interview.plan === "running"
+        ? { status: "busy" }
+        : { status: "skip" };
+    }
+    const revision = claimed.planRevision;
+    const templated = claimed.interview.templateSlug
+      ? await this.planner.fromTemplate(await this.planInput(claimed))
+      : null;
+    if (!templated?.ok) return { status: "claimed", revision };
+    const stored = await this.repo.mutate(setupId, (current) =>
+      planning(current, revision) ? plannedPatch(current, templated.plan) : null,
+    );
+    return { status: stored?.changed ? "planned" : "skip" };
   }
 
   async planPart(
@@ -319,14 +354,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const assembled = Boolean(drafts.model && drafts.knowledge && drafts.views);
     const updated = await this.repo.mutate(setupId, (current) => {
       if (!planning(current, revision)) return null;
-      if (outcome.ok) {
-        return {
-          status: "planned",
-          plan: outcome.plan,
-          artifacts: withoutPlanParts(current.artifacts, () => false),
-          interview: { ...current.interview, plan: "completed", planError: null, planClaimedAt: null },
-        };
-      }
+      if (outcome.ok) return plannedPatch(current, outcome.plan);
       if (retry) {
         return {
           artifacts: withoutPlanParts(
@@ -373,6 +401,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
       sources: setup.crawlId ? await this.repo.crawlSources(setup.crawlId) : [],
       website: setup.crawlId !== null,
       sheet,
+      templateSlug: setup.interview.templateSlug,
     };
   }
 }

@@ -114,12 +114,12 @@ test("a legacy workspace another administrator set up leaves the login its trial
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  // A new cloud workspace first asks what to do first, or continues at the invite step when AI setup is not configured.
+  // A new cloud workspace first asks how the owner found us (optional), then what to do first, or continues at the invite step when AI setup is not configured.
   const stepHeading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
   await expect(
-    stepHeading(englishMessages.OnboardingWizard.steps.goal.title).or(
-      stepHeading(englishMessages.OnboardingWizard.steps.invite.title),
-    ),
+    stepHeading(englishMessages.OnboardingWizard.steps.source.title)
+      .or(stepHeading(englishMessages.OnboardingWizard.steps.goal.title))
+      .or(stepHeading(englishMessages.OnboardingWizard.steps.invite.title)),
   ).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
@@ -184,9 +184,13 @@ test("a self-hosted workspace is ready to use at once and continues in its onboa
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  // Self-hosted workspaces have no AI setup step: the wizard continues at the invite step.
+  // Self-hosted workspaces have no guided Mate setup: the wizard asks how to set up this instance, own agent first.
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.invite.title, exact: true }),
+    page.getByRole("heading", {
+      level: 1,
+      name: englishMessages.OnboardingWizard.steps.goal.titleSelfHosted,
+      exact: true,
+    }),
   ).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({

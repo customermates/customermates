@@ -1,0 +1,198 @@
+{
+  "locale": "it",
+  "name": "Prenotazioni per creativi",
+  "summary": "Per fotografi, videomaker e organizzatori di eventi: tieni in ordine ogni richiesta, data e acconto, dal primo messaggio alla prenotazione, alla consegna e alla nota di anniversario.",
+  "description": "Le date vengono promesse senza acconto e le consegne dimenticate quando le richieste vivono nelle chat e in un calendario. Questo modello dà a ogni prenotazione una riga con due fasi: la vendita, dalla richiesta alla prenotazione, e la consegna, dal servizio svolto alla consegna. La data resta bloccata finché il contratto non è firmato e l'acconto versato, il saldo ha una propria scadenza e a ogni lavoro consegnato si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti: qui si tengono i link.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Clienti, partner dei clienti, organizzatori e referenti delle location." },
+    "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Location, wedding planner, catering e altri fornitori con cui lavori." },
+    "bookings": { "label": "Prenotazione", "pluralLabel": "Prenotazioni", "description": "Un lavoro dalla richiesta alla consegna." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Fase",
+      "options": { "inquiry": "Richiesta", "consultation": "Incontro conoscitivo", "proposal_sent": "Preventivo inviato", "date_on_hold": "Data bloccata", "booked": "Prenotato", "lost": "Perso" }
+    },
+    "bookings.delivery": {
+      "label": "Consegna",
+      "options": { "not_started": "Non iniziata", "preparing": "In preparazione", "shoot_done": "Servizio svolto", "editing": "In post-produzione", "client_review": "Revisione del cliente", "delivered": "Consegnato", "cancelled": "Annullato o rinviato" }
+    },
+    "people.contact_role": {
+      "label": "Ruolo",
+      "options": { "client": "Cliente", "partner_of_client": "Coniuge o partner del cliente", "payer": "Genitore o pagante", "planner": "Organizzatore", "venue_contact": "Referente della location", "referrer": "Segnalatore" }
+    },
+    "people.preferred_channel": {
+      "label": "Canale preferito",
+      "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefono", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Anniversario" },
+    "people.portfolio_consent": { "label": "Liberatoria per il portfolio", "options": { "granted": "Concessa", "declined": "Negata", "not_asked": "Non richiesta" } },
+    "people.consent_date": { "label": "Data della liberatoria" },
+    "partners.partner_type": {
+      "label": "Tipo",
+      "options": { "venue": "Location", "planner": "Wedding planner", "caterer": "Catering", "florist": "Fiorista", "band_or_dj": "Band o DJ", "other": "Altro" }
+    },
+    "partners.website": { "label": "Sito web" },
+    "partners.preferred": { "label": "Partner preferito" },
+    "bookings.service_type": {
+      "label": "Servizio",
+      "options": { "wedding": "Matrimonio", "portrait": "Ritratto o famiglia", "event": "Evento", "corporate": "Aziendale o ritratti professionali", "commercial": "Pubblicitario", "video": "Video", "planning": "Organizzazione" }
+    },
+    "bookings.package": { "label": "Pacchetto" },
+    "bookings.event_date": { "label": "Data dell'evento" },
+    "bookings.location": { "label": "Luogo" },
+    "bookings.source": {
+      "label": "Provenienza",
+      "options": { "referral": "Segnalazione", "instagram": "Instagram", "google_search": "Ricerca su Google", "venue_or_planner": "Location o organizzatore", "wedding_fair": "Fiera del matrimonio", "past_client": "Ex cliente", "other": "Altro" }
+    },
+    "bookings.date_hold_until": { "label": "Data bloccata fino al" },
+    "bookings.contract_status": {
+      "label": "Contratto",
+      "options": { "not_sent": "Non inviato", "sent": "Inviato", "signed": "Firmato", "cancelled": "Annullato" }
+    },
+    "bookings.deposit_amount": { "label": "Importo dell'acconto" },
+    "bookings.deposit_status": {
+      "label": "Acconto",
+      "options": { "not_due": "Non dovuto", "requested": "Richiesto", "paid": "Pagato", "refunded": "Rimborsato", "kept": "Trattenuto" }
+    },
+    "bookings.balance_due_on": { "label": "Saldo dovuto il" },
+    "bookings.balance_status": {
+      "label": "Saldo",
+      "options": { "not_due": "Non dovuto", "requested": "Richiesto", "paid": "Pagato", "overdue": "Scaduto" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Questionario",
+      "options": { "not_sent": "Non inviato", "sent": "Inviato", "received": "Ricevuto" }
+    },
+    "bookings.delivery_due_on": { "label": "Consegna entro" },
+    "bookings.delivered_on": { "label": "Consegnato il" },
+    "bookings.gallery_url": { "label": "Link alla galleria" },
+    "bookings.usage_rights": {
+      "label": "Diritti d'uso",
+      "options": { "private_use": "Uso privato", "portfolio_and_social": "Portfolio e social", "commercial_licence": "Licenza commerciale", "not_decided": "Da decidere" }
+    },
+    "bookings.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "date_taken": "Data già occupata", "price": "Prezzo", "chose_another": "Ha scelto un altro professionista", "cancelled_or_postponed": "Evento annullato o rinviato", "no_response": "Nessuna risposta", "style_mismatch": "Stile non adatto" }
+    },
+    "bookings.weighted_value": { "label": "Valore ponderato" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Rispondere alla richiesta",
+        "consult": "Incontro conoscitivo",
+        "send_proposal": "Inviare il preventivo",
+        "send_contract": "Inviare il contratto",
+        "chase_payment": "Sollecitare un pagamento",
+        "send_questionnaire": "Inviare il questionario",
+        "build_timeline": "Preparare la scaletta",
+        "shoot_day": "Giorno del servizio",
+        "edit": "Post-produzione",
+        "deliver": "Consegna",
+        "request_review": "Chiedere una recensione",
+        "anniversary": "Messaggio di anniversario",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Cliente", "targetLabel": "Prenotazioni" },
+    "booking_venue": { "sourceLabel": "Location o organizzatore", "targetLabel": "Prenotazioni" },
+    "action_booking": { "sourceLabel": "Prenotazione", "targetLabel": "Attività" }
+  },
+  "views": {
+    "bookings_board": { "name": "Prenotazioni per fase" },
+    "bookings_all": { "name": "Tutte le prenotazioni per data" },
+    "delivery_board": { "name": "Consegna per stato" },
+    "payments_due": { "name": "Saldi da sollecitare" },
+    "people_all": { "name": "Tutte le persone" },
+    "partners_all": { "name": "Tutti i partner" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Richieste aperte per fase" },
+    "shoots_coming": { "title": "Date prenotate" },
+    "deposits_outstanding": { "title": "Acconti richiesti" },
+    "balances_coming": { "title": "Saldi in scadenza" },
+    "booked_per_month": { "title": "Valore prenotato per mese dell'evento" },
+    "lost_reasons": { "title": "Motivi di perdita delle richieste" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Flusso di una prenotazione", "sections": ["Dalla richiesta alla prenotazione: rispondere in un giorno, bloccare la data, firmare, versare l'acconto", "Dal servizio alla consegna: post-produzione, verifica, galleria"] },
+    "contract_checklist": { "title": "Checklist di contratto e pagamento", "sections": ["Che cosa include ed esclude il pacchetto", "Acconto, saldo e annullamento", "Diritti d'uso e liberatoria per le immagini"] },
+    "delivery_and_usage": { "title": "Consegna, anteprima e richiesta di recensione", "sections": ["Data di consegna e anteprima", "Dove si trova la galleria", "Chiedere una recensione"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Rispondere a una nuova richiesta entro un giorno" },
+    "send_contract": { "title": "Inviare il contratto quando la data viene bloccata" },
+    "chase_payment_after_signing": { "title": "Sollecitare l'acconto tre giorni dopo la firma del contratto" },
+    "questionnaire_before_event": { "title": "Inviare il questionario 45 giorni prima di un evento prenotato" },
+    "balance_reminder": { "title": "Sollecitare il saldo una settimana prima della scadenza" },
+    "edit_after_shoot": { "title": "Avviare la post-produzione quando il servizio è svolto" },
+    "request_review": { "title": "Chiedere una recensione due settimane dopo la consegna" },
+    "anniversary_note": { "title": "Scrivere un messaggio il giorno dell'anniversario" },
+    "inquiry_form_records": { "title": "Creare la persona e la prenotazione da un modulo di richiesta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni prenotazione ha una fase di vendita.",
+    "event_date_field": "Ogni prenotazione ha una data dell'evento.",
+    "bookings_board_view": "Le prenotazioni si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "Gestionale eventi: prenotazioni per fotografi e planner",
+    "metaDescription": "Gestionale eventi per fotografi, videomaker e organizzatori: richieste, date bloccate, acconti e consegna, costruiti dal tuo agente IA nel CRM.",
+    "headline": "Un gestionale eventi per fotografi e organizzatori: ogni data, acconto e consegna sotto controllo",
+    "answer": "Gestire le prenotazioni di un fotografo, un videomaker o un organizzatore di eventi significa bloccare una data solo finché il contratto non è firmato e l'acconto non è pagato, poi seguire il lavoro fino alla consegna. Questo modello dà a ogni prenotazione una riga con una fase di vendita e una di consegna, una scadenza per il saldo, un questionario prima dell'evento e una richiesta di recensione dopo. Incollalo nel tuo agente IA: costruisce tutto in Customermates e tu approvi il piano prima che venga creato qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale delle prenotazioni",
+      "steps": [
+        "Rispondi a ogni richiesta in attesa. Per impostazione predefinita la risposta parte entro 24 ore e chiede data, luogo, tipo di lavoro e budget.",
+        "Controlla le date bloccate: sollecita contratto e acconto oppure libera la data.",
+        "Guarda gli eventi dei prossimi 14 giorni: il questionario è tornato, il programma della giornata è confermato, il saldo è pagato?",
+        "Controlla le consegne in scadenza e avvisa presto il cliente se una data slitta. Due settimane dopo la consegna chiedi una recensione."
+      ]
+    },
+    "limits": [
+      "Non redige né fa firmare contratti, non invia fatture e non incassa pagamenti. Restano nei tuoi strumenti di contratti, fatturazione e pagamento; la prenotazione conserva stato, date e un link.",
+      "Non è uno strumento per gallerie, selezione foto o vendita di stampe, né per impaginare album, ritoccare o gestire media. La prenotazione conserva il link.",
+      "Una pagina di prenotazione pubblica o la vendita di mini sessioni oggi non fanno parte di Customermates. Le richieste arrivano come email, messaggi WhatsApp o Instagram nella casella di posta collegata e il tuo agente prepara la risposta.",
+      "Non è consulenza legale. Le pagine di conoscenza sono liste di controllo; fai rivedere a un avvocato il contratto e la formulazione dei diritti d'immagine e d'uso.",
+      "Tieni fuori dati sanitari, alimentari o religiosi, numeri di carte di pagamento, documenti d'identità, volti come file immagine ed elenchi di invitati. Registra solo stato e data del consenso per l'uso nel portfolio.",
+      "I promemoria arrivano da regole di automazione e notifiche, oppure da una routine che il tuo agente esegue a orari stabiliti. Il modello li propone e tu decidi quali attivare."
+    ],
+    "faq": [
+      {
+        "question": "Che cosa deve fare un gestionale eventi per un fotografo?",
+        "answer": "Seguire un lavoro dalla richiesta alla prenotazione e alla consegna: annotare data, tipo e budget, bloccare la data, confermarla con un contratto firmato e un acconto, gestire questionario e programma della giornata, consegnare e chiedere una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti."
+      },
+      {
+        "question": "Quando una data è davvero prenotata?",
+        "answer": "Nella pratica, senza acconto la data non è confermata. Il modello considera prenotato un lavoro solo quando il contratto è firmato e l'acconto è pagato, in campi separati, con una data bloccata nel mezzo. L'importo dell'acconto lo decide il tuo contratto: una guida sui contratti di matrimonio dice che quasi tutti i fotografi chiedono il 50% alla firma, altri modelli prevedono il 30%, quindi il modello non fissa importi predefiniti."
+      },
+      {
+        "question": "Che cos'è una data bloccata?",
+        "answer": "Una data bloccata toglie una data dalla tua disponibilità per qualche giorno senza vincolare il cliente. Il modello conserva la data fino a cui è bloccata, crea un passaggio per inviare il contratto quando la data viene bloccata e un altro per sollecitare l'acconto tre giorni dopo la firma."
+      },
+      {
+        "question": "Che cosa deve registrare il CRM su diritti d'immagine e consenso?",
+        "answer": "Solo stato e data del consenso per l'uso nel portfolio, non le immagini, né categorie particolari come religione, orientamento o salute, che matrimoni e servizi di famiglia possono rivelare. Il diritto d'autore resta di norma al creativo; i diritti d'uso vanno nel contratto e un avvocato dovrebbe rivederne la formulazione. Non è consulenza legale."
+      },
+      {
+        "question": "Quando va inviato il questionario?",
+        "answer": "Il modello crea un passaggio per inviare il questionario 45 giorni prima di un evento prenotato, modificabile. Fotografi e videomaker chiedono spesso anche il programma della giornata circa due settimane prima e fanno un controllo nell'ultima settimana su programma, luoghi e numeri di telefono."
+      },
+      {
+        "question": "L'agente scrive ai miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Gestisco un'attività di foto, video o eventi e perdo il conto di quali date sono bloccate, quali acconti sono pagati e che cosa resta da consegnare. Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e note di anniversario.",
+    "questions": [
+      "Che cosa fotografi, riprendi o organizzi e quante prenotazioni hai all'anno?",
+      "Quali passaggi attraversa un cliente dalla richiesta alla prenotazione e quando blocchi la data?",
+      "Come incassi acconti e saldi? Le fatture restano nel tuo strumento.",
+      "Dove consegni le gallerie? Qui si tiene solo il link."
+    ]
+  }
+}

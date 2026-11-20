@@ -1,0 +1,138 @@
+{
+  "locale": "pl",
+  "name": "Od formularza do CRM",
+  "summary": "Dopilnuj, żeby żadne zapytanie z formularza nie zostało bez odpowiedzi. Każde zgłoszenie staje się zapytaniem ze źródłem i terminem odpowiedzi, a spam i zapytania nietrafione są trzymane osobno.",
+  "description": "Zapytania z formularza kontaktowego, wyceny lub zgłoszeniowego lądują w skrzynce, gdzie dostają odpowiedź za późno albo wcale, a nie wiadomo, skąd przychodzą te dobre. Szablon zamienia każde zgłoszenie w zapytanie powiązane z kontaktem, z formularzem, z którego przyszło, informacją, skąd trafił odwiedzający, na kiedy jest potrzebne, i terminem odpowiedzi na następny dzień. Zapytania przechodzą od nowego do przekazanego do lejka, nietrafionego lub spamu, zapytanie bez odpowiedzi zostaje oznaczone, a dla zbieranych danych zapisywane są zgoda i termin przeglądu. To nie jest kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które piszą do Ciebie przez formularz." },
+    "requests": { "label": "Zapytanie", "pluralLabel": "Zapytania", "description": "Jedno wysłanie formularza, od nowego do przekazanego, nietrafionego lub spamu." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Firma" },
+    "contacts.language": { "label": "Język" },
+    "contacts.marketing_consent": { "label": "Zgoda na e-maile marketingowe" },
+    "contacts.marketing_consent_on": { "label": "Data udzielenia zgody" },
+    "requests.stage": {
+      "label": "Etap",
+      "options": { "new": "Nowe", "contacted": "Skontaktowane", "qualified": "Zakwalifikowane", "converted": "Przekazane do lejka", "not_a_fit": "Nietrafione", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formularz", "options": { "contact": "Formularz kontaktowy", "quote_request": "Formularz wyceny", "intake": "Formularz zgłoszeniowy", "callback": "Prośba o oddzwonienie", "other": "Inny" } },
+    "requests.owner": { "label": "Osoba odpowiedzialna" },
+    "requests.service_interest": { "label": "Interesująca usługa" },
+    "requests.needed_by": {
+      "label": "Kiedy potrzebne",
+      "options": { "asap": "Jak najszybciej", "within_a_month": "W ciągu miesiąca", "within_three_months": "W ciągu trzech miesięcy", "just_looking": "Tylko się rozglądam", "no_answer": "Bez odpowiedzi" }
+    },
+    "requests.budget_band": { "label": "Budżet", "options": { "no_answer": "Bez odpowiedzi", "low": "Niski", "medium": "Średni", "high": "Wysoki" } },
+    "requests.submitted_at": { "label": "Data i godzina zgłoszenia" },
+    "requests.first_response_at": { "label": "Pierwsza odpowiedź" },
+    "requests.utm_source": { "label": "Skąd przyszedł odwiedzający" },
+    "requests.landing_page": { "label": "Strona z formularzem" },
+    "requests.repeat_submission": { "label": "Zgłaszał się już wcześniej" },
+    "requests.not_a_fit_reason": {
+      "label": "Dlaczego nietrafione",
+      "options": { "out_of_area": "Poza naszym obszarem", "no_budget": "Brak budżetu", "wrong_service": "Inna usługa", "no_response": "Brak odpowiedzi", "duplicate": "Duplikat", "other": "Inny" }
+    },
+    "requests.closed_on": { "label": "Data zamknięcia" },
+    "requests.data_review_on": { "label": "Data przeglądu danych" },
+    "requests.days_to_close": { "label": "Dni od zgłoszenia do zamknięcia" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "reply": "Odpowiedzieć", "qualify_call": "Rozmowa kwalifikująca", "send_quote": "Wysłać wycenę", "convert": "Przekazać do lejka", "chase": "Ponaglić", "data_review": "Przejrzeć dane", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Kontakt", "targetLabel": "Zapytania" },
+    "action_request": { "sourceLabel": "Zapytanie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "requests_all": { "name": "Wszystkie zapytania" },
+    "requests_board": { "name": "Tablica zapytań" },
+    "new_requests": { "name": "Nowe zapytania" },
+    "closed_without_deal": { "name": "Nietrafione lub spam" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Zapytania według etapu" },
+    "requests_per_week": { "title": "Zapytania w poszczególnych tygodniach" },
+    "requests_by_form": { "title": "Zapytania według formularza" },
+    "new_requests_count": { "title": "Nowe zapytania" },
+    "not_a_fit_reasons": { "title": "Powody uznania zapytań za nietrafione" },
+    "average_days_to_close": { "title": "Średnia liczba dni do zamknięcia" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Instrukcja: od formularza do CRM", "sections": ["Jakich formularzy używamy i kto odpowiada", "Jak szybko odpowiadamy"] },
+    "privacy_notice": { "title": "Klauzula informacyjna formularzy", "sections": ["Co mówimy przy formularzu", "Jak długo przechowujemy zapytanie"] },
+    "spam_and_duplicates": { "title": "Spam i powtórne wysłania", "sections": ["Co uznajemy za spam", "Co robimy, gdy ta sama osoba pisze ponownie"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Utwórz kontakt i zapytanie po wysłaniu formularza" },
+    "reply_task": { "title": "Utwórz zadanie odpowiedzi na następny dzień, gdy powstaje zapytanie" },
+    "first_response_missed": { "title": "Powiadom osobę prowadzącą, gdy zapytanie jest nadal nowe dzień po zgłoszeniu" },
+    "chase_contacted": { "title": "Ponagl zapytanie ze statusem Skontaktowane, które stoi od 3 dni" },
+    "converted_task": { "title": "Przekaż zapytanie do lejka, gdy trafi na etap Przekazane do lejka" },
+    "review_date_not_a_fit": { "title": "Ustaw termin przeglądu danych na rok naprzód, gdy zapytanie zostanie uznane za nietrafione" },
+    "data_review": { "title": "Przejrzyj dane, gdy nadejdzie termin przeglądu" },
+    "external_form_records": { "title": "Utwórz kontakt i zapytanie, gdy inne narzędzie do formularzy wyśle zgłoszenie" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde zapytanie ma etap.",
+    "submitted_field": "Każde zapytanie zapisuje, kiedy wpłynęło.",
+    "requests_board_view": "Zapytania otwierają się jako tablica według etapu."
+  },
+  "page": {
+    "metaTitle": "Formularz kontaktowy z CRM: żadne zapytanie bez odpowiedzi",
+    "metaDescription": "Formularz kontaktowy, który zasila CRM: wklej szablon do Claude, ChatGPT lub Codex, a każde zapytanie z formularza dostanie opiekuna i termin odpowiedzi.",
+    "headline": "Formularz kontaktowy połączony z CRM: każde zapytanie ma opiekuna i termin odpowiedzi",
+    "answer": "Formularz kontaktowy ma sens tylko wtedy, gdy każde zgłoszenie dostaje odpowiedź. Ten szablon zamienia każde zgłoszenie w zapytanie powiązane z kontaktem, z formularzem, z którego przyszło, terminem odpowiedzi na następny dzień i etapem od nowego do przekazanego do lejka. Wklej go do swojego agenta AI: zbuduje listę zapytań w Customermates i drogę od Twojego formularza do niej. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+    "routine": {
+      "title": "Pierwsza odpowiedź na każde zapytanie",
+      "steps": [
+        "Odpowiadaj na nowe zapytania tego samego dnia. Szablon tworzy zadanie odpowiedzi z terminem na następny dzień i oznacza zapytanie, które po dobie nadal jest nowe.",
+        "Wyślij krótkie potwierdzenie, które powtarza zapytanie słowami osoby i mówi, kiedy przyjdzie odpowiedź lub wycena.",
+        "Zadaj jedno lub dwa pytania, które decydują o cenie albo o tym, kto zajmie się sprawą, zamiast wymagać na starcie długiego formularza.",
+        "Ponów kontakt w sprawie skontaktowanego zapytania po 3 dniach. Jeśli ponaglenia pozostają bez odpowiedzi, oznacz je jako nietrafione z powodem brak odpowiedzi.",
+        "Oznacz spam i zapytania nietrafione i pozwól działać ich terminowi przeglądu danych, aby stare zapytania były przeglądane albo usuwane na czas.",
+        "Przekaż każde zapytanie, które staje się zleceniem, do swojego lejka sprzedaży i oznacz je tu jako przekazane."
+      ]
+    },
+    "limits": [
+      "Formularz publiczny jest prosty i nie jest pełnym kreatorem: bez płatności, quizów, kalkulatorów, przesyłania plików i podpisu elektronicznego. Do tego lepsze pozostają Typeform, Tally lub Jotform, a przychodzący webhook przenosi ich odpowiedzi tutaj.",
+      "Wrażliwe dokumenty zostaw poza formularzem. Proś o nie kanałem z kontrolą dostępu.",
+      "Nie wysyła niczego samo. Potwierdzenia i odpowiedzi to szkice, które sprawdzasz i wysyłasz sam.",
+      "To nie jest narzędzie do wysyłki masowej. Zapisuje zgodę marketingową, ale sekwencje i newslettery wymagają osobnego narzędzia, bo Customermates nie ma sekwencji ani masowych wysyłek.",
+      "Teksty o ochronie danych to punkt wyjścia, nie porada prawna. Dostosuj klauzulę informacyjną, treść zgody i okresy przechowywania do swojego kraju razem z doradcą."
+    ],
+    "faq": [
+      {
+        "question": "O co powinien pytać formularz zapytania ofertowego?",
+        "answer": "Tylko o to, co zmienia cenę albo decyduje, kto odpowiada: zwykle cztery do siedmiu pytań, na przykład czego potrzebujesz, na kiedy i jaki mniej więcej budżet. Szczegóły zostaw na pierwszą rozmowę. Szablon zapisuje formularz, stronę i źródło każdego zapytania, żebyś wiedział, skąd przychodzą te dobre."
+      },
+      {
+        "question": "Jak szybko odpowiadać na zapytanie z internetu?",
+        "answer": "Tak szybko, jak możesz obiecać i dotrzymać: najpóźniej tego samego dnia, a w formularzu napisz, kiedy osoba usłyszy od Ciebie odpowiedź. Poradniki dostawców formularzy zalecają pierwszą wiadomość, która potwierdza zapytanie i podaje, kiedy przyjdzie wycena. Szablon tworzy zadanie odpowiedzi z terminem na następny dzień i oznacza zapytanie, którego nikt nie ruszył po dobie."
+      },
+      {
+        "question": "Czy w formularzu zapytania o wycenę potrzebuję pola zgody?",
+        "answer": "Niekoniecznie. Zgodnie z RODO zapytanie o wycenę przetwarza się zwykle po to, by na nie odpowiedzieć, więc w formularzu jesteś winien osobie informację: kim jesteś, po co używasz danych, na jakiej podstawie, jak długo je przechowujesz i jakie ma prawa. Reklama wymaga osobnej zgody, bez pola zaznaczonego z góry, którą potrafisz udowodnić. Pole zaznaczone z góry się nie liczy. Szablon zapisuje zgodę i termin przeglądu danych, a opcjonalne pole zgody w formularzu zapisuje Twój tekst, jego wersję i czas przy każdym zgłoszeniu. To nie jest porada prawna."
+      },
+      {
+        "question": "Czy to działa z Typeform, Tally lub Jotform?",
+        "answer": "Tak, z każdym narzędziem do formularzy, które potrafi wysłać webhook, na przykład Typeform, Tally czy Jotform. Przychodzący webhook daje liście tajny adres, a każde zgłoszenie wysłane na ten adres tworzy lub aktualizuje rekord. Szablon zawiera regułę, która tworzy kontakt i zapytanie, gdy inne narzędzie do formularzy przyśle zgłoszenie, a Twój agent w wywiadzie ustawia adres i mapowanie pól. Przychodzące webhooki wymagają planu Starter lub wyższego w Customermates Cloud i nie mają limitu przy samodzielnym hostowaniu. Formularz na Twojej stronie działa tak samo albo korzystasz z publicznego formularza Customermates."
+      },
+      {
+        "question": "Czy agent pisze do osób, które wypełniają mój formularz?",
+        "answer": "Nie. Prompt każe agentowi nic nie wysyłać i nie tworzyć przykładowych danych. Szkice powstają tylko na Twoją prośbę, a wysyłasz je sam."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Zapytania z formularzy na mojej stronie dostają odpowiedź za późno albo wcale i nie widzę, skąd przychodzą te dobre. Skonfiguruj w mojej przestrzeni roboczej Customermates obieg od formularza do CRM: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kolejne kroki.",
+    "questions": [
+      "Jakich formularzy używasz i co musisz wiedzieć, żeby wycenić lub przypisać zapytanie?",
+      "Kto odpowiada i w jakim czasie obiecujesz odpowiedź?",
+      "Co mówisz ludziom o ich danych przy formularzu?",
+      "Czy używasz innego narzędzia do formularzy, takiego jak Typeform, Tally lub Jotform?"
+    ]
+  }
+}

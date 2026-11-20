@@ -1,0 +1,490 @@
+import type { Page } from "@playwright/test";
+import type { Client } from "pg";
+import type { BrowserWorkspace } from "./workspace";
+
+import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { collectPageErrors, expect, test } from "./fixtures";
+import { uniqueWorkspaceName } from "./workspace-names";
+import { insertStarterModel } from "./workspace";
+import { createWorkspaceFromSettings, openGoalOfNewWorkspace, openWizardOfNewWorkspace } from "./workspace-setup";
+import { clickHydrated, e2eAppMode } from "./workspace-switching";
+import { appUrlPattern, workspaceSlugOf } from "./app-paths";
+
+const wizard = englishMessages.OnboardingWizard;
+const goal = wizard.goal;
+const steps = wizard.steps;
+const SIGNUP_TEMPLATE = "client-tracker";
+const DEFAULT_TEMPLATE = "sales-pipeline";
+
+type SavedProgress = { step: string; job: string | null; template: string | null; schemaBaseline: number | null };
+
+function heading(page: Page, name: string) {
+  return page.getByRole("heading", { level: 1, name, exact: true });
+}
+
+function templateCard(page: Page, slug: string) {
+  return page.locator(`#onboarding-template-${slug}`);
+}
+
+function templateLabel(page: Page, slug: string) {
+  return page.locator(`label[for="onboarding-template-${slug}"]`);
+}
+
+async function savedProgress(database: Client, companyId: string) {
+  const { rows } = await database.query<{ progress: SavedProgress | null }>(
+    'SELECT "onboardingWizardProgress" AS progress FROM "User" WHERE "companyId"=$1',
+    [companyId],
+  );
+  return rows[0]?.progress ?? null;
+}
+
+async function funnelEvents(database: Client, companyId: string) {
+  const { rows } = await database.query<{ type: string; job: string | null }>(
+    'SELECT type::text, job::text FROM "CompanyFunnelEvent" WHERE "companyId"=$1 ORDER BY "occurredAt"',
+    [companyId],
+  );
+  return rows;
+}
+
+async function agentBuildsStarterModel(database: Client, companyId: string) {
+  const { rows } = await database.query<{ id: string }>('SELECT id FROM "User" WHERE "companyId"=$1 LIMIT 1', [
+    companyId,
+  ]);
+  await insertStarterModel(database, companyId, rows[0].id);
+}
+
+async function stubClipboard(page: Page, blocked: boolean) {
+  await page.addInitScript((refuse) => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: (text: string) => {
+          if (refuse) return Promise.reject(new Error("clipboard blocked"));
+          Object.assign(window, { copiedPrompt: text });
+          return Promise.resolve();
+        },
+      },
+    });
+    if (refuse) {
+      Object.assign(window, { ClipboardItem: undefined });
+      document.execCommand = () => false;
+    }
+  }, blocked);
+}
+
+async function refocusTab(page: Page) {
+  const refreshed = page.waitForResponse((response) => response.url().includes("_rsc="));
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await refreshed;
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
+  await page.setViewportSize({ width: 360, height: 800 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true,
+  );
+}
+
+async function skipChannelStep(page: Page) {
+  await expect(heading(page, steps.channel.title)).toBeVisible();
+  await expect(page.locator("#onboarding-channel-continue")).toBeDisabled();
+  await clickHydrated(page.locator("#onboarding-channel-skip"));
+}
+
+async function openAgentConnect(page: Page, database: Client, workspace: BrowserWorkspace) {
+  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Agent Template"));
+  await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+  await clickHydrated(page.locator("#onboarding-goal-continue"));
+  await skipChannelStep(page);
+  await expect(heading(page, steps.connect.title)).toBeVisible();
+  return companyId;
+}
+
+test.describe("cloud onboarding with templates", () => {
+  test.skip(e2eAppMode() !== "cloud", "The cloud variant of the onboarding choice runs in cloud mode");
+
+  test("the own agent path shows Connected only after a real first call, then the template and the prompt", async ({
+    page,
+    database,
+    workspace,
+  }, testInfo) => {
+    const errors = collectPageErrors(page);
+    await stubClipboard(page, false);
+    const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Verified Agent"));
+    await database.query('UPDATE "Company" SET "signupTemplate"=$1 WHERE id=$2', [SIGNUP_TEMPLATE, companyId]);
+    await page.reload();
+
+    await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+    await expect(page.locator("#onboarding-goal-works-with")).toHaveText(goal.agent.worksWith);
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await skipChannelStep(page);
+    await expect(heading(page, steps.connect.title)).toBeVisible();
+    await expect.poll(async () => (await funnelEvents(database, companyId)).map((event) => event.type)).toContain(
+      "channelSkipped",
+    );
+
+    const status = page.locator("#onboarding-agent-status");
+    const connectContinue = page.locator("#onboarding-connect-continue");
+    await expect(status).toContainText(wizard.connect.waitingGeneric);
+    await expect(connectContinue).toBeDisabled();
+    await expect(page.locator("#onboarding-connect-later")).toBeEnabled();
+    await page.screenshot({ path: testInfo.outputPath("connect-waiting.png"), fullPage: true });
+
+    await database.query('UPDATE "Company" SET "agentFirstCallAt"=NOW() WHERE id=$1', [companyId]);
+    await expect(status).toContainText(wizard.connect.connected, { timeout: 20_000 });
+    await expect(connectContinue).toBeEnabled();
+    await page.screenshot({ path: testInfo.outputPath("connect-connected.png"), fullPage: true });
+    await clickHydrated(connectContinue);
+
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: wizard.template.connectedGeneric })).toBeVisible();
+    await expect(templateCard(page, SIGNUP_TEMPLATE)).toBeChecked();
+    await expect(templateLabel(page, SIGNUP_TEMPLATE)).toContainText(wizard.template.suggested);
+    await expect(page.getByRole("radio", { checked: true })).toHaveCount(1);
+    await page.screenshot({ path: testInfo.outputPath("template-signup-suggested.png"), fullPage: true });
+
+    const browse = page.getByRole("button", { name: /^Browse all \d+ templates$/ });
+    if ((await browse.count()) > 0) await clickHydrated(browse);
+    await clickHydrated(templateLabel(page, DEFAULT_TEMPLATE));
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).toBeChecked();
+    await expect.poll(async () => (await savedProgress(database, companyId))?.template).toBe(DEFAULT_TEMPLATE);
+    await page.reload();
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).toBeChecked();
+    await expectNoHorizontalOverflow(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    const use = page.locator("#onboarding-template-continue");
+    await expect(use).toContainText("Use ");
+    await clickHydrated(use);
+
+    await expect(heading(page, steps.prompt.titleGeneric)).toBeVisible();
+    const prompt = page.locator("#onboarding-template-prompt");
+    await expect(prompt).toContainText("## 1. Your workspace");
+    await expect(prompt).toContainText("through MCP at");
+    await expect(prompt).toHaveAttribute("aria-busy", "false");
+    await expect(prompt).toHaveAttribute("tabindex", "0");
+    const changed = page.locator("#onboarding-agent-change");
+    await expect(changed).toContainText(wizard.prompt.watching);
+    await expect.poll(async () => (await savedProgress(database, companyId))?.step).toBe("prompt");
+    await page.screenshot({ path: testInfo.outputPath("prompt-watching.png"), fullPage: true });
+
+    const copy = page.locator("#onboarding-template-copy");
+    await clickHydrated(copy);
+    await expect(copy).toContainText(wizard.prompt.copied);
+    const copied = await page.evaluate(() => (window as unknown as { copiedPrompt?: string }).copiedPrompt ?? null);
+    expect(copied).toBe(await prompt.textContent());
+
+    await page.reload();
+    await expect(heading(page, steps.prompt.titleGeneric)).toBeVisible();
+    await expect(prompt).toContainText("## 1. Your workspace");
+    await expectNoHorizontalOverflow(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    await expect.poll(async () => (await savedProgress(database, companyId))?.schemaBaseline).not.toBeNull();
+    await agentBuildsStarterModel(database, companyId);
+    await expect(changed).toContainText(wizard.prompt.changed, { timeout: 20_000 });
+    await page.screenshot({ path: testInfo.outputPath("prompt-changed.png"), fullPage: true });
+
+    await clickHydrated(page.locator("#onboarding-prompt-finish"));
+    await expect(page).toHaveURL(appUrlPattern(await workspaceSlugOf(database, companyId), "/dashboard$"));
+    const { rows } = await database.query<{ done: Date | null }>(
+      'SELECT "onboardingWizardCompletedAt" AS done FROM "User" WHERE "companyId"=$1',
+      [companyId],
+    );
+    expect(rows).toEqual([{ done: expect.any(Date) }]);
+    expect(errors).toEqual([]);
+  });
+
+  test("Back to the goal step stays there on a refocus and a reload and keeps the path picked there", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openAgentConnect(page, database, workspace);
+    const mate = page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) });
+
+    await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.back, exact: true }));
+    await expect(heading(page, steps.channel.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-channel-back"));
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect.poll(async () => (await savedProgress(database, companyId))?.step).toBe("goal");
+
+    await refocusTab(page);
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(heading(page, steps.connect.title)).toHaveCount(0);
+
+    await clickHydrated(mate);
+    await expect.poll(async () => (await savedProgress(database, companyId))?.job).toBe("workspace");
+    await refocusTab(page);
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(mate).toBeChecked();
+
+    await page.reload();
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(heading(page, steps.connect.title)).toHaveCount(0);
+    await expect(mate).toBeChecked();
+    expect(errors).toEqual([]);
+  });
+
+  test("a team on the own agent path is asked to invite and to connect a channel before the agent", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Agent Team"));
+    await database.query('UPDATE "Company" SET "teamSize"=$1 WHERE id=$2', ["small", companyId]);
+    await page.reload();
+
+    await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await expect(heading(page, steps.invite.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-next"));
+
+    await expect(heading(page, steps.channel.title)).toBeVisible();
+    await expect(page.locator("#onboarding-channel-linkedin")).toBeVisible();
+    await expect(page.locator("#onboarding-channel-google")).toBeVisible();
+    await expect(page.locator("#onboarding-channel-outlook")).toBeVisible();
+    await expect.poll(async () => (await savedProgress(database, companyId))?.step).toBe("channel");
+    await page.reload();
+    await expect(heading(page, steps.channel.title)).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await clickHydrated(page.locator("#onboarding-channel-skip"));
+    await expect(heading(page, steps.connect.title)).toBeVisible();
+    await expect(page.locator("[data-other-client]")).toBeVisible();
+    await clickHydrated(page.locator("[data-other-client]"));
+    await expect(page.locator("[data-ai-other-setup]")).toContainText("/api/v1/mcp");
+    expect(errors).toEqual([]);
+  });
+
+  test("connecting later still offers the templates by keyboard, and no template finishes onboarding", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openAgentConnect(page, database, workspace);
+
+    await clickHydrated(page.locator("#onboarding-connect-later"));
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: wizard.template.connectedGeneric })).toHaveCount(0);
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).toBeChecked();
+    await expect(templateLabel(page, DEFAULT_TEMPLATE)).toContainText(wizard.template.recommended);
+
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).toBeEnabled();
+    await templateCard(page, DEFAULT_TEMPLATE).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).not.toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(page.getByRole("radio", { checked: true })).toHaveCount(1);
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).not.toBeChecked();
+
+    await clickHydrated(page.locator("#onboarding-template-none"));
+    await expect(page).toHaveURL(appUrlPattern(await workspaceSlugOf(database, companyId), "/dashboard$"));
+    const { rows } = await database.query<{ done: Date | null }>(
+      'SELECT "onboardingWizardCompletedAt" AS done FROM "User" WHERE "companyId"=$1',
+      [companyId],
+    );
+    expect(rows).toEqual([{ done: expect.any(Date) }]);
+    expect(errors).toEqual([]);
+  });
+
+  test("connecting later writes the prompt for an agent that still has to connect, and rewrites it after the first call", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openAgentConnect(page, database, workspace);
+    await clickHydrated(page.locator("#onboarding-connect-later"));
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-template-continue"));
+
+    await expect(heading(page, steps.prompt.titleGeneric)).toBeVisible();
+    const prompt = page.locator("#onboarding-template-prompt");
+    await expect(prompt).toHaveAttribute("aria-busy", "false");
+    await expect(prompt).toContainText("your assistant is not connected to it yet");
+    await expect(prompt).not.toContainText("you are connected");
+
+    await database.query('UPDATE "Company" SET "agentFirstCallAt"=NOW() WHERE id=$1', [companyId]);
+    await expect(prompt).toContainText("you are connected to it through MCP", { timeout: 20_000 });
+    await expect(prompt).not.toContainText("not connected to it yet");
+    expect(errors).toEqual([]);
+  });
+
+  test("the prompt falls back to a selected text when the clipboard refuses", async ({ page, database, workspace }) => {
+    const errors = collectPageErrors(page);
+    await stubClipboard(page, true);
+    await openAgentConnect(page, database, workspace);
+    await clickHydrated(page.locator("#onboarding-connect-later"));
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-template-continue"));
+
+    await expect(heading(page, steps.prompt.titleGeneric)).toBeVisible();
+    const prompt = page.locator("#onboarding-template-prompt");
+    await expect(prompt).toHaveAttribute("aria-busy", "false");
+    await clickHydrated(page.locator("#onboarding-template-copy"));
+    await expect(page.getByText(wizard.prompt.copyFailed, { exact: true })).toBeVisible();
+    await expect(page.locator("#onboarding-template-copy")).not.toContainText(wizard.prompt.copied);
+    expect(await page.evaluate(() => window.getSelection()?.toString() ?? "")).toContain("## 1. Your workspace");
+    expect(errors).toEqual([]);
+  });
+
+  test("choosing Mate offers the signup template and continues to the guided setup", async ({
+    page,
+    database,
+    workspace,
+  }, testInfo) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Mate Template"));
+    await database.query('UPDATE "Company" SET "signupTemplate"=$1 WHERE id=$2', [SIGNUP_TEMPLATE, companyId]);
+    await page.reload();
+
+    await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) }));
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await expect(page.getByText(steps.template.subtitleMate, { exact: true })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: wizard.template.connectedGeneric })).toHaveCount(0);
+    await expect(templateCard(page, SIGNUP_TEMPLATE)).toBeChecked();
+    await expect(templateLabel(page, SIGNUP_TEMPLATE)).toContainText(wizard.template.suggested);
+    await page.screenshot({ path: testInfo.outputPath("mate-template.png"), fullPage: true });
+
+    await clickHydrated(page.locator("#onboarding-template-continue"));
+    await expect(heading(page, steps.setup.startTitle)).toBeVisible();
+    expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
+    expect(errors).toEqual([]);
+  });
+
+  test("the optional source question follows the profile, stores the answer with the user and is not asked again", async ({
+    page,
+    database,
+    workspace,
+  }, testInfo) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openWizardOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Source Answer"));
+
+    await expect(heading(page, steps.source.title)).toBeVisible();
+    await expect(page.getByText(steps.source.subtitle, { exact: true })).toBeVisible();
+    const options = page.getByRole("radiogroup", { name: wizard.source.optionsLabel, exact: true });
+    await expect(options.getByRole("radio")).toHaveCount(Object.keys(wizard.source.choices).length);
+    await expect(options.getByRole("radio", { checked: true })).toHaveCount(0);
+    await expect(page.locator("#onboarding-source-continue")).toBeDisabled();
+    await expect(page.locator("#onboarding-source-skip")).toBeEnabled();
+    await expect(page.locator("#onboarding-source-detail")).toHaveCount(0);
+    await expectNoHorizontalOverflow(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    await clickHydrated(page.locator("#onboarding-source-other"));
+    await page.locator("#onboarding-source-detail").fill("a podcast");
+    await page.screenshot({ path: testInfo.outputPath("source-question.png"), fullPage: true });
+    await clickHydrated(page.locator("#onboarding-source-continue"));
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+
+    const { rows } = await database.query<{ choice: string; detail: string; answeredBy: string; owner: string }>(
+      'SELECT c."discoveryChoice" AS choice, c."discoveryDetail" AS detail, c."discoveryUserId" AS "answeredBy", u.id AS owner FROM "Company" c JOIN "User" u ON u."companyId"=c.id AND u.id=c."discoveryUserId" WHERE c.id=$1',
+      [companyId],
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ choice: "other", detail: "a podcast" });
+    expect(rows[0].answeredBy).toBe(rows[0].owner);
+
+    await page.reload();
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(heading(page, steps.source.title)).toHaveCount(0);
+    expect(errors).toEqual([]);
+  });
+
+  test("skipping the source question keeps the wizard on its usual steps and does not ask again", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openWizardOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Source Skip"));
+
+    await expect(heading(page, steps.source.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-source-skip"));
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+
+    const { rows } = await database.query<{ choice: string | null; answeredAt: Date | null }>(
+      'SELECT "discoveryChoice" AS choice, "discoveryAnsweredAt" AS "answeredAt" FROM "Company" WHERE id=$1',
+      [companyId],
+    );
+    expect(rows[0].choice).toBeNull();
+    expect(rows[0].answeredAt).toBeInstanceOf(Date);
+
+    await page.reload();
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+});
+
+test.describe("self-hosted onboarding", () => {
+  test.skip(e2eAppMode() !== "self-hosted", "The self-hosted variant runs against a self-hosted server");
+
+  test("the second option opens a separate cloud trial and sends nothing from this instance", async ({
+    page,
+    database,
+  }, testInfo) => {
+    const errors = collectPageErrors(page);
+    await page.addInitScript(() => {
+      Object.assign(window, { openedWindows: [] as unknown[][] });
+      window.open = (...args: unknown[]) => {
+        (window as unknown as { openedWindows: unknown[][] }).openedWindows.push(args);
+        return null;
+      };
+    });
+    const name = uniqueWorkspaceName("Hosted Choice");
+    await createWorkspaceFromSettings(page, name);
+    await expect(heading(page, steps.goal.titleSelfHosted)).toBeVisible();
+
+    const options = page.getByRole("radiogroup", { name: goal.optionsLabel, exact: true });
+    await expect(options.getByRole("radio")).toHaveCount(2);
+    await expect(page.locator("#onboarding-goal-followup")).toHaveCount(0);
+    const agent = page.locator('label[for="onboarding-goal-agent"]');
+    await expect(agent).toContainText(goal.agent.title);
+    await expect(agent).toContainText(goal.agent.descriptionSelfHosted);
+    await expect(agent).toContainText(goal.recommended);
+    const cloud = page.locator('label[for="onboarding-goal-workspace"]');
+    await expect(cloud).toContainText(goal.cloud.title);
+    await expect(cloud).toContainText(goal.cloud.badge);
+    await expect(cloud).toContainText("Mate runs in Customermates Cloud.");
+    await page.screenshot({ path: testInfo.outputPath("self-hosted-goal.png"), fullPage: true });
+
+    await clickHydrated(page.getByRole("radio", { name: goal.cloud.title }));
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await expect(page.getByRole("status").filter({ hasText: goal.cloud.opened })).toBeVisible();
+    await expect(heading(page, steps.goal.titleSelfHosted)).toBeVisible();
+    expect(await page.evaluate(() => (window as unknown as { openedWindows: unknown[][] }).openedWindows)).toEqual([
+      ["https://customermates.com/en/auth/signup?job=workspace", "_blank", "noopener,noreferrer"],
+    ]);
+    const { rows: company } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
+    expect(await funnelEvents(database, company[0].id)).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
+  test("the own agent path connects to this instance and finishes without a template", async ({
+    page,
+    database,
+  }) => {
+    const errors = collectPageErrors(page);
+    const name = uniqueWorkspaceName("Hosted Agent");
+    await createWorkspaceFromSettings(page, name);
+    await expect(heading(page, steps.goal.titleSelfHosted)).toBeVisible();
+    await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+
+    await expect(heading(page, steps.connect.title)).toBeVisible();
+    await expect(page.locator("#onboarding-agent-status")).toContainText(wizard.connect.waitingGeneric);
+    await clickHydrated(page.locator("#onboarding-connect-later"));
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-template-none"));
+
+    const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
+    await expect(page).toHaveURL(appUrlPattern(await workspaceSlugOf(database, rows[0].id), "/dashboard$"));
+    expect(errors).toEqual([]);
+  });
+});

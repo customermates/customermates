@@ -1,10 +1,13 @@
 import { z } from "zod";
 
+import { OnboardingJobSchema } from "@/features/onboarding-funnel/onboarding-job";
+
 const AiConnectionSelectionSchema = z.strictObject({
   route: z.discriminatedUnion("screen", [
     z.strictObject({ screen: z.literal("providers") }),
     z.strictObject({ screen: z.literal("claude") }),
     z.strictObject({ screen: z.literal("openai") }),
+    z.strictObject({ screen: z.literal("other") }),
     z.strictObject({
       screen: z.literal("setup"),
       provider: z.enum(["cursor", "gemini"]),
@@ -23,9 +26,12 @@ const AiConnectionSelectionSchema = z.strictObject({
 export type AiConnectionSelection = z.infer<typeof AiConnectionSelectionSchema>;
 
 export const OnboardingWizardProgressSchema = z.strictObject({
-  step: z.enum(["invite", "ai"]),
+  step: z.enum(["goal", "invite", "channel", "ai", "template", "prompt"]),
   inviteTab: z.enum(["link", "email"]),
   ai: AiConnectionSelectionSchema,
+  job: OnboardingJobSchema.nullable().default(null),
+  template: z.string().max(64).nullable().default(null),
+  schemaBaseline: z.number().int().nonnegative().nullable().default(null),
 });
 
 export type OnboardingWizardProgress = z.infer<typeof OnboardingWizardProgressSchema>;
@@ -43,5 +49,14 @@ function initialAiConnectionSelection(): AiConnectionSelection {
 
 export function readOnboardingWizardProgress(value: unknown): OnboardingWizardProgress {
   const parsed = OnboardingWizardProgressSchema.safeParse(value);
-  return parsed.success ? parsed.data : { step: "invite", inviteTab: "link", ai: initialAiConnectionSelection() };
+  return parsed.success
+    ? parsed.data
+    : {
+        step: "invite",
+        inviteTab: "link",
+        ai: initialAiConnectionSelection(),
+        job: null,
+        template: null,
+        schemaBaseline: null,
+      };
 }

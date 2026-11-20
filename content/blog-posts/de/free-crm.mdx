@@ -26,13 +26,13 @@ blogPost:
 
 # Welches kostenlose CRM passt, und was passiert, wenn Ihr Team herauswächst
 
-Ja, ein CRM lässt sich kostenlos nutzen. HubSpot, Zoho, Salesforce, Capsule, Bitrix24 und CentralStationCRM bieten gehostete Tarife ohne Ablaufdatum an, die nichts kosten. Jeder davon begrenzt aber Nutzer, Kontakte oder Speicher. Der zweite kostenlose Weg ist ein Open-Source-CRM wie SuiteCRM, EspoCRM oder Customermates auf Ihrem eigenen Server: keine Lizenzgebühr, keine Begrenzung der Nutzerzahl, dafür zahlen Sie den Server und den Aufwand für den Betrieb.
+Ja, ein CRM lässt sich kostenlos nutzen. HubSpot, Zoho, Salesforce, Capsule, Bitrix24 und CentralStationCRM bieten gehostete Tarife ohne Ablaufdatum an, die nichts kosten. Jeder davon begrenzt aber Nutzer, Kontakte oder Speicher. Der zweite kostenlose Weg ist ein Open-Source-CRM wie SuiteCRM oder EspoCRM oder Customermates mit einsehbarem Quellcode auf Ihrem eigenen Server: keine Lizenzgebühr, keine Begrenzung der Nutzerzahl, dafür zahlen Sie den Server und den Aufwand für den Betrieb.
 
 Eine kostenlose Testphase ist etwas Drittes und kein Gratis-Tarif. Pipedrive und Freshsales bieten zum Beispiel Testphasen ihrer kostenpflichtigen Tarife an. Die entscheidende Frage lautet deshalb nicht „Welches kostenlose CRM ist das beste?“, sondern: Welche Grenze erreicht Ihr Team zuerst, und was kostet der Schritt danach?
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Gehostete Gratis-Tarife">Die meisten erlauben zwei oder drei Nutzer. Die Kontaktgrenzen reichen von 200 (CentralStationCRM) bis 1.000 (HubSpot), Zoho zählt 5.000 Datensätze über alle Module.</SummaryItem>
-  <SummaryItem label="Open Source">SuiteCRM, EspoCRM und der Customermates-Kern stehen unter der AGPL und lassen sich kostenlos selbst hosten. Hosting, Updates und Backups liegen bei Ihnen.</SummaryItem>
+  <SummaryItem label="Open Source">SuiteCRM und EspoCRM stehen unter der AGPL, die Customermates Community Edition hat einsehbaren Quellcode (Sustainable Use License); alle drei lassen sich für das eigene Unternehmen kostenlos selbst hosten. Hosting, Updates und Backups liegen bei Ihnen.</SummaryItem>
   <SummaryItem label="Testphasen">Pipedrive bietet 14 Tage, Freshsales 21 Tage, Customermates Cloud [[commercial.trial.days]] Tage. Danach zahlen Sie oder wechseln; Customermates Cloud wechselt in den kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person.</SummaryItem>
   <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Leitfaden. Die Übersicht ist keine Rangliste, Customermates hat einen eigenen, gekennzeichneten Abschnitt.</SummaryItem>
 </ArticleSummary>
@@ -77,7 +77,7 @@ Der Gratis-Tarif kostet nichts, der Schritt danach schon. HubSpot führt von den
 
 ## Open Source: kostenlose Lizenz, bezahlter Betrieb
 
-[SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) und [EspoCRM](https://www.espocrm.com/download/) stehen beide unter der AGPLv3 und lassen sich herunterladen und auf dem eigenen Server betreiben. Beide Anbieter verkaufen zusätzlich Hosting und Dienstleistungen: SuiteCRM bietet Hosting, Support und das Programm SuiteASSURED, EspoCRM eine Cloud-Version und kostenpflichtige Erweiterungen. Auch der Customermates-Kern steht unter der AGPL. Unser [Open-Source-CRM-Leitfaden](/blog/open-source-crm) vergleicht die selbst gehosteten Optionen ausführlicher.
+[SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) und [EspoCRM](https://www.espocrm.com/download/) stehen beide unter der AGPLv3 und lassen sich herunterladen und auf dem eigenen Server betreiben. Beide Anbieter verkaufen zusätzlich Hosting und Dienstleistungen: SuiteCRM bietet Hosting, Support und das Programm SuiteASSURED, EspoCRM eine Cloud-Version und kostenpflichtige Erweiterungen. Die Customermates Community Edition hat einsehbaren Quellcode, ist aber nicht Open Source. Unser [Open-Source-CRM-Leitfaden](/blog/open-source-crm) vergleicht die selbst gehosteten Optionen ausführlicher.
 
 Die Lizenz kostet nichts. Kosten entstehen trotzdem:
 
@@ -110,9 +110,9 @@ Für ein Team mit fünf Personen kann ein kleiner VPS im Monat weniger kosten al
 
 ## Wo Customermates einzuordnen ist
 
-*Offenlegung: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Selbst gehostet ist es kostenlos, und Customermates Cloud hat einen kleinen kostenlosen Tarif und bezahlte Tarife; sie unterscheiden sich im Umfang.
+*Offenlegung: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein KI-CRM mit einsehbarem Quellcode aus Deutschland für kleine Teams mit viel Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Selbst gehostet ist es kostenlos, und Customermates Cloud hat einen kleinen kostenlosen Tarif und bezahlte Tarife; sie unterscheiden sich im Umfang.
 
-**Selbst gehostet: kostenlos, ohne Begrenzung der Nutzerzahl.** Sie betreiben den AGPL-Kern mit Docker Compose: ein Container für die Anwendung, einer für PostgreSQL. Ein selbst gehosteter Workspace hat kein Abonnement und keine Testphase, die Anwendung zählt keine Nutzerlizenzen. Sie erhalten den Funktionsumfang von Starter: Kontakte, Organisationen, Deals, Services und Aufgaben, eigene Felder, gespeicherte Ansichten, Dashboards, Rollen, das Audit-Log, REST, Webhooks und MCP für Ihren eigenen KI-Client. Nicht enthalten sind der einheitliche Posteingang, Mate und gehostete KI-Credits. Für den E-Mail-Versand brauchen Sie einen eigenen Resend-API-Schlüssel. Die [Self-Hosting-Dokumentation](/docs/self-hosting) führt durch die Installation.
+**Selbst gehostet: kostenlos, ohne Begrenzung der Nutzerzahl.** Sie betreiben die Community Edition mit Docker Compose: ein Container für die Anwendung, einer für PostgreSQL. Ein selbst gehosteter Workspace hat kein Abonnement und keine Testphase, die Anwendung zählt keine Nutzerlizenzen. Sie erhalten den Funktionsumfang von Starter: Kontakte, Organisationen, Deals, Services und Aufgaben, eigene Felder, gespeicherte Ansichten, Dashboards, Rollen, das Audit-Log, REST, Webhooks und MCP für Ihren eigenen KI-Client. Nicht enthalten sind der einheitliche Posteingang, Mate und gehostete KI-Credits. Für den E-Mail-Versand brauchen Sie einen eigenen Resend-API-Schlüssel. Die [Self-Hosting-Dokumentation](/docs/self-hosting) führt durch die Installation.
 
 **Cloud: ein kleiner kostenloser Tarif, bezahlte Tarife und eine Testphase.** Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Die Testphase dauert [[commercial.trial.days]] Tage ohne Kreditkarte. Danach zahlt ein Team mit drei Personen [[commercial.price.starter.monthly.seats.3]] pro Monat für Starter, ohne Posteingang, oder [[commercial.price.pro.monthly.seats.3]] für Pro mit dem einheitlichen Posteingang für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Abgerechnet wird nur monatlich. Jeder bezahlte Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, den Assistenten in Customermates Cloud; die Kontingente stehen auf der [Preisseite](/pricing).
 
@@ -148,7 +148,7 @@ Das, dessen Grenzen Ihr Team innerhalb eines Jahres nicht erreicht. Für zwei Pe
 </FaqItem>
 
 <FaqItem question="Gibt es ein kostenloses CRM ohne Nutzerbegrenzung?">
-Unter den gehosteten Gratis-Tarifen in diesem Leitfaden nicht: Sie enden bei zwei oder drei Nutzern. Selbst gehostete Open-Source-CRMs wie SuiteCRM, EspoCRM und Customermates begrenzen die Nutzerzahl nicht. Die Grenze sind dann Ihr Server und Ihre Zeit.
+Unter den gehosteten Gratis-Tarifen in diesem Leitfaden nicht: Sie enden bei zwei oder drei Nutzern. Selbst gehostete CRMs wie SuiteCRM, EspoCRM und Customermates begrenzen die Nutzerzahl nicht. Die Grenze sind dann Ihr Server und Ihre Zeit.
 </FaqItem>
 
 <FaqItem question="Was unterscheidet ein kostenloses CRM von einer Testphase?">
@@ -160,7 +160,7 @@ Für eine Person und eine kurze Liste ja. Sobald Deals, Kontakte und Aufgaben ve
 </FaqItem>
 
 <FaqItem question="Hat Customermates einen kostenlosen Tarif?">
-Self-Hosting ist kostenlos: kein Abonnement, keine Testphase, keine Begrenzung der Nutzerzahl, der Kern steht unter der AGPL. Die selbst gehostete Variante nutzt aber den Funktionsumfang von Starter ohne Posteingang und ohne Mate. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, dazu eine Pro-Testphase von [[commercial.trial.days]] Tagen ohne Kreditkarte und bezahlte Tarife mit monatlicher Abrechnung pro Nutzer.
+Self-Hosting ist kostenlos: kein Abonnement, keine Testphase, keine Begrenzung der Nutzerzahl, die Community Edition steht unter der Sustainable Use License, für das eigene Unternehmen. Die selbst gehostete Variante nutzt aber den Funktionsumfang von Starter ohne Posteingang und ohne Mate. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, dazu eine Pro-Testphase von [[commercial.trial.days]] Tagen ohne Kreditkarte und bezahlte Tarife mit monatlicher Abrechnung pro Nutzer.
 </FaqItem>
 </Faq>
 

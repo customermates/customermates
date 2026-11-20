@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { Play } from "lucide-react";
 
-import { AgplGithubBadge } from "./agpl-github-badge";
+import { SourceBadge } from "./source-badge";
 import { MarketingButton } from "./marketing-button";
 import { MarketingContainer } from "./marketing-container";
 import { TwoToneTitle } from "./section-header";
@@ -44,7 +44,7 @@ export function MarketingHero({
           {eyebrow ? (
             <p className="mk-eyebrow">{eyebrow}</p>
           ) : showOpenSourceBadge ? (
-            <AgplGithubBadge className="mk-hero-chip" />
+            <SourceBadge className="mk-hero-chip" />
           ) : null}
 
           <h1 className="mk-hero mt-4">

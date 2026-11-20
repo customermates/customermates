@@ -35,7 +35,7 @@ Esta guía enumera las obligaciones que importan para un CRM con el número de s
   <SummaryItem label="La regla">Eres el responsable del tratamiento de los datos personales de tu CRM, y el fabricante del CRM es tu encargado del tratamiento. El RGPD te hace responsable de la base jurídica, del contrato y de las solicitudes, no del software.</SummaryItem>
   <SummaryItem label="Antes de firmar">Un contrato de encargo del tratamiento con el contenido del artículo 28.3, la lista de subencargados del fabricante, dónde se tratan los datos y qué mecanismo de transferencia cubre a cualquier proveedor fuera de la UE.</SummaryItem>
   <SummaryItem label="En el uso diario">Acceso restringido, pocos campos, una forma de encontrar, corregir, exportar y suprimir los datos de una persona, y una revisión de plazos de conservación que de verdad ejecutes.</SummaryItem>
-  <SummaryItem label="Customermates">Un DPA para la nube gestionada, una lista pública de subencargados que incluye proveedores de EE. UU., la base de datos principal configurada en AWS Fráncfort (un ajuste elegido, no una garantía), ninguna certificación de cumplimiento y un núcleo de código abierto que puedes alojar tú.</SummaryItem>
+  <SummaryItem label="Customermates">Un DPA para la nube gestionada, una lista pública de subencargados que incluye proveedores de EE. UU., la base de datos principal configurada en AWS Fráncfort (un ajuste elegido, no una garantía), ninguna certificación de cumplimiento y una edición Community, con el código fuente disponible, que puedes alojar tú.</SummaryItem>
   <SummaryItem label="Transparencia">Customermates publica esta guía. La legislación de terceros se cita en EUR-Lex y en la Comisión Europea.</SummaryItem>
 </ArticleSummary>
 
@@ -150,7 +150,7 @@ Lo que ofrece, según la documentación del producto y las páginas legales:
 - roles por lista, la opción de desactivar miembros y la separación entre inquilinos por cuenta de empresa;
 - búsqueda global por dirección de correo o teléfono, corrección en el propio sitio, exportación a Excel y JSON por lista, y Papelera con supresión definitiva;
 - un Registro de actividad de los cambios en los registros del CRM y en la configuración del espacio de trabajo, legible por los roles que tienen acceso; y
-- un núcleo de código abierto bajo la AGPL que puedes [alojar tú](/features/self-hosted).
+- una edición Community, con el código fuente disponible bajo la Sustainable Use License, que puedes [alojar tú](/features/self-hosted) para uso interno.
 
 Lo que no ofrece, así que pídelo en otro sitio si lo necesitas:
 
@@ -158,7 +158,7 @@ Lo que no ofrece, así que pídelo en otro sitio si lo necesitas:
 - no tiene permisos a nivel de campo ni exportación de toda una cuenta en un solo paso;
 - su Registro de actividad no cubre los inicios de sesión, las claves de API ni el contenido de la bandeja de entrada, y no tiene botón de exportación.
 
-El autoalojamiento cambia quién es responsable. El núcleo AGPL se ejecuta con Docker y PostgreSQL en tu infraestructura, y el DPA cubre solo el servicio gestionado: tú eliges el alojamiento y los proveedores y tienes tus propios contratos del art. 28 y tus propias garantías de transferencia. TLS y el cifrado en reposo los configuras tú. El autoalojamiento usa el conjunto de funciones de Starter, sin la bandeja de entrada y sin Mate, y no está aislado de la red: al introducir por primera vez una dirección de un país se descarga de GeoNames el archivo público de códigos postales de ese país, salvo que pongas `POSTAL_CODE_DATA_URL` en `off` o en un espejo. La [guía de autoalojamiento](/docs/self-hosting) tiene los detalles, y la [página del CRM de código abierto](/features/open-source-crm) explica el límite de la licencia.
+El autoalojamiento cambia quién es responsable. La edición Community se ejecuta con Docker y PostgreSQL en tu infraestructura, y el DPA cubre solo el servicio gestionado: tú eliges el alojamiento y los proveedores y tienes tus propios contratos del art. 28 y tus propias garantías de transferencia. TLS y el cifrado en reposo los configuras tú. El autoalojamiento usa el conjunto de funciones de Starter, sin la bandeja de entrada y sin Mate, y no está aislado de la red: al introducir por primera vez una dirección de un país se descarga de GeoNames el archivo público de códigos postales de ese país, salvo que pongas `POSTAL_CODE_DATA_URL` en `off` o en un espejo. La [guía de autoalojamiento](/docs/self-hosting) tiene los detalles, y la [página del CRM de código abierto](/features/open-source-crm) explica el límite de la licencia.
 
 <AcquisitionCallout title="Dónde Customermates no es la opción adecuada" variant="boundary">
   Si una lista de comprobación de compras pide una certificación reconocida, una garantía contractual de tratamiento solo en la UE o permisos a nivel de campo, Customermates no puede marcar hoy esas casillas. Pídelo por escrito a cada fabricante que compares y lee las respuestas junto a sus listas de subencargados. La [comparativa del mejor software de CRM](/blog/best-crm-software) y la [guía para elegir un CRM](/blog/how-to-choose-crm) cubren los demás criterios.
@@ -188,7 +188,7 @@ El RGPD no fija un plazo. El art. 5.1.e exige que los datos se conserven no más
 En general, sí. Los arts. 13 y 14 exigen un aviso de privacidad. Cuando no recogiste los datos de la propia persona, por ejemplo de una lista importada, debes informarla en un plazo razonable y, como máximo, en un mes.
 </FaqItem>
 <FaqItem question="¿Puedo guardar todos los datos del CRM en mi propio servidor?">
-Con el núcleo de código abierto, sí: lo ejecutas con Docker y PostgreSQL en la infraestructura que elijas. Usa el conjunto de funciones de Starter, sin la bandeja de entrada y sin Mate, y eres responsable de tus propios contratos de alojamiento y de la seguridad.
+Con la edición Community, sí: la ejecutas con Docker y PostgreSQL en la infraestructura que elijas. Usa el conjunto de funciones de Starter, sin la bandeja de entrada y sin Mate, y eres responsable de tus propios contratos de alojamiento y de la seguridad.
 </FaqItem>
 <FaqItem question="¿Qué pasa con mis datos cuando me doy de baja?">
 Según el DPA de Customermates, tienes 30 días tras el fin del servicio para elegir supresión o devolución. Después los datos se suprimen de los sistemas propios de Customermates y, de las copias de seguridad, como máximo en 90 días, y los subencargados suprimen según sus propios contratos.

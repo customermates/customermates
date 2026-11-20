@@ -23,7 +23,7 @@ blogPost:
     - Baza danych klientów
     - Oprogramowanie CRM
     - Małe firmy
-    - Open source
+    - Self-hosting
 ---
 
 # Program do bazy klientów: jaki rodzaj pasuje do Twojego zespołu
@@ -36,7 +36,7 @@ Poniżej znajdziesz, czym różnią się pojęcia, pięć rodzajów oprogramowan
   <SummaryItem label="Który rodzaj">Lekki CRM dla zespołów pracujących z klientami, baza no-code dla nietypowego modelu danych, arkusz lub książka adresowa dla jednej osoby.</SummaryItem>
   <SummaryItem label="Plany darmowe">Darmowe narzędzia HubSpot kończą się na 1000 kontaktów, Airtable Free na 1000 rekordów na bazę, Ninox Free na 5000 rekordów. Samodzielnie hostowany CRM open source nie kosztuje opłaty licencyjnej, ale wymaga serwera.</SummaryItem>
   <SummaryItem label="Zanim się zobowiążesz">Zaimportuj 50 prawdziwych wierszy, dodaj celowo jeden duplikat, a potem wyeksportuj wszystko. Eksport pokazuje, jak trudne będzie odejście.</SummaryItem>
-  <SummaryItem label="Customermates">CRM open source, w którym Kontakty można przemianować na Klientów. Cloud od [[commercial.price.starter.monthly]] za użytkownika miesięcznie; ujednolicona skrzynka odbiorcza zaczyna się od Pro.</SummaryItem>
+  <SummaryItem label="Customermates">CRM source-available, w którym Kontakty można przemianować na Klientów. Cloud od [[commercial.price.starter.monthly]] za użytkownika miesięcznie; ujednolicona skrzynka odbiorcza zaczyna się od Pro.</SummaryItem>
   <SummaryItem label="Ujawnienie">Customermates publikuje ten poradnik. Pozostałe narzędzia opisujemy według dopasowania, bez rankingu.</SummaryItem>
 </ArticleSummary>
 
@@ -130,7 +130,7 @@ Plany darmowe są prawdziwe, ale każdy z nich kończy się na innej ścianie. L
 | [Ninox Free](https://ninox.com/de/preise) | Baza no-code | Do 5 użytkowników, 5000 rekordów, 100 MB miejsca, region serwerów Niemcy | Rekordy i miejsce |
 | [Notion Free](https://www.notion.com/pricing) | Przestrzeń robocza z bazami | Nieograniczona liczba bloków dla jednej osoby, ograniczona liczba po dołączeniu 2 lub więcej członków | Pierwszy współpracownik |
 | [EspoCRM](https://www.espocrm.com/download/) i [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | CRM open source, samodzielny hosting | Bez opłaty licencyjnej, AGPLv3 | Serwer, aktualizacje i kopie zapasowe są po Twojej stronie |
-| [Rdzeń Customermates](/features/self-hosted) | CRM open source, samodzielny hosting | Bez opłaty licencyjnej, AGPL-3.0 | Samodzielny hosting nie ma ujednoliconej skrzynki odbiorczej ani Mate |
+| [Community Edition Customermates](/features/self-hosted) | CRM source-available, samodzielny hosting | Bez opłaty licencyjnej (użytek wewnętrzny), Sustainable Use License | Samodzielny hosting nie ma ujednoliconej skrzynki odbiorczej ani Mate |
 
 Pipedrive nie ma planu darmowego i oferuje 14-dniową bezpłatną wersję próbną. Customermates Cloud ma darmowy plan dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn; jego okres próbny trwa [[commercial.trial.days]] dni.
 
@@ -146,13 +146,13 @@ Większość narzędzi chmurowych pobiera opłatę za użytkownika i miesiąc. C
 | Ninox Team | 25 €, rozliczane rocznie | 75 € |
 | Customermates Starter (Cloud) | [[commercial.price.starter.monthly]], rozliczany miesięcznie | [[commercial.price.starter.monthly.seats.3]] |
 | Customermates Pro (Cloud, z ujednoliconą skrzynką odbiorczą) | [[commercial.price.pro.monthly]], rozliczany miesięcznie | [[commercial.price.pro.monthly.seats.3]] |
-| Samodzielnie hostowany open source | Bez opłaty licencyjnej | Twój serwer i Twój czas |
+| Samodzielnie hostowany open source albo source-available | Bez opłaty licencyjnej | Twój serwer i Twój czas |
 
 Airtable i Ninox to kreatory baz danych, więc ta cena kupuje tabele, a logikę klientów budujesz na wierzchu. HubSpot, Zoho i Pipedrive publikują swoje płatne plany na stronach cenników podlinkowanych wyżej; sprawdź je we własnej walucie i okresie rozliczeniowym, zanim porównasz. Plany Customermates i to, co zawiera każdy z nich, są na [stronie z cennikiem](/pricing).
 
 ## Baza klientów w Customermates, krok po kroku
 
-Customermates to open source'owy CRM stworzony z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami, takich jak konsultanci, agencje i założyciele. Oto baza klientów dla małej firmy doradczej, skonfigurowana tak, jak produkt działa dzisiaj. Nowa przestrzeń robocza startuje bez list: w Customermates Cloud opisz swoją firmę jednym zdaniem, a Mate zbuduje listy, pipeline i pulpit, a w samodzielnie hostowanej instancji tworzysz listy w Modelu danych. Potem dostosuj je tak.
+Customermates to CRM source-available stworzony z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami, takich jak konsultanci, agencje i założyciele. Oto baza klientów dla małej firmy doradczej, skonfigurowana tak, jak produkt działa dzisiaj. Nowa przestrzeń robocza startuje bez list: w Customermates Cloud opisz swoją firmę jednym zdaniem, a Mate zbuduje listy, pipeline i pulpit, a w samodzielnie hostowanej instancji tworzysz listy w Modelu danych. Potem dostosuj je tak.
 
 <Steps>
   <Step title="Nazwij rekordy tak, jak o nich mówisz">W Modelu danych otwórz listę i zmień wartości pól **Nazwa** i **Nazwa w liczbie mnogiej** w sekcji **Ogólne**: zmień Kontakty na Klienci, a Organizacje na Firmy. Szanse sprzedaży mogą stać się Projektami, a Zadania Follow-upami. Działa dowolna nazwa i obowiązuje w całej przestrzeni roboczej.</Step>
@@ -186,7 +186,7 @@ Baza klientów zarabia na siebie, gdy każdy klient ma następny krok. W Pro wą
 - **Przyjmujesz rezerwacje lub wizyty.** Customermates nie ma rezerwacji. Poszukaj oprogramowania branżowego dla swojego zawodu.
 - **Pracujesz głównie na telefonie.** Nie ma natywnej aplikacji mobilnej.
 - **Twój model danych to nie osoby i firmy.** Customermates startuje bez list i pozwala tworzyć własne, ale jest zbudowane wokół osób, firm i transakcji. Sprzęt, nieruchomości lub wydarzenia, na których nic się nie sprzedaje, mogą lepiej pasować do Airtable lub Ninox.
-- **Chcesz hostować samodzielnie i zachować skrzynkę odbiorczą.** Samodzielny hosting to rdzeń AGPL z REST, webhookami i MCP. Ujednolicona skrzynka odbiorcza i Mate nie są jego częścią.
+- **Chcesz hostować samodzielnie i zachować skrzynkę odbiorczą.** Samodzielny hosting to Community Edition z REST, webhookami i MCP. Ujednolicona skrzynka odbiorcza i Mate nie są jego częścią.
 
 ## Gdzie żyją dane klientów
 
@@ -208,7 +208,7 @@ Zacznij od tego, co wyszukujesz i po czym filtrujesz: nazwa, firma, numery telef
 </FaqItem>
 
 <FaqItem question="Jaki jest najlepszy darmowy program do bazy klientów?">
-To zależy od tego, ile osób go używa i ile rekordów trzymasz. Darmowe narzędzia HubSpot obejmują 2 użytkowników i 1000 kontaktów, darmowa edycja Zoho CRM 3 użytkowników, Airtable Free 1000 rekordów na bazę, a Ninox Free 5 użytkowników z 5000 rekordów. Jeśli możesz prowadzić serwer, EspoCRM, SuiteCRM i rdzeń Customermates są open source, bez opłaty licencyjnej. Customermates Cloud ma darmowy plan dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn, oraz [[commercial.trial.days]]-dniowy okres próbny.
+To zależy od tego, ile osób go używa i ile rekordów trzymasz. Darmowe narzędzia HubSpot obejmują 2 użytkowników i 1000 kontaktów, darmowa edycja Zoho CRM 3 użytkowników, Airtable Free 1000 rekordów na bazę, a Ninox Free 5 użytkowników z 5000 rekordów. Jeśli możesz prowadzić serwer, EspoCRM i SuiteCRM są open source, a Community Edition Customermates jest source-available; wszystkie bez opłaty licencyjnej (Customermates do użytku wewnętrznego). Customermates Cloud ma darmowy plan dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn, oraz [[commercial.trial.days]]-dniowy okres próbny.
 </FaqItem>
 
 <FaqItem question="W jakim programie robi się bazę danych klientów?">
@@ -236,7 +236,7 @@ Jeśli potrzebujesz tylko imion i adresów, wystarczy lista klientów w programi
 </FaqItem>
 
 <FaqItem question="Czy mogę hostować bazę klientów na własnym serwerze?">
-Tak, z CRM open source. EspoCRM i SuiteCRM mają licencję AGPLv3, a EspoCRM działa na PHP z MySQL, MariaDB lub PostgreSQL. Rdzeń Customermates ma licencję AGPL-3.0 i działa z Docker Compose oraz PostgreSQL 16. Samodzielnie hostowany Customermates zawiera REST, webhooki i MCP dla Twojego własnego klienta AI, ale bez ujednoliconej skrzynki odbiorczej i bez Mate.
+Tak, z CRM open source. EspoCRM i SuiteCRM mają licencję AGPLv3, a EspoCRM działa na PHP z MySQL, MariaDB lub PostgreSQL. Customermates jest source-available (Sustainable Use License), a nie open source, i jego Community Edition działa z Docker Compose oraz PostgreSQL 16. Samodzielnie hostowany Customermates zawiera REST, webhooki i MCP dla Twojego własnego klienta AI, ale bez ujednoliconej skrzynki odbiorczej i bez Mate.
 </FaqItem>
 </Faq>
 

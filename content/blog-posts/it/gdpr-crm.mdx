@@ -35,7 +35,7 @@ Questa guida elenca gli obblighi che contano per un CRM con i relativi articoli,
   <SummaryItem label="La regola">Per i dati personali del tuo CRM sei tu il titolare del trattamento e il fornitore del CRM è il tuo responsabile del trattamento. Il GDPR rende responsabile te di base giuridica, contratto e richieste, non il software.</SummaryItem>
   <SummaryItem label="Prima di firmare">Un DPA con il contenuto dell’art. 28, par. 3, l’elenco dei sub-responsabili del fornitore, il luogo del trattamento e il meccanismo di trasferimento che copre ogni fornitore fuori dall’UE.</SummaryItem>
   <SummaryItem label="Nell’uso quotidiano">Accessi ristretti, pochi campi, un modo per trovare, correggere, esportare e cancellare i dati di una persona e una revisione della conservazione che fai davvero.</SummaryItem>
-  <SummaryItem label="Customermates">Un DPA per il cloud gestito, un elenco pubblico di sub-responsabili che comprende fornitori statunitensi, il database di produzione principale configurato nella regione AWS di Francoforte (un’impostazione scelta, non una garanzia), nessuna certificazione di conformità e un nucleo open source che puoi installare in self-hosting.</SummaryItem>
+  <SummaryItem label="Customermates">Un DPA per il cloud gestito, un elenco pubblico di sub-responsabili che comprende fornitori statunitensi, il database di produzione principale configurato nella regione AWS di Francoforte (un’impostazione scelta, non una garanzia), nessuna certificazione di conformità e una Community Edition source-available che puoi installare in self-hosting.</SummaryItem>
   <SummaryItem label="Trasparenza">Customermates pubblica questa guida. Il diritto è citato da EUR-Lex e dalla Commissione europea.</SummaryItem>
 </ArticleSummary>
 
@@ -150,7 +150,7 @@ Offerto, secondo la documentazione di prodotto e i testi legali:
 - ruoli per lista, un interruttore per disattivare i membri e separazione dei tenant per account aziendale;
 - ricerca globale per indirizzo e-mail o numero di telefono, correzione sul posto, esportazione Excel e JSON per lista e un cestino con cancellazione definitiva;
 - un registro attività per le modifiche ai record del CRM e alla configurazione dello spazio di lavoro, leggibile dai ruoli che hanno accesso; e
-- un nucleo open source con licenza AGPL che puoi [installare in self-hosting](/features/self-hosted).
+- una Community Edition source-available (Sustainable Use License) che puoi [installare in self-hosting](/features/self-hosted).
 
 Non offerto, chiedilo quindi altrove se ti serve:
 
@@ -158,7 +158,7 @@ Non offerto, chiedilo quindi altrove se ti serve:
 - non ha permessi a livello di campo né un’esportazione di un intero account in un solo passaggio;
 - il suo registro attività non copre accessi, chiavi API o contenuto della posta in arrivo e non ha un pulsante di esportazione.
 
-Il self-hosting sposta la responsabilità. Il nucleo AGPL gira con Docker e PostgreSQL sulla tua infrastruttura, e il DPA copre solo il servizio gestito: scegli tu hosting e fornitori e hai i tuoi contratti ai sensi dell’art. 28 e le tue garanzie di trasferimento. TLS e cifratura a riposo sono a tuo carico. Il self-hosting usa l’insieme di funzioni Starter, senza posta in arrivo e senza Mate, e non è isolato dalla rete: al primo inserimento di un indirizzo per un paese, l’istanza scarica da GeoNames il file pubblico dei codici postali di quel paese, a meno che tu imposti `POSTAL_CODE_DATA_URL` su `off` o su un mirror. La [guida al self-hosting](/docs/self-hosting) dà i dettagli, e la [pagina sul CRM open source](/features/open-source-crm) spiega il confine della licenza.
+Il self-hosting sposta la responsabilità. La Community Edition gira con Docker e PostgreSQL sulla tua infrastruttura, e il DPA copre solo il servizio gestito: scegli tu hosting e fornitori e hai i tuoi contratti ai sensi dell’art. 28 e le tue garanzie di trasferimento. TLS e cifratura a riposo sono a tuo carico. Il self-hosting usa l’insieme di funzioni Starter, senza posta in arrivo e senza Mate, e non è isolato dalla rete: al primo inserimento di un indirizzo per un paese, l’istanza scarica da GeoNames il file pubblico dei codici postali di quel paese, a meno che tu imposti `POSTAL_CODE_DATA_URL` su `off` o su un mirror. La [guida al self-hosting](/docs/self-hosting) dà i dettagli, e la [pagina sul CRM open source](/features/open-source-crm) spiega il confine della licenza.
 
 <AcquisitionCallout title="Dove Customermates non è adatto" variant="boundary">
   Se una checklist d’acquisto richiede una certificazione riconosciuta, una garanzia contrattuale di trattamento solo nell’UE o permessi a livello di campo, Customermates oggi non può spuntare quelle caselle. Chiedili per iscritto a ogni fornitore che confronti e leggi le risposte accanto ai loro elenchi di sub-responsabili. Il [confronto dei migliori software CRM](/blog/best-crm-software) e la [guida per scegliere un CRM](/blog/how-to-choose-crm) trattano gli altri criteri.
@@ -188,7 +188,7 @@ Il GDPR non fissa un periodo. L’art. 5, par. 1, lett. e, richiede che i dati n
 In linea di principio sì. Gli art. 13 e 14 richiedono un’informativa sulla privacy. Se non hai raccolto i dati presso la persona, per esempio da un elenco importato, devi informarla entro un termine ragionevole e al più tardi entro un mese.
 </FaqItem>
 <FaqItem question="Posso tenere tutti i dati del CRM sul mio server?">
-Con il nucleo open source sì: lo gestisci con Docker e PostgreSQL su un’infrastruttura a tua scelta. Usa l’insieme di funzioni Starter, senza posta in arrivo e senza Mate, e sei responsabile dei tuoi contratti di hosting e della sicurezza.
+Con la Community Edition sì: lo gestisci con Docker e PostgreSQL su un’infrastruttura a tua scelta. Usa l’insieme di funzioni Starter, senza posta in arrivo e senza Mate, e sei responsabile dei tuoi contratti di hosting e della sicurezza.
 </FaqItem>
 <FaqItem question="Cosa succede ai miei dati se disdico?">
 Secondo il DPA di Customermates hai 30 giorni dopo la fine del servizio per scegliere cancellazione o restituzione. Poi i dati vengono cancellati dai sistemi propri di Customermates, dai backup al più tardi entro 90 giorni, e i sub-responsabili cancellano secondo i propri contratti.

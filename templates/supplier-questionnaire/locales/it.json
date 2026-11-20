@@ -1,0 +1,172 @@
+{
+  "locale": "it",
+  "name": "Questionario fornitori",
+  "summary": "Vedi quali fornitori sono qualificati e quale certificato scade per primo. Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio e una decisione per ogni fornitore.",
+  "description": "I certificati dei fornitori scadono e le rivalutazioni saltano quando le risposte stanno in e-mail e cartelle. Questo modello qualifica fornitori e appaltatori in un unico posto: invii un questionario, raccogli certificati e documentazione con la loro scadenza, classifichi ogni fornitore per livello di rischio, registri la decisione (qualificare, qualificare con riserva, escalation, respingere) e vedi che cosa scade per primo. Coordina le evidenze: non decide la conformità normativa, non verifica sanzioni o rischio finanziario e non sostituisce il sistema qualità, il gestionale o l'archivio documentale.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso i fornitori che rispondono ai questionari e inviano i documenti." },
+    "suppliers": { "label": "Fornitore", "pluralLabel": "Fornitori", "description": "Ogni fornitore o appaltatore, da candidato a qualificato o sospeso." },
+    "questionnaires": { "label": "Questionario", "pluralLabel": "Questionari", "description": "Un questionario inviato a un fornitore, con scadenza e decisione." },
+    "documents": { "label": "Documento", "pluralLabel": "Documenti", "description": "Certificati, DURC e contratti con la loro data di scadenza." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Ruolo",
+      "options": { "sales": "Commerciale", "quality": "Qualità", "compliance": "Conformità", "finance": "Amministrazione", "other": "Altro" }
+    },
+    "contacts.language": { "label": "Lingua" },
+    "suppliers.status": {
+      "label": "Stato",
+      "options": { "candidate": "Candidato", "questionnaire_sent": "Questionario inviato", "under_review": "In valutazione", "approved": "Qualificato", "approved_with_conditions": "Qualificato con riserva", "blocked": "Sospeso", "offboarded": "Cancellato" }
+    },
+    "suppliers.risk_tier": { "label": "Livello di rischio", "options": { "low": "Basso", "moderate": "Medio", "high": "Alto", "critical": "Critico" } },
+    "suppliers.category": {
+      "label": "Categoria",
+      "options": { "raw_materials": "Materie prime", "components": "Componenti", "services": "Servizi", "subcontracting": "Lavorazioni esterne", "software_it": "Software e IT", "logistics": "Logistica" }
+    },
+    "suppliers.country": { "label": "Paese" },
+    "suppliers.critical_supplier": { "label": "Fornitore critico" },
+    "suppliers.processes_personal_data": { "label": "Tratta dati personali" },
+    "suppliers.review_owner": { "label": "Responsabile della valutazione" },
+    "suppliers.qualified_on": { "label": "Qualificato il" },
+    "suppliers.next_review": { "label": "Prossima rivalutazione" },
+    "questionnaires.kind": {
+      "label": "Tipo",
+      "options": { "registration": "Registrazione", "qualification": "Qualifica", "re_evaluation": "Rivalutazione", "regulatory_evidence": "Evidenze normative" }
+    },
+    "questionnaires.status": {
+      "label": "Stato",
+      "options": { "draft": "Bozza", "sent": "Inviato", "partial": "Risposta parziale", "received": "Ricevuto", "reviewed": "Esaminato" }
+    },
+    "questionnaires.sent_on": { "label": "Inviato il" },
+    "questionnaires.due_on": { "label": "Scadenza" },
+    "questionnaires.received_on": { "label": "Ricevuto il" },
+    "questionnaires.score": { "label": "Punteggio" },
+    "questionnaires.decision": {
+      "label": "Decisione",
+      "options": { "approve": "Qualificare", "approve_with_conditions": "Qualificare con riserva", "escalate": "Escalation", "reject": "Respingere" }
+    },
+    "questionnaires.reviewer": { "label": "Valutatore" },
+    "questionnaires.form_link": { "label": "Link al modulo" },
+    "documents.doc_type": {
+      "label": "Tipo di documento",
+      "options": { "quality_certificate": "Certificato qualità", "environmental_certificate": "Certificato ambientale", "security_certificate": "Certificato di sicurezza", "insurance": "Polizza assicurativa", "tax_clearance": "DURC e regolarità fiscale", "registration_extract": "Visura camerale", "data_processing_agreement": "Nomina a responsabile del trattamento", "other": "Altro" }
+    },
+    "documents.status": {
+      "label": "Stato",
+      "options": { "requested": "Richiesto", "received": "Ricevuto", "under_review": "In verifica", "accepted": "Accettato", "rejected": "Rifiutato", "expired": "Scaduto" }
+    },
+    "documents.requested_on": { "label": "Richiesto il" },
+    "documents.received_on": { "label": "Ricevuto il" },
+    "documents.valid_until": { "label": "Valido fino al" },
+    "documents.evidence_link": { "label": "Link al file" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "send_questionnaire": "Inviare il questionario",
+        "chase_supplier": "Sollecitare il fornitore",
+        "review_answers": "Esaminare le risposte",
+        "request_document": "Richiedere un documento",
+        "verify_document": "Verificare un documento",
+        "decide": "Decidere",
+        "re_evaluate": "Rivalutare",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Fornitore", "targetLabel": "Referenti" },
+    "questionnaire_supplier": { "sourceLabel": "Fornitore", "targetLabel": "Questionari" },
+    "document_supplier": { "sourceLabel": "Fornitore", "targetLabel": "Documenti" },
+    "action_supplier": { "sourceLabel": "Fornitore", "targetLabel": "Attività" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Tutti i fornitori" },
+    "suppliers_board": { "name": "Board di qualifica" },
+    "documents_all": { "name": "Tutti i documenti" },
+    "expired_documents": { "name": "Scaduti o rifiutati" },
+    "questionnaires_all": { "name": "Tutti i questionari" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Fornitori per stato" },
+    "suppliers_by_risk": { "title": "Fornitori per livello di rischio" },
+    "documents_expiring": { "title": "Documenti in scadenza" },
+    "questionnaires_open": { "title": "Questionari in attesa di risposta" },
+    "reviews_coming": { "title": "Rivalutazioni in arrivo" },
+    "documents_expired": { "title": "Documenti scaduti" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Procedura di qualifica dei fornitori", "sections": ["Esigenza, criteri e chi approva", "Questionario, documenti, decisione"] },
+    "document_requirements": { "title": "Certificati e documenti che richiediamo", "sections": ["Per categoria e livello di rischio", "Per quanto tempo vale ciascuno"] },
+    "re_evaluation": { "title": "Calendario delle rivalutazioni", "sections": ["Date di rivalutazione per livello di rischio", "Eventi che anticipano la rivalutazione"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Sollecitare il fornitore quando un questionario ha superato la scadenza" },
+    "review_answers": { "title": "Esaminare le risposte 3 giorni dopo il ricevimento di un questionario" },
+    "renew_document": { "title": "Chiedere il documento rinnovato 30 giorni prima della scadenza" },
+    "document_expiry_notice": { "title": "Avvisare il responsabile quando un documento scade" },
+    "re_evaluate_supplier": { "title": "Avviare una rivalutazione 14 giorni prima della prossima" },
+    "decide_after_review": { "title": "Decidere entro 5 giorni quando un fornitore passa a «In valutazione»" },
+    "registration_form_records": { "title": "Creare fornitore e referente quando il modulo di registrazione viene inviato" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Ogni fornitore ha uno stato di qualifica.",
+    "valid_until_field": "Ogni documento indica fino a quando è valido.",
+    "suppliers_board_view": "I fornitori si aprono come board per stato."
+  },
+  "page": {
+    "metaTitle": "Albo fornitori: modello per qualifica e scadenze",
+    "metaDescription": "Albo fornitori con questionario di qualifica, certificati con scadenza e livello di rischio. Incolla il modello nel tuo agente IA e lo costruisce nel tuo CRM.",
+    "headline": "Un albo fornitori che mostra quale certificato scade per primo, costruito dal tuo agente IA nel tuo CRM",
+    "answer": "Un albo fornitori tiene in un unico posto, per ogni fornitore, il questionario di qualifica, i certificati con scadenza, il livello di rischio e la decisione. Incolla questo modello nel tuo agente IA e lui costruisce l’albo in Customermates, con attività con data per questionari, rinnovi e rivalutazioni. Approvi tu il piano prima che venga costruito qualcosa. L’albo registra richieste e decisioni, non stabilisce la conformità.",
+    "routine": {
+      "title": "Il controllo settimanale dei fornitori",
+      "steps": [
+        "Sollecita i fornitori il cui questionario ha superato la scadenza.",
+        "Esamina le risposte dei questionari ricevuti negli ultimi giorni e segna quelle che non hanno ancora una prova aggiornata.",
+        "Chiedi il rinnovo di certificati e documenti, per esempio il DURC, che scadono entro 30 giorni e decidi per quelli già scaduti: sospendere il fornitore o accettare il rischio per iscritto.",
+        "Registra la decisione per i fornitori in valutazione (qualificare, qualificare con riserva, escalation o respingere) e fissa la prossima rivalutazione in base al livello di rischio.",
+        "Avvia la rivalutazione dei fornitori la cui prossima rivalutazione cade entro 14 giorni."
+      ]
+    },
+    "limits": [
+      "Non stabilisce che un fornitore, un prodotto o una filiera rispetti una legge e non presenta dichiarazioni di due diligence né report. Registra richieste, prove e decisioni.",
+      "Non è un servizio di screening: niente controlli su sanzioni, notizie negative o affidabilità finanziaria, e nessun arricchimento dei dati aziendali.",
+      "Non è un ERP né un sistema di acquisti o fatturazione. Non ci sono ordini d’acquisto, importi di spesa o fatture.",
+      "Non è un archivio documentale. I file sono ricercabili solo se hanno un livello di testo, i certificati scansionati non vengono letti e non esiste una traccia di audit immodificabile o conservata in modo indipendente. Tieni gli originali nel tuo sistema documentale e aggiungi il link.",
+      "I fornitori non possono accedere per rispondere o caricare file, e non ci sono firma elettronica né permessi per campo. Il materiale riservato va in un elenco o in uno spazio di lavoro a parte. Piattaforme come EcoVadis, Sedex o SAP Ariba fanno ciò che qui manca."
+    ],
+    "faq": [
+      {
+        "question": "Ogni quanto va rivalutato un fornitore?",
+        "answer": "Almeno una volta all’anno è il minimo più citato. Nella pratica italiana la qualifica è dinamica: rivalutazione semestrale o annuale in base alla criticità e in più dopo eventi come fusioni, nuovi subfornitori, incidenti di sicurezza o obiettivi mancati. Il modello fissa la prossima rivalutazione in base al livello di rischio; dopo un evento avvii tu la rivalutazione."
+      },
+      {
+        "question": "Come si struttura la qualifica di un fornitore?",
+        "answer": "Di solito il fornitore si candida con un questionario, viene iscritto all’albo dopo l’approvazione e poi qualificato. Molte aziende usano tre questionari: registrazione, certificati e qualifica, per categoria merceologica. La qualifica segue il rischio: il percorso completo serve solo ai fornitori critici. L’elenco dei fornitori qualificati è il registro dei fornitori approvati all’uso richiesto dalla ISO 9001:2015, punto 8.4.1."
+      },
+      {
+        "question": "Quali documenti chiedere e quanto sono validi?",
+        "answer": "Di solito certificazioni ISO 9001, 14001 e 45001, visura camerale, DURC e polizza assicurativa. Il DURC vale 120 giorni e l’idoneità va mantenuta per tutta la durata del contratto. Il modello registra la scadenza di ogni documento e crea un’attività per chiederne il rinnovo 30 giorni prima. La validità di ogni documento va verificata presso chi lo rilascia."
+      },
+      {
+        "question": "Il modello stabilisce se siamo conformi alla NIS2 o al GDPR?",
+        "answer": "No. Coordina le richieste di prove e registra date e decisioni. Se un fornitore tratta dati personali serve un accordo sul trattamento dei dati ai sensi dell’art. 28 del GDPR: il modello ti aiuta a tenere traccia che esista e sia valido, ma non dice mai che un fornitore è conforme. Conferma ambito e scadenze con il tuo consulente."
+      },
+      {
+        "question": "L’agente contatta i miei fornitori?",
+        "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Lavoro con molti fornitori e non riesco a vedere di chi sono scaduti i certificati o chi è da rivalutare. Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
+    "questions": [
+      "Quanti fornitori hai e come li dividi per livello di rischio?",
+      "Quali certificati o documenti richiedi e quanto dura la validità di ciascuno?",
+      "Chi esamina le risposte e chi qualifica un fornitore?",
+      "Ogni quanto rivaluti un fornitore? I file restano nel tuo sistema documentale, qui si conserva solo un link."
+    ]
+  }
+}

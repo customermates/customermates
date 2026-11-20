@@ -5,11 +5,11 @@ description: "Las rutinas ejecutan Mate según un horario o cuando cambia un reg
 
 Una rutina es una instrucción guardada más un disparador. Cuando se activa el disparador, Customermates abre una conversación nueva con el asistente, envía tu instrucción y deja que Mate trabaje por su cuenta. Las rutinas existen solo en Customermates Cloud, porque usan el cupo mensual de Mate del propietario.
 
-Quién ve las rutinas depende de la fila **Rutinas** de su rol en [Roles](app:settings/roles): **Acceso de lectura** **Todos** muestra todas las rutinas del espacio de trabajo, **Asignados** solo las propias y **Ninguno** oculta [Rutinas](app:routines). Para crear se necesita **Crear**, y para editar las propias, **Editar**. Quien puede ver una rutina ve los resúmenes de sus ejecuciones; la transcripción completa queda solo con la persona con cuya identidad se ejecutó.
+Quién ve las rutinas depende de la fila **Rutinas y automatizaciones** de su rol en [Roles](app:settings/roles): **Acceso de lectura** **Todos** muestra todas las rutinas del espacio de trabajo, **Asignados** solo las propias y **Ninguno** oculta [Rutinas](app:automations). Para crear se necesita **Crear**, y para editar las propias, **Editar**. Quien puede ver una rutina ve los resúmenes de sus ejecuciones; la transcripción completa queda solo con la persona con cuya identidad se ejecutó.
 
 ## ¿Cómo creo una rutina o una automatización? [#how-do-i-create-a-routine]
 
-Abre [Rutinas](app:routines) y haz clic en [Añadir](app:routines?focus=add). Escribe un **Nombre** y las **Instrucciones**, elige un disparador y haz clic en **Guardar**. La rutina se guarda **Activa** salvo que antes la cambies a **En pausa**. También puedes pedirle a Mate que cree una; Mate la guarda en pausa salvo que pidas que esté activa. Encuentra las rutinas existentes buscando o filtrando en [Filtros](app:routines?focus=filter), y alterna entre tabla y tablero en [Apariencia](app:routines?focus=display-options).
+Las rutinas ahora están en la lista [Automatizaciones](app:automations), junto a las automatizaciones, y la antigua página Rutinas redirige allí. Abre Automatizaciones, abre el menú de **Nueva automatización** y elige **Rutina (Mate con un horario)**. Escribe un **Nombre** y las **Instrucciones**, elige un disparador y haz clic en **Guardar**. La rutina se guarda **Activa** salvo que antes la cambies a **En pausa**. También puedes pedirle a Mate que cree una; Mate la guarda en pausa salvo que pidas que esté activa. Encuentra las rutinas existentes buscando o filtrando en [Filtros](app:automations?focus=filter), y alterna entre tabla y tablero en [Apariencia](app:automations?focus=display-options).
 
 ## ¿De qué se compone una rutina? [#what-is-a-routine-made-of]
 
@@ -44,7 +44,7 @@ Cada ejecución de una rutina empieza con las herramientas básicas del CRM y ca
 
 ## Horarios: ¿cómo ejecuto una rutina cada mañana o cada lunes? [#how-do-schedules-work]
 
-En [Rutinas](app:routines), abre una rutina o haz clic en [Añadir](app:routines?focus=add) y, en **Se repite**, elige **Cada 15 minutos**, **Cada 30 minutos**, **Cada hora**, **Cada día**, **Cada semana** o **Cada mes**, además del día de la semana, el día del mes (de 1 a 28) o la hora en pasos de cinco minutos cuando haga falta. El valor predeterminado es cada día a las 09:00. Para las frecuencias por hora y más largas, el horario se detalla debajo, seguido de **Las horas se muestran en** y la zona horaria, que procede del navegador en el que se creó la rutina (UTC si se desconoce).
+En [Rutinas](app:automations), abre una rutina o haz clic en [Añadir](app:automations?focus=add) y, en **Se repite**, elige **Cada 15 minutos**, **Cada 30 minutos**, **Cada hora**, **Cada día**, **Cada semana** o **Cada mes**, además del día de la semana, el día del mes (de 1 a 28) o la hora en pasos de cinco minutos cuando haga falta. El valor predeterminado es cada día a las 09:00. Para las frecuencias por hora y más largas, el horario se detalla debajo, seguido de **Las horas se muestran en** y la zona horaria, que procede del navegador en el que se creó la rutina (UTC si se desconoce).
 
 Un horario que no encaja con ninguna frecuencia predefinida, por ejemplo solo los días laborables, y una zona horaria distinta solo se pueden definir mediante Mate, un cliente MCP o la API REST; el cuadro de diálogo muestra entonces **Esta rutina usa una programación personalizada** con **Cambiar a una frecuencia predefinida**. El planificador comprueba cada cinco minutos, así que una ejecución puede empezar con unos minutos de retraso, y una ejecución que sigue en cola pasados dos minutos se vuelve a despachar.
 
@@ -61,7 +61,7 @@ Deja ambos vacíos para ejecutar la rutina con cada evento coincidente. Un event
 
 A Mate se le cuenta lo ocurrido antes de tus instrucciones: el evento, el tipo de registro y su ID, los campos modificados en una actualización y, en un evento de la bandeja de entrada, el hilo. Desde ahí puede leer el registro, pero no recibe los valores anteriores.
 
-## ¿Qué significan las ejecuciones y sus estados? [#what-do-the-runs-and-their-statuses-mean]
+## ¿Qué significan las ejecuciones del historial de una rutina y sus estados? [#what-do-the-runs-and-their-statuses-mean]
 
 Abre una rutina para ver sus **Ejecuciones**, de la más reciente a la más antigua: junto a la configuración en una pantalla ancha, o tras el selector **Detalles** y **Ejecuciones** en una estrecha. Haz clic en una ejecución para ver **Detalles de la ejecución**: **Ejecutada como** con el nombre del propietario, la parte del cupo mensual de Mate del propietario que se usó (coste exacto del proveedor, mostrado como porcentaje), el disparador (**Registro**, **Campos modificados**, **Conversación**) y, cuando se detuvo antes de tiempo, el motivo. Cuando la ejecución propuso cambios en la Base de conocimientos, indica cuántos y ofrece **Revisar**. Solo la persona con cuya identidad se ejecutó puede abrir la transcripción completa y, cuando la ejecución ha terminado, puede responder debajo para continuar la conversación con Mate, lo que usa su cupo.
 

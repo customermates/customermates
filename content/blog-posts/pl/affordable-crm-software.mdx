@@ -22,7 +22,7 @@ blogPost:
     - Tani CRM
     - Tanie CRM
     - Małe firmy
-    - Open source
+    - Self-hosting
     - Darmowy CRM
 ---
 
@@ -136,7 +136,7 @@ Szybki start wygląda zwykle tak: zaimportuj listę klientów z Excela albo CSV,
 
 ## Gdzie pasuje Customermates
 
-*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM open source zbudowany wokół AI, stworzony w Niemczech dla małych zespołów pracujących blisko klientów: firm doradczych, agencji, innych firm usługowych, które żyją z relacji, oraz założycieli. Cena jest za aktywnego użytkownika, a rozliczenie jest miesięczne: [[commercial.price.starter.monthly]] w Starterze, [[commercial.price.pro.monthly]] w Pro i [[commercial.price.business.monthly]] w Business. Nie ma planu rocznego, a darmowy plan hostowany kończy się na [[commercial.limit.free.maxMembers]] osobie. Twoja pierwsza przestrzeń robocza startuje z planem Pro za darmo przez [[commercial.trial.days]] dni, bez karty kredytowej, a pełne ceny są na [stronie z cennikiem](/pricing).
+*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to CRM source-available zbudowany wokół AI, stworzony w Niemczech dla małych zespołów pracujących blisko klientów: firm doradczych, agencji, innych firm usługowych, które żyją z relacji, oraz założycieli. Cena jest za aktywnego użytkownika, a rozliczenie jest miesięczne: [[commercial.price.starter.monthly]] w Starterze, [[commercial.price.pro.monthly]] w Pro i [[commercial.price.business.monthly]] w Business. Nie ma planu rocznego, a darmowy plan hostowany kończy się na [[commercial.limit.free.maxMembers]] osobie. Twoja pierwsza przestrzeń robocza startuje z planem Pro za darmo przez [[commercial.trial.days]] dni, bez karty kredytowej, a pełne ceny są na [stronie z cennikiem](/pricing).
 
 **Starter** ma kontakty, organizacje, szanse sprzedaży, usługi i zadania, pola niestandardowe, role i uprawnienia, import i eksport Excela (`.xlsx`), REST, webhooki i MCP. Nie ma skrzynki odbiorczej: e-maile i wiadomości nie są w Starterze podłączone.
 
@@ -156,7 +156,7 @@ W zespole pracującym z klientami oceniaj miejsce po tym, co pomaga nie przeoczy
 
 - **Starter z własnym klientem AI.** Utwórz klucz w **Ustawienia › Klucze API i konektory › Dodaj** i wybierz Claude albo ChatGPT w **Szybkie połączenia**. Klient odczytuje i aktualizuje potem rekordy przez [MCP](/docs/mcp), a wywołania modelu idą przez Twojego własnego dostawcę AI.
 - **Płać tylko za aktywne osoby.** Miejsce to członek ze statusem **Aktywny**. Ustaw osobę, która nie potrzebuje już dostępu, jako **Nieaktywny** w **Ustawienia › Członkowie**, a liczba miejsc spadnie, proporcjonalnie na następnej fakturze. To wstrzymuje też rutyny, których ta osoba jest właścicielem.
-- **Samodzielny hosting rdzenia open source.** Działa na Docker Compose i PostgreSQL, nie liczy miejsc i niczego nie rozlicza. Płacisz za serwer i konto do wysyłki e-maili, a aktualizacje i kopie zapasowe wykonujesz sam. W wersji self-hosted nie ma skrzynki odbiorczej, Mate, rutyn ani hostowanych kredytów; zostają REST, webhooki i MCP. [Poradnik samodzielnego hostingu](/docs/self-hosting) opisuje konfigurację.
+- **Samodzielny hosting Community Edition.** Działa na Docker Compose i PostgreSQL, nie liczy miejsc i niczego nie rozlicza. Płacisz za serwer i konto do wysyłki e-maili, a aktualizacje i kopie zapasowe wykonujesz sam. W wersji self-hosted nie ma skrzynki odbiorczej, Mate, rutyn ani hostowanych kredytów; zostają REST, webhooki i MCP. [Poradnik samodzielnego hostingu](/docs/self-hosting) opisuje konfigurację.
 
 <AcquisitionCallout title="Kiedy Customermates to zły wybór" variant="boundary">
   Jeśli potrzebujesz CRM za 0 $, który prowadzi dostawca, zacznij od darmowych narzędzi HubSpot albo darmowej edycji Zoho CRM; Customermates Cloud ma darmowy plan dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn. Customermates nie ma telefonii, sekwencji e-mail ani wysyłek masowych, formularzy WWW ani natywnej aplikacji mobilnej i nie tworzy ofert ani faktur. Zespół, który dużo dzwoni, powinien wybrać CRM z wbudowanymi połączeniami telefonicznymi, a zespół, który potrzebuje sekwencji, znajdzie je w Pipedrive od planu Growth.

@@ -1,0 +1,175 @@
+{
+  "locale": "de",
+  "name": "Dealflow für Investoren",
+  "summary": "Nie vergessen, wer einen Deal vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Ein Dealflow für einen kleinen Fonds oder Business Angel, mit acht Phasen von erkannt bis vollzogen oder abgelehnt.",
+  "description": "Im Dealflow sind die meisten Deals Absagen, und ohne Aufzeichnung, wer ein Startup vermittelt hat und warum Sie abgesagt haben, wird derselbe Deal beim nächsten Mal wieder von vorn geprüft. Diese Vorlage begleitet Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, Ihre Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann Sie erneut hinsehen. Ein Beziehungswerkzeug, keine Cap Table, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob, und Sie legen sie selbst fest.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Gründer, Investoren, Mitinvestoren und Vermittler." },
+    "organizations": { "label": "Organisation", "pluralLabel": "Organisationen", "description": "Startups, Fonds, Syndikate und Accelerators." },
+    "deals": { "label": "Deal", "pluralLabel": "Deals", "description": "Eine Beteiligungschance vom Sourcing bis vollzogen oder abgelehnt." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Phase",
+      "options": { "sourced": "Erkannt", "screening": "Prüfung", "first_meeting": "Erstgespräch", "partner_meeting": "Partnerrunde", "diligence": "Due Diligence", "term_sheet": "Term Sheet", "closed": "Vollzug", "passed": "Abgelehnt" }
+    },
+    "people.person_role": {
+      "label": "Rolle",
+      "options": { "founder": "Gründer", "investor": "Investment-Partner", "angel": "Business Angel", "co_investor": "Mitinvestor", "introducer": "Vermittler", "advisor": "Berater" }
+    },
+    "people.focus_stages": {
+      "label": "Fokus-Phasen",
+      "options": { "pre_seed": "Pre-Seed", "seed": "Seed", "series_a": "Serie A", "series_b_plus": "Serie B und später" }
+    },
+    "people.thesis": { "label": "Anlagethese" },
+    "people.relationship_strength": { "label": "Beziehung", "options": { "strong": "Stark", "warm": "Gut", "new": "Neu" } },
+    "people.last_meeting_on": { "label": "Letztes Treffen" },
+    "people.relationship_owner": { "label": "Betreuer" },
+    "organizations.org_type": {
+      "label": "Art",
+      "options": { "startup": "Startup", "vc_fund": "VC-Fonds", "angel_syndicate": "Angel-Syndikat", "corporate_vc": "Corporate VC", "accelerator": "Accelerator", "other": "Sonstige" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.sector": { "label": "Branche" },
+    "organizations.stage": {
+      "label": "Phase",
+      "options": { "pre_seed": "Pre-Seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "growth": "Wachstum" }
+    },
+    "organizations.country": { "label": "Land" },
+    "organizations.conflict_check": { "label": "Interessenkonflikt-Prüfung", "options": { "to_check": "Zu prüfen", "clear": "Unbedenklich", "conflict": "Konflikt" } },
+    "deals.round": {
+      "label": "Runde",
+      "options": { "pre_seed": "Pre-Seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "bridge": "Brückenfinanzierung" }
+    },
+    "deals.lead_role": { "label": "Unsere Rolle", "options": { "lead": "Lead", "follow": "Mitinvestor", "undecided": "Offen" } },
+    "deals.thesis_fit": { "label": "Passung zur Anlagethese", "options": { "strong": "Stark", "partial": "Teilweise", "weak": "Schwach" } },
+    "deals.owner": { "label": "Zuständig" },
+    "deals.source": {
+      "label": "Herkunft",
+      "options": { "warm_introduction": "Persönliche Vermittlung", "inbound": "Eingehende Anfrage", "outbound": "Eigene Ansprache", "event": "Veranstaltung", "portfolio_referral": "Empfehlung aus dem Portfolio", "co_investor": "Mitinvestor" }
+    },
+    "deals.intro_requested_on": { "label": "Vermittlung erbeten am" },
+    "deals.intro_made_on": { "label": "Vermittlung erfolgt am" },
+    "deals.first_meeting_on": { "label": "Erstgespräch am" },
+    "deals.decision_on": { "label": "Entscheidung am" },
+    "deals.term_sheet_on": { "label": "Term Sheet am" },
+    "deals.closed_on": { "label": "Vollzug am" },
+    "deals.nda_signed": { "label": "NDA unterschrieben" },
+    "deals.pass_reason": {
+      "label": "Absagegrund",
+      "options": { "thesis_mismatch": "Passt nicht zur Anlagethese", "team": "Team", "market": "Markt", "too_early": "Zu früh", "valuation": "Bewertung", "timing": "Zeitpunkt", "other": "Sonstiges" }
+    },
+    "deals.revisit_on": { "label": "Wiedervorlage am" },
+    "deals.data_room_url": { "label": "Link zum Datenraum" },
+    "deals.days_to_term_sheet": { "label": "Tage vom Erstgespräch bis zum Term Sheet" },
+    "deals.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "request_intro": "Vermittlung erbitten",
+        "send_deck": "Pitch Deck senden",
+        "prepare_meeting": "Gespräch vorbereiten",
+        "follow_up": "Nachfassen",
+        "diligence_request": "Anforderungsliste Due Diligence",
+        "write_memo": "Investment-Memo schreiben",
+        "send_pass_note": "Absage senden",
+        "revisit": "Wiedervorlage",
+        "thank_introducer": "Vermittler danken oder erinnern",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Unternehmen", "targetLabel": "Deals" },
+    "deal_contacts": { "sourceLabel": "Gründer und Kontakte", "targetLabel": "Deals" },
+    "action_deal": { "sourceLabel": "Deal", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Alle Deals" },
+    "passed_to_revisit": { "name": "Abgelehnt, zur Wiedervorlage" },
+    "organizations_all": { "name": "Alle Organisationen" },
+    "people_all": { "name": "Alle Personen" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Offene Deals nach Phase" },
+    "deals_by_source": { "title": "Deals nach Herkunft" },
+    "pass_reasons": { "title": "Absagegründe" },
+    "average_days_to_term_sheet": { "title": "Durchschnittliche Tage bis zum Term Sheet" },
+    "revisits_coming": { "title": "Anstehende Wiedervorlagen" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Anlagethese und Fokus", "sections": ["Phase, Branche und Ticketgröße", "Worin wir nicht investieren"] },
+    "stage_criteria": { "title": "Kriterien je Phase", "sections": ["Was einen Deal in die nächste Phase bringt", "Wer in der Partnerrunde entscheidet"] },
+    "pass_notes": { "title": "Absagen und Wiedervorlage", "sections": ["Wie wir absagen", "Wann wir erneut hinsehen"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Nach einem Erstgespräch eine Nachricht mit den nächsten Schritten senden" },
+    "stale_screening": { "title": "Einen Deal, der 14 Tage in der Prüfung blieb, neu aufgreifen oder absagen" },
+    "pass_note": { "title": "Eine Absage senden, wenn ein Deal abgelehnt wird" },
+    "revisit_deal": { "title": "Einen abgelehnten Deal zum Wiedervorlagetermin erneut prüfen" },
+    "diligence_checklist": { "title": "Die Due-Diligence-Liste starten, wenn ein Term Sheet vereinbart ist" },
+    "first_check_in_after_close": { "title": "30 Tage nach dem Vollzug nachfragen" },
+    "intro_nudge": { "title": "Den Vermittler eine Woche nach der erbetenen Vermittlung erinnern" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jeder Deal hat eine von acht Phasen.",
+    "pass_reason_field": "Jeder Deal hält fest, warum er abgelehnt wurde.",
+    "board_view": "Die Deals öffnen sich als Board nach Phase."
+  },
+  "page": {
+    "metaTitle": "Investoren Liste: Dealflow-Vorlage mit Absagegrund",
+    "metaDescription": "Investoren Liste und Dealflow in einem CRM: wer vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Vorlage im KI-Agenten einfügen.",
+    "headline": "Dealflow mit Investorenliste: wer vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen",
+    "answer": "Dealflow ist ein Trichter, der fast alles aussortiert, deshalb liegt der Wert in der Beziehungsebene darum: wer ein Startup vermittelt hat, warum Sie abgesagt haben und wann Sie erneut hinsehen. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut in Customermates eine Deal-Liste mit acht Phasen von erkannt bis vollzogen oder abgelehnt auf, dazu Startups, Investoren und terminierte Nachfassaufgaben. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Durchsicht der Pipeline",
+      "steps": [
+        "Öffnen Sie das Deal-Board und notieren Sie, was diese Woche neu ist und was sich bewegt hat.",
+        "Sehen Sie sich Deals an, die seit 14 Tagen in der Prüfung stehen, und entscheiden Sie: erneut ansprechen oder absagen.",
+        "Halten Sie bei jeder Absage den Grund und einen Wiedervorlagetermin fest und senden Sie eine Absage, wo das angemessen ist.",
+        "Senden Sie nach einem Erstgespräch eine Nachricht mit den nächsten Schritten, und starten Sie bei vereinbartem Term Sheet die Checkliste für die Due Diligence.",
+        "Bedanken Sie sich bei den Vermittlern neuer Deals und haken Sie bei jeder vor einer Woche erbetenen Vermittlung nach, die nicht zustande kam.",
+        "Prüfen Sie abgelehnte Deals, deren Wiedervorlagetermin erreicht ist, und bewerten Sie sie mit dem früheren Wissen erneut."
+      ]
+    },
+    "limits": [
+      "Es gibt keine Beziehungsbewertung und keine Anreicherung von Unternehmensdaten. In Customermates Cloud mit dem Tarif Pro oder höher erscheinen E-Mails zur Adresse eines Datensatzes an diesem Datensatz, und Termine lassen sich von dort in Ihren Kalender eintragen; ein Agent arbeitet über MCP.",
+      "Es ist kein Portal für Limited Partners, keine Cap Table und keine Fondsbuchhaltung. Werkzeuge wie Carta oder Dynamo übernehmen diese Aufgaben.",
+      "Es ist keine Deal-Datenbank und keine Quelle für Marktdaten wie PitchBook, Dealroom oder Crunchbase.",
+      "Es ist kein Datenraum und kein Werkzeug für elektronische Signatur. Verlinken Sie stattdessen Ihren Datenraum, zum Beispiel DocSend oder Papermark.",
+      "Es entwirft keine Rechtsdokumente und entscheidet nicht über KYC, Geldwäscheprüfung oder Investitionsprüfungen. Das liegt bei Rechtsberatung und Compliance, die Vorlage hält Termine und Links fest."
+    ],
+    "faq": [
+      {
+        "question": "Welche Phasen hat ein Dealflow?",
+        "answer": "In der Praxis sind sieben Phasen üblich: Sourcing, Vorprüfung, Erstgespräch, Due Diligence, Gremium, Term Sheet und Abschluss. Die Vorlage verwendet acht Phasen: Erkannt, Prüfung, Erstgespräch, Partnerrunde, Due Diligence, Term Sheet, Vollzug und Abgelehnt. Investoren finanzieren weniger als 1 Prozent der Unternehmen, die sie sehen, und der Bundesverband BAI nennt 96 bis 99 Prozent, die vor der Transaktion ausscheiden."
+      },
+      {
+        "question": "Warum den Absagegrund festhalten?",
+        "answer": "Eine Absage mit Begründung lässt Sie das Unternehmen später mit Vorwissen erneut ansehen. Die Vorlage speichert bei jedem Deal einen Absagegrund und einen Wiedervorlagetermin und legt zum Termin eine Aufgabe zur erneuten Prüfung an. Ohne diese Notiz wird derselbe Deal beim nächsten Mal wieder von vorn geprüft."
+      },
+      {
+        "question": "Können Gründer sie nutzen, um Investoren für eine Runde zu verfolgen?",
+        "answer": "Die Struktur passt: ein Deal je Investorengespräch. Erfassen Sie jeden Investor als Person, nicht nur die Firma, und informieren Sie interessierte Investoren alle vier bis sechs Wochen oder monatlich. Die Felder sind aus der Sicht eines Investors benannt, bitten Sie Ihren Agenten also, unpassende wie Unsere Rolle und Passung zur Anlagethese umzubenennen."
+      },
+      {
+        "question": "Wann sollte ein Fonds zu Affinity oder Attio wechseln?",
+        "answer": "Wenn Sie Beziehungen bewerten, Wege zu warmen Kontakten ranken, Daten anreichern oder an Limited Partners berichten müssen. E-Mail-Verläufe erscheinen zwar schon am Datensatz mit passender Adresse (Customermates Cloud, Tarif Pro oder höher), aber nichts bewertet Beziehungen oder rankt Wege. Für einen kleinen Fonds oder Business Angel, der mit einer Liste und einer wöchentlichen Durchsicht arbeitet, reicht diese Vorlage."
+      },
+      {
+        "question": "Schreibt der Agent Startups oder Investoren an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Ich sehe mir viele Startups an und vergesse, wer sie vermittelt hat, warum ich abgesagt habe und wann ich erneut hinsehen wollte. Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
+    "questions": [
+      "In welche Phasen und Branchen investierst du, und wie groß ist deine übliche Ticketgröße?",
+      "Wie erreichst du die Deals, und wer vermittelt sie?",
+      "Wer entscheidet in welcher Phase, und wann sagst du ab?",
+      "Wo liegen Rechtsdokumente und Datenraum? Hier wird nur ein Link gespeichert."
+    ]
+  }
+}

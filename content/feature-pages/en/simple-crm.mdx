@@ -1,6 +1,6 @@
 ---
 title: "Simple CRM for Small Client-Facing Teams"
-description: "A simple CRM with an open-source core: lists built by the cloud AI setup or by you, plus Excel import. From [[commercial.price.starter.monthly]] per user per month."
+description: "A simple CRM you can self-host: lists built by the cloud AI setup or by you, plus Excel import. From [[commercial.price.starter.monthly]] per user per month."
 featureName: Simple CRM
 
 relatedHrefs:
@@ -72,17 +72,17 @@ What else keeps the setup short:
 | Contacts, organizations, deals, services, tasks, custom fields, views, dashboard widgets, XLSX import and export, REST API, webhooks, MCP | Starter, [[commercial.price.starter.monthly]] per user per month |
 | Email, LinkedIn, WhatsApp, Instagram and Telegram conversations next to the records, in the [unified inbox](/features/unified-inbox) | Pro, [[commercial.price.pro.monthly]] per user per month, [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user |
 | More connected accounts per person, sharing a whole connected account with the team | Business, [[commercial.price.business.monthly]] per user per month, [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user |
-| Running the open-source core on your own server | [Self-hosted](/features/self-hosted), Starter feature set, no inbox and no Mate |
+| Running the Community Edition on your own server | [Self-hosted](/features/self-hosted), Starter feature set, no inbox and no Mate |
 
 A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month. The same team on Pro pays [[commercial.price.pro.monthly.seats.3]] per month. Billing is monthly; every paid cloud plan includes monthly hosted AI credits per active user for Mate, see [pricing](/pricing). The [[commercial.trial.days]]-day trial runs on Pro and needs no credit card.
 
 ## What this simple CRM leaves out
 
 <AcquisitionCallout title="Check these before you commit" variant="boundary">
-No reminders or notifications for tasks, and no recurring tasks. No mobile app; the web app runs in the browser. No email sequences or bulk sending. No built-in visual workflow builder.
+No recurring tasks. No mobile app; the web app runs in the browser. No email sequences or bulk sending. No free-form visual workflow builder with branches.
 </AcquisitionCallout>
 
-Automation exists, but it lives in two separate places. In Customermates Cloud, [Routines](/docs/app-routines) run a saved instruction through Mate on a schedule or when a record changes, using hosted AI credits. A routine runs as its owner and sees what that owner sees. For rule-based flows you connect an n8n instance you run or subscribe to separately, through webhooks, the REST API or the community node.
+Automation lives in three separate places. [Automations](/docs/app-automations) run without AI on fixed rules with When, If and Then: they remind you before a date, create a follow-up task, or tell you in the notification bell and by email. In Customermates Cloud, [Routines](/docs/app-routines) run a saved instruction through Mate on a schedule or when a record changes, using hosted AI credits. A routine runs as its owner and sees what that owner sees. For rule-based flows you connect an n8n instance you run or subscribe to separately, through webhooks, the REST API or the community node.
 
 If your team depends on push reminders on a phone, or wants a free plan for good, one of the tools below is likely a better start.
 
@@ -96,7 +96,7 @@ Customermates publishes this page. The table describes each tool by what its ven
 | OnePageCRM | Next Actions with reminder notifications and native Android and iOS apps on every plan, 21-day trial | Follow-up reminders and a phone app matter most |
 | CentralStationCRM | Free Starter package for up to 3 users and 200 contacts; customer data and attachments kept in Germany by the vendor | You want a free German tool and a small contact base |
 | HubSpot free CRM | Free with no expiration for up to two users and 1,000 contacts | You need a free CRM and may later buy HubSpot's marketing tools |
-| Customermates | Open-source core, AI workspace setup in Cloud, inbox from Pro, Mate in Cloud, MCP for your own AI client | Client conversations and AI help on the records matter most to you |
+| Customermates | Source-available, AI workspace setup in Cloud, inbox from Pro, Mate in Cloud, MCP for your own AI client | Client conversations and AI help on the records matter most to you |
 
 ## How it connects when you need more
 
@@ -110,7 +110,7 @@ The easiest one is the one whose structure already matches your work. Look for a
 </FaqItem>
 
 <FaqItem question="Is there a free version of Customermates?">
-The cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. It also has a [[commercial.trial.days]]-day trial without a credit card. The open-source core under AGPL-3.0 can be self-hosted without licence fees, with the Starter feature set and without the inbox or Mate. If you need free hosting as well, HubSpot and CentralStationCRM offer free plans with user and contact limits.
+The cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. It also has a [[commercial.trial.days]]-day trial without a credit card. The Community Edition (Sustainable Use License) can be self-hosted without licence fees for your own business, with the Starter feature set and without the inbox or Mate. If you need free hosting as well, HubSpot and CentralStationCRM offer free plans with user and contact limits.
 </FaqItem>
 
 <FaqItem question="Can I switch from Excel to Customermates?">

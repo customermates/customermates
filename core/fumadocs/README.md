@@ -11,3 +11,14 @@ When a page has no trustworthy generated date, the sitemap omits its `lastmod`, 
 Dates track changes to the MDX file itself. Changes to shared components or substituted commercial tokens are not included in the file's Git history.
 
 `__tests__/git-last-modified.test.ts` creates disposable repositories to exercise full history, shallow history, deepening at the same revision, linked worktrees, literal paths, and absent history. `../seo/__tests__/sitemap.test.ts` verifies that blog posts keep their publication date, that other pages take the generated date, and that an undated page omits `lastmod`.
+
+# Content sources and server function size
+
+`source.config.ts` registers `collection-modules.ts`, which writes two modules per collection next to the stock `.source/server.ts` (which nothing imports any more):
+
+- `.source/heads/<collection>.ts` holds only the frontmatter of every file (the loader's `only=frontmatter` query, so schema validation and the commercial tokens still apply) and the Git last-modified date. `source.ts` builds the `*Source` loaders from these heads. Metadata, the sitemap, the footer, related links, hubs, `generateStaticParams` and the auth pages read them, so they bundle a few MB of frontmatter and no compiled MDX.
+- `.source/bodies/<collection>.ts` is the stock fumadocs module with the compiled MDX of that one collection. Only `body-sources/<collection>.ts` imports it, and only the page that renders that collection's body imports the body source (`tests/conventions/content-source-size.test.ts` lists them).
+
+Before this split every function that imported `source.ts` (all auth pages through `generateMetadataFromMeta`, the footer, the sitemap) traced one 159 MB chunk with the compiled MDX of all 21 collections in all eight locales, which put `[locale]/auth/forgot-password` above Vercel's 250 MB limit. A page that needs a body must import its `body-sources` module; a page that only needs titles, descriptions, slugs or dates must keep using `source.ts`.
+
+Heads keep dates as the loader writes them (`Date` values arrive as ISO strings); every consumer already passes them through `new Date(...)`. `getText`, `getMDAST` and the compiled `structuredData` exist only on body sources.

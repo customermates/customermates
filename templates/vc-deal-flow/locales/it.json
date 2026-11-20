@@ -1,0 +1,175 @@
+{
+  "locale": "it",
+  "name": "Dealflow per investitori",
+  "summary": "Ricorda chi ti ha presentato un'operazione, perché hai detto no e quando riguardarla. Un dealflow per un piccolo fondo o un business angel, con otto fasi dall'individuazione al closing o al rifiuto.",
+  "description": "Il dealflow è fatto soprattutto di rifiuti e, senza una traccia di chi ha introdotto una startup e del perché hai detto no, la stessa operazione viene valutata da zero la volta dopo. Questo modello segue startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Fondatori, investitori, co-investitori e introduttori." },
+    "organizations": { "label": "Organizzazione", "pluralLabel": "Organizzazioni", "description": "Startup, fondi, sindacati e acceleratori." },
+    "deals": { "label": "Operazione", "pluralLabel": "Operazioni", "description": "Un'opportunità di investimento dal sourcing al closing o al rifiuto." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Fase",
+      "options": { "sourced": "Individuata", "screening": "Valutazione", "first_meeting": "Primo incontro", "partner_meeting": "Comitato investimenti", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Closing", "passed": "Rifiutata" }
+    },
+    "people.person_role": {
+      "label": "Ruolo",
+      "options": { "founder": "Fondatore", "investor": "Partner investitore", "angel": "Business angel", "co_investor": "Co-investitore", "introducer": "Introduttore", "advisor": "Consulente" }
+    },
+    "people.focus_stages": {
+      "label": "Fasi di interesse",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b_plus": "Serie B e successive" }
+    },
+    "people.thesis": { "label": "Tesi di investimento" },
+    "people.relationship_strength": { "label": "Relazione", "options": { "strong": "Forte", "warm": "Buona", "new": "Nuova" } },
+    "people.last_meeting_on": { "label": "Ultimo incontro" },
+    "people.relationship_owner": { "label": "Referente" },
+    "organizations.org_type": {
+      "label": "Tipo",
+      "options": { "startup": "Startup", "vc_fund": "Fondo di venture capital", "angel_syndicate": "Sindacato di business angel", "corporate_vc": "Corporate venture", "accelerator": "Acceleratore", "other": "Altro" }
+    },
+    "organizations.website": { "label": "Sito web" },
+    "organizations.sector": { "label": "Settore" },
+    "organizations.stage": {
+      "label": "Fase",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "growth": "Crescita" }
+    },
+    "organizations.country": { "label": "Paese" },
+    "organizations.conflict_check": { "label": "Verifica del conflitto di interessi", "options": { "to_check": "Da verificare", "clear": "Nessun conflitto", "conflict": "Conflitto" } },
+    "deals.round": {
+      "label": "Round",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "bridge": "Round ponte" }
+    },
+    "deals.lead_role": { "label": "Il nostro ruolo", "options": { "lead": "Lead", "follow": "Segue il lead", "undecided": "Da decidere" } },
+    "deals.thesis_fit": { "label": "Aderenza alla tesi", "options": { "strong": "Forte", "partial": "Parziale", "weak": "Debole" } },
+    "deals.owner": { "label": "Responsabile" },
+    "deals.source": {
+      "label": "Provenienza",
+      "options": { "warm_introduction": "Introduzione personale", "inbound": "Richiesta in entrata", "outbound": "Contatto diretto", "event": "Evento", "portfolio_referral": "Segnalazione dal portafoglio", "co_investor": "Co-investitore" }
+    },
+    "deals.intro_requested_on": { "label": "Introduzione richiesta il" },
+    "deals.intro_made_on": { "label": "Introduzione fatta il" },
+    "deals.first_meeting_on": { "label": "Primo incontro il" },
+    "deals.decision_on": { "label": "Decisione il" },
+    "deals.term_sheet_on": { "label": "Term sheet il" },
+    "deals.closed_on": { "label": "Closing il" },
+    "deals.nda_signed": { "label": "NDA firmato" },
+    "deals.pass_reason": {
+      "label": "Motivo del rifiuto",
+      "options": { "thesis_mismatch": "Fuori tesi", "team": "Team", "market": "Mercato", "too_early": "Troppo presto", "valuation": "Valutazione", "timing": "Tempi", "other": "Altro" }
+    },
+    "deals.revisit_on": { "label": "Da riprendere il" },
+    "deals.data_room_url": { "label": "Link alla data room" },
+    "deals.days_to_term_sheet": { "label": "Giorni dal primo incontro al term sheet" },
+    "deals.weighted_value": { "label": "Valore ponderato" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "request_intro": "Chiedere un'introduzione",
+        "send_deck": "Inviare il deck",
+        "prepare_meeting": "Preparare un incontro",
+        "follow_up": "Follow-up",
+        "diligence_request": "Richiesta di due diligence",
+        "write_memo": "Scrivere il memo",
+        "send_pass_note": "Inviare un rifiuto",
+        "revisit": "Ripresa del contatto",
+        "thank_introducer": "Ringraziare o sollecitare l'introduttore",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Azienda", "targetLabel": "Operazioni" },
+    "deal_contacts": { "sourceLabel": "Fondatori e referenti", "targetLabel": "Operazioni" },
+    "action_deal": { "sourceLabel": "Operazione", "targetLabel": "Attività" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Tutte le operazioni" },
+    "passed_to_revisit": { "name": "Rifiutate, da riprendere" },
+    "organizations_all": { "name": "Tutte le organizzazioni" },
+    "people_all": { "name": "Tutte le persone" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Operazioni aperte per fase" },
+    "deals_by_source": { "title": "Operazioni per provenienza" },
+    "pass_reasons": { "title": "Motivi del rifiuto" },
+    "average_days_to_term_sheet": { "title": "Media dei giorni al term sheet" },
+    "revisits_coming": { "title": "Riprese di contatto in arrivo" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Tesi di investimento e focus", "sections": ["Fase, settore e dimensione del ticket", "Dove non investiamo"] },
+    "stage_criteria": { "title": "Criteri per fase", "sections": ["Che cosa fa avanzare un'operazione alla fase successiva", "Chi decide in comitato"] },
+    "pass_notes": { "title": "Rifiuti e regole di ripresa del contatto", "sections": ["Come rifiutiamo", "Quando riguardiamo"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Inviare un messaggio con i prossimi passi dopo un primo incontro" },
+    "stale_screening": { "title": "Rilanciare o rifiutare un'operazione ferma da 14 giorni in valutazione" },
+    "pass_note": { "title": "Inviare un rifiuto quando un'operazione viene rifiutata" },
+    "revisit_deal": { "title": "Riprendere un'operazione rifiutata alla data di ripresa" },
+    "diligence_checklist": { "title": "Avviare la checklist di due diligence quando è concordato un term sheet" },
+    "first_check_in_after_close": { "title": "Fare un ricontatto 30 giorni dopo il closing" },
+    "intro_nudge": { "title": "Sollecitare l'introduttore una settimana dopo l'introduzione richiesta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni operazione ha una delle otto fasi.",
+    "pass_reason_field": "Ogni operazione registra perché è stata rifiutata.",
+    "board_view": "Le operazioni si aprono come board per fase."
+  },
+  "page": {
+    "metaTitle": "CRM per investitori: modello di dealflow con rifiuti datati",
+    "metaDescription": "Un CRM per il tuo dealflow: chi ti ha presentato un’operazione, perché hai detto no e quando riguardarla. Incolla il modello nel tuo agente IA.",
+    "headline": "Un CRM per investitori che ricorda chi ha presentato un’operazione e quando riguardarla, costruito dal tuo agente IA",
+    "answer": "Il dealflow è un imbuto che scarta quasi tutto, quindi il valore sta nella relazione che lo circonda: chi ha presentato una startup, perché hai detto no e quando riguardarla. Incolla questo modello nel tuo agente IA e lui costruisce in Customermates un elenco di operazioni in otto fasi, dall’individuazione al closing o al rifiuto, con startup, investitori e solleciti con data. Approvi tu il piano prima che venga costruito qualcosa.",
+    "routine": {
+      "title": "La revisione settimanale della pipeline",
+      "steps": [
+        "Apri la bacheca delle operazioni e annota che cosa è nuovo questa settimana e che cosa si è mosso.",
+        "Guarda le operazioni ferme in valutazione da 14 giorni e decidi: riprendere il contatto o rifiutare.",
+        "Per ogni rifiuto annota il motivo e una data di ripresa e invia una nota di rifiuto quando è opportuno.",
+        "Dopo un primo incontro invia un seguito con i prossimi passi e, quando un term sheet è concordato, avvia la checklist della due diligence.",
+        "Ringrazia chi ha introdotto le nuove operazioni e sollecita ogni introduzione richiesta una settimana fa che non è avvenuta.",
+        "Guarda le operazioni rifiutate la cui data di ripresa è arrivata e riesaminale con il contesto di prima."
+      ]
+    },
+    "limits": [
+      "Non ci sono punteggi di relazione né arricchimento delle aziende. Su Customermates Cloud con il piano Pro o superiore le e-mail con l’indirizzo nei contatti di un record compaiono su quel record e da lì si possono pianificare riunioni nel tuo calendario; un agente lavora tramite MCP.",
+      "Non è un portale per i soci accomandanti (LP), una cap table o una contabilità di fondo. Strumenti come Carta o Dynamo fanno questi lavori.",
+      "Non è una banca dati di operazioni né una fonte di dati di mercato come PitchBook, Dealroom o Crunchbase.",
+      "Non è una data room né uno strumento di firma elettronica. Collega invece la tua data room, per esempio DocSend o Papermark.",
+      "Non redige documenti legali e non decide su KYC, antiriciclaggio o controllo degli investimenti esteri. Spettano a consulenti e compliance; il modello conserva date e link."
+    ],
+    "faq": [
+      {
+        "question": "Quali fasi ha un dealflow?",
+        "answer": "I professionisti concordano su sette fasi: sourcing, screening, primo incontro, due diligence, comitato investimenti, term sheet e closing. Il modello usa otto fasi: Individuata, Valutazione, Primo incontro, Comitato investimenti, Due diligence, Term sheet, Closing e Rifiutata. Gli investitori finanziano meno dell’1% delle aziende che vedono."
+      },
+      {
+        "question": "Perché annotare il motivo di un rifiuto?",
+        "answer": "Un rifiuto motivato permette di riguardare l’azienda più avanti con il contesto. Il modello registra un motivo del rifiuto e una data di ripresa su ogni operazione e crea un’attività di riesame alla data. Senza quella traccia la stessa operazione viene valutata da zero la volta dopo."
+      },
+      {
+        "question": "Un fondatore può usarlo per seguire gli investitori?",
+        "answer": "La struttura va bene: un’operazione per ogni conversazione con un investitore. Segui ogni investitore come persona, non solo il fondo, e aggiorna quelli interessati ogni quattro-sei settimane o ogni mese. I campi sono scritti dal punto di vista di un investitore: chiedi al tuo agente di rinominare quelli che non vanno, come Il nostro ruolo e Aderenza alla tesi."
+      },
+      {
+        "question": "Quando passare ad Affinity o ad Attio?",
+        "answer": "Quando ti servono un punteggio di relazione, la classifica dei percorsi di introduzione, l’arricchimento o i report per gli LP. Le conversazioni e-mail compaiono già sul record con l’indirizzo corrispondente (Customermates Cloud, piano Pro o superiore), ma nulla valuta le relazioni né classifica i percorsi. Per un piccolo fondo o un business angel che lavora con un elenco e una revisione settimanale questo modello basta."
+      },
+      {
+        "question": "L’agente scrive a startup o investitori?",
+        "answer": "No. Il prompt chiede all’agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi tu, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Valuto molte startup e dimentico chi me le ha presentate, perché le ho scartate e quando volevo riguardarle. Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
+    "questions": [
+      "In quali fasi e settori investi e qual è la dimensione abituale del ticket?",
+      "Come ti arrivano le operazioni e chi le introduce?",
+      "Chi decide a ogni fase e quando rifiuti?",
+      "Dove tieni i documenti legali e la data room? Qui si conserva solo un link."
+    ]
+  }
+}

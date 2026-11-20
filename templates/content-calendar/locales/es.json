@@ -1,0 +1,211 @@
+{
+  "locale": "es",
+  "name": "Calendario editorial",
+  "summary": "Ten claro qué se publica esta semana y quién lo está frenando. Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+  "description": "Las publicaciones, las newsletters y los vídeos se retrasan cuando los planes están en documentos distintos y nadie sabe quién revisa qué. Esta plantilla prepara un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Encaja con creadores de contenido, responsables de marketing en empresas y agencias. Planifica y hace seguimiento, pero no publica.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Autores, editores, revisores, aprobadores e invitados." },
+    "pieces": { "label": "Pieza", "pluralLabel": "Piezas", "description": "Una pieza de contenido de la idea a la publicación." },
+    "campaigns": { "label": "Campaña", "pluralLabel": "Campañas", "description": "Un tema que agrupa varias piezas." },
+    "key_dates": { "label": "Fecha clave", "pluralLabel": "Fechas clave", "description": "Festivos, eventos y lanzamientos en torno a los que planificar." }
+  },
+  "fields": {
+    "pieces.stage": {
+      "label": "Estado",
+      "options": { "idea": "Idea", "drafting": "Redacción", "in_review": "En revisión", "approved": "Aprobado", "scheduled": "Programado", "published": "Publicado", "killed": "Descartado" }
+    },
+    "campaigns.status": {
+      "label": "Estado",
+      "options": { "planned": "Planificada", "running": "En marcha", "done": "Terminada", "dropped": "Abandonada" }
+    },
+    "people.person_role": {
+      "label": "Función",
+      "options": { "author": "Autor", "editor": "Editor", "reviewer": "Revisor", "approver": "Aprobador", "client_contact": "Contacto del cliente", "guest": "Invitado o entrevistado" }
+    },
+    "people.profile_url": { "label": "Enlace del perfil" },
+    "pieces.owner": { "label": "Responsable" },
+    "pieces.reviewer": { "label": "Revisor" },
+    "pieces.format": {
+      "label": "Formato",
+      "options": {
+        "blog_post": "Artículo de blog",
+        "newsletter": "Newsletter",
+        "short_video": "Vídeo corto",
+        "long_video": "Vídeo largo",
+        "carousel": "Carrusel",
+        "image_post": "Publicación con imagen",
+        "text_post": "Publicación de texto",
+        "podcast": "Episodio de pódcast",
+        "webinar": "Webinar",
+        "case_study": "Caso de éxito"
+      }
+    },
+    "pieces.pillar": {
+      "label": "Pilar de contenido",
+      "options": { "educate": "Educar", "prove": "Demostrar", "product": "Producto", "community": "Comunidad", "behind_the_scenes": "Entre bastidores" }
+    },
+    "pieces.channels": {
+      "label": "Canales",
+      "options": {
+        "blog": "Blog",
+        "newsletter": "Newsletter",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "podcast": "Pódcast",
+        "other": "Otro"
+      }
+    },
+    "pieces.brief_url": { "label": "Enlace del briefing" },
+    "pieces.draft_url": { "label": "Enlace del borrador" },
+    "pieces.target_keyword": { "label": "Palabra clave objetivo" },
+    "pieces.call_to_action": { "label": "Llamada a la acción" },
+    "pieces.draft_due": { "label": "Borrador para el" },
+    "pieces.review_due": { "label": "Revisión para el" },
+    "pieces.publish_at": { "label": "Publicación el" },
+    "pieces.ad_disclosure": {
+      "label": "Identificación de la publicidad",
+      "options": { "none": "Ninguno", "paid_partnership": "Colaboración pagada o publicidad", "gifted_product": "Producto regalado", "affiliate_link": "Enlace de afiliado" }
+    },
+    "pieces.disclosure_checked": { "label": "Identificación comprobada" },
+    "pieces.published_url": { "label": "Enlace de la pieza publicada" },
+    "pieces.published_on": { "label": "Publicado el" },
+    "pieces.reach": { "label": "Alcance" },
+    "pieces.engagements": { "label": "Interacciones" },
+    "pieces.clicks": { "label": "Clics" },
+    "pieces.killed_reason": {
+      "label": "Motivo del descarte",
+      "options": { "off_topic": "Fuera de tema", "duplicate": "Duplicada", "no_owner": "Sin responsable", "stale": "Obsoleta", "replaced": "Sustituida", "client_declined": "Rechazada por el cliente" }
+    },
+    "campaigns.goal": { "label": "Objetivo" },
+    "campaigns.start_date": { "label": "Inicio" },
+    "campaigns.end_date": { "label": "Fin" },
+    "campaigns.budget": { "label": "Presupuesto" },
+    "campaigns.owner": { "label": "Responsable" },
+    "key_dates.date": { "label": "Fecha" },
+    "key_dates.date_type": {
+      "label": "Tipo",
+      "options": { "holiday": "Festivo", "industry_event": "Evento del sector", "product_launch": "Lanzamiento de producto", "awareness_day": "Día temático", "own_event": "Evento propio", "deadline": "Fecha límite" }
+    },
+    "key_dates.idea_note": { "label": "Idea de contenido" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "write_brief": "Escribir el briefing",
+        "draft": "Redacción",
+        "review": "Revisión",
+        "revise": "Corrección",
+        "approve": "Aprobación",
+        "schedule": "Programación",
+        "publish": "Publicación",
+        "measure": "Medición",
+        "plan": "Planificación",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "piece_campaign": { "sourceLabel": "Campaña", "targetLabel": "Piezas" },
+    "piece_author": { "sourceLabel": "Autor", "targetLabel": "Piezas" },
+    "action_piece": { "sourceLabel": "Pieza", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "pieces_all": { "name": "Todas las piezas" },
+    "pieces_board": { "name": "Piezas por estado" },
+    "in_review_pieces": { "name": "En revisión" },
+    "campaigns_all": { "name": "Todas las campañas" },
+    "key_dates_all": { "name": "Fechas clave" },
+    "people_all": { "name": "Todas las personas" }
+  },
+  "widgets": {
+    "publishing_calendar": { "title": "Calendario de publicación" },
+    "pieces_by_stage": { "title": "Piezas por estado" },
+    "open_pieces_by_owner": { "title": "Piezas abiertas por responsable" },
+    "pieces_by_pillar": { "title": "Piezas por pilar" },
+    "published_per_month": { "title": "Publicadas por mes" },
+    "reach_by_pillar": { "title": "Alcance por pilar" },
+    "key_dates_coming": { "title": "Próximas fechas clave" }
+  },
+  "knowledgePages": {
+    "content_pillars": { "title": "Pilares de contenido y reparto", "sections": ["Los pilares y el peso de cada uno", "Qué corresponde a cada pilar"] },
+    "editorial_rhythm": { "title": "Ritmo de publicación y reunión editorial semanal", "sections": ["Huecos por canal", "Publicado, en riesgo, bloqueado", "Estados y quién los cambia"] },
+    "review_and_approval": { "title": "Plazos de revisión y aprobación", "sections": ["Quién revisa y en cuántos días", "Aprobación del cliente cuando haga falta"] },
+    "disclosure_checklist": { "title": "Lista de identificación de publicidad y colaboraciones", "sections": ["Cuándo una publicación debe identificarse como publicidad", "Redacción y colocación", "Comprobación antes de publicar"] }
+  },
+  "rules": {
+    "review_task": { "title": "Crear una tarea de revisión cuando una pieza pasa a revisión" },
+    "schedule_task": { "title": "Crear una tarea de programación cuando una pieza se aprueba" },
+    "at_risk_before_publish": { "title": "Avisar de una pieza que sigue en borrador tres días antes de publicarse" },
+    "measure_after_30_days": { "title": "Crear un repaso de resultados cuando una pieza se publica" },
+    "stale_piece": { "title": "Revisar una pieza parada 14 días en redacción o revisión" },
+    "weekly_editorial_prep": { "title": "Preparar cada lunes la reunión editorial" },
+    "plan_for_key_date": { "title": "Planificar contenido tres semanas antes de una fecha clave" },
+    "idea_form_piece": { "title": "Crear una pieza a partir de una idea enviada por formulario" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada pieza tiene uno de los siete estados.",
+    "publish_field": "Cada pieza tiene fecha y hora de publicación.",
+    "calendar_widget": "El panel muestra el calendario de publicación."
+  },
+  "page": {
+    "metaTitle": "Calendario editorial: plantilla de contenidos para tu CRM",
+    "metaDescription": "Calendario editorial que tu agente de IA crea en tu CRM: responsable, revisor y fecha por pieza, más campañas, fechas clave y una reunión editorial semanal.",
+    "headline": "Un calendario editorial que muestra quién frena qué, creado por tu agente de IA en tu CRM",
+    "answer": "Un calendario editorial lista cada publicación, boletín y vídeo con estado, responsable, revisor y fecha de publicación, para que veas qué sale esta semana. Pega esta plantilla en tu agente de IA y él construye el calendario en Customermates, con campañas, fechas clave, una comprobación de publicidad y una reunión editorial semanal. Planifica y hace seguimiento, pero no publica. Tú apruebas el plan antes de que se cree nada.",
+    "routine": {
+      "title": "La reunión editorial semanal de 15 minutos",
+      "steps": [
+        "Repasa lo que salió la semana pasada y anota el enlace de la publicación.",
+        "Mira qué vence en los próximos 7 días sin estar aprobado ni programado: aplázalo, recórtalo o acelera.",
+        "Para cada pieza bloqueada, nombra quién puede desbloquearla y para cuándo. Una pieza sin movimiento desde hace 14 días se desbloquea o se descarta.",
+        "A principio de mes planifica el siguiente: llena los huecos al 70-85 % de la capacidad y ten dos o tres piezas de reserva."
+      ]
+    },
+    "limits": [
+      "Planifica y hace seguimiento, pero no publica ni programa publicaciones. Eso lo hacen tu herramienta de publicación o tu CMS, que también dan las estadísticas; la plantilla nunca publica por sí sola.",
+      "No recoge estadísticas. Alcance, interacciones y clics se escriben o se importan, y no hay acortador de enlaces ni generador de UTM.",
+      "No es una herramienta de diseño ni una biblioteca de recursos. Imágenes y vídeos se quedan en tu herramienta de diseño y el calendario guarda el enlace.",
+      "La aprobación es una decisión registrada, no una validación legal ni una pista de auditoría para contenido regulado. Los sectores regulados mantienen su propio sistema de cumplimiento.",
+      "Deja fuera textos confidenciales sin publicar, material bajo embargo, datos de contacto del público y contraseñas de cuentas sociales.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe incluir un calendario editorial?",
+        "answer": "Diez columnas hacen casi todo el trabajo: fecha de publicación, estado, título, canal, formato, responsable, enlace al briefing, URL publicada, pilar o campaña y resultado a los 30 días. Añade un revisor y una fecha de revisión cuando participe más de una persona."
+      },
+      {
+        "question": "¿Con cuánta antelación debo planificar?",
+        "answer": "Planifica 2 a 4 semanas al detalle, deja el mes y el trimestre en líneas generales y reúnete 15 minutos cada semana. La guía alemana de HubSpot habla de un horizonte móvil de dos a cuatro semanas y de una reunión editorial semanal para los 7 a 14 días siguientes."
+      },
+      {
+        "question": "¿Debo señalar el contenido patrocinado o regalado?",
+        "answer": "Normalmente sí. Las reglas varían según el país y en España también hay normas sobre el contenido de pago de los influencers, así que verifica los detalles de tu caso. A modo de ejemplo, la autoridad estadounidense FTC espera que el aviso vaya junto a la publicación, con palabras claras como ad o patrocinado, sin esconderlo entre hashtags y, en vídeo, tanto en audio como en texto. La plantilla tiene un campo de aviso y un paso de revisión. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Hoja de cálculo o CRM para el calendario editorial?",
+        "answer": "Una hoja de cálculo basta para una persona y un canal. Cuando hay que enlazar personas, marcas y campañas, una revisión tiene plazo y una pieza publicada debe generar una tarea, un CRM lo guarda como registros en lugar de columnas. La plantilla lo hace y deja la publicación a tu herramienta de publicación."
+      },
+      {
+        "question": "¿Cuántas piezas puede llevar una persona a la vez?",
+        "answer": "Rework sugiere un tope de seis por persona (dos en redacción, dos en revisión, dos programadas) y una regla de descarte para lo que no se haya movido en 14 días. Bitrix24 usa tres para un redactor, cinco para un editor y seis para un responsable. La plantilla deja el tope como regla de la reunión semanal, no como límite del sistema."
+      },
+      {
+        "question": "¿Puede publicar el agente por mí?",
+        "answer": "No. La plantilla planifica y hace seguimiento; publica tu herramienta de publicación o tu CMS. El prompt indica al agente que no cree datos de ejemplo."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Nuestras publicaciones, newsletters y vídeos salen tarde porque no veo quién revisa qué ni cuándo sale cada cosa. Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
+    "questions": [
+      "¿Qué publicas, en qué canales y con qué frecuencia?",
+      "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",
+      "¿Qué pilares de contenido usas y cuáles de los siete estados necesitas?",
+      "¿Qué herramienta publica el contenido? Se queda allí y aquí solo se guardan el enlace y la fecha."
+    ]
+  }
+}

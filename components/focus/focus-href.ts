@@ -38,7 +38,7 @@ export function focusHref(target: FocusTarget & { typeId?: string }): string {
   if (target.kind === "field") return `/configure?typeId=${target.typeId}&tab=fields&${focus}`;
   if (target.kind === "option") return `/configure?typeId=${target.typeId}&tab=fields&${focus}`;
   if (target.kind === "relationship") return `/configure?typeId=${target.typeId}&tab=relationships&${focus}`;
-  if (target.kind === "routine") return `/routines?${focus}`;
+  if (target.kind === "routine") return `/automations?${focus}`;
   if (target.kind === "webhook") return `${settingsHref("webhooks")}?${focus}`;
   if (target.kind === "widget") return `/dashboard?${focus}`;
   if (target.kind === "view") return `/records/${target.typeId}?view=${target.id}&${focus}`;

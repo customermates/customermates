@@ -1,0 +1,159 @@
+{
+  "locale": "nl",
+  "name": "Klantenpijplijn voor bureaus",
+  "summary": "Win klanten voor je bureau en houd ze langer dan het eerste project. Kansen lopen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers krijgen een verlengingsdatum en een kwartaalgesprek.",
+  "description": "Bureaus winnen een klant en worden later overvallen door de verlengingsdatum of opzegtermijn van de retainer, omdat pitches en lopend werk op verschillende plekken staan. Dit sjabloon zet kansen op via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en lopende opdrachten voor de retainers en projecten die volgen, met maandelijkse fee, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten leg je vast als de klant ze noemt, nooit geraden, en inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de werkruimte. Voor marketing-, communicatie-, creatieve en digitale bureaus; projectmanagement, urenregistratie, facturering en rapportage blijven in je eigen tools.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Beslissers, marketingleiders, inkoop en dagelijkse contactpersonen." },
+    "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Prospects, klanten, voormalige klanten en partners." },
+    "opportunities": { "label": "Kans", "pluralLabel": "Kansen", "description": "Een mogelijke opdracht, van eerste gesprek tot gewonnen of verloren." },
+    "engagements": { "label": "Lopende opdracht", "pluralLabel": "Lopende opdrachten", "description": "Een lopende retainer of lopend project met fee, verlengingsdatum, opzegtermijn en stoplicht." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rol", "options": { "decision_maker": "Beslisser", "marketing_lead": "Marketingleider", "procurement": "Inkoop", "day_to_day": "Dagelijks contact", "referrer": "Doorverwijzer" } },
+    "contacts.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "phone": "Telefoon", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack of chat" } },
+    "clients.relationship": { "label": "Relatie", "options": { "prospect": "Prospect", "client": "Klant", "former_client": "Voormalige klant", "partner": "Partner" } },
+    "clients.website": { "label": "Website" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "prospect": "Kennismaking", "conversation": "Gesprek", "qualified": "Gekwalificeerd", "brief_or_pitch": "Briefing of pitch", "proposal_sent": "Offerte verstuurd", "negotiation": "Onderhandeling", "won": "Gewonnen", "lost": "Verloren" }
+    },
+    "opportunities.opportunity_type": { "label": "Type", "options": { "retainer": "Retainer", "project": "Project", "audit_or_workshop": "Audit of workshop", "one_off": "Eenmalig" } },
+    "opportunities.services": {
+      "label": "Diensten",
+      "options": { "seo": "SEO", "paid_media": "Betaalde advertenties", "social": "Social media", "content": "Content", "web": "Web", "branding": "Branding", "pr": "PR" }
+    },
+    "opportunities.source": { "label": "Bron", "options": { "referral": "Aanbeveling", "inbound": "Inkomend", "outbound": "Uitgaand", "existing_client": "Bestaande klant", "event": "Evenement", "marketplace": "Platform" } },
+    "opportunities.competitive_pitch": { "label": "Pitch tegen andere bureaus" },
+    "opportunities.pitch_date": { "label": "Pitchdatum" },
+    "opportunities.monthly_fee": { "label": "Maandelijkse fee" },
+    "opportunities.decision_expected": { "label": "Beslissing verwacht" },
+    "opportunities.next_step_due": { "label": "Volgende stap uiterlijk op" },
+    "opportunities.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "chose_other_agency": "Koos een ander bureau", "in_house": "Pakt het intern op", "budget_cut": "Budget gekort", "no_decision": "Geen beslissing", "scope_mismatch": "Omvang past niet", "no_response": "Geen reactie" }
+    },
+    "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Actief", "at_risk": "Loopt risico", "paused": "Gepauzeerd", "ended": "Beëindigd" } },
+    "engagements.health": { "label": "Stoplicht", "options": { "green": "Groen", "amber": "Oranje", "red": "Rood" } },
+    "engagements.start_date": { "label": "Startdatum" },
+    "engagements.renewal_date": { "label": "Verlenging op" },
+    "engagements.notice_days": { "label": "Opzegtermijn (dagen)" },
+    "engagements.monthly_fee": { "label": "Maandelijkse fee" },
+    "engagements.next_qbr_on": { "label": "Volgend kwartaalgesprek" },
+    "engagements.account_manager": { "label": "Accountmanager" },
+    "engagements.ended_reason": {
+      "label": "Waarom het eindigde",
+      "options": { "client_ended": "Klant beëindigde het", "agency_ended": "Bureau beëindigde het", "project_completed": "Project afgerond", "budget": "Budget", "in_house": "Intern overgenomen", "moved_agency": "Naar een ander bureau" }
+    },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "call": "Bellen", "email": "E-mail schrijven", "proposal": "Offerte of pitch voorbereiden", "onboarding": "Onboardingstap", "report": "Rapport", "qbr": "Kwartaalgesprek", "renewal": "Verlenging", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klant", "targetLabel": "Contactpersonen" },
+    "opportunity_client": { "sourceLabel": "Klant", "targetLabel": "Kansen" },
+    "engagement_client": { "sourceLabel": "Klant", "targetLabel": "Lopende opdrachten" },
+    "engagement_opportunity": { "sourceLabel": "Kans", "targetLabel": "Lopende opdrachten" },
+    "action_opportunity": { "sourceLabel": "Kans", "targetLabel": "Acties" },
+    "action_engagement": { "sourceLabel": "Lopende opdracht", "targetLabel": "Acties" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Kansen per fase" },
+    "opportunities_all": { "name": "Alle kansen" },
+    "engagements_all": { "name": "Alle lopende opdrachten" },
+    "at_risk_engagements": { "name": "Lopende opdrachten op oranje en rood" },
+    "clients_all": { "name": "Alle klanten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Kansen per fase" },
+    "recurring_revenue": { "title": "Maandelijks terugkerende omzet" },
+    "pipeline_fees": { "title": "Maandelijkse fees in de pijplijn" },
+    "renewals_coming": { "title": "Komende verlengingen" },
+    "qbrs_coming": { "title": "Komende kwartaalgesprekken" },
+    "health_split": { "title": "Stoplicht van lopende opdrachten" },
+    "pitches_coming": { "title": "Komende pitches" },
+    "lost_reasons": { "title": "Waarom kansen verloren gingen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Hoe de pijplijn van het bureau draait", "sections": ["De fasen en wie er verantwoordelijk voor is", "Kwalificatievragen: doelen, urgentie, budget, beslissers"] },
+    "pitch_go_no_go": { "title": "Checklist: meedoen aan een pitch of niet", "sections": ["Kosten van de pitch, aantal bureaus en pitchvergoeding", "Criteria en wie beslist"] },
+    "onboarding_checklist": { "title": "Onboarding in vijf stappen", "sections": ["Welkom en betaling, materiaal en planning", "Kick-off binnen vijf dagen en het leverproces"] },
+    "renewal_playbook": { "title": "Draaiboek verlenging en kwartaalgesprek", "sections": ["Terugblik met resultaten en uitbreidingsopties", "Opzegvenster en het verlengingsvoorstel"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Maak een contactpersoon en een kans aan als het briefingformulier is ingediend" },
+    "respond_to_brief": { "title": "Beantwoord een nieuwe kans binnen een dag" },
+    "qualify_check": { "title": "Bevestig het budgetbereik en de beslisser 2 dagen na de kwalificatie" },
+    "pitch_go_no_go": { "title": "Besluit of je meedoet op de dag dat een kans briefing of pitch bereikt" },
+    "pitch_rehearsal": { "title": "Stuur de verantwoordelijke 3 dagen voor een pitch een herinnering" },
+    "proposal_follow_up": { "title": "Bel 2 dagen na het versturen van een offerte" },
+    "onboarding_set": { "title": "Start de dag na een gewonnen kans de onboardingstappen" },
+    "lost_feedback": { "title": "Vraag 2 dagen na een verloren kans om feedback" },
+    "renewal_review": { "title": "Beoordeel de verlenging 90 dagen voor het aflopen van een lopende opdracht" },
+    "renewal_notice": { "title": "Laat de verantwoordelijke 45 dagen voor verlenging bevestigen wat de klant van plan is" },
+    "qbr_due": { "title": "Bereid het kwartaalgesprek voor op de afgesproken datum" },
+    "health_red": { "title": "Waarschuw de teamleider als een lopende opdracht op rood springt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke kans heeft een fase.",
+    "renewal_date_field": "Elke lopende opdracht legt de verlengingsdatum vast.",
+    "notice_days_field": "Elke lopende opdracht legt de opzegtermijn vast.",
+    "opportunities_board_view": "De kansen openen als bord per fase."
+  },
+  "page": {
+    "metaTitle": "Klantenpijplijn voor bureaus: pitches en retainers",
+    "metaDescription": "Plak deze klantenpijplijn voor bureaus in Claude, ChatGPT of Codex: pitchbeslissing, onboarding in vijf stappen en retainers met verlengingsdatum.",
+    "headline": "Win klanten en zie elke verlenging aankomen: een bureaupijplijn die je AI-agent opbouwt",
+    "answer": "Een klantenpijplijn voor bureaus houdt twee dingen op één plek bij: nieuwe klanten, van eerste gesprek tot getekende opdracht, en de retainers en projecten die daarna volgen, elk met een verlengingsdatum en een kwartaalgesprek. Plak dit sjabloon in je AI-agent en die bouwt beide op in Customermates, met een pitchbeslissing, een onboarding in vijf stappen na een gewonnen kans en een opzegtermijn bij elke lopende opdracht. Jij keurt het plan goed voordat er iets wordt gebouwd.",
+    "routine": {
+      "title": "De wekelijkse bureauronde",
+      "steps": [
+        "Open elke kans zonder volgende stap en voeg er een toe met een datum, of sluit de kans af.",
+        "Beslis bij elke nieuwe briefing of pitchuitnodiging over go of no-go: wat de pitch kost, hoeveel bureaus meedoen en wie pitcht en wie uitvoert.",
+        "Controleer de opdrachten die de komende 90 dagen worden verlengd en de opzegdata die de komende weken verstrijken.",
+        "Kijk naar retainers zonder contact in de afgelopen 30 dagen en naar opdrachten waarvan het stoplicht op rood staat, en plan het contactmoment of het gesprek met de partner."
+      ]
+    },
+    "limits": [
+      "Het is geen bureausoftware voor projecten, urenregistratie, capaciteitsplanning of facturering. Die blijven in je eigen tools; hier staat de verkoop- en retainerlaag ernaast.",
+      "Het is geen klantenportaal of goedkeuringsproces en het rapporteert niet over campagneresultaten.",
+      "Bewaar nooit inloggegevens van klanten, merkmateriaal of toegang tot advertentieaccounts in de werkruimte. Bewaar ze in een wachtwoordmanager en in je eigen bestandsbibliotheek.",
+      "Het schrijft geen voorstellen en verzamelt geen e-handtekeningen. Voorstellen en contracten staan in je documenttool en worden aan de kans gekoppeld.",
+      "Het is geen tool voor outreach of sequenties. Elke opvolging is een actie met datum en een concept dat je zelf nakijkt en verstuurt.",
+      "Een budget leg je alleen vast als de klant het noemt, en er is geen standaard opzegtermijn: je vult de termijn uit elk contract in."
+    ],
+    "faq": [
+      {
+        "question": "Wat is het verschil tussen een bureaupijplijn en een gewone sales pipeline?",
+        "answer": "Een bureau heeft minder, maar grotere kansen met meerdere betrokkenen en lange beslissingen, en het grootste deel van de omzet komt van klanten die blijven en groeien. Daarom voegt dit sjabloon een pitchbeslissing toe, een onboarding in vijf stappen na een gewonnen kans en lopende opdrachten met een verlengingsdatum, in plaats van bij gewonnen te stoppen."
+      },
+      {
+        "question": "Moet een bureau aan elke pitch meedoen?",
+        "answer": "Nee. Een pitch kost veel tijd en geld, dus adviseurs raden aan eerst te kijken of hij nodig is: is er een duidelijke briefing met een budgetrange, hoeveel bureaus doen mee, is er een pitchvergoeding en wie pitcht en wie voert uit. Het sjabloon vraagt om die beslissing op de dag dat een kans de fase briefing of pitch bereikt."
+      },
+      {
+        "question": "Hoe lang moet de opzegtermijn van een retainer zijn?",
+        "answer": "Geen enkele wet geeft één antwoord. Gebruikelijk is 30 dagen schriftelijk, en een automatische verlenging met 90 dagen opzegtermijn is gunstig voor het bureau. Het sjabloon legt de opzegtermijn per lopende opdracht vast en gaat van geen enkele uit. Het maakt 90 dagen voor de verlenging een beoordeling aan en 45 dagen ervoor een herinnering om de bedoeling van de klant te bevestigen."
+      },
+      {
+        "question": "Wat gebeurt er na een gewonnen kans?",
+        "answer": "Een gewonnen kans start een onboarding in vijf stappen: welkom en bevestiging van de kickoff, materiaal verzamelen, planning, kickoff en het werkproces voor oplevering. Veel bureaus koppelen de kickoff aan de betaling. Daarna loopt de klant verder als lopende opdracht met verlengingsdatum en kwartaalgesprek."
+      },
+      {
+        "question": "Neemt de agent contact op met mijn klanten of prospects?",
+        "answer": "Nee. De prompt zegt dat de agent niets verstuurt en geen voorbeeldgegevens aanmaakt. Concepten bestaan alleen als je erom vraagt en je verstuurt ze zelf."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "We winnen nieuwe klanten, maar verliezen het overzicht over lopende pitches en over de datum waarop retainers worden verlengd. Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
+    "questions": [
+      "Welke diensten verkoop je en werk je met retainers, projecten of beide?",
+      "Hoe beslis je of je meedoet aan een pitch tegen andere bureaus?",
+      "Wat is de gebruikelijke opzegtermijn en looptijd van het contract?",
+      "Hoe vaak bespreek je resultaten met een klant?"
+    ]
+  }
+}

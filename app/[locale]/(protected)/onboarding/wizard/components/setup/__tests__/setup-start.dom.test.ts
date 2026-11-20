@@ -49,12 +49,10 @@ beforeEach(() => {
   root = createRoot(container);
   harness.start.mockResolvedValue({ ok: true, data: { setupId: "x" } });
   harness.status.mockResolvedValue({ ok: true, data: { available: true, setup: null } });
-  const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
+  const wizard = { isSubmitting: false, completeSetupStep: harness.completeSetupStep, selectedTemplate: null };
+  const store = new WorkspaceSetupStore({ localeStore: { locale: "en" }, onboardingWizardStore: wizard } as never);
   store.hydrate({ available: true, setup: null });
-  harness.rootStore = {
-    workspaceSetupStore: store,
-    onboardingWizardStore: { isSubmitting: false, completeSetupStep: harness.completeSetupStep },
-  };
+  harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
 });
 
 afterEach(() => {

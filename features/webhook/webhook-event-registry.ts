@@ -1,3 +1,4 @@
+import { EXTERNAL_TRIGGER_EVENTS } from "@/features/event/external-trigger-events";
 import { RECORD_EVENT_KINDS } from "@/features/records/record-event.schema";
 
 export const WEBHOOK_RECORD_EVENTS = RECORD_EVENT_KINDS;
@@ -16,8 +17,18 @@ export const WEBHOOK_MESSAGING_EVENTS = [
   "messaging.relation.created",
 ] as const;
 
-export const WEBHOOK_EVENTS = [...WEBHOOK_RECORD_EVENTS, ...WEBHOOK_MESSAGING_EVENTS] as const;
+export const WEBHOOK_EXTERNAL_EVENTS = EXTERNAL_TRIGGER_EVENTS;
+
+export const WEBHOOK_AUTOMATION_EVENTS = ["automation.rule.fired"] as const;
+
+export const WEBHOOK_EVENTS = [
+  ...WEBHOOK_RECORD_EVENTS,
+  ...WEBHOOK_MESSAGING_EVENTS,
+  ...WEBHOOK_EXTERNAL_EVENTS,
+  ...WEBHOOK_AUTOMATION_EVENTS,
+] as const;
 
 export const WEBHOOK_EVENT_COUNT = WEBHOOK_EVENTS.length;
 export const WEBHOOK_MESSAGING_EVENT_COUNT = WEBHOOK_MESSAGING_EVENTS.length;
 export const WEBHOOK_RECORD_EVENT_COUNT = WEBHOOK_RECORD_EVENTS.length;
+export const WEBHOOK_OTHER_EVENT_COUNT = WEBHOOK_EXTERNAL_EVENTS.length + WEBHOOK_AUTOMATION_EVENTS.length;

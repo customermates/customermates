@@ -55,6 +55,8 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       selectedJob: null,
       signupJob: "followup",
       signupLandingPath: "/en/consultants",
+      discoveryResolved: false,
+      teamSize: null,
     });
   });
 
@@ -95,6 +97,8 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       selectedJob: "workspace",
       signupJob: "followup",
       signupLandingPath: "/en/consultants",
+      discoveryResolved: false,
+      teamSize: null,
     });
   });
 
@@ -103,6 +107,8 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       selectedJob: null,
       signupJob: null,
       signupLandingPath: null,
+      discoveryResolved: false,
+      teamSize: null,
     });
     await runWithTenant(tenant(otherCompanyId), () =>
       repo.recordFunnelEvent({ type: "agentConnected", occurredAt: new Date() }),
@@ -111,5 +117,47 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       "agentConnected",
     ]);
     expect(rows.rows).toEqual([{ companyId: otherCompanyId, job: null }]);
+  });
+
+  it("stores the discovery answer once and treats the question as resolved for the same login's other workspaces", async () => {
+    const companies = new PrismaCompanyRepo(new PrismaBillingUsageRepo());
+    const loginId = randomUUID();
+    await client.query('UPDATE "Company" SET "createdByAuthUserId"=$1 WHERE "id" IN ($2, $3)', [
+      loginId,
+      companyId,
+      otherCompanyId,
+    ]);
+    const owner = tenant();
+
+    await expect(
+      runWithTenant(owner, () =>
+        companies.recordDiscoveryAnswer({ userId: owner.id, choice: "other", detail: "a podcast" }),
+      ),
+    ).resolves.toBe(true);
+    await expect(
+      runWithTenant(owner, () =>
+        companies.recordDiscoveryAnswer({ userId: owner.id, choice: "searchEngine", detail: null }),
+      ),
+    ).resolves.toBe(false);
+
+    const stored = await client.query(
+      'SELECT "discoveryChoice", "discoveryDetail", "discoveryUserId" FROM "Company" WHERE "id"=$1',
+      [companyId],
+    );
+    expect(stored.rows).toEqual([
+      { discoveryChoice: "other", discoveryDetail: "a podcast", discoveryUserId: owner.id },
+    ]);
+    await expect(runWithTenant(owner, () => repo.findOnboardingJobChoice())).resolves.toMatchObject({
+      discoveryResolved: true,
+    });
+    await expect(runWithTenant(tenant(otherCompanyId), () => repo.findOnboardingJobChoice())).resolves.toMatchObject({
+      discoveryResolved: true,
+    });
+
+    await client.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE "id"=$1', [otherCompanyId]);
+    await expect(runWithTenant(tenant(otherCompanyId), () => repo.findOnboardingJobChoice())).resolves.toMatchObject({
+      discoveryResolved: false,
+      teamSize: null,
+    });
   });
 });

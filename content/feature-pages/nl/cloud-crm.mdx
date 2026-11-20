@@ -22,7 +22,7 @@ acquisition:
       - product:managed-cloud-region-and-security
       - product:cloud-plan-catalog
       - product:hosted-mate-capability
-      - product:agpl-community-core
+      - product:source-available-community-core
       - product:docker-postgresql-deployment
       - product:self-hosted-starter-entitlements
     excludedClaims:
@@ -47,8 +47,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Een cloud CRM die ervoor zorgt dat je elke klant opvolgt"
-      body: "In Customermates Cloud staan vanaf Pro de LinkedIn- en e-mailgesprekken bij het record van elke klant en stelt Mate de antwoorden op die jij nakijkt. Clouddatabase in Frankfurt, AGPL-kern die je zelf kunt hosten."
-      checksum: fnv1a-45e73504
+      body: "In Customermates Cloud staan vanaf Pro de LinkedIn- en e-mailgesprekken bij het record van elke klant en stelt Mate de antwoorden op die jij nakijkt. Clouddatabase in Frankfurt, source-available code die je zelf kunt hosten."
+      checksum: fnv1a-f5ee0891
     kind: none
     reason: "De vroege, openlijk getoonde dashboarddemo levert direct productbewijs; een extra illustratie in de hero is overbodig."
     selection: explicit
@@ -85,13 +85,13 @@ sections:
       - title: "Cloud of self-hosted"
         description: "De cloud neemt het beheerwerk weg en geeft een deel van de controle op. Self-hosting houdt servers en gegevens in je eigen hand en voegt het beheerwerk toe."
       - title: "Customermates"
-        description: "Beheerde cloud met maandelijkse abonnementen per gebruiker, of de open-sourcekern op je eigen servers met de Starter-functieset: geen inbox, geen gekoppelde agenda, geen gehoste Mate."
+        description: "Beheerde cloud met maandelijkse abonnementen per gebruiker, of de Community Edition (source-available) op je eigen servers met de Starter-functieset: geen inbox, geen gekoppelde agenda, geen gehoste Mate."
       - title: "Voordat je koopt"
         description: "Controleer de gegevenslocatie en de verwerkersovereenkomst, de exportformaten, de API, de prijs per gebruiker en de toezegging over beschikbaarheid, en test daarna een export met echte records."
 
 hero:
   title: "Een cloud CRM die ervoor zorgt dat je elke klant opvolgt"
-  description: "In Customermates Cloud staan vanaf Pro de LinkedIn- en e-mailgesprekken bij het record van elke klant en stelt Mate de antwoorden op die jij nakijkt. Clouddatabase in Frankfurt, AGPL-kern die je zelf kunt hosten."
+  description: "In Customermates Cloud staan vanaf Pro de LinkedIn- en e-mailgesprekken bij het record van elke klant en stelt Mate de antwoorden op die jij nakijkt. Clouddatabase in Frankfurt, source-available code die je zelf kunt hosten."
   buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Abonnementen vergelijken
@@ -108,7 +108,7 @@ cta:
   hint: "Geen creditcard nodig. Self-hosting beoordeel je apart en gebruikt de Starter-functieset."
 ---
 
-**Cloud CRM software** is CRM in de cloud: klantrelatiesoftware die de leverancier host en beheert, zodat je team haar in een browser gebruikt en zelf niets installeert, patcht of back-upt. Het heet ook cloudgebaseerd CRM, CRM in de cloud, CRM cloud of gehost CRM. Customermates is zo'n beheerd cloud CRM, met een primaire database die in Frankfurt is ingesteld, gebouwd op een open-sourcekern die je ook zelf kunt hosten met Docker.
+**Cloud CRM software** is CRM in de cloud: klantrelatiesoftware die de leverancier host en beheert, zodat je team haar in een browser gebruikt en zelf niets installeert, patcht of back-upt. Het heet ook cloudgebaseerd CRM, CRM in de cloud, CRM cloud of gehost CRM. Customermates is zo'n beheerd cloud CRM, met een primaire database die in Frankfurt is ingesteld, gebouwd op source-available code die je ook zelf kunt hosten met Docker.
 
 **Wat de cloud verandert voor opvolging.** Draait het CRM in de cloud, dan kunnen je LinkedIn- en e-mailgesprekken bij het record van de klant staan en kan Mate vanaf daar het antwoord opstellen. In Customermates Cloud begint dat bij Pro, en de gratis proefperiode duurt [[commercial.trial.days]] dagen op Pro. Een self-hosted kern houdt klantrecords en MCP, maar heeft geen inbox en geen Mate, dus een opgesteld follow-upbericht is een cloudfunctie.
 
@@ -213,7 +213,7 @@ In Customermates kun je een import niet ongedaan maken en is er geen samenvoegfu
 
 ## Waar past Customermates? (ons product)
 
-*Transparantie: Customermates publiceert deze pagina.* Customermates is een open-source, AI-native CRM, gemaakt in Duitsland. Het bestaat in twee vormen die de CRM-kern delen maar niet identiek zijn qua functies: Customermates Cloud, dat Customermates beheert, en de open-sourcekern, die je zelf draait met Docker Compose en PostgreSQL.
+*Transparantie: Customermates publiceert deze pagina.* Customermates is een source-available (fair-code), AI-native CRM, gemaakt in Duitsland. Het bestaat in twee vormen die de CRM-kern delen maar niet identiek zijn qua functies: Customermates Cloud, dat Customermates beheert, en de Community Edition (source-available), die je zelf draait met Docker Compose en PostgreSQL.
 
 ### Customermates Cloud of self-hosted?
 
@@ -294,7 +294,7 @@ Customermates is bewust smal. Kies een ander product, of voeg er een naast toe, 
 - **Voorspellende forecasting, leadscoring of conversieanalyse.** Dashboards, activiteitengeschiedenis, faseskansen en gewogen deal- of pipelinewaarden beschrijven de huidige werkruimte. Het zijn geen voorspellingen.
 - **Een complete ERP-, boekhoud-, voorraad-, helpdesk- of callcentersuite, of een sleutelklare migratie.** Daarvoor heb je andere producten of een bewust ontworpen integratie nodig.
 
-Customermates Cloud past bij teams die een beheerd CRM in de browser willen voor flexibele records en pipelines, liever expliciete interfaces hebben dan een gesloten integratiebelofte, en waarde hechten aan een apart zelf te hosten open-sourcekern.
+Customermates Cloud past bij teams die een beheerd CRM in de browser willen voor flexibele records en pipelines, liever expliciete interfaces hebben dan een gesloten integratiebelofte, en waarde hechten aan een apart zelf te hosten Community Edition.
 
 ## Veelgestelde vragen
 
@@ -354,7 +354,7 @@ Customermates Cloud past bij teams die een beheerd CRM in de browser willen voor
 </FaqItem>
 
 <FaqItem question="Kan ik hetzelfde CRM zelf hosten?">
-  Je kunt de open-sourcekern zelf draaien met Docker Compose en PostgreSQL.
+  Je kunt de Community Edition (source-available) zelf draaien met Docker Compose en PostgreSQL.
   Self-hosting gebruikt de Starter-functieset en sluit de gecombineerde inbox,
   de gekoppelde agenda, de gehoste Mate en gehoste credits uit.
 </FaqItem>

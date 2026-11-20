@@ -1,0 +1,198 @@
+{
+  "locale": "es",
+  "name": "Socios y donantes",
+  "summary": "Un solo registro para saber quiénes son vuestros socios y colaboradores, a quién falta agradecer y quién renueva pronto: membresías con fecha de renovación, donativos con certificado, y grandes donaciones y subvenciones.",
+  "description": "Las asociaciones, los clubes y las parroquias pierden socios y buena voluntad cuando se olvidan las renovaciones y los donativos se quedan sin agradecer, porque las listas están en manos de voluntarios distintos. Esta plantilla prepara colaboradores, membresías con cuota y fecha de renovación, donativos con estado del agradecimiento y del certificado, y un seguimiento de grandes donaciones y subvenciones. Encaja con asociaciones, clubes, entidades sin ánimo de lucro y parroquias que quieren un solo registro en lugar de varios. No emite certificados de donación ni cobra cuotas: os indica cuáles toca hacer.",
+  "lists": {
+    "supporters": { "label": "Colaborador", "pluralLabel": "Colaboradores", "description": "Socios, donantes, voluntarios, invitados y junta directiva." },
+    "memberships": { "label": "Membresía", "pluralLabel": "Membresías", "description": "Una membresía con su cuota y su fecha de renovación." },
+    "gifts": { "label": "Donativo", "pluralLabel": "Donativos", "description": "Cada donativo con su agradecimiento y su certificado." },
+    "gift_opportunities": { "label": "Oportunidad de donación", "pluralLabel": "Oportunidades de donación", "description": "Grandes donaciones, subvenciones y patrocinios en curso." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Estado",
+      "options": { "applied": "Solicitud", "active": "Socio al corriente", "grace_period": "Cuota pendiente", "lapsed": "Caducada", "resigned": "Baja" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Fase",
+      "options": { "identified": "Identificada", "qualified": "Cualificada", "cultivation": "Relación en curso", "ask_made": "Petición hecha", "pledged": "Compromiso recibido", "received": "Recibida", "declined": "Rechazada" }
+    },
+    "supporters.member_number": { "label": "Número de socio" },
+    "supporters.supporter_types": {
+      "label": "Tipo de apoyo",
+      "options": { "member": "Socio", "donor": "Donante", "volunteer": "Voluntario", "guest": "Invitado", "board_member": "Miembro de la junta" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relación",
+      "options": { "prospect": "Potencial", "active": "Activo", "lapsed": "Inactivo", "former": "Antiguo", "do_not_contact": "No contactar" }
+    },
+    "supporters.joined_on": { "label": "Alta el" },
+    "supporters.relationship_owner": { "label": "Responsable" },
+    "supporters.contact_consent": { "label": "Consentimiento de contacto", "options": { "granted": "Concedido", "not_granted": "No concedido", "unknown": "Desconocido" } },
+    "supporters.consent_date": { "label": "Fecha del consentimiento" },
+    "supporters.last_contact_on": { "label": "Último contacto" },
+    "memberships.level": {
+      "label": "Modalidad",
+      "options": { "regular": "General", "reduced": "Reducida", "family": "Familiar", "youth": "Joven", "supporting": "Colaborador", "honorary": "Honorario" }
+    },
+    "memberships.fee": { "label": "Cuota" },
+    "memberships.billing_cycle": {
+      "label": "Periodicidad",
+      "options": { "yearly": "Anual", "quarterly": "Trimestral", "monthly": "Mensual", "one_off": "Única", "none": "Ninguna" }
+    },
+    "memberships.fee_status": {
+      "label": "Estado de la cuota",
+      "options": { "open": "Pendiente", "paid": "Pagada", "reminded": "Reclamada", "overdue": "Vencida", "waived": "Condonada" }
+    },
+    "memberships.mandate_on_file": { "label": "Orden de domiciliación archivada" },
+    "memberships.started_on": { "label": "Inicio el" },
+    "memberships.renewal_due": { "label": "Fecha de renovación" },
+    "memberships.end_reason": {
+      "label": "Motivo de la baja",
+      "options": { "moved_away": "Cambio de residencia", "cost": "Coste", "lost_interest": "Pérdida de interés", "dissatisfied": "Insatisfacción", "unpaid_fees": "Cuotas impagadas", "other": "Otro" }
+    },
+    "gifts.received_on": { "label": "Recibido el" },
+    "gifts.amount": { "label": "Importe" },
+    "gifts.gift_type": {
+      "label": "Tipo de donativo",
+      "options": { "one_off": "Puntual", "recurring": "Recurrente", "pledge_payment": "Pago de un compromiso", "in_kind": "En especie", "legacy": "Legado" }
+    },
+    "gifts.fund": {
+      "label": "Destino",
+      "options": { "unrestricted": "Libre", "restricted_project": "Proyecto concreto", "appeal": "Campaña", "event": "Evento", "in_memory": "En memoria de" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Agradecimiento",
+      "options": { "to_acknowledge": "Por agradecer", "acknowledged": "Agradecido", "not_needed": "No necesario" }
+    },
+    "gifts.receipt_status": {
+      "label": "Certificado de donación",
+      "options": { "not_needed": "No necesario", "to_issue": "Por emitir", "issued": "Emitido", "annual_summary_sent": "Resumen anual enviado" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Tipo",
+      "options": { "major_gift": "Gran donación", "grant": "Subvención", "sponsorship": "Patrocinio de empresa", "legacy": "Legado", "campaign_pledge": "Compromiso de campaña" }
+    },
+    "gift_opportunities.solicitor": { "label": "Solicitado por" },
+    "gift_opportunities.ask_date": { "label": "Fecha de la petición" },
+    "gift_opportunities.decision_on": { "label": "Decisión el" },
+    "gift_opportunities.report_due": { "label": "Informe para el" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "thank_donor": "Agradecer a un donante",
+        "issue_receipt": "Emitir un certificado",
+        "welcome_member": "Dar la bienvenida a un socio",
+        "renewal_notice": "Aviso de renovación",
+        "chase_fee": "Reclamar una cuota",
+        "ask": "Petición",
+        "report_to_funder": "Informar a un financiador",
+        "call_or_visit": "Llamada o visita",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Socio", "targetLabel": "Membresías" },
+    "gift_supporter": { "sourceLabel": "Donante", "targetLabel": "Donativos" },
+    "opportunity_supporter": { "sourceLabel": "Posible donante", "targetLabel": "Oportunidades de donación" },
+    "action_supporter": { "sourceLabel": "Colaborador", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "supporters_all": { "name": "Todos los colaboradores" },
+    "memberships_all": { "name": "Todas las membresías" },
+    "memberships_board": { "name": "Membresías por estado" },
+    "fees_to_chase": { "name": "Cuotas por reclamar" },
+    "gifts_all": { "name": "Todos los donativos" },
+    "receipts_to_issue": { "name": "Certificados por emitir" },
+    "opportunities_board": { "name": "Oportunidades de donación" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Membresías por estado" },
+    "gifts_per_month": { "title": "Donativos por mes" },
+    "gifts_by_fund": { "title": "Donativos por destino" },
+    "open_pipeline_value": { "title": "Grandes donaciones en curso" },
+    "renewals_coming": { "title": "Próximas renovaciones" },
+    "receipts_to_issue_count": { "title": "Certificados por emitir" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Qué contiene el registro y qué queda fuera", "sections": ["Finalidad y base jurídica", "Campos obligatorios y voluntarios", "Consentimiento y conservación"] },
+    "renewals_and_fees": { "title": "Renovaciones y reclamación de cuotas", "sections": ["Aviso a los 60 y a los 30 días", "Periodo de gracia y baja según los estatutos"] },
+    "receipts_and_thanks": { "title": "Agradecimientos y certificados de donación", "sections": ["Agradecer en dos días", "Cuándo cabe un certificado y con qué modelo"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Agradecer al donante cuando se registra un donativo" },
+    "issue_receipt": { "title": "Emitir el certificado cuando un donativo se marca por emitir" },
+    "welcome_member": { "title": "Dar la bienvenida al socio cuando llega una solicitud" },
+    "renewal_notice": { "title": "Enviar un aviso de renovación 60 días antes del vencimiento de una membresía activa" },
+    "renewal_reminder": { "title": "Recordar a un socio con la cuota pendiente 30 días antes de la renovación" },
+    "expiry_notice": { "title": "Reclamar la cuota impagada el día del vencimiento" },
+    "report_to_funder": { "title": "Preparar el informe al financiador dos semanas antes del plazo" },
+    "join_form_records": { "title": "Crear el colaborador y la membresía desde un formulario de alta" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada membresía tiene un estado.",
+    "renewal_field": "Cada membresía tiene una fecha de renovación.",
+    "receipt_field": "Cada donativo muestra si hay que emitir un certificado."
+  },
+  "page": {
+    "metaTitle": "CRM para ONG: socios, donantes y renovaciones",
+    "metaDescription": "CRM para ONG y asociaciones: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta un registro único de socios, donativos y renovaciones.",
+    "headline": "Un CRM para ONG que no olvida ninguna renovación ni agradecimiento: el registro que tu agente de IA monta por ti",
+    "answer": "Un CRM para una ONG o una asociación empieza por un solo registro en lugar de varias listas en manos de voluntarios distintos: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones. Pega esta plantilla en tu agente de IA y él monta el registro en Customermates. Tú apruebas el plan antes de que se construya nada. No cobra cuotas ni emite certificados de donación: te dice cuáles tocan.",
+    "routine": {
+      "title": "La rutina semanal de socios y donativos",
+      "steps": [
+        "Agradece cada donativo nuevo en un plazo de dos días, con una llamada o una nota personal.",
+        "Da la bienvenida a los socios cuya solicitud ha llegado esta semana y envía el aviso de renovación a las membresías que vencen en unos 60 días.",
+        "Recuerda a los socios con la cuota aún pendiente 30 días antes del vencimiento y reclama las cuotas de las membresías vencidas sin pagar.",
+        "Mira los donativos cuyo certificado toca emitir y emítelos con tu herramienta de contabilidad, en el formato oficial de tu país.",
+        "Revisa el seguimiento de grandes donaciones y subvenciones: el siguiente paso de cada una y las fechas de informe que esperan los financiadores."
+      ]
+    },
+    "limits": [
+      "No cobra cuotas, no gestiona domiciliaciones ni lleva la contabilidad. Tu herramienta de contabilidad o de gestión de la entidad lleva el libro; aquí guardas el estado de la cuota, no el dinero.",
+      "No emite certificados de donación. Se hacen en el formato que exige tu administración tributaria, con tu herramienta de contabilidad; el registro solo anota que hay uno por emitir.",
+      "No es una página de donaciones en línea. Los donativos se cobran en una plataforma de pago y tú los registras aquí.",
+      "Para una parroquia cubre el seguimiento de visitantes y miembros, no los quioscos de registro, los turnos, la asistencia ni los extractos de ofrendas. Las notas pastorales, la confesión y los registros de protección no van nunca aquí.",
+      "Deja fuera del registro los datos de salud, los datos de menores, los datos bancarios y todo lo que la afiliación no necesite. Customermates no tiene permisos a nivel de campo.",
+      "No hace estudio de patrimonio de donantes, ni donaciones recurrentes con reintentos de cobro, ni boletines masivos. Es el registro de una entidad pequeña, no una plataforma de inteligencia de donantes."
+    ],
+    "faq": [
+      {
+        "question": "¿Es una cuota de socio un donativo a efectos fiscales?",
+        "answer": "Normalmente no. En Francia una cuota que da acceso a actividades no da derecho a un recibo fiscal; solo un donativo sin contrapartida a una entidad elegible. En Alemania solo las entidades con beneficios fiscales emiten un justificante de donación en el modelo oficial, y las cuotas de la mayoría de los clubes deportivos no son deducibles. Las normas varían según el país: consulta a tu asesor fiscal o a la administración tributaria. El registro lleva el estado del certificado y no emite ninguno."
+      },
+      {
+        "question": "¿Con qué rapidez debo agradecer un donativo?",
+        "answer": "En 48 horas, según el consejo habitual de las guías de captación de fondos, mejor con una llamada o una nota personal. La plantilla crea una tarea de agradecimiento en cuanto se registra un donativo, para que no dependa de la memoria de un único voluntario."
+      },
+      {
+        "question": "¿Cuándo debo recordar a los socios que renueven?",
+        "answer": "Las guías para asociaciones sugieren varios contactos antes de la fecha, a menudo desde unos 90 días hasta el propio día, y uno después. La plantilla crea una tarea para enviar un aviso de renovación 60 días antes del vencimiento de una membresía activa, otra para recordárselo a los socios con la cuota pendiente 30 días antes y otra para reclamar la cuota impagada el día del vencimiento."
+      },
+      {
+        "question": "¿Qué datos de socios y donantes debo guardar?",
+        "answer": "Solo lo que la afiliación o el donativo necesitan. Según las guías del RGPD, no deben registrarse datos que la afiliación no necesita, el formulario de solicitud debe mostrar qué campos son obligatorios y cuáles voluntarios, y las fotos requieren consentimiento. Los datos de salud, los datos de menores y los datos bancarios quedan fuera del registro. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Sirve para una parroquia o un club?",
+        "answer": "Sí para la parte de registro: colaboradores, membresías, donativos y seguimiento de socios y visitantes en un solo sitio. No sustituye a un programa de gestión parroquial para el registro de asistentes, los turnos o los extractos de ofrendas, ni a una herramienta de club para domiciliaciones y cobro de cuotas."
+      },
+      {
+        "question": "¿El agente escribe a mis socios y donantes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Nuestros socios, donantes y voluntarios están repartidos en varias listas y se nos escapan renovaciones y agradecimientos. Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
+    "questions": [
+      "¿Sois una asociación, una entidad benéfica o una parroquia? ¿Tenéis socios, donantes, voluntarios?",
+      "¿Qué modalidades de cuota y qué importes usáis y cómo se cobran?",
+      "¿En qué país estáis registrados y qué certificado de donación emitís allí?",
+      "¿Qué software lleva vuestros pagos o la contabilidad? Aquí solo se guarda una referencia."
+    ]
+  }
+}

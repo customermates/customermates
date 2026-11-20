@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Settings2 } from "lucide-react";
+import { BellRing, Settings2 } from "lucide-react";
 
 import type { ReactNode } from "react";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
@@ -47,6 +47,8 @@ import { RecordImportDialog } from "./record-import-dialog";
 import { RecordCalendarView } from "./record-calendar-view";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { RecordMassActions } from "./record-mass-actions";
+import { automationOffers } from "./record-offers";
+import { canStartAutomation } from "@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-prefill";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
@@ -151,20 +153,39 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const handleExportWorkbook = useRecordExport(store.presentation, "xlsx");
   const handleImport = useCallback(() => setImportOpen(true), []);
   const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
+  const modelFields = store.presentation.model.fields;
+  const canUseAutomations = canStartAutomation(root.userStore);
+  const offers = useMemo(
+    () => automationOffers({ canUseAutomations, typeId: presentation.typeId, fields: modelFields }),
+    [canUseAutomations, modelFields, presentation.typeId],
+  );
   const toolbar = useMemo(
     () => (
       <DataViewToolbar
         anchorScope="records"
+        automateHref={offers.automateHref}
         menuItems={
-          store.presentation.canManageSchema && (
-            <DropdownMenuItem asChild>
-              <IntlLink href={`/configure?typeId=${presentation.typeId}`} id="records-configure">
-                <Settings2 className="size-4" />
+          <>
+            {offers.reminders.map((reminder) => (
+              <DropdownMenuItem key={reminder.id} asChild>
+                <IntlLink href={reminder.href}>
+                  <BellRing className="size-4" />
 
-                {configureLabel}
-              </IntlLink>
-            </DropdownMenuItem>
-          )
+                  {t("AutomationRules.remindBefore", { field: reminder.label })}
+                </IntlLink>
+              </DropdownMenuItem>
+            ))}
+
+            {store.presentation.canManageSchema && (
+              <DropdownMenuItem asChild>
+                <IntlLink href={`/configure?typeId=${presentation.typeId}`} id="records-configure">
+                  <Settings2 className="size-4" />
+
+                  {configureLabel}
+                </IntlLink>
+              </DropdownMenuItem>
+            )}
+          </>
         }
         searchLabel={t("Common.filters.searchFields.records")}
         store={store}
@@ -183,6 +204,8 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       handleImport,
       presentation.typeId,
       configureLabel,
+      offers,
+      t,
     ],
   );
   useSetTopBarActions(toolbar);

@@ -9,7 +9,7 @@ import { checkoutStateOf } from "@/ee/subscription/checkout-state";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { resolveSubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
-import { getGetWorkspaceDeletionInteractor } from "@/core/di";
+import { getGetWorkspaceDeletionInteractor, getGetWorkspaceLeaveInteractor } from "@/core/di";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 export default async function SubscriptionExpiredPage() {
@@ -19,7 +19,10 @@ export default async function SubscriptionExpiredPage() {
   if (!user || !subscription || !isSubscriptionLocked(subscription))
     redirect(await appRedirectHref(settingsHref("billing")));
 
-  const deletion = user.role?.isSystemRole ? await unwrapPage(getGetWorkspaceDeletionInteractor().invoke()) : null;
+  const [deletion, leave] = await Promise.all([
+    user.role?.isSystemRole ? unwrapPage(getGetWorkspaceDeletionInteractor().invoke()) : null,
+    unwrapPage(getGetWorkspaceLeaveInteractor().invoke()),
+  ]);
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
@@ -27,6 +30,7 @@ export default async function SubscriptionExpiredPage() {
         checkout={checkoutStateOf(subscription.checkoutStartedAt)}
         deleteRefusal={deletion ? deletion.refusal : undefined}
         firstPlan={isAwaitingFirstPlan(subscription)}
+        leaveRefusal={leave.refusal}
         recoveryPath={resolveSubscriptionRecoveryPath(user, subscription.plan)}
       />
     </CenteredCardPage>

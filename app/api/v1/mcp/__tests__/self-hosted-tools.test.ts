@@ -24,6 +24,7 @@ vi.mock("@/core/di", () => ({
     resolveMcpCredentialWorkspace: () => Promise.resolve({ companyId: WORKSPACE_ID, credential: "apiKey" }),
   }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+  getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),
   getOperatorAccessService: () => ({ isReadEligible: () => Promise.resolve(false) }),
 }));
 

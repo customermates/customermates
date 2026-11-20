@@ -6,10 +6,9 @@ import { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
-import { brandedTitle } from "@/core/seo/branded-title";
+import { buildPageMetadata } from "@/core/seo/page-metadata";
 import {
   DEFAULT_LOCALE,
-  buildLocalePath,
   isContentLocale,
   isMarketingPathPublished,
   marketingLocalesForPath,
@@ -64,41 +63,7 @@ export function generateMetadataFromMeta({
   );
   const alternates = buildAlternateLanguages(publicPath, translatedLocales, env.BASE_URL);
 
-  const canonical = `${env.BASE_URL}${buildLocalePath(locale, publicPath)}`;
-  const ogImageParams = new URLSearchParams({ title });
-
-  if (description) ogImageParams.set("description", description);
-
-  const image = {
-    alt: title,
-    height: 630,
-    url: `/og/image.png?${ogImageParams.toString()}`,
-    width: 1200,
-  };
-
-  const metadata: Metadata = {
-    alternates: alternates && !noindex ? { canonical, languages: alternates } : { canonical },
-    ...(noindex ? { robots: { follow: true, index: false } } : {}),
-    openGraph: {
-      description,
-      images: [image],
-      siteName: "Customermates",
-      title,
-      type,
-      url: canonical,
-    },
-    twitter: {
-      card: "summary_large_image",
-      description,
-      images: [image],
-      title,
-    },
-    title: brandedTitle(title),
-  };
-
-  if (description) metadata.description = description;
-
-  return metadata;
+  return buildPageMetadata({ description, languages: alternates, locale, noindex, publicPath, title, type });
 }
 
 function buildRoutePath(route: string, params: Record<string, string>): string {

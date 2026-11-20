@@ -1,8 +1,7 @@
 import type { Strings } from "../startups";
 
 export const nl: Strings = {
-  company: "Keurwerk Software B.V.",
-  workspaceName: "Startups",
+  company: "Keurwerk",
   website: "https://keurwerk-software.example",
   phones: {
     mobile: { templates: ["+31 6 0000 0###"], start: 10 },

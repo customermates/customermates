@@ -1,0 +1,157 @@
+{
+  "locale": "pl",
+  "name": "Obsługa klienta",
+  "summary": "Odpowiadaj każdemu klientowi na czas, bez ciężkiego helpdesku. Zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
+  "description": "Gdy klienci piszą z kilku miejsc, pytania giną i nikt nie wie, które są po terminie. Szablon zakłada zgłoszenia ze statusem, priorytetem, typem i osobą odpowiedzialną, z terminem pierwszej odpowiedzi i terminem rozwiązania, oraz znane problemy, które łączą wiele zgłoszeń z jedną przyczyną, żeby można było poinformować wszystkich o naprawie. Miesięczny termin na odpowiedź na wniosek RODO jest cały czas widoczny. Sprawdzi się przy kilkudziesięciu zgłoszeniach tygodniowo w firmie lub agencji liczącej od jednej do ośmiu osób. To nie jest centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
+  "lists": {
+    "customers": { "label": "Klient", "pluralLabel": "Klienci", "description": "Osoby, które piszą do Ciebie z prośbą o pomoc." },
+    "accounts": { "label": "Konto", "pluralLabel": "Konta", "description": "Firmy stojące za klientami, z ich planem wsparcia." },
+    "tickets": { "label": "Zgłoszenie", "pluralLabel": "Zgłoszenia", "description": "Jedna prośba o pomoc, od pierwszej wiadomości do rozwiązania." },
+    "known_issues": { "label": "Znany problem", "pluralLabel": "Znane problemy", "description": "Jedna przyczyna wielu zgłoszeń, z obejściem i datą naprawy." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formularz zgłoszeniowy", "phone": "Telefon" } },
+    "customers.language": { "label": "Język" },
+    "accounts.support_plan": { "label": "Plan wsparcia", "options": { "standard": "Standardowy", "priority": "Priorytetowy", "none": "Brak" } },
+    "accounts.contract_end": { "label": "Data zakończenia umowy" },
+    "tickets.status": {
+      "label": "Status",
+      "options": { "new": "Nowe", "open": "Otwarte", "pending_customer": "Oczekuje na klienta", "on_hold": "Oczekuje na stronę trzecią", "solved": "Rozwiązane", "closed": "Zamknięte", "spam_or_duplicate": "Spam lub duplikat" }
+    },
+    "tickets.priority": { "label": "Priorytet", "options": { "urgent": "Pilny", "high": "Wysoki", "normal": "Normalny", "low": "Niski" } },
+    "tickets.type": { "label": "Typ", "options": { "question": "Pytanie", "problem": "Problem", "request": "Prośba", "complaint": "Reklamacja", "data_request": "Wniosek RODO" } },
+    "tickets.channel": { "label": "Kanał", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formularz zgłoszeniowy", "phone": "Telefon", "webhook": "Alert z innego systemu" } },
+    "tickets.assignee": { "label": "Przypisano do" },
+    "tickets.first_response_due": { "label": "Termin pierwszej odpowiedzi" },
+    "tickets.resolution_due": { "label": "Termin rozwiązania" },
+    "tickets.solved_on": { "label": "Data rozwiązania" },
+    "tickets.rating": { "label": "Ocena zadowolenia" },
+    "known_issues.status": {
+      "label": "Status",
+      "options": { "investigating": "W analizie", "workaround_available": "Jest obejście", "fixed": "Naprawiony", "wont_fix": "Nie będzie naprawiony" }
+    },
+    "known_issues.workaround": { "label": "Obejście" },
+    "known_issues.fixed_on": { "label": "Data naprawy" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "reply": "Odpowiedzieć",
+        "nudge_customer": "Przypomnieć klientowi",
+        "send_survey": "Wysłać ankietę zadowolenia",
+        "close_ticket": "Zamknąć zgłoszenie",
+        "tell_customer_fixed": "Poinformować klienta o naprawie",
+        "verify_identity": "Zweryfikować tożsamość",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Konto", "targetLabel": "Klienci" },
+    "ticket_customer": { "sourceLabel": "Klient", "targetLabel": "Zgłoszenia" },
+    "ticket_known_issue": { "sourceLabel": "Znany problem", "targetLabel": "Zgłoszenia" },
+    "action_ticket": { "sourceLabel": "Zgłoszenie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "tickets_all": { "name": "Wszystkie zgłoszenia" },
+    "tickets_board": { "name": "Tablica zgłoszeń" },
+    "waiting_on_us": { "name": "Czeka na nas" },
+    "known_issues_all": { "name": "Wszystkie znane problemy" },
+    "customers_all": { "name": "Wszyscy klienci" },
+    "accounts_all": { "name": "Wszystkie konta" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Zgłoszenia według statusu" },
+    "open_by_priority": { "title": "Otwarte zgłoszenia według priorytetu" },
+    "waiting_on_us_count": { "title": "Zgłoszenia czekające na nas" },
+    "responses_due": { "title": "Pierwsze odpowiedzi do udzielenia" },
+    "average_rating": { "title": "Średnia ocena zadowolenia" },
+    "tickets_by_type": { "title": "Zgłoszenia według typu" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "Jak prowadzimy obsługę klienta", "sections": ["Statusy i priorytety", "Cele pierwszej odpowiedzi i rozwiązania", "Kto ma dyżur"] },
+    "triage_and_replies": { "title": "Sortowanie i gotowe odpowiedzi", "sections": ["Typ, priorytet i osoba odpowiedzialna", "Pierwsza odpowiedź, prośba o informacje, naprawione, brak odpowiedzi"] },
+    "data_requests": { "title": "Wnioski RODO", "sections": ["Zweryfikować tożsamość, zapisać, odpowiedzieć w ustawowym terminie (miesiąc według RODO, 15 dni według LGPD)", "Kto decyduje"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Utwórz zadanie odpowiedzi, gdy powstaje zgłoszenie" },
+    "first_response_missed": { "title": "Powiadom osobę prowadzącą obsługę, gdy minie termin pierwszej odpowiedzi" },
+    "nudge_customer": { "title": "Przypomnij klientowi po 3 dniach oczekiwania" },
+    "send_survey": { "title": "Wyślij ankietę zadowolenia dzień po rozwiązaniu zgłoszenia" },
+    "close_solved": { "title": "Zamknij zgłoszenie, które pozostaje rozwiązane od 4 dni" },
+    "data_request_clock": {
+      "title": "Ustaw termin rozwiązania na 30 dni, gdy zgłoszenie staje się wnioskiem RODO",
+      "variants": {
+        "BR": {
+          "title": "Ustaw termin rozwiązania na 15 dni, gdy zgłoszenie staje się wnioskiem LGPD (Brazylia)",
+          "description": "Zgodnie z art. 19 LGPD pełna odpowiedź na wniosek o dostęp lub potwierdzenie przetwarzania jest należna w ciągu 15 dni."
+        }
+      }
+    },
+    "known_issue_fixed": { "title": "Poinformuj klientów, gdy znany problem zostanie naprawiony" },
+    "ticket_from_webhook": { "title": "Utwórz zgłoszenie, gdy inny system wyśle alert" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Każde zgłoszenie ma status.",
+    "first_response_field": "Każde zgłoszenie zapisuje termin pierwszej odpowiedzi.",
+    "tickets_board_view": "Zgłoszenia otwierają się jako tablica według statusu."
+  },
+  "page": {
+    "metaTitle": "System ticketowy: obsługa klienta w Twoim CRM",
+    "metaDescription": "Lekki system ticketowy, który Twój agent AI buduje w CRM: zgłoszenia z priorytetem i terminami odpowiedzi, znane problemy oraz ocena zadowolenia klienta.",
+    "headline": "System ticketowy na kilkadziesiąt zgłoszeń tygodniowo, zbudowany przez Twojego agenta AI w CRM",
+    "answer": "Lekki system ticketowy nadaje każdej wiadomości klienta zgłoszenie z osobą odpowiedzialną, priorytetem i terminem, do którego musisz odpowiedzieć. Ten szablon konfiguruje zgłoszenia, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocenę zadowolenia. Wklej go do swojego agenta AI, a on zbuduje obsługę klienta w Customermates. Plan zatwierdzasz Ty, zanim cokolwiek powstanie. Szablon jest dla firmy lub agencji z jedną do ośmiu osób, nie dla dużego zespołu wsparcia.",
+    "routine": {
+      "title": "Cotygodniowy przegląd obsługi klienta",
+      "steps": [
+        "Zacznij od zgłoszeń z przeterminowaną pierwszą odpowiedzią lub rozwiązaniem, potem od tych, które czekają na Ciebie dłużej niż dwa dni.",
+        "Przypomnij klientom, którzy nie odpowiadają od 3 dni, a zgłoszenia milczące od 7 dni oznacz jako rozwiązane z notatką, że odpowiedzi nie było.",
+        "Przejrzyj zgłoszenia otwarte ponownie oraz rozwiązane bez oceny i odezwij się do każdego, kto dał 1 lub 2.",
+        "Sprawdź otwarte znane problemy: gdy któryś naprawiono, powiadom każdego klienta z powiązanym zgłoszeniem i zapisz najczęstsze kategorie tygodnia."
+      ]
+    },
+    "limits": [
+      "To nie jest centrala telefoniczna ani system SMS, ani widżet czatu na żywo. Zgłoszenia powstają z wiadomości e-mail, WhatsApp, LinkedIn, Instagram i Telegram w skrzynce odbiorczej albo od Twojego agenta.",
+      "W Customermates nie ma dziś portalu klienta ani publicznego formularza zgłoszeń. Klienci nie mogą się zalogować, żeby śledzić zgłoszenie.",
+      "Nie liczy godzin pracy ani dni wolnych. Terminy pochodzą z tabeli planów wsparcia w Twojej bazie wiedzy i ustawia je reguła lub Twój agent.",
+      "To nie jest menedżer zmian i zasobów ITIL, strona statusu ani narzędzie do masowej wysyłki, i nie ma SSO. Przy dużym wolumenie i w dużych firmach lepiej sprawdzą się Zendesk, Freshdesk lub Zammad.",
+      "Odpowiedzi to szkice, które sprawdzasz i wysyłasz Ty. Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą agent uruchamia według harmonogramu; szablon je proponuje, a Ty decydujesz, które włączyć.",
+      "Nie trzymaj w zgłoszeniach numerów kart, haseł, kopii dokumentów tożsamości ani danych o zdrowiu. Żądanie dostępu do danych zapisuje weryfikację tożsamości jako tak lub nie z datą, bez kopii.",
+      "Podłączenie e-maila lub WhatsAppa do CRM wymaga planu ze skrzynką odbiorczą, a skrzynka wspólna dla całego zespołu planu ze wspólnymi kontami. Strona z cennikiem pokazuje, co zawiera każdy plan."
+    ],
+    "faq": [
+      {
+        "question": "Jaki jest najprostszy system ticketowy dla małej firmy?",
+        "answer": "Lista zgłoszeń z jedną osobą odpowiedzialną, statusem, priorytetem i dwoma terminami: pierwszej odpowiedzi i rozwiązania. Dodaj listę znanych problemów i ocenę zadowolenia i przeglądaj to raz w tygodniu. Wystarczy to na kilkadziesiąt zgłoszeń tygodniowo; powyżej warto sięgnąć po dedykowane narzędzie."
+      },
+      {
+        "question": "Jakie statusy powinno mieć zgłoszenie w obsłudze klienta?",
+        "answer": "Typowe zestawy to nowe, otwarte, oczekujące, rozwiązane i zamknięte. Ten szablon używa statusów Nowe, Otwarte, Oczekuje na klienta, Oczekuje na stronę trzecią, Rozwiązane i Zamknięte oraz Spam lub duplikat. Dostawcy nie są zgodni, czy status oczekiwania zatrzymuje zegar; domowa reguła szablonu: oczekiwanie na klienta go wstrzymuje, oczekiwanie na stronę trzecią nie. Możesz to zmienić."
+      },
+      {
+        "question": "Jakie czasy odpowiedzi obiecywać?",
+        "answer": "Nie ma ogólnego wzorca. Dostawcy podają jako przykład problemy krytyczne w 4 godziny i drobne prośby w 72 godziny, przy awarii 1 godzinę do pierwszej odpowiedzi i 4 godziny do rozwiązania. Zacznij od takich wartości w tabeli planów wsparcia i zastąp je tym, czego możesz dotrzymać."
+      },
+      {
+        "question": "Jak postąpić z żądaniem dostępu do danych z RODO, które przychodzi jako zgłoszenie?",
+        "answer": "Na żądanie dostępu odpowiada się bez zbędnej zwłoki, najpóźniej w ciągu miesiąca; w razie potrzeby termin można przedłużyć o kolejne dwa miesiące, informując o powodach w pierwszym miesiącu. Szablon dodaje typ żądanie dostępu z widocznym terminem miesiąca. To nie jest porada prawna; zaangażuj osobę odpowiedzialną za ochronę danych."
+      },
+      {
+        "question": "Czy to może zastąpić Zendesk lub Freshdesk?",
+        "answer": "Dla zespołu z kilkudziesięcioma zgłoszeniami tygodniowo, który chce datowanych ponagleń i oceny zadowolenia: tak. Przy dużym wolumenie, wielu kanałach i wymaganiach dużych firm lepiej zostać przy Zendesk, Freshdesk, Zammad, Help Scout lub Front, z silnikami SLA, makrami, kalendarzami godzin pracy i portalami, które ten szablon celowo pomija."
+      },
+      {
+        "question": "Czy agent odpowiada moim klientom?",
+        "answer": "Agent przygotowuje odpowiedzi na podstawie powiązanej rozmowy, a Ty je sprawdzasz i wysyłasz. Prompt każe mu niczego nie wysyłać i nie tworzyć przykładowych danych."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Pytania klientów przychodzą e-mailem i na czacie, a ja nie wiem, które nadal czekają na odpowiedź. Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
+    "questions": [
+      "Ile zgłoszeń obsługujesz tygodniowo i jakimi kanałami do Ciebie docierają?",
+      "Jakie terminy obiecujesz na pierwszą odpowiedź i rozwiązanie, według priorytetu lub planu wsparcia?",
+      "Kto odpowiada i kogo informujesz, gdy zgłoszenie jest spóźnione?",
+      "Czy dostajesz wnioski RODO lub alerty z innych systemów, które mają stać się zgłoszeniami?"
+    ]
+  }
+}

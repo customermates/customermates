@@ -23,7 +23,7 @@ blogPost:
     - microsoft-copilot
     - IA para vendas
     - CRM
-    - Código aberto
+    - Código-fonte disponível
 ---
 
 # Copilot for Sales: o que o Sales agent faz, o que exige e quanto custa
@@ -124,7 +124,7 @@ Sobre “vale a pena”: o Sales agent compensa quando os vendedores já passam 
 
 ## Onde o Customermates se encaixa
 
-O Customermates é um CRM de código aberto, nativo de IA, para pequenos times que atendem clientes, como consultorias e agências, feito na Alemanha. É uma opção para a última linha da tabela, e não substitui o Sales agent para uma empresa que usa o Dynamics 365 e grava as chamadas com clientes no Teams.
+O Customermates é um CRM com hospedagem própria, código-fonte disponível e nativo de IA, para pequenos times que atendem clientes, como consultorias e agências, feito na Alemanha. É uma opção para a última linha da tabela, e não substitui o Sales agent para uma empresa que usa o Dynamics 365 e grava as chamadas com clientes no Teams.
 
 Uma configuração típica para um time de cinco pessoas:
 
@@ -134,7 +134,7 @@ Uma configuração típica para um time de cinco pessoas:
 - **Uma rotina, no Customermates Cloud.** Gatilho “Quando algo muda”, evento “Registro atualizado” para Negócios, em “Campos alterados” o campo Etapa. Instruções: “Quando um negócio passar para Proposta, leia a última conversa com o contato e salve um rascunho de resposta. Não envie nada.” A rotina é executada como o proprietário dela, com os canais dele. Veja [rotinas](/docs/app-routines).
 - **O seu próprio cliente de IA.** Se o seu time já usa o Claude ou o ChatGPT, conecte-o por MCP com o [conector personalizado](/docs/connect-custom-connector). A Microsoft documenta que agentes do Copilot Studio podem se conectar a um servidor MCP existente; o Customermates ainda não tem um guia publicado para esse cliente, então teste uma leitura antes de depender dele.
 
-**Custo.** Cinco usuários no Pro custam [[commercial.price.pro.monthly.seats.5]] por mês, com cobrança mensal, incluindo a caixa de entrada e créditos de IA hospedados por mês para cada usuário ativo ([veja os preços](/pricing)). O Starter, a [[commercial.price.starter.monthly]] por usuário, não tem caixa de entrada. Hospedar por conta própria o núcleo AGPL não tem custo de licença e mantém REST, webhooks e MCP, mas não tem caixa de entrada nem Mate.
+**Custo.** Cinco usuários no Pro custam [[commercial.price.pro.monthly.seats.5]] por mês, com cobrança mensal, incluindo a caixa de entrada e créditos de IA hospedados por mês para cada usuário ativo ([veja os preços](/pricing)). O Starter, a [[commercial.price.starter.monthly]] por usuário, não tem caixa de entrada. Hospedar por conta própria a edição Community, para uso interno, não tem custo de licença e mantém REST, webhooks e MCP, mas não tem caixa de entrada nem Mate.
 
 O que um time pequeno ganha por essa licença é acompanhamento sem uma pilha da Microsoft: conversas no registro do cliente, um rascunho de resposta e um próximo passo preparados pelo Mate ou pelo seu próprio cliente de IA, e você revisa e envia. Para testar com a sua própria caixa de e-mail ou o seu LinkedIn, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
 

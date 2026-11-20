@@ -24,7 +24,7 @@ import { localLemonSqueezyVariants } from "./local-lemonsqueezy-provider.mjs";
 import { runRowAction } from "./record-rows";
 import { expectedAuthorization, routeSocialProvider } from "./social-sign-in";
 import { emailLanguage, emailLinks, emailText, sentEmailsTo } from "./transactional-mail";
-import { insertStarterModel, removeBrowserWorkspace } from "./workspace";
+import { removeBrowserWorkspace } from "./workspace";
 import { mcpWorkspaceName, restPost } from "./workspace-credentials";
 import {
   addOrganization,
@@ -261,7 +261,6 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       }
       expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstPlan);
       const kellerMember = await membershipIn(database, keller, email);
-      if (!cloud && kellerMember) await insertStarterModel(database, keller, kellerMember.id);
 
       await page.goto(organizationsOf(kellerSlug, keller));
       await addOrganization(page, "Steuerkanzlei Keller");

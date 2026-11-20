@@ -1,0 +1,198 @@
+{
+  "locale": "es",
+  "name": "Reservas para creativos",
+  "summary": "Para fotógrafos, videógrafos y organizadores de eventos: ten a mano cada solicitud, cada fecha y cada señal, del primer mensaje a la reserva, la entrega y la nota de aniversario.",
+  "description": "Se promete una fecha sin haber cobrado la señal y se olvidan entregas cuando las solicitudes viven entre chats y un calendario. Esta plantilla da a cada reserva una fila con dos fases: venta, de la solicitud a reservado, y entrega, de sesión hecha a entregado. La fecha queda bloqueada hasta que se firma el contrato y se paga la señal, el resto tiene su propio vencimiento y cada trabajo entregado pide una reseña. Los contratos, las facturas y las galerías se quedan en tus herramientas; aquí se guardan los enlaces.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Clientes, parejas de clientes, organizadores y contactos de espacios." },
+    "partners": { "label": "Colaborador", "pluralLabel": "Colaboradores", "description": "Espacios, wedding planners, caterings y otros proveedores con los que trabajas." },
+    "bookings": { "label": "Reserva", "pluralLabel": "Reservas", "description": "Un trabajo de la solicitud a la entrega." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Etapa",
+      "options": { "inquiry": "Solicitud", "consultation": "Reunión inicial", "proposal_sent": "Presupuesto enviado", "date_on_hold": "Fecha reservada", "booked": "Reservado", "lost": "Perdido" }
+    },
+    "bookings.delivery": {
+      "label": "Entrega",
+      "options": { "not_started": "Sin empezar", "preparing": "En preparación", "shoot_done": "Sesión hecha", "editing": "En edición", "client_review": "Revisión del cliente", "delivered": "Entregado", "cancelled": "Cancelado o aplazado" }
+    },
+    "people.contact_role": {
+      "label": "Función",
+      "options": { "client": "Cliente", "partner_of_client": "Pareja del cliente", "payer": "Padre, madre o pagador", "planner": "Organizador", "venue_contact": "Contacto del espacio", "referrer": "Prescriptor" }
+    },
+    "people.preferred_channel": {
+      "label": "Canal preferido",
+      "options": { "email": "Correo electrónico", "whatsapp": "WhatsApp", "phone": "Teléfono", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Aniversario" },
+    "people.portfolio_consent": { "label": "Cesión de derechos de imagen para el portfolio", "options": { "granted": "Concedida", "declined": "Rechazada", "not_asked": "No solicitada" } },
+    "people.consent_date": { "label": "Fecha del consentimiento" },
+    "partners.partner_type": {
+      "label": "Tipo",
+      "options": { "venue": "Espacio", "planner": "Wedding planner", "caterer": "Catering", "florist": "Floristería", "band_or_dj": "Banda o DJ", "other": "Otro" }
+    },
+    "partners.website": { "label": "Sitio web" },
+    "partners.preferred": { "label": "Colaborador preferido" },
+    "bookings.service_type": {
+      "label": "Servicio",
+      "options": { "wedding": "Boda", "portrait": "Retrato o familia", "event": "Evento", "corporate": "Corporativo o retratos profesionales", "commercial": "Publicitario", "video": "Vídeo", "planning": "Organización" }
+    },
+    "bookings.package": { "label": "Paquete" },
+    "bookings.event_date": { "label": "Fecha del evento" },
+    "bookings.location": { "label": "Lugar" },
+    "bookings.source": {
+      "label": "Origen",
+      "options": { "referral": "Recomendación", "instagram": "Instagram", "google_search": "Búsqueda en Google", "venue_or_planner": "Espacio u organizador", "wedding_fair": "Feria de bodas", "past_client": "Cliente anterior", "other": "Otro" }
+    },
+    "bookings.date_hold_until": { "label": "Fecha reservada hasta" },
+    "bookings.contract_status": {
+      "label": "Contrato",
+      "options": { "not_sent": "No enviado", "sent": "Enviado", "signed": "Firmado", "cancelled": "Cancelado" }
+    },
+    "bookings.deposit_amount": { "label": "Importe de la señal" },
+    "bookings.deposit_status": {
+      "label": "Señal",
+      "options": { "not_due": "No exigible", "requested": "Solicitada", "paid": "Pagada", "refunded": "Devuelta", "kept": "Retenida" }
+    },
+    "bookings.balance_due_on": { "label": "Resto a pagar el" },
+    "bookings.balance_status": {
+      "label": "Resto",
+      "options": { "not_due": "No exigible", "requested": "Solicitado", "paid": "Pagado", "overdue": "Vencido" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Cuestionario",
+      "options": { "not_sent": "No enviado", "sent": "Enviado", "received": "Recibido" }
+    },
+    "bookings.delivery_due_on": { "label": "Entrega para el" },
+    "bookings.delivered_on": { "label": "Entregado el" },
+    "bookings.gallery_url": { "label": "Enlace de la galería" },
+    "bookings.usage_rights": {
+      "label": "Derechos de uso",
+      "options": { "private_use": "Uso privado", "portfolio_and_social": "Portfolio y redes", "commercial_licence": "Licencia comercial", "not_decided": "Sin decidir" }
+    },
+    "bookings.lost_reason": {
+      "label": "Motivo de pérdida",
+      "options": { "date_taken": "Fecha ocupada", "price": "Precio", "chose_another": "Eligió a otro profesional", "cancelled_or_postponed": "Evento cancelado o aplazado", "no_response": "Sin respuesta", "style_mismatch": "Estilo que no encaja" }
+    },
+    "bookings.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Responder a la solicitud",
+        "consult": "Reunión inicial",
+        "send_proposal": "Enviar el presupuesto",
+        "send_contract": "Enviar el contrato",
+        "chase_payment": "Reclamar un pago",
+        "send_questionnaire": "Enviar el cuestionario",
+        "build_timeline": "Preparar el guion del día",
+        "shoot_day": "Día de la sesión",
+        "edit": "Edición",
+        "deliver": "Entrega",
+        "request_review": "Pedir una reseña",
+        "anniversary": "Nota de aniversario",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Cliente", "targetLabel": "Reservas" },
+    "booking_venue": { "sourceLabel": "Espacio u organizador", "targetLabel": "Reservas" },
+    "action_booking": { "sourceLabel": "Reserva", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "bookings_board": { "name": "Reservas por etapa" },
+    "bookings_all": { "name": "Todas las reservas por fecha" },
+    "delivery_board": { "name": "Entrega por estado" },
+    "payments_due": { "name": "Restos por reclamar" },
+    "people_all": { "name": "Todas las personas" },
+    "partners_all": { "name": "Todos los colaboradores" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Solicitudes abiertas por etapa" },
+    "shoots_coming": { "title": "Fechas reservadas" },
+    "deposits_outstanding": { "title": "Señales solicitadas" },
+    "balances_coming": { "title": "Restos próximos a vencer" },
+    "booked_per_month": { "title": "Valor reservado por mes del evento" },
+    "lost_reasons": { "title": "Por qué se perdieron solicitudes" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Flujo de una reserva", "sections": ["De la solicitud a la reserva: responder en un día, reservar la fecha, firma, señal", "De la sesión a la entrega: edición, revisión, galería"] },
+    "contract_checklist": { "title": "Lista de contrato y pago", "sections": ["Qué incluye y excluye el paquete", "Señal, resto y cancelación", "Derechos de uso y cesión de derechos de imagen"] },
+    "delivery_and_usage": { "title": "Entrega, avance y petición de reseña", "sections": ["Fecha de entrega y avance", "Dónde está la galería", "Pedir una reseña"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Responder a una solicitud nueva en un día" },
+    "send_contract": { "title": "Enviar el contrato cuando se reserva la fecha" },
+    "chase_payment_after_signing": { "title": "Reclamar la señal tres días después de firmar el contrato" },
+    "questionnaire_before_event": { "title": "Enviar el cuestionario 45 días antes de un evento reservado" },
+    "balance_reminder": { "title": "Reclamar el resto una semana antes de su vencimiento" },
+    "edit_after_shoot": { "title": "Empezar la edición cuando la sesión está hecha" },
+    "request_review": { "title": "Pedir una reseña dos semanas después de la entrega" },
+    "anniversary_note": { "title": "Escribir una nota el día del aniversario" },
+    "inquiry_form_records": { "title": "Crear la persona y la reserva desde un formulario de solicitud" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada reserva tiene una etapa de venta.",
+    "event_date_field": "Cada reserva tiene una fecha de evento.",
+    "bookings_board_view": "Las reservas se abren como tablero por etapa."
+  },
+  "page": {
+    "metaTitle": "Reservas para fotógrafos y wedding planners en tu CRM",
+    "metaDescription": "Reservas para fotógrafos, videógrafos y organizadores de eventos: solicitudes, fechas reservadas, señales y entrega, creadas por tu agente de IA en tu CRM.",
+    "headline": "Reservas para fotógrafos y organizadores de eventos: cada fecha, señal y entrega bajo control",
+    "answer": "Gestionar las reservas de un fotógrafo, videógrafo u organizador de eventos significa bloquear una fecha solo hasta que se firma el contrato y se paga la señal, y acompañar el trabajo hasta la entrega. Esta plantilla da a cada reserva una fila con una fase de venta y otra de entrega, un vencimiento para el resto del pago, un cuestionario antes del evento y una petición de reseña después. Pégala en tu agente de IA y él lo construye todo en Customermates; tú apruebas el plan antes de que se cree nada.",
+    "routine": {
+      "title": "La ronda semanal de reservas",
+      "steps": [
+        "Responde a cada solicitud que espera. Por defecto la respuesta sale en 24 horas y pregunta por fecha, lugar, tipo de trabajo y presupuesto.",
+        "Revisa las fechas bloqueadas: reclama el contrato y la señal o libera la fecha.",
+        "Mira los eventos de los próximos 14 días: ¿ha vuelto el cuestionario?, ¿está confirmado el programa del día?, ¿se ha pagado el resto?",
+        "Revisa las entregas que se acercan y avisa pronto al cliente si una fecha se mueve. Dos semanas después de la entrega, pide una reseña."
+      ]
+    },
+    "limits": [
+      "No redacta ni firma contratos, no envía facturas ni cobra pagos. Eso se queda en tus herramientas de contratos, facturación y pago; la reserva guarda su estado, sus fechas y un enlace.",
+      "No es una herramienta de galerías, selección de fotos o venta de copias, ni de diseño de álbumes, edición o gestión de medios. La reserva guarda el enlace.",
+      "Una página pública de reservas o la venta de minisesiones no forma parte hoy de Customermates. Las solicitudes llegan como correo, mensajes de WhatsApp o Instagram en la bandeja conectada y tu agente redacta la respuesta.",
+      "No es asesoramiento jurídico. Las páginas de conocimiento son listas de comprobación; haz revisar a un abogado tu contrato y la redacción de los derechos de imagen y uso.",
+      "Deja fuera datos de salud, dieta o religión, números de tarjeta, documentos de identidad, rostros como archivos de imagen y listas de invitados. Anota solo el estado y la fecha del consentimiento para el uso en portfolio.",
+      "Los recordatorios salen de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta según un calendario. La plantilla los propone y tú decides cuáles activar."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe hacer una herramienta de reservas para un fotógrafo?",
+        "answer": "Llevar un trabajo de la solicitud a la reserva y a la entrega: anotar fecha, tipo y presupuesto, bloquear la fecha, confirmarla con un contrato firmado y una señal, gestionar cuestionario y programa del día, entregar y pedir una reseña. Contratos, facturas y galerías se quedan en tus propias herramientas."
+      },
+      {
+        "question": "¿Cuándo está realmente reservada una fecha?",
+        "answer": "En la práctica, sin señal la fecha no está confirmada. La plantilla cuenta un trabajo como reservado solo cuando el contrato está firmado y la señal pagada, en campos separados, con una fecha bloqueada entre medias. El importe de la señal lo decide tu contrato: una guía de contratos de boda dice que casi todos los fotógrafos piden el 50 % al firmar, otras plantillas usan el 30 %, así que la plantilla no fija importes por defecto."
+      },
+      {
+        "question": "¿Qué es una fecha bloqueada?",
+        "answer": "Una fecha bloqueada saca una fecha de tu disponibilidad durante unos días sin comprometer al cliente. La plantilla guarda hasta cuándo está bloqueada, crea un paso para enviar el contrato al bloquear la fecha y otro para reclamar la señal tres días después de la firma."
+      },
+      {
+        "question": "¿Qué debe guardar el CRM sobre derechos de imagen y consentimiento?",
+        "answer": "Solo el estado y la fecha del consentimiento para el uso en portfolio, no las imágenes, ni categorías especiales como religión, orientación o salud, que bodas y sesiones de familia pueden revelar. Por defecto, los derechos de autor son del creador; los derechos de uso van en el contrato y un abogado debería revisar la redacción. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Cuándo debe salir el cuestionario?",
+        "answer": "La plantilla crea un paso para enviar el cuestionario 45 días antes de un evento reservado, y puedes cambiarlo. Fotógrafos y videógrafos suelen pedir también el programa del día unas dos semanas antes y hacen una revisión la última semana de programa, lugares y teléfonos."
+      },
+      {
+        "question": "¿El agente escribe a mis clientes?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides y los envías tú."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Tengo un negocio de fotografía, vídeo o eventos y pierdo la cuenta de qué fechas están bloqueadas, qué señales están pagadas y qué falta por entregar. Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
+    "questions": [
+      "¿A qué te dedicas: fotografía, vídeo u organización de eventos? ¿Cuántas reservas tienes al año?",
+      "¿Por qué pasos pasa un cliente de la solicitud a la reserva y cuándo reservas la fecha?",
+      "¿Cómo cobras señales y restos? Las facturas se quedan en tu herramienta.",
+      "¿Dónde entregas las galerías? Aquí solo se guarda el enlace."
+    ]
+  }
+}

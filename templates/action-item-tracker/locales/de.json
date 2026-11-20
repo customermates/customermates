@@ -1,0 +1,155 @@
+{
+  "locale": "de",
+  "name": "Maßnahmenplan",
+  "summary": "Was in Besprechungen beschlossen wird, soll auch erledigt werden. Jede Maßnahme hat einen Verantwortlichen und eine Deadline, verknüpft mit Beschluss oder Projekt, dazu eine wöchentliche Durchsicht.",
+  "description": "Was in Besprechungen, Audits und Kundengesprächen vereinbart wird, versinkt in Notizen und Chatverläufen, und nächste Woche kommt dasselbe Thema noch einmal auf den Tisch. Diese Vorlage richtet eine Maßnahmenliste ein mit sechs Status, Priorität, einem Verantwortlichen, Deadline und Wiedervorlage, verknüpft mit der Besprechung, dem Beschluss oder dem Projekt, aus dem sie stammt, dazu ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Sie passt zu Teams, Projektleitungen und Qualitätsmanagement, die einmal pro Woche sehen wollen, was offen, überfällig oder blockiert ist. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen, die Sie einschalten.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Teammitglieder, Partner, Kunden und Lieferanten." },
+    "meetings": { "label": "Besprechung", "pluralLabel": "Besprechungen", "description": "Woher Maßnahmen und Beschlüsse kommen." },
+    "decisions": { "label": "Beschluss", "pluralLabel": "Beschlüsse", "description": "Das Beschlussprotokoll mit Prüfdatum." },
+    "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Das Projekt, zu dem eine Maßnahme gehört." },
+    "actions": { "label": "Maßnahme", "pluralLabel": "Maßnahmen", "description": "Ein Verantwortlicher und eine Frist je Maßnahme." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "Offen", "in_progress": "In Bearbeitung", "blocked": "Blockiert", "in_review": "In Prüfung", "done": "Erledigt", "cancelled": "Abgebrochen" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Geplant", "active": "Aktiv", "on_hold": "Pausiert", "done": "Abgeschlossen" }
+    },
+    "people.person_role": {
+      "label": "Rolle",
+      "options": { "team_member": "Teammitglied", "external": "Externer Partner", "customer": "Kunde", "supplier": "Lieferant", "other": "Sonstige" }
+    },
+    "people.team": { "label": "Team" },
+    "meetings.meeting_type": {
+      "label": "Art der Besprechung",
+      "options": { "team": "Teambesprechung", "project": "Projektbesprechung", "steering": "Lenkungsausschuss", "customer": "Kundentermin", "audit": "Audit oder Review" }
+    },
+    "meetings.held_at": { "label": "Stattgefunden am" },
+    "meetings.agenda_url": { "label": "Link zur Tagesordnung" },
+    "meetings.minutes_url": { "label": "Link zum Protokoll" },
+    "meetings.minutes_sent_on": { "label": "Protokoll versendet am" },
+    "meetings.next_meeting_on": { "label": "Nächste Besprechung am" },
+    "decisions.decision_text": { "label": "Beschluss" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Gültig", "superseded": "Ersetzt", "revoked": "Aufgehoben" } },
+    "decisions.decided_on": { "label": "Beschlossen am" },
+    "decisions.review_on": { "label": "Prüfung am" },
+    "projects.owner": { "label": "Verantwortlich" },
+    "projects.start_date": { "label": "Start" },
+    "projects.end_date": { "label": "Ende" },
+    "actions.priority": { "label": "Priorität", "options": { "high": "Hoch", "medium": "Mittel", "low": "Niedrig" } },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "action": "Maßnahme", "follow_up": "Nachverfolgung", "review": "Prüfung", "corrective": "Korrekturmaßnahme", "preventive": "Vorbeugungsmaßnahme", "customer_request": "Kundenanfrage" }
+    },
+    "actions.source": {
+      "label": "Quelle",
+      "options": { "meeting": "Besprechung", "email": "E-Mail", "project_plan": "Projektplan", "audit": "Audit oder Prüfung", "complaint": "Reklamation", "incident": "Vorfall" }
+    },
+    "actions.owner": { "label": "Verantwortlich" },
+    "actions.due": { "label": "Deadline" },
+    "actions.follow_up_on": { "label": "Wiedervorlage am" },
+    "actions.done_on": { "label": "Erledigt am" },
+    "actions.blocker_note": { "label": "Was blockiert" },
+    "actions.proof_url": { "label": "Link zum Nachweis" },
+    "actions.outcome": { "label": "Ergebnis" },
+    "actions.days_late": { "label": "Tage verspätet" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Besprechung", "targetLabel": "Maßnahmen" },
+    "action_project": { "sourceLabel": "Projekt", "targetLabel": "Maßnahmen" },
+    "decision_meeting": { "sourceLabel": "Besprechung", "targetLabel": "Beschlüsse" }
+  },
+  "views": {
+    "actions_all": { "name": "Alle Maßnahmen" },
+    "actions_board": { "name": "Maßnahmen nach Status" },
+    "blocked_actions": { "name": "Blockiert" },
+    "overdue_list": { "name": "Überfällig" },
+    "meetings_all": { "name": "Alle Besprechungen" },
+    "decisions_all": { "name": "Beschlussprotokoll" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Maßnahmen nach Status" },
+    "overdue_count": { "title": "Überfällige Maßnahmen" },
+    "blocked_count": { "title": "Blockierte Maßnahmen" },
+    "due_soon": { "title": "Bald fällig" },
+    "open_by_owner": { "title": "Offene Maßnahmen je Verantwortlichem" },
+    "done_per_month": { "title": "Erledigt pro Monat" },
+    "actions_by_source": { "title": "Maßnahmen nach Quelle" },
+    "average_days_late": { "title": "Durchschnittliche Verspätung in Tagen" },
+    "activity_timeline": { "title": "Letzte Aktivität" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "So formulieren wir eine Maßnahme", "sections": ["Ein Verb, ein Verantwortlicher, ein Datum", "Woran man erkennt, dass sie erledigt ist"] },
+    "weekly_action_review": { "title": "Wöchentliche Maßnahmen-Durchsicht in 15 Minuten", "sections": ["Blockiert, verzögert, ohne nächsten Schritt", "Neu terminieren, delegieren oder abbrechen"] },
+    "closing_with_proof": { "title": "Maßnahme mit Nachweis abschließen", "sections": ["Den Nachweis verlinken", "Wirksamkeitsprüfung bei Korrekturmaßnahmen"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Nach einer Besprechung Protokoll und Maßnahmenliste versenden" },
+    "unblock_action": { "title": "Festlegen, wer die Blockade einer Maßnahme auflösen kann" },
+    "due_reminder": { "title": "Den Verantwortlichen zwei Tage vor der Deadline erinnern" },
+    "overdue_notice": { "title": "Den Verantwortlichen am Tag nach Überschreiten der Deadline informieren" },
+    "follow_up_date": { "title": "Die Maßnahme am Tag der Wiedervorlage erneut ansehen" },
+    "effectiveness_check": { "title": "Wirksamkeit einer Korrektur- oder Vorbeugungsmaßnahme nach 30 Tagen prüfen" },
+    "weekly_action_review": { "title": "Jeden Montag die Maßnahmen-Durchsicht durchführen" },
+    "decision_review": { "title": "Einen Beschluss zum Prüfdatum überprüfen" },
+    "request_form_action": { "title": "Aus einer über ein Formular gesendeten Anfrage eine Maßnahme anlegen" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jede Maßnahme hat einen von sechs Status.",
+    "due_field": "Jede Maßnahme hat einen Verantwortlichen und eine Deadline.",
+    "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
+  },
+  "page": {
+    "metaTitle": "ToDo Liste Vorlage: Maßnahmenplan mit Verantwortlichem",
+    "metaDescription": "ToDo Liste Vorlage für Besprechungen: in Claude, ChatGPT oder Codex einfügen und jede Maßnahme mit Verantwortlichem, Deadline und Durchsicht anlegen.",
+    "headline": "Beschlossenes wird erledigt: ein Maßnahmenplan, den Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Ein Maßnahmenplan ist eine Liste von Maßnahmen aus Besprechungen, Projekten und Audits, jede mit einem Verantwortlichen, einer Deadline und einem Status, verknüpft mit der Besprechung oder dem Beschluss, aus dem sie stammt. Gemeint ist der Maßnahmenplan für Projekte und Qualitätsmanagement, keine Pflegeplanung. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Besprechungen, Beschlussprotokoll und wöchentlicher Durchsicht. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+    "routine": {
+      "title": "Die wöchentliche Maßnahmen-Durchsicht in 15 Minuten",
+      "steps": [
+        "Sehen Sie nur die Ausnahmen an: blockierte Maßnahmen, Maßnahmen, die ihre Deadline reißen, und Maßnahmen ohne nächsten Schritt.",
+        "Legen Sie bei jeder blockierten Maßnahme fest, wer die Blockade auflösen kann, und setzen Sie eine Wiedervorlage.",
+        "Entscheiden Sie bei jeder überfälligen Maßnahme mit dem Verantwortlichen: neue Deadline, an jemand anderen übergeben oder abbrechen.",
+        "Bestätigen Sie Terminänderungen in der Besprechung und nicht erst danach, und schließen Sie eine Maßnahme nur mit Nachweis ab, etwa einem Link, einer Datei oder einer Nachricht."
+      ]
+    },
+    "limits": [
+      "Es ist keine Projektmanagement-Software. Es gibt keine Abhängigkeiten zwischen Aufgaben, keine Zeitleiste und kein Gantt-Diagramm, keine Sprints und keine Zeiterfassung. Diese Aufgaben bleiben in Ihrem Projektwerkzeug.",
+      "Es ist kein validiertes Qualitätsmanagementsystem. Regulierte Korrekturmaßnahmen, etwa bei Medizinprodukten oder in der Luftfahrt, brauchen elektronische Signaturen und validierte Audit-Trails. Die Vorlage bietet einem kleinen Betrieb Übersicht und eine Wirksamkeitsprüfung, mehr nicht.",
+      "Pflegepläne und Gesundheitsdaten gehören nicht hinein.",
+      "Niemand wird automatisch erinnert. Die wöchentliche Durchsicht und das Dashboard zeigen, was fällig ist; Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt, und Sie entscheiden, welche Sie einschalten.",
+      "Eine Ansicht kann überfällige und blockierte Maßnahmen nicht zugleich zeigen, deshalb gibt es für jede eine eigene Ansicht."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in einen Maßnahmenplan?",
+        "answer": "Eine Überschrift, die mit einem Verb beginnt und weniger als zehn Wörter hat, ein benannter Verantwortlicher, ein konkretes Datum statt eines Zeitfensters wie nächste Woche und ein Status. Praktiker ergänzen eine Priorität und die Verknüpfung mit der Besprechung oder dem Beschluss, aus dem die Maßnahme stammt. Die Vorlage hält das alles in einer Liste, sodass eine Maßnahme ohne Verantwortlichen oder Datum sofort auffällt."
+      },
+      {
+        "question": "Welche Status braucht eine Maßnahme?",
+        "answer": "Gängige Leitfäden nennen Offen, In Bearbeitung, Erledigt und Blockiert, manche ergänzen eine Prüfung. Diese Vorlage hat sechs: Offen, In Bearbeitung, Blockiert, In Prüfung, Erledigt und Abgebrochen. Eskaliert wird bei Blockiert, nicht erst an der Deadline: Eine blockierte Maßnahme benennt, wer sie auflösen kann, und erhält eine Wiedervorlage."
+      },
+      {
+        "question": "Wann ist eine Maßnahme wirklich abgeschlossen?",
+        "answer": "Wenn es einen Nachweis gibt und nicht nur das Wort erledigt: einen Link, eine Datei oder eine Nachricht, dazu das tatsächliche Abschlussdatum. Eine Korrektur- oder Vorbeugungsmaßnahme gilt erst als abgeschlossen, wenn ihre Wirksamkeit geprüft wurde. Die Vorlage legt diese Prüfung 30 Tage nach dem Abschluss an, und Sie können die Frist ändern."
+      },
+      {
+        "question": "Versendet der Agent Protokolle oder Erinnerungen?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Was wir in Besprechungen vereinbaren, bleibt liegen, und ich sehe nicht, wer was bis wann erledigt. Richte in meinem Customermates-Workspace einen Maßnahmenplan ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+    "questions": [
+      "Woher kommen deine Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
+      "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",
+      "Brauchst du Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
+      "Führst du Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
+    ]
+  }
+}

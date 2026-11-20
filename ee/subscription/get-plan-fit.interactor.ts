@@ -18,6 +18,8 @@ const PlanFitSchema = z.object({
   openDrafts: z.number(),
   activeRoutines: z.number(),
   maxRoutinesPerOwner: z.number(),
+  activeAutomationRules: z.number(),
+  formSubmissionsThisMonth: z.number(),
   webhooks: z.number(),
   mateRequests: z.number(),
   apiClients: z.number(),

@@ -1,17 +1,33 @@
 import type { AppMode } from "@/core/config/environment";
+import type { HandOverPublicEndpointsService } from "@/features/workspace/hand-over-public-endpoints.service";
 import type { FreePlanMember, FreePlanMemberRepo } from "./free-plan-member.repo";
 import type { PlanInviteRepo } from "./plan-invite.repo";
 import type { PlanRoutinePauseRepo } from "./plan-routine-pause.repo";
+import type { PlanRulePauseRepo } from "./plan-rule-pause.repo";
 import type { PlanUsageSubscription } from "./plan-usage.repo";
 
 import { Status } from "@/generated/prisma";
 import { FREE_PLAN_USAGE_LIMITS } from "@/core/commercial/plan-catalog";
 
-import { isOnFreePlan, isSubscriptionUsable } from "./entitlements";
+import { effectivePlanId, getEntitlements, isOnFreePlan, isSubscriptionUsable } from "./entitlements";
 
-export type FreePlanSyncResult = { paused: number; resumed: number; routinesPaused: number; routinesResumed: number };
+export type FreePlanSyncResult = {
+  paused: number;
+  resumed: number;
+  routinesPaused: number;
+  routinesResumed: number;
+  rulesPaused: number;
+  rulesResumed: number;
+};
 
-const NOTHING: FreePlanSyncResult = { paused: 0, resumed: 0, routinesPaused: 0, routinesResumed: 0 };
+const NOTHING: FreePlanSyncResult = {
+  paused: 0,
+  resumed: 0,
+  routinesPaused: 0,
+  routinesResumed: 0,
+  rulesPaused: 0,
+  rulesResumed: 0,
+};
 
 function normalized(email: string): string {
   return email.trim().toLowerCase();
@@ -41,6 +57,14 @@ function rankFreePlanKeepers<T extends Pick<FreePlanMember, "email" | "isAdmin">
   return [...members].sort((a, b) => rank(a) - rank(b));
 }
 
+export function chooseFreePlanHeir(
+  members: Pick<FreePlanMember, "id" | "isAdmin">[],
+  keeperIds: string[],
+): string | null {
+  const keepers = keeperIds.flatMap((id) => members.find((member) => member.id === id) ?? []);
+  return (keepers.find((member) => member.isAdmin) ?? keepers[0])?.id ?? null;
+}
+
 export function chooseFreePlanRevival(
   members: Pick<FreePlanMember, "id" | "email" | "status" | "isAdmin" | "createdAt">[],
   ownerEmails: string[],
@@ -64,6 +88,8 @@ export class FreePlanPauseService {
     private readonly members: FreePlanMemberRepo,
     private readonly invites: PlanInviteRepo,
     private readonly routines: (companyId: string) => PlanRoutinePauseRepo,
+    private readonly rules: (companyId: string) => PlanRulePauseRepo,
+    private readonly handOverEndpoints: Pick<HandOverPublicEndpointsService, "invoke">,
     private readonly appMode: AppMode,
     private readonly seatQuantity: (companyId: string, activeMembers: number) => Promise<void> = () =>
       Promise.resolve(),
@@ -71,10 +97,16 @@ export class FreePlanPauseService {
 
   async syncUnscoped(companyId: string, now: Date = new Date()): Promise<FreePlanSyncResult> {
     if (this.appMode !== "cloud") return NOTHING;
-    const transition = freePlanTransition(await this.members.findPlanSubscriptionUnscoped(companyId), now);
-    if (transition === "pause") return this.pauseUnscoped(companyId, now);
-    if (transition === "resume") return this.resumeUnscoped(companyId, now);
-    return NOTHING;
+    const subscription = await this.members.findPlanSubscriptionUnscoped(companyId);
+    const transition = freePlanTransition(subscription, now);
+    if (!subscription || !transition) return NOTHING;
+    const result =
+      transition === "pause" ? await this.pauseUnscoped(companyId, now) : await this.resumeUnscoped(companyId, now);
+    const allowance = getEntitlements(effectivePlanId(subscription, now)).activeAutomationRules;
+    const rules = await this.rules(companyId).syncRulesToPlanLimitCompanyWide(
+      allowance === "unlimited" ? null : allowance,
+    );
+    return { ...result, rulesPaused: rules.paused, rulesResumed: rules.resumed };
   }
 
   private async pauseUnscoped(companyId: string, now: Date): Promise<FreePlanSyncResult> {
@@ -84,10 +116,14 @@ export class FreePlanPauseService {
     ]);
     const revival = chooseFreePlanRevival(members, ownerEmails);
     const revived = revival ? await this.members.reviveMemberForPlanUnscoped({ companyId, userId: revival }) : 0;
-    const keepers = new Set(chooseFreePlanKeepers(members, ownerEmails));
+    const keeperIds = chooseFreePlanKeepers(members, ownerEmails);
+    const keepers = new Set(keeperIds);
     const pausing = members
       .filter((member) => member.status === Status.active && !keepers.has(member.id))
       .map((member) => member.id);
+    const heir = chooseFreePlanHeir(members, keeperIds);
+    if (heir && pausing.length > 0)
+      await this.handOverEndpoints.invoke({ companyId, fromUserIds: pausing, toUserId: heir });
     const paused = await this.members.pauseMembersForPlanUnscoped({
       companyId,
       userIds: pausing,

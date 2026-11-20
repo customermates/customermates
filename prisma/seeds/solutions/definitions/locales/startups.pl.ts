@@ -1,8 +1,7 @@
 import type { Strings } from "../startups";
 
 export const pl: Strings = {
-  company: "Wymiar Software sp. z o.o.",
-  workspaceName: "Startupy",
+  company: "Wymiar",
   website: "https://wymiar-software.example",
   phones: {
     mobile: { templates: ["+48 500 000 ###"], start: 100 },

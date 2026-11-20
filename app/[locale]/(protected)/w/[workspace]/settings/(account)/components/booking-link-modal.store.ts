@@ -1,0 +1,260 @@
+import type { FormEvent } from "react";
+import type { RootStore } from "@/core/stores/root.store";
+import type { BookingAssignmentKind, BookingLinkDto, BookingQuestion } from "@/ee/calendar/booking.schema";
+import type { BookingSetup } from "@/ee/calendar/booking-setup";
+import type { WorkingHours, WorkingWeekday } from "@/ee/calendar/working-hours";
+
+import { action, makeObservable, observable } from "mobx";
+
+import { Resource } from "@/generated/prisma";
+
+import { saveBookingLinkAction } from "../../../calendar/booking-actions";
+
+import { BaseModalStore } from "@/core/base/base-modal.store";
+import { browserTimeZone } from "@/core/utils/time-zone";
+import { DEFAULT_WORKING_HOURS } from "@/ee/calendar/working-hours";
+
+export type BookingLinkForm = {
+  id: string;
+  title: string;
+  description: string;
+  calendarId: string;
+  durationMinutes: number;
+  bufferMinutes: number;
+  minNoticeMinutes: number;
+  horizonDays: number;
+  timeZone: string;
+  workingHours: WorkingHours;
+  withVideo: boolean;
+  personTypeId: string;
+  personRelationshipId: string;
+  recordTypeId: string;
+  startFieldId: string;
+  questions: BookingQuestion[];
+  successMessage: string;
+  enabled: boolean;
+  assignment: BookingAssignmentKind;
+  hostUserIds: string[];
+  inviteeChanges: boolean;
+};
+
+export type BookingHostOption = { userId: string; name: string };
+
+const EMPTY_SETUP: BookingSetup = { calendars: [], lists: [], relationships: [], blockedReason: null };
+
+function emptyForm(setup: BookingSetup): BookingLinkForm {
+  return {
+    id: "",
+    title: "",
+    description: "",
+    calendarId: setup.calendars[0]?.id ?? "",
+    durationMinutes: 30,
+    bufferMinutes: 0,
+    minNoticeMinutes: 240,
+    horizonDays: 30,
+    timeZone: browserTimeZone(),
+    workingHours: structuredClone(DEFAULT_WORKING_HOURS),
+    withVideo: false,
+    personTypeId: "",
+    personRelationshipId: "",
+    recordTypeId: "",
+    startFieldId: "",
+    questions: [],
+    successMessage: "",
+    enabled: true,
+    assignment: "single",
+    hostUserIds: [],
+    inviteeChanges: true,
+  };
+}
+
+export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
+  setup: BookingSetup = EMPTY_SETUP;
+  onSaved: (() => void) | null = null;
+  calendarMissing = false;
+  hostOptions: BookingHostOption[] = [];
+
+  constructor(rootStore: RootStore) {
+    super(rootStore, emptyForm(EMPTY_SETUP), Resource.inboxMessages);
+
+    makeObservable(this, {
+      setup: observable.ref,
+      hostOptions: observable.ref,
+      calendarMissing: observable,
+      configure: action,
+      start: action,
+    });
+  }
+
+  configure = (setup: BookingSetup, onSaved: () => void, hostOptions: BookingHostOption[] = []) => {
+    this.setup = setup;
+    this.onSaved = onSaved;
+    this.hostOptions = hostOptions;
+  };
+
+  get knownHosts(): BookingHostOption[] {
+    const known = new Map(this.hostOptions.map((host) => [host.userId, host]));
+    for (const host of this.storedHosts) if (!known.has(host.userId)) known.set(host.userId, host);
+
+    return [...known.values()];
+  }
+
+  private storedHosts: BookingHostOption[] = [];
+
+  private get hostsChanged(): boolean {
+    const wanted = this.form.assignment === "roundRobin" ? this.form.hostUserIds : [];
+    const stored = this.storedHosts.map((host) => host.userId);
+
+    return wanted.length !== stored.length || wanted.some((userId) => !stored.includes(userId));
+  }
+
+  toggleHost = (userId: string, hosting: boolean) => {
+    const without = this.form.hostUserIds.filter((id) => id !== userId);
+    this.onChange("hostUserIds", hosting ? [...without, userId] : without);
+  };
+
+  get selectedRecordList() {
+    return this.setup.lists.find((list) => list.id === this.form.recordTypeId) ?? null;
+  }
+
+  get personRelationships() {
+    const { personTypeId, recordTypeId } = this.form;
+    return this.setup.relationships.filter(
+      (relation) =>
+        (relation.sourceTypeId === recordTypeId && relation.targetTypeId === personTypeId) ||
+        (relation.targetTypeId === recordTypeId && relation.sourceTypeId === personTypeId),
+    );
+  }
+
+  get unusedQuestionFields() {
+    const used = new Set(this.form.questions.map((question) => question.fieldId));
+    return (this.selectedRecordList?.questionFields ?? []).filter((field) => !used.has(field.id));
+  }
+
+  start = (link?: BookingLinkDto, invoker?: HTMLElement | null) => {
+    this.calendarMissing = link ? link.calendarId === null : false;
+    this.storedHosts = link ? link.hosts.map(({ userId, name }) => ({ userId, name })) : [];
+    this.onInitOrRefresh(
+      link
+        ? {
+            id: link.id,
+            title: link.title,
+            description: link.description ?? "",
+            calendarId: link.calendarId ?? "",
+            durationMinutes: link.durationMinutes,
+            bufferMinutes: link.bufferMinutes,
+            minNoticeMinutes: link.minNoticeMinutes,
+            horizonDays: link.horizonDays,
+            timeZone: link.timeZone,
+            workingHours: structuredClone(link.workingHours),
+            withVideo: link.withVideo,
+            personTypeId: link.personTypeId ?? "",
+            personRelationshipId: link.personRelationshipId ?? "",
+            recordTypeId: link.recordTypeId ?? "",
+            startFieldId: link.startFieldId ?? "",
+            questions: structuredClone(link.questions),
+            successMessage: link.successMessage ?? "",
+            enabled: link.enabled,
+            assignment: link.assignment,
+            hostUserIds: link.hosts.map((host) => host.userId),
+            inviteeChanges: link.inviteeChanges,
+          }
+        : emptyForm(this.setup),
+    );
+    if (invoker) this.openFrom(invoker);
+    else this.open();
+  };
+
+  private chooseRelationship = () => {
+    this.onChange("personRelationshipId", this.personRelationships.length === 1 ? this.personRelationships[0].id : "");
+  };
+
+  setPersonList = (typeId: string) => {
+    this.onChange("personTypeId", typeId);
+    this.chooseRelationship();
+  };
+
+  setRecordList = (typeId: string) => {
+    this.onChange("recordTypeId", typeId);
+    this.onChange("startFieldId", "");
+    this.onChange("questions", []);
+    this.chooseRelationship();
+  };
+
+  setDay = (day: WorkingWeekday, patch: { open?: boolean; start?: string; end?: string }) => {
+    const first = this.form.workingHours[day][0] ?? { start: "09:00", end: "17:00" };
+    const open = patch.open ?? this.form.workingHours[day].length > 0;
+    this.onChange(
+      `workingHours.${day}`,
+      open ? [{ start: patch.start ?? first.start, end: patch.end ?? first.end }] : [],
+    );
+  };
+
+  addQuestion = (fieldId: string) => {
+    this.onChange("questions", [...this.form.questions, { fieldId, required: false }]);
+  };
+
+  setQuestion = (index: number, patch: Partial<BookingQuestion>) => {
+    this.onChange(
+      "questions",
+      this.form.questions.map((question, position) => (position === index ? { ...question, ...patch } : question)),
+    );
+  };
+
+  removeQuestion = (index: number) => {
+    this.onChange(
+      "questions",
+      this.form.questions.filter((_, position) => position !== index),
+    );
+  };
+
+  protected override prepareToClose(): boolean {
+    return !this.isLoading;
+  }
+
+  onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
+    if (this.isLoading) return;
+
+    this.setIsLoading(true);
+    let saved = false;
+    try {
+      const { form } = this;
+      const result = await saveBookingLinkAction({
+        ...(form.id ? { id: form.id } : {}),
+        calendarId: form.calendarId,
+        title: form.title,
+        description: form.description.trim() || null,
+        durationMinutes: form.durationMinutes,
+        bufferMinutes: form.bufferMinutes,
+        minNoticeMinutes: form.minNoticeMinutes,
+        horizonDays: form.horizonDays,
+        timeZone: form.timeZone,
+        workingHours: form.workingHours,
+        withVideo: form.withVideo,
+        personTypeId: form.personTypeId || null,
+        personRelationshipId: form.personTypeId && form.recordTypeId ? form.personRelationshipId || null : null,
+        recordTypeId: form.recordTypeId || null,
+        startFieldId: form.recordTypeId ? form.startFieldId || null : null,
+        questions: form.recordTypeId ? form.questions : [],
+        successMessage: form.successMessage.trim() || null,
+        enabled: form.enabled,
+        assignment: form.assignment,
+        inviteeChanges: form.inviteeChanges,
+        ...(this.hostsChanged ? { hostUserIds: form.assignment === "roundRobin" ? form.hostUserIds : [] } : {}),
+      });
+      if (!result.ok) {
+        this.setError(result.error as never);
+        return;
+      }
+
+      saved = true;
+      this.setIsLoading(false);
+      this.toastSuccess("Booking.saved");
+      this.close();
+      this.onSaved?.();
+    } finally {
+      if (!saved) this.setIsLoading(false);
+    }
+  };
+}

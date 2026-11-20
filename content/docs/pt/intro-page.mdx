@@ -1,12 +1,12 @@
 ---
 title: "Documentação do CRM Customermates"
-description: "CRM de código aberto para acompanhar clientes: conversas no registro do cliente e respostas do Mate ou do seu agente de IA via MCP, que você revisa e envia."
+description: "CRM com hospedagem própria para acompanhar clientes: conversas no registro do cliente e respostas do Mate ou do seu agente de IA via MCP, que você revisa."
 demo:
   src: https://demo.customermates.com/pt/w/pequenas-empresas/dashboard?agentChat=closed
   title: Demo do Customermates
 ---
 
-O Customermates é um CRM de código aberto para equipes pequenas que atendem clientes. No Customermates Cloud, a partir do Pro, você conecta e-mail e LinkedIn, além de WhatsApp, Instagram, Telegram e Messenger, e as conversas ficam no registro do cliente quando os dados de contato coincidem ou quando você as vincula. O Mate, o assistente integrado ao Customermates Cloud, ou o seu próprio agente de IA redige a resposta e o próximo passo; você revisa, edita e envia. Claude, ChatGPT, Cursor e qualquer outro cliente que fale o Model Context Protocol leem e gravam no seu CRM diretamente por um endpoint MCP nativo, sem copiar e colar, em todos os planos e em instâncias com hospedagem própria.
+O Customermates é um CRM com hospedagem própria e código-fonte disponível para equipes pequenas que atendem clientes. No Customermates Cloud, a partir do Pro, você conecta e-mail e LinkedIn, além de WhatsApp, Instagram, Telegram e Messenger, e as conversas ficam no registro do cliente quando os dados de contato coincidem ou quando você as vincula. O Mate, o assistente integrado ao Customermates Cloud, ou o seu próprio agente de IA redige a resposta e o próximo passo; você revisa, edita e envia. Claude, ChatGPT, Cursor e qualquer outro cliente que fale o Model Context Protocol leem e gravam no seu CRM diretamente por um endpoint MCP nativo, sem copiar e colar, em todos os planos e em instâncias com hospedagem própria.
 
 ## Escolha o seu cliente e comece [#pick-your-client-and-start]
 
@@ -24,7 +24,7 @@ Cada página traz os passos para conectar e os seus primeiros comandos, e o serv
 Um CRM com listas, campos, relações e cálculos configuráveis, visualizações em tabela e em quadro, e painéis. No Customermates Cloud, você descreve o seu negócio, responde a algumas perguntas e o Mate desenha as suas listas, o funil, o painel e as páginas da Base de conhecimento, que você revisa antes de qualquer coisa ser criada; você pode mudar tudo e adicionar listas próprias. Além disso:
 
 - **Endpoint MCP nativo** em `/api/v1/mcp`: um cliente MCP descobre e chama as operações do CRM sem nenhum plugin.
-- **Código aberto** sob a licença AGPLv3; os componentes enterprise ficam sob uma licença comercial separada. Hospede por conta própria ou use a nuvem gerenciada.
+- **Código-fonte disponível** sob a Sustainable Use License (fair-code, não é código aberto no sentido da OSI): uso interno grátis, sem revenda nem hospedagem para terceiros; os componentes enterprise ficam sob uma licença comercial separada. Hospede por conta própria ou use a nuvem gerenciada.
 - **Nuvem gerenciada** com o banco de dados na região da AWS em Frankfurt, um [DPA](/dpa) e todos os subprocessadores, inclusive os provedores dos EUA, listados na [página de subprocessadores](/subprocessors).
 - **Webhooks** com payloads assinados de forma opcional, novas tentativas e um registro de entregas.
 - **Especificação OpenAPI 3.1** de toda a superfície REST em `/api/v1/openapi`.

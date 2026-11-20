@@ -26,13 +26,13 @@ blogPost:
 
 # CRM gratis: qué incluye cada plan gratuito y dónde se acaba
 
-Sí, puedes llevar un CRM gratis. HubSpot, Zoho, Salesforce, Capsule, Bitrix24 y CentralStationCRM ofrecen un plan alojado que no cuesta nada y no tiene fecha de fin, pero cada uno pone un tope a los usuarios, los contactos o el almacenamiento. La otra vía gratuita es un CRM de código abierto como SuiteCRM, EspoCRM o Customermates que instalas en tu propio servidor: sin cuota de licencia y sin contar plazas, pero pagas el servidor y las horas para mantenerlo.
+Sí, puedes llevar un CRM gratis. HubSpot, Zoho, Salesforce, Capsule, Bitrix24 y CentralStationCRM ofrecen un plan alojado que no cuesta nada y no tiene fecha de fin, pero cada uno pone un tope a los usuarios, los contactos o el almacenamiento. La otra vía gratuita es un CRM autoalojable como SuiteCRM o EspoCRM (código abierto) o Customermates (código fuente disponible) que instalas en tu propio servidor: sin cuota de licencia y sin contar plazas, pero pagas el servidor y las horas para mantenerlo.
 
 Una prueba gratuita es una tercera cosa y no es un plan gratuito. Pipedrive y Freshsales, por ejemplo, ofrecen pruebas de planes de pago. La pregunta útil no es cuál es el mejor CRM gratuito, sino qué tope va a alcanzar primero tu equipo y cuánto cuesta el paso siguiente.
 
 <ArticleSummary title="De un vistazo">
   <SummaryItem label="Planes alojados gratuitos">La mayoría limita el equipo a dos o tres usuarios. Los topes de contactos van de 200 (CentralStationCRM) a 1.000 (HubSpot), y Zoho cuenta 5.000 registros entre todos los módulos.</SummaryItem>
-  <SummaryItem label="Código abierto">SuiteCRM, EspoCRM y el núcleo de Customermates tienen licencia AGPL y se pueden alojar gratis en tu propio servidor. El alojamiento, las actualizaciones y las copias de seguridad corren por tu cuenta.</SummaryItem>
+  <SummaryItem label="Autoalojado">SuiteCRM y EspoCRM tienen licencia AGPL, y la edición Community de Customermates tiene el código fuente disponible; los tres se pueden alojar gratis en tu propio servidor para uso interno. El alojamiento, las actualizaciones y las copias de seguridad corren por tu cuenta.</SummaryItem>
   <SummaryItem label="Pruebas">Pipedrive ofrece 14 días, Freshsales 21 días y Customermates Cloud [[commercial.trial.days]] días. Después pagas o te vas; Customermates Cloud pasa a su plan gratuito para [[commercial.limit.free.maxMembers]] persona.</SummaryItem>
   <SummaryItem label="Transparencia">Customermates publica esta guía. La lista de abajo no es una clasificación, y Customermates tiene su propia sección señalada.</SummaryItem>
 </ArticleSummary>
@@ -90,7 +90,7 @@ Cuando llegues a uno, el coste no es el cero de antes sino el del nivel siguient
 
 ## La vía del código abierto: licencia gratis, operación de pago
 
-[SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) y [EspoCRM](https://www.espocrm.com/download/) se publican bajo la AGPLv3 y se pueden descargar y ejecutar en tu propio servidor. Los dos fabricantes venden también alojamiento y servicios: SuiteCRM ofrece alojamiento, soporte y su programa SuiteASSURED, y EspoCRM ofrece una versión en la nube y extensiones de pago. El núcleo de Customermates es AGPL también, y nuestra [guía de CRM de código abierto](/blog/open-source-crm) compara con más detalle las opciones autoalojadas.
+[SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) y [EspoCRM](https://www.espocrm.com/download/) se publican bajo la AGPLv3 y se pueden descargar y ejecutar en tu propio servidor. Los dos fabricantes venden también alojamiento y servicios: SuiteCRM ofrece alojamiento, soporte y su programa SuiteASSURED, y EspoCRM ofrece una versión en la nube y extensiones de pago. La edición Community de Customermates tiene el código fuente disponible, sin ser de código abierto, y nuestra [guía de CRM de código abierto](/blog/open-source-crm) compara con más detalle las opciones autoalojadas.
 
 La licencia no cuesta nada. Lo que sí cuesta:
 
@@ -123,9 +123,9 @@ Para un equipo de cinco, un VPS pequeño puede costar al mes menos que cinco pla
 
 ## Dónde encaja Customermates
 
-*Transparencia: Customermates publica esta guía.* Customermates es un CRM de código abierto y nativo de IA creado en Alemania para equipos pequeños que atienden a clientes, como consultores, agencias y fundadores. Es gratis de autoalojar, y Customermates Cloud tiene un plan gratuito pequeño y planes de pago; se diferencian en lo que incluyen.
+*Transparencia: Customermates publica esta guía.* Customermates es un CRM autoalojable, con el código fuente disponible y nativo de IA, creado en Alemania para equipos pequeños que atienden a clientes, como consultores, agencias y fundadores. Es gratis de autoalojar, y Customermates Cloud tiene un plan gratuito pequeño y planes de pago; se diferencian en lo que incluyen.
 
-**Autoalojado: gratis y sin contar plazas.** Ejecutas el núcleo AGPL con Docker Compose: un contenedor de la app y un contenedor de PostgreSQL. Un espacio de trabajo autoalojado no tiene suscripción ni prueba, y la app no cuenta plazas. Tienes el conjunto de funciones de Starter: contactos, organizaciones, oportunidades, servicios y tareas, campos personalizados, vistas guardadas, paneles, roles, el registro de auditoría, REST, webhooks y MCP para tu propio cliente de IA. No tienes la bandeja de entrada unificada, ni Mate, ni créditos de IA alojados. Necesitas tu propia clave de API de Resend para el envío de correo. La [documentación de autoalojamiento](/docs/self-hosting) recorre la instalación.
+**Autoalojado: gratis y sin contar plazas.** Ejecutas la edición Community con Docker Compose, para uso interno: un contenedor de la app y un contenedor de PostgreSQL. Un espacio de trabajo autoalojado no tiene suscripción ni prueba, y la app no cuenta plazas. Tienes el conjunto de funciones de Starter: contactos, organizaciones, oportunidades, servicios y tareas, campos personalizados, vistas guardadas, paneles, roles, el registro de auditoría, REST, webhooks y MCP para tu propio cliente de IA. No tienes la bandeja de entrada unificada, ni Mate, ni créditos de IA alojados. Necesitas tu propia clave de API de Resend para el envío de correo. La [documentación de autoalojamiento](/docs/self-hosting) recorre la instalación.
 
 **Nube: un plan gratuito pequeño, planes de pago y una prueba.** Customermates Cloud tiene un plan gratuito para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin la bandeja de entrada, sin Mate y sin rutinas. La prueba dura [[commercial.trial.days]] días sin tarjeta de crédito. Después, un equipo de tres personas paga [[commercial.price.starter.monthly.seats.3]] al mes en Starter, que no tiene bandeja de entrada, o [[commercial.price.pro.monthly.seats.3]] en Pro, que añade la bandeja de entrada unificada para las conversaciones de correo, LinkedIn, WhatsApp, Instagram y Telegram. La facturación es solo mensual. Todos los planes de pago en la nube incluyen cada mes créditos de IA alojados por usuario activo para Mate, el asistente de Customermates Cloud; consulta los [precios](/pricing) para ver las cantidades.
 
@@ -156,7 +156,7 @@ Sí. El 8 de octubre de 2026, la propia página de HubSpot describía su CRM gra
 </FaqItem>
 
 <FaqItem question="¿Qué CRM es gratuito?">
-Entre los planes alojados sin fecha de fin de esta guía: las herramientas gratuitas de HubSpot, Zoho CRM Free Edition, Salesforce Free Suite, Capsule Free, Bitrix24 Free y CentralStationCRM Starter. Además, los CRM de código abierto como SuiteCRM, EspoCRM y Customermates se pueden autoalojar sin cuota de licencia, y Customermates Cloud tiene un plan gratuito para [[commercial.limit.free.maxMembers]] persona.
+Entre los planes alojados sin fecha de fin de esta guía: las herramientas gratuitas de HubSpot, Zoho CRM Free Edition, Salesforce Free Suite, Capsule Free, Bitrix24 Free y CentralStationCRM Starter. Además, SuiteCRM y EspoCRM (código abierto) y Customermates (código fuente disponible) se pueden autoalojar sin cuota de licencia, y Customermates Cloud tiene un plan gratuito para [[commercial.limit.free.maxMembers]] persona.
 </FaqItem>
 
 <FaqItem question="¿Cuál es el mejor CRM gratuito?">
@@ -164,7 +164,7 @@ Aquel cuyos topes tu equipo no vaya a alcanzar en un año. Para dos personas, Ca
 </FaqItem>
 
 <FaqItem question="¿Hay un CRM gratuito con usuarios ilimitados?">
-No entre los planes alojados gratuitos de esta guía: se quedan en dos o tres usuarios. Los CRM de código abierto autoalojados, como SuiteCRM, EspoCRM y Customermates, no cuentan plazas, así que el límite son tu servidor y tu tiempo.
+No entre los planes alojados gratuitos de esta guía: se quedan en dos o tres usuarios. Los CRM autoalojados, como SuiteCRM, EspoCRM y Customermates, no cuentan plazas, así que el límite son tu servidor y tu tiempo.
 </FaqItem>
 
 <FaqItem question="¿Qué diferencia hay entre un CRM gratuito y una prueba gratuita?">
@@ -192,7 +192,7 @@ Una hoja de cálculo sirve para una persona y una lista corta. Cuando las oportu
 </FaqItem>
 
 <FaqItem question="¿Tiene Customermates un plan gratuito?">
-El autoalojamiento es gratis: sin suscripción, sin prueba y sin contar plazas, con el núcleo bajo la AGPL. Usa el conjunto de funciones de Starter sin la bandeja de entrada ni Mate. Customermates Cloud tiene un plan gratuito para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin la bandeja de entrada, sin Mate y sin rutinas; tiene además una prueba de Pro de [[commercial.trial.days]] días sin tarjeta de crédito y planes de pago con facturación mensual por usuario.
+El autoalojamiento es gratis: sin suscripción, sin prueba y sin contar plazas, con la edición Community para uso interno. Usa el conjunto de funciones de Starter sin la bandeja de entrada ni Mate. Customermates Cloud tiene un plan gratuito para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin la bandeja de entrada, sin Mate y sin rutinas; tiene además una prueba de Pro de [[commercial.trial.days]] días sin tarjeta de crédito y planes de pago con facturación mensual por usuario.
 </FaqItem>
 </Faq>
 

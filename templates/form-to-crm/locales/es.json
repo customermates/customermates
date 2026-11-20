@@ -1,0 +1,138 @@
+{
+  "locale": "es",
+  "name": "Formulario a CRM",
+  "summary": "Que ninguna consulta de tus formularios web se quede sin respuesta. Cada envío se convierte en una solicitud con su origen y una respuesta pendiente, avanza de nueva a convertida y deja aparte el spam y lo que no encaja.",
+  "description": "Las consultas de tus formularios de contacto, de presupuesto o de admisión llegan a una bandeja donde se contestan tarde o nunca, y no sabes de dónde vienen las buenas. Esta plantilla convierte cada envío en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta para el día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, una solicitud sin respuesta se señala, y el consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que te escriben por un formulario." },
+    "requests": { "label": "Solicitud", "pluralLabel": "Solicitudes", "description": "Un envío de formulario, de nueva a convertida, no encaja o spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Empresa" },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.marketing_consent": { "label": "Consentimiento para correos comerciales" },
+    "contacts.marketing_consent_on": { "label": "Consentimiento dado el" },
+    "requests.stage": {
+      "label": "Fase",
+      "options": { "new": "Nueva", "contacted": "Contactada", "qualified": "Cualificada", "converted": "Convertida", "not_a_fit": "No encaja", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formulario", "options": { "contact": "Formulario de contacto", "quote_request": "Solicitud de presupuesto", "intake": "Formulario de admisión", "callback": "Solicitud de llamada", "other": "Otro" } },
+    "requests.owner": { "label": "Responsable" },
+    "requests.service_interest": { "label": "Servicio de interés" },
+    "requests.needed_by": {
+      "label": "Para cuándo",
+      "options": { "asap": "Cuanto antes", "within_a_month": "En un mes", "within_three_months": "En tres meses", "just_looking": "Solo informarse", "no_answer": "Sin respuesta" }
+    },
+    "requests.budget_band": { "label": "Presupuesto", "options": { "no_answer": "Sin respuesta", "low": "Bajo", "medium": "Medio", "high": "Alto" } },
+    "requests.submitted_at": { "label": "Recibida" },
+    "requests.first_response_at": { "label": "Primera respuesta" },
+    "requests.utm_source": { "label": "Origen del visitante" },
+    "requests.landing_page": { "label": "Página del formulario" },
+    "requests.repeat_submission": { "label": "Ya había escrito" },
+    "requests.not_a_fit_reason": {
+      "label": "Por qué no encaja",
+      "options": { "out_of_area": "Fuera de nuestra zona", "no_budget": "Sin presupuesto", "wrong_service": "Servicio equivocado", "no_response": "Sin respuesta", "duplicate": "Duplicada", "other": "Otro" }
+    },
+    "requests.closed_on": { "label": "Cerrada el" },
+    "requests.data_review_on": { "label": "Revisión de datos el" },
+    "requests.days_to_close": { "label": "Días del envío al cierre" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "qualify_call": "Llamada de cualificación", "send_quote": "Enviar un presupuesto", "convert": "Pasar al pipeline", "chase": "Reclamar", "data_review": "Revisar los datos", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contacto", "targetLabel": "Solicitudes" },
+    "action_request": { "sourceLabel": "Solicitud", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "requests_all": { "name": "Todas las solicitudes" },
+    "requests_board": { "name": "Tablero de solicitudes" },
+    "new_requests": { "name": "Solicitudes nuevas" },
+    "closed_without_deal": { "name": "No encajan o spam" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Solicitudes por fase" },
+    "requests_per_week": { "title": "Solicitudes por semana" },
+    "requests_by_form": { "title": "Solicitudes por formulario" },
+    "new_requests_count": { "title": "Solicitudes nuevas" },
+    "not_a_fit_reasons": { "title": "Por qué las solicitudes no encajan" },
+    "average_days_to_close": { "title": "Media de días hasta el cierre" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Guía del formulario al CRM", "sections": ["Qué formularios usamos y quién responde", "En cuánto tiempo respondemos"] },
+    "privacy_notice": { "title": "Aviso de privacidad de los formularios", "sections": ["Qué decimos en el formulario", "Cuánto tiempo conservamos una consulta"] },
+    "spam_and_duplicates": { "title": "Spam y envíos repetidos", "sections": ["Qué cuenta como spam", "Qué hacemos cuando la misma persona vuelve a escribir"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Crear el contacto y la solicitud cuando se envía el formulario de consulta" },
+    "reply_task": { "title": "Crear una tarea de respuesta para el día siguiente cuando se crea una solicitud" },
+    "first_response_missed": { "title": "Avisar a la persona a cargo cuando una solicitud sigue nueva un día después de recibirla" },
+    "chase_contacted": { "title": "Reclamar una solicitud contactada que lleva 3 días sin moverse" },
+    "converted_task": { "title": "Pasar la solicitud al pipeline cuando se convierte" },
+    "review_date_not_a_fit": { "title": "Fijar la revisión de datos dentro de un año cuando una solicitud no encaja" },
+    "data_review": { "title": "Revisar los datos cuando llega la fecha de revisión" },
+    "external_form_records": { "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía una respuesta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada solicitud tiene una fase.",
+    "submitted_field": "Cada solicitud indica cuándo se recibió.",
+    "requests_board_view": "Las solicitudes se abren como tablero por fase."
+  },
+  "page": {
+    "metaTitle": "Formulario de contacto con CRM: ninguna solicitud perdida",
+    "metaDescription": "Formulario de contacto que alimenta tu CRM: pega la plantilla en Claude, ChatGPT o Codex y cada solicitud tiene responsable y una respuesta con fecha.",
+    "headline": "Un formulario de contacto conectado a tu CRM: cada solicitud tiene responsable y una respuesta con fecha",
+    "answer": "Un formulario de contacto solo sirve si se responde a cada envío. Esta plantilla convierte cada envío en una solicitud enlazada a un contacto, con el formulario de origen, una respuesta con fecha para el día siguiente y una etapa de nueva a convertida. Pégala en tu agente de IA: monta la lista de solicitudes en Customermates y el camino desde tu formulario, y tú apruebas el plan antes de que se construya nada.",
+    "routine": {
+      "title": "La primera respuesta a cada solicitud",
+      "steps": [
+        "Responde a las solicitudes nuevas el mismo día. La plantilla crea una tarea de respuesta con fecha para el día siguiente y avisa de una solicitud que sigue nueva pasado un día.",
+        "Envía una confirmación breve que repita la solicitud con las palabras de la persona y diga cuándo llegará la respuesta o el presupuesto.",
+        "Haz la una o dos preguntas que deciden el precio o quién se encarga, en lugar de exigir de entrada un formulario largo.",
+        "Haz seguimiento de una solicitud contactada a los 3 días. Si el seguimiento sigue sin respuesta, márcala como No encaja con el motivo sin respuesta.",
+        "Marca el spam y las solicitudes que no encajan y deja correr su fecha de revisión de datos, para que las solicitudes antiguas se revisen o se borren a tiempo.",
+        "Pasa cada solicitud que se convierte en negocio a tu pipeline de ventas y márcala aquí como convertida."
+      ]
+    },
+    "limits": [
+      "El formulario público es sencillo y no un creador completo: sin pagos, cuestionarios, calculadoras, subida de archivos ni firma electrónica. Para eso siguen siendo mejores Typeform, Tally o Jotform, y un webhook entrante trae aquí sus respuestas.",
+      "Deja los documentos sensibles fuera del formulario. Pídelos por un canal con control de acceso.",
+      "No envía nada por sí solo. Las confirmaciones y las respuestas son borradores que revisas y envías tú.",
+      "No es una herramienta de correo masivo. Registra un consentimiento de marketing, pero las secuencias y los boletines necesitan otra herramienta, porque Customermates no tiene secuencias ni envíos masivos.",
+      "Los textos de privacidad son un punto de partida, no asesoramiento jurídico. Adapta el aviso, el texto de consentimiento y los plazos de conservación a tu país con tu asesor."
+    ],
+    "faq": [
+      {
+        "question": "¿Qué debe preguntar un formulario de solicitud de presupuesto?",
+        "answer": "Solo lo que cambia el precio o decide quién responde: normalmente de cuatro a siete preguntas, como qué necesitas, para cuándo y un margen de presupuesto. Deja los detalles para la primera llamada. La plantilla guarda el formulario, la página y el origen de cada solicitud, para que veas de dónde vienen las buenas."
+      },
+      {
+        "question": "¿Con qué rapidez debo responder a una solicitud de la web?",
+        "answer": "Tan rápido como puedas prometer y cumplir: como mucho el mismo día, y di en el formulario cuándo tendrá noticias la persona. Las guías de proveedores de formularios recomiendan un primer mensaje que confirme la solicitud e indique cuándo llega el presupuesto. La plantilla crea una tarea de respuesta con fecha para el día siguiente y avisa de una solicitud que nadie ha tocado pasado un día."
+      },
+      {
+        "question": "¿Necesito una casilla de consentimiento en un formulario de presupuesto?",
+        "answer": "No automáticamente. Según el RGPD, una solicitud de presupuesto se trata normalmente para responderla, así que lo que debes a la persona en el formulario es información: quién eres, para qué usas los datos, con qué base, cuánto tiempo los conservas y qué derechos tiene. La publicidad exige un consentimiento aparte, sin casilla premarcada, que puedas demostrar; una casilla ya marcada no cuenta. La plantilla registra el consentimiento y una fecha de revisión de los datos, y la casilla de consentimiento opcional del formulario guarda tu texto, su versión y la hora en cada envío. No es asesoramiento jurídico."
+      },
+      {
+        "question": "¿Funciona con Typeform, Tally o Jotform?",
+        "answer": "Sí, con cualquier herramienta de formularios que pueda enviar un webhook, como Typeform, Tally o Jotform. Un webhook entrante da a una lista una dirección secreta, y cada respuesta enviada ahí crea o actualiza un registro. La plantilla incluye una regla que crea el contacto y la solicitud cuando otra herramienta de formularios envía una respuesta, y tu agente prepara en la entrevista la dirección y la correspondencia de campos. Los webhooks entrantes necesitan el plan Starter o superior en Customermates Cloud y no tienen límite en instalaciones autoalojadas. Un formulario de tu propia web funciona igual, o usas el formulario público de Customermates."
+      },
+      {
+        "question": "¿El agente escribe a las personas que rellenan mi formulario?",
+        "answer": "No. El prompt indica al agente que no envíe nada y que no cree datos de ejemplo. Los borradores solo existen si los pides, y los envías tú."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Las consultas de los formularios de mi web se contestan tarde o nunca, y no veo de dónde vienen las buenas. Configura en mi espacio de trabajo de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
+    "questions": [
+      "¿Qué formularios usas y qué necesitas saber para presupuestar o derivar una consulta?",
+      "¿Quién responde y en cuánto tiempo te comprometes a hacerlo?",
+      "¿Qué dices a las personas sobre sus datos en el formulario?",
+      "¿Usas otra herramienta de formularios como Typeform, Tally o Jotform?"
+    ]
+  }
+}

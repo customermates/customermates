@@ -56,6 +56,14 @@ describe("production style sources", () => {
     expect(() => generateStyleSources(root, false)).toThrow("nonliteral dynamic import");
   });
 
+  it("accepts the lazy template bundle import from core/templates and no other template literal path", () => {
+    write("app/layout.tsx", 'import { load } from "@/core/templates/loader"; export default load;');
+    write("core/templates/loader.ts", "export const load = (slug: string) => import(`./bundles/${slug}.json`);");
+    expect(() => generateStyleSources(root, false)).not.toThrow();
+    write("core/templates/loader.ts", "export const load = (slug: string) => import(`./other/${slug}.json`);");
+    expect(() => generateStyleSources(root, false)).toThrow("nonliteral dynamic import");
+  });
+
   it("covers generated MDX input without requiring Fumadocs output at config-load time", () => {
     write("app/layout.tsx", 'import { docs } from "@/.source/server"; export default docs;');
     generateStyleSources(root, false);

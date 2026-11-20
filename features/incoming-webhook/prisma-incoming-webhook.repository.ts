@@ -1,0 +1,215 @@
+import type {
+  IncomingWebhookCreate,
+  IncomingWebhookPatch,
+  IncomingWebhookRepo,
+  NewIncomingDelivery,
+  StoredIncomingDelivery,
+  StoredIncomingWebhook,
+} from "./incoming-webhook.repo";
+import type { IncomingWebhookLookup, IncomingWebhookLookupRepo } from "./incoming-webhook-lookup.repo";
+import type { GetIncomingWebhooksRepo } from "./get-incoming-webhooks.repo";
+import type { IncomingWebhookSettings } from "./incoming-webhook-dto";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+
+import { QueryRepository } from "@/core/base/query-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { Prisma } from "@/generated/prisma";
+
+import { toIncomingWebhookDto } from "./incoming-webhook-dto";
+
+const WEBHOOK_SELECT = {
+  id: true,
+  typeId: true,
+  name: true,
+  createdById: true,
+  enabled: true,
+  tokenVersion: true,
+  signingSecret: true,
+  signatureHeader: true,
+  mapping: true,
+  samplePayload: true,
+  lastReceivedAt: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+function jsonValue(value: unknown): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  return value === null || value === undefined ? Prisma.JsonNull : (value as Prisma.InputJsonValue);
+}
+
+export class PrismaIncomingWebhookRepo
+  extends QueryRepository<Prisma.IncomingWebhookWhereInput>
+  implements IncomingWebhookRepo, IncomingWebhookLookupRepo, GetIncomingWebhooksRepo
+{
+  constructor(private readonly settings?: IncomingWebhookSettings) {
+    super();
+  }
+
+  getSearchableFields() {
+    return [{ field: "name" }];
+  }
+
+  getSortableFields() {
+    return [
+      { field: "name", resolvedFields: ["name"], collate: true },
+      { field: "createdAt", resolvedFields: ["createdAt"] },
+      { field: "updatedAt", resolvedFields: ["updatedAt"] },
+    ];
+  }
+
+  getFilterableFields() {
+    return Promise.resolve([
+      { field: FilterFieldKey.updatedAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt] },
+      { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+    ]);
+  }
+
+  async getItems(params: GetQueryParams) {
+    const settings = this.settings;
+    if (!settings) throw new Error("PrismaIncomingWebhookRepo needs settings to list webhooks");
+    const rows = await this.list({
+      model: "incomingWebhook",
+      baseWhere: { companyId: this.companyId },
+      select: WEBHOOK_SELECT,
+      params,
+      map: (webhook: StoredIncomingWebhook) => toIncomingWebhookDto(webhook, settings),
+    });
+    return rows.flatMap((row) => row ?? []);
+  }
+
+  async getCount(params: GetQueryParams) {
+    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
+
+    return this.prisma.incomingWebhook.count({ where });
+  }
+
+  findWebhook(id: string): Promise<StoredIncomingWebhook | null> {
+    return this.prisma.incomingWebhook.findFirst({ where: { id, companyId: this.companyId }, select: WEBHOOK_SELECT });
+  }
+
+  listWebhooks(typeId?: string): Promise<StoredIncomingWebhook[]> {
+    return this.prisma.incomingWebhook.findMany({
+      where: { companyId: this.companyId, ...(typeId ? { typeId } : {}) },
+      select: WEBHOOK_SELECT,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+  }
+
+  createWebhook(data: IncomingWebhookCreate): Promise<StoredIncomingWebhook> {
+    return this.prisma.incomingWebhook.create({
+      data: {
+        companyId: this.companyId,
+        createdById: this.userId,
+        typeId: data.typeId,
+        name: data.name,
+        enabled: data.enabled,
+        signingSecret: data.signingSecret,
+        signatureHeader: data.signatureHeader,
+        mapping: data.mapping,
+        samplePayload: jsonValue(data.samplePayload),
+      },
+      select: WEBHOOK_SELECT,
+    });
+  }
+
+  updateWebhook(id: string, patch: IncomingWebhookPatch): Promise<StoredIncomingWebhook> {
+    return this.prisma.incomingWebhook.update({
+      where: { id, companyId: this.companyId },
+      data: {
+        ...(patch.name === undefined ? {} : { name: patch.name }),
+        ...(patch.enabled === undefined
+          ? {}
+          : patch.enabled
+            ? { enabled: true, createdById: this.userId }
+            : { enabled: false }),
+        ...(patch.signingSecret === undefined ? {} : { signingSecret: patch.signingSecret }),
+        ...(patch.signatureHeader === undefined ? {} : { signatureHeader: patch.signatureHeader }),
+        ...(patch.mapping === undefined ? {} : { mapping: patch.mapping }),
+        ...(patch.samplePayload === undefined ? {} : { samplePayload: jsonValue(patch.samplePayload) }),
+        ...(patch.rotateToken ? { tokenVersion: { increment: 1 } } : {}),
+      },
+      select: WEBHOOK_SELECT,
+    });
+  }
+
+  async deleteWebhook(id: string): Promise<boolean> {
+    const { count } = await this.prisma.incomingWebhook.deleteMany({ where: { id, companyId: this.companyId } });
+    return count > 0;
+  }
+
+  listDeliveries(webhookId: string, limit: number): Promise<StoredIncomingDelivery[]> {
+    return this.prisma.incomingWebhookDelivery.findMany({
+      where: { webhookId, companyId: this.companyId },
+      select: {
+        id: true,
+        outcome: true,
+        statusCode: true,
+        message: true,
+        recordId: true,
+        payloadBytes: true,
+        payload: true,
+        createdAt: true,
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: limit,
+    });
+  }
+
+  @Transaction
+  async recordDelivery(delivery: NewIncomingDelivery): Promise<{ id: string }> {
+    const created = await this.prisma.incomingWebhookDelivery.create({
+      data: {
+        companyId: this.companyId,
+        webhookId: delivery.webhookId,
+        outcome: delivery.outcome,
+        statusCode: delivery.statusCode,
+        message: delivery.message,
+        recordId: delivery.recordId,
+        payloadBytes: delivery.payloadBytes,
+        payload: jsonValue(delivery.payload),
+      },
+      select: { id: true },
+    });
+    if (delivery.outcome === "created" || delivery.outcome === "updated") {
+      await this.prisma.incomingWebhook.update({
+        where: { id: delivery.webhookId, companyId: this.companyId },
+        data: { lastReceivedAt: new Date() },
+      });
+    }
+    return created;
+  }
+
+  @BypassTenantGuard
+  async deleteDeliveriesBeforeUnscoped(before: Date, limit: number): Promise<number> {
+    const expired = await this.prisma.incomingWebhookDelivery.findMany({
+      where: { createdAt: { lt: before } },
+      select: { id: true },
+      take: limit,
+    });
+    const { count } = await this.prisma.incomingWebhookDelivery.deleteMany({
+      where: { id: { in: expired.map((delivery) => delivery.id) } },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
+  async reassignCreatorUnscoped(args: { companyId: string; fromUserIds: string[]; toUserId: string }): Promise<number> {
+    if (args.fromUserIds.length === 0) return 0;
+    const { count } = await this.prisma.incomingWebhook.updateMany({
+      where: { companyId: args.companyId, createdById: { in: args.fromUserIds } },
+      data: { createdById: args.toUserId },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
+  findWebhookUnscoped(id: string): Promise<IncomingWebhookLookup | null> {
+    return this.prisma.incomingWebhook.findUnique({
+      where: { id },
+      select: { ...WEBHOOK_SELECT, companyId: true, company: { select: { deletingAt: true } } },
+    });
+  }
+}

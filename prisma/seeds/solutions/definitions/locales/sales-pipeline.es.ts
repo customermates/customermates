@@ -2,8 +2,7 @@ import { address, groupDigits } from "../../define-solution";
 import type { Strings } from "../sales-pipeline";
 
 export const es: Strings = {
-  company: "Ebroaire Sistemas de Aire Comprimido, S.L.",
-  workspaceName: "Pipeline de ventas",
+  company: "Ebroaire Sistemas de Aire Comprimido",
   website: "https://ebroaire.example",
   phones: {
     office: {

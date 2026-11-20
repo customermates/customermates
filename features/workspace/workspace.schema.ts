@@ -7,11 +7,26 @@ export const WORKSPACE_NAME_MAX_LENGTH = 80;
 
 export const WorkspaceNameSchema = z.string().trim().min(1).max(WORKSPACE_NAME_MAX_LENGTH);
 
+export const WORKSPACE_INACTIVE_REASONS = ["pausedByPlan", "noActiveAdmin", "deactivated"] as const;
+export type WorkspaceInactiveReason = (typeof WORKSPACE_INACTIVE_REASONS)[number];
+
+export function workspaceInactiveReason(membership: {
+  status: Status;
+  pausedByPlanAt: Date | null;
+  company: { hasActiveAdmin: boolean };
+}): WorkspaceInactiveReason | null {
+  if (membership.status !== Status.inactive) return null;
+  if (membership.pausedByPlanAt) return "pausedByPlan";
+  return membership.company.hasActiveAdmin ? "deactivated" : "noActiveAdmin";
+}
+
 export const WorkspaceSummarySchema = z.object({
   companyId: z.string(),
   name: z.string().nullable(),
   slug: z.string(),
+  logoUrl: z.string().nullable(),
   status: z.enum(Status),
+  inactiveReason: z.enum(WORKSPACE_INACTIVE_REASONS).nullable(),
   roleName: z.string().nullable(),
   isAdmin: z.boolean(),
   isCurrent: z.boolean(),

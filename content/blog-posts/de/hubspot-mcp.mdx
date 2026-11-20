@@ -31,7 +31,7 @@ Ja, HubSpot hat einen offiziellen MCP-Server. Der Remote-Server unter `https://m
 
 Daneben gibt es einen zweiten, davon unabhängigen Server für Entwickler, der lokal über die HubSpot CLI läuft, im Sinne des Protokolls ein [lokaler MCP-Server](/blog/what-is-an-mcp-server). Die meisten Missverständnisse rund um „HubSpot MCP“ entstehen, weil diese beiden Server verwechselt werden, oder weil HubSpots Server mit den vielen Community-Servern auf GitHub in einen Topf kommt.
 
-Offenlegung: Customermates, ein Open-Source-CRM mit eigenem MCP-Server, veröffentlicht diesen Leitfaden. Die Angaben zu HubSpot wurden am 8. Oktober 2026 auf HubSpots eigenen Seiten geprüft; die Quellen stehen am Ende.
+Offenlegung: Customermates, ein CRM mit einsehbarem Quellcode und eigenem MCP-Server, veröffentlicht diesen Leitfaden. Die Angaben zu HubSpot wurden am 8. Oktober 2026 auf HubSpots eigenen Seiten geprüft; die Quellen stehen am Ende.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Remote-Server">
@@ -138,7 +138,7 @@ Stehen Sie vor der Wahl eines CRM, statt ein bestehendes anzubinden, ist ein im 
 | Datensätze löschen | Nicht im dokumentierten Schreibzugriff | Möglich, im Rahmen der Nutzerrechte |
 | Marketinginhalte | Landingpages, Blogbeiträge, Kampagnen, Marketing-E-Mails | Nicht Teil des Produkts |
 | Kundenkonversationen | Liest Konversationen aus dem HubSpot-Postfach | Liest, entwirft und sendet Nachrichten über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab Pro, nur in der Cloud |
-| Selbst hosten | Nein, von HubSpot gehostet | AGPL-Kern mit MCP, ohne Posteingang |
+| Selbst hosten | Nein, von HubSpot gehostet | Community Edition mit MCP, ohne Posteingang |
 
 Dass Löschen und Senden möglich sind, hat zwei Seiten. Der Customermates-Server fordert verbundene Clients auf, vor dem Löschen oder Senden nachzufragen. Das ist eine Anweisung an den Client, keine Sperre im Server: Ruft ein berechtigter Client ein Werkzeug auf, wird es ausgeführt. Prüfen Sie, wie Ihr Client Freigaben handhabt, und beginnen Sie wie bei HubSpot mit Lesen und Entwürfen.
 

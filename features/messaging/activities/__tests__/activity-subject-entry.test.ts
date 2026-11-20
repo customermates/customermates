@@ -75,6 +75,21 @@ describe("workspace activity subjects", () => {
     );
   });
 
+  it("shows a departure as its own change, before the status change of a member who was active", () => {
+    const left = { field: "leftAt", previous: null, current: "2026-11-17T09:30:00.000Z" };
+    const markup = renderRows([
+      audit(DomainEvent.USER_UPDATED, MEMBER, [left]),
+      audit(DomainEvent.USER_UPDATED, MEMBER, [left, { field: "status", previous: "active", current: "inactive" }]),
+    ]);
+
+    expect(rowSubtitle(markup, 0)).toBe(
+      '<span class="font-medium">Invited Member</span><span aria-hidden="true"> · </span>leftAt',
+    );
+    expect(rowSubtitle(markup, 1)).toBe(
+      '<span class="font-medium">Invited Member</span><span aria-hidden="true"> · </span>leftAt · status',
+    );
+  });
+
   it("names roles from their stored label and a member without a known name neutrally", () => {
     const markup = renderRows([
       audit(DomainEvent.ROLE_UPDATED, { kind: "role", id: "role-1", label: "Field team" }, [

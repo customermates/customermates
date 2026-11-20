@@ -1,0 +1,836 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
+import {
+  MOCK_ENV_MODULE,
+  MOCK_PRISMA_DB_MODULE,
+  MOCK_ZOD_MODULE,
+  createMockDiModule,
+} from "@/tests/helpers/interactor-test-setup";
+
+const mockUser = createMockUser({
+  id: "00000000-0000-4000-8000-000000000010",
+  companyId: "00000000-0000-4000-8000-000000000011",
+});
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: (namespace?: string) => {
+    const t = (key: string) => (namespace ? `${namespace}.${key}` : key);
+    return Promise.resolve(Object.assign(t, { raw: t }));
+  },
+  getLocale: () => Promise.resolve("en"),
+}));
+
+import type { CalculatedValue } from "@/features/records/record-model.schema";
+
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { AutomationPlanLimitsAdapter } from "../automation-plan-limits";
+import { AUTOMATION_RUN_PAGE_SIZE } from "../automation-rule.schema";
+import { AutomationsListComposer } from "../automations-list.composer";
+import { GetAutomationsListInteractor } from "../get-automations-list.interactor";
+import { DeleteAutomationRuleInteractor } from "../delete-automation-rule.interactor";
+import { GetAutomationRuleRunsInteractor } from "../get-automation-rule-runs.interactor";
+import { GetAutomationRulesInteractor } from "../get-automation-rules.interactor";
+import { PreviewAutomationRuleInteractor } from "../preview-automation-rule.interactor";
+import { SetAutomationRuleEnabledInteractor } from "../set-automation-rule-enabled.interactor";
+import { UpsertAutomationRuleInteractor } from "../upsert-automation-rule.interactor";
+import { FakeAutomationRuleRepo } from "./fake-automation-rule-repo";
+import { FakeDateCandidateReader } from "./fake-date-candidate-reader";
+
+const COMPANY = "00000000-0000-4000-8000-000000000011";
+const OWNER = "00000000-0000-4000-8000-000000000010";
+const COLLEAGUE = "00000000-0000-4000-8000-000000000012";
+const RULE = "00000000-0000-4000-8000-0000000000a1";
+const DEALS = "11111111-1111-4111-8111-111111111111";
+const TASKS = "11111111-1111-4111-8111-222222222222";
+const STAGE = "22222222-2222-4222-8222-222222222222";
+const CLOSE = "22222222-2222-4222-8222-333333333333";
+const TITLE = "22222222-2222-4222-8222-444444444444";
+const TASK_DUE = "22222222-2222-4222-8222-555555555555";
+const CALC = "22222222-2222-4222-8222-666666666666";
+const RELATION = "55555555-5555-4555-8555-555555555555";
+const RECORD = "44444444-4444-4444-8444-444444444444";
+const NOW = new Date("2026-11-12T08:00:00.000Z");
+
+function field(id: string, typeId: string, valueType: string, kind = "input") {
+  const options = valueType === "select" ? ["won", "lost"].map((option) => ({ id: option, label: option })) : [];
+  return { id, typeId, label: id, valueType, behavior: { kind }, archived: false, required: false, options };
+}
+
+const MODEL = {
+  revision: 4,
+  types: [
+    { id: DEALS, label: "Deal", archived: false, primaryFieldId: null },
+    { id: TASKS, label: "Action", archived: false, primaryFieldId: TITLE },
+  ],
+  fields: [
+    field(STAGE, DEALS, "select"),
+    field(CLOSE, DEALS, "date"),
+    field(CALC, DEALS, "number", "formula"),
+    field(TITLE, TASKS, "text"),
+    field(TASK_DUE, TASKS, "date"),
+  ],
+  relationships: [{ id: RELATION, sourceTypeId: TASKS, targetTypeId: DEALS, archived: false }],
+};
+
+const notify = { kind: "notify", recipients: { ruleOwner: true }, title: "Closing: {{record.name}}" };
+const reminder = {
+  name: "Closing reminder",
+  trigger: {
+    kind: "dateReached",
+    typeId: DEALS,
+    fieldId: CLOSE,
+    days: 2,
+    direction: "before",
+    timezone: "Europe/Berlin",
+  },
+  effects: [notify],
+};
+
+function unlimited() {
+  return { activeRuleAllowance: vi.fn().mockResolvedValue({ limit: null, price: "" }) };
+}
+
+function allowance(limit: number) {
+  return { activeRuleAllowance: vi.fn().mockResolvedValue({ limit, price: "€12" }) };
+}
+
+function recordsPort() {
+  return {
+    model: vi.fn().mockResolvedValue(MODEL),
+    read: vi.fn().mockResolvedValue(null),
+    mutate: vi.fn(),
+  };
+}
+
+function issueOf(result: {
+  ok: boolean;
+  error?: { issues: Array<{ path: PropertyKey[]; params?: Record<string, unknown> }> };
+}) {
+  const issue = result.error?.issues[0];
+  return { path: issue?.path, error: issue?.params?.error };
+}
+
+describe("saving a rule", () => {
+  let repo: FakeAutomationRuleRepo;
+  beforeEach(() => {
+    repo = new FakeAutomationRuleRepo();
+  });
+
+  const upsert = (limits = unlimited()) => new UpsertAutomationRuleInteractor(repo, recordsPort() as never, limits);
+  const save = (instance: UpsertAutomationRuleInteractor, input: unknown, user = mockUser) =>
+    runWithTenant(user, () => instance.invoke(input as never));
+
+  it("creates a live rule owned by the caller and reports it back", async () => {
+    const result = await save(upsert(), reminder);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toMatchObject({ name: "Closing reminder", enabled: true, ownerUserId: OWNER });
+    expect(result.data.trigger).toMatchObject({ kind: "dateReached", atHour: 8, timezone: "Europe/Berlin" });
+    expect([...repo.rules.values()][0]).toMatchObject({
+      triggerKind: "dateReached",
+      typeId: DEALS,
+      ownerUserId: OWNER,
+    });
+  });
+
+  it("refuses a rule that points at a field or relation the workspace does not have", async () => {
+    const missing = "99999999-9999-4999-8999-999999999999";
+    for (const [input, path] of [
+      [{ ...reminder, trigger: { ...reminder.trigger, fieldId: STAGE } }, ["trigger", "fieldId"]],
+      [{ ...reminder, trigger: { ...reminder.trigger, typeId: missing } }, ["trigger", "typeId"]],
+      [{ ...reminder, conditions: [{ fieldId: TITLE, operator: "empty" }] }, ["conditions", "0", "fieldId"]],
+      [
+        {
+          ...reminder,
+          effects: [{ kind: "setField", fields: [{ fieldId: CALC, value: { kind: "text", value: "x" } }] }],
+        },
+        ["effects", "0", "fields", "0", "fieldId"],
+      ],
+      [
+        {
+          ...reminder,
+          effects: [{ kind: "createRecord", typeId: TASKS, link: { relationId: RELATION, direction: "incoming" } }],
+        },
+        ["effects", "0", "link", "relationId"],
+      ],
+    ] as const) {
+      const result = await save(upsert(), input);
+      expect(result.ok).toBe(false);
+      expect(issueOf(result as never)).toEqual({ path, error: CustomErrorCode.automationRuleInvalid });
+    }
+    expect(repo.rules.size).toBe(0);
+  });
+
+  it("refuses a condition whose operator or value does not fit the type of its field", async () => {
+    const select = (value: string) => ({ kind: "select", value });
+    for (const [condition, part] of [
+      [{ fieldId: STAGE, operator: "equals", value: { kind: "text", value: "won" } }, "value"],
+      [{ fieldId: STAGE, operator: "equals", value: select("unknown option") }, "value"],
+      [{ fieldId: STAGE, operator: "in", values: [select("won"), { kind: "boolean", value: true }] }, "value"],
+      [{ fieldId: CLOSE, operator: "equals", value: { kind: "decimal", value: "3", currency: null } }, "value"],
+      [{ fieldId: CLOSE, operator: "before", value: { kind: "text", value: "soon" } }, "value"],
+      [{ fieldId: STAGE, operator: "before", relativeDays: 3 }, "operator"],
+      [{ fieldId: STAGE, operator: "after", value: select("won") }, "operator"],
+      [
+        { fieldId: CLOSE, operator: "equals", value: { kind: "date", value: "2026-11-14" }, relativeDays: 2 },
+        "operator",
+      ],
+    ] as const) {
+      const result = await save(upsert(), { ...reminder, conditions: [condition] });
+      expect(result.ok).toBe(false);
+      expect(issueOf(result as never)).toEqual({
+        path: ["conditions", "0", part],
+        error: CustomErrorCode.automationRuleInvalid,
+      });
+    }
+    expect(repo.rules.size).toBe(0);
+  });
+
+  it("accepts conditions that fit their fields, with a value, a list, a relative day or none", async () => {
+    const result = await save(upsert(), {
+      ...reminder,
+      conditions: [
+        { fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } },
+        { fieldId: STAGE, operator: "notIn", values: [{ kind: "select", value: "lost" }] },
+        { fieldId: CLOSE, operator: "after", value: { kind: "date", value: "2026-11-14" } },
+        { fieldId: CLOSE, operator: "before", relativeDays: 7 },
+        { fieldId: CALC, operator: "notEmpty" },
+      ],
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts a task effect linked to the deal through the declared relation", async () => {
+    const result = await save(upsert(), {
+      ...reminder,
+      effects: [
+        {
+          kind: "createRecord",
+          typeId: TASKS,
+          title: { fieldId: TITLE, text: "Call {{record.name}}" },
+          due: { fieldId: TASK_DUE, offsetDays: 1 },
+          link: { relationId: RELATION, direction: "outgoing" },
+        },
+        notify,
+      ],
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("stops at the plan's allowance of active rules but still saves a draft", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify] });
+    const limited = upsert(allowance(1));
+    const refused = await save(limited, reminder);
+    expect(refused.ok).toBe(false);
+    expect(issueOf(refused as never).error).toBe(CustomErrorCode.automationRuleLimitReached);
+    expect(repo.rules.size).toBe(1);
+    const draft = await save(limited, { ...reminder, enabled: false });
+    expect(draft.ok).toBe(true);
+    expect(repo.rules.size).toBe(2);
+  });
+
+  it("does not count the rule being edited against the allowance", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify] });
+    const result = await save(upsert(allowance(1)), { id: RULE, name: "Renamed" });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data.name).toBe("Renamed");
+  });
+
+  it("keeps the untouched parts of a rule when it is updated", async () => {
+    await save(upsert(), reminder);
+    const [stored] = [...repo.rules.values()];
+    const result = await save(upsert(), { id: stored?.id, trigger: { ...reminder.trigger, days: 5 } });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.trigger).toMatchObject({ days: 5 });
+    expect(result.data.effects).toHaveLength(1);
+    expect(result.data.name).toBe("Closing reminder");
+  });
+
+  it("lets only the owner change a rule", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], ownerUserId: COLLEAGUE });
+    const result = await save(upsert(), { id: RULE, name: "Mine now" });
+    expect(result.ok).toBe(false);
+    expect(issueOf(result as never).error).toBe(CustomErrorCode.automationRuleEditNotOwner);
+    expect(repo.rules.get(RULE)?.name).toBe("Rule");
+    const missing = await save(upsert(), { id: "00000000-0000-4000-8000-0000000000ff", name: "x" });
+    expect(missing.ok).toBe(false);
+  });
+
+  it("needs the routines permission to create", async () => {
+    const reader = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
+    await expect(save(upsert(), reminder, reader)).rejects.toThrow(/Access denied/);
+    const writer = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.create }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
+    await expect(save(upsert(), reminder, writer)).resolves.toMatchObject({ ok: true });
+  });
+});
+
+describe("saving a step that names a model, a runner or a webhook", () => {
+  const RUNNER = "88888888-8888-4888-8888-888888888888";
+  const OTHER_RUNNER = "88888888-8888-4888-8888-999999999999";
+  const WEBHOOK = "66666666-6666-4666-8666-666666666666";
+  const SONNET = { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5" };
+  const GPT = { id: "gpt-5-mini", label: "GPT-5 mini" };
+  const none = { available: false, reason: "notConfigured" as const, models: [], runners: [] };
+  const oneKey = { available: true, reason: null, models: [SONNET], runners: [], defaultModel: SONNET.id };
+  const twoKeys = { available: true, reason: null, models: [SONNET, GPT], runners: [], defaultModel: null };
+  const noKey = { available: false, reason: "noKey" as const, models: [], runners: [] };
+  const myRunner = {
+    available: true,
+    reason: null,
+    models: [],
+    runners: [{ id: RUNNER, name: "Laptop", online: true }],
+  };
+
+  let repo: FakeAutomationRuleRepo;
+  beforeEach(() => {
+    repo = new FakeAutomationRuleRepo();
+  });
+
+  function source(ownKey: object = oneKey, runner: object = myRunner) {
+    return { availability: vi.fn().mockResolvedValue({ mate: none, ownKey, runner }) };
+  }
+  const saveSteps = (effects: unknown[], runtimes: ReturnType<typeof source> | null = source()) =>
+    runWithTenant(mockUser, () =>
+      new UpsertAutomationRuleInteractor(repo, recordsPort() as never, unlimited(), runtimes as never).invoke({
+        ...reminder,
+        effects,
+      } as never),
+    );
+  const refusal = (result: Awaited<ReturnType<typeof saveSteps>>) => {
+    const issue = result.ok ? undefined : result.error.issues[0];
+    const params = (issue as { params?: Record<string, unknown> } | undefined)?.params;
+    return { path: issue?.path, error: params?.error, reason: params?.reason };
+  };
+  const ask = (step: Record<string, unknown>) => ({ kind: "agent", prompt: "Summarise it", ...step });
+
+  it("saves the default model of the only key with an own-key step that names none", async () => {
+    const result = await saveSteps([notify, ask({ runtime: "ownKey" })]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.effects[1]).toMatchObject({ runtime: "ownKey", model: SONNET.id });
+    expect([...repo.rules.values()][0]?.effects).toMatchObject([{ kind: "notify" }, { model: SONNET.id }]);
+  });
+
+  it("refuses an own-key step without a model when the workspace has several keys", async () => {
+    const result = await saveSteps([notify, ask({ runtime: "ownKey" })], source(twoKeys));
+    expect(refusal(result)).toEqual({
+      path: ["effects", "1", "model"],
+      error: CustomErrorCode.mustNotBeBlank,
+      reason: "modelRequired",
+    });
+    expect(repo.rules.size).toBe(0);
+    const chosen = await saveSteps([ask({ runtime: "ownKey", model: GPT.id })], source(twoKeys));
+    expect(chosen.ok && chosen.data.effects[0]).toMatchObject({ model: GPT.id });
+  });
+
+  it("refuses a model the workspace's keys do not offer", async () => {
+    const result = await saveSteps([ask({ runtime: "ownKey", model: GPT.id })]);
+    expect(refusal(result)).toEqual({
+      path: ["effects", "0", "model"],
+      error: CustomErrorCode.agentProviderModelInvalid,
+      reason: "agentModelUnavailable",
+    });
+    expect(repo.rules.size).toBe(0);
+  });
+
+  it("leaves an own-key step as it is while the workspace has no key to run it on", async () => {
+    const bare = await saveSteps([ask({ runtime: "ownKey" })], source(noKey));
+    expect(bare.ok && bare.data.effects[0]).toEqual({ kind: "agent", runtime: "ownKey", prompt: "Summarise it" });
+    const named = await saveSteps([ask({ runtime: "ownKey", model: GPT.id })], source(noKey));
+    expect(named.ok).toBe(true);
+  });
+
+  it("refuses a runner that is not one of the owner's own unrevoked runners", async () => {
+    const result = await saveSteps([ask({ runtime: "runner", runnerId: OTHER_RUNNER })]);
+    expect(refusal(result)).toEqual({
+      path: ["effects", "0", "runnerId"],
+      error: CustomErrorCode.agentRunnerNotFound,
+      reason: "agentRunnerUnavailable",
+    });
+    const noRunners = { available: false, reason: "noRunner" as const, models: [], runners: [] };
+    expect(refusal(await saveSteps([ask({ runtime: "runner", runnerId: RUNNER })], source(oneKey, noRunners)))).toEqual(
+      {
+        path: ["effects", "0", "runnerId"],
+        error: CustomErrorCode.agentRunnerNotFound,
+        reason: "agentRunnerUnavailable",
+      },
+    );
+    expect(repo.rules.size).toBe(0);
+    expect((await saveSteps([ask({ runtime: "runner", runnerId: RUNNER })])).ok).toBe(true);
+    expect((await saveSteps([ask({ runtime: "runner" })], source(oneKey, noRunners))).ok).toBe(true);
+  });
+
+  it("refuses a webhook that does not exist and accepts one that does", async () => {
+    const step = { kind: "callWebhook", webhookId: WEBHOOK };
+    expect(refusal(await saveSteps([notify, step]))).toEqual({
+      path: ["effects", "1", "webhookId"],
+      error: CustomErrorCode.webhookNotFound,
+      reason: "webhook:missing",
+    });
+    expect(repo.rules.size).toBe(0);
+    repo.webhooks.set(WEBHOOK, { id: WEBHOOK, enabled: false, events: [] });
+    expect((await saveSteps([notify, step])).ok).toBe(true);
+  });
+
+  it("asks for the runtimes only when a step needs them and checks a step again on a later save", async () => {
+    const quiet = source();
+    expect((await saveSteps([notify, ask({ runtime: "mate" })], quiet)).ok).toBe(true);
+    expect(quiet.availability).not.toHaveBeenCalled();
+    expect((await saveSteps([ask({ runtime: "ownKey" })], null)).ok).toBe(true);
+
+    const [stored] = [...repo.rules.values()].filter((rule) => JSON.stringify(rule.effects).includes("ownKey"));
+    const renamed = await runWithTenant(mockUser, () =>
+      new UpsertAutomationRuleInteractor(repo, recordsPort() as never, unlimited(), source(twoKeys) as never).invoke({
+        id: stored?.id,
+        name: "Renamed",
+      } as never),
+    );
+    expect(refusal(renamed)).toMatchObject({ path: ["effects", "0", "model"], reason: "modelRequired" });
+  });
+});
+
+describe("switching a rule on and off", () => {
+  let repo: FakeAutomationRuleRepo;
+  beforeEach(() => {
+    repo = new FakeAutomationRuleRepo();
+  });
+
+  const cancelled: { companyId: string; ruleId: string }[] = [];
+  const agentJobs = {
+    cancelQueuedForRuleUnscoped: ({ companyId, ruleId }: { companyId: string; ruleId: string }) => {
+      cancelled.push({ companyId, ruleId });
+      return Promise.resolve(1);
+    },
+  };
+  beforeEach(() => {
+    cancelled.length = 0;
+  });
+
+  const toggle = (limits = unlimited()) => new SetAutomationRuleEnabledInteractor(repo, limits, agentJobs);
+  const set = (
+    instance: SetAutomationRuleEnabledInteractor,
+    input: { id: string; enabled: boolean },
+    user = mockUser,
+  ) => runWithTenant(user, () => instance.invoke(input as never));
+
+  it("lets the owner switch it off and on again", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify] });
+    const off = await set(toggle(), { id: RULE, enabled: false });
+    expect(off).toMatchObject({ ok: true, data: { enabled: false, disabledReason: "disabledByUser" } });
+    const on = await set(toggle(), { id: RULE, enabled: true });
+    expect(on).toMatchObject({ ok: true, data: { enabled: true, disabledReason: null } });
+  });
+
+  it("cancels the agent jobs that still wait for a rule when it is switched off or deleted, not when switched on", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify] });
+
+    await set(toggle(), { id: RULE, enabled: false });
+    expect(cancelled).toEqual([{ companyId: COMPANY, ruleId: RULE }]);
+
+    await set(toggle(), { id: RULE, enabled: true });
+    expect(cancelled).toHaveLength(1);
+
+    const remove = new DeleteAutomationRuleInteractor(repo, agentJobs);
+    await runWithTenant(mockUser, () => remove.invoke({ id: RULE }));
+    expect(cancelled).toEqual([
+      { companyId: COMPANY, ruleId: RULE },
+      { companyId: COMPANY, ruleId: RULE },
+    ]);
+
+    await runWithTenant(mockUser, () => remove.invoke({ id: RULE }));
+    expect(cancelled).toHaveLength(2);
+  });
+
+  it("treats an update that turns a rule off like the disable route, and leaves other reasons alone", async () => {
+    repo.addRule({ id: RULE, ...reminder, trigger: reminder.trigger, effects: [notify] });
+    const upsert = new UpsertAutomationRuleInteractor(repo, recordsPort() as never, unlimited(), null, agentJobs);
+    const update = (input: Record<string, unknown>) =>
+      runWithTenant(mockUser, () => upsert.invoke({ id: RULE, ...input } as never));
+
+    expect(await update({ name: "Renamed" })).toMatchObject({ ok: true, data: { enabled: true } });
+    expect(cancelled).toHaveLength(0);
+
+    expect(await update({ enabled: false })).toMatchObject({
+      ok: true,
+      data: { enabled: false, disabledReason: "disabledByUser" },
+    });
+    expect(cancelled).toEqual([{ companyId: COMPANY, ruleId: RULE }]);
+
+    const paused = repo.rules.get(RULE);
+    if (paused) repo.rules.set(RULE, { ...paused, disabledReason: "planPaused" });
+    expect(await update({ name: "Renamed again", enabled: false })).toMatchObject({
+      ok: true,
+      data: { enabled: false, disabledReason: "planPaused" },
+    });
+    expect(cancelled).toHaveLength(1);
+  });
+
+  it("checks the allowance when a rule is switched on", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], enabled: false });
+    repo.addRule({ id: "00000000-0000-4000-8000-0000000000a2", trigger: reminder.trigger, effects: [notify] });
+    const refused = await set(toggle(allowance(1)), { id: RULE, enabled: true });
+    expect(refused.ok).toBe(false);
+    expect(issueOf(refused as never).error).toBe(CustomErrorCode.automationRuleLimitReached);
+    expect((await set(toggle(allowance(2)), { id: RULE, enabled: true })).ok).toBe(true);
+  });
+
+  it("lets an administrator switch off but not on another member's rule", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], ownerUserId: COLLEAGUE });
+    expect((await set(toggle(), { id: RULE, enabled: true })).ok).toBe(false);
+    expect((await set(toggle(), { id: RULE, enabled: false })).ok).toBe(true);
+    const member = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.update }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], ownerUserId: COLLEAGUE });
+    const refused = await set(toggle(), { id: RULE, enabled: false }, member);
+    expect(refused.ok).toBe(false);
+    expect(issueOf(refused as never).error).toBe(CustomErrorCode.automationRuleAdminRequired);
+  });
+
+  it("deletes a rule for its owner or an administrator and reports an unknown one", async () => {
+    const remove = new DeleteAutomationRuleInteractor(repo, agentJobs);
+    const run = (id: string, user = mockUser) => runWithTenant(user, () => remove.invoke({ id }));
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], ownerUserId: COLLEAGUE });
+    await expect(run(RULE)).resolves.toEqual({ ok: true, data: { deleted: true, id: RULE } });
+    expect(repo.rules.size).toBe(0);
+    expect((await run(RULE)).ok).toBe(false);
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], ownerUserId: COLLEAGUE });
+    const member = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.delete }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
+    expect((await run(RULE, member)).ok).toBe(false);
+    expect(repo.rules.size).toBe(1);
+  });
+});
+
+describe("reading rules", () => {
+  let repo: FakeAutomationRuleRepo;
+  beforeEach(() => {
+    repo = new FakeAutomationRuleRepo();
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], typeId: DEALS, ownerUserId: OWNER });
+    repo.addRule({
+      id: "00000000-0000-4000-8000-0000000000a2",
+      trigger: { kind: "recordCreated", typeId: TASKS },
+      effects: [notify],
+      typeId: TASKS,
+      ownerUserId: COLLEAGUE,
+    });
+  });
+
+  it("lists every rule, narrowed by list or owner", async () => {
+    const list = new GetAutomationRulesInteractor(repo);
+    const run = (input: Record<string, unknown>, user = mockUser) =>
+      runWithTenant(user, () => list.invoke(input as never));
+    await expect(run({})).resolves.toMatchObject({ ok: true, data: { total: 2 } });
+    await expect(run({ typeId: TASKS })).resolves.toMatchObject({ ok: true, data: { total: 1 } });
+    await expect(run({ owner: "mine" })).resolves.toMatchObject({ ok: true, data: { total: 1 } });
+    const own = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
+    await expect(run({}, own)).resolves.toMatchObject({ ok: true, data: { total: 1 } });
+  });
+
+  it("returns with the merged list how many rows it leaves out", async () => {
+    const permissions = {
+      readScope: () => "all",
+      userId: OWNER,
+      user: { displayLanguage: null, formattingLocale: "system" },
+    };
+    const routines = {
+      getItems: () => Promise.resolve([]),
+      getCount: () => Promise.resolve(130),
+      countRunsSince: () => Promise.resolve(new Map<string, number>()),
+    };
+    const composer = new AutomationsListComposer(repo, routines as never, permissions as never, () => NOW);
+    const list = new GetAutomationsListInteractor(composer, {} as never, "interactive", {} as never);
+    const result = await runWithTenant(mockUser, () => list.invoke({}));
+    expect(result).toMatchObject({ ok: true, data: { notShown: { rules: 0, routines: 30 } } });
+    expect(result.ok && result.data.items).toHaveLength(2);
+  });
+
+  it("shows the run history of a visible rule only", async () => {
+    await repo.admitRunUnscoped({
+      companyId: COMPANY,
+      ruleId: RULE,
+      occurrenceKey: "event:1",
+      triggerKind: "recordCreated",
+      typeId: DEALS,
+      recordId: RECORD,
+      payload: null,
+      depth: 0,
+      scheduledFor: NOW,
+    });
+    const runs = new GetAutomationRuleRunsInteractor(repo, new FakeDateCandidateReader(repo));
+    const run = (id: string, user = mockUser) => runWithTenant(user, () => runs.invoke({ id } as never));
+    await expect(run(RULE)).resolves.toMatchObject({
+      ok: true,
+      data: { nextCursor: null, runs: [{ ruleId: RULE, effects: [] }] },
+    });
+    const own = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+      id: COLLEAGUE,
+      companyId: COMPANY,
+    };
+    expect((await run(RULE, own)).ok).toBe(false);
+    expect((await run("00000000-0000-4000-8000-0000000000ff")).ok).toBe(false);
+  });
+
+  it("keeps the date of the record out of the occurrence key a run shows", async () => {
+    for (const fieldValue of ["2026-11-14", "2026-11-14T09:30:00.000Z"]) {
+      await repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: `date:${RECORD}:${CLOSE}:${fieldValue}:before2`,
+        triggerKind: "dateReached",
+        typeId: DEALS,
+        recordId: RECORD,
+        payload: { chain: [], fieldValue },
+        depth: 0,
+        scheduledFor: NOW,
+      });
+    }
+    const runs = new GetAutomationRuleRunsInteractor(repo, new FakeDateCandidateReader(repo));
+    const page = await runWithTenant(mockUser, () => runs.invoke({ id: RULE } as never));
+    if (!page.ok) throw new Error("expected the run history");
+    const dated = page.data.runs.filter((item) => item.triggerKind === "dateReached");
+    expect(dated.map((item) => item.occurrenceKey)).toEqual([
+      `date:${RECORD}:${CLOSE}:before2`,
+      `date:${RECORD}:${CLOSE}:before2`,
+    ]);
+    expect(JSON.stringify(dated)).not.toContain("2026-11-14");
+    expect([...repo.runs.values()].map((item) => item.occurrenceKey)).toContain(
+      `date:${RECORD}:${CLOSE}:2026-11-14:before2`,
+    );
+  });
+
+  it("gives no record, no record id in the key and no due time of a date run whose record the reader may not read", async () => {
+    const hidden = "44444444-4444-4444-8444-4444444444ff";
+    const admit = (recordId: string | null, kind: "dateReached" | "recordCreated", key: string) =>
+      repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: key,
+        triggerKind: kind,
+        typeId: DEALS,
+        recordId,
+        payload: null,
+        depth: 0,
+        scheduledFor: NOW,
+      });
+    await admit(hidden, "dateReached", `date:${hidden}:${CLOSE}:2026-11-14:before2`);
+    await admit(hidden, "recordCreated", "event:hidden");
+    await admit(RECORD, "dateReached", `date:${RECORD}:${CLOSE}:2026-11-14:before2`);
+    await admit(null, "recordCreated", "event:none");
+    repo.unreadableRecords.add(hidden);
+    const reader = new FakeDateCandidateReader(repo);
+    const runs = new GetAutomationRuleRunsInteractor(repo, reader);
+
+    const page = await runWithTenant(mockUser, () => runs.invoke({ id: RULE } as never));
+
+    if (!page.ok) throw new Error("expected the run history");
+    const shown = Object.fromEntries(
+      page.data.runs.map((item) => [item.occurrenceKey, [item.recordId, item.scheduledFor, item.typeId]]),
+    );
+    expect(shown).toEqual({
+      date: [null, null, DEALS],
+      "event:hidden": [null, NOW.toISOString(), DEALS],
+      [`date:${RECORD}:${CLOSE}:before2`]: [RECORD, NOW.toISOString(), DEALS],
+      "event:none": [null, NOW.toISOString(), DEALS],
+    });
+    expect(JSON.stringify(page)).not.toContain(hidden);
+    expect(reader.recordChecks).toHaveLength(1);
+    expect(reader.recordChecks[0]).toMatchObject({ companyId: COMPANY, userId: mockUser.id });
+    expect(reader.recordChecks[0].refs).toHaveLength(3);
+  });
+
+  it("pages through the runs newest first with a cursor and refuses a broken cursor", async () => {
+    const times = Array.from({ length: 30 }, (_, index) => new Date(NOW.getTime() - index * 60_000));
+    for (const [index, createdAt] of times.entries()) {
+      await repo.admitRunUnscoped({
+        companyId: COMPANY,
+        ruleId: RULE,
+        occurrenceKey: `event:page-${index}`,
+        triggerKind: "recordCreated",
+        typeId: DEALS,
+        recordId: RECORD,
+        payload: null,
+        depth: 0,
+        scheduledFor: createdAt,
+      });
+    }
+    for (const [index, run] of [...repo.runs.values()].entries())
+      repo.runs.set(run.id, { ...run, createdAt: times[index] ?? run.createdAt });
+    const runs = new GetAutomationRuleRunsInteractor(repo, new FakeDateCandidateReader(repo));
+    const page = (input: unknown) => runWithTenant(mockUser, () => runs.invoke(input as never));
+
+    const first = await page({ id: RULE });
+    if (!first.ok) throw new Error("expected the first page");
+    expect(first.data.runs).toHaveLength(AUTOMATION_RUN_PAGE_SIZE);
+    expect(first.data.nextCursor).toEqual(expect.any(String));
+    const second = await page({ id: RULE, cursor: first.data.nextCursor });
+    if (!second.ok) throw new Error("expected the second page");
+    expect(second.data.runs).toHaveLength(30 - AUTOMATION_RUN_PAGE_SIZE);
+    expect(second.data.nextCursor).toBeNull();
+    const ids = [...first.data.runs, ...second.data.runs].map((item) => item.id);
+    expect(new Set(ids).size).toBe(30);
+    expect((await page({ id: RULE, cursor: "not a cursor" })).ok).toBe(false);
+  });
+});
+
+describe("previewing a date rule", () => {
+  let repo: FakeAutomationRuleRepo;
+  beforeEach(() => {
+    repo = new FakeAutomationRuleRepo();
+  });
+
+  function preview(record: { values: Map<string, CalculatedValue> } | null = null) {
+    const records = recordsPort();
+    records.read.mockResolvedValue(record);
+    return new PreviewAutomationRuleInteractor(repo, records as never, new FakeDateCandidateReader(repo), () => NOW);
+  }
+  const run = (instance: PreviewAutomationRuleInteractor, input: unknown) =>
+    runWithTenant(mockUser, () => instance.invoke(input as never));
+
+  it("counts the records the rule would hit on its first sweep", async () => {
+    repo.candidates = [
+      { recordId: RECORD, fieldValue: "2026-11-14" },
+      { recordId: "44444444-4444-4444-8444-444444444445", fieldValue: "2026-11-13" },
+      { recordId: "44444444-4444-4444-8444-444444444446", fieldValue: "2026-11-25" },
+    ];
+    const result = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(result).toMatchObject({ ok: true, data: { supported: true, total: 2, alreadyFired: 0 } });
+  });
+
+  it("counts and lists only records the caller may read, with or without conditions", async () => {
+    const hidden = "44444444-4444-4444-8444-444444444445";
+    repo.candidates = [
+      { recordId: RECORD, fieldValue: "2026-11-14" },
+      { recordId: hidden, fieldValue: "2026-11-14" },
+    ];
+    repo.unreadableRecords.add(hidden);
+    const plain = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(plain).toMatchObject({ ok: true, data: { total: 1, recordIds: [RECORD], alreadyFired: 0 } });
+    const won = new Map<string, CalculatedValue>([
+      [STAGE, { state: "value", value: { kind: "select", value: "won" } }],
+    ]);
+    const filtered = await run(preview({ values: won }), {
+      rule: {
+        trigger: reminder.trigger,
+        conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }],
+      },
+    });
+    expect(filtered).toMatchObject({ ok: true, data: { total: 1, recordIds: [RECORD] } });
+  });
+
+  it("says when it looked at only the first two hundred records", async () => {
+    const candidate = (index: number) => ({
+      recordId: `44444444-4444-4444-8444-${String(index).padStart(12, "0")}`,
+      fieldValue: "2026-11-14",
+    });
+    repo.candidates = Array.from({ length: 200 }, (_, index) => candidate(index));
+    const exact = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(exact).toMatchObject({ ok: true, data: { total: 200, truncated: false } });
+    repo.candidates.push(candidate(200));
+    const cut = await run(preview(), { rule: { trigger: reminder.trigger } });
+    expect(cut).toMatchObject({ ok: true, data: { total: 200, truncated: true } });
+    expect(cut.ok && cut.data.recordIds).toHaveLength(50);
+  });
+
+  it("answers not found for the id of a rule the caller may not see", async () => {
+    repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], triggerKind: "dateReached", typeId: DEALS });
+    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-14" }];
+    const own = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+      id: COLLEAGUE,
+      companyId: COMPANY,
+    };
+    const hidden = await runWithTenant(own, () => preview().invoke({ id: RULE } as never));
+    expect(hidden.ok).toBe(false);
+    expect(issueOf(hidden as never)).toEqual({ path: ["id"], error: CustomErrorCode.automationRuleNotFound });
+    expect((await run(preview(), { id: RULE })).ok).toBe(true);
+  });
+
+  it("leaves out records that already fired and records that miss a condition", async () => {
+    const stored = repo.addRule({
+      id: RULE,
+      trigger: reminder.trigger,
+      effects: [notify],
+      triggerKind: "dateReached",
+      typeId: DEALS,
+    });
+    repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-14" }];
+    await repo.admitRunUnscoped({
+      companyId: COMPANY,
+      ruleId: stored.id,
+      occurrenceKey: `date:${RECORD}:${CLOSE}:2026-11-14:before2`,
+      triggerKind: "dateReached",
+      typeId: DEALS,
+      recordId: RECORD,
+      payload: null,
+      depth: 0,
+      scheduledFor: NOW,
+    });
+    await expect(run(preview(), { id: RULE })).resolves.toMatchObject({
+      ok: true,
+      data: { total: 0, alreadyFired: 1 },
+    });
+    const lost = new Map<string, CalculatedValue>([
+      [STAGE, { state: "value", value: { kind: "select", value: "lost" } }],
+    ]);
+    const filtered = await run(preview({ values: lost }), {
+      rule: {
+        trigger: reminder.trigger,
+        conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }],
+      },
+    });
+    expect(filtered).toMatchObject({ ok: true, data: { total: 0 } });
+  });
+
+  it("says plainly that other triggers have nothing to preview", async () => {
+    const result = await run(preview(), { rule: { trigger: { kind: "recordCreated", typeId: DEALS } } });
+    expect(result).toMatchObject({ ok: true, data: { supported: false, total: 0 } });
+    expect((await run(preview(), { id: "00000000-0000-4000-8000-0000000000ff" })).ok).toBe(false);
+    expect((await run(preview(), {})).ok).toBe(false);
+  });
+});
+
+describe("plan allowance", () => {
+  const adapter = (plan: Parameters<typeof allowanceFor>[0]) => allowanceFor(plan);
+  function allowanceFor(plan: "free" | "starter" | "pro" | "business" | "max" | "enterprise" | null) {
+    return new AutomationPlanLimitsAdapter({ plan: () => Promise.resolve({ plan }) }, (target) =>
+      Promise.resolve({ price: `price:${target}` }),
+    );
+  }
+
+  it("allows three active rules on Free and twenty on Starter and points at the next plan", async () => {
+    await expect(adapter("free").activeRuleAllowance()).resolves.toEqual({ limit: 3, price: "price:starter" });
+    await expect(adapter("starter").activeRuleAllowance()).resolves.toEqual({ limit: 20, price: "price:pro" });
+  });
+
+  it("does not limit Pro, Business, Max, Enterprise or an instance without a plan", async () => {
+    for (const plan of ["pro", "business", "max", "enterprise", null] as const)
+      await expect(adapter(plan).activeRuleAllowance()).resolves.toEqual({ limit: null, price: "" });
+  });
+});

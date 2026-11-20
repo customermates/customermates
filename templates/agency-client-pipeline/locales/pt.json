@@ -1,0 +1,159 @@
+{
+  "locale": "pt",
+  "name": "Funil de clientes para agências",
+  "summary": "Conquiste clientes para a agência e fique com eles depois do primeiro projeto. Oportunidades da primeira conversa ao fechamento, com decisão de entrar ou não na concorrência, e contratos mensais com data de renovação.",
+  "description": "A agência fecha um cliente e depois se surpreende quando o contrato mensal chega à renovação, porque as concorrências e o trabalho em andamento ficam em lugares diferentes. Este modelo monta oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, com um ganho que dá início a um onboarding em cinco passos, e os contratos e projetos que vêm depois, com fee mensal, data de renovação, aviso prévio e a próxima revisão trimestral. O orçamento só é registrado quando o cliente o informa, nunca presumido, e acessos, materiais da marca e acesso a contas de anúncios nunca entram no espaço de trabalho. Serve para agências de marketing, comunicação, criação e digital; gestão de projetos, controle de horas e cobrança ficam nas suas ferramentas.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Decisores, líderes de marketing, compras e contatos do dia a dia." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Prospects, clientes, ex-clientes e parceiros." },
+    "opportunities": { "label": "Oportunidade", "pluralLabel": "Oportunidades", "description": "Um possível trabalho, da primeira conversa a ganho ou perdido." },
+    "engagements": { "label": "Contrato", "pluralLabel": "Contratos (fee mensal) e projetos", "description": "Um contrato mensal ou projeto em andamento com fee, data de renovação, aviso prévio e saúde." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Papel", "options": { "decision_maker": "Decisor", "marketing_lead": "Gestor de marketing", "procurement": "Compras", "day_to_day": "Contato do dia a dia", "referrer": "Quem indicou" } },
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "phone": "Telefone", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack ou chat" } },
+    "clients.relationship": { "label": "Relacionamento", "options": { "prospect": "Prospect", "client": "Cliente", "former_client": "Ex-cliente", "partner": "Parceiro" } },
+    "clients.website": { "label": "Site" },
+    "opportunities.stage": {
+      "label": "Etapa",
+      "options": { "prospect": "Prospect", "conversation": "Conversa", "qualified": "Qualificado", "brief_or_pitch": "Briefing ou concorrência", "proposal_sent": "Proposta enviada", "negotiation": "Negociação", "won": "Ganho", "lost": "Perdido" }
+    },
+    "opportunities.opportunity_type": { "label": "Tipo", "options": { "retainer": "Contrato mensal", "project": "Projeto", "audit_or_workshop": "Auditoria ou workshop", "one_off": "Trabalho pontual" } },
+    "opportunities.services": {
+      "label": "Serviços",
+      "options": { "seo": "SEO", "paid_media": "Mídia paga", "social": "Redes sociais", "content": "Conteúdo", "web": "Web", "branding": "Branding", "pr": "Assessoria de imprensa" }
+    },
+    "opportunities.source": { "label": "Origem", "options": { "referral": "Indicação", "inbound": "Contato recebido", "outbound": "Prospecção ativa", "existing_client": "Cliente existente", "event": "Evento", "marketplace": "Marketplace" } },
+    "opportunities.competitive_pitch": { "label": "Concorrência entre agências" },
+    "opportunities.pitch_date": { "label": "Data da apresentação" },
+    "opportunities.monthly_fee": { "label": "Fee mensal" },
+    "opportunities.decision_expected": { "label": "Decisão esperada" },
+    "opportunities.next_step_due": { "label": "Próximo passo até" },
+    "opportunities.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "price": "Preço", "chose_other_agency": "Escolheu outra agência", "in_house": "Vai fazer internamente", "budget_cut": "Corte de orçamento", "no_decision": "Sem decisão", "scope_mismatch": "Escopo inadequado", "no_response": "Sem resposta" }
+    },
+    "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Ativo", "at_risk": "Em risco", "paused": "Pausado", "ended": "Encerrado" } },
+    "engagements.health": { "label": "Saúde", "options": { "green": "Verde", "amber": "Amarelo", "red": "Vermelho" } },
+    "engagements.start_date": { "label": "Início" },
+    "engagements.renewal_date": { "label": "Renovação em" },
+    "engagements.notice_days": { "label": "Aviso prévio (dias)" },
+    "engagements.monthly_fee": { "label": "Fee mensal" },
+    "engagements.next_qbr_on": { "label": "Próxima revisão trimestral" },
+    "engagements.account_manager": { "label": "Gerente de conta" },
+    "engagements.ended_reason": {
+      "label": "Por que terminou",
+      "options": { "client_ended": "Encerrado pelo cliente", "agency_ended": "Encerrado pela agência", "project_completed": "Projeto concluído", "budget": "Orçamento", "in_house": "Foi internalizado", "moved_agency": "Foi para outra agência" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Ligar", "email": "Escrever um e-mail", "proposal": "Preparar proposta ou apresentação", "onboarding": "Passo de onboarding", "report": "Relatório", "qbr": "Revisão trimestral", "renewal": "Renovação", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Contatos" },
+    "opportunity_client": { "sourceLabel": "Cliente", "targetLabel": "Oportunidades" },
+    "engagement_client": { "sourceLabel": "Cliente", "targetLabel": "Contratos (fee mensal) e projetos" },
+    "engagement_opportunity": { "sourceLabel": "Oportunidade", "targetLabel": "Contratos (fee mensal) e projetos" },
+    "action_opportunity": { "sourceLabel": "Oportunidade", "targetLabel": "Tarefas" },
+    "action_engagement": { "sourceLabel": "Contrato", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Oportunidades por etapa" },
+    "opportunities_all": { "name": "Todas as oportunidades" },
+    "engagements_all": { "name": "Todos os contratos e projetos" },
+    "at_risk_engagements": { "name": "Contratos em amarelo e vermelho" },
+    "clients_all": { "name": "Todos os clientes" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Oportunidades por etapa" },
+    "recurring_revenue": { "title": "Receita mensal recorrente" },
+    "pipeline_fees": { "title": "Fees mensais no funil" },
+    "renewals_coming": { "title": "Renovações próximas" },
+    "qbrs_coming": { "title": "Revisões trimestrais próximas" },
+    "health_split": { "title": "Saúde dos contratos em andamento" },
+    "pitches_coming": { "title": "Apresentações próximas" },
+    "lost_reasons": { "title": "Por que oportunidades foram perdidas" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Como funciona o funil da agência", "sections": ["As etapas e quem responde por elas", "Perguntas de qualificação: objetivos, urgência, orçamento, decisores"] },
+    "pitch_go_no_go": { "title": "Checklist: entrar ou não na concorrência", "sections": ["Custo da apresentação, número de agências e remuneração de pitch", "Critérios e quem decide"] },
+    "onboarding_checklist": { "title": "Onboarding em cinco passos", "sections": ["Boas-vindas e pagamento, materiais e cronograma", "Kickoff em até cinco dias e fluxo de entrega"] },
+    "renewal_playbook": { "title": "Guia de renovação e revisão trimestral", "sections": ["Balanço dos resultados e opções de ampliação", "Janela de aviso prévio e proposta de renovação"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Criar o contato e a oportunidade quando o formulário de briefing for enviado" },
+    "respond_to_brief": { "title": "Responder a uma oportunidade nova em até um dia" },
+    "qualify_check": { "title": "Confirmar a faixa de orçamento e o decisor 2 dias depois da qualificação" },
+    "pitch_go_no_go": { "title": "Decidir se entra no dia em que uma oportunidade chega a briefing ou concorrência" },
+    "pitch_rehearsal": { "title": "Lembrar o responsável 3 dias antes de uma apresentação" },
+    "proposal_follow_up": { "title": "Ligar 2 dias depois de enviar uma proposta" },
+    "onboarding_set": { "title": "Iniciar os passos de onboarding no dia seguinte a um ganho" },
+    "lost_feedback": { "title": "Pedir feedback 2 dias depois de perder uma oportunidade" },
+    "renewal_review": { "title": "Revisar a renovação 90 dias antes de um contrato vencer" },
+    "renewal_notice": { "title": "Avisar o responsável 45 dias antes da renovação para confirmar a intenção do cliente" },
+    "qbr_due": { "title": "Preparar a revisão trimestral na data marcada" },
+    "health_red": { "title": "Avisar a liderança quando um contrato fica vermelho" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Toda oportunidade tem uma etapa.",
+    "renewal_date_field": "Todo contrato registra a data de renovação.",
+    "notice_days_field": "Todo contrato registra o aviso prévio.",
+    "opportunities_board_view": "As oportunidades abrem como quadro por etapa."
+  },
+  "page": {
+    "metaTitle": "Funil de clientes para agências: concorrências e contratos",
+    "metaDescription": "Cole este funil para agências no Claude, ChatGPT ou Codex: decisão sobre a concorrência, onboarding em cinco passos e contratos com renovação e revisão.",
+    "headline": "Conquiste clientes e veja cada renovação chegar: um funil para agências que o seu agente de IA monta",
+    "answer": "Um funil de clientes para agências acompanha duas coisas no mesmo lugar: o novo negócio, da primeira conversa ao fechamento, e os contratos e projetos que vêm depois, cada um com data de renovação e revisão trimestral. Cole este modelo no seu agente de IA e ele monta os dois no Customermates, com a decisão de entrar ou não na concorrência, um onboarding em cinco passos depois de um ganho e um aviso prévio em cada contrato. Você aprova o plano antes que qualquer coisa seja criada.",
+    "routine": {
+      "title": "A rodada semanal da agência",
+      "steps": [
+        "Abra cada oportunidade sem próximo passo e acrescente um com data, ou encerre.",
+        "Decida, para cada novo briefing ou convite de concorrência, se entra ou não: quanto custa participar, quantas agências concorrem e quem apresenta e quem entrega.",
+        "Confira os contratos que renovam nos próximos 90 dias e as datas de aviso prévio que se fecham nas próximas semanas.",
+        "Olhe os contratos mensais sem contato há 30 dias e os que estão com o indicador de saúde em vermelho, e planeje o contato ou a ligação do sócio."
+      ]
+    },
+    "limits": [
+      "Não é um software de agência para projetos, controle de horas, planejamento de equipe ou cobrança. Isso continua nas suas próprias ferramentas; aqui fica a camada comercial e de contratos mensais ao lado delas.",
+      "Não é um portal do cliente nem um fluxo de aprovação, e não gera relatórios de resultados de campanha.",
+      "Nunca guarde no espaço de trabalho acessos de clientes, materiais da marca ou acesso a contas de anúncios. Guarde-os em um gerenciador de senhas e na sua biblioteca de arquivos.",
+      "Não escreve propostas nem coleta assinaturas eletrônicas. Propostas e contratos ficam na sua ferramenta de documentos e são ligados à oportunidade.",
+      "Não é uma ferramenta de sequências nem de disparo em massa. Cada retorno é uma tarefa com data e um rascunho que você revisa e envia.",
+      "O orçamento só é registrado quando o cliente o informa e não existe aviso prévio padrão: você informa o de cada contrato."
+    ],
+    "faq": [
+      {
+        "question": "Em que o funil de uma agência difere de um funil de vendas comum?",
+        "answer": "Uma agência tem menos oportunidades, maiores, com vários interlocutores e decisões longas, e a maior parte da receita vem de clientes que ficam e crescem. Por isso este modelo acrescenta a decisão sobre a concorrência, um onboarding em cinco passos depois de um ganho e contratos com data de renovação, em vez de parar em ganho."
+      },
+      {
+        "question": "A agência deve entrar em todas as concorrências?",
+        "answer": "Não. Participar de uma concorrência custa muito tempo e dinheiro, por isso quem aconselha recomenda verificar antes se ela é necessária: se há um briefing claro com faixa de orçamento, quantas agências participam, se há pagamento pela proposta e quem apresenta e quem entrega. O modelo pede essa decisão no dia em que uma oportunidade chega à etapa de briefing ou concorrência."
+      },
+      {
+        "question": "Qual deve ser o aviso prévio de um contrato mensal?",
+        "answer": "Nenhuma lei dá uma resposta única. O costume é um aviso prévio por escrito de 30 dias, e uma renovação automática com 90 dias de aviso favorece a agência. O modelo guarda o aviso prévio de cada contrato e não presume nenhum. Ele cria uma revisão da renovação 90 dias antes e um lembrete 45 dias antes para confirmar a intenção do cliente."
+      },
+      {
+        "question": "O que acontece depois de um ganho?",
+        "answer": "Um ganho inicia um onboarding em cinco passos: boas-vindas e confirmação do kickoff, coleta de materiais, cronograma, kickoff e fluxo de entrega. Muitas agências ligam o kickoff ao pagamento. Depois o cliente segue como contrato, com data de renovação e revisão trimestral."
+      },
+      {
+        "question": "O agente entra em contato com os meus clientes ou prospects?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Eu fecho clientes novos, mas perco o fio das concorrências em andamento e de quando cada contrato mensal renova. Configure no meu espaço de trabalho do Customermates um funil de clientes para uma agência: oportunidades com decisão de entrar ou não na concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
+    "questions": [
+      "Quais serviços você vende e trabalha com contrato mensal, projeto ou os dois?",
+      "Como você decide entrar ou não em uma concorrência entre agências?",
+      "Qual é o aviso prévio habitual e a duração do contrato?",
+      "Com que frequência você revisa os resultados com um cliente?"
+    ]
+  }
+}

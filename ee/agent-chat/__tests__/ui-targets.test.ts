@@ -116,14 +116,19 @@ describe("agent interface targets", () => {
     const everything = () => true;
 
     expect(agentRouteVisible("/settings/webhooks", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.api))).toBe(true);
+    expect(agentRouteVisible("/settings/agents", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/agents", "cloud", reads(Resource.company))).toBe(true);
     expect(agentRouteVisible("/settings/members", "cloud", reads(Resource.users))).toBe(true);
     expect(agentRouteVisible("/settings/api-keys", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/profile", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/dashboard", "cloud", reads())).toBe(true);
-    expect(agentRouteVisible("/routines", "cloud", reads(Resource.wiki))).toBe(false);
-    expect(agentRouteVisible("/routines", "cloud", reads(Resource.routines))).toBe(true);
+    expect(agentRouteVisible("/automations", "cloud", reads(Resource.wiki))).toBe(false);
+    expect(agentRouteVisible("/automations", "cloud", reads(Resource.routines))).toBe(true);
+    expect(agentRouteVisible("/automations", "self-hosted", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
-    for (const path of ["/inbox", "/routines", "/settings/channels", "/settings/billing"])
+    for (const path of ["/inbox", "/settings/channels", "/settings/billing"])
       expect(agentRouteVisible(path, "self-hosted", everything), path).toBe(false);
     expect(agentRouteVisible("*", "cloud", reads())).toBe(true);
   });
@@ -132,8 +137,10 @@ describe("agent interface targets", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
     expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
     expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
+    expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual(["SettingsNav.incomingWebhooks"]);
+    expect(agentUiPageLabelKeys("/settings/agents")).toEqual(["SettingsNav.agents"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
-    expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
+    expect(agentUiPageLabelKeys("/automations")).toEqual(["NavigationBar.automations"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);
     for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.route.startsWith("/")))
       expect(agentUiPageLabelKeys(target.route), target.id).not.toEqual([]);
@@ -164,7 +171,7 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("role-modal-save")?.prerequisite).toBe("settings-roles-add");
     expect(findAgentUiTarget("webhook-modal-cancel")?.prerequisite).toBe("settings-webhooks-add");
     expect(findAgentUiTarget("webhook-modal-reset")).toBeNull();
-    expect(findAgentUiTarget("routine-modal-cancel")?.prerequisite).toBe("routines-add");
+    expect(findAgentUiTarget("routine-modal-cancel")?.prerequisite).toBe("automations-add");
     expect(findAgentUiTarget("routine-modal-reset")).toBeNull();
     for (const id of ["member-modal-save", "member-modal-cancel"])
       expect(findAgentUiTarget(id)?.prerequisite, id).toBe("a member row");

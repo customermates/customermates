@@ -87,8 +87,8 @@ comparison:
         competitor: true
   - title: Lizenz, Hosting & Zugang
     features:
-      - name: Open-Source-Lizenz
-        source: AGPL-3.0-Kern
+      - name: Quellcode-Lizenz
+        source: Sustainable Use License (Quellcode einsehbar); ee/ unter kommerzieller Lizenz
         competitor: false
       - name: Selbst hosten
         source: Docker Compose (Kern-CRM ohne Posteingang und Mate)
@@ -123,7 +123,7 @@ cta:
 | Sie brauchen eigene Datensatztypen wie Investoren, Immobilien oder Bewerber, mit Formeln und Rollups | Attio, Twenty, Airtable oder Customermates | Customermates startet ohne Listen; Sie legen eigene an (Kontakte, Deals oder beliebige andere), mit berechneten Feldern |
 | Kunden schreiben per E-Mail, LinkedIn und WhatsApp, und Sie wollen diese Verläufe am Kontakt sehen | Customermates Pro oder Business | Alle diese Kanäle laufen in einem Posteingang zusammen, verknüpft mit Kontakten |
 | Sie wollen Deal-Wert mal Phasenwahrscheinlichkeit, ohne es selbst zu bauen | Customermates, jeder Tarif | Das Phasenfeld mit Wahrscheinlichkeiten ist ab der Registrierung angelegt |
-| Sie brauchen den Datenspeicher in der EU ohne Enterprise-Vertrag oder wollen das CRM selbst betreiben | Customermates | Cloud-Datenbank in jedem Tarif in der AWS-Region Frankfurt konfiguriert; AGPL-Kern zum Selbsthosten, ohne Posteingang und Mate |
+| Sie brauchen den Datenspeicher in der EU ohne Enterprise-Vertrag oder wollen das CRM selbst betreiben | Customermates | Cloud-Datenbank in jedem Tarif in der AWS-Region Frankfurt konfiguriert; Community Edition zum Selbsthosten, ohne Posteingang und Mate |
 | Sie brauchen SAML-SSO oder native Apps | Notion Business | Notion bietet beides; Customermates hat kein SSO und keine native App |
 
 ## Für wen Notion als CRM die richtige Wahl ist
@@ -170,7 +170,7 @@ In Notion bauen Sie das CRM selbst und kopieren die Gespräche hinein. In Custom
 
 **KI hält die Datensätze aktuell.** In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten, aktualisiert Datensätze und legt Ansichten an. Mate nutzt gehostete KI-Credits mit einem monatlichen Kontingent pro aktivem Nutzer (siehe [Preise](/pricing)). Vor jedem Löschen fragt Mate erneut nach Ihrer Freigabe, Nachrichten verschickt es ohne gesonderte Freigabe. Lassen Sie deshalb Entwürfe speichern, wenn Sie vorher prüfen möchten. Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz aus: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro. Arbeiten Sie lieber mit Claude oder ChatGPT? Dann verbinden Sie den Client mit dem [MCP-Server](/docs/mcp), der in jedem Tarif [[derived.mcp.tools.total]] Tools bereitstellt; die Modellaufrufe laufen über Ihren eigenen KI-Anbieter.
 
-**Hosting nach Wahl.** Die Cloud-Datenbank ist in der AWS-Region Frankfurt konfiguriert. Ein Auftragsverarbeitungsvertrag steht bereit, und die Unterauftragsverarbeiter, darunter US-Anbieter, sind offengelegt. Der AGPL-3.0-Kern läuft mit Docker Compose auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP; eine [selbst gehostete Installation](/features/self-hosted) hat jedoch keinen Posteingang und kein Mate. Eine Compliance-Zertifizierung besitzt Customermates nicht.
+**Hosting nach Wahl.** Die Cloud-Datenbank ist in der AWS-Region Frankfurt konfiguriert. Ein Auftragsverarbeitungsvertrag steht bereit, und die Unterauftragsverarbeiter, darunter US-Anbieter, sind offengelegt. Die Community Edition läuft mit Docker Compose auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP; eine [selbst gehostete Installation](/features/self-hosted) hat jedoch keinen Posteingang und kein Mate. Eine Compliance-Zertifizierung besitzt Customermates nicht.
 
 ## Wann Customermates nicht passt
 
@@ -210,6 +210,8 @@ Jede Beraterin und jeder Berater speichert ein Board der eigenen Deals nach Phas
   <Step title="Notizen und Ansichten übernehmen">Die Besprechungsnotizen stecken in den Markdown-Dateien, nicht in der Tabelle. Übernehmen Sie die wichtigen in die Notizen des Datensatzes, oder lassen Sie sie von einem KI-Client per MCP eintragen. Danach legen Sie Ihre Ansichten neu an und teilen die, die das ganze Team braucht.</Step>
 </Steps>
 
+<SwitchKit tool="notion" />
+
 ## Weitere Notion-Alternativen fürs CRM
 
 Diese Liste veröffentlicht Customermates. Die Angaben stammen von den Preisseiten der Anbieter, geprüft am 8. Oktober 2026.
@@ -242,7 +244,7 @@ Ja. Beide haben eine REST-API und Webhooks, und n8n hat Nodes für beide. So leg
 </FaqItem>
 
 <FaqItem question="Gibt es eine Open-Source-Alternative zu Notion fürs CRM?">
-Ja. Twenty ist Open Source mit eigenen Objekten und kommt einem flexiblen Notion-Schema am nächsten. Customermates hat einen AGPL-3.0-Kern, den Sie mit Docker Compose selbst betreiben; Posteingang und Mate gibt es nur in Customermates Cloud.
+Ja. Twenty ist Open Source mit eigenen Objekten und kommt einem flexiblen Notion-Schema am nächsten. Customermates ist nicht Open Source, hat aber einsehbaren Quellcode, und seine Community Edition betreiben Sie mit Docker Compose selbst; Posteingang und Mate gibt es nur in Customermates Cloud.
 </FaqItem>
 </Faq>
 

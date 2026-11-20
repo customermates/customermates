@@ -180,7 +180,7 @@ Wil je zien wat Claude met een gekoppeld CRM doet? De gids [Claude als CRM](/blo
 
 ## Een CRM met een ingebouwde MCP-server
 
-Heb je nog niet voor Salesforce gekozen, dan is er een ander model: een CRM waarvan de MCP-server onderdeel van het product is. Customermates is er een. Het is een open-source, AI-native CRM voor kleine teams met klantcontact en biedt één MCP-endpoint op `/api/v1/mcp` in elk cloudpakket en op zelf gehoste installaties. Een verbonden client vindt [[derived.mcp.tools.total]] tools voor contactpersonen, organisaties, deals, diensten, taken en je eigen lijsten, het datamodel, opgeslagen weergaven, dashboards, routines en webhooks. Vanaf Pro, in Customermates Cloud, komen daar de tools voor de gecombineerde inbox bij, voor e-mail, LinkedIn, WhatsApp, Instagram en Telegram.
+Heb je nog niet voor Salesforce gekozen, dan is er een ander model: een CRM waarvan de MCP-server onderdeel van het product is. Customermates is er een. Het is een source-available, AI-native CRM voor kleine teams met klantcontact en biedt één MCP-endpoint op `/api/v1/mcp` in elk cloudpakket en op zelf gehoste installaties. Een verbonden client vindt [[derived.mcp.tools.total]] tools voor contactpersonen, organisaties, deals, diensten, taken en je eigen lijsten, het datamodel, opgeslagen weergaven, dashboards, routines en webhooks. Vanaf Pro, in Customermates Cloud, komen daar de tools voor de gecombineerde inbox bij, voor e-mail, LinkedIn, WhatsApp, Instagram en Telegram.
 
 De verbinding werkt op twee manieren, zoals de [MCP-documentatie](/docs/mcp) beschrijft. Claude en ChatGPT verbinden als aangepaste connector: plak de URL, log in, geef toegang. Claude Code, Codex, Cursor en Gemini CLI gebruiken een [API-sleutel](/docs/api-keys) die de rechten van de maker overneemt. Wil je maar een deel van de tools tonen, voeg dan `?toolsets=` toe aan de endpoint-URL, bijvoorbeeld `?toolsets=records`.
 
@@ -191,7 +191,7 @@ De verbinding werkt op twee manieren, zoals de [MCP-documentatie](/docs/mcp) bes
 | Gebruikskosten | Flex Credits; HPI-meting per aanroep aangekondigd, tarief TBA | Geen heffing per aanroep; je AI-client gebruikt je eigen AI-aanbieder |
 | Bereik beheersen | Aparte lees-, schrijf- en verwijderservers; beveiliging op veldniveau | Rolrechten per bron en actie; toolsets beperken via de URL; geen rechten op veldniveau |
 | Eigen tools | Apex, Flows, named queries, API Catalog, prompttemplates | Vaste toolcatalogus; uitbreiden via REST en webhooks |
-| Licentie | Propriëtaire gehoste dienst; de communityrepository van Salesforce bevat documentatie, niet de server | AGPL-kern, zelf te hosten |
+| Licentie | Propriëtaire gehoste dienst; de communityrepository van Salesforce bevat documentatie, niet de server | Community Edition (source-available), zelf te hosten |
 
 De kostensom is eenvoudig. Een team van vijf personen betaalt op Starter [[commercial.price.starter.monthly.seats.5]] per maand en krijgt de volledige CRM-toolset via MCP. De inboxtools vragen Pro, [[commercial.price.pro.monthly.seats.5]] per maand voor hetzelfde team. Het abonnement van je AI-client komt daar bovenop, bij Anthropic, OpenAI of welke aanbieder je ook gebruikt. De actuele prijzen staan op de [prijzenpagina](/pricing).
 

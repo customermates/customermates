@@ -10,7 +10,9 @@ export type SettingsSlug =
   | "roles"
   | "billing"
   | "activity"
+  | "agents"
   | "webhooks"
+  | "incoming-webhooks"
   | "webhook-deliveries";
 
 export function settingsHref(slug: SettingsSlug) {

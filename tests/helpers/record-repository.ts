@@ -18,6 +18,7 @@ import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import { PrismaEventLogRepo } from "@/features/event/prisma-event-log.repository";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
+import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
@@ -94,6 +95,7 @@ function createTestRecordRepoOwners(): RecordRepoOwners {
     events: new PrismaEventLogRepo(idleBackground),
     webhooks: new PrismaWebhookRepo(subscriptions, new PermissionService(), new PrismaWebhookDeliveryRepo(reader)),
     routines,
+    rules: new PrismaAutomationRuleRepo(subscriptions),
     members: new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     roles: new PrismaRoleRepo(new PrismaBillingUsageRepo()),
     subscriptions,

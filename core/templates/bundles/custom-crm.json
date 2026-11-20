@@ -1,0 +1,3614 @@
+{
+  "spec": {
+    "id": "tpl_custom_crm",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "custom-crm",
+    "family": "custom",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "organizations",
+        "icon": "building"
+      },
+      {
+        "key": "opportunities",
+        "role": "deals",
+        "icon": "handshake"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.job_title",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.contact_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "decision_maker"
+          },
+          {
+            "key": "influencer"
+          },
+          {
+            "key": "user"
+          },
+          {
+            "key": "billing"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.last_contact",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.relationship",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "customer",
+            "color": "success"
+          },
+          {
+            "key": "former_customer",
+            "color": "secondary"
+          },
+          {
+            "key": "partner"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "organizations.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "referral"
+          },
+          {
+            "key": "website"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "import"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "organizations.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.address",
+        "type": "address",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.imported_from",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.expected_close",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "price"
+          },
+          {
+            "key": "competitor"
+          },
+          {
+            "key": "no_decision"
+          },
+          {
+            "key": "timing"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "not_a_fit"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "call"
+          },
+          {
+            "key": "email"
+          },
+          {
+            "key": "meeting"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "opportunities.stage",
+        "items": [
+          {
+            "key": "lead",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "qualified",
+            "outcome": "open",
+            "weight": 30
+          },
+          {
+            "key": "proposal",
+            "outcome": "open",
+            "weight": 60
+          },
+          {
+            "key": "negotiation",
+            "outcome": "open",
+            "weight": 80
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "opportunities.weighted_value",
+        "type": "currency",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {
+              "op": "field",
+              "field": "opportunities.value"
+            },
+            "right": {
+              "op": "optionWeight",
+              "field": "opportunities.stage"
+            }
+          },
+          "right": {
+            "op": "number",
+            "value": "100"
+          }
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "contact_organization",
+        "source": "contacts",
+        "target": "organizations",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_organization",
+        "source": "opportunities",
+        "target": "organizations",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_opportunity",
+        "source": "actions",
+        "target": "opportunities",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "pipeline_board",
+        "list": "opportunities",
+        "default": true,
+        "layout": "board",
+        "groupBy": "opportunities.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [
+          {
+            "field": "opportunities.value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "opportunities_all",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "opportunities.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "opportunities.stage",
+          "opportunities.owner",
+          "opportunities.value",
+          "opportunities.next_step",
+          "opportunities.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "no_next_step",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ]
+      },
+      {
+        "key": "organizations_all",
+        "list": "organizations",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "organizations.relationship",
+          "organizations.owner",
+          "organizations.source"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.contact_role",
+          "contacts.last_contact",
+          "contacts.consent"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "pipeline_funnel",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "funnelChart",
+        "size": "large"
+      },
+      {
+        "kind": "chart",
+        "key": "open_value",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "open_weighted_value",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.weighted_value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "deals_without_next_step",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "how_we_use_this_crm",
+        "kind": "overview"
+      },
+      {
+        "key": "data_entry_rules",
+        "kind": "processes"
+      },
+      {
+        "key": "import_notes",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "next_action_per_stage",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today"
+      },
+      {
+        "key": "set_a_next_step",
+        "trigger": {
+          "kind": "schedule",
+          "every": "day",
+          "list": "opportunities"
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "next_step_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.next_step_due",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "expected_close_passed",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.expected_close",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "weekly_review",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 5
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "organizations",
+            "opportunities"
+          ]
+        },
+        "dueOffsetDays": 1,
+        "needs": "forms"
+      },
+      {
+        "key": "webhook_upsert",
+        "trigger": {
+          "kind": "webhook_received",
+          "source": "old_tool"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "organizations"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "incomingWebhooks"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "opportunities.stage"
+      },
+      {
+        "key": "board_view",
+        "kind": "view_exists",
+        "ref": "pipeline_board"
+      },
+      {
+        "key": "how_we_use_page",
+        "kind": "page_exists",
+        "ref": "how_we_use_this_crm"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://ninox.com/de/ressourcen/blog/baue-dein-eigenes-crm-system",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.adito.de/knowhow/blog/crm-selbst-erstellen",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://appmaster.io/pt/blog/como-criar-um-software-crm-personalizado-sem-codificacao",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://br.hubspot.com/blog/service/como-implantar-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.salesforce.com/crm/custom-crm/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.creatio.com/glossary/customizable-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.knack.com/solutions/custom-crm/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.appvizer.fr/magazine/relation-client/customer-relationship-management-crm/crm-sur-mesure",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.notion.com/help/export-your-content",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.notion.com/help/relations-and-rollups",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.atlassian.com/trello/docs/exporting-data-from-trello/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://help.smartsheet.com/articles/770623-exporting-sheets-reports-from-smartsheet",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.airtable.com/articles/9139007724-attachment-fields-in-airtable",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://customermates.com/en/docs/app-records",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "publication": {
+      "en": "noindex",
+      "de": "noindex",
+      "fr": "indexed",
+      "it": "noindex",
+      "es": "noindex",
+      "pt": "noindex",
+      "pl": "noindex",
+      "nl": "indexed"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Eigenes CRM",
+      "summary": "Von der Tabelle oder dem alten Werkzeug umziehen, ohne ein großes Migrationsprojekt. Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben nach Ihrer Arbeitsweise, mit Import Ihrer Daten und wöchentlicher Durchsicht.",
+      "description": "Ihre Kundendaten verteilen sich auf eine Tabelle, eine Notion-Seite oder ein altes Werkzeug, und niemand möchte dafür ein Migrationsprojekt starten. Diese Vorlage beginnt mit den vier Listen, die jedes CRM braucht, Kontakte, Firmen, Verkaufschancen und Aufgaben, und Ihr Agent passt Phasen, Felder und Ansichten an Ihre Arbeitsweise an. Danach importiert er Ihre Daten und notiert, woher jeder Datensatz stammt. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakte",
+          "description": "Die Personen, mit denen du zu tun hast."
+        },
+        "organizations": {
+          "label": "Firma",
+          "pluralLabel": "Firmen",
+          "description": "Unternehmen und andere Einrichtungen."
+        },
+        "opportunities": {
+          "label": "Verkaufschance",
+          "pluralLabel": "Verkaufschancen",
+          "description": "Eine Chance vom Lead bis gewonnen oder verloren."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Phase",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualifiziert",
+            "proposal": "Angebot",
+            "negotiation": "Verhandlung",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Position",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rolle",
+          "options": {
+            "decision_maker": "Entscheider",
+            "influencer": "Einflussnehmer",
+            "user": "Anwender",
+            "billing": "Rechnungsempfänger",
+            "other": "Sonstige"
+          }
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Letzter Kontakt",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Einwilligung zur Kontaktaufnahme",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Beziehung",
+          "options": {
+            "prospect": "Interessent",
+            "customer": "Kunde",
+            "former_customer": "Ehemaliger Kunde",
+            "partner": "Partner",
+            "other": "Sonstige"
+          }
+        },
+        "organizations.owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Herkunft",
+          "options": {
+            "referral": "Empfehlung",
+            "website": "Website",
+            "event": "Veranstaltung",
+            "outbound": "Eigene Akquise",
+            "import": "Import",
+            "other": "Sonstige"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Anschrift",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importiert aus",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Erwarteter Abschluss",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Nächster Schritt",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Wiedervorlage am",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "price": "Preis",
+            "competitor": "Wettbewerber",
+            "no_decision": "Keine Entscheidung",
+            "timing": "Zeitpunkt",
+            "no_response": "Keine Antwort",
+            "not_a_fit": "Passt nicht",
+            "other": "Sonstiges"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewichteter Wert",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "call": "Anruf",
+            "email": "E-Mail",
+            "meeting": "Termin",
+            "follow_up": "Nachfassen",
+            "review": "Prüfung",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Kontakte"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Verkaufschancen"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Verkaufschance",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Alle Verkaufschancen"
+        },
+        "no_next_step": {
+          "name": "Ohne nächsten Schritt"
+        },
+        "organizations_all": {
+          "name": "Alle Firmen"
+        },
+        "contacts_all": {
+          "name": "Alle Kontakte"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "pipeline_funnel": {
+          "title": "Offene Verkaufschancen nach Phase"
+        },
+        "open_value": {
+          "title": "Offener Wert"
+        },
+        "open_weighted_value": {
+          "title": "Offener gewichteter Wert"
+        },
+        "lost_reasons": {
+          "title": "Verlustgründe"
+        },
+        "deals_without_next_step": {
+          "title": "Chancen ohne nächsten Schritt"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "So nutzen wir dieses CRM",
+          "sections": [
+            "Was hineingehört und wer es pflegt",
+            "Phasen und wann eine Chance weiterrückt"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regeln für die Dateneingabe",
+          "sections": [
+            "Namen, E-Mails und ein Datensatz pro Person",
+            "Ein nächster Schritt mit Datum bei jeder offenen Chance"
+          ]
+        },
+        "import_notes": {
+          "title": "Importnotizen: was woher kam",
+          "sections": [
+            "Quellsystem und Exportdatum",
+            "Was nicht mitgekommen ist und warum"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Eine Folgeaufgabe anlegen, wenn eine Verkaufschance die Phase wechselt",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Bei jeder offenen Chance ohne nächsten Schritt einen verlangen",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Den Zuständigen informieren, wenn ein nächster Schritt fällig ist",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Eine offene Chance am Tag nach dem erwarteten Abschluss prüfen",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Jeden Freitag die wöchentliche Durchsicht durchführen",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Kontakt, Firma und Verkaufschance aus einem Anfrageformular anlegen",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Datensätze aus dem alten Werkzeug über einen eingehenden Webhook anlegen oder aktualisieren",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Verkaufschance hat eine Phase.",
+        "board_view": "Die Pipeline öffnet sich als Board nach Phase mit Summen.",
+        "how_we_use_page": "Die Wissensdatenbank erklärt, wie das Team das CRM nutzt."
+      },
+      "page": {
+        "metaTitle": "CRM selbst erstellen: Alternative zu Excel und Tabellen",
+        "metaDescription": "CRM selbst erstellen statt Tabelle pflegen: Vorlage in Claude, ChatGPT oder Codex einfügen, Ihr KI-Agent baut das CRM und übernimmt Ihre Daten.",
+        "headline": "Eigenes CRM statt Tabelle: ein CRM, das Ihr KI-Agent in Customermates aufbaut und mit Ihren Daten füllt",
+        "answer": "Wenn Ihre Kunden und Verkaufschancen in einer Tabelle, einer Notion-Seite oder einem alten Programm stehen, ersetzt ein eigenes CRM sie ohne Migrationsprojekt: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, zugeschnitten auf Ihren Vertrieb. Fügen Sie diese Vorlage in Ihren KI-Agenten ein. Er fragt, wie Sie arbeiten, baut das CRM in Customermates auf und übernimmt Ihre Daten. Sie genehmigen den Plan, bevor etwas aufgebaut wird.",
+        "routine": {
+          "title": "Die Durchsicht Ihres CRM am Freitag",
+          "steps": [
+            "Öffnen Sie die Pipeline als Tafel und sehen Sie sich jede Phase an: was sich diese Woche bewegt hat und was nicht.",
+            "Öffnen Sie die Verkaufschancen ohne nächsten Schritt und geben Sie jeder einen terminierten nächsten Schritt oder schließen Sie sie.",
+            "Prüfen Sie die Verkaufschancen, deren erwarteter Abschluss im kommenden Monat liegt, und verschieben Sie überholte Termine.",
+            "Räumen Sie die überfälligen Aufgaben auf: erledigen, verschieben oder streichen.",
+            "Beheben Sie, was der Import hinterlassen hat: doppelte Kontakte, einen fehlenden Verantwortlichen, einen Datensatz ohne nächsten Schritt."
+          ]
+        },
+        "limits": [
+          "Es ist kein No-Code-Baukasten für Anwendungen. Es gibt keine eigenen Bildschirme, Kundenportale oder Skripte: Sie bekommen Listen, Verknüpfungen, Tabellen-, Tafel- und Kalenderansichten, Dashboards und Ihren Agenten. Wer einen App-Baukasten braucht, nimmt einen.",
+          "Es ist kein freier Arbeitsbereich. Für Seiten, Wikis und Daten, die nichts mit Kunden zu tun haben, bleiben Notion und Airtable besser geeignet.",
+          "Es gibt keine Synchronisation in beide Richtungen mit Ihrem alten Werkzeug und kein Rückgängigmachen eines Imports. Der Import ist eine einmalige Kopie, nachdem Sie die Zuordnung geprüft haben; in der Quelle wird nichts geändert oder gelöscht.",
+          "Es gibt keine Gantt-Diagramme, Ressourcenplanung oder Zeitleisten. Das bleibt Projektwerkzeugen vorbehalten.",
+          "Es gibt keine Berechtigungen auf Feldebene. Sollen einzelne Spalten vor Kollegen verborgen bleiben, legen Sie sie in eine eigene Liste mit eigenem Zugriff.",
+          "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten."
+        ],
+        "faq": [
+          {
+            "question": "Wie wechsle ich von Google Sheets oder Excel zu einem CRM?",
+            "answer": "Sagen Sie dem Agenten, welche Spalten Sie wirklich nutzen. Er schlägt Listen und Felder vor, prüft eine Stichprobe der Zeilen auf Dubletten und unbekannte Werte und importiert, sobald Sie die Zuordnung genehmigt haben. Customermates importiert Excel- und CSV-Dateien über einen Assistenten zur Spaltenzuordnung, und Ihr Agent kann Datensätze über MCP importieren. Der Import ist eine Kopie: Ihre Tabelle bleibt unverändert, bis Sie sie nicht mehr nutzen."
+          },
+          {
+            "question": "Wann reicht eine Tabelle für Kunden und Verkaufschancen nicht mehr?",
+            "answer": "Ratgeber von CRM-Anbietern nennen eine Grenze zwischen etwa 25 und 200 Kontakten oder den Punkt, an dem mehrere Personen dieselbe Datei bearbeiten oder niemand mehr an eine Wiedervorlage erinnert wird. Dann hilft ein CRM: Kontakte sind mit Firmen und Verkaufschancen verknüpft, nächste Schritte sind terminierte Aufgaben, und die Gespräche stehen neben jedem Datensatz."
+          },
+          {
+            "question": "Muss ich das CRM selbst entwerfen?",
+            "answer": "Nein. Der Agent befragt Sie zuerst: was Sie verkaufen, welche Phasen es wirklich vom ersten Kontakt bis zum Abschluss gibt, was Sie jeden Morgen und jeden Freitag sehen wollen, wer sonst damit arbeitet, wo Ihre Daten heute liegen und was in einem anderen Werkzeug bleibt. Er schlägt das Modell vor und baut es nach Ihrer Freigabe. Phasen, Felder und Ansichten ändern Sie später, indem Sie darum bitten."
+          },
+          {
+            "question": "Was kommt aus meinem alten Werkzeug nicht mit?",
+            "answer": "Der Import kopiert Datensätze. Automatisierungen, Formulare, Ansichten, Kommentare und Anhänge werden nicht übernommen, und Verknüpfungen, die Ihr altes Werkzeug als reinen Text exportiert hat, müssen neu aufgebaut werden. Der Agent hält fest, woher jeder importierte Datensatz stammt, damit Sie es später nachvollziehen können."
+          },
+          {
+            "question": "Wodurch unterscheidet sich das von einem maßgeschneiderten CRM einer Agentur?",
+            "answer": "Agenturen, die ein individuelles CRM entwickeln, nennen mehrere Monate Projektdauer. Hier gibt es das CRM bereits, mit Rollen und Zugriff je Liste, und nur sein Inhalt gehört Ihnen: die Phasen, Felder und Ansichten. Eine erste funktionierende Pipeline kann aus einem Gespräch entstehen, und Sie prüfen sie selbst, bevor Sie sich darauf verlassen."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Meine Kunden und Geschäfte stehen in einer Tabelle oder einem alten Werkzeug, und ich möchte ein CRM, das zu meiner Arbeitsweise passt. Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
+        "questions": [
+          "Aus welchem Werkzeug oder welcher Tabelle stammen deine Datensätze, und lässt sie sich exportieren?",
+          "Welche Phasen durchläuft eine Chance in deinem Geschäft?",
+          "Welche Felder nutzt du heute wirklich, und welche lässt du zurück?",
+          "Wer arbeitet im CRM, und wer betreut welche Datensätze?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Custom CRM",
+      "summary": "Move off your spreadsheet or old tool without a big migration project. Contacts, organizations, opportunities and dated actions shaped around how you work, with an import of your data and a weekly review.",
+      "description": "Your customer data is spread over a spreadsheet, a Notion page or an old tool, and nobody wants to start a migration project. This template starts from the four lists every CRM needs, contacts, organizations, opportunities and actions, and your agent changes the stages, fields and views to fit how you work. It then imports your data and keeps a note of where each record came from. It is meant for people leaving a spreadsheet, Notion, Airtable or Trello.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people you deal with."
+        },
+        "organizations": {
+          "label": "Organization",
+          "pluralLabel": "Organizations",
+          "description": "Companies and other bodies."
+        },
+        "opportunities": {
+          "label": "Opportunity",
+          "pluralLabel": "Opportunities",
+          "description": "One deal from lead to won or lost."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Stage",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualified",
+            "proposal": "Proposal",
+            "negotiation": "Negotiation",
+            "won": "Won",
+            "lost": "Lost"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Job title",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Role",
+          "options": {
+            "decision_maker": "Decision maker",
+            "influencer": "Influencer",
+            "user": "User",
+            "billing": "Billing",
+            "other": "Other"
+          }
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Last contact",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consent to contact",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relationship",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Customer",
+            "former_customer": "Former customer",
+            "partner": "Partner",
+            "other": "Other"
+          }
+        },
+        "organizations.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Source",
+          "options": {
+            "referral": "Referral",
+            "website": "Website",
+            "event": "Event",
+            "outbound": "Outbound",
+            "import": "Import",
+            "other": "Other"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Address",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Imported from",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Expected close",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Next step",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "price": "Price",
+            "competitor": "Competitor",
+            "no_decision": "No decision",
+            "timing": "Timing",
+            "no_response": "No response",
+            "not_a_fit": "Not a fit",
+            "other": "Other"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Weighted value",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "call": "Call",
+            "email": "Email",
+            "meeting": "Meeting",
+            "follow_up": "Follow-up",
+            "review": "Review",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Organization",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Organization",
+          "targetLabel": "Opportunities"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Opportunity",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "All opportunities"
+        },
+        "no_next_step": {
+          "name": "No next step"
+        },
+        "organizations_all": {
+          "name": "All organizations"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "pipeline_funnel": {
+          "title": "Open opportunities by stage"
+        },
+        "open_value": {
+          "title": "Open value"
+        },
+        "open_weighted_value": {
+          "title": "Open weighted value"
+        },
+        "lost_reasons": {
+          "title": "Lost reasons"
+        },
+        "deals_without_next_step": {
+          "title": "Deals without a next step"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "How we use this CRM",
+          "sections": [
+            "What goes in and who updates it",
+            "Stages and when a deal moves"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Data entry rules",
+          "sections": [
+            "Names, emails and one record per person",
+            "A next step with a date on every open deal"
+          ]
+        },
+        "import_notes": {
+          "title": "Import notes: what came from where",
+          "sections": [
+            "Source tool and export date",
+            "What did not travel and why"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Create a follow-up Action when an opportunity changes stage",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Ask for a next step on every open opportunity that has none",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Tell the owner when a next step is due",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Review an open opportunity the day after its expected close",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Run the weekly review every Friday",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Create the contact, organization and opportunity from an inquiry form",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Create or update records from the old tool through an incoming webhook",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every opportunity has a stage.",
+        "board_view": "The pipeline opens as a board by stage with totals.",
+        "how_we_use_page": "The Knowledge Base explains how the team uses the CRM."
+      },
+      "page": {
+        "metaTitle": "Google Sheets Alternative: Build Your Own CRM",
+        "metaDescription": "Outgrown Google Sheets? Paste this template into Claude, ChatGPT or Codex: your agent builds a CRM around how you sell and imports your spreadsheet data.",
+        "headline": "A Google Sheets alternative for customers and deals: your AI agent builds the CRM and imports your data",
+        "answer": "If your customers and deals live in a spreadsheet, a Notion page or an old tool, a custom CRM replaces it without a migration project: contacts, organizations, opportunities and dated actions shaped around how you sell. Paste this template into your AI agent. It asks how you work, builds the CRM in Customermates and imports your data. You approve the plan before anything is built.",
+        "routine": {
+          "title": "The Friday review of your CRM",
+          "steps": [
+            "Open the pipeline board and look at each stage: what moved this week and what did not.",
+            "Open the deals without a next step and give each one a dated next step, or close it.",
+            "Check the deals with an expected close date in the coming month and move the dates that have slipped.",
+            "Clear the overdue actions: do them, move them or drop them.",
+            "Fix what the import left behind: duplicate contacts, a missing owner, a record without a next step."
+          ]
+        },
+        "limits": [
+          "It is not a no-code app builder. There are no custom screens, customer portals or scripts: you get lists, relationships, table, board and calendar views, dashboards and your agent. If you need an app builder, use one.",
+          "It is not a free-form workspace. Notion and Airtable stay better for pages, wikis and data that has nothing to do with customers.",
+          "There is no two-way sync with your old tool and no undo for an import. The import is a one-way copy after you have checked the mapping, and nothing in the source is changed or deleted.",
+          "There are no Gantt charts, resource planning or timelines. Project tools keep that job.",
+          "There are no field-level permissions. If some columns must stay hidden from colleagues, put them in a separate list with its own access.",
+          "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on."
+        ],
+        "faq": [
+          {
+            "question": "How do I move from Google Sheets or Excel to a CRM?",
+            "answer": "Tell the agent which columns you really use. It proposes lists and fields, checks a sample of rows for duplicates and unknown values, and imports once you have approved the mapping. Customermates imports Excel and CSV files through a column-mapping wizard, and your agent can import records through MCP. The import is a copy: your sheet stays as it is until you decide to stop using it."
+          },
+          {
+            "question": "When is a spreadsheet no longer enough for customers and deals?",
+            "answer": "CRM vendors' guides put the limit somewhere between 25 and 200 contacts, or at the moment several people edit the same file or nobody is reminded of a follow-up. A CRM helps then: contacts are linked to organizations and deals, next steps are dated actions and the conversations sit next to each record."
+          },
+          {
+            "question": "Do I have to design the CRM myself?",
+            "answer": "No. The agent interviews you first: what you sell, the real stages from first contact to done, what you check every morning and every Friday, who else uses it, where your data lives today and what stays in another tool. It proposes the model and builds it after you approve. You can change stages, fields and views later by asking."
+          },
+          {
+            "question": "What does not come across from my old tool?",
+            "answer": "The import copies records. Automations, forms, views, comments and attachments do not travel, and relations that your old tool exported as plain text have to be rebuilt. The agent notes where each imported record came from, so you can trace it later."
+          },
+          {
+            "question": "How is this different from a bespoke CRM built by an agency?",
+            "answer": "Agencies that build a custom CRM quote several months. Here the CRM already exists, with roles and access per list, and only its content is yours: the stages, fields and views. A first working pipeline can come out of one conversation, and you read it back yourself before you rely on it."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "My customers and deals live in a spreadsheet or an old tool, and I want a CRM that fits how I work. Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
+        "questions": [
+          "Which tool or spreadsheet do your records come from, and can you export it?",
+          "What stages does a deal go through in your business?",
+          "Which fields do you really use today, and which can you leave behind?",
+          "Who works in the CRM, and who owns which records?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "CRM a medida",
+      "summary": "Deja tu hoja de cálculo o tu herramienta anterior sin un gran proyecto de migración. Contactos, empresas, oportunidades y tareas con fecha a tu medida, con una importación de tus datos y una revisión semanal.",
+      "description": "Tus datos de clientes están repartidos entre una hoja de cálculo, una página de Notion o una herramienta antigua, y nadie quiere empezar un proyecto de migración. Esta plantilla parte de las cuatro listas que necesita todo CRM, contactos, empresas, oportunidades y tareas, y tu agente adapta las etapas, los campos y las vistas a tu forma de trabajar. Después importa tus datos y anota de dónde viene cada registro. Está pensada para quien deja una hoja de cálculo, Notion, Airtable o Trello.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas con las que tratas."
+        },
+        "organizations": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Sociedades y otras entidades."
+        },
+        "opportunities": {
+          "label": "Oportunidad",
+          "pluralLabel": "Oportunidades",
+          "description": "Una oportunidad del lead a ganada o perdida."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Cualificada",
+            "proposal": "Propuesta",
+            "negotiation": "Negociación",
+            "won": "Ganada",
+            "lost": "Perdida"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Función",
+          "options": {
+            "decision_maker": "Decisor",
+            "influencer": "Prescriptor",
+            "user": "Usuario",
+            "billing": "Facturación",
+            "other": "Otro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Última interacción",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consentimiento de contacto",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relación",
+          "options": {
+            "prospect": "Cliente potencial",
+            "customer": "Cliente",
+            "former_customer": "Excliente",
+            "partner": "Socio",
+            "other": "Otro"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Origen",
+          "options": {
+            "referral": "Recomendación",
+            "website": "Sitio web",
+            "event": "Evento",
+            "outbound": "Prospección",
+            "import": "Importación",
+            "other": "Otro"
+          }
+        },
+        "organizations.website": {
+          "label": "Sitio web",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Dirección",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importado desde",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Cierre previsto",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Siguiente paso",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo de pérdida",
+          "options": {
+            "price": "Precio",
+            "competitor": "Competidor",
+            "no_decision": "Sin decisión",
+            "timing": "Momento",
+            "no_response": "Sin respuesta",
+            "not_a_fit": "No encaja",
+            "other": "Otro"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Llamada",
+            "email": "Correo",
+            "meeting": "Reunión",
+            "follow_up": "Seguimiento",
+            "review": "Revisión",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contactos"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Oportunidades"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Oportunidad",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Todas las oportunidades"
+        },
+        "no_next_step": {
+          "name": "Sin siguiente paso"
+        },
+        "organizations_all": {
+          "name": "Todas las empresas"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "pipeline_funnel": {
+          "title": "Oportunidades abiertas por etapa"
+        },
+        "open_value": {
+          "title": "Valor abierto"
+        },
+        "open_weighted_value": {
+          "title": "Valor ponderado abierto"
+        },
+        "lost_reasons": {
+          "title": "Motivos de pérdida"
+        },
+        "deals_without_next_step": {
+          "title": "Oportunidades sin siguiente paso"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Cómo usamos este CRM",
+          "sections": [
+            "Qué entra y quién lo actualiza",
+            "Etapas y cuándo avanza una oportunidad"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Reglas de entrada de datos",
+          "sections": [
+            "Nombres, correos y un registro por persona",
+            "Un siguiente paso con fecha en cada oportunidad abierta"
+          ]
+        },
+        "import_notes": {
+          "title": "Notas de importación: qué vino de dónde",
+          "sections": [
+            "Herramienta de origen y fecha de exportación",
+            "Qué no se trasladó y por qué"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Crear una tarea de seguimiento cuando una oportunidad cambia de etapa",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Pedir un siguiente paso en cada oportunidad abierta que no lo tenga",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Avisar al responsable cuando vence un siguiente paso",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Revisar una oportunidad abierta al día siguiente de su cierre previsto",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Hacer la revisión semanal cada viernes",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Crear contacto, empresa y oportunidad desde un formulario de consulta",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Crear o actualizar registros de la herramienta anterior mediante un webhook entrante",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada oportunidad tiene una etapa.",
+        "board_view": "El pipeline se abre como tablero por etapa, con totales.",
+        "how_we_use_page": "La base de conocimiento explica cómo usa el equipo el CRM."
+      },
+      "page": {
+        "metaTitle": "CRM a medida: alternativa a Excel y a las hojas de cálculo",
+        "metaDescription": "Un CRM a medida sin proyecto de migración: pega la plantilla en Claude, ChatGPT o Codex y tu agente de IA monta el CRM e importa todos tus datos.",
+        "headline": "Un CRM a medida en lugar de la hoja de cálculo: tu agente de IA lo monta en Customermates e importa tus datos",
+        "answer": "Si tus clientes y oportunidades viven en una hoja de cálculo, una página de Notion o una herramienta antigua, un CRM a medida las sustituye sin un proyecto de migración: contactos, empresas, oportunidades y tareas con fecha, moldeados a tu forma de vender. Pega esta plantilla en tu agente de IA. Te pregunta cómo trabajas, monta el CRM en Customermates e importa tus datos. Tú apruebas el plan antes de que se construya nada.",
+        "routine": {
+          "title": "La revisión del CRM de los viernes",
+          "steps": [
+            "Abre el pipeline como tablero y mira cada etapa: qué se ha movido esta semana y qué no.",
+            "Abre las oportunidades sin próximo paso y da a cada una un próximo paso con fecha, o ciérrala.",
+            "Revisa las oportunidades con cierre previsto el mes que viene y mueve las fechas que se han quedado atrás.",
+            "Despeja las tareas vencidas: hazlas, muévelas o descártalas.",
+            "Arregla lo que dejó la importación: contactos duplicados, un responsable que falta, un registro sin próximo paso."
+          ]
+        },
+        "limits": [
+          "No es un constructor de aplicaciones sin código. No hay pantallas a medida, portales de clientes ni scripts: tienes listas, relaciones, vistas de tabla, tablero y calendario, paneles y tu agente. Si necesitas un constructor de aplicaciones, usa uno.",
+          "No es un espacio de trabajo libre. Notion y Airtable siguen siendo mejores para páginas, wikis y datos que no tienen que ver con clientes.",
+          "No hay sincronización en ambos sentidos con tu herramienta antigua ni forma de deshacer una importación. La importación es una copia en un solo sentido, tras revisar la correspondencia de columnas; en el origen no se cambia ni se borra nada.",
+          "No hay diagramas de Gantt, planificación de recursos ni líneas de tiempo. Esa tarea sigue siendo de las herramientas de proyectos.",
+          "No hay permisos a nivel de campo. Si algunas columnas deben quedar ocultas a tus compañeros, ponlas en una lista aparte con su propio acceso.",
+          "Los recordatorios llegan de reglas de automatización y notificaciones, o de una rutina que tu agente ejecuta con un horario. La plantilla los propone y tú decides cuáles activar."
+        ],
+        "faq": [
+          {
+            "question": "¿Cómo paso de Google Sheets o Excel a un CRM?",
+            "answer": "Dile al agente qué columnas usas de verdad. Propone listas y campos, revisa una muestra de filas en busca de duplicados y valores desconocidos e importa cuando apruebas la correspondencia de columnas. Customermates importa archivos Excel y CSV con un asistente de correspondencia de columnas, y tu agente puede importar registros por MCP. La importación es una copia: tu hoja sigue como estaba hasta que decidas dejar de usarla."
+          },
+          {
+            "question": "¿Cuándo deja de bastar una hoja de cálculo para clientes y oportunidades?",
+            "answer": "Las guías de proveedores de CRM sitúan el límite entre 25 y 200 contactos, o en el momento en que varias personas editan el mismo archivo o nadie recibe un aviso de seguimiento. Entonces un CRM ayuda: los contactos están enlazados con empresas y oportunidades, los próximos pasos son tareas con fecha y las conversaciones están junto a cada registro."
+          },
+          {
+            "question": "¿Tengo que diseñar yo el CRM?",
+            "answer": "No. El agente te entrevista primero: qué vendes, las etapas reales desde el primer contacto hasta el cierre, qué miras cada mañana y cada viernes, quién más lo usa, dónde están hoy tus datos y qué se queda en otra herramienta. Propone el modelo y lo construye cuando lo apruebas. Etapas, campos y vistas los cambias después con solo pedirlo."
+          },
+          {
+            "question": "¿Qué no se trae de mi herramienta antigua?",
+            "answer": "La importación copia registros. Las automatizaciones, los formularios, las vistas, los comentarios y los adjuntos no viajan, y las relaciones que tu herramienta antigua exportó como texto simple hay que reconstruirlas. El agente anota de dónde viene cada registro importado, para que puedas rastrearlo después."
+          },
+          {
+            "question": "¿En qué se diferencia de un CRM a medida desarrollado por una agencia?",
+            "answer": "Las agencias que desarrollan un CRM a medida hablan de varios meses de proyecto. Aquí el CRM ya existe, con roles y acceso por lista, y solo su contenido es tuyo: las etapas, los campos y las vistas. Un primer pipeline funcional puede salir de una sola conversación, y lo revisas tú mismo antes de fiarte de él."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Mis clientes y mis oportunidades viven en una hoja de cálculo o en una herramienta antigua, y quiero un CRM que se ajuste a mi forma de trabajar. Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
+        "questions": [
+          "¿De qué herramienta u hoja de cálculo vienen tus registros y se puede exportar?",
+          "¿Por qué etapas pasa una oportunidad en tu negocio?",
+          "¿Qué campos usas de verdad hoy y cuáles puedes dejar atrás?",
+          "¿Quién trabaja en el CRM y quién es responsable de qué registros?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "CRM sur mesure",
+      "summary": "Quittez votre tableur ou votre ancien outil sans gros projet de migration. Contacts, entreprises, affaires et actions datées adaptés à votre façon de travailler, avec l’import de vos données et une revue hebdomadaire.",
+      "description": "Vos données clients sont éparpillées entre un tableur, une page Notion ou un ancien outil, et personne n’a envie de lancer un projet de migration. Ce modèle part des quatre listes dont tout CRM a besoin, contacts, entreprises, affaires et actions, et votre agent adapte les étapes, les champs et les vues à votre façon de travailler. Il importe ensuite vos données et garde la trace de l’origine de chaque fiche importée. Il est pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes avec lesquelles vous travaillez."
+        },
+        "organizations": {
+          "label": "Entreprise",
+          "pluralLabel": "Entreprises",
+          "description": "Sociétés et autres organismes."
+        },
+        "opportunities": {
+          "label": "Affaire",
+          "pluralLabel": "Affaires",
+          "description": "Une affaire du lead à gagnée ou perdue."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Étape",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualifié",
+            "proposal": "Proposition",
+            "negotiation": "Négociation",
+            "won": "Gagné",
+            "lost": "Perdu"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Fonction",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rôle",
+          "options": {
+            "decision_maker": "Décideur",
+            "influencer": "Prescripteur",
+            "user": "Utilisateur",
+            "billing": "Facturation",
+            "other": "Autre"
+          }
+        },
+        "contacts.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Dernier contact",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consentement au contact",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relation",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Client",
+            "former_customer": "Ancien client",
+            "partner": "Partenaire",
+            "other": "Autre"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Origine",
+          "options": {
+            "referral": "Recommandation",
+            "website": "Site web",
+            "event": "Événement",
+            "outbound": "Prospection",
+            "import": "Import",
+            "other": "Autre"
+          }
+        },
+        "organizations.website": {
+          "label": "Site web",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Adresse",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importé depuis",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Date de signature prévue",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Prochaine action",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Échéance de la prochaine action",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motif de perte",
+          "options": {
+            "price": "Prix",
+            "competitor": "Concurrent",
+            "no_decision": "Pas de décision",
+            "timing": "Calendrier",
+            "no_response": "Pas de réponse",
+            "not_a_fit": "Ne convient pas",
+            "other": "Autre"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valeur pondérée",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "call": "Appel",
+            "email": "E-mail",
+            "meeting": "Rendez-vous",
+            "follow_up": "Relance",
+            "review": "Revue",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Affaires"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Affaire",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Toutes les affaires"
+        },
+        "no_next_step": {
+          "name": "Sans prochaine action"
+        },
+        "organizations_all": {
+          "name": "Toutes les entreprises"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "pipeline_funnel": {
+          "title": "Affaires ouvertes par étape"
+        },
+        "open_value": {
+          "title": "Montant des affaires ouvertes"
+        },
+        "open_weighted_value": {
+          "title": "Valeur pondérée des affaires ouvertes"
+        },
+        "lost_reasons": {
+          "title": "Motifs de perte"
+        },
+        "deals_without_next_step": {
+          "title": "Affaires sans prochaine action"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Comment nous utilisons ce CRM",
+          "sections": [
+            "Ce qui y entre et qui le met à jour",
+            "Étapes et quand une affaire avance"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Règles de saisie",
+          "sections": [
+            "Noms, e-mails et une fiche par personne",
+            "Une prochaine action datée sur chaque affaire ouverte"
+          ]
+        },
+        "import_notes": {
+          "title": "Notes d’import : ce qui vient d’où",
+          "sections": [
+            "Outil d’origine et date d’export",
+            "Ce qui n’a pas suivi et pourquoi"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Créer une action de suivi quand une affaire change d’étape",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Demander une prochaine action sur chaque affaire ouverte qui n’en a pas",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Prévenir le responsable quand une prochaine action arrive à échéance",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Revoir une affaire ouverte le lendemain de sa date de signature prévue",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Mener la revue hebdomadaire chaque vendredi",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Créer le contact, l’entreprise et l’affaire à partir d’un formulaire de demande",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Créer ou mettre à jour des fiches depuis l’ancien outil par un webhook entrant",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque affaire a une étape.",
+        "board_view": "Le pipeline s’ouvre en board par étape, avec les totaux.",
+        "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
+      },
+      "page": {
+        "metaTitle": "CRM sur mesure : une alternative à Excel et aux tableurs",
+        "metaDescription": "CRM sur mesure sans projet de migration : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit le CRM et importe vos données.",
+        "headline": "Un CRM sur mesure à la place du tableur : votre agent IA le construit dans Customermates et y importe vos données",
+        "answer": "Si vos clients et vos affaires vivent dans un tableur, une page Notion ou un ancien outil, un CRM sur mesure les remplace sans projet de migration : contacts, entreprises, affaires et actions datées, façonnés autour de votre façon de vendre. Collez ce modèle dans votre agent IA. Il vous demande comment vous travaillez, construit le CRM dans Customermates et importe vos données. Vous validez le plan avant que rien ne soit créé.",
+        "routine": {
+          "title": "La revue du CRM le vendredi",
+          "steps": [
+            "Ouvrez le pipeline en tableau et regardez chaque étape : ce qui a bougé cette semaine et ce qui n’a pas bougé.",
+            "Ouvrez les affaires sans prochaine action et donnez à chacune une prochaine action datée, ou clôturez-la.",
+            "Vérifiez les affaires dont la clôture est attendue le mois prochain et repoussez les dates dépassées.",
+            "Videz les actions en retard : faites-les, déplacez-les ou abandonnez-les.",
+            "Réparez ce que l’import a laissé : contacts en double, responsable manquant, fiche sans prochaine action."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas un constructeur d’applications no-code. Pas d’écrans sur mesure, de portails clients ni de scripts : vous disposez de listes, de relations, de vues tableau, kanban et calendrier, de tableaux de bord et de votre agent. Si vous cherchez un constructeur d’applications, prenez-en un.",
+          "Ce n’est pas un espace de travail libre. Notion et Airtable restent préférables pour des pages, des wikis et des données sans rapport avec les clients.",
+          "Il n’y a pas de synchronisation dans les deux sens avec votre ancien outil ni d’annulation d’un import. L’import est une copie à sens unique, faite une fois le mappage vérifié ; rien n’est modifié ni supprimé dans la source.",
+          "Pas de diagramme de Gantt, de planification des ressources ni de frise chronologique. Les outils de gestion de projet gardent ce métier.",
+          "Il n’y a pas de droits au niveau du champ. Si certaines colonnes doivent rester cachées à vos collègues, placez-les dans une liste distincte avec ses propres accès.",
+          "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer."
+        ],
+        "faq": [
+          {
+            "question": "Comment passer de Google Sheets ou d’Excel à un CRM ?",
+            "answer": "Dites à l’agent quelles colonnes vous utilisez vraiment. Il propose des listes et des champs, vérifie un échantillon de lignes à la recherche de doublons et de valeurs inconnues, puis importe une fois le mappage validé. Customermates importe des fichiers Excel et CSV avec un assistant de correspondance des colonnes, et votre agent peut importer des fiches via MCP. L’import est une copie : votre tableur reste tel quel tant que vous ne décidez pas de l’abandonner."
+          },
+          {
+            "question": "Quand un tableur ne suffit-il plus pour les clients et les affaires ?",
+            "answer": "Les guides d’éditeurs de CRM placent la limite entre 25 et 200 contacts environ, ou au moment où plusieurs personnes modifient le même fichier ou où plus personne n’est rappelé à l’ordre pour une relance. Un CRM aide alors : les contacts sont liés aux entreprises et aux affaires, les prochaines actions sont des actions datées et les échanges se trouvent à côté de chaque fiche."
+          },
+          {
+            "question": "Dois-je concevoir moi-même le CRM ?",
+            "answer": "Non. L’agent commence par vous interroger : ce que vous vendez, les vraies étapes du premier contact à la clôture, ce que vous consultez chaque matin et chaque vendredi, qui d’autre l’utilise, où vos données se trouvent aujourd’hui et ce qui reste dans un autre outil. Il propose le modèle et le construit une fois que vous l’avez validé. Vous pouvez modifier étapes, champs et vues plus tard en le demandant."
+          },
+          {
+            "question": "Qu’est-ce qui ne suit pas avec l’import depuis mon ancien outil ?",
+            "answer": "L’import copie des fiches. Les automatisations, les formulaires, les vues, les commentaires et les pièces jointes ne suivent pas, et les relations que votre ancien outil a exportées en simple texte doivent être reconstruites. L’agent note l’origine de chaque fiche importée, pour que vous puissiez la retrouver ensuite."
+          },
+          {
+            "question": "En quoi est-ce différent d’un CRM sur mesure développé par une agence ?",
+            "answer": "Les agences qui développent un CRM sur mesure annoncent plusieurs mois de projet. Ici le CRM existe déjà, avec des rôles et des accès par liste, et seul son contenu est à vous : les étapes, les champs et les vues. Un premier pipeline opérationnel peut sortir d’une seule conversation, et vous le relisez vous-même avant de vous y fier."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Mes clients et mes affaires sont dans un tableur ou un ancien outil, et je veux un CRM adapté à ma façon de travailler. Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
+        "questions": [
+          "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
+          "Par quelles étapes passe une affaire dans votre activité ?",
+          "Quels champs utilisez-vous vraiment aujourd’hui, et lesquels pouvez-vous abandonner ?",
+          "Qui travaille dans le CRM, et qui est responsable de quelles fiches ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "CRM su misura",
+      "summary": "Lascia il foglio di calcolo o il vecchio strumento senza un progetto di migrazione. Contatti, aziende, trattative e attività con scadenza costruiti sul tuo modo di lavorare, con l'importazione dei tuoi dati e una revisione settimanale.",
+      "description": "I dati dei tuoi clienti sono sparsi tra un foglio di calcolo, una pagina di Notion o un vecchio strumento e nessuno vuole iniziare un progetto di migrazione. Questo modello parte dalle quattro liste di cui ogni CRM ha bisogno, contatti, aziende, trattative e attività, e il tuo agente adatta fasi, campi e viste al tuo modo di lavorare. Poi importa i tuoi dati e annota da dove viene ogni record. Pensato per chi lascia un foglio di calcolo, Notion, Airtable o Trello.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Contatto",
+          "pluralLabel": "Contatti",
+          "description": "Le persone con cui hai a che fare."
+        },
+        "organizations": {
+          "label": "Azienda",
+          "pluralLabel": "Aziende",
+          "description": "Società e altri enti."
+        },
+        "opportunities": {
+          "label": "Trattativa",
+          "pluralLabel": "Trattative",
+          "description": "Una trattativa dal contatto a vinta o persa."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "lead": "Nuovo contatto",
+            "qualified": "Qualificato",
+            "proposal": "Preventivo",
+            "negotiation": "Negoziazione",
+            "won": "Vinta",
+            "lost": "Persa"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Ruolo aziendale",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Funzione",
+          "options": {
+            "decision_maker": "Decisore",
+            "influencer": "Influenzatore",
+            "user": "Utilizzatore",
+            "billing": "Amministrazione",
+            "other": "Altro"
+          }
+        },
+        "contacts.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Ultimo contatto",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consenso al contatto",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relazione",
+          "options": {
+            "prospect": "Potenziale",
+            "customer": "Cliente",
+            "former_customer": "Ex cliente",
+            "partner": "Partner",
+            "other": "Altro"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Provenienza",
+          "options": {
+            "referral": "Segnalazione",
+            "website": "Sito web",
+            "event": "Evento",
+            "outbound": "Contatto diretto",
+            "import": "Importazione",
+            "other": "Altro"
+          }
+        },
+        "organizations.website": {
+          "label": "Sito web",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Indirizzo",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importato da",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Chiusura prevista",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Prossimo passo",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Scadenza del prossimo passo",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "price": "Prezzo",
+            "competitor": "Concorrente",
+            "no_decision": "Nessuna decisione",
+            "timing": "Tempi",
+            "no_response": "Nessuna risposta",
+            "not_a_fit": "Non adatto",
+            "other": "Altro"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valore ponderato",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Chiamata",
+            "email": "E-mail",
+            "meeting": "Incontro",
+            "follow_up": "Follow-up",
+            "review": "Revisione",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Contatti"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Trattative"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Trattativa",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Tutte le trattative"
+        },
+        "no_next_step": {
+          "name": "Senza prossimo passo"
+        },
+        "organizations_all": {
+          "name": "Tutte le aziende"
+        },
+        "contacts_all": {
+          "name": "Tutti i contatti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "pipeline_funnel": {
+          "title": "Trattative aperte per fase"
+        },
+        "open_value": {
+          "title": "Valore delle trattative aperte"
+        },
+        "open_weighted_value": {
+          "title": "Valore ponderato delle trattative aperte"
+        },
+        "lost_reasons": {
+          "title": "Motivi della perdita"
+        },
+        "deals_without_next_step": {
+          "title": "Trattative senza prossimo passo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Come usiamo questo CRM",
+          "sections": [
+            "Che cosa vi entra e chi lo aggiorna",
+            "Fasi e quando una trattativa avanza"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regole di inserimento dei dati",
+          "sections": [
+            "Nomi, e-mail e un record per persona",
+            "Un prossimo passo con data su ogni trattativa aperta"
+          ]
+        },
+        "import_notes": {
+          "title": "Note sull'importazione: che cosa viene da dove",
+          "sections": [
+            "Strumento di origine e data di esportazione",
+            "Che cosa non è arrivato e perché"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Creare un'attività di follow-up quando una trattativa cambia fase",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Chiedere un prossimo passo su ogni trattativa aperta che non ne ha",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Avvisare il responsabile quando un prossimo passo scade",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Rivedere una trattativa aperta il giorno dopo la chiusura prevista",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Fare la revisione settimanale ogni venerdì",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Creare contatto, azienda e trattativa da un modulo di richiesta",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Creare o aggiornare record dal vecchio strumento tramite un webhook in entrata",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni trattativa ha una fase.",
+        "board_view": "La pipeline si apre come board per fase, con i totali.",
+        "how_we_use_page": "La base di conoscenza spiega come il team usa il CRM."
+      },
+      "page": {
+        "metaTitle": "CRM su misura: un'alternativa a Excel e ai fogli di calcolo",
+        "metaDescription": "CRM su misura senza progetto di migrazione: incolla il modello in Claude, ChatGPT o Codex e il tuo agente costruisce il CRM e importa i tuoi dati.",
+        "headline": "Un CRM su misura al posto del foglio di calcolo: il tuo agente IA lo costruisce e importa i tuoi dati",
+        "answer": "Se clienti e trattative vivono in un foglio di calcolo, in una pagina Notion o in un vecchio strumento, un CRM su misura li sostituisce senza progetto di migrazione: contatti, aziende, trattative e attività con scadenza, costruiti attorno al tuo modo di vendere. Incolla questo modello nel tuo agente IA. Ti chiede come lavori, costruisce il CRM in Customermates e importa i tuoi dati. Approvi il piano prima che venga costruito qualcosa.",
+        "routine": {
+          "title": "La revisione del CRM del venerdì",
+          "steps": [
+            "Apri la pipeline come bacheca e guarda ogni fase: cosa si è mosso questa settimana e cosa no.",
+            "Apri le trattative senza prossimo passo e dai a ciascuna un prossimo passo con scadenza, oppure chiudila.",
+            "Controlla le trattative con chiusura prevista nel prossimo mese e sposta le date superate.",
+            "Svuota le attività in ritardo: falle, spostale o lasciale cadere.",
+            "Sistema ciò che l'importazione ha lasciato: contatti doppi, un responsabile mancante, un record senza prossimo passo."
+          ]
+        },
+        "limits": [
+          "Non è un costruttore di app no-code. Niente schermate su misura, portali clienti o script: hai elenchi, collegamenti, viste tabella, bacheca e calendario, dashboard e il tuo agente. Se ti serve un costruttore di app, usane uno.",
+          "Non è uno spazio di lavoro libero. Notion e Airtable restano più adatti per pagine, wiki e dati che non c'entrano con i clienti.",
+          "Non c'è sincronizzazione nei due sensi con il tuo vecchio strumento né annullamento di un'importazione. L'importazione è una copia a senso unico, fatta dopo che hai controllato la mappatura; nella fonte non viene modificato né cancellato nulla.",
+          "Niente diagrammi di Gantt, pianificazione delle risorse o timeline. Quel compito resta agli strumenti di gestione dei progetti.",
+          "Non ci sono permessi a livello di campo. Se alcune colonne devono restare nascoste ai colleghi, mettile in un elenco separato con accessi propri.",
+          "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare."
+        ],
+        "faq": [
+          {
+            "question": "Come passo da Google Sheets o Excel a un CRM?",
+            "answer": "Dì all'agente quali colonne usi davvero. Propone elenchi e campi, controlla un campione di righe per trovare doppioni e valori sconosciuti e importa dopo che hai approvato la mappatura. Customermates importa file Excel e CSV con una procedura guidata di mappatura delle colonne, e il tuo agente può importare record tramite MCP. L'importazione è una copia: il tuo foglio resta com'è finché non decidi di smettere di usarlo."
+          },
+          {
+            "question": "Quando un foglio di calcolo non basta più per clienti e trattative?",
+            "answer": "Le guide dei produttori di CRM indicano il limite tra 25 e 200 contatti circa, oppure il momento in cui più persone modificano lo stesso file o nessuno viene più avvisato di un follow-up. Allora un CRM aiuta: i contatti sono collegati ad aziende e trattative, i prossimi passi sono attività con scadenza e le conversazioni stanno accanto a ogni record."
+          },
+          {
+            "question": "Devo progettare il CRM da solo?",
+            "answer": "No. L'agente ti intervista prima: cosa vendi, le fasi reali dal primo contatto alla chiusura, cosa guardi ogni mattina e ogni venerdì, chi altro lo usa, dove sono oggi i tuoi dati e cosa resta in un altro strumento. Propone il modello e lo costruisce dopo la tua approvazione. Fasi, campi e viste puoi cambiarli poi semplicemente chiedendolo."
+          },
+          {
+            "question": "Cosa non arriva dal mio vecchio strumento?",
+            "answer": "L'importazione copia i record. Automazioni, moduli, viste, commenti e allegati non vengono trasferiti, e i collegamenti che il vecchio strumento ha esportato come semplice testo vanno ricostruiti. L'agente annota da dove viene ogni record importato, così puoi risalirci in seguito."
+          },
+          {
+            "question": "In che cosa è diverso da un CRM su misura sviluppato da un'agenzia?",
+            "answer": "Le agenzie che sviluppano un CRM su misura indicano diversi mesi di progetto. Qui il CRM esiste già, con ruoli e accessi per elenco, e solo il suo contenuto è tuo: le fasi, i campi e le viste. Una prima pipeline funzionante può nascere da una sola conversazione, e la rileggi tu stesso prima di affidartici."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "I miei clienti e le mie trattative stanno in un foglio di calcolo o in un vecchio strumento e voglio un CRM che si adatti al mio modo di lavorare. Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+        "questions": [
+          "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
+          "Quali fasi attraversa una trattativa nella tua attività?",
+          "Quali campi usi davvero oggi e quali puoi lasciare indietro?",
+          "Chi lavora nel CRM e chi è responsabile di quali record?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "CRM op maat",
+      "summary": "Stap over van je spreadsheet of oude tool zonder groot migratieproject. Contactpersonen, bedrijven, deals en acties met datum, afgestemd op hoe jij werkt, met een import van je gegevens en een wekelijkse controle.",
+      "description": "Je klantgegevens staan verspreid over een spreadsheet, een Notion-pagina of een oude tool, en niemand wil een migratieproject starten. Dit sjabloon begint bij de vier lijsten die elk CRM nodig heeft: contactpersonen, bedrijven, deals en acties. Je agent past de fasen, velden en weergaven aan op hoe je werkt, importeert daarna je gegevens en onthoudt waar elk record vandaan is geïmporteerd. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen met wie je te maken hebt."
+        },
+        "organizations": {
+          "label": "Bedrijf",
+          "pluralLabel": "Bedrijven",
+          "description": "Bedrijven en andere organisaties."
+        },
+        "opportunities": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "Eén deal van lead tot gewonnen of verloren."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Gekwalificeerd",
+            "proposal": "Voorstel",
+            "negotiation": "Onderhandeling",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Functie",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rol",
+          "options": {
+            "decision_maker": "Beslisser",
+            "influencer": "Beïnvloeder",
+            "user": "Gebruiker",
+            "billing": "Facturatie",
+            "other": "Overig"
+          }
+        },
+        "contacts.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Laatste contact",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Toestemming voor contact",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relatie",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Klant",
+            "former_customer": "Oud-klant",
+            "partner": "Partner",
+            "other": "Overig"
+          }
+        },
+        "organizations.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Herkomst",
+          "options": {
+            "referral": "Aanbeveling",
+            "website": "Website",
+            "event": "Evenement",
+            "outbound": "Eigen acquisitie",
+            "import": "Import",
+            "other": "Overig"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Geïmporteerd uit",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Verwachte afsluitdatum",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Volgende stap",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Datum volgende stap",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Reden van verlies",
+          "options": {
+            "price": "Prijs",
+            "competitor": "Concurrent",
+            "no_decision": "Geen besluit",
+            "timing": "Timing",
+            "no_response": "Geen reactie",
+            "not_a_fit": "Past niet",
+            "other": "Overig"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewogen waarde",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "call": "Telefoongesprek",
+            "email": "E-mail",
+            "meeting": "Afspraak",
+            "follow_up": "Opvolging",
+            "review": "Controle",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Contactpersonen"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Deals"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Alle deals"
+        },
+        "no_next_step": {
+          "name": "Zonder volgende stap"
+        },
+        "organizations_all": {
+          "name": "Alle bedrijven"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "pipeline_funnel": {
+          "title": "Open deals per fase"
+        },
+        "open_value": {
+          "title": "Open waarde"
+        },
+        "open_weighted_value": {
+          "title": "Open gewogen waarde"
+        },
+        "lost_reasons": {
+          "title": "Redenen van verlies"
+        },
+        "deals_without_next_step": {
+          "title": "Deals zonder volgende stap"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Zo gebruiken we dit CRM",
+          "sections": [
+            "Wat erin komt en wie het bijwerkt",
+            "Fasen en wanneer een deal verder gaat"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regels voor het invoeren van gegevens",
+          "sections": [
+            "Namen, e-mails en één record per persoon",
+            "Een volgende stap met datum bij elke open deal"
+          ]
+        },
+        "import_notes": {
+          "title": "Importnotities: wat waar vandaan kwam",
+          "sections": [
+            "Bronapplicatie en exportdatum",
+            "Wat niet is meegekomen en waarom"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Maak een vervolgactie aan wanneer een deal van fase wisselt",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Vraag om een volgende stap bij elke open deal zonder",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Informeer de eigenaar wanneer een volgende stap aan de beurt is",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Bekijk een open deal de dag na de verwachte afsluitdatum",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Houd elke vrijdag de wekelijkse controle",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraagformulier",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Maak of werk records bij uit de oude tool via een inkomende webhook",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke deal heeft een fase.",
+        "board_view": "De pipeline opent als bord per fase met totalen.",
+        "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
+      },
+      "page": {
+        "metaTitle": "CRM op maat: alternatief voor Excel en spreadsheets",
+        "metaDescription": "CRM op maat zonder migratieproject: plak het sjabloon in Claude, ChatGPT of Codex en je AI-agent bouwt het CRM en importeert je gegevens uit je spreadsheet.",
+        "headline": "Een CRM op maat in plaats van je spreadsheet: je AI-agent bouwt het in Customermates en importeert je gegevens",
+        "answer": "Staan je klanten en deals in een spreadsheet, een Notion-pagina of een oud programma, dan vervangt een CRM op maat dat zonder migratieproject: contactpersonen, bedrijven, deals en taken met een datum, afgestemd op hoe jij verkoopt. Plak dit sjabloon in je AI-agent. Die vraagt hoe je werkt, bouwt het CRM in Customermates en importeert je gegevens. Je keurt het plan goed voordat er iets wordt gebouwd.",
+        "routine": {
+          "title": "De vrijdagse CRM-controle",
+          "steps": [
+            "Open de pijplijn als bord en kijk naar elke fase: wat is er deze week verschoven en wat niet.",
+            "Open de deals zonder volgende stap en geef elk een volgende stap met een datum, of sluit de deal.",
+            "Controleer de deals met een verwachte afsluiting in de komende maand en schuif datums door die zijn verstreken.",
+            "Ruim de achterstallige taken op: doen, verplaatsen of laten vallen.",
+            "Herstel wat de import heeft achtergelaten: dubbele contactpersonen, een ontbrekende eigenaar, een record zonder volgende stap."
+          ]
+        },
+        "limits": [
+          "Het is geen no-code appbouwer. Er zijn geen eigen schermen, klantenportalen of scripts: je hebt lijsten, koppelingen, tabel-, bord- en kalenderweergaven, dashboards en je agent. Heb je een appbouwer nodig, gebruik dan een appbouwer.",
+          "Het is geen vrije werkruimte. Notion en Airtable blijven beter voor pagina's, wiki's en gegevens die niets met klanten te maken hebben.",
+          "Er is geen synchronisatie in twee richtingen met je oude programma en geen manier om een import ongedaan te maken. De import is een eenmalige kopie nadat je de koppeling van kolommen hebt gecontroleerd; in de bron wordt niets gewijzigd of verwijderd.",
+          "Er zijn geen Gantt-diagrammen, capaciteitsplanning of tijdlijnen. Dat blijft het werk van projecttools.",
+          "Er zijn geen rechten op veldniveau. Moeten sommige kolommen voor collega's verborgen blijven, zet ze dan in een aparte lijst met eigen toegang.",
+          "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het sjabloon stelt ze voor en jij beslist welke je inschakelt."
+        ],
+        "faq": [
+          {
+            "question": "Hoe stap ik over van Google Sheets of Excel naar een CRM?",
+            "answer": "Vertel de agent welke kolommen je echt gebruikt. Die stelt lijsten en velden voor, controleert een steekproef van rijen op dubbele en onbekende waarden en importeert zodra jij de koppeling van kolommen hebt goedgekeurd. Customermates importeert Excel- en CSV-bestanden met een wizard voor kolomkoppeling, en je agent kan records importeren via MCP. De import is een kopie: je spreadsheet blijft zoals hij is totdat jij besluit er niet meer mee te werken."
+          },
+          {
+            "question": "Wanneer is een spreadsheet niet meer genoeg voor klanten en deals?",
+            "answer": "Gidsen van CRM-leveranciers leggen de grens tussen ongeveer 25 en 200 contactpersonen, of op het moment dat meerdere mensen hetzelfde bestand bewerken of niemand meer aan een opvolging wordt herinnerd. Dan helpt een CRM: contactpersonen zijn gekoppeld aan bedrijven en deals, volgende stappen zijn taken met een datum en de gesprekken staan naast elk record."
+          },
+          {
+            "question": "Moet ik het CRM zelf ontwerpen?",
+            "answer": "Nee. De agent interviewt je eerst: wat je verkoopt, welke fases er echt zijn van eerste contact tot afsluiting, wat je elke ochtend en elke vrijdag wilt zien, wie er nog meer mee werkt, waar je gegevens nu staan en wat in een ander programma blijft. Hij stelt het model voor en bouwt het nadat jij het hebt goedgekeurd. Fases, velden en weergaven pas je later aan door erom te vragen."
+          },
+          {
+            "question": "Wat komt er niet mee uit mijn oude programma?",
+            "answer": "De import kopieert records. Automatiseringen, formulieren, weergaven, opmerkingen en bijlagen gaan niet mee, en koppelingen die je oude programma als platte tekst exporteerde moeten opnieuw worden opgebouwd. De agent noteert waar elk geïmporteerd record vandaan komt, zodat je dat later kunt nagaan."
+          },
+          {
+            "question": "Wat is het verschil met een CRM op maat van een bureau?",
+            "answer": "Bureaus die een CRM op maat ontwikkelen noemen meerdere maanden projecttijd. Hier bestaat het CRM al, met rollen en toegang per lijst, en alleen de inhoud is van jou: de fases, velden en weergaven. Een eerste werkende pijplijn kan uit één gesprek komen, en je controleert die zelf voordat je erop vertrouwt."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Mijn klanten en deals staan in een spreadsheet of een oude tool en ik wil een CRM dat past bij hoe ik werk. Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+        "questions": [
+          "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
+          "Welke fasen doorloopt een deal in jouw bedrijf?",
+          "Welke velden gebruik je nu echt en welke kun je achterlaten?",
+          "Wie werkt in het CRM en wie is eigenaar van welke records?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Własny CRM",
+      "summary": "Przejdź z arkusza lub starego narzędzia bez dużego projektu wdrożeniowego. Kontakty, organizacje, szanse sprzedaży i zadania z terminem dopasowane do Twojego sposobu pracy, z importem danych i cotygodniowym przeglądem.",
+      "description": "Dane klientów są rozrzucone po arkuszu, stronie w Notion i starym narzędziu, a nikt nie chce zaczynać projektu migracji. Szablon zaczyna od czterech list, których potrzebuje każdy CRM: kontaktów, organizacji, szans sprzedaży i zadań, a agent dopasowuje etapy, pola i widoki do Twojego sposobu pracy. Potem importuje dane i zapisuje, skąd pochodzi każdy rekord. Dla osób, które odchodzą od arkusza, Notion, Airtable lub Trello.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby, z którymi masz do czynienia."
+        },
+        "organizations": {
+          "label": "Organizacja",
+          "pluralLabel": "Organizacje",
+          "description": "Firmy i inne podmioty."
+        },
+        "opportunities": {
+          "label": "Szansa sprzedaży",
+          "pluralLabel": "Szanse sprzedaży",
+          "description": "Jedna szansa od leada do wygranej lub przegranej."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etap",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Zakwalifikowany",
+            "proposal": "Oferta",
+            "negotiation": "Negocjacje",
+            "won": "Wygrana",
+            "lost": "Przegrana"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Stanowisko",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rola",
+          "options": {
+            "decision_maker": "Decydent",
+            "influencer": "Osoba wpływająca na decyzję",
+            "user": "Użytkownik",
+            "billing": "Rozliczenia",
+            "other": "Inna"
+          }
+        },
+        "contacts.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Ostatni kontakt",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Zgoda na kontakt",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relacja",
+          "options": {
+            "prospect": "Potencjalny",
+            "customer": "Klient",
+            "former_customer": "Były klient",
+            "partner": "Partner",
+            "other": "Inna"
+          }
+        },
+        "organizations.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Źródło",
+          "options": {
+            "referral": "Polecenie",
+            "website": "Strona internetowa",
+            "event": "Wydarzenie",
+            "outbound": "Kontakt wychodzący",
+            "import": "Import",
+            "other": "Inne"
+          }
+        },
+        "organizations.website": {
+          "label": "Strona internetowa",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Zaimportowano z",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Planowane zamknięcie",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Następny krok",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Powód przegranej",
+          "options": {
+            "price": "Cena",
+            "competitor": "Konkurent",
+            "no_decision": "Brak decyzji",
+            "timing": "Nieodpowiedni moment",
+            "no_response": "Brak odpowiedzi",
+            "not_a_fit": "Brak dopasowania",
+            "other": "Inny"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Wartość ważona",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "call": "Rozmowa telefoniczna",
+            "email": "E-mail",
+            "meeting": "Spotkanie",
+            "follow_up": "Ponowny kontakt",
+            "review": "Przegląd",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Organizacja",
+          "targetLabel": "Kontakty"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Organizacja",
+          "targetLabel": "Szanse sprzedaży"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Szansa sprzedaży",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "pipeline_board": {
+          "name": "Lejek"
+        },
+        "opportunities_all": {
+          "name": "Wszystkie szanse"
+        },
+        "no_next_step": {
+          "name": "Bez następnego kroku"
+        },
+        "organizations_all": {
+          "name": "Wszystkie organizacje"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "pipeline_funnel": {
+          "title": "Otwarte szanse wg etapu"
+        },
+        "open_value": {
+          "title": "Wartość otwartych szans"
+        },
+        "open_weighted_value": {
+          "title": "Ważona wartość otwartych szans"
+        },
+        "lost_reasons": {
+          "title": "Powody przegranej"
+        },
+        "deals_without_next_step": {
+          "title": "Szanse bez następnego kroku"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Jak używamy tego CRM",
+          "sections": [
+            "Co tu trafia i kto to aktualizuje",
+            "Etapy i kiedy szansa idzie dalej"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Zasady wprowadzania danych",
+          "sections": [
+            "Nazwy, e-maile i jeden rekord na osobę",
+            "Następny krok z terminem przy każdej otwartej szansie"
+          ]
+        },
+        "import_notes": {
+          "title": "Notatki z importu: co skąd pochodzi",
+          "sections": [
+            "Narzędzie źródłowe i data eksportu",
+            "Co nie przeszło i dlaczego"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Utwórz zadanie z kolejnym krokiem, gdy szansa zmienia etap",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Ustal następny krok dla każdej otwartej szansy, która go nie ma",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Powiadom opiekuna, gdy nadchodzi termin następnego kroku",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Przejrzyj otwartą szansę dzień po planowanym zamknięciu",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Przeprowadź cotygodniowy przegląd w każdy piątek",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Utwórz kontakt, organizację i szansę z formularza zapytania",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Utwórz lub zaktualizuj rekordy ze starego narzędzia przez przychodzący webhook",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każda szansa ma etap.",
+        "board_view": "Lejek otwiera się jako tablica według etapów z sumami.",
+        "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
+      },
+      "page": {
+        "metaTitle": "Własny CRM: alternatywa dla Excela i arkuszy kalkulacyjnych",
+        "metaDescription": "Własny CRM bez projektu migracji: wklej szablon do Claude, ChatGPT lub Codex, a Twój agent AI zbuduje CRM i zaimportuje Twoje dane z arkusza.",
+        "headline": "Własny CRM zamiast arkusza: Twój agent AI buduje go w Customermates i importuje Twoje dane",
+        "answer": "Jeśli Twoi klienci i szanse sprzedaży znajdują się w arkuszu, na stronie Notion albo w starym narzędziu, własny CRM zastępuje je bez projektu migracji: kontakty, organizacje, szanse sprzedaży i zadania z terminem, dopasowane do tego, jak sprzedajesz. Wklej ten szablon do swojego agenta AI. Zapyta, jak pracujesz, zbuduje CRM w Customermates i zaimportuje Twoje dane. Plan zatwierdzasz Ty, zanim cokolwiek powstanie.",
+        "routine": {
+          "title": "Piątkowy przegląd CRM",
+          "steps": [
+            "Otwórz lejek jako tablicę i obejrzyj każdy etap: co ruszyło się w tym tygodniu, a co nie.",
+            "Otwórz szanse sprzedaży bez następnego kroku i dla każdej ustal następny krok z terminem albo ją zamknij.",
+            "Sprawdź szanse z planowanym zamknięciem w przyszłym miesiącu i przesuń terminy, które się przeterminowały.",
+            "Uporządkuj zadania po terminie: zrób je, przesuń albo odpuść.",
+            "Napraw to, co zostało po imporcie: zdublowane kontakty, brak opiekuna, rekord bez następnego kroku."
+          ]
+        },
+        "limits": [
+          "To nie jest kreator aplikacji no-code. Nie ma własnych ekranów, portali dla klientów ani skryptów: masz listy, powiązania, widoki tabeli, tablicy i kalendarza, pulpity i swojego agenta. Jeśli potrzebujesz kreatora aplikacji, użyj takiego.",
+          "To nie jest dowolna przestrzeń robocza. Do stron, wiki i danych niezwiązanych z klientami lepsze pozostają Notion i Airtable.",
+          "Nie ma synchronizacji w obie strony ze starym narzędziem ani cofania importu. Import to jednorazowa kopia, wykonywana po sprawdzeniu mapowania kolumn; w źródle nic nie jest zmieniane ani usuwane.",
+          "Nie ma wykresów Gantta, planowania zasobów ani osi czasu. To zadanie zostaje narzędziom do zarządzania projektami.",
+          "Nie ma uprawnień na poziomie pola. Jeśli niektóre kolumny mają być ukryte przed współpracownikami, umieść je na osobnej liście z własnym dostępem.",
+          "Przypomnienia pochodzą z reguł automatyzacji i powiadomień albo z rutyny, którą Twój agent uruchamia według harmonogramu. Szablon je proponuje, a Ty decydujesz, które włączyć."
+        ],
+        "faq": [
+          {
+            "question": "Jak przejść z Arkuszy Google lub Excela do CRM?",
+            "answer": "Powiedz agentowi, których kolumn naprawdę używasz. Zaproponuje listy i pola, sprawdzi próbkę wierszy pod kątem duplikatów i nieznanych wartości, a zaimportuje dane, gdy zatwierdzisz mapowanie. Customermates importuje pliki Excel i CSV przez kreator mapowania kolumn, a Twój agent może importować rekordy przez MCP. Import to kopia: arkusz zostaje bez zmian, dopóki sam nie zdecydujesz, że go porzucasz."
+          },
+          {
+            "question": "Kiedy arkusz przestaje wystarczać do klientów i szans sprzedaży?",
+            "answer": "Poradniki dostawców CRM wskazują granicę między około 25 a 200 kontaktami albo moment, gdy ten sam plik edytuje kilka osób lub nikt nie jest już przypominany o kolejnym kroku. Wtedy pomaga CRM: kontakty są powiązane z organizacjami i szansami, kolejne kroki to zadania z terminem, a rozmowy leżą obok każdego rekordu."
+          },
+          {
+            "question": "Czy muszę sam zaprojektować CRM?",
+            "answer": "Nie. Agent zaczyna od wywiadu: co sprzedajesz, jakie są prawdziwe etapy od pierwszego kontaktu do zamknięcia, co sprawdzasz każdego ranka i w każdy piątek, kto jeszcze z niego korzysta, gdzie dziś leżą Twoje dane i co zostaje w innym narzędziu. Proponuje model i buduje go po Twojej akceptacji. Etapy, pola i widoki zmienisz później, po prostu o to prosząc."
+          },
+          {
+            "question": "Czego nie przeniosę ze starego narzędzia?",
+            "answer": "Import kopiuje rekordy. Automatyzacje, formularze, widoki, komentarze i załączniki nie są przenoszone, a powiązania, które stare narzędzie wyeksportowało jako zwykły tekst, trzeba odtworzyć. Agent zapisuje, skąd pochodzi każdy zaimportowany rekord, żebyś mógł to później prześledzić."
+          },
+          {
+            "question": "Czym to się różni od CRM na miarę budowanego przez agencję?",
+            "answer": "Agencje, które tworzą CRM na zamówienie, podają kilka miesięcy projektu. Tutaj CRM już istnieje, z rolami i dostępem na poziomie listy, a Twoja jest tylko jego zawartość: etapy, pola i widoki. Pierwszy działający lejek może powstać z jednej rozmowy, a Ty sam go sprawdzasz, zanim na nim polegasz."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Moi klienci i szanse sprzedaży leżą w arkuszu lub starym narzędziu, a ja chcę CRM dopasowanego do mojego sposobu pracy. Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+        "questions": [
+          "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
+          "Przez jakie etapy przechodzi szansa w Twojej firmie?",
+          "Jakich pól naprawdę dziś używasz, a które możesz zostawić?",
+          "Kto pracuje w CRM i kto odpowiada za które rekordy?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "CRM personalizado",
+      "summary": "Troque a planilha ou a ferramenta antiga por um CRM sem montar um projeto de migração. Contatos, empresas, negócios e tarefas com data do seu jeito, com importação dos seus dados e uma revisão semanal.",
+      "description": "Seus dados de clientes estão espalhados por uma planilha, uma página do Notion ou uma ferramenta antiga, e ninguém quer começar um projeto de migração. Este modelo parte das quatro listas de que todo CRM precisa, contatos, empresas, negócios e tarefas, e o seu agente ajusta etapas, campos e visualizações ao jeito como você trabalha. Depois importa os seus dados e anota de onde cada registro veio. Pensado para quem está saindo de uma planilha, do Notion, do Airtable ou do Trello.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas com quem você lida."
+        },
+        "organizations": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Empresas e outras entidades."
+        },
+        "opportunities": {
+          "label": "Negócio",
+          "pluralLabel": "Negócios",
+          "description": "Um negócio do lead até ganho ou perdido."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualificado",
+            "proposal": "Proposta",
+            "negotiation": "Negociação",
+            "won": "Ganho",
+            "lost": "Perdido"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Papel",
+          "options": {
+            "decision_maker": "Decisor",
+            "influencer": "Influenciador",
+            "user": "Usuário",
+            "billing": "Financeiro",
+            "other": "Outro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Último contato",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consentimento para contato",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relacionamento",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Cliente",
+            "former_customer": "Ex-cliente",
+            "partner": "Parceiro",
+            "other": "Outro"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Origem",
+          "options": {
+            "referral": "Indicação",
+            "website": "Site",
+            "event": "Evento",
+            "outbound": "Prospecção ativa",
+            "import": "Importação",
+            "other": "Outra"
+          }
+        },
+        "organizations.website": {
+          "label": "Site",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Endereço",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importado de",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Previsão de fechamento",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Próximo passo",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Data do próximo passo",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "price": "Preço",
+            "competitor": "Concorrente",
+            "no_decision": "Sem decisão",
+            "timing": "Momento",
+            "no_response": "Sem resposta",
+            "not_a_fit": "Sem aderência",
+            "other": "Outro"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Ligação",
+            "email": "E-mail",
+            "meeting": "Reunião",
+            "follow_up": "Retorno",
+            "review": "Revisão",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contatos"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Negócios"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Negócio",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "pipeline_board": {
+          "name": "Funil"
+        },
+        "opportunities_all": {
+          "name": "Todos os negócios"
+        },
+        "no_next_step": {
+          "name": "Sem próximo passo"
+        },
+        "organizations_all": {
+          "name": "Todas as empresas"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "pipeline_funnel": {
+          "title": "Negócios abertos por etapa"
+        },
+        "open_value": {
+          "title": "Valor aberto"
+        },
+        "open_weighted_value": {
+          "title": "Valor ponderado aberto"
+        },
+        "lost_reasons": {
+          "title": "Motivos da perda"
+        },
+        "deals_without_next_step": {
+          "title": "Negócios sem próximo passo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Como usamos este CRM",
+          "sections": [
+            "O que entra e quem atualiza",
+            "Etapas e quando um negócio avança"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regras de entrada de dados",
+          "sections": [
+            "Nomes, e-mails e um registro por pessoa",
+            "Um próximo passo com data em cada negócio aberto"
+          ]
+        },
+        "import_notes": {
+          "title": "Notas de importação: o que veio de onde",
+          "sections": [
+            "Ferramenta de origem e data da exportação",
+            "O que não veio e por quê"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Criar uma tarefa de retorno quando um negócio muda de etapa",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Pedir um próximo passo em cada negócio aberto que não tem",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Avisar o responsável quando um próximo passo vence",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Revisar um negócio aberto no dia seguinte à previsão de fechamento",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Fazer a revisão semanal toda sexta-feira",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Criar contato, empresa e negócio a partir de um formulário de solicitação",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Criar ou atualizar registros da ferramenta antiga por um webhook de entrada",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada negócio tem uma etapa.",
+        "board_view": "O funil abre como quadro por etapa, com totais.",
+        "how_we_use_page": "A base de conhecimento explica como a equipe usa o CRM."
+      },
+      "page": {
+        "metaTitle": "Como criar um CRM: alternativa ao Excel e a planilhas",
+        "metaDescription": "Como criar um CRM sem projeto de migração: cole o modelo no Claude, no ChatGPT ou no Codex e seu agente de IA monta o CRM e importa seus dados.",
+        "headline": "Como criar um CRM no lugar da planilha: seu agente de IA monta no Customermates e importa seus dados",
+        "answer": "Se seus clientes e negócios estão em uma planilha, em uma página do Notion ou em uma ferramenta antiga, um CRM personalizado assume o lugar deles sem projeto de migração: contatos, empresas, negócios e tarefas com data, moldados ao seu jeito de vender. Cole este modelo no seu agente de IA. Ele pergunta como você trabalha, monta o CRM no Customermates e importa seus dados. Você aprova o plano antes de qualquer coisa ser construída.",
+        "routine": {
+          "title": "A revisão do CRM de sexta-feira",
+          "steps": [
+            "Abra o funil como quadro e olhe cada etapa: o que andou esta semana e o que não andou.",
+            "Abra os negócios sem próximo passo e dê a cada um um próximo passo com data, ou encerre-o.",
+            "Confira os negócios com fechamento previsto para o mês que vem e mude as datas que ficaram para trás.",
+            "Esvazie as tarefas atrasadas: faça, adie ou descarte.",
+            "Corrija o que a importação deixou: contatos duplicados, um responsável faltando, um registro sem próximo passo."
+          ]
+        },
+        "limits": [
+          "Não é um construtor de aplicativos sem código. Não há telas sob medida, portais de clientes nem scripts: você tem listas, vínculos, visualizações em tabela, quadro e calendário, painéis e o seu agente. Se precisa de um construtor de aplicativos, use um.",
+          "Não é um espaço de trabalho livre. Notion e Airtable continuam melhores para páginas, wikis e dados que nada têm a ver com clientes.",
+          "Não há sincronização nos dois sentidos com a sua ferramenta antiga nem como desfazer uma importação. A importação é uma cópia em um só sentido, feita depois que você confere o mapeamento; nada na origem é alterado ou apagado.",
+          "Não há gráficos de Gantt, planejamento de recursos nem linhas do tempo. Isso continua com as ferramentas de projetos.",
+          "Não há permissões por campo. Se algumas colunas precisam ficar ocultas dos colegas, coloque-as em uma lista separada com acesso próprio.",
+          "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que o seu agente executa em horários definidos. O modelo os propõe e você decide quais ligar."
+        ],
+        "faq": [
+          {
+            "question": "Como migrar do Google Sheets ou do Excel para um CRM?",
+            "answer": "Diga ao agente quais colunas você realmente usa. Ele propõe listas e campos, confere uma amostra de linhas em busca de duplicados e valores desconhecidos e importa depois que você aprova o mapeamento. O Customermates importa arquivos Excel e CSV por um assistente de mapeamento de colunas, e o seu agente pode importar registros por MCP. A importação é uma cópia: sua planilha continua como está até você decidir deixar de usá-la."
+          },
+          {
+            "question": "Quando uma planilha deixa de bastar para clientes e negócios?",
+            "answer": "Guias de fornecedores de CRM apontam o limite entre 25 e 200 contatos, ou o momento em que várias pessoas editam o mesmo arquivo ou ninguém mais é lembrado de um acompanhamento. Aí um CRM ajuda: os contatos ficam ligados a empresas e negócios, os próximos passos são tarefas com data e as conversas ficam junto de cada registro."
+          },
+          {
+            "question": "Preciso desenhar o CRM sozinho?",
+            "answer": "Não. O agente começa entrevistando você: o que você vende, as etapas reais do primeiro contato até o fechamento, o que você olha toda manhã e toda sexta, quem mais usa, onde seus dados estão hoje e o que fica em outra ferramenta. Ele propõe o modelo e monta depois da sua aprovação. Etapas, campos e visualizações você muda depois, só pedindo."
+          },
+          {
+            "question": "O que não vem da minha ferramenta antiga?",
+            "answer": "A importação copia registros. Automações, formulários, visualizações, comentários e anexos não vão junto, e os vínculos que a ferramenta antiga exportou como texto simples precisam ser refeitos. O agente anota de onde veio cada registro importado, para você poder rastrear depois."
+          },
+          {
+            "question": "Qual a diferença para um CRM sob medida feito por uma agência?",
+            "answer": "Agências que desenvolvem um CRM sob medida falam em vários meses de projeto. Aqui o CRM já existe, com papéis e acesso por lista, e só o conteúdo é seu: as etapas, os campos e as visualizações. Um primeiro funil funcionando pode sair de uma única conversa, e você mesmo confere antes de confiar nele."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Meus clientes e negócios estão em uma planilha ou em uma ferramenta antiga, e eu quero um CRM que funcione do meu jeito. Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
+        "questions": [
+          "De qual ferramenta ou planilha vêm os seus registros e dá para exportar?",
+          "Por quais etapas um negócio passa no seu trabalho?",
+          "Quais campos você realmente usa hoje e quais pode deixar para trás?",
+          "Quem trabalha no CRM e quem é responsável por quais registros?"
+        ]
+      }
+    }
+  }
+}

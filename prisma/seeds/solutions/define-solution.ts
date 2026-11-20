@@ -394,9 +394,7 @@ export type MateChatSpec = {
 };
 
 export type SolutionContent = {
-  /** The workspace name: the solution name, so the workspace reads as an example. */
-  workspaceName: string;
-  /** The fictional company of the story, named in the Operating Guide and email signatures. */
+  /** The fictional company of the story: the workspace name, also named in the Operating Guide and email signatures. */
   companyName: string;
   lists: readonly ListSpec[];
   fields: readonly FieldSpec[];

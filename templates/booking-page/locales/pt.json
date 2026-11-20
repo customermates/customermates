@@ -1,0 +1,150 @@
+{
+  "locale": "pt",
+  "name": "Agendamento online",
+  "summary": "Saiba quem está agendado, quem confirmou e no que deu cada conversa. Tipos de atendimento com duração e antecedência mínima, status e lembretes em cada agendamento e um próximo passo depois de cada atendimento.",
+  "description": "Agendamentos que ficam só na agenda e na caixa de entrada acabam esquecidos: o cliente falta porque ninguém lembrou e ninguém registra o que resultou da conversa. Este modelo monta poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Serve para quem presta serviços e atende chamadas, consultas, sessões ou visitas, e reserva apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
+  "lists": {
+    "people": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que agendam com você." },
+    "appointment_types": { "label": "Tipo de atendimento", "pluralLabel": "Tipos de atendimento", "description": "Um tipo de atendimento com duração, intervalo, antecedência mínima e preço." },
+    "appointments": { "label": "Atendimento", "pluralLabel": "Atendimentos", "description": "Um agendamento, de solicitado a realizado, faltou ou cancelado." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone" } },
+    "people.time_zone": { "label": "Fuso horário" },
+    "appointment_types.duration_minutes": { "label": "Duração (minutos)" },
+    "appointment_types.buffer_minutes": { "label": "Intervalo depois (minutos)" },
+    "appointment_types.min_notice_hours": { "label": "Antecedência mínima (horas)" },
+    "appointment_types.booking_window_days": { "label": "Agendável até (dias antes)" },
+    "appointment_types.daily_limit": { "label": "Limite por dia" },
+    "appointment_types.location_type": {
+      "label": "Onde",
+      "options": { "video_call": "Videochamada", "phone": "Telefone", "office": "No escritório", "client_site": "No local do cliente" }
+    },
+    "appointment_types.price": { "label": "Preço" },
+    "appointment_types.active": { "label": "Ativo" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Solicitado", "confirmed": "Confirmado", "rescheduled": "Remarcado", "held": "Realizado", "no_show": "Faltou", "cancelled_by_client": "Cancelado pelo cliente", "cancelled_by_us": "Cancelado por nós" }
+    },
+    "appointments.start_at": { "label": "Início" },
+    "appointments.source": { "label": "Origem", "options": { "booking_page": "Página de agendamento", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone", "manual": "Lançado manualmente" } },
+    "appointments.meeting_url": { "label": "Link da reunião" },
+    "appointments.outcome": {
+      "label": "Resultado",
+      "options": { "not_decided": "Ainda não decidido", "qualified": "Qualificado", "second_call": "Precisa de uma segunda conversa", "proposal_needed": "Precisa de proposta", "won": "Fechado na conversa", "not_a_fit": "Não se encaixa" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Motivo do cancelamento",
+      "options": { "schedule_conflict": "Conflito de agenda", "other_provider": "Encontrou outro fornecedor", "no_longer_needed": "Não precisa mais", "personal": "Motivo pessoal", "other": "Outro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "confirm_booking": "Confirmar o agendamento",
+        "send_reminder": "Enviar um lembrete",
+        "prepare_call": "Preparar o atendimento",
+        "send_follow_up": "Enviar o acompanhamento",
+        "offer_new_slot": "Oferecer um novo horário",
+        "record_outcome": "Registrar o resultado",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contato", "targetLabel": "Atendimentos" },
+    "appointment_type": { "sourceLabel": "Tipo de atendimento", "targetLabel": "Atendimentos" },
+    "action_appointment": { "sourceLabel": "Atendimento", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "appointments_all": { "name": "Todos os atendimentos" },
+    "appointments_board": { "name": "Quadro de atendimentos" },
+    "missed_or_cancelled": { "name": "Faltas ou cancelados" },
+    "appointment_types_all": { "name": "Todos os tipos de atendimento" },
+    "people_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Próximos atendimentos" },
+    "appointments_by_status": { "title": "Atendimentos por status" },
+    "outcomes_of_held": { "title": "Resultados dos atendimentos realizados" },
+    "requests_waiting": { "title": "Solicitações aguardando resposta" },
+    "no_shows": { "title": "Faltas" },
+    "bookings_by_source": { "title": "Agendamentos por origem" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Tipos de atendimento e disponibilidade", "sections": ["Tipos, durações, intervalos e antecedência", "Horário de atendimento e limites por dia"] },
+    "reminder_policy": { "title": "Lembretes e faltas", "sections": ["Lembretes 3 dias e 1 dia antes", "O que fazemos depois de uma falta"] },
+    "cancellation_policy": { "title": "Cancelamento e remarcação", "sections": ["Até quando o cliente pode cancelar", "Como um novo horário é oferecido"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Criar o contato e o atendimento quando o formulário de agendamento for enviado" },
+    "confirm_event": { "title": "Adicionar um evento na agenda quando um atendimento for confirmado" },
+    "notify_new_booking": { "title": "Avisar o responsável quando chegar um agendamento" },
+    "first_reminder": { "title": "Enviar um primeiro lembrete 3 dias antes de um atendimento confirmado" },
+    "second_reminder": { "title": "Enviar um segundo lembrete 1 dia antes de um atendimento confirmado" },
+    "record_outcome": { "title": "Registrar o resultado depois que um atendimento confirmado aconteceu" },
+    "no_show_new_slot": { "title": "Oferecer um novo horário no dia seguinte a uma falta" },
+    "follow_up_held": { "title": "Enviar o acompanhamento no dia seguinte a um atendimento realizado" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Todo atendimento tem um status.",
+    "start_field": "Todo atendimento registra quando começa.",
+    "appointments_board_view": "Os atendimentos abrem como quadro por status."
+  },
+  "page": {
+    "metaTitle": "Sistema de agendamento: atendimentos, lembretes e retorno",
+    "metaDescription": "Sistema de agendamento que seu agente de IA monta no seu CRM: tipos de atendimento, um status por agendamento, lembretes e o resultado de cada conversa.",
+    "headline": "Sistema de agendamento que registra o resultado de cada atendimento, montado pelo seu agente de IA",
+    "answer": "Um sistema de agendamento leva uma conversa, consulta ou visita do pedido até um horário confirmado e registra o que resultou dela. Este modelo configura tipos de atendimento com duração, intervalo e antecedência mínima, um status por agendamento, lembretes antes e um resultado depois. Cole-o no seu agente de IA e ele monta tudo no Customermates; você aprova o plano antes de qualquer coisa ser criada.",
+    "routine": {
+      "title": "A revisão semanal dos agendamentos",
+      "steps": [
+        "Revise os atendimentos da semana passada e registre um resultado em cada atendimento realizado: qualificado, segunda conversa, falta proposta ou não é um bom encaixe.",
+        "Ofereça um novo horário, sem cobrança, a quem faltou ou cancelou.",
+        "Responda aos pedidos que esperam há mais de um dia e confira os próximos 14 dias: horários vazios e lembretes ainda por enviar. O padrão é um lembrete 3 dias e outro 1 dia antes.",
+        "Mude uma única coisa: um intervalo, uma antecedência mínima ou um prazo de cancelamento. No início de cada trimestre, revise disponibilidade e regras."
+      ]
+    },
+    "limits": [
+      "Ele agenda somente o tempo de pessoas. Salas, equipamentos, hospedagem, aulas com lista de espera e eventos com ingressos pedem uma ferramenta feita para isso.",
+      "Não é um sistema de agendamento médico. Deixe fora do formulário diagnósticos e o motivo de um atendimento médico, terapêutico ou jurídico e pergunte, em vez disso, sobre o que a pessoa gostaria de conversar.",
+      "Ele não recebe pagamentos nem hospeda chamadas. O evento do calendário leva o link da sua ferramenta de vídeo, e um eventual sinal fica na sua ferramenta de pagamento.",
+      "Páginas públicas de agendamento e a gravação de atendimentos no seu calendário do Google ou da Microsoft exigem o Customermates Cloud no plano Pro ou superior; não estão disponíveis com hospedagem própria. Sem elas, um formulário público recebe os pedidos e você registra aqui o horário confirmado.",
+      "Os lembretes vêm de regras de automação e notificações, ou de uma rotina que seu agente executa num horário programado. O modelo os propõe e você decide quais ligar. O Customermates não envia SMS."
+    ],
+    "faq": [
+      {
+        "question": "O que um sistema de agendamento precisa ter?",
+        "answer": "Cada tipo de atendimento com duração, intervalo, antecedência mínima e até quantos dias à frente dá para agendar; um formulário curto com nome, contato e só as perguntas que mudam o atendimento; uma confirmação e lembretes; e um lugar para registrar se o atendimento aconteceu e o que veio depois."
+      },
+      {
+        "question": "Quantos lembretes reduzem as faltas?",
+        "answer": "Num ensaio da área da saúde, lembretes 3 dias e 1 dia antes deixaram 4,4% das consultas perdidas, contra 5,8% só com o lembrete de 3 dias e 5,3% só com o de 1 dia. Uma revisão de ensaios randomizados não achou diferença significativa entre lembretes enviados 24, 48 ou 72 horas antes. Os dados vêm da saúde: trate 3 dias e 1 dia como ponto de partida."
+      },
+      {
+        "question": "O que um formulário de agendamento nunca deve perguntar?",
+        "answer": "Fique no que o atendimento exige: nome, e-mail, opcionalmente telefone e uma ou duas perguntas que mudam o atendimento. Não peça diagnósticos, detalhes de um caso, dados de cartão, documentos de identidade nem nada que revele saúde, religião ou orientação. Respostas em texto livre são guardadas como dados no registro: mantenha o formulário enxuto."
+      },
+      {
+        "question": "Dá para agendar sem uma página pública de agendamento?",
+        "answer": "Dá. Um formulário público funciona em todos os planos, com limite mensal e um selo no Free: ele recebe o pedido e cria o atendimento, ligado a uma pessoa encontrada ou criada pelo e-mail. Quando alguém pede por e-mail ou WhatsApp, seu agente propõe horários livres do calendário conectado e redige a resposta, e você a revisa e envia. No Customermates Cloud com o plano Pro ou superior, agendar uma reunião a partir de um registro grava o evento no seu calendário do Google ou da Microsoft, e uma página pública de agendamento deixa as pessoas escolherem sozinhas um horário livre."
+      },
+      {
+        "question": "Posso mandar lembretes pelo WhatsApp?",
+        "answer": "Guias brasileiros tratam o WhatsApp como o canal normal de lembrete. Com sua conta de WhatsApp conectada, o agente redige o lembrete e você o envia, uma mensagem por vez; o Customermates não envia SMS nem campanhas em massa. Guias de fornecedores sugerem e-mail 48 horas antes e WhatsApp 24 horas antes, com a opção de reagendar em cada lembrete."
+      },
+      {
+        "question": "O agente escreve para os meus clientes?",
+        "answer": "Não. O prompt manda o agente não enviar nada e não criar dados de exemplo. Rascunhos só existem se você pedir, e quem envia é você."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Eu atendo chamadas, consultas e visitas e perco o controle de quem está agendado, quem confirmou e o que resultou de cada conversa. Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
+    "questions": [
+      "Quais tipos de atendimento você oferece e quanto dura cada um?",
+      "De quanta antecedência você precisa e com quanto tempo de antecedência dá para agendar?",
+      "Que perguntas o cliente deve responder ao agendar?",
+      "Como você lida hoje com faltas e cancelamentos de última hora?"
+    ]
+  }
+}

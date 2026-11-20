@@ -1,0 +1,211 @@
+{
+  "locale": "nl",
+  "name": "Contentkalender",
+  "summary": "Weet wat er deze week uitkomt en wie het ophoudt. Eén regel per stuk met een status, een eigenaar, een reviewer en een publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
+  "description": "Posts, nieuwsbrieven en video’s lopen uit als plannen in verschillende documenten staan en niemand weet wie wat reviewt. Dit sjabloon zet een redactiekalender op voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Voor creators, in-house marketeers en bureaus. Hij plant en volgt, hij publiceert niet.",
+  "lists": {
+    "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Auteurs, redacteuren, reviewers, goedkeurders en gasten." },
+    "pieces": { "label": "Contentstuk", "pluralLabel": "Contentstukken", "description": "Eén stuk content van idee tot gepubliceerd." },
+    "campaigns": { "label": "Campagne", "pluralLabel": "Campagnes", "description": "Een thema dat meerdere stukken bundelt." },
+    "key_dates": { "label": "Belangrijke datum", "pluralLabel": "Belangrijke data", "description": "Feestdagen, evenementen en lanceringen om content omheen te plannen." }
+  },
+  "fields": {
+    "pieces.stage": {
+      "label": "Status",
+      "options": { "idea": "Idee", "drafting": "Concept", "in_review": "Review", "approved": "Goedgekeurd", "scheduled": "Ingepland", "published": "Gepubliceerd", "killed": "Geschrapt" }
+    },
+    "campaigns.status": {
+      "label": "Status",
+      "options": { "planned": "Gepland", "running": "Lopend", "done": "Afgerond", "dropped": "Vervallen" }
+    },
+    "people.person_role": {
+      "label": "Rol",
+      "options": { "author": "Auteur", "editor": "Redacteur", "reviewer": "Reviewer", "approver": "Goedkeurder", "client_contact": "Klantcontact", "guest": "Gast of geïnterviewde" }
+    },
+    "people.profile_url": { "label": "Link naar profiel" },
+    "pieces.owner": { "label": "Eigenaar" },
+    "pieces.reviewer": { "label": "Reviewer" },
+    "pieces.format": {
+      "label": "Formaat",
+      "options": {
+        "blog_post": "Blogartikel",
+        "newsletter": "Nieuwsbrief",
+        "short_video": "Korte video",
+        "long_video": "Lange video",
+        "carousel": "Carrousel",
+        "image_post": "Beeldpost",
+        "text_post": "Tekstpost",
+        "podcast": "Podcastaflevering",
+        "webinar": "Webinar",
+        "case_study": "Praktijkvoorbeeld"
+      }
+    },
+    "pieces.pillar": {
+      "label": "Contentpijler",
+      "options": { "educate": "Informeren", "prove": "Bewijzen", "product": "Product", "community": "Community", "behind_the_scenes": "Achter de schermen" }
+    },
+    "pieces.channels": {
+      "label": "Kanalen",
+      "options": {
+        "blog": "Blog",
+        "newsletter": "Nieuwsbrief",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "podcast": "Podcast",
+        "other": "Overig"
+      }
+    },
+    "pieces.brief_url": { "label": "Link naar briefing" },
+    "pieces.draft_url": { "label": "Link naar concept" },
+    "pieces.target_keyword": { "label": "Zoekwoord" },
+    "pieces.call_to_action": { "label": "Call-to-action" },
+    "pieces.draft_due": { "label": "Concept klaar op" },
+    "pieces.review_due": { "label": "Review klaar op" },
+    "pieces.publish_at": { "label": "Publiceren op" },
+    "pieces.ad_disclosure": {
+      "label": "Reclamelabel",
+      "options": { "none": "Geen", "paid_partnership": "Betaalde samenwerking of advertentie", "gifted_product": "Cadeau gekregen product", "affiliate_link": "Affiliatelink" }
+    },
+    "pieces.disclosure_checked": { "label": "Reclamelabel gecontroleerd" },
+    "pieces.published_url": { "label": "Link naar gepubliceerd stuk" },
+    "pieces.published_on": { "label": "Gepubliceerd op" },
+    "pieces.reach": { "label": "Bereik" },
+    "pieces.engagements": { "label": "Interacties" },
+    "pieces.clicks": { "label": "Klikken" },
+    "pieces.killed_reason": {
+      "label": "Reden van schrappen",
+      "options": { "off_topic": "Past niet bij het thema", "duplicate": "Dubbel", "no_owner": "Geen eigenaar", "stale": "Verouderd", "replaced": "Vervangen", "client_declined": "Klant wees af" }
+    },
+    "campaigns.goal": { "label": "Doel" },
+    "campaigns.start_date": { "label": "Start" },
+    "campaigns.end_date": { "label": "Einde" },
+    "campaigns.budget": { "label": "Budget" },
+    "campaigns.owner": { "label": "Eigenaar" },
+    "key_dates.date": { "label": "Datum" },
+    "key_dates.date_type": {
+      "label": "Soort",
+      "options": { "holiday": "Feestdag", "industry_event": "Branche-evenement", "product_launch": "Productlancering", "awareness_day": "Themadag", "own_event": "Eigen evenement", "deadline": "Deadline" }
+    },
+    "key_dates.idea_note": { "label": "Idee voor content" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "write_brief": "Briefing schrijven",
+        "draft": "Concept",
+        "review": "Review",
+        "revise": "Aanpassen",
+        "approve": "Goedkeuren",
+        "schedule": "Inplannen",
+        "publish": "Publiceren",
+        "measure": "Meten",
+        "plan": "Plannen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "piece_campaign": { "sourceLabel": "Campagne", "targetLabel": "Contentstukken" },
+    "piece_author": { "sourceLabel": "Auteur", "targetLabel": "Contentstukken" },
+    "action_piece": { "sourceLabel": "Contentstuk", "targetLabel": "Acties" }
+  },
+  "views": {
+    "pieces_all": { "name": "Alle contentstukken" },
+    "pieces_board": { "name": "Contentstukken per status" },
+    "in_review_pieces": { "name": "In review" },
+    "campaigns_all": { "name": "Alle campagnes" },
+    "key_dates_all": { "name": "Belangrijke data" },
+    "people_all": { "name": "Alle personen" }
+  },
+  "widgets": {
+    "publishing_calendar": { "title": "Publicatiekalender" },
+    "pieces_by_stage": { "title": "Contentstukken per status" },
+    "open_pieces_by_owner": { "title": "Open contentstukken per eigenaar" },
+    "pieces_by_pillar": { "title": "Contentstukken per pijler" },
+    "published_per_month": { "title": "Gepubliceerd per maand" },
+    "reach_by_pillar": { "title": "Bereik per pijler" },
+    "key_dates_coming": { "title": "Aankomende belangrijke data" }
+  },
+  "knowledgePages": {
+    "content_pillars": { "title": "Contentpijlers en verdeling", "sections": ["De pijlers en het aandeel van elk", "Wat onder welke pijler valt"] },
+    "editorial_rhythm": { "title": "Publicatieritme en wekelijks redactieoverleg", "sections": ["Slots per kanaal", "Verschenen, loopt risico, geblokkeerd", "Statussen en wie ze wijzigt"] },
+    "review_and_approval": { "title": "Doorlooptijd voor review en goedkeuring", "sections": ["Wie reviewt en in hoeveel dagen", "Goedkeuring door de klant waar nodig"] },
+    "disclosure_checklist": { "title": "Checklist voor reclamelabels en samenwerkingen", "sections": ["Wanneer een post een label nodig heeft", "Formulering en plaatsing", "Controle voor publicatie"] }
+  },
+  "rules": {
+    "review_task": { "title": "Maak een reviewactie aan wanneer een stuk naar review gaat" },
+    "schedule_task": { "title": "Maak een inplanactie aan wanneer een stuk is goedgekeurd" },
+    "at_risk_before_publish": { "title": "Signaleer een stuk dat drie dagen voor publicatie nog een concept is" },
+    "measure_after_30_days": { "title": "Maak een resultaatcheck aan nadat een stuk is gepubliceerd" },
+    "stale_piece": { "title": "Bekijk een stuk dat 14 dagen in concept of review staat" },
+    "weekly_editorial_prep": { "title": "Bereid elke maandag het redactieoverleg voor" },
+    "plan_for_key_date": { "title": "Plan content drie weken voor een belangrijke datum" },
+    "idea_form_piece": { "title": "Maak een contentstuk aan uit een idee dat via een formulier binnenkomt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elk contentstuk heeft een van de zeven statussen.",
+    "publish_field": "Elk contentstuk heeft een publicatiedatum met tijd.",
+    "calendar_widget": "Het dashboard toont de publicatiekalender."
+  },
+  "page": {
+    "metaTitle": "Contentplanning: contentkalender template voor je CRM",
+    "metaDescription": "Contentplanning met een contentkalender die je AI-agent in je CRM bouwt: eigenaar, reviewer en publicatiedatum per stuk, plus campagnes en belangrijke data.",
+    "headline": "Contentplanning die laat zien wie wat ophoudt: een contentkalender, gebouwd door je AI-agent",
+    "answer": "Een contentkalender zet elk bericht, elke nieuwsbrief en elke video met een status, een eigenaar, een reviewer en een publicatiedatum op een rij, zodat je ziet wat er deze week uitkomt. Plak dit template in je AI-agent en die bouwt de kalender in Customermates, met campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine. Het plant en volgt, maar publiceert niet. Jij keurt het plan goed voordat er iets wordt aangemaakt.",
+    "routine": {
+      "title": "De wekelijkse redactiebespreking van 15 minuten",
+      "steps": [
+        "Loop langs wat vorige week is uitgekomen en noteer de link naar de publicatie.",
+        "Bekijk wat de komende 7 dagen af moet zijn en nog niet is goedgekeurd of ingepland: verschuiven, schrappen of versnellen.",
+        "Noem bij elk geblokkeerd stuk wie het kan vrijmaken en uiterlijk wanneer. Een stuk dat 14 dagen niet is opgeschoten, wordt vrijgemaakt of geschrapt.",
+        "Plan aan het begin van de maand de volgende: vul de plekken tot ongeveer 70 à 85 procent van de capaciteit en houd twee of drie reservestukken achter de hand."
+      ]
+    },
+    "limits": [
+      "Het plant en volgt, maar publiceert of plant geen berichten in. Dat doet je publicatietool of CMS, dat ook de statistieken levert; het template plaatst nooit zelf iets.",
+      "Het verzamelt geen statistieken. Bereik, interacties en klikken worden ingetypt of geïmporteerd, en er is geen linkverkorter of UTM-generator.",
+      "Het is geen ontwerptool of mediabibliotheek. Beeld en video blijven in je ontwerptool, en de kalender bewaart de link.",
+      "Goedkeuring is een vastgelegde beslissing, geen juridische akkoordverklaring en geen auditspoor voor gereguleerde content. Gereguleerde sectoren houden hun eigen compliancesysteem.",
+      "Houd onuitgebrachte vertrouwelijke teksten, materiaal onder embargo, contactgegevens van het publiek en wachtwoorden van socialmedia-accounts erbuiten.",
+      "Herinneringen komen uit automatiseringsregels en meldingen, of uit een routine die je agent volgens een schema uitvoert. Het template stelt ze voor en jij beslist welke je aanzet."
+    ],
+    "faq": [
+      {
+        "question": "Wat hoort er in een contentkalender?",
+        "answer": "Tien kolommen doen het meeste werk: publicatiedatum, status, titel, kanaal, formaat, eigenaar, een link naar de briefing, de gepubliceerde URL, een pijler of campagne en het resultaat na 30 dagen. Voeg een reviewer en een reviewdatum toe zodra er meer dan één persoon bij betrokken is."
+      },
+      {
+        "question": "Hoe ver vooruit moet ik plannen?",
+        "answer": "Plan 2 tot 4 weken vooruit in detail, houd de maand en het kwartaal globaal en kom elke week 15 minuten bij elkaar. De Duitse gids van HubSpot noemt een voortschrijdende horizon van twee tot vier weken en een wekelijkse redactiebespreking voor de komende 7 tot 14 dagen."
+      },
+      {
+        "question": "Moet ik betaalde of cadeau gekregen content labelen?",
+        "answer": "Meestal wel. Regels verschillen per land; in Nederland bestaat een code voor het herkenbaar maken van reclame op social media, controleer de details voor jouw geval. Als voorbeeld verwacht de Amerikaanse toezichthouder FTC de melding bij de publicatie zelf, in duidelijke woorden zoals ad of gesponsord, niet verstopt tussen hashtags en bij video in beeld en geluid. Het template heeft een veld voor de melding en een controlestap. Dit is geen juridisch advies."
+      },
+      {
+        "question": "Spreadsheet of CRM voor een contentkalender?",
+        "answer": "Een spreadsheet werkt voor één persoon met één kanaal. Zodra je personen, merken en campagnes wilt koppelen, een review een deadline heeft en een gepubliceerd stuk een vervolgtaak moet starten, bewaart een CRM dat als records in plaats van kolommen. Het template doet dat en laat het publiceren aan je publicatietool."
+      },
+      {
+        "question": "Hoeveel stukken mag één persoon tegelijk hebben lopen?",
+        "answer": "Rework stelt een plafond van zes per persoon voor (twee in concept, twee in review, twee ingepland) en een schrapregel voor alles wat 14 dagen niet is opgeschoten. Bitrix24 hanteert drie voor een schrijver, vijf voor een redacteur en zes voor een manager. Het template bewaart het plafond als regel voor de wekelijkse bespreking, niet als systeemgrens."
+      },
+      {
+        "question": "Kan de agent voor mij publiceren?",
+        "answer": "Nee. Het template plant en volgt; je publicatietool of CMS publiceert. De prompt zegt de agent geen voorbeeldgegevens aan te maken."
+      }
+    ]
+  },
+  "prompt": {
+    "intro":"Onze posts, nieuwsbrieven en video’s lopen uit, omdat ik niet kan zien wie wat reviewt of wanneer het verschijnt. Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+    "questions": [
+      "Wat publiceer je, op welke kanalen en hoe vaak?",
+      "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",
+      "Welke contentpijlers gebruik je en welke van de zeven statussen heb je nodig?",
+      "Welke tool publiceert de content? Die blijft daar en hier worden alleen de link en de datum bewaard."
+    ]
+  }
+}

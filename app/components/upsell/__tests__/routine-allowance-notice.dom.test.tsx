@@ -7,7 +7,7 @@ import { makeAutoObservable } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type Stores = {
-  routinesStore: RoutinesStoreDouble;
+  automationsStore: RoutinesStoreDouble;
   userStore: { user: { id: string } };
 };
 
@@ -22,7 +22,7 @@ vi.mock("../plan-upsell-notice", () => ({
 import { RoutineAllowanceNotice } from "../routine-allowance-notice";
 
 class RoutinesStoreDouble {
-  items: Array<{ ownerUserId: string }> = [];
+  items: Array<{ kind: "routine" | "rule"; ownerUserId: string }> = [];
   isReady = false;
 
   constructor() {
@@ -30,20 +30,23 @@ class RoutinesStoreDouble {
   }
 
   setItems(ownerUserIds: readonly string[]) {
-    this.items = ownerUserIds.map((ownerUserId) => ({ ownerUserId }));
+    this.items = [
+      { kind: "rule", ownerUserId: "user-1" },
+      ...ownerUserIds.map((ownerUserId) => ({ kind: "routine" as const, ownerUserId })),
+    ];
     this.isReady = true;
   }
 }
 
 function freshStores(): Stores {
-  const stores = { routinesStore: new RoutinesStoreDouble(), userStore: { user: { id: "user-1" } } };
+  const stores = { automationsStore: new RoutinesStoreDouble(), userStore: { user: { id: "user-1" } } };
   harness.rootStore = stores;
   return stores;
 }
 
 function RoutinesView({ owners }: { owners: readonly string[] }) {
-  const { routinesStore } = harness.rootStore as Stores;
-  if (!routinesStore.isReady) routinesStore.setItems(owners);
+  const { automationsStore } = harness.rootStore as Stores;
+  if (!automationsStore.isReady) automationsStore.setItems(owners);
   return <ul data-routines="" />;
 }
 
@@ -102,7 +105,7 @@ describe("routine allowance notice on a server-rendered Routines page", () => {
     expect(recoverable).toEqual([]);
     expect(container.querySelectorAll("[data-routine-notice]")).toHaveLength(0);
 
-    act(() => stores.routinesStore.setItems(["someone-else", "user-1"]));
+    act(() => stores.automationsStore.setItems(["someone-else", "user-1"]));
     expect(container.querySelectorAll("[data-routine-notice]")).toHaveLength(1);
   });
 });

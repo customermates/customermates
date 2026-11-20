@@ -1,0 +1,42 @@
+{
+  "@prisma/studio-core@0.8.2": {
+    "license": "LicenseRef-Prisma-Studio-Core",
+    "reason": "The manifest says UNLICENSED. The package ships LICENSE.free (use in production is permitted under Apache 2.0, Prisma branding must stay) and LICENSE.licensed (all rights reserved). It is the Prisma Studio interface that the prisma CLI pulls in as a development tool."
+  },
+  "@vercel/cli-auth@0.0.1": {
+    "license": "Apache-2.0",
+    "reason": "The manifest has no license field; the package ships the Apache License 2.0 text in LICENSE."
+  },
+  "chainsaw@0.1.0": {
+    "license": "MIT",
+    "reason": "The manifest says MIT/X11, the name the X Consortium gave the MIT License; the same author's traverse ships it as the MIT License."
+  },
+  "duck@0.1.12": {
+    "license": "BSD-2-Clause",
+    "reason": "The manifest says BSD; the shipped LICENSE has two numbered clauses and the disclaimer of BSD-2-Clause."
+  },
+  "jsonify@0.0.1": {
+    "license": "LicenseRef-Public-Domain",
+    "reason": "The manifest and README say Public Domain, which SPDX has no identifier for."
+  },
+  "khroma@2.1.0": {
+    "license": "MIT",
+    "reason": "The manifest has no license field; the package ships the MIT License text in license."
+  },
+  "seq-queue@0.0.5": {
+    "license": "MIT",
+    "reason": "The manifest has no license field; the package ships the MIT License text in LICENSE."
+  },
+  "traverse@0.3.9": {
+    "license": "MIT",
+    "reason": "The manifest says MIT/X11; the shipped LICENSE names the MIT license and carries its text."
+  },
+  "buffers@0.1.1": {
+    "license": "LicenseRef-no-license-declared",
+    "reason": "Neither the package, its README nor the npm registry state a license. It is a transitive dependency of exceljs through unzipper and binary. The owner decides whether to ask the author, replace exceljs or accept it."
+  },
+  "spamc@0.0.5": {
+    "license": "LicenseRef-no-license-declared",
+    "reason": "Neither the package, its README nor the npm registry state a license. It is a transitive dependency of the development tool @react-email/preview-server. The owner decides whether to ask the author or replace the tool."
+  }
+}

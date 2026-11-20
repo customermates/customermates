@@ -1,8 +1,10 @@
 import type { LucideIcon } from "lucide-react";
 
 import {
+  Bot,
   Building2,
   CreditCard,
+  Download,
   History,
   KeyRound,
   Mail,
@@ -48,7 +50,9 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "roles", icon: Shield, labelKey: "SettingsNav.roles", resource: Resource.users },
     { slug: "billing", icon: CreditCard, labelKey: "SettingsNav.billing", resource: Resource.company, cloudOnly: true },
     { slug: "activity", icon: History, labelKey: "SettingsNav.activity", resource: Resource.activityLog },
+    { slug: "agents", icon: Bot, labelKey: "SettingsNav.agents", resource: Resource.company },
     { slug: "webhooks", icon: Webhook, labelKey: "SettingsNav.webhooks", resource: Resource.api },
+    { slug: "incoming-webhooks", icon: Download, labelKey: "SettingsNav.incomingWebhooks", resource: Resource.api },
     { slug: "webhook-deliveries", icon: Send, labelKey: "SettingsNav.deliveries", resource: Resource.api },
   ],
 };

@@ -125,7 +125,7 @@ const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-
 const { ProcessEventInteractor } = await import("@/features/event/process-event.interactor");
 const { ProcessDueEventsInteractor } = await import("@/features/event/process-due-events.interactor");
 const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
-const { runInRoutineContext } = await import("@/core/decorators/routine-context");
+const { runInCausation } = await import("@/core/decorators/causation-context");
 const { RecordIdentityReader, IDENTITY_MATCH_DISPLAY_LIMIT } = await import("../record-identity-reader");
 const { ResolveRecordIdentitiesInteractor } = await import("../resolve-record-identities.interactor");
 const { PrismaRecordActivitiesRepo } = await import("@/ee/messaging/activities/prisma-record-activities.repository");
@@ -3148,7 +3148,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const renamed = (await matches()).filter((match) => match.event.kind === "record.updated");
     expect(renamed.map((match) => match.subscriptionId)).toEqual([webhook.id]);
     expect(
-      await runInRoutineContext({ causationDepth: 0 }, () => f.update(service, [["service.amount", decimal("2")]])),
+      await runInCausation({ routineDepth: 0 }, () => f.update(service, [["service.amount", decimal("2")]])),
     ).toMatchObject({ ok: true });
     const recursive = (await matches()).filter(
       (match) => RecordEventPayloadSchema.parse(match.event.payload).cause.routineDepth !== undefined,
@@ -5996,7 +5996,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       assignedUserIds: [f.member.id],
       identities: [{ provider: "mail", value: "after@example.test" }],
     };
-    const updated = await runInRoutineContext({ causationDepth: 1 }, () => f.mutation(update, f.admin, updateKey));
+    const updated = await runInCausation({ routineDepth: 1 }, () => f.mutation(update, f.admin, updateKey));
     expect(updated).toMatchObject({ ok: true });
     expect(await f.mutation(update, f.admin, updateKey)).toEqual(updated);
     const rows = await events();

@@ -586,8 +586,9 @@ describe("managed Wiki retrieval tools", () => {
     });
   });
 
-  it("refuses a routine proposal that has no conversation to attach to", async () => {
+  it("tells an unattended run without a conversation, such as an agent step, that it cannot change pages and still lets it read", async () => {
     const tools = getAgentAiTools(dependencies(), { surface: "routine" });
+    const description = (tools.manage_wiki_pages as { description?: string }).description ?? "";
 
     const outcome = await execute(tools.manage_wiki_pages, {
       action: "delete",
@@ -595,9 +596,16 @@ describe("managed Wiki retrieval tools", () => {
       expectedUpdatedAt: page.updatedAt.toISOString(),
     });
 
+    expect(description).toContain("create, update and delete are not available");
+    expect(description).not.toContain("proposal that a manager reviews");
     expect(outcome.ok).toBe(false);
+    expect(String(outcome.result)).toContain("Say in your report what should change");
+    expect(String(outcome.result)).not.toContain("routine");
     expect(calls.propose).not.toHaveBeenCalled();
     expect(calls.delete).not.toHaveBeenCalled();
+
+    const read = await execute(tools.manage_wiki_pages, { action: "get", id: PAGE_ID, offset: 0 });
+    expect(read.ok).toBe(true);
   });
 
   it("uses the runtime-v2 hosted Wiki tools and keeps the public deep-research pair external", () => {

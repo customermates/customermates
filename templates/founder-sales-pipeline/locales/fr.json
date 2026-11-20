@@ -1,0 +1,144 @@
+{
+  "locale": "fr",
+  "name": "Pipeline commercial du fondateur",
+  "summary": "Vendez en tant que fondateur sans perdre le fil de vos conversations. Un pipeline court du premier échange à la signature, avec un pilote facultatif à date de fin fixe et un état en pause avec une date de relance.",
+  "description": "Quand vous vendez vous-même, chaque conversation vous apprend qui achète et pourquoi, mais les notes et la prochaine étape restent dans votre tête et dans une pile d’onglets. Ce modèle suit de quelques-unes à quelques dizaines de conversations ouvertes. Chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué. Un pilote a une date de fin et indique s’il est payant, et une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec qui vous parlez, avec leur rôle dans la décision d’achat." },
+    "companies": { "label": "Entreprise", "pluralLabel": "Entreprises", "description": "Prospects, pilotes, clients et partenaires." },
+    "opportunities": { "label": "Affaire", "pluralLabel": "Affaires", "description": "Une vente possible, du premier échange à signée, perdue ou en pause." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Rôle dans l’achat", "options": { "decision_maker": "Décideur", "budget_holder": "Détenteur du budget", "champion": "Soutien interne", "user": "Utilisateur", "other": "Autre" } },
+    "contacts.outreach_consent": { "label": "Accepte d’être contacté" },
+    "companies.relationship": { "label": "Relation", "options": { "prospect": "Prospect", "pilot": "Pilote", "customer": "Client", "churned": "Ancien client", "partner": "Partenaire" } },
+    "companies.size": { "label": "Taille", "options": { "micro": "1 à 10 personnes", "small": "11 à 50 personnes", "medium": "51 à 250 personnes", "large": "Plus de 250 personnes" } },
+    "companies.website": { "label": "Site web" },
+    "opportunities.stage": {
+      "label": "Étape",
+      "options": { "new": "Nouvel échange", "discovery_done": "Rendez-vous découverte", "pilot": "Pilote (POC)", "proposal": "Proposition", "won": "Signé", "lost": "Perdu", "parked": "En pause" }
+    },
+    "opportunities.source": { "label": "Source", "options": { "own_network": "Réseau personnel", "introduction": "Mise en relation", "inbound": "Demande entrante", "community": "Communauté", "outbound": "Prospection", "event": "Événement" } },
+    "opportunities.problem": { "label": "Le problème, dans leurs mots" },
+    "opportunities.urgency": { "label": "Urgence", "options": { "burning": "Brûlante", "important": "Importante", "nice_to_have": "Souhaitable" } },
+    "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Inconnu", "has_budget": "Budget disponible", "needs_budget": "Doit obtenir un budget", "no_budget": "Pas de budget" } },
+    "opportunities.decision_maker_engaged": { "label": "Décideur impliqué" },
+    "opportunities.pilot_end": { "label": "Fin du pilote" },
+    "opportunities.pilot_paid": { "label": "Le pilote est payant" },
+    "opportunities.expected_close": { "label": "Signature attendue" },
+    "opportunities.revisit_on": { "label": "Date de relance" },
+    "opportunities.next_step_due": { "label": "Prochaine action avant le" },
+    "opportunities.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "no_budget": "Pas de budget", "no_urgency": "Pas d’urgence", "competitor": "A choisi un concurrent", "built_in_house": "Développé en interne", "wrong_buyer": "Mauvais interlocuteur", "no_response": "Sans réponse", "not_a_fit": "Ne convient pas" }
+    },
+    "opportunities.weighted_value": { "label": "Valeur pondérée" },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre avec un récapitulatif", "call": "Appeler", "intro_request": "Demander une mise en relation", "pilot_check": "Faire le point sur le pilote", "proposal": "Envoyer la proposition", "follow_up": "Relancer", "handover": "Passer le relais", "review": "Faire le bilan", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Entreprise", "targetLabel": "Contacts" },
+    "opportunity_company": { "sourceLabel": "Entreprise", "targetLabel": "Affaires" },
+    "opportunity_contacts": { "sourceLabel": "Contacts", "targetLabel": "Affaires" },
+    "action_opportunity": { "sourceLabel": "Affaire", "targetLabel": "Actions" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Affaires par étape" },
+    "opportunities_all": { "name": "Toutes les affaires" },
+    "parked_to_revisit": { "name": "En pause, à relancer" },
+    "without_next_step": { "name": "Ouvertes sans prochaine action" },
+    "companies_all": { "name": "Toutes les entreprises" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Affaires par étape" },
+    "weighted_pipeline": { "title": "Pipeline pondéré" },
+    "customers_won": { "title": "Clients gagnés" },
+    "pilots_running": { "title": "Pilotes en cours" },
+    "pilot_ends": { "title": "Pilotes qui se terminent" },
+    "revisits_coming": { "title": "Affaires en pause à relancer" },
+    "urgency_split": { "title": "Affaires ouvertes par urgence" },
+    "lost_reasons": { "title": "Motifs de perte des affaires" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Guide de vente du fondateur", "sections": ["À qui nous vendons et ce que nous avons appris", "Bilan hebdomadaire du fondateur"] },
+    "discovery_questions": { "title": "Questions du rendez-vous découverte", "sections": ["Problème, urgence, budget et décideurs", "Ce qu’il faut noter après l’échange"] },
+    "pilot_plan": { "title": "Plan de pilote et grille d’évaluation", "sections": ["Date de fin fixe et critères de réussite", "Payant par défaut et passage du pilote au contrat"] },
+    "when_to_hire": { "title": "Quand recruter le premier commercial", "sections": ["Signes que la vente se reproduit sans vous", "Ce qu’il faut transmettre en premier"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le contact, l’entreprise et l’affaire quand le formulaire de demande est envoyé" },
+    "recap_reply": { "title": "Répondre avec un récapitulatif personnel et une prochaine étape le lendemain du premier échange" },
+    "discovery_proposal": { "title": "Envoyer le plan de pilote ou la proposition 2 jours après le rendez-vous découverte" },
+    "pilot_start_check": { "title": "Faire le point 14 jours après le début du pilote" },
+    "pilot_review": { "title": "Tenir l’appel de décision 3 jours avant la fin du pilote" },
+    "proposal_follow_up": { "title": "Relancer 3 jours après l’envoi d’une proposition" },
+    "parked_revisit_date": { "title": "Fixer la relance à 90 jours quand une affaire est mise en pause" },
+    "revisit_reopen": { "title": "Rouvrir la conversation à la date de relance" },
+    "won_handover": { "title": "Passer le relais pour le client le lendemain d’une signature" },
+    "won_intro_request": { "title": "Demander une mise en relation au client 30 jours après une signature" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque affaire a une étape.",
+    "problem_field": "Chaque affaire consigne le problème dans les mots du client.",
+    "pilot_end_field": "Chaque pilote a une date de fin.",
+    "opportunities_board_view": "Les affaires s’ouvrent en board par étape."
+  },
+  "page": {
+    "metaTitle": "Pipeline commercial du fondateur : chaque échange suivi",
+    "metaDescription": "Vendre en fondateur sans perdre le fil : collez ce modèle dans Claude, ChatGPT ou Codex, et votre agent construit le pipeline, avec pilote et mise en pause.",
+    "headline": "Vendre en tant que fondateur sans perdre le fil : un pipeline que votre agent IA construit dans votre CRM",
+    "answer": "Un pipeline commercial de fondateur est une courte liste d’échanges ouverts, chacun avec le problème dans les mots du client, une prochaine action datée et, si vous en menez un, un pilote à date de fin fixe. Collez ce modèle dans votre agent IA : il construit le pipeline dans Customermates, avec un état « En pause » et une date de reprise pour les affaires silencieuses. Vous validez le plan avant que rien ne soit créé.",
+    "routine": {
+      "title": "La revue du fondateur le lundi",
+      "steps": [
+        "Listez chaque échange ouvert et donnez à chacun une prochaine action datée. Un échange sans date est celui qui s’éteint.",
+        "Notez ce que vous avez appris depuis la semaine dernière : le problème dans les mots de l’acheteur, l’urgence, le budget et qui décide.",
+        "Vérifiez les pilotes : la date de fin est-elle fixée, les critères de réussite sont-ils écrits, le pilote est-il payant ? Placez l’appel de décision quelques jours avant la fin.",
+        "Tranchez pour les affaires silencieuses : un dernier message honnête, puis mise en pause avec une date de reprise plutôt que des relances sans fin.",
+        "Regardez qui a acheté et qui a refusé, et pourquoi. Le schéma montre à quel segment vendre, et quand il est temps d’embaucher votre premier commercial."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un outil de séquences de prospection. Customermates n’a ni séquences ni envoi en masse, et chaque message est individuel et relu par vous. LinkedIn ou l’email en volume demandent un outil spécialisé.",
+      "Ce n’est pas un CRM d’investisseurs. La levée de fonds a d’autres étapes et d’autres interlocuteurs : prenez un modèle à part.",
+      "Il ne produit ni devis, ni factures, ni contrats et n’a pas de signature électronique. Propositions et accords se font dans d’autres outils ; ici ne vivent que les dates et un lien.",
+      "Il n’y a ni scoring de leads ni enrichissement de données. L’adéquation d’un lead est un champ que vous renseignez vous-même.",
+      "La valeur pondérée n’est pas une prévision. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et elles sont à vous.",
+      "Il est dimensionné pour un seul vendeur. Plusieurs commerciaux avec des objectifs et une prévision d’équipe demandent le modèle de pipeline commercial ou un CRM plus lourd."
+    ],
+    "faq": [
+      {
+        "question": "À partir de quand un fondateur a-t-il besoin d’un CRM ?",
+        "answer": "Les guides le situent au moment où vous avez plus de prospects et de clients que votre tête ou un tableur n’en retient, souvent entre 50 et 200 contacts, ou quand une deuxième personne se met à vendre. Un tableur suffit jusque-là. Attendre a un coût : au moment de changer, notes et prochaines actions sont déjà éparpillées."
+      },
+      {
+        "question": "Combien de clients un fondateur doit-il conclure lui-même ?",
+        "answer": "Les avis divergent : Jason Lemkin parle des 10 premiers clients, peut-être 20, d’autres guides de 10 à 50. Mercury conseille d’embaucher le premier commercial quand vous pouvez dire : « Je sais que je peux vendre mon produit à des gens comme X qui ont le problème Y. » Le modèle montre combien de clients vous avez gagnés et n’impose aucun chiffre."
+      },
+      {
+        "question": "Combien de temps relancer une affaire silencieuse ?",
+        "answer": "Les praticiens ne s’accordent pas sur le nombre, mais tous s’arrêtent à un moment. Mercury conseille de ne plus relancer ceux qui ignorent vos messages ; d’autres suggèrent quelques relances, un dernier email et un nouveau contact des mois plus tard. Le modèle fait les deux : un message de clôture, puis l’affaire est mise en pause avec une date de reprise à 90 jours."
+      },
+      {
+        "question": "Faut-il proposer un pilote gratuit ?",
+        "answer": "Le conseil résumé de la Startup School de Y Combinator est d’éviter les pilotes gratuits sans limite et d’en mener un court, évalué et si possible payant. Le modèle donne au pilote une date de fin fixe et un indicateur payant ou non, crée un point de contrôle 14 jours après le début et une action pour l’appel de décision 3 jours avant la fin."
+      },
+      {
+        "question": "L’agent écrit-il à mes prospects ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Je vends mon produit moi-même et je perds sans cesse les notes et les prochaines étapes de mes conversations. Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
+    "questions": [
+      "Que vendez-vous, et qui a déjà acheté chez vous ?",
+      "Faites-vous des pilotes ou des essais, et sont-ils payants ?",
+      "Combien de temps relancez-vous une affaire silencieuse avant de la mettre en pause ?",
+      "D’où viennent vos conversations : réseau, mises en relation, demandes entrantes ou événements ?"
+    ]
+  }
+}

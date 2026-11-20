@@ -52,6 +52,7 @@
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
       "isNewCompany": "Première personne de l’espace",
+      "leftAt": "A quitté l’espace de travail",
       "markdown": "Markdown",
       "prompt": "Consignes",
       "publishSummary": "Résumé publié",
@@ -62,6 +63,7 @@
       "putType": "Type",
       "recipientEmail": "Envoyé à",
       "removalReason": "Motif de suppression",
+      "removedAt": "Retiré de l’espace de travail",
       "restore": "Restauré",
       "timezone": "Fuseau horaire",
       "triggerEvents": "Évènements déclencheurs",
@@ -93,6 +95,10 @@
         "routines": {
           "configure": "Prêt à mettre la routine en pause ou à l’exécuter",
           "delete": "Prêt à déplacer la routine et son historique dans la Corbeille"
+        },
+        "rules": {
+          "create": "Prêt à créer la règle d’automatisation",
+          "manage": "Prêt à modifier une règle d’automatisation"
         },
         "support": {
           "escalate": "Prêt à envoyer votre demande à l’assistance par e-mail"
@@ -132,6 +138,13 @@
         "routineDelete": "Déplacer la routine sélectionnée et son historique dans la Corbeille, où vous pouvez la restaurer pendant 30 jours",
         "routinePause": "Mettre en pause la routine sélectionnée",
         "routineRun": "Exécuter maintenant la routine sélectionnée",
+        "ruleDelete": "Supprimer définitivement la règle sélectionnée et son historique d’exécution",
+        "ruleDisable": "Désactiver la règle sélectionnée",
+        "ruleDraft": "Enregistrée comme brouillon, pas active",
+        "ruleEnable": "Activer la règle sélectionnée",
+        "ruleLive": "Devient active immédiatement",
+        "ruleSummary": "Quand {when}, alors {then}",
+        "ruleUpdate": "Modifier la règle sélectionnée",
         "salesListSave": "Ajouter le prospect sélectionné à une liste Sales Navigator",
         "salesListSaveTarget": "Ajouter {target} à la liste Sales Navigator {list}",
         "socialAccept": "Accepter la demande de connexion sélectionnée",
@@ -159,9 +172,12 @@
       },
       "contextMore": "{labels} (+{count})",
       "contextual": "{action} · {context}",
-      "countedRecordInResource": "1 enregistrement dans {resource}",
-      "countedResource": "{count} {resource}",
-      "countedSingular": "1 {resource}",
+      "counted": {
+        "messages": "{count, plural, one {# conversation} other {# conversations}}",
+        "records": "{count, plural, one {# enregistrement} other {# enregistrements}}",
+        "widgets": "{count, plural, one {# widget de Dashboard} other {# widgets du Dashboard}}",
+        "wiki": "{count, plural, one {# page de la base de connaissances} other {# pages de la base de connaissances}}"
+      },
       "defaultRecords": "enregistrements",
       "label": {
         "preview": "Aperçu",
@@ -173,10 +189,23 @@
         "widgets": "widgets du Dashboard",
         "wiki": "pages de la base de connaissances"
       },
-      "resourceSingular": {
-        "messages": "conversation",
-        "widgets": "widget de Dashboard",
-        "wiki": "page de la base de connaissances"
+      "rule": {
+        "effect": {
+          "callWebhook": "appeler un webhook",
+          "createRecord": "créer l’enregistrement « {title} »",
+          "notify": "envoyer l’alerte « {title} »",
+          "setField": "définir la valeur d’un champ"
+        },
+        "trigger": {
+          "bookingChanged": "une réservation est annulée ou reprogrammée",
+          "dateReached": "une date est atteinte",
+          "fieldChanged": "un champ change",
+          "formSubmitted": "un formulaire est envoyé",
+          "messageReceived": "un message arrive",
+          "recordCreated": "un enregistrement est créé",
+          "recordUpdated": "un enregistrement est modifié",
+          "webhookReceived": "un webhook est reçu"
+        }
       },
       "state": {
         "accounts": {
@@ -352,6 +381,18 @@
             "done": "Routine mise à jour",
             "error": "Impossible de mettre à jour la routine",
             "running": "Mise à jour de la routine"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Règle d’automatisation créée",
+            "error": "Impossible de créer la règle d’automatisation",
+            "running": "Création de la règle d’automatisation"
+          },
+          "manage": {
+            "done": "Règle d’automatisation modifiée",
+            "error": "Impossible de modifier la règle d’automatisation",
+            "running": "Modification de la règle d’automatisation"
           }
         },
         "support": {
@@ -815,8 +856,119 @@
       "workingOnRequest": "Traitement de votre demande…"
     }
   },
-  "AgplGithubBadge": {
-    "label": "AGPL · Open source"
+  "AgentJobs": {
+    "credits": "Crédits utilisés : {credits}",
+    "description": "Ce que vos agents ont fait, avec les outils qu’ils ont appelés.",
+    "empty": "Aucun agent n’a encore tourné.",
+    "errors": {
+      "contextLimit": "La tâche demandait plus de contexte qu’une exécution ne peut en contenir",
+      "creditLimit": "Arrêtée quand les crédits de cette exécution ont été épuisés",
+      "creditsExhausted": "Pas assez de crédits IA",
+      "hostedAiUnavailable": "L’IA hébergée n’était pas disponible",
+      "keyUnreadable": "La clé du fournisseur ne peut pas être lue avec le secret de ce serveur : enregistrez-la de nouveau",
+      "modelRequired": "Choisissez un modèle pour cette étape : l’espace de travail a plus d’une clé de fournisseur",
+      "modelUnavailable": "Aucune clé de fournisseur ne propose ce modèle",
+      "noKey": "Aucune clé de fournisseur pour cette exécution",
+      "ownerApiAccess": "Le rôle du propriétaire de l’automatisation n’autorise pas l’accès à l’API",
+      "ownerInactive": "Le propriétaire de l’automatisation n’est plus actif",
+      "planApiAccess": "L’offre de l’espace de travail n’inclut pas l’accès à l’API",
+      "planRequired": "L’exécution d’agents sur votre propre clé n’est pas incluse dans le forfait actuel",
+      "provider": "Le fournisseur a renvoyé une erreur ({code})",
+      "queueExpired": "Aucun runner ni agent n’a pris l’exécution en charge en 15 minutes",
+      "ruleInactive": "L’automatisation a été désactivée ou supprimée avant le début de l’exécution",
+      "runnerFailed": "La CLI du runner a échoué",
+      "runnerFailedDetail": "La CLI du runner a échoué : {detail}",
+      "runnerRevoked": "Le runner a été révoqué",
+      "runnerStopped": "Le runner a été arrêté pendant l’exécution",
+      "timedOut": "L’exécution a pris trop de temps",
+      "timeLimit": "Arrêtée à la limite de temps",
+      "toolLimit": "Arrêtée à la limite d’appels d’outils"
+    },
+    "loadFailed": "Les exécutions d’agent n’ont pas pu être chargées. Réessayez.",
+    "rule": "Automatisation : {name}",
+    "status": {
+      "cancelled": "Annulée",
+      "claimed": "Démarrage",
+      "failed": "Échec",
+      "queued": "En attente",
+      "running": "En cours",
+      "succeeded": "Terminée",
+      "timedOut": "Délai dépassé"
+    },
+    "title": "Dernières exécutions d’agent",
+    "tokens": "{input} en entrée, {output} en sortie",
+    "transcript": {
+      "assistant": "Agent",
+      "called": "{name} appelé",
+      "empty": "Aucune étape n’a été enregistrée.",
+      "finish": {
+        "cancelled": "Annulée",
+        "creditLimit": "Arrêtée quand les crédits ont été épuisés",
+        "error": "Échec",
+        "stop": "Terminée",
+        "timeLimit": "Arrêtée à la limite de temps",
+        "toolLimit": "Arrêtée à la limite d’appels d’outils"
+      },
+      "label": "Transcription de l’exécution",
+      "modelFallback": "Le modèle par défaut {saved} de cette clé n’est plus proposé. Cette exécution a utilisé {used}.",
+      "restricted": "Seuls le propriétaire de cette exécution et les administrateurs voient ses étapes et son résultat.",
+      "result": "Résultat de {name}",
+      "resultFailed": "{name} n’a pas abouti",
+      "untrusted": "La consigne de cette exécution contient du texte venu de l’extérieur de l’espace de travail ou d’un enregistrement, l’agent a donc traité ce texte comme des données et non comme une consigne.",
+      "user": "Consigne"
+    }
+  },
+  "AgentKeys": {
+    "add": "Ajouter une clé",
+    "checkedAt": "Dernière vérification",
+    "endsIn": "Se termine par {last4}",
+    "fields": {
+      "apiKey": "Clé API",
+      "apiKeyDescription": "Collez la clé depuis la console de votre fournisseur. Elle est vérifiée auprès du fournisseur, stockée chiffrée et plus jamais affichée.",
+      "defaultModel": "Modèle par défaut",
+      "defaultModelDescription": "Utilisé quand une étape d’agent ne nomme aucun modèle.",
+      "label": "Libellé",
+      "labelPlaceholder": "Production",
+      "provider": "Fournisseur"
+    },
+    "intro": "Les agents exécutent les étapes d’agent de vos automatisations. Ils peuvent tourner sur Mate, avec votre propre clé d’IA ou sur un runner sur votre propre machine. Les clés sont stockées chiffrées et ne sont plus jamais affichées.",
+    "keysDescription": "Votre propre clé API d’Anthropic, d’OpenAI ou de Google. Les étapes d’agent réglées sur votre clé s’exécutent avec elle et le fournisseur vous facture directement.",
+    "keysEmpty": "Aucune clé de fournisseur pour l’instant.",
+    "keysTitle": "Clés de fournisseur",
+    "lastUsedAt": "Dernière utilisation",
+    "modalTitle": "Ajouter une clé de fournisseur",
+    "planRequired": "L’exécution d’agents avec votre propre clé est incluse dans les forfaits payants.",
+    "providers": {
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "openai": "OpenAI"
+    },
+    "replaceNote": "Une clé pour un fournisseur qui en a déjà une la remplace.",
+    "test": "Tester",
+    "testSucceeded": "Le fournisseur a accepté cette clé.",
+    "unverifiedNote": "Le fournisseur n’a pas autorisé cette clé à lister ses modèles : la clé n’a donc pas pu être vérifiée. Une exécution d’agent montre si elle fonctionne."
+  },
+  "AgentRuntime": {
+    "available": "Disponible",
+    "description": "Les étapes d’agent peuvent tourner sur chacune de ces options dès qu’elle est disponible dans cet espace de travail.",
+    "names": {
+      "mate": "Mate",
+      "ownKey": "Votre propre clé",
+      "runner": "Votre propre runner"
+    },
+    "reasons": {
+      "noKey": "Ajoutez une clé de fournisseur",
+      "noRunner": "Aucun runner en ligne",
+      "notConfigured": "Indisponible",
+      "plan": "Pas dans votre forfait",
+      "selfHosted": "Nécessite le cloud"
+    },
+    "summary": {
+      "mate": "L’agent hébergé de Customermates, payé avec vos crédits IA.",
+      "ownKey": "Un agent dans notre cloud qui utilise votre clé de fournisseur. Le fournisseur vous facture.",
+      "runner": "Claude Code ou Codex sur votre propre machine, avec votre propre session."
+    },
+    "title": "Où les agents s’exécutent"
   },
   "ApiKeyModal": {
     "addDescription": "Créez une clé pour votre propre intégration ou choisissez un client d’IA pour une configuration guidée.",
@@ -867,6 +1019,545 @@
     "unableToLinkAccount": "Le compte social n’a pas pu être lié à votre compte.",
     "userCreationFailed": "Votre compte n’a pas pu être créé. Veuillez réessayer.",
     "userInfoIsMissing": "Le fournisseur n’a pas renvoyé votre profil. Veuillez réessayer."
+  },
+  "AutomationRules": {
+    "active": "Activer ou désactiver {name}",
+    "automate": "Automatiser cette liste",
+    "builder": {
+      "after": "après",
+      "anyField": "N’importe quel champ",
+      "assignToOwner": "Me l’assigner",
+      "atHour": "À l’heure (0 à 23)",
+      "before": "avant",
+      "body": "Détails (facultatif)",
+      "bookingChange": "Modification",
+      "bookingChangeAny": "Toute modification",
+      "bookingChangeCancelled": "Annulée",
+      "bookingChangeRescheduled": "Reprogrammée",
+      "boolean": {
+        "false": "Non",
+        "true": "Oui"
+      },
+      "channel": "Canal",
+      "channelAny": "Tous les canaux",
+      "channelChat": "Chat",
+      "channelEmail": "E-mail",
+      "choose": "Choisir…",
+      "dateField": "Champ de date",
+      "days": "Jours",
+      "daysFromToday": "Jours à partir d’aujourd’hui",
+      "direction": "Avant ou après",
+      "dueDays": "Échéance en jours",
+      "dueField": "Champ d’échéance",
+      "event": "Événement",
+      "field": "Champ",
+      "fixConditions": "Complétez chaque condition ou supprimez-la.",
+      "fixEffect": "Complétez cette action.",
+      "fixTrigger": "Complétez le déclencheur : choisissez un champ et une valeur valide.",
+      "incomplete": "Cette automatisation n’est pas encore complète.",
+      "keptCondition": "Cette condition a été définie en dehors de l’éditeur. Elle ne peut pas être modifiée ici et reste telle quelle.",
+      "keptEffect": "Cette action ({kind}) a été définie en dehors de l’éditeur. Elle ne peut pas être modifiée ici et reste telle quelle.",
+      "keptTrigger": "Ce déclencheur a été défini en dehors de l’éditeur. Il ne peut pas être modifié ici et reste tel quel.",
+      "keptTriggerReplace": "Choisir un autre déclencheur",
+      "linkTo": "Lier à l’enregistrement déclencheur comme",
+      "list": "Liste",
+      "name": "Nom",
+      "namePlaceholder": "Par exemple : me rappeler avant la clôture d’une affaire",
+      "noDueDate": "Pas d’échéance",
+      "noLink": "Ne pas lier",
+      "notificationKind": "Apparaît dans la cloche comme",
+      "operator": "Condition",
+      "placeholders": "Dans les titres et les détails, {recordName} est remplacé par le nom de l’enregistrement et {ruleName} par le nom de cette automatisation.",
+      "timezone": "Fuseau horaire",
+      "title": "Titre",
+      "titleEdit": "Modifier l’automatisation",
+      "titleField": "Champ de titre",
+      "titleNew": "Nouvelle automatisation",
+      "toAssignees": "Prévenir les personnes assignées",
+      "toOwner": "Me prévenir",
+      "toValue": "Vers la valeur (facultatif)",
+      "value": "Valeur"
+    },
+    "deleteMessage": "Supprimer « {name} » et son historique ? Cette action est irréversible.",
+    "deleteTitle": "Supprimer l’automatisation",
+    "detail": {
+      "agentJobRefused": "L’agent n’a pas pu être démarré.",
+      "agentModelUnavailable": "Le modèle choisi n’est plus disponible.",
+      "agentNoRunner": "Le propriétaire de l’automatisation n’avait aucun runner prêt.",
+      "agentRunnerUnavailable": "Le runner choisi n’est plus disponible.",
+      "noRecipients": "Il n’y avait personne à notifier.",
+      "previousEffectFailed": "Une étape précédente a échoué, celle-ci n’a donc pas été exécutée.",
+      "recordMissing": "L’enregistrement a disparu ou n’est pas lisible pour le propriétaire.",
+      "ruleInvalid": "L’automatisation n’est plus valide. Ouvrez-la, vérifiez ses étapes et enregistrez-la de nouveau.",
+      "runAbandoned": "L’exécution n’a pas pu démarrer dans les 30 minutes et a été abandonnée.",
+      "unexpectedError": "Une erreur s’est produite de notre côté.",
+      "webhookDisabled": "Le webhook est désactivé.",
+      "webhookMissing": "Le webhook n’existe plus.",
+      "webhookNotSubscribed": "Le webhook n’a pas sélectionné l’événement des automatisations."
+    },
+    "disabledReason": {
+      "disabledByUser": "Désactivée.",
+      "ownerInactive": "Désactivée, car son propriétaire n’est plus un membre actif.",
+      "ownerMissing": "Désactivée, car elle n’a pas de propriétaire.",
+      "planPaused": "Désactivée, car le forfait autorise moins de règles actives. Elle se réactive dès que le forfait le permet."
+    },
+    "edit": "Modifier",
+    "effect": {
+      "agent": "Demander à un agent",
+      "callWebhook": "Appeler un webhook",
+      "createRecord": "Créer un enregistrement",
+      "notify": "Notifier",
+      "setField": "Définir un champ"
+    },
+    "emptyBody": "Rappelez-vous avant la clôture d’une affaire, créez une tâche de suivi quand un enregistrement change ou prévenez votre équipe à l’arrivée d’un formulaire.",
+    "emptyTitle": "Aucune automatisation pour l’instant",
+    "history": {
+      "empty": "Aucune exécution pour l’instant",
+      "loadFailed": "Les exécutions n’ont pas pu être chargées.",
+      "open": "Historique",
+      "record": "Ouvrir l’enregistrement",
+      "title": "Exécutions de « {name} »"
+    },
+    "lastRun": "Dernière exécution {time}",
+    "neverRun": "Pas encore exécutée",
+    "new": "Nouvelle automatisation",
+    "notificationKind": {
+      "dueToday": "À faire aujourd’hui",
+      "replyReceived": "Réponse reçue",
+      "ruleAlert": "Alerte d’automatisation"
+    },
+    "operator": {
+      "after": "est après aujourd’hui plus",
+      "afterDate": "est après le",
+      "before": "est avant aujourd’hui plus",
+      "beforeDate": "est avant le",
+      "empty": "est vide",
+      "equals": "est",
+      "in": "est parmi",
+      "notEmpty": "n’est pas vide",
+      "notEquals": "n’est pas",
+      "notIn": "n’est pas parmi"
+    },
+    "outcome": {
+      "applied": "effectué",
+      "failed": "échec",
+      "skipped": "ignoré"
+    },
+    "reason": {
+      "conditionsNotMet": "Les conditions n’étaient pas remplies.",
+      "dateChanged": "La date a été modifiée ou vidée avant l’exécution de l’automatisation.",
+      "ownerChanged": "Le propriétaire a changé.",
+      "ownerInactive": "Le propriétaire n’est plus un membre actif.",
+      "ownerMissing": "L’automatisation n’a pas de propriétaire.",
+      "ownerNotPermitted": "Le propriétaire n’a plus accès aux automatisations.",
+      "recordUnavailable": "L’enregistrement n’existe plus ou le propriétaire ne peut pas le lire.",
+      "ruleChanged": "L’automatisation a été modifiée après que cet événement l’a déclenchée.",
+      "ruleDisabled": "L’automatisation était désactivée."
+    },
+    "remindBefore": "Me rappeler {field}",
+    "status": {
+      "applied": "Terminée",
+      "failed": "Échec",
+      "queued": "En attente",
+      "running": "En cours",
+      "skipped": "Ignorée"
+    },
+    "summary": {
+      "bookingChanged": "{change, select, cancelled {Quand une réservation est annulée} rescheduled {Quand une réservation est reprogrammée} other {Quand une réservation est annulée ou reprogrammée}}",
+      "dateReached": "{direction, select, before {{days, plural, =0 {À la date de {field} dans {list}} one {# jour avant {field} dans {list}} other {# jours avant {field} dans {list}}}} other {{days, plural, =0 {À la date de {field} dans {list}} one {# jour après {field} dans {list}} other {# jours après {field} dans {list}}}}}",
+      "fieldChanged": "Quand {field} change dans {list}",
+      "formSubmitted": "Quand un formulaire est envoyé",
+      "messageReceived": "Quand un message arrive",
+      "recordCreated": "Quand un enregistrement est créé dans {list}",
+      "recordUpdated": "Quand un enregistrement de {list} est modifié",
+      "webhookReceived": "Quand un webhook entrant livre des données"
+    },
+    "title": "Automatisations",
+    "trigger": {
+      "bookingChanged": "Une réservation est annulée ou reprogrammée",
+      "dateReached": "Une date est atteinte",
+      "fieldChanged": "Un champ change",
+      "formSubmitted": "Un formulaire est envoyé",
+      "messageReceived": "Un message est reçu",
+      "recordCreated": "Un enregistrement est créé",
+      "recordUpdated": "Un enregistrement est modifié",
+      "webhookReceived": "Un webhook est reçu"
+    }
+  },
+  "Automations": {
+    "agent": {
+      "anyRunner": "N’importe quel runner en ligne",
+      "askAdmin": "Un administrateur peut configurer cela dans Paramètres, Agents.",
+      "defaultModel": "Modèle par défaut de la clé",
+      "model": "Modèle",
+      "openSettings": "Ouvrir Paramètres, Agents",
+      "ownerRunner": "S’exécute sur un runner du propriétaire de l’automatisation. Les runners sont personnels, les vôtres ne sont donc pas affichés ici.",
+      "prompt": "Que doit faire l’agent ?",
+      "promptPlaceholder": "Par exemple : rédige une réponse courte et aimable et enregistre-la pour relecture.",
+      "reason": {
+        "noKey": "Aucune clé de fournisseur n’est encore enregistrée pour cet espace de travail.",
+        "noRunner": "Vous n’avez pas encore de runner prêt. Les runners sont personnels : chaque membre ajoute le sien.",
+        "notConfigured": "Cette façon d’exécuter un agent n’est pas encore configurée.",
+        "plan": "Votre offre n’inclut pas cette façon d’exécuter un agent.",
+        "selfHosted": "Mate est une fonction du Cloud et n’est pas disponible si vous hébergez Customermates vous-même."
+      },
+      "runner": "Runner",
+      "runnerOffline": "{name} (hors ligne)",
+      "runtime": {
+        "mate": "Mate",
+        "ownKey": "Votre propre clé",
+        "runner": "Votre propre runner"
+      },
+      "runtimeHint": {
+        "mate": "S’exécute chez Customermates et utilise des crédits d’IA.",
+        "ownKey": "S’exécute avec votre propre clé de fournisseur.",
+        "runner": "S’exécute sur une machine que vous contrôlez."
+      },
+      "runtimeLabel": "Où l’agent s’exécute",
+      "unavailable": "Pas encore disponible"
+    },
+    "builder": {
+      "active": "Actif",
+      "addStep": "Ajouter une étape",
+      "anyList": "N’importe quelle liste",
+      "composedNotice": "Mate a rédigé ceci à partir de votre phrase. Rien n’est enregistré tant que vous ne l’activez pas.",
+      "if": "Si",
+      "needsStep": "Ajoutez au moins une étape qui fait quelque chose.",
+      "panesLabel": "Aperçu et exécutions",
+      "paused": "En pause",
+      "previewTab": "Aperçu",
+      "readOnlyAdminPause": "En tant qu’administrateur, vous pouvez toujours la mettre en pause avec l’interrupteur.",
+      "readOnlyNoOwner": "Cette automatisation n’a plus de propriétaire, personne ne peut donc la modifier.",
+      "readOnlyOwner": "Seul son propriétaire, {owner}, peut modifier cette automatisation.",
+      "readOnlyRole": "Votre rôle vous permet de consulter cette automatisation et ses exécutions, mais pas de la modifier.",
+      "removeStep": "Supprimer l’étape",
+      "runsTab": "Exécutions",
+      "switchOn": "Activer",
+      "then": "Alors",
+      "webhook": "Webhook",
+      "webhookNoneSubscribed": "Aucun webhook n’a encore sélectionné l’événement des automatisations. Sélectionnez-le dans les paramètres d’un webhook.",
+      "webhookRestricted": "Votre rôle ne permet pas de voir les webhooks de cet espace de travail. Cette étape conserve donc son webhook.",
+      "when": "Quand"
+    },
+    "columns": {
+      "enabled": "Actif",
+      "runs30d": "Exécutions, 30 jours",
+      "runsOn": "S’exécute sur",
+      "sentence": "Ce qu’elle fait"
+    },
+    "filters": {
+      "kind": {
+        "routine": "Routine",
+        "rule": "Automatisation"
+      },
+      "status": {
+        "active": "Actif",
+        "paused": "En pause"
+      }
+    },
+    "kind": {
+      "routine": "Routine"
+    },
+    "neverRun": "Pas encore exécutée",
+    "new": {
+      "automation": "Automatisation",
+      "routine": "Routine (Mate selon un planning)"
+    },
+    "palette": {
+      "agent": {
+        "hint": "Confiez une tâche à un agent avec des mots simples",
+        "title": "Demander à un agent"
+      },
+      "callWebhook": {
+        "hint": "Envoyer l’enregistrement à un autre outil",
+        "restricted": "Votre rôle ne permet pas de voir les webhooks de cet espace de travail.",
+        "title": "Appeler un webhook"
+      },
+      "condition": {
+        "hint": "Continuer seulement si une valeur correspond",
+        "title": "Si un champ correspond"
+      },
+      "createRecord": {
+        "hint": "Une tâche, un client, une affaire ou un contact",
+        "title": "Créer un enregistrement"
+      },
+      "empty": "Aucune étape ne correspond à votre recherche.",
+      "groups": {
+        "agent": "Agent",
+        "condition": "Condition",
+        "integrations": "Intégrations",
+        "people": "Personnes",
+        "record": "Enregistrement"
+      },
+      "notify": {
+        "hint": "Cloche et e-mail, selon le réglage de la personne",
+        "title": "Prévenir quelqu’un"
+      },
+      "search": "Rechercher des étapes",
+      "setField": {
+        "hint": "Modifier une valeur de l’enregistrement",
+        "title": "Définir un champ"
+      },
+      "title": "Ajouter une étape"
+    },
+    "preview": {
+      "alreadyFired": "{count, plural, one {# enregistrement a déjà été traité} other {# enregistrements ont déjà été traités}}",
+      "incomplete": "Complétez le déclencheur pour voir ce que ferait cette automatisation.",
+      "note": "D’après vos enregistrements actuels. Rien n’a été modifié.",
+      "record": "Ouvrir un enregistrement concerné",
+      "title": "Aperçu",
+      "truncated": "Cet aperçu n’a vérifié qu’une partie des enregistrements concernés, le nombre réel peut donc être plus élevé.",
+      "unsupported": "Un aperçu est disponible pour les rappels à une date. Les autres déclencheurs agissent quand quelque chose se produit, il n’y a donc encore rien à regarder en arrière.",
+      "wouldRun": "{count, plural, =0 {Ne se serait pas exécutée} one {Se serait exécutée # fois} other {Se serait exécutée # fois}} au cours des {days} derniers jours"
+    },
+    "recipes": {
+      "answerEnquiries": {
+        "description": "Quand un formulaire est envoyé, demandez à votre agent de rédiger une réponse dans votre ton et de vous prévenir pour la relecture.",
+        "effects": {
+          "agent": "Rédige une réponse à {record} dans mon ton. Réponds à la question posée, reste bref et aimable, et enregistre le texte comme brouillon à relire. N’envoie rien.",
+          "notify": "Relire la réponse à {record}"
+        },
+        "title": "Répondre aux nouvelles demandes"
+      },
+      "bookingCancelled": {
+        "description": "Quand une réservation est annulée, vous prévenir pour que vous puissiez relancer ou libérer le créneau.",
+        "effects": {
+          "notify": "Réservation annulée : {record}"
+        },
+        "title": "Me prévenir quand une réservation est annulée"
+      },
+      "chaseDocuments": {
+        "description": "7 jours après une date de demande, créer une tâche pour relancer les documents et prévenir la personne responsable.",
+        "effects": {
+          "action": "Relancer les documents de {record}",
+          "notify": "Documents toujours manquants : {record}"
+        },
+        "title": "Relancer les documents manquants"
+      },
+      "followUpAfterOffer": {
+        "description": "Quand l’étape change, créer une tâche de relance dans 3 jours et prévenir la personne responsable.",
+        "effects": {
+          "action": "Relancer {record}",
+          "notify": "Offre envoyée : {record}"
+        },
+        "title": "Relancer après une offre"
+      },
+      "remindBeforeRenewal": {
+        "description": "30 jours avant la fin d’un contrat, créer une tâche de renouvellement et prévenir la personne responsable.",
+        "effects": {
+          "action": "Renouvellement : {record}",
+          "notify": "Renouvellement à venir : {record}"
+        },
+        "title": "Rappeler avant un renouvellement"
+      },
+      "weeklyReview": {
+        "description": "Chaque lundi à 8 h 00, demander à Mate de lister les clients sans prochaine étape datée et vous prévenir.",
+        "effects": {
+          "agent": "Liste les clients qui n’ont pas de prochaine étape datée. Pour chacun, indique le client, le dernier contact et une prochaine étape proposée. Préviens-moi avec la liste."
+        },
+        "title": "Bilan hebdomadaire"
+      },
+      "welcomeSubmission": {
+        "description": "Quand un formulaire est envoyé, créer une tâche d’accueil pour demain et prévenir la personne responsable.",
+        "effects": {
+          "action": "Accueillir {record}",
+          "notify": "Nouvel envoi : {record}"
+        },
+        "title": "Accueillir un envoi de formulaire"
+      },
+      "wonOrLostReason": {
+        "description": "Quand l’étape est définie sans motif, demander à la personne responsable d’en ajouter un.",
+        "effects": {
+          "notify": "Ajouter un motif à {record}"
+        },
+        "title": "Motif de gain ou de perte"
+      }
+    },
+    "rowActions": {
+      "history": "Historique des exécutions",
+      "pause": "Mettre en pause",
+      "resume": "Reprendre"
+    },
+    "runs": {
+      "agentRun": "Afficher l’exécution de l’agent",
+      "unsaved": "Les exécutions apparaissent ici une fois l’automatisation enregistrée et activée."
+    },
+    "runs30d": "{count, plural, one {# exécution} other {# exécutions}}",
+    "runsOn": {
+      "free": "Gratuit",
+      "mate": "Mate",
+      "ownKey": "Clé propre",
+      "runner": "Runner propre"
+    },
+    "sentence": {
+      "aField": "un champ",
+      "aList": "une liste",
+      "effect": {
+        "agent": "demander à votre agent de {prompt}",
+        "callWebhook": "appeler un webhook",
+        "createRecord": "créer un élément dans {list}",
+        "kept": "exécuter une étape conservée telle quelle",
+        "notifyAssignees": "prévenir les personnes assignées",
+        "notifyBoth": "prévenir la personne responsable et les personnes assignées",
+        "notifyOwner": "prévenir la personne responsable",
+        "setField": "définir {field}"
+      },
+      "if": "si {condition}",
+      "otherTrigger": "Quand autre chose se produit",
+      "routineEvent": "Quand {event}, demander à Mate de {prompt}",
+      "routineSchedule": "{schedule}, demander à Mate de {prompt}",
+      "somethingForYou": "faire quelque chose pour vous"
+    },
+    "start": {
+      "compose": "La rédiger",
+      "composerLabel": "Dites à Mate ce qui doit se passer quand …",
+      "composerNote": "Mate rédige les étapes. Rien n’est enregistré tant que vous ne l’activez pas.",
+      "composerPlaceholder": "… une nouvelle demande arrive, rappelle-moi le lendemain matin d’y répondre",
+      "exact": "Étapes exactes, sans IA",
+      "noAgent": "Aucune façon d’exécuter un agent n’est encore configurée, les étapes d’agent ne s’exécuteront donc pas.",
+      "recipesBody": "Chaque recette est une chaîne complète. Modifiez ce que vous voulez, donnez-lui un nom, activez-la.",
+      "recipesTitle": "Partir d’une recette",
+      "refusal": {
+        "credits": "Vos crédits Mate sont épuisés pour cette période. Choisissez une recette ou partez de zéro.",
+        "invalid": "Le brouillon ne correspondait pas à votre espace de travail. Essayez de nommer la liste ou le champ.",
+        "rateLimited": "Vous avez beaucoup composé cette dernière heure. Réessayez dans un moment ou choisissez une recette.",
+        "unavailable": "Mate n’est pas disponible pour le moment. Choisissez une recette ou partez de zéro.",
+        "unclear": "Mate n’a pas compris ce qui doit se passer. Dites ce qui la déclenche et ce qu’elle doit faire.",
+        "unsupported": "Une automatisation ne peut pas encore faire cela. Décrivez-la comme un déclencheur et des étapes exactes."
+      },
+      "scratch": "Partir de zéro",
+      "scratchBody": "Une chaîne vide. Choisissez un déclencheur, puis ajoutez des étapes.",
+      "usesAgent": "Utilise un agent"
+    },
+    "truncated": "Cette liste contient au plus {rules} automatisations et {routines} routines, et votre espace de travail en compte davantage. Celles qui ne sont pas affichées continuent de s’exécuter.",
+    "unavailable": {
+      "blockedStep": "« {step} » utilise un élément qui n’est plus disponible. Choisissez-en un autre ou supprimez l’étape.",
+      "blockedTrigger": "Le déclencheur utilise un élément qui n’est plus disponible. Choisissez-en un autre.",
+      "field": "Un champ utilisé ici n’est plus disponible. Choisissez-en un autre.",
+      "item": "N’est plus disponible",
+      "list": "La liste utilisée ici n’est plus disponible. Choisissez-en une autre.",
+      "model": "Le modèle choisi ici n’est plus disponible. Choisissez-en un autre.",
+      "option": "Une option utilisée ici n’est plus disponible. Choisissez-en une autre.",
+      "runner": "Le runner choisi ici n’est plus disponible. Choisissez-en un autre.",
+      "webhook": "Le webhook choisi ici est désactivé ou n’existe plus. Choisissez-en un autre.",
+      "webhookEvent": "Le webhook choisi ici n’a pas sélectionné l’événement des automatisations, cette étape serait donc ignorée. Sélectionnez l’événement sur le webhook ou choisissez-en un autre."
+    }
+  },
+  "Booking": {
+    "busyTimeIncomplete": "Votre agenda n’a pas pu être lu en entier : il contient trop d’entrées ou une entrée récurrente qui ne peut pas être calculée. Vos pages de réservation ne proposent aucun créneau les jours concernés.",
+    "chooseCalendar": "Choisir un agenda",
+    "closed": "Fermé",
+    "days": "{days, plural, one {# jour} other {# jours}}",
+    "demoNote": "Les pages de réservation nécessitent un agenda connecté et ne sont pas disponibles dans l’espace de travail de démo.",
+    "description": "Une page de réservation permet à n’importe qui de réserver une réunion dans votre agenda connecté, sans compte. Les visiteurs voient vos créneaux libres, et chaque réservation crée l’évènement dans l’agenda, la personne et un enregistrement dans votre CRM.",
+    "edit": "Modifier",
+    "editTitle": "Modifier la page de réservation",
+    "empty": "Aucune page de réservation pour le moment",
+    "fields": {
+      "buffer": "Marge entre les réunions",
+      "calendar": "Agenda",
+      "description": "Description",
+      "duration": "Durée de la réunion",
+      "enabled": "Accepter les réservations",
+      "from": "De",
+      "horizon": "Réservable à l’avance",
+      "hosts": "Hôtes",
+      "inviteeChanges": "Les visiteurs peuvent annuler et reprogrammer",
+      "minNotice": "Préavis minimum",
+      "none": "Aucun",
+      "personList": "Trouver ou créer le visiteur dans",
+      "personRelationship": "Relier l’enregistrement et le visiteur via",
+      "questions": "Questions au visiteur",
+      "recordList": "Créer un enregistrement par réservation dans",
+      "required": "Obligatoire",
+      "startField": "Enregistrer le début de la réunion dans",
+      "successMessage": "Message après la réservation",
+      "timeZone": "Fuseau horaire",
+      "title": "Titre",
+      "to": "À",
+      "withVideo": "Ajouter un lien de visioconférence",
+      "workingHours": "Horaires de travail"
+    },
+    "hostActions": {
+      "cancelConfirm": "Annuler la réservation",
+      "cancelled": "Réservation annulée. {name} reçoit un e-mail.",
+      "cancelReason": "Motif pour {name} (facultatif)",
+      "cancelText": "La réunion est retirée du calendrier et {name} reçoit un e-mail.",
+      "cancelTitle": "Annuler la réservation avec {name} ?",
+      "keep": "Garder la réservation",
+      "loadFailed": "Impossible de charger les créneaux libres.",
+      "noSlots": "Cette page n'a pas d'autre créneau libre.",
+      "reschedule": "Reprogrammer",
+      "rescheduleConfirm": "Déplacer la réservation",
+      "rescheduled": "Réservation déplacée. {name} reçoit un e-mail.",
+      "rescheduleTitle": "Nouvel horaire pour {name}"
+    },
+    "hostNotice": {
+      "body": "{page}, {when}.",
+      "bookedTitle": "{name} a réservé une réunion",
+      "cancelledTitle": "{name} a annulé une réunion",
+      "reason": "Motif : {reason}",
+      "rescheduledTitle": "{name} a déplacé une réunion"
+    },
+    "minutes": "{minutes} min",
+    "new": "Nouvelle page de réservation",
+    "newTitle": "Nouvelle page de réservation",
+    "noCalendar": "L’agenda de cette page n’existe plus, par exemple parce que son compte a été déconnecté. Les visiteurs voient la page comme indisponible tant qu’aucun agenda n’est choisi. Les réservations déjà prises sont conservées.",
+    "notice": "{hours, plural, =0 {Aucun préavis minimum} one {# heure à l’avance} other {# heures à l’avance}}",
+    "open": "Ouvrir la page",
+    "pagePreviewHint": "Voici comment les visiteurs voient cette page. Les horaires suivent vos heures de travail ; les créneaux occupés de votre agenda ne comptent que sur la page publiée.",
+    "pagePreviewLabel": "Aperçu",
+    "pagePreviewTitle": "Votre page de réservation",
+    "panelActive": "Active",
+    "panelClose": "Fermer les pages de réservation",
+    "panelLocked": "Les pages de réservation nécessitent une offre avec messagerie et l’accès à la boîte de réception.",
+    "panelOwner": "Pages de réservation de {owner}",
+    "panelTitle": "Pages de réservation",
+    "panelUnavailable": "Indisponible",
+    "panelYours": "Vos pages de réservation",
+    "paused": "En pause",
+    "removeQuestion": "Retirer la question",
+    "roundRobin": "Partager cette page avec des collègues (round robin)",
+    "roundRobinChip": "{count} hôtes",
+    "roundRobinHint": "Un créneau est proposé dès qu’au moins un hôte est libre. Chaque réservation va à l’hôte libre qui a le moins de réservations à venir, dans son agenda connecté. Vous êtes toujours hôte également.",
+    "saved": "Page de réservation enregistrée",
+    "selfHostedNote": "Les pages de réservation utilisent la connexion d’agenda hébergée et ne sont pas disponibles en auto-hébergement.",
+    "unavailableField": "Champ devenu indisponible",
+    "upcoming": "{count, plural, =0 {Aucune réservation à venir} one {# réservation à venir} other {# réservations à venir}}",
+    "weekdays": {
+      "friday": "Vendredi",
+      "monday": "Lundi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche",
+      "thursday": "Jeudi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi"
+    }
+  },
+  "BookingEmail": {
+    "cancelledIntroHost": "{host} a annulé votre réservation pour {page}.",
+    "cancelledIntroInvitee": "Votre réservation pour {page} avec {host} est annulée, comme vous l'avez demandé.",
+    "cancelledSubject": "Annulé : {page} le {date}",
+    "cancelledTitle": "Réservation annulée",
+    "confirmedIntro": "Votre réservation pour {page} avec {host} est confirmée. L'invitation de calendrier arrive dans un e-mail séparé.",
+    "confirmedSubject": "Confirmé : {page} le {date}",
+    "confirmedTitle": "Réservation confirmée",
+    "footer": "Vous recevez cet e-mail car cette adresse a servi à réserver un créneau auprès de {workspace}.",
+    "greeting": "Bonjour {name},",
+    "greetingNoName": "Bonjour,",
+    "labelHost": "Avec",
+    "labelNewWhen": "Nouvel horaire",
+    "labelPrevious": "Horaire précédent",
+    "labelReason": "Motif",
+    "labelWhen": "Quand",
+    "manage": "Annuler ou reprogrammer",
+    "reminderIntro": "Un rappel de votre réservation pour {page} avec {host}.",
+    "reminderSubject": "Rappel : {page} le {date}",
+    "reminderTitle": "Votre rendez-vous approche",
+    "rescheduledIntroHost": "{host} a déplacé votre réservation pour {page} à un nouvel horaire.",
+    "rescheduledIntroInvitee": "Votre réservation pour {page} avec {host} est déplacée au nouvel horaire que vous avez choisi.",
+    "rescheduledSubject": "Reprogrammé : {page} le {date}",
+    "rescheduledTitle": "Réservation reprogrammée"
   },
   "BrowserFrame": {
     "open": "Ouvrir dans un nouvel onglet"
@@ -942,12 +1633,14 @@
         "themeSystem": "thème automatique, suivre le système"
       },
       "page": {
-        "calendar": "planificateur, rendez-vous, réunions, événements, agenda, planning",
+        "automations": "règles, règles d’automatisation, rappels, quand si alors, déclencheurs, notifications, rappels de date",
+        "calendar": "planificateur, rendez-vous, réunions, événements, agenda, planning, page de réservation, lien de réservation, prise de rendez-vous, réserver une réunion, lien de réunion, Calendly, disponibilités, horaires de travail, agenda public",
         "configure": "modèle de données, schéma, listes, champs, relations, Configurer, champs personnalisés, objets",
         "dashboard": "accueil, aperçu, widgets, graphiques, rapports, analyses, KPI, indicateurs",
         "documentation": "docs, aide, guide, manuel",
         "inbox": "messages, e-mail, courriel, conversations, discussions, boîte de réception unifiée, messages privés, messages LinkedIn, WhatsApp",
         "knowledgeBase": "wiki, notes, fiches, articles, documentation, playbook, manuel, procédures, infos entreprise",
+        "notifications": "alertes, cloche, rappels, non lues, marquer comme lu, nouveautés",
         "routines": "automatisations, planifications, tâches récurrentes, workflows, déclencheurs, règles d’automatisation",
         "settings": "préférences, options, compte, espace de travail",
         "trash": "éléments supprimés, corbeille, restaurer, annuler la suppression"
@@ -990,10 +1683,12 @@
       },
       "settings": {
         "activity": "journal d’audit, historique, modifications, Activité, journal d’audit, qui a modifié quoi",
+        "agents": "agents, étape d’agent, clé d’IA, clé propre, Anthropic, OpenAI, Google, runner, Claude Code, Codex, exécutions d’agent, clés de fournisseur",
         "api-keys": "jetons, API, MCP, développeur, clés d’accès, connecteurs, Claude, ChatGPT, Codex, Gemini, Cursor, IA, serveur MCP, n8n, intégration",
         "billing": "forfait, abonnement, factures, paiement, tarifs, mise à niveau, reçu, facture",
         "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agendas, synchronisation de la boîte mail, synchronisation d’agenda, synchronisation e-mail, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "nom de l’espace de travail, renommer l’espace de travail, quitter l’espace de travail",
+        "incoming-webhooks": "webhooks entrants, recevoir des données, adresse secrète, URL de webhook, envoyer du JSON, créer des fiches depuis d’autres outils, outil de formulaires, Zapier, Make, n8n",
         "members": "équipe, utilisateurs, personnes, collègues, inviter, sièges, licences",
         "profile": "mon profil, compte, préférences, personnel",
         "roles": "permissions, accès, droits, admin, jeux de permissions",
@@ -1139,8 +1834,20 @@
       "addressLookupUnavailable": "La recherche d’adresse n’est pas disponible pour le moment. Saisissez l’adresse vous-même ou réessayez plus tard.",
       "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
       "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
+      "agentJobClosed": "Cette tâche est déjà terminée, expirée ou annulée.",
+      "agentJobCursorInvalid": "Ce lien de page des exécutions d’agent n’est plus valide. Rechargez les exécutions et réessayez.",
+      "agentJobNotFound": "L’ID de cette exécution d’agent est introuvable ou inaccessible.",
       "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
       "agentModelUnavailable": "Ce modèle de l’Assistant n’est pas disponible.",
+      "agentOwnKeyPlanRequired": "L’exécution d’agents avec votre propre clé d’IA est incluse dans les forfaits payants. Changez de forfait pour ajouter une clé.",
+      "agentProviderKeyInvalid": "Le fournisseur n’a pas accepté cette clé. Vérifiez que vous avez copié la clé en entier et qu’elle est active.",
+      "agentProviderKeyNotFound": "Cette clé d’IA est introuvable dans cet espace de travail.",
+      "agentProviderKeyUnreachable": "Le fournisseur n’a pas pu être joint pour vérifier cette clé. Réessayez dans un instant.",
+      "agentProviderKeyUnreadable": "Cette clé ne peut pas être lue avec le secret de ce serveur. Enregistrez-la de nouveau.",
+      "agentProviderKeyUnverified": "Le fournisseur n’autorise pas cette clé à lister ses modèles : elle ne peut donc pas être vérifiée ici. Une exécution d’agent montre si elle fonctionne.",
+      "agentProviderModelInvalid": "Ce modèle n’est pas proposé pour ce fournisseur.",
+      "agentRunnerNotFound": "Ce runner est introuvable dans cet espace de travail.",
+      "agentRuntimeUnavailable": "Cette façon d’exécuter des agents n’est pas disponible pour cet espace de travail pour le moment.",
       "agentServiceUnavailable": "L’IA hébergée est temporairement indisponible. Veuillez réessayer plus tard.",
       "agentTurnAlreadyRunning": "Une autre demande de l’assistant est déjà en cours.",
       "apiKeyMaxExpiration": "L’expiration d’une clé API ne peut pas dépasser 365 jours.",
@@ -1148,12 +1855,31 @@
       "apiKeyNameLength": "Le nom d’une clé API doit comporter entre 1 et 255 caractères.",
       "apiKeyNotFound": "Cette clé API est introuvable dans cet espace de travail.",
       "apiRateLimitReached": "Cet espace de travail a atteint la limite de requêtes API et MCP de la formule Free. Patientez puis réessayez, ou passez à Starter pour lever la limite.",
+      "automationRuleAdminRequired": "Seuls le propriétaire d’une automatisation ou un administrateur peuvent la désactiver ou la supprimer.",
+      "automationRuleEditNotOwner": "Seul le propriétaire d’une automatisation peut la modifier ou l’activer.",
+      "automationRuleInvalid": "Cette automatisation ne convient pas à l’espace de travail : une liste, un champ ou une relation qu’elle utilise est absent ou ne convient pas à son déclencheur ou à ses actions.",
+      "automationRuleLimitReached": "Votre forfait inclut {limit} automatisations actives. Changez de forfait (à partir de {price} par utilisateur et par mois) ou désactivez une autre automatisation.",
+      "automationRuleNotFound": "ID d’automatisation introuvable ou inaccessible.",
+      "automationRuleOwnerIneligible": "Le propriétaire d’une automatisation doit être un membre actif de cet espace de travail.",
+      "automationRuleRunCursorInvalid": "Ce lien de page de l’historique des exécutions n’est plus valide. Rechargez l’historique et réessayez.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
+      "bookingAnswerInvalid": "Une réponse est manquante ou invalide.",
+      "bookingHostsNotAllowed": "Seul un administrateur peut ajouter d’autres membres comme hôtes.",
+      "bookingHostWithoutCalendar": "Ce membre n’a pas d’agenda connecté et ne peut pas être hôte d’une page de réservation.",
+      "bookingLinkHasUpcomingBookings": "Cette page de réservation a encore des réservations à venir ({count}). Mettez-la plutôt en pause avec l’interrupteur ou annulez d’abord ces réservations.",
+      "bookingLinkLimitReached": "Vous pouvez avoir au maximum {limit} pages de réservation. Supprimez-en une pour en créer une autre.",
+      "bookingLinkNotFound": "ID de page de réservation introuvable ou inaccessible.",
+      "bookingListInvalid": "Cette liste ou ce champ ne peut pas servir aux réservations.",
+      "bookingRateLimited": "Trop de tentatives de réservation. Réessayez plus tard.",
+      "bookingSlotTaken": "Ce créneau n’est plus disponible. Choisissez-en un autre.",
+      "bookingUnavailable": "Cette page de réservation n’est pas disponible pour le moment.",
       "calendarEventNotFound": "ID d’évènement d’agenda introuvable ou inaccessible.",
       "calendarExportIncomplete": "Cette période contient plus d’entrées qu’un export ne peut en inclure. Choisissez une période plus courte ou des filtres de source plus précis.",
+      "calendarNeedsReconnect": "Reconnectez votre compte Google ou Microsoft sous Canaux et agendas pour autoriser les modifications d’agenda, puis réessayez.",
       "calendarNotFound": "ID d’agenda introuvable ou inaccessible.",
       "calendarSubscriptionLimitReached": "Vous pouvez avoir jusqu’à {limit} abonnements d’agenda. Révoquez-en un pour en créer un autre.",
       "calendarSubscriptionNotFound": "Cet abonnement d’agenda n’existe plus.",
+      "calendarWriteUnavailable": "Aucun agenda Google ou Microsoft connecté ne peut être modifié. Connectez d’abord un agenda sous Canaux et agendas.",
       "channelAlreadyLinked": "Ce numéro de téléphone, cette adresse e-mail ou ce profil est déjà lié à une autre fiche.",
       "chatThreadRequired": "Ceci est un fil d’e-mails. Répondez par e-mail plutôt que par un message de chat.",
       "connectedAccountEmailChangeRequired": "Indiquez une signature, des paramètres d’e-mail ou les deux.",
@@ -1189,6 +1915,8 @@
       "enterpriseCheckoutUnavailable": "Les espaces de travail Enterprise sont facturés manuellement et ne peuvent pas lancer le paiement en libre-service.",
       "filterBetweenInvalidArrayLength": "L’opérateur 'between' requiert un tableau contenant exactement 2 éléments.",
       "generic": "Une erreur est survenue.",
+      "incomingWebhookMappingInvalid": "Vérifiez la correspondance des champs : chaque champ associé doit être un champ de cette liste qu'un webhook peut remplir, et l'upsert exige un champ de rapprochement associé.",
+      "incomingWebhookNotFound": "Ce webhook entrant est introuvable.",
       "inmailSignatureRequired": "Ajoutez une signature pour l’InMail Recruiter.",
       "inmailSubjectRequired": "Ajoutez un objet pour l’InMail.",
       "insufficientPermissions": "L’utilisation des clés API ou des connexions MCP nécessite l’accès en lecture Tout sur API & Webhooks pour votre rôle. Demandez-le à un administrateur de l’espace de travail.",
@@ -1215,6 +1943,7 @@
       "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s’agir de JSON Tiptap valide ou de texte markdown.",
+      "notificationPauseDateInvalid": "La suspension doit se terminer un jour après aujourd’hui et dans un délai d’un an.",
       "operatorAllowanceMissing": "Cet espace de travail n’a pas encore d’allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d’abord l’allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "operatorConnectedAccountsActive": "Cet espace de travail a encore des comptes de messagerie connectés. Déconnectez-les d’abord pour libérer les comptes chez le prestataire, puis supprimez l’espace de travail.",
@@ -1233,6 +1962,9 @@
       "planSeatSwapUnavailable": "La place active ne peut être transmise que lorsque cet espace de travail est en Free et que la personne est mise en pause par la formule.",
       "planWebhooksNotIncluded": "Les webhooks et n8n ne sont pas inclus dans la formule Free. Passez à Starter ({price} par utilisateur et par mois) pour créer des webhooks.",
       "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
+      "publicFormConfigurationInvalid": "Vérifiez le formulaire : chaque question doit être un champ de cette liste, et une personne liée exige une liste avec des coordonnées et une relation avec cette liste.",
+      "publicFormExists": "Cette liste a déjà un formulaire. Mettez-le à jour à la place.",
+      "publicFormNotFound": "Ce formulaire est introuvable.",
       "publicLinkExpiryInPast": "La date de fin doit être aujourd'hui ou plus tard.",
       "recordAddressCandidateInvalid": "Cette suggestion d’adresse n’est plus valide. Recherchez à nouveau l’adresse.",
       "recordAddressCountryInvalid": "Dans {field}, {country} n’est pas un code de pays.",
@@ -1399,12 +2131,23 @@
       "workspaceSlugTaken": "Un autre espace de travail utilise déjà cette URL. Choisissez-en une autre."
     },
     "events": {
+      "automation": {
+        "rule": {
+          "fired": "Règle d’automatisation déclenchée"
+        }
+      },
+      "booking": {
+        "changed": "Réservation modifiée"
+      },
       "connected_account": {
         "created": "Compte connecté",
         "deleted": "Compte déconnecté",
         "reconnected": "Compte reconnecté",
         "resynced": "Compte resynchronisé",
         "updated": "Visibilité du compte modifiée"
+      },
+      "form": {
+        "submitted": "Formulaire envoyé"
       },
       "legal": {
         "documents_accepted": "Documents juridiques acceptés",
@@ -1477,6 +2220,7 @@
       "webhook": {
         "created": "Webhook créé",
         "deleted": "Webhook supprimé",
+        "received": "Webhook reçu",
         "updated": "Webhook mis à jour"
       },
       "wiki_page": {
@@ -1495,6 +2239,9 @@
       "fields": {
         "adProvider": "Régie publicitaire",
         "auditSource": "Source",
+        "automationKind": "Type",
+        "automationRunsOn": "S’exécute sur",
+        "automationStatus": "Statut",
         "calendarId": "Calendrier",
         "connectedAccountId": "Canal",
         "createdAt": "Créé le",
@@ -1575,6 +2322,7 @@
       },
       "searchFields": {
         "inbox": "Objet, message ou participant",
+        "incomingWebhooks": "Nom",
         "members": "Nom",
         "operatorAudit": "Action",
         "operatorUsers": "Nom ou e-mail",
@@ -1979,6 +2727,17 @@
     "visibilityShared": "Partagé",
     "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
   },
+  "ConnectedApps": {
+    "connect": "Connecter une application d’IA",
+    "connectedSince": "Connectée depuis",
+    "description": "Les applications d’IA, comme Claude ou ChatGPT, que vous avez connectées à cet espace de travail avec votre identifiant. Chaque application agit avec vos autorisations.",
+    "disconnectDescription": "{name} perd immédiatement l’accès à cet espace de travail. Pour l’utiliser à nouveau, reconnectez-la et approuvez l’accès.",
+    "disconnectTitle": "Déconnecter cette application ?",
+    "empty": "Aucune application d’IA n’est encore connectée. Connectez Claude, ChatGPT ou une autre application d’IA pour travailler avec cet espace de travail depuis celle-ci.",
+    "lastActive": "Dernière activité",
+    "title": "Applications d’IA connectées",
+    "toastDisconnected": "Application déconnectée"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Ouvrir dans la boîte de réception",
     "calendarAllDay": "Toute la journée",
@@ -2374,6 +3133,9 @@
       "savedRoles": "Partagée avec les rôles sélectionnés",
       "savedWorkspace": "Partagée avec tout l’espace de travail",
       "sharedBy": "Partagée par {name}",
+      "tabForm": "Formulaire",
+      "tabShare": "Partager la vue",
+      "tabsLabel": "Options de partage",
       "title": "Partager « {name} »",
       "withEveryone": "Avec tout le monde · seul·e {name} peut la modifier",
       "withRoles": "Avec des rôles sélectionnés · seul·e {name} peut la modifier",
@@ -2388,12 +3150,13 @@
       "allTab": {
         "activity": "Toute l’activité",
         "auditEntries": "Toutes les entrées",
+        "automations": "Toutes les automatisations",
         "conversations": "Toutes les discussions",
         "deliveries": "Toutes les livraisons",
+        "incomingWebhooks": "Tous les webhooks entrants",
         "members": "Tous les membres",
         "records": "Tous : {list}",
         "roles": "Tous les rôles",
-        "routines": "Toutes les routines",
         "users": "Tous les utilisateurs",
         "webhooks": "Tous les webhooks",
         "workspaces": "Tous les espaces de travail"
@@ -2459,7 +3222,9 @@
   },
   "DocsSidebar": {
     "apiKeys": "Clés API",
+    "appAgents": "Agents",
     "appAssistant": "Assistant",
+    "appAutomations": "Automatisations",
     "appCalendar": "Calendrier",
     "appCompany": "Entreprise",
     "appDashboard": "Tableau de bord",
@@ -2469,11 +3234,13 @@
     "appProfile": "Profil",
     "appRecords": "Enregistrements",
     "appRoutines": "Routines",
+    "appRunners": "Runners",
     "appSearch": "Recherche globale",
     "appTrash": "Corbeille",
     "appWorkspaces": "Espaces de travail",
     "architectureSecurity": "Architecture et sécurité",
     "changelog": "Journal des modifications",
+    "compareEditions": "Comparer les éditions",
     "concepts": "Concepts clés",
     "connectCli": "CLI et éditeurs",
     "connectConnector": "Connecteur personnalisé",
@@ -2484,6 +3251,9 @@
     "goBack": "Retour",
     "integrations": "Intégrations",
     "introduction": "Introduction",
+    "licence": "Licence",
+    "licenceFaq": "FAQ sur la licence",
+    "licensing": "Licences",
     "mcp": "MCP",
     "messagingRateLimits": "Limites de débit",
     "n8n": "N8N",
@@ -2530,7 +3300,7 @@
     "invalid": "Contient des erreurs"
   },
   "EmailLayout": {
-    "tagline": "Le CRM open source pour relancer vos clients"
+    "tagline": "Le CRM source-available pour relancer vos clients"
   },
   "EmailVerification": {
     "notVerified": "Adresse e-mail non vérifiée",
@@ -2735,7 +3505,7 @@
       "cancelAnytime": "Résiliable à tout moment",
       "gdpr": "Base de données en région UE ; sans certification",
       "noLimits": "Formules transparentes",
-      "openSource": "Open core"
+      "openSource": "Source-available"
     },
     "eyebrow": "Tarifs",
     "selfHosted": {
@@ -2745,12 +3515,12 @@
       "featureN8n": "Interfaces pour une instance n8n distincte",
       "featureRecords": "Enregistrements CRM principaux",
       "featureUsers": "Utilisateurs de l’espace de travail",
-      "period": "sous AGPL",
+      "period": "source-available",
       "price": "Cœur gratuit",
-      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter, sans boîte de réception ni IA hébergée. Les services externes restent distincts.",
+      "tag": "Exécutez la Community Edition (source-available) et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter, sans boîte de réception ni IA hébergée. Les services externes restent distincts.",
       "title": "Auto-hébergé"
     },
-    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement le cœur sous AGPL ; les services externes restent distincts. Ou essayez le Cloud gratuitement, sans carte bancaire.",
+    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement la Community Edition pour votre usage interne ; les services externes restent distincts. Ou essayez le Cloud gratuitement, sans carte bancaire.",
     "title": "Simple, honnête, européen"
   },
   "HomepageWorkspacePrompt": {
@@ -2762,6 +3532,8 @@
     "body": "Une fois votre accès réactivé, actualisez cette page pour continuer.",
     "otherWorkspaces": "Vos autres espaces de travail restent inchangés. Passez à l’un d’eux depuis le menu de l’espace de travail.",
     "subtitle": "Un administrateur de cet espace de travail peut le réactiver",
+    "supportBody": "L’accès de tous les membres de cet espace de travail est désactivé, y compris celui de tous les administrateurs, par exemple parce que son abonnement a pris fin. Personne ne peut renouveler l’abonnement ni réactiver des membres depuis l’espace de travail. Contactez notre assistance pour rétablir l’accès, puis actualisez cette page.",
+    "supportSubtitle": "Seule notre assistance peut le rétablir",
     "title": "Votre accès à {workspace} est inactif"
   },
   "Inbox": {
@@ -2928,6 +3700,59 @@
       "seek": "Modifier la position de lecture"
     },
     "youPrefix": "Vous :"
+  },
+  "IncomingWebhooks": {
+    "add": "Ajouter un webhook entrant",
+    "addRow": "Ajouter un champ",
+    "clearSecret": "Supprimer le secret de signature",
+    "deleted": "Webhook entrant supprimé",
+    "deliveries": "Livraisons",
+    "deliveriesTitle": "Livraisons de {name}",
+    "editTitle": "Modifier le webhook entrant",
+    "emptyBody": "Créez un point d'accès pour une liste, associez les champs du corps JSON et collez l'adresse dans l'autre système.",
+    "emptyTitle": "Aucun webhook entrant pour l'instant",
+    "enabled": "Accepte les requêtes",
+    "field": "Champ",
+    "list": "Liste",
+    "loading": "Chargement",
+    "mapping": "Correspondance des champs",
+    "matchField": "Retrouver la fiche existante par",
+    "mode": "À l'arrivée d'une requête",
+    "modeCreate": "Toujours créer une fiche",
+    "modeUpsert": "Mettre à jour la fiche correspondante, sinon en créer une",
+    "name": "Nom",
+    "neverReceived": "Aucune requête pour l'instant",
+    "newTitle": "Nouveau webhook entrant",
+    "noDeliveries": "Aucune requête reçue pour l'instant.",
+    "noLists": "Créez d'abord une liste. Chaque point d'accès alimente une liste.",
+    "outcomes": {
+      "created": "Fiche créée",
+      "failed": "Échec",
+      "rejected_limit": "Refusée : trop volumineuse",
+      "rejected_payload": "Refusée : corps non valide",
+      "rejected_plan": "Refusée : non incluse dans l'offre",
+      "rejected_signature": "Refusée : signature incorrecte",
+      "updated": "Fiche mise à jour"
+    },
+    "path": "Chemin JSON",
+    "previewCreate": "Créerait une fiche",
+    "previewInvalid": "Non valide",
+    "previewMissing": "Manquant",
+    "previewRefused": "Serait refusée",
+    "previewUpdate": "Mettrait à jour la fiche correspondante",
+    "removeRow": "Supprimer le champ",
+    "rotate": "Remplacer l'adresse secrète",
+    "rotated": "Adresse remplacée. Mettez-la à jour dans l'autre système.",
+    "sample": "Exemple de corps (JSON)",
+    "sampleInvalid": "L'exemple n'est pas un objet JSON valide.",
+    "saved": "Webhook entrant enregistré",
+    "security": "Vérification de la signature",
+    "signatureHeader": "En-tête de signature",
+    "signatureHelp": "Avec un secret de signature, chaque requête doit envoyer dans cet en-tête le HMAC-SHA256 hexadécimal du corps brut. Les corps de plus de 256 Ko sont refusés.",
+    "signingSecret": "Secret de signature (facultatif)",
+    "test": "Enregistrer et tester avec l'exemple",
+    "url": "Adresse secrète",
+    "urlAfterSave": "L'adresse secrète apparaît après l'enregistrement."
   },
   "InvitationCard": {
     "inviter": "Invitation de {inviterName}",
@@ -3152,24 +3977,28 @@
     "addPickerDescription": "Choisissez le type d’enregistrement à créer.",
     "addPickerTitle": "Créer…",
     "affiliate": "Programme d’affiliation",
+    "automations": "Automatisations",
     "dashboard": "Tableau de bord",
     "data": "Données",
     "docs": "Documentation",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
+    "notifications": "Notifications",
     "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
     "public": {
       "agenciesAndVas": "Agences et assistants virtuels",
       "agenticCrm": "CRM agentique",
+      "aiAgents": "Agents IA",
       "allFeatures": "Toutes les fonctionnalités",
       "allIntegrations": "Toutes les intégrations",
       "allTeams": "Toutes les équipes",
       "articlesAndGuides": "Articles et guides",
-      "blog": "Blog",
       "byJob": "Par besoin",
       "byTeam": "Par équipe",
+      "claudeCrm": "CRM pour Claude",
+      "claudeLinkedIn": "Claude avec LinkedIn",
       "clientManagement": "Gestion des clients",
       "cloudVsSelfHosted": "Cloud ou auto-hébergé",
       "compare": "Comparatifs",
@@ -3185,9 +4014,7 @@
       "mcpDocs": "Documentation MCP",
       "n8n": "Automatisation n8n",
       "openExampleWorkspace": "Ouvrir cet espace de travail d’exemple",
-      "openSourceCrm": "CRM open source",
-      "pillarAgents": "Agents",
-      "pillarAgentsDescription": "Mate, Claude ou ChatGPT au travail dans votre CRM",
+      "openSourceCrm": "CRM open source ou source-available",
       "pillarData": "Données",
       "pillarDataDescription": "Clients, affaires et listes à votre façon",
       "pillarInbox": "Boîte de réception",
@@ -3199,20 +4026,13 @@
       "product": "Produit",
       "professionalServices": "Services professionnels",
       "providerChatGPT": "ChatGPT",
-      "providerClaude": "Claude",
       "providerCodex": "Codex",
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
-      "providerGmail": "Gmail",
       "providerGrok": "Grok Bot",
-      "providerImap": "E-mail / IMAP",
-      "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",
       "providerOutlook": "Outlook",
       "providerSlack": "Slack avec n8n",
-      "providerTelegram": "Telegram",
-      "providerWhatsApp": "WhatsApp",
-      "resources": "Ressources",
       "selfHosted": "Auto-hébergé",
       "smallBusiness": "Petites entreprises",
       "solutions": "Solutions",
@@ -3228,6 +4048,7 @@
         "whatsappCrm": "Discussions WhatsApp liées aux clients"
       },
       "startups": "Start-ups",
+      "templates": "Modèles",
       "whatsappCrm": "CRM WhatsApp"
     },
     "routines": "Routines",
@@ -3242,6 +4063,70 @@
     "documentTitle": "Page introuvable | Customermates",
     "subtitle": "Cette page est partie en vacances sans nous prévenir",
     "title": "Oups ! Vous êtes entré dans le vide"
+  },
+  "NotificationEmail": {
+    "cta": "Ouvrir Customermates",
+    "digestIntro": "Ces nouveautés vous attendent dans Customermates :",
+    "digestMore": "{count, plural, one {et # autre nouveauté} other {et # autres nouveautés}}",
+    "digestSubject": "Nouveautés dans Customermates",
+    "footerReason": "{count, plural, one {Vous recevez cet e-mail parce que {sources} vous a envoyé une notification.} other {Vous recevez cet e-mail parce que {sources} vous ont envoyé une notification.}}",
+    "greeting": "Bonjour {firstName},",
+    "instantIntro": "Quelque chose demande votre attention dans Customermates :",
+    "manageNotifications": "Gérer les notifications",
+    "title": "Du nouveau dans votre espace de travail",
+    "turnOffKind": "Désactiver ce type",
+    "turnOffNamedKind": "Désactiver : {kind}"
+  },
+  "Notifications": {
+    "dayToday": "Aujourd’hui",
+    "dayYesterday": "Hier",
+    "emailMode": {
+      "digest": "Résumé quotidien",
+      "instant": "E-mail immédiat",
+      "off": "Pas d’e-mail"
+    },
+    "empty": "Vous êtes à jour.",
+    "emptyDescription": "Les rappels, les réponses et les alertes d’automatisation apparaissent ici.",
+    "emptyFiltered": "Aucune notification de ce type pour le moment.",
+    "filterAll": "Toutes",
+    "filtersLabel": "Filtrer par type",
+    "kindHelp": {
+      "dueToday": "Rappels des dates qui arrivent aujourd’hui.",
+      "replyReceived": "Quand arrive un message que vous attendiez.",
+      "ruleAlert": "Quand l’une de vos automatisations vous signale quelque chose."
+    },
+    "kinds": {
+      "dueToday": "À faire aujourd’hui",
+      "replyReceived": "Réponses reçues",
+      "ruleAlert": "Alertes d’automatisation"
+    },
+    "markAllRead": "Tout marquer comme lu",
+    "preferences": {
+      "description": "La page des notifications affiche toujours tout. Choisissez ici à quelle fréquence chaque type de cet espace de travail vous parvient aussi par e-mail.",
+      "emailNotConfigured": "L’envoi d’e-mails n’est pas configuré sur ce serveur : les notifications vous parviennent donc uniquement sur la page des notifications. La personne qui gère le serveur peut configurer l’envoi d’e-mails.",
+      "kind": "Type",
+      "kindOffNotice": "Les e-mails « {kind} » sont désactivés.",
+      "modeLabel": "E-mail pour {kind}",
+      "pause": "Suspendre les e-mails de cet espace de travail jusqu’au",
+      "pauseDate": "Date jusqu’à laquelle les e-mails sont suspendus",
+      "pauseHelp": "Pendant la suspension, aucune notification de cet espace de travail ne vous parvient par e-mail, sur aucun appareil. Vos autres espaces de travail ne sont pas concernés. Vos choix ci-dessus restent tels quels et s’appliquent de nouveau à partir de ce jour.",
+      "pauseOff": "Vos choix d’e-mail sont rétablis.",
+      "pauseOn": "Les e-mails de cet espace de travail sont suspendus jusqu’au {date}.",
+      "title": "E-mails de notification"
+    },
+    "turnOff": {
+      "body": "{email} ne recevra plus d’e-mails « {kind} » de {workspace}. Ils peuvent être réactivés dans Profil et préférences.",
+      "confirm": "Désactiver les e-mails",
+      "doneBody": "{email} ne reçoit plus d’e-mails « {kind} » de {workspace}. Connectez-vous pour les réactiver dans Profil et préférences.",
+      "doneTitle": "Ces e-mails sont désactivés",
+      "expiredBody": "Les liens des e-mails de notification sont valables 30 jours. Ouvrez le lien d’un e-mail plus récent, ou connectez-vous et modifiez vos e-mails dans Profil et préférences.",
+      "expiredTitle": "Ce lien a expiré",
+      "invalidBody": "Ouvrez de nouveau le lien de l’e-mail de notification, ou connectez-vous et modifiez vos e-mails dans Profil et préférences.",
+      "invalidTitle": "Ce lien n’est pas valide",
+      "openSettings": "Ouvrir Profil et préférences",
+      "title": "Désactiver ces e-mails ?"
+    },
+    "unread": "Non lue"
   },
   "OnboardingChoice": {
     "create": {
@@ -3383,8 +4268,17 @@
           }
         }
       },
+      "other": {
+        "description": "Collez cette URL là où votre client ajoute un serveur MCP distant ou un connecteur personnalisé. Une page de connexion s’ouvre et vous y autorisez l’accès.",
+        "keyNote": "Votre client demande une clé API plutôt qu’une connexion ? <guide>Le guide MCP</guide> indique l’en-tête à envoyer.",
+        "stepsTitle": "Ajouter Customermates comme serveur MCP distant",
+        "subtitle": "Tout client capable d’ajouter un serveur MCP distant fonctionne avec cette URL.",
+        "title": "Autre client MCP",
+        "workspaceNote": "Cette URL connecte {workspace}. Chaque espace de travail a sa propre URL."
+      },
       "providers": {
-        "ariaLabel": "Clients d’IA"
+        "ariaLabel": "Clients d’IA",
+        "more": "Autres :"
       },
       "savedKey": "Vous avez déjà créé une clé API pour cette configuration. Vous pouvez terminer la configuration initiale. Si vous avez besoin de sa valeur à nouveau, créez une nouvelle clé.",
       "screen": {
@@ -3403,11 +4297,39 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Ajoutez un autre canal si vos clients vous écrivent aussi ailleurs.",
+      "connected": "Connecté",
+      "connectedLabel": "Canaux connectés",
+      "emailDescription": "Connectez la boîte mail à laquelle vos clients écrivent. Vos e-mails arrivent et restent privés par défaut.",
+      "emailTitle": "E-mail",
+      "finishing": "Connexion en cours de finalisation. Votre compte apparaîtra ici dans quelques secondes.",
+      "later": "WhatsApp, Telegram et d’autres canaux se trouvent dans les paramètres après la configuration.",
+      "skip": "Passer pour l’instant"
+    },
+    "connect": {
+      "checkAgain": "Vérifier à nouveau",
+      "connected": "Connecté. Votre agent a atteint cet espace de travail.",
+      "failed": "Impossible de vérifier la connexion. Réessayez dans un instant.",
+      "skip": "Je me connecterai plus tard",
+      "statusLabel": "État de la connexion",
+      "waiting": "En attente du premier appel de {agent}. La coche apparaît toute seule dès que {agent} est connecté.",
+      "waitingGeneric": "En attente du premier appel de votre agent. La coche apparaît toute seule dès que votre agent est connecté."
+    },
+    "continue": "Continuer",
     "finish": "Terminer",
     "goal": {
       "agent": {
-        "description": "Utilisez Claude, ChatGPT ou un client CLI avec votre espace via MCP.",
-        "title": "Connecter mon propre agent IA"
+        "description": "Connectez-le à Customermates, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",
+        "descriptionSelfHosted": "Connectez-le à cette instance, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",
+        "steps": {
+          "approve": "Coller et approuver le plan",
+          "connect": "Connecter votre agent",
+          "template": "Choisir un modèle"
+        },
+        "stepsLabel": "Comment ça marche",
+        "title": "Utiliser l’agent IA que vous avez déjà",
+        "worksWith": "Fonctionne avec Claude, ChatGPT, Cursor, Gemini et tout autre client MCP."
       },
       "channelsHint": {
         "action": "Ouvrir le tableau de bord",
@@ -3426,15 +4348,22 @@
         "salesNavigator": "Vous utilisez Sales Navigator ? Connectez plutôt LinkedIn avec Sales Navigator",
         "title": "Connectez d’abord LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate fonctionne dans Customermates Cloud. Votre premier espace cloud éligible bénéficie de {days} jours de Pro, sans carte bancaire. Ouvre un espace cloud distinct.",
+        "opened": "Nous avons ouvert Customermates Cloud dans un nouvel onglet. Rien de cette instance n’y a été envoyé. Vous pouvez continuer la configuration ici.",
+        "title": "Vous préférez Mate ? Essayez le cloud géré"
+      },
       "followup": {
         "description": "Choisissez un playbook, connectez LinkedIn, puis voyez qui attend une réponse.",
         "title": "Relancer mes conversations clients"
       },
       "optionsLabel": "Premières étapes",
+      "recommended": "Recommandé",
       "suggested": "Suggéré",
       "workspace": {
-        "description": "Répondez à quelques questions. Nous créons vos listes, vues et tableau de bord.",
-        "title": "Configurer mon espace clients"
+        "description": "Choisissez un modèle et notre agent intégré construit l’espace ici. Rien à connecter.",
+        "title": "Laisser Mate le configurer pour moi"
       }
     },
     "invite": {
@@ -3455,11 +4384,14 @@
     },
     "milestones": {
       "ai": "Outils IA",
-      "goal": "Objectif",
+      "channel": "Canal",
+      "connect": "Connexion",
+      "goal": "Configuration",
       "invite": "Équipe",
       "playbook": "Playbook",
       "profile": "Vous",
-      "setup": "Espace"
+      "setup": "Espace",
+      "template": "Modèle"
     },
     "next": "Suivant",
     "playbook": {
@@ -3470,19 +4402,73 @@
       "writesTitle": "Trois pages de base de connaissances, prêtes à modifier"
     },
     "profile": {
+      "teamSize": {
+        "label": "Combien de personnes utiliseront cet espace de travail ?",
+        "large": "Plus de 20",
+        "medium": "6 à 20",
+        "required": "Choisissez une réponse pour continuer.",
+        "small": "2 à 5",
+        "solo": "Moi uniquement"
+      },
       "websitePlaceholder": "exemple.fr"
     },
     "progress": "Étape {current} sur {total}",
     "progressLabel": "Progression de la configuration",
     "progressOpen": "Étape {current}",
+    "prompt": {
+      "changed": "Votre agent a commencé à construire. Ouvrez votre espace pour suivre.",
+      "copied": "Copié",
+      "copy": "Copier le prompt",
+      "copyFailed": "La copie n’a pas fonctionné ici. Le prompt est sélectionné : appuyez sur Ctrl+C ou Cmd+C pour le copier.",
+      "failed": "Impossible de charger le prompt.",
+      "go": "Aller à mon espace",
+      "loading": "Préparation de votre prompt…",
+      "openIn": "Ouvrir dans {agent}",
+      "promptLabel": "Prompt du modèle",
+      "retry": "Réessayer",
+      "steps": {
+        "approve": "Approuver le plan qu’il vous montre",
+        "copy": "Copier le prompt",
+        "paste": "Le coller dans une nouvelle conversation {agent}",
+        "pasteGeneric": "Le coller dans une nouvelle conversation avec votre agent"
+      },
+      "stepsLabel": "Étapes suivantes",
+      "watching": "Nous surveillons la première modification de votre agent. Vous le voyez ici dès qu’il commence à construire."
+    },
+    "source": {
+      "choices": {
+        "advertisement": "Une publicité",
+        "aiAssistant": "Un assistant IA (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Un article ou une vidéo",
+        "directory": "Un annuaire ou un référencement",
+        "other": "Autre",
+        "recommendation": "Une recommandation",
+        "searchEngine": "Un moteur de recherche",
+        "socialMedia": "Les réseaux sociaux"
+      },
+      "detailLabel": "Où nous avez-vous trouvés ?",
+      "detailPlaceholder": "Où était-ce ? (facultatif)",
+      "optionsLabel": "Comment vous avez découvert Customermates",
+      "skip": "Passer"
+    },
     "steps": {
       "ai": {
         "subtitle": "Choisissez un outil d’IA à connecter à votre espace de travail et à ses connaissances. Connectez-en un maintenant, ajoutez-en d’autres plus tard ou passez cette étape.",
         "title": "Connectez l’IA que vous utilisez déjà"
       },
+      "channel": {
+        "subtitle": "Vos conversations s’affichent alors auprès de chaque client, prêtes pour les brouillons et les relances. Rien n’est envoyé sans vous, et vous pouvez passer cette étape.",
+        "title": "Connectez le canal où vos clients vous écrivent"
+      },
+      "connect": {
+        "subtitle": "Quel agent utilisez-vous ? Nous vous montrons les étapes exactes pour lui.",
+        "title": "Connecter votre agent"
+      },
       "goal": {
-        "subtitle": "Choisissez un point de départ. Le reste peut attendre.",
-        "title": "Par quoi voulez-vous commencer ?"
+        "subtitle": "Choisissez qui le met en place. Vous vérifiez chaque modification avant qu’elle soit appliquée.",
+        "subtitleSelfHosted": "Vos données restent sur votre serveur. Votre propre agent se connecte via MCP et construit l’espace de travail à partir d’un modèle.",
+        "title": "Comment configurer votre espace de travail ?",
+        "titleSelfHosted": "Comment configurer cette instance ?"
       },
       "invite": {
         "subtitle": "Invitez vos collègues avec un lien partagé ou des invitations individuelles par e-mail. Vous pouvez aussi continuer seul et les inviter plus tard.",
@@ -3498,6 +4484,11 @@
         "subtitle": "Ajoutez votre nom pour que votre équipe vous reconnaisse et choisissez la langue que vous souhaitez utiliser. Vous pourrez modifier les deux plus tard dans votre profil.",
         "title": "Personnalisez votre espace de travail"
       },
+      "prompt": {
+        "subtitle": "{template} : votre agent pose quelques questions, puis vous montre le plan à approuver.",
+        "title": "Collez ceci dans {agent}",
+        "titleGeneric": "Collez ceci dans votre agent"
+      },
       "setup": {
         "planningSubtitle": "Vos réponses sont enregistrées. Mate en fait un plan pour votre espace de travail, que vous vérifiez avant que quoi que ce soit ne soit créé.",
         "startSubtitle": "Nous créons vos listes, vos étapes, votre tableau de bord et quelques pages de base de connaissances. Vous pourrez tout modifier plus tard.",
@@ -3505,7 +4496,48 @@
         "subtitle": "Ce que nous avons lu sur votre site est déjà rempli. Vérifiez-le et corrigez ce qui ne convient pas.",
         "title": "Configurez votre espace de travail",
         "withoutWebsiteSubtitle": "Quelques questions rapides sur ce que vous voulez suivre. La plupart se règlent en un clic."
+      },
+      "source": {
+        "subtitle": "Une question facultative. Elle nous aide seulement à voir quels canaux fonctionnent, et vous pouvez la passer.",
+        "title": "Comment nous avez-vous trouvés ?"
+      },
+      "template": {
+        "subtitle": "Votre agent l’adapte à vous et montre le plan avant de modifier quoi que ce soit.",
+        "subtitleMate": "Mate l’adapte à vous et montre le plan avant de construire quoi que ce soit.",
+        "title": "Choisir un modèle"
       }
+    },
+    "template": {
+      "browseAll": "Voir les {count} modèles",
+      "connected": "{agent} connecté",
+      "connectedGeneric": "Agent connecté",
+      "counts": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}} · {rules, plural, one {# règle de relance} other {# règles de relance}}",
+      "countsNoRules": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}}",
+      "empty": "Aucun modèle ne correspond à votre recherche.",
+      "families": {
+        "clients": "Clients",
+        "community": "Communauté",
+        "content": "Contenu",
+        "custom": "Sur mesure",
+        "intake": "Demandes",
+        "investing": "Investissement",
+        "operations": "Opérations",
+        "professional-services": "Services professionnels",
+        "property": "Immobilier",
+        "recruiting": "Recrutement",
+        "sales": "Ventes",
+        "trades": "Artisanat"
+      },
+      "filterAll": "Tous",
+      "filtersLabel": "Types de modèles",
+      "none": "Aucun modèle",
+      "optionsLabel": "Modèles",
+      "recommended": "Recommandé",
+      "searchLabel": "Rechercher un modèle",
+      "searchPlaceholder": "Rechercher un modèle",
+      "showFewer": "Afficher moins",
+      "suggested": "Suggéré pour vous",
+      "use": "Utiliser {name}"
     }
   },
   "OperatorAudit": {
@@ -3740,7 +4772,11 @@
       "events": {
         "agentConnected": "Agent connecté",
         "channelConnected": "Canal connecté",
+        "channelSkipped": "Canal ignoré",
+        "inviteAccepted": "Membre arrivé",
+        "inviteSent": "Invitation envoyée",
         "jobSelected": "Objectif choisi",
+        "paid": "Payé",
         "setupCompleted": "Configuration terminée"
       },
       "jobs": {
@@ -3896,6 +4932,151 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
+  },
+  "PublicBooking": {
+    "bookAgain": "Réserver un autre créneau",
+    "cancel": "Annuler la réservation",
+    "cancelledText": "La réservation est annulée et l’invitation de calendrier est retirée.",
+    "cancelReason": "Motif (facultatif)",
+    "changesOff": "Pour modifier cette réservation, contactez {host}.",
+    "confirm": "Confirmer la réservation",
+    "confirmedText": "Vous recevrez une invitation de calendrier par e-mail.",
+    "confirmedTitle": "Votre réservation est confirmée",
+    "email": "E-mail",
+    "honeypot": "Laissez ce champ vide",
+    "joinLink": "Rejoindre la visioconférence",
+    "keep": "Conserver la réservation",
+    "loadFailed": "Les créneaux disponibles n’ont pas pu être chargés. Rechargez la page pour réessayer.",
+    "loadingMore": "Chargement d’autres créneaux",
+    "manage": "Annuler ou reprogrammer",
+    "manageFailed": "La modification n’a pas pu être effectuée. Réessayez dans un instant.",
+    "manageLine": "Annuler ou reprogrammer :",
+    "manageNotAllowed": "Cette réservation ne peut plus être modifiée ici.",
+    "manageTitle": "Votre réservation",
+    "minutes": "{minutes} min",
+    "name": "Votre nom",
+    "noOtherSlots": "Aucun autre créneau libre dans les prochaines semaines.",
+    "noSlots": "Aucun créneau libre dans les prochaines semaines.",
+    "pageTitle": "Prendre rendez-vous",
+    "problem": {
+      "rateLimited": "Trop de tentatives. Réessayez plus tard.",
+      "slotTaken": "Ce créneau vient d’être pris. Choisissez-en un autre.",
+      "unavailable": "La réservation n’a pas pu aboutir. Réessayez ou choisissez un autre créneau."
+    },
+    "rateLimited": "Trop de requêtes. Réessayez dans quelques minutes.",
+    "reschedule": "Reprogrammer",
+    "rescheduleConfirm": "Déplacer vers ce créneau",
+    "rescheduledText": "La réservation est déplacée. Vous recevrez une invitation de calendrier mise à jour.",
+    "rescheduleTitle": "Choisissez un nouveau créneau",
+    "stateCancelled": "Cette réservation a été annulée.",
+    "stateCancelledByHost": "{host} a annulé cette réservation.",
+    "stateCancelledByHostReason": "{host} a annulé cette réservation. Motif : {reason}",
+    "statePast": "Cette réunion a déjà eu lieu.",
+    "timeZone": "Horaires affichés dans le fuseau {timeZone}",
+    "unavailable": "Cette page de réservation n’est pas disponible.",
+    "video": "Visioconférence",
+    "with": "Avec {host}"
+  },
+  "PublicForm": {
+    "afterSubmit": {
+      "add": "Ajouter une automatisation",
+      "createRecord": "Créer une fiche dans {list}",
+      "noRules": "Aucune automatisation ne réagit encore à ce formulaire.",
+      "notify": "Notifier {who}",
+      "paused": "En pause",
+      "person": "Trouver ou créer la personne dans {list}",
+      "recipientAssignees": "les personnes assignées",
+      "recipientMembers": "{count, plural, one {# membre} other {# membres}}",
+      "rules": "{count, plural, one {# automatisation réagit à ce formulaire :} other {# automatisations réagissent à ce formulaire :}}",
+      "title": "Une fois le formulaire soumis"
+    },
+    "badge": "Créé avec Customermates",
+    "blockedBody": "Votre message n'a pas pu être envoyé. Réessayez plus tard.",
+    "builder": {
+      "badgeNote": "Les formulaires de l'offre Free affichent « Créé avec Customermates ».",
+      "blockingFields": "La liste exige {fields}, qu'un formulaire ne peut pas demander. Donnez-lui une valeur par défaut ou rendez-le facultatif. D'ici là, les visiteurs voient le formulaire comme indisponible et il ne peut pas être enregistré.",
+      "consentAdd": "Ajouter une ligne de consentement",
+      "consentClear": "Retirer la ligne de consentement",
+      "consentDefault": "J'accepte que mes données soient enregistrées pour répondre à ma demande.",
+      "consentEvidence": "Chaque envoi enregistre comme preuve le texte du consentement, sa version, l'heure et une adresse IP hachée.",
+      "consentText": "Texte du consentement",
+      "defaultEmailLabel": "E-mail",
+      "defaultNameLabel": "Nom",
+      "defaultSubmit": "Envoyer",
+      "defaultSuccess": "Merci. Nous avons bien reçu votre message.",
+      "duplicateOpenRecord": "Ouvrir la fiche existante",
+      "duplicatesIntro": "Au cours des 30 derniers jours, {count, plural, one {# envoi est venu} other {# envois sont venus}} d'une adresse e-mail qui a déjà une fiche dans cette liste. Aucune deuxième fiche n'a été créée. Les réponses les plus récentes sont affichées ici.",
+      "duplicatesTitle": "Envois de personnes déjà présentes dans la liste",
+      "emailLabel": "Libellé de l'e-mail",
+      "embed": "Intégrer sur votre site",
+      "enabled": "Accepter les envois",
+      "failedSubmissions": "Au cours des 30 derniers jours, {count, plural, one {# envoi n'a pas pu être enregistré comme fiche, le {date}} other {# envois n'ont pas pu être enregistrés comme fiches, le dernier le {date}}}.",
+      "helpText": "Texte d'aide",
+      "include": "Inclure {field}",
+      "incomplete": "Pour enregistrer, ajoutez un titre, un libellé de bouton, un libellé pour chaque question et un message de confirmation. Avec le consentement, ajoutez aussi le texte du consentement et un lien vers votre politique de confidentialité.",
+      "intro": "Permettez à n'importe qui d'ajouter une fiche à {list} depuis une page web, sans se connecter. Chaque envoi crée une fiche qui indique le formulaire comme source.",
+      "language": "Langue",
+      "languageAuto": "Le navigateur du visiteur",
+      "link": "Lien public",
+      "loading": "Chargement du formulaire",
+      "moveDown": "Descendre",
+      "moveUp": "Monter",
+      "nameLabel": "Libellé du nom",
+      "noFields": "Cette liste n'a aucun champ qu'un formulaire puisse utiliser.",
+      "pageDescription": "Description",
+      "pageTitle": "Titre",
+      "permissionDenied": "Votre rôle ne permet pas de publier des formulaires pour cette liste.",
+      "personEnabled": "Trouver ou créer une personne par e-mail",
+      "personList": "Liste de personnes",
+      "personNameField": "Champ pour le nom",
+      "personRelationship": "Relation",
+      "personUnavailable": "Pour lier les envois à une personne, ajoutez une liste avec des coordonnées et une relation avec cette liste.",
+      "privacyUrl": "Lien vers votre politique de confidentialité",
+      "questionLabel": "Question",
+      "redirectUrl": "Rediriger plutôt vers cette adresse (facultatif)",
+      "repairsAdded": "La liste exige désormais {fields} ; le formulaire le demande donc.",
+      "repairsDropped": "N'existe plus dans la liste et a été retiré du formulaire : {fields}.",
+      "repairsPersonAdjusted": "Le lien vers la liste de personnes a changé. Vérifiez la section Personne.",
+      "repairsPersonDropped": "La liste de personnes de ce formulaire ne convient plus ; la recherche ou la création d'une personne est donc désactivée.",
+      "repairsSave": "Enregistrez pour appliquer ce changement. D'ici là, les visiteurs voient le formulaire comme indisponible.",
+      "required": "Obligatoire",
+      "requiredByList": "Exigé par la liste",
+      "saved": "Formulaire enregistré",
+      "sectionConsent": "Consentement",
+      "sectionFields": "Questions",
+      "sectionPage": "Page",
+      "sectionPerson": "Personne",
+      "sectionPreview": "Aperçu",
+      "sectionPreviewDone": "Message de fin",
+      "sectionPreviewForm": "Formulaire",
+      "sectionPreviewMode": "Aperçu de",
+      "sectionSuccess": "Après l'envoi",
+      "submitLabel": "Libellé du bouton",
+      "successMessage": "Message de confirmation",
+      "usageLimited": "Envois ce mois-ci : {count} sur {limit}.",
+      "usageUnlimited": "Envois ce mois-ci : {count}.",
+      "workspaceDisabled": "Les liens publics et les formulaires sont désactivés dans les paramètres de cet espace de travail."
+    },
+    "byline": "Envoyé à {workspace}",
+    "errors": {
+      "consent": "Acceptez pour continuer.",
+      "email": "Saisissez une adresse e-mail valide.",
+      "invalid": "Vérifiez cette réponse.",
+      "required": "Ce champ est obligatoire.",
+      "summary": "Certaines réponses demandent votre attention."
+    },
+    "honeypot": "Laisser ce champ vide",
+    "pageTitle": "Formulaire",
+    "privacyNotice": "Politique de confidentialité",
+    "rateLimitedBody": "Trop de requêtes sont venues de cette connexion. Patientez un instant et réessayez.",
+    "rateLimitedSubtitle": "Veuillez patienter un instant",
+    "rateLimitedTitle": "Trop de requêtes",
+    "sending": "Envoi…",
+    "sentTitle": "Merci",
+    "toHome": "Aller sur customermates.com",
+    "unavailableBody": "Le formulaire a peut-être été désactivé ou le lien mal saisi. Demandez-en un nouveau à la personne qui l'a partagé.",
+    "unavailableSubtitle": "Cette page ne peut pas être ouverte",
+    "unavailableTitle": "Formulaire indisponible"
   },
   "PublicLink": {
     "byline": "Partagé par {workspace}",
@@ -4256,6 +5437,7 @@
         "parentAccess": "{source} obtient son accès via {target}.",
         "requiresRestore": "Restaurez d’abord {target}, {source} en fait partie.",
         "routine": "La routine {source} réagit à {target}.",
+        "rule": "La règle d’automatisation {source} réagit à {target}.",
         "snapshotTrigger": "{source} enregistre sa valeur quand {target} change.",
         "webhook": "Le webhook {source} envoie les changements de {target}.",
         "widget": "Le widget {source} mesure {target}."
@@ -4536,6 +5718,7 @@
     "linkedType": "Lier à",
     "linkRecord": "Lier un enregistrement",
     "listActions": "Actions de la liste",
+    "listCount": "{count} {label}",
     "listCounts": "{fields, plural, one {# champ} other {# champs}} · {relationships, plural, one {# relation} other {# relations}}",
     "listUnavailable": "Cette liste n’est pas disponible. Choisissez une autre liste.",
     "member": "Membre",
@@ -4786,6 +5969,7 @@
     "noRecordsInPeriod": "Aucun enregistrement",
     "notes": "À propos de ces chiffres",
     "numberContextAverage": "{count, number} {label} · moy. {average}",
+    "numberContextAverageList": "{count, number} {label} · moy. {average}",
     "numberRecords": "{count, plural, one {enregistrement} other {enregistrements}}",
     "overall": "Total : {value}",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
@@ -4827,6 +6011,7 @@
     "resize": "Redimensionner {before} et {after}. Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser."
   },
   "RoleModal": {
+    "automationsResource": "Automatisations",
     "create": "Créer",
     "dataModelNote": "Créer et modifier des listes, des champs et des relations dans Modèle de données.",
     "edit": "Modifier",
@@ -4846,7 +6031,7 @@
       "dataModel": "Modèle de données",
       "inboxMessages": "Messages de la boîte de réception",
       "publicLinks": "Liens publics",
-      "routines": "Routines",
+      "routines": "Routines et automatisations",
       "users": "Utilisateurs et rôles",
       "wiki": "Base de connaissances de l’espace de travail"
     },
@@ -5031,14 +6216,96 @@
     "tuesday": "Mardi",
     "wednesday": "Mercredi"
   },
+  "Runners": {
+    "add": "Ajouter un runner",
+    "addDescription": "Indiquez la machine sur laquelle le runner tournera. Vous recevez un jeton une seule fois ; le runner l’utilise pour récupérer vos tâches d’agent dans cet espace de travail.",
+    "addTitle": "Ajouter un runner",
+    "clientNames": {
+      "claude": "Claude Code",
+      "codex": "Codex",
+      "gemini": "Gemini CLI"
+    },
+    "clients": "CLI détectées",
+    "description": "Un runner exécute vos étapes d’agent avec votre propre Claude Code, Codex ou Gemini CLI sur votre machine. Il récupère les tâches des automatisations dont vous êtes propriétaire, lance la CLI dont vous avez ouvert la session et renvoie le résultat. Customermates ne reçoit jamais votre connexion à la CLI.",
+    "dockerDescription": "Lance le même runner dans un conteneur. Montez le dossier de connexion de votre CLI pour qu’elle reste connectée. Sous macOS, Claude Code garde sa connexion dans le Trousseau : passez-y sa clé d’API ou son jeton dans une variable.",
+    "dockerTitle": "Lancer avec Docker",
+    "empty": "Vous n’avez pas encore de runner. Ajoutez-en un pour exécuter les étapes d’agent avec votre propre CLI.",
+    "installDescription": "Nécessite Node 24 et Claude Code, Codex ou Gemini CLI, connecté sur cette machine.",
+    "installTitle": "Lancer avec Node",
+    "lastSeen": "Dernière activité",
+    "machine": "Machine",
+    "noClients": "Aucune CLI détectée",
+    "offline": {
+      "body": "Vos tâches d’agent attendent, et aucun de vos runners capables de les prendre ne s’est connecté depuis 10 minutes. Démarrez votre runner ou vérifiez la machine sur laquelle il tourne. Une tâche qui attend plus de 15 minutes se termine en délai dépassé.",
+      "title": "Votre runner est hors ligne"
+    },
+    "owner": "Ajouté par",
+    "revoke": "Révoquer",
+    "revokeDescription": "{name} ne peut plus récupérer de tâches, et les tâches qu’il exécute ou qui l’attendent se terminent comme annulées. Cette action est irréversible. Ajoutez un nouveau runner pour reconnecter la machine.",
+    "revokeTitle": "Révoquer ce runner ?",
+    "status": {
+      "neverSeen": "Jamais connecté",
+      "offline": "Hors ligne",
+      "online": "En ligne",
+      "revoked": "Révoqué"
+    },
+    "title": "Runners",
+    "toastRevoked": "Runner révoqué",
+    "tokenCreated": "Runner ajouté. Copiez le jeton maintenant, il n’est affiché qu’une seule fois.",
+    "tokenLabel": "Jeton du runner",
+    "tokenWarning": "Toute personne disposant de ce jeton peut récupérer vos tâches de runner dans cet espace de travail. Révoquez le runner si le jeton fuite.",
+    "withheld": "Votre rôle ne permet pas de voir les runners, aucun n’est donc affiché ici."
+  },
+  "ScheduleMeeting": {
+    "action": "Planifier une réunion",
+    "attendeesPlaceholder": "Ajoutez une adresse e-mail et appuyez sur Enter",
+    "blocked": {
+      "needsReconnect": "Votre compte Google ou Microsoft doit être reconnecté sous Canaux et agendas avant de pouvoir créer des réunions.",
+      "noCalendar": "Connectez un agenda Google ou Microsoft sous Canaux et agendas pour planifier des réunions."
+    },
+    "created": "Réunion planifiée",
+    "defaultTitle": "Réunion avec {name}",
+    "duration": "{minutes} min",
+    "fields": {
+      "attendees": "Participants",
+      "calendar": "Agenda",
+      "date": "Date",
+      "description": "Description",
+      "duration": "Durée",
+      "followUp": "Créer une tâche de suivi dans",
+      "followUpDate": "Enregistrer le début de la réunion dans",
+      "location": "Lieu",
+      "sendInvites": "Envoyer des invitations aux participants",
+      "time": "Début",
+      "title": "Titre",
+      "videoLink": "Ajouter un lien de visioconférence"
+    },
+    "followUpNone": "Aucun suivi",
+    "freeSlots": "Créneaux libres ({timeZone})",
+    "loadFailed": "Les options d’agenda n’ont pas pu être chargées. Fermez cette fenêtre et réessayez.",
+    "newMeeting": "Nouvelle réunion",
+    "noFreeSlots": "Aucun créneau libre ce jour-là. Vous pouvez tout de même saisir une heure de début.",
+    "partial": "La réunion a été créée, mais son rattachement ou la création de la tâche de suivi n’a pas abouti.",
+    "title": "Planifier une réunion",
+    "unavailable": {
+      "demo": "La planification de réunions nécessite un agenda connecté et n’est pas disponible dans l’espace de travail de démo.",
+      "selfHosted": "La planification de réunions nécessite la connexion d’agenda hébergée et n’est pas disponible en auto-hébergement."
+    },
+    "upsell": {
+      "detail": "Créez des évènements dans votre agenda Google ou Microsoft depuis n’importe quel enregistrement.",
+      "title": "Planifier des réunions à partir de {plan}"
+    }
+  },
   "SettingsNav": {
     "account": "Compte",
     "activity": "Journal d’audit",
+    "agents": "Agents",
     "apiKeys": "Clés API et connecteurs",
     "billing": "Facturation",
     "channels": "Canaux et agendas",
     "deliveries": "Journal des webhooks",
     "general": "Général",
+    "incomingWebhooks": "Webhooks entrants",
     "members": "Membres",
     "profile": "Profil et préférences",
     "roles": "Rôles",
@@ -5124,6 +6391,9 @@
       "pitchBoard": "Pitchs"
     }
   },
+  "SourceBadge": {
+    "label": "Source-available"
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Toutes les fonctionnalités",
@@ -5180,6 +6450,7 @@
       "freeCurrent": "Free · formule actuelle",
       "freeSummary": "{members, plural, one {Une personne} other {# personnes}} et jusqu’à {records} enregistrements. API et MCP avec une limite de requêtes.",
       "hostedAiUsage": "Usage Mate {multiplier}x par utilisateur actif / mois",
+      "keepsAccounts": "Vous avez jusqu’à {connected} comptes connectés par utilisateur. Cette offre en conserve {kept} ; les plus récents sont déconnectés au paiement.",
       "perUserMonth": "par utilisateur / mois",
       "recommendedForYou": "Recommandé pour vous",
       "routinesPerUser": "{routines, plural, one {# routine par utilisateur} other {# routines par utilisateur}}",
@@ -5238,6 +6509,155 @@
     "subject": "Votre compte est inactif : nous pouvons vous aider à rétablir l’accès",
     "subjectNamed": "Votre accès à « {workspace} » est inactif : nous pouvons vous aider à le rétablir",
     "title": "Abonnement désactivé"
+  },
+  "TemplatePages": {
+    "breadcrumbHome": "Accueil",
+    "breadcrumbTemplates": "Modèles",
+    "copied": "Copié. Collez-le dans votre agent.",
+    "copy": "Copier le prompt",
+    "copyFailed": "La copie a échoué. Sélectionnez le texte et copiez-le à la main.",
+    "copyPrompt": "Copier le prompt",
+    "countFields": "{count, plural, one {# champ} other {# champs}}",
+    "countLists": "{count, plural, one {# liste} other {# listes}}",
+    "countRules": "{count, plural, one {# règle de relance} other {# règles de relance}}",
+    "countViews": "{count, plural, one {# vue} other {# vues}}",
+    "countWidgets": "{count, plural, one {# widget de tableau de bord} other {# widgets de tableau de bord}}",
+    "createsLead": "Listes, champs, étapes, vues et widgets de tableau de bord, sous la forme du plan que votre agent propose. Vous pouvez renommer ou retirer chaque élément.",
+    "createsTitle": "Ce que l’agent crée",
+    "ctaAction": "Lancez votre {name} dès aujourd’hui",
+    "ctaDescription": "Démarrez un essai gratuit, collez le prompt et validez le plan.",
+    "ctaPricing": "Voir les tarifs",
+    "demoLink": "Ouvrir la démo en direct",
+    "families": {
+      "clients": "Clients",
+      "community": "Associations et clubs",
+      "content": "Contenu",
+      "custom": "Votre propre CRM",
+      "intake": "Accueil des clients",
+      "investing": "Investissement",
+      "operations": "Opérations",
+      "professional-services": "Services professionnels",
+      "property": "Immobilier",
+      "recruiting": "Recrutement",
+      "sales": "Ventes et CRM",
+      "trades": "Artisanat et bâtiment"
+    },
+    "faqTitle": "Questions fréquentes",
+    "filterAll": "Tous",
+    "filterLabel": "Filtrer par domaine",
+    "hubCtaAction": "Vous ne savez pas quel modèle choisir ?",
+    "hubCtaDescription": "Démarrez un essai gratuit, connectez votre agent et décrivez votre activité. Il propose une configuration, et vous la validez avant que quoi que ce soit soit écrit.",
+    "hubEyebrow": "Modèles CRM gratuits pour agents IA",
+    "hubLede": "Des configurations prêtes à l’emploi pour votre métier. Copiez-en une dans Claude, ChatGPT ou Codex : il construit vos listes, étapes et relances pour que vous les validiez.",
+    "hubMetaDescription": "Modèles CRM prêts à l’emploi : fichier client, pipeline commercial et plus. Copiez-en un dans Claude, ChatGPT ou Codex, il construit listes et relances.",
+    "hubMetaTitle": "Modèles CRM gratuits pour agents IA",
+    "hubSteps": {
+      "approve": "Validez le plan",
+      "paste": "Collez-le dans votre agent",
+      "pick": "Choisissez un modèle"
+    },
+    "hubTitle": "Collez un modèle. Votre agent IA construit le CRM.",
+    "knowledgeLead": "Des plans pour votre propre base de connaissances, remplis avec vos informations. Ce sont des points de départ, pas des politiques définitives.",
+    "knowledgeTitle": "Pages de connaissances créées",
+    "limitsLead": "Connaissez les limites avant de commencer.",
+    "limitsTitle": "Ce que le modèle ne fait pas",
+    "moreFields": "+{count} autres",
+    "noResults": "Aucun modèle ne correspond. Effacez la recherche ou choisissez un autre domaine.",
+    "pairedBody": "Ce modèle accompagne notre page {name}.",
+    "pairedLink": "En savoir plus : {name}",
+    "pairedTitle": "Un élément d’une solution plus large",
+    "promptCloud": "Cloud",
+    "promptLead": "Un prompt autonome. Choisissez où tourne votre espace de travail, puis copiez-le.",
+    "promptSelfHosted": "Auto-hébergé",
+    "promptSwitch": "Où tourne votre espace de travail",
+    "promptTitle": "Le prompt",
+    "proofLead": "Copiez cette configuration dans votre agent IA : il la construit dans votre CRM pour que vous la validiez.",
+    "proofOpen": "Ouvrir le modèle",
+    "proofSetsUp": "Met en place",
+    "proofTitle": "Partir d’un modèle prêt à l’emploi",
+    "relatedTitle": "D’autres modèles dans ce domaine",
+    "routineLead": "Le modèle reprend la routine que ce travail suit déjà, pour qu’elle continue après la mise en place.",
+    "ruleAgent": "S’exécute via votre agent",
+    "ruleDueAfter": "{days, plural, one {Échéance après # jour} other {Échéance après # jours}}",
+    "ruleDueSame": "Échéance le jour même",
+    "ruleEngine": "Règle d’automatisation",
+    "rulesTitle": "Règles de relance",
+    "searchLabel": "Rechercher un modèle",
+    "searchPlaceholder": "Rechercher par métier ou profession",
+    "sourceChecked": "Vérifié le {date}",
+    "sourcesLead": "La pratique derrière ce modèle vient de ces pages.",
+    "sourcesTitle": "Sources",
+    "stagesTitle": "Étapes",
+    "startFree": "Essai gratuit",
+    "step1Body": "Créez un espace de travail Customermates gratuit avec ce modèle présélectionné, ou utilisez votre propre instance auto-hébergée.",
+    "step1Link": "Essai gratuit",
+    "step1Title": "Obtenez un espace de travail",
+    "step2Body": "Copiez le prompt ci-dessous dans Claude, ChatGPT ou Codex, connecté à votre espace de travail. L’agent lit d’abord votre espace et propose la configuration en termes simples.",
+    "step2Title": "Collez le prompt dans votre agent IA",
+    "step3Body": "Rien n’est écrit tant que vous n’avez pas dit oui. L’agent ne crée aucun enregistrement d’exemple, n’envoie rien et vous dit à la fin ce qui existe.",
+    "step3Title": "Validez le plan",
+    "stepsTitle": "Comment ça marche",
+    "switchKit": {
+      "checked": "Étapes d’export vérifiées le {date}.",
+      "cta": "Essai gratuit",
+      "exportLabel": "Comment exporter",
+      "movesLabel": "Ce qui est repris",
+      "note": "Votre agent ne modifie jamais l’outil que vous quittez. Il lit votre export, montre la correspondance des colonnes, attend votre confirmation et importe une liste à la fois. L’import lit les fichiers .xlsx et CSV jusqu’à 10 Mo et cinq mille lignes par feuille, et le plan Free contient [[commercial.limit.free.maxRecords]] enregistrements.",
+      "replacesLabel": "Remplace",
+      "sectionLead": "Votre agent lit un export de l’outil que vous utilisez aujourd’hui et reconstruit les mêmes données dans votre espace de travail. Chaque kit indique ce qui est repris, comment exporter et ce qui reste de côté.",
+      "sectionTitle": "Apportez vos données : kits de migration",
+      "staysLabel": "Ce qui n’est pas repris",
+      "templateLabel": "Modèle",
+      "title": "Kit de migration : {tool}",
+      "tools": {
+        "airtable": {
+          "export": "Ouvrez le menu de la vue et choisissez Download CSV. Chaque table est téléchargée séparément, et les filtres de la vue limitent les lignes. Les champs de pièces jointes sont exportés sous forme de liens qui expirent après environ deux heures : téléchargez donc les fichiers rapidement.",
+          "moves": "Un CSV par table devient une liste. La sélection unique devient un champ à choix, les collaborateurs deviennent des membres de l’équipe, et les colonnes d’enregistrements liés deviennent des relations que l’agent crée après l’import. Les colonnes de formule et de cumul arrivent sous forme de valeurs.",
+          "name": "Airtable",
+          "replaces": "Une base de type CRM commercial avec comptes, contacts, interactions et opportunités.",
+          "stays": "Les vues, interfaces, automatisations, formulaires, formules en tant que logique et les fichiers joints eux-mêmes ne sont pas repris."
+        },
+        "clickup": {
+          "export": "Utilisez Export Items dans les paramètres de l’espace de travail pour un CSV de toutes les tâches, ou exportez une vue liste ou tableau en CSV ou Excel. Les noms de menu changent : vérifiez-les dans l’application actuelle.",
+          "moves": "Les noms de tâches deviennent des noms d’affaires ou d’entreprises, selon le type d’élément CRM, que l’agent utilise pour répartir un export en plusieurs listes. Les nombreux statuts sont regroupés en quatre à six étapes issues de votre entretien.",
+          "name": "ClickUp",
+          "replaces": "Une liste CRM avec de nombreux statuts et des champs personnalisés pour le nom du contact, l’e-mail, l’étape de vente et la prestation.",
+          "stays": "Les vues, tableaux de bord, automatisations, documents, suivi du temps, dépendances et diagrammes de Gantt ne sont pas repris."
+        },
+        "notion": {
+          "export": "Ouvrez la base de données, choisissez le menu à trois points, puis Exporter, puis Markdown et CSV. Vous obtenez un ZIP avec le CSV et un fichier Markdown par page. Les relations sont exportées en texte brut : l’agent reconstruit donc les liens à partir des titres et signale ce qu’il n’a pas pu associer.",
+          "moves": "Les titres deviennent des noms, le statut devient des options d’étape, la sélection et la sélection multiple deviennent des champs à choix, les personnes deviennent des membres de l’équipe, les nombres et les dates deviennent des champs. Le contenu des pages n’est repris que si vous le demandez.",
+          "name": "Notion",
+          "replaces": "Un CRM dans une ou plusieurs bases de données, avec des propriétés de statut, sélection, personne, nombre et relation.",
+          "stays": "Les vues, les relations en tant que liens, les rollups et formules en tant que logique, les modèles et les automatisations ne sont pas repris. Notion n’indique pas si les fichiers importés figurent dans l’export."
+        },
+        "sheets": {
+          "export": "Dans Google Sheets, ouvrez le menu Fichier et enregistrez le classeur au format Microsoft Excel (.xlsx). Dans Excel, gardez le .xlsx ou enregistrez en CSV UTF-8. Customermates lit directement le .xlsx : un classeur avec une feuille par liste est donc la meilleure source.",
+          "moves": "Une feuille par liste : organisations, contacts et affaires deviennent des listes, le texte d’étape devient des options d’étape, les montants et les dates deviennent des champs. Les lignes d’interactions deviennent des actions datées ou des notes, selon votre choix.",
+          "name": "Google Sheets et Excel",
+          "replaces": "Un CRM tenu dans un classeur, avec des feuilles pour les organisations, contacts, affaires et interactions, ou une seule liste à plat.",
+          "stays": "Les formules arrivent uniquement sous forme de valeurs. La mise en forme conditionnelle, les graphiques, les tableaux de bord, les listes de validation et les macros ne sont pas repris."
+        },
+        "smartsheet": {
+          "export": "Enregistrez la feuille comme classeur Excel depuis le menu Fichier. Les propriétaires, administrateurs et éditeurs peuvent le faire avec les offres payantes. Les commentaires et le résumé de la feuille arrivent dans des onglets séparés.",
+          "moves": "La feuille exportée devient une liste, le texte des listes déroulantes devient des options à choix, et les colonnes de contacts deviennent des membres de l’équipe ou des noms de contacts. Les lignes parents et enfants regroupées sont mises à plat, et l’agent vous interroge à ce sujet.",
+          "name": "Smartsheet",
+          "replaces": "Un suivi client ou une feuille CRM avec une liste déroulante pour l’étape de vente.",
+          "stays": "Les formules, regroupements, lignes de synthèse, pièces jointes, tableaux de bord et workflows ne sont pas repris."
+        },
+        "trello": {
+          "export": "Chaque membre d’un tableau peut l’exporter en JSON, qui contient aussi les commentaires les plus récents. Le CSV exige un espace de travail Premium et omet les commentaires. Aucun des deux formats ne peut être réimporté dans Trello.",
+          "moves": "Les noms de listes deviennent des options d’étape, les noms de cartes des noms d’affaires, les étiquettes des choix, les échéances des dates de prochaine étape, les descriptions des notes et les membres des membres de l’équipe. Votre agent demande d’abord ce qu’est une carte : une personne, une entreprise ou une affaire.",
+          "name": "Trello",
+          "replaces": "Un tableau où les listes sont des étapes et les cartes des prospects ou des affaires.",
+          "stays": "Les automatisations Butler, les power-ups, les images de couverture et les cartes modèles ne sont pas repris."
+        }
+      }
+    },
+    "trialHint": "Aucune carte bancaire requise. Les [[commercial.trial.days]] premiers jours sont gratuits.",
+    "viewsTitle": "Vues",
+    "widgetsTitle": "Tableau de bord",
+    "worksWith": "Compatible avec Claude, ChatGPT, Codex"
   },
   "Trash": {
     "bannerDeleted": "Supprimé le {date}. {count, plural, =0 {Supprimé définitivement aujourd’hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}.",
@@ -5400,9 +6820,11 @@
       "items": {
         "accounts": "{count, plural, one {# compte connecté} other {# comptes connectés}}",
         "drafts": "{count, plural, one {# brouillon ouvert} other {# brouillons ouverts}}",
+        "forms": "{count, plural, one {# envoi de formulaire au-delà de la limite mensuelle} other {# envois de formulaire au-delà de la limite mensuelle}}",
         "mate": "Mate ({count, plural, one {# demande} other {# demandes}})",
         "members": "{count, plural, one {# personne de plus} other {# personnes de plus}}",
         "routines": "{count, plural, one {# routine active} other {# routines actives}}",
+        "rules": "{count, plural, one {# automatisation au-delà de la limite} other {# automatisations au-delà de la limite}}",
         "webhooks": "{count, plural, one {# webhook actif} other {# webhooks actifs}}"
       },
       "lead": "Ceci s’arrête en Free :"
@@ -5741,6 +7163,19 @@
     "apiKeysScope": "Ces clés n’accèdent qu’à cet espace de travail.",
     "apiKeysScopeNamed": "Ces clés n’accèdent qu’à l’espace de travail {name}.",
     "billingNote": "Chaque espace de travail a sa propre offre et ses propres sièges. Le premier espace de travail que vous créez inclut l’essai gratuit puis passe à la formule Free ; les suivants commencent par le choix d’une offre.",
+    "branding": {
+      "accentLabel": "Couleur d’accent",
+      "accentPicker": "Choisir la couleur d’accent",
+      "description": "Votre logo et votre couleur d’accent apparaissent sur vos pages de réservation et vos formulaires publics. Le logo remplace aussi les initiales de l’espace de travail dans l’application.",
+      "logoEmpty": "Aucun logo",
+      "logoHint": "PNG, JPEG ou WebP, 512 Ko maximum.",
+      "logoLabel": "Logo",
+      "logoTooLarge": "L’image dépasse 512 Ko.",
+      "logoUnsupported": "Choisissez une image PNG, JPEG ou WebP.",
+      "logoUpload": "Importer un logo",
+      "saved": "Image de marque enregistrée",
+      "title": "Image de marque"
+    },
     "create": "Créer un espace de travail",
     "createDescription": "Un nouvel espace de travail démarre vide, avec ses propres fiches, sa base de connaissances, ses membres et ses connexions.",
     "current": "Actuel",
@@ -5767,6 +7202,10 @@
     "leaveConfirmDescription": "Vous perdez l’accès à ses fiches, à sa base de connaissances et à ses connexions, et vos clés API et connexions MCP associées cessent de fonctionner. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
     "leaveConfirmTitle": "Quitter {name} ?",
     "leaveDescription": "Retirez-vous de cet espace de travail. Vos autres espaces de travail restent inchangés.",
+    "leaveInactiveConfirmDescription": "Votre accès à cet espace de travail est désactivé, et un administrateur de cet espace de travail peut le réactiver. Quitter est définitif : une réactivation ultérieure ne vous fera pas revenir. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
+    "leaveNamed": "Quitter {name}",
+    "leaveNoAdminConfirmDescription": "L’abonnement de cet espace de travail a pris fin et l’accès de tous les membres a été désactivé. Seule notre assistance peut le rétablir. Quitter est définitif : un accès rétabli ne vous fera pas revenir. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, il faut un lien d’invitation et un administrateur qui approuve votre demande, et cet espace de travail n’a actuellement aucun administrateur actif.",
+    "leavePausedConfirmDescription": "Votre accès est seulement en pause et revient dès que cet espace de travail choisit une formule payante. Quitter est définitif : un passage ultérieur à une formule payante ne vous fera pas revenir. Vos clés API et connexions MCP associées sont supprimées. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d’invitation, et un administrateur devra approuver votre demande.",
     "leaveShort": "Quitter",
     "listDescription": "Tous les espaces de travail dont vous êtes membre. Chacun a ses propres fiches, membres, clés API et connexions.",
     "memberCount": "{count, plural, one {# membre} other {# membres}}",

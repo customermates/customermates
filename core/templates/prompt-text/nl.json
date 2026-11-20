@@ -1,0 +1,86 @@
+{
+  "anchorFields": {
+    "channels": "Contactgegevens",
+    "price": "Prijs",
+    "value": "Waarde"
+  },
+  "availability": {
+    "routine": "een assistentroutine volgens schema",
+    "rule": "een automatiseringsregel",
+    "unavailable": "nog niet beschikbaar, niet instellen"
+  },
+  "defaultView": {
+    "marker": "standaardweergave",
+    "rule": "Een weergave die als standaard is gemarkeerd, is de ingebouwde weergave van de lijst die alle records toont: stel die daar in in plaats van een tweede weergave te maken, en selecteer hem aan het einde zodat de lijst erop opent."
+  },
+  "due": {
+    "afterDays": {
+      "one": "deadline na {days} dag",
+      "other": "deadline na {days} dagen"
+    },
+    "sameDay": "deadline dezelfde dag"
+  },
+  "fieldTypes": {
+    "address": "adres",
+    "boolean": "ja of nee",
+    "channels": "contactkanalen: e-mail, telefoon en sociale profielen",
+    "currency": "bedrag",
+    "date": "datum",
+    "dateRange": "datumbereik",
+    "dateTime": "datum en tijd",
+    "file": "bestand",
+    "member": "teamlid",
+    "number": "getal",
+    "richText": "opgemaakte tekst",
+    "select": "keuze",
+    "text": "tekst",
+    "url": "link"
+  },
+  "groupedBy": "gegroepeerd op {field}",
+  "headings": {
+    "beforeYouWrite": "Voordat je iets schrijft",
+    "dashboardWidgets": "Dashboardwidgets",
+    "followUpRoutines": "Opvolgroutines",
+    "getWorkspace": "Een werkruimte aanmaken",
+    "knowledgePages": "Kennisbankpagina’s (alleen opzetten, te vullen met mijn eigen gegevens)",
+    "listsAndFields": "Lijsten en velden",
+    "questions": "Vragen aan mij",
+    "relationships": "Relaties",
+    "rules": "Regels",
+    "thisWorkspace": "Deze werkruimte",
+    "views": "Weergaven",
+    "yourWorkspace": "Jouw werkruimte"
+  },
+  "layouts": {
+    "board": "bord",
+    "table": "tabel"
+  },
+  "nameOnly": "alleen de naam",
+  "procedure": {
+    "askQuestions": "Stel eerst de vragen aan het eind. Laat alles wat onbekend is leeg in plaats van te gokken.",
+    "describePlan": "Beschrijf het plan hieronder in gewone woorden, afgestemd op mijn antwoorden, en wacht op mijn goedkeuring voordat je iets wijzigt.",
+    "readContext": "Roep get_workspace_context aan en lees de werkhandleiding en de bestaande lijsten, velden, weergaven en kennisbankpagina’s.",
+    "reuse": "Hergebruik wat er al is. Maak nooit een tweede lijst voor iets wat de werkruimte al bijhoudt."
+  },
+  "relationship": "{source} zijn gekoppeld aan {target} (getoond als {sourceLabel} bij {source} en {targetLabel} bij {target})",
+  "roadRules": {
+    "neverInvent": "Verzin nooit prijzen, bedragen, data of namen. Laat ze leeg tot ik het je vertel.",
+    "noSamples": "Maak geen voorbeeld-, demo- of plaatsvervangende records aan.",
+    "readBack": "Lees na het bouwen het resultaat terug en vertel me wat er is en wat je hebt overgeslagen.",
+    "sendNothing": "Verstuur niets: geen e-mails, berichten, uitnodigingen of posts. Alleen concepten, en alleen als ik erom vraag.",
+    "sensitiveData": "Houd gevoelige persoonsgegevens buiten de werkruimte, tenzij ik erom vraag."
+  },
+  "routineAllowance": {
+    "limited": "De quota voor assistentroutines van je abonnement is {count} per gebruiker, meer worden geweigerd. Maak alleen de eerste {count} van de genummerde routines hieronder aan, in die volgorde, want de nuttigste staan vooraan. Noem de overige als optioneel zonder ze aan te maken, en verwijder niets om ruimte te maken.",
+    "none": "Je abonnement bevat geen assistentroutines. Maak geen van de routines hieronder aan en noem ze allemaal optioneel.",
+    "optional": "optioneel"
+  },
+  "routinesIntro": "Stel deze voor als een geheel. Stel alleen de als beschikbaar gemarkeerde in en vertel me over de rest.",
+  "workspace": {
+    "cloud": "Maak een Customermates-werkruimte aan via {url} en verbind je assistent ermee. Het sjabloon is daar al voorgeselecteerd.",
+    "connected": "Je bent al verbonden met de Customermates-werkruimte die dit sjabloon gaat bevatten. Werk daarin en maak geen nieuwe aan.",
+    "connectedAt": "Deze werkruimte bestaat al en je bent er via MCP mee verbonden op {mcpUrl}. Werk in deze werkruimte en in geen andere.",
+    "existsAt": "Deze werkruimte bestaat al, maar je assistent is er nog niet mee verbonden. Verbind hem via MCP op {mcpUrl}, met een API-sleutel uit Instellingen, API-sleutels & connectoren. Zolang de verbinding ontbreekt, vraag me haar af te ronden voordat je iets wijzigt. Werk daarna in deze werkruimte en in geen andere.",
+    "selfHosted": "Gebruik je eigen Customermates-instantie. Verbind je assistent met het MCP-eindpunt op <adres van je instantie>/api/v1/mcp met een API-sleutel uit Instellingen, API-sleutels & connectoren. Niets hiervan hangt af van de gehoste cloud."
+  }
+}

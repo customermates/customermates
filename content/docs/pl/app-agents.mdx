@@ -1,0 +1,59 @@
+---
+title: "Agenty: klucze dostawców, środowiska i uruchomienia"
+description: "Kroki agenta działają na Mate, z własnym kluczem AI lub na własnym runnerze: dodaj klucz, poznaj modele, limity uruchomienia i historię."
+---
+
+Agent to AI, która wykonuje krok agenta w [automatyzacji](/docs/app-automations): czyta rekord, który uruchomił automatyzację, używa tych samych narzędzi CRM co Mate i zdaje relację z tego, co zrobiła. Miejsce, w którym działa agent, to **środowisko** kroku: **Mate** (hostowany agent Customermates, opłacany kredytami AI Twojego planu, tylko Cloud), **Twój własny klucz** (agent w chmurze Customermates lub na Twojej instancji self-hosted, który używa klucza API Twojego dostawcy AI, rozliczanego przez dostawcę) albo **Twój własny runner** (Claude Code lub Codex na Twoim własnym komputerze, z Twoim własnym loginem).
+
+Otwórz w ustawieniach stronę [Agenty](app:settings/agents), aby zobaczyć, które środowiska są dostępne, dodać klucze dostawców, zobaczyć runnery przestrzeni roboczej i przeczytać ostatnie uruchomienia. Strona jest dla osób, które mogą zmieniać ustawienia przestrzeni roboczej.
+
+## Jak dodać klucz dostawcy? [#how-do-i-add-a-provider-key]
+
+Otwórz **Agenty**, kliknij **Dodaj klucz** i wybierz **Dostawcę** (Anthropic, OpenAI lub Google). Nadaj kluczowi **Etykietę**, wklej **Klucz API** z konsoli dostawcy i wybierz **Model domyślny**. Customermates pyta dostawcę, czy klucz działa, zanim go zachowa. Klucz odrzucony przez dostawcę nie jest zapisywany, a jeśli dostawca jest chwilowo nieosiągalny, zostaniesz poproszony o ponowną próbę. Klucz, który dostawca przyjmuje, ale któremu nie pozwala wyświetlić listy modeli, na przykład ograniczony klucz OpenAI, jest zapisywany z adnotacją, że nie udało się go sprawdzić.
+
+Klucz jest zapisywany w postaci zaszyfrowanej i nigdy więcej nie jest pokazywany: lista pokazuje tylko etykietę, dostawcę i cztery ostatnie znaki. Przestrzeń robocza ma jeden klucz na dostawcę, więc dodanie klucza dla dostawcy, który już go ma, zastępuje go. **Testuj** ponownie pyta dostawcę i aktualizuje **Ostatnio sprawdzono**, **Usuń** usuwa klucz na stałe. Jeśli sekret szyfrowania serwera zmienił się po zapisaniu klucza, **Testuj** i uruchomienia agentów zgłaszają, że klucza nie da się odczytać, a Ty zapisujesz go ponownie. Klucze działają w każdym płatnym planie i na instancjach self-hosted, gdzie klucz i tak należy do Ciebie; plan Free nie może dodać klucza.
+
+## Ile to kosztuje? [#what-does-it-cost]
+
+Agent z Twoim własnym kluczem kosztuje tyle, ile dostawca nalicza za wywołania, na rachunku dostawcy. Nie zużywa kredytów AI Twojego planu Customermates. Agent na Mate zużywa kredyty osoby będącej właścicielem automatyzacji, z tej samej puli, z której korzystają czaty Mate i rutyny, a każde uruchomienie pokazuje zużyte kredyty. Uruchomienie na Mate rezerwuje kredyty runda po rundzie i zatrzymuje się, zanim zużyje więcej niż 10 kredytów albo więcej, niż zostało w tej puli.
+
+## Jakich modeli mogę używać? [#which-models-can-i-use]
+
+Listę dla każdego dostawcy prowadzi Customermates i pokazuje modele dostawców, dla których dodano klucz:
+
+- **Anthropic:** Claude Sonnet 5.5 (domyślny), Claude Opus 5.5, Claude Haiku 5.5, Claude Sonnet 4.5 i Claude Haiku 4.5.
+- **OpenAI:** GPT-5 mini (domyślny), GPT-5, GPT-5 nano, GPT-4.1 i GPT-4.1 mini.
+- **Google:** Gemini 2.5 Flash (domyślny), Gemini 2.5 Pro i Gemini 2.5 Flash-Lite.
+
+Krok zapisany bez modelu zachowuje od tej chwili model domyślny jedynego klucza dostawcy w przestrzeni roboczej. Przy kilku kluczach krok potrzebuje modelu, dzięki czemu usunięcie klucza nigdy nie przenosi kroku do innego dostawcy. Gdy model domyślny klucza nie jest już oferowany, uruchomienie używa modelu domyślnego dostawcy i odnotowuje to w zapisie. Customermates nigdy nie prosi o login Claude Pro ani Max: środowisko z własnym kluczem działa tylko z kluczem API z konsoli dostawcy.
+
+## Co może zrobić krok agenta? [#what-may-an-agent-step-do]
+
+Krok agenta działa jako właściciel automatyzacji, z jego uprawnieniami, bez niczyjego nadzoru. Może czytać i zmieniać rekordy, czytać bazę wiedzy i używać pozostałych narzędzi przestrzeni roboczej Mate. Nie może korzystać z interfejsu i nie ma wyszukiwania w sieci. Wszystko, co wymaga zatwierdzenia, na przykład usuwanie rekordów lub zapraszanie osób, jest odrzucane, a agent zdaje relację z tego, co zostało.
+
+Uruchomienie ma dwa limity: najwyżej 25 wywołań narzędzi i 10 minut. Po osiągnięciu limitu uruchomienie zatrzymuje się i to zaznacza. Gdy zdarzenie, które uruchomiło automatyzację, pochodzi spoza przestrzeni roboczej, na przykład z formularza, webhooka lub przychodzącej wiadomości, agent traktuje rekord i całą jego zawartość jako dane, nigdy jako polecenia. To samo dotyczy nazwy rekordu, której polecenie używa przez `{{record.name}}`: trafia do agenta oznaczona jako dane i skrócona do 200 znaków. Uruchomienie, do którego tekst z zewnątrz może dotrzeć jedną z tych dróg, nie może wysyłać e-maili ani wiadomości czatu, wysyłać zaproszeń do kontaktów ani tworzyć, zmieniać lub uruchamiać webhooków i rutyn: agent pisze w raporcie, co należałoby wysłać lub zmienić. To samo dotyczy sytuacji, gdy rekord, który uruchomił automatyzację, został zapisany przez publiczny formularz, przychodzący webhook lub krok agenta, do którego mógł dotrzeć tekst z zewnątrz, niezależnie od wyzwalacza automatyzacji. Żaden krok agenta nie tworzy, nie zmienia ani nie usuwa stron bazy wiedzy. Żaden krok agenta nie uruchamia też rutyny ani nie tworzy i nie zmienia rutyny reagującej na zdarzenia, bo taka rutyna mogłaby bez końca uruchamiać automatyzację od nowa. Krok uruchomiony przez przychodzącą wiadomość dowiaduje się, którą rozmowę ma przeczytać. Uruchomienie przerwane po rozpoczęciu, na przykład przez restart serwera, nigdy nie jest uruchamiane po raz drugi, bo mogło już coś wysłać lub zmienić: kończy się przekroczeniem czasu kilka minut po upływie jego limitu czasu. Przestrzeń robocza wykonuje jednocześnie najwyżej pięć kroków agenta na Mate lub na własnym kluczu; kolejne czekają w kolejce, aż któryś się zakończy. Uruchomienie, którego nie udało się rozpocząć, jest ponawiane w ciągu kilku minut i kończy się przekroczeniem czasu, jeśli po 15 minutach nadal się nie rozpoczęło. Uruchomienie, które kończy się błędem po stronie dostawcy, pokazuje klasę błędu dostawcy, nigdy klucz.
+
+## Gdzie zobaczę, co zrobił agent? [#where-do-i-see-what-an-agent-did]
+
+**Ostatnie uruchomienia agentów** na stronie **Agenty** wyświetla uruchomienia od najnowszych, ze statusem (**W kolejce**, **Uruchamianie**, **W toku**, **Zakończono**, **Niepowodzenie**, **Przekroczono czas** lub **Anulowano**), środowiskiem, modelem, tokenami i, dla Mate, zużytymi kredytami. Otwórz uruchomienie, aby przeczytać jego zapis: polecenie, każde wywołane narzędzie z krótkim podsumowaniem argumentów, krótkie podsumowanie każdego wyniku i raport końcowy. Uruchomienia są przechowywane 90 dni. Osoby widzące wszystkie automatyzacje widzą wszystkie uruchomienia, pozostałe widzą uruchomienia własnych automatyzacji. Polecenie, zapis i raport końcowy uruchomienia są pokazywane tylko właścicielowi automatyzacji i administratorom; pozostałe osoby, które widzą uruchomienie, widzą jego status, środowisko, model, tokeny i czasy.
+
+## Dla agentów [#for-agents]
+
+Krok agenta to efekt `agent` reguły w `manage_rules` przez [MCP](/docs/mcp): `runtime` to `mate`, `ownKey` lub `runner`, `prompt` to zadanie (może używać `{{record.name}}` i `{{rule.name}}`), `model` wybiera dla `ownKey` model dostawcy klucza, a `runnerId` przypina dla `runner` konkretny runner. Niedostępne środowisko powoduje niepowodzenie efektu z powodem `plan`, `noKey`, `noRunner`, `selfHosted` lub `notConfigured`.
+
+## Najczęstsze pytania [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Czy mogę użyć subskrypcji Claude Pro lub Max?">
+Nie. Customermates uruchamia agenty z kluczem API z konsoli dostawcy, który dostawca rozlicza według zużycia. Login Claude Pro lub Max należy do samego Claude i nie jest używany przez Customermates.
+</FaqItem>
+<FaqItem question="Czy mój klucz jest bezpieczny?">
+Klucz jest sprawdzany u dostawcy, zapisywany w postaci zaszyfrowanej i nigdzie więcej nie jest pokazywany, nawet administratorom. Jest otwierany tylko na czas uruchomienia, dla wywołań tego uruchomienia do dostawcy, i nigdy nie trafia do historii uruchomień.
+</FaqItem>
+<FaqItem question="Dlaczego Twój własny klucz jest niedostępny?">
+Strona **Agenty** podaje powód obok każdego środowiska: Twój plan go nie obejmuje albo nie dodano jeszcze klucza dostawcy. Runner jest dostępny, jeśli któryś był widziany w ciągu ostatnich dwóch minut.
+</FaqItem>
+<FaqItem question="Czy uruchomienie trwa dalej po zamknięciu strony?">
+Tak. Uruchomienie jest rozpoczynane na serwerze przez automatyzację i tam się kończy. Strona pokazuje tylko to, co zostało zapisane.
+</FaqItem>
+</Faq>

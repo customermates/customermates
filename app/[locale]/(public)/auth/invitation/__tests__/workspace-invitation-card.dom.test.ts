@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
+import type { WorkspaceInactiveReason } from "@/features/workspace/workspace.schema";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -9,6 +10,7 @@ import { Status } from "@/generated/prisma";
 const harness = vi.hoisted(() => ({
   appMode: "cloud",
   enter: vi.fn(),
+  leaveInactive: vi.fn(),
   joinWorkspaceAction: vi.fn(),
   signOutWithOnboardingIntentAction: vi.fn(),
   toastZodErrorTree: vi.fn(),
@@ -26,7 +28,10 @@ vi.mock("next-intl", () => ({
     ),
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ appMode: harness.appMode, workspacesStore: { enter: harness.enter } }),
+  useRootStore: () => ({
+    appMode: harness.appMode,
+    workspacesStore: { enter: harness.enter, leaveInactive: harness.leaveInactive },
+  }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
@@ -47,11 +52,17 @@ import { WorkspaceInvitationCard } from "../workspace-invitation-card";
 let container: HTMLDivElement;
 let root: Root;
 
-function render(membershipStatus: Status | null, workspaceName: string | null = "Bergmann Steuern") {
+function render(
+  membershipStatus: Status | null,
+  workspaceName: string | null = "Bergmann Steuern",
+  inactiveReason: WorkspaceInactiveReason | null = null,
+) {
   act(() =>
     root.render(
       createElement(WorkspaceInvitationCard, {
+        companyId: "invited-company",
         email: "ben@example.com",
+        inactiveReason,
         invitationIntent: "signed-intent",
         inviterName: "Invite Admin",
         membershipStatus,
@@ -63,6 +74,10 @@ function render(membershipStatus: Status | null, workspaceName: string | null = 
 
 function terms() {
   return container.querySelector<HTMLButtonElement>("#workspace-invitation-terms");
+}
+
+function confirmDialog() {
+  return document.querySelector<HTMLElement>("[data-slot='confirm-dialog']");
 }
 
 function button(name: string) {
@@ -163,13 +178,80 @@ describe("WorkspaceInvitationCard", () => {
     expect(harness.enter).not.toHaveBeenCalled();
   });
 
-  it("offers only another account for a deactivated membership", () => {
-    render(Status.inactive);
+  it("offers another account and leaving for a deactivated membership, and stays on the invitation after leaving", async () => {
+    harness.leaveInactive.mockResolvedValue(true);
+    render(Status.inactive, "Bergmann Steuern", "deactivated");
 
     expect(container.querySelector("h1")?.textContent).toBe("WorkspaceInvitation.inactive.title");
+    expect(container.textContent).toContain(
+      `WorkspaceInvitation.inactive.bodyNamed ${JSON.stringify({ workspace: "Bergmann Steuern" })}`,
+    );
     expect([...container.querySelectorAll("button")].map((candidate) => candidate.textContent)).toEqual([
       "WorkspaceInvitation.otherAccount",
+      "Workspaces.leave",
     ]);
+    expect(confirmDialog()).toBeNull();
+
+    await click(document.getElementById("workspace-invitation-leave"));
+
+    expect(confirmDialog()?.textContent).toContain(
+      `Workspaces.leaveConfirmTitle ${JSON.stringify({ name: "Bergmann Steuern" })}`,
+    );
+    expect(confirmDialog()?.textContent).toContain("Workspaces.leaveInactiveConfirmDescription");
+    expect(harness.leaveInactive).not.toHaveBeenCalled();
+
+    await click(document.getElementById("workspace-invitation-leave-confirm"));
+
+    expect(harness.leaveInactive).toHaveBeenCalledExactlyOnceWith("invited-company", { stayOnPage: true });
+  });
+
+  it("keeps the membership when the person cancels leaving", async () => {
+    render(Status.inactive);
+
+    await click(document.getElementById("workspace-invitation-leave"));
+    await click(document.getElementById("workspace-invitation-leave-confirm-cancel"));
+
+    expect(confirmDialog()).toBeNull();
+    expect(harness.leaveInactive).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["pausedByPlan", "PlanPausedCard.title", "PlanPausedCard.body", "Workspaces.leavePausedConfirmDescription"],
+    [
+      "noActiveAdmin",
+      "WorkspaceInvitation.inactive.title",
+      "InactiveCard.supportBody",
+      "Workspaces.leaveNoAdminConfirmDescription",
+    ],
+  ] as const)(
+    "says what really holds a %s membership back and what leaving it means",
+    async (reason, title, body, leave) => {
+      render(Status.inactive, null, reason);
+
+      expect(container.querySelector("h1")?.textContent).toBe(title);
+      expect(container.textContent).toContain(body);
+      expect(container.textContent).not.toContain("WorkspaceInvitation.inactive.body");
+
+      await click(document.getElementById("workspace-invitation-leave"));
+
+      expect(confirmDialog()?.textContent).toContain(
+        `Workspaces.leaveConfirmTitle ${JSON.stringify({ name: "Workspaces.fallbackName" })}`,
+      );
+      expect(confirmDialog()?.textContent).toContain(leave);
+    },
+  );
+
+  it.each([Status.active, Status.pendingAuthorization, null])("offers no leaving for a %s membership", (status) => {
+    render(status);
+
+    expect(document.getElementById("workspace-invitation-leave")).toBeNull();
+  });
+
+  it("offers no leaving in the demo", () => {
+    harness.appMode = "demo";
+    render(Status.inactive);
+
+    expect(document.getElementById("workspace-invitation-leave")).toBeNull();
   });
 
   it("hides the managed-service terms outside the cloud", () => {

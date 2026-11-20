@@ -13,7 +13,7 @@ import type { GetRoutinesRepo } from "./get-routines.repo";
 import type { GetRoutineByIdRepo } from "./get-routine-by-id.repo";
 import type { PauseRoutineRepo } from "./pause-routine.repo";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.repo";
-import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
+import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.repo";
 import type { RoutineRunPage } from "./routine-history";
 import { encodeRoutineRunCursor, type RoutineRunCursor } from "./routine-run-cursor";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
@@ -479,6 +479,21 @@ export class PrismaRoutineRepo
       where: { id: routineId, companyId: this.companyId, AND: [routineAccessWhere(this.permissions)] },
       select: { id: true },
     });
+  }
+
+  async countRunsSince(routineIds: string[], since: Date): Promise<Map<string, number>> {
+    if (routineIds.length === 0) return new Map();
+    const rows = await this.prisma.routineRun.groupBy({
+      by: ["routineId"],
+      where: {
+        companyId: this.companyId,
+        routineId: { in: routineIds },
+        routine: routineAccessWhere(this.permissions),
+        createdAt: { gte: since },
+      },
+      _count: { _all: true },
+    });
+    return new Map(rows.map((row) => [row.routineId, row._count._all]));
   }
 
   async getRoutineRuns(routineId: string, limit: number, decoded: RoutineRunCursor | null): Promise<RoutineRunPage> {

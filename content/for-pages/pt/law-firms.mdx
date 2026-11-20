@@ -48,7 +48,7 @@ useCases:
       visual: search
 ---
 
-Um cliente em potencial escreve enquanto você está em audiência e, quando você responde, já pode ter ligado para o próximo escritório. O Customermates, um CRM de código aberto feito na Alemanha, funciona como **CRM para advogados**: mantém cada consulta e cada conversa com clientes no registro, com um próximo passo com data. No Customermates Cloud, a partir do Pro, o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a resposta quando você pede ou em uma rotina que você configura; você revisa, edita e envia. É um CRM de relacionamento, não um sistema de gestão jurídica (practice management, o software jurídico que cuida de processos e prazos): controle de prazos, documentos, horas, faturamento e contabilidade fiduciária continuam em uma ferramenta como o MyCase ou, na Alemanha, o Actaport ou o RA-MICRO, comparados na tabela abaixo. Se você quer um só sistema para tudo, um sistema de gestão jurídica com módulo de leads combina melhor.
+Um cliente em potencial escreve enquanto você está em audiência e, quando você responde, já pode ter ligado para o próximo escritório. O Customermates, um CRM com hospedagem própria e código-fonte disponível feito na Alemanha, funciona como **CRM para advogados**: mantém cada consulta e cada conversa com clientes no registro, com um próximo passo com data. No Customermates Cloud, a partir do Pro, o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a resposta quando você pede ou em uma rotina que você configura; você revisa, edita e envia. É um CRM de relacionamento, não um sistema de gestão jurídica (practice management, o software jurídico que cuida de processos e prazos): controle de prazos, documentos, horas, faturamento e contabilidade fiduciária continuam em uma ferramenta como o MyCase ou, na Alemanha, o Actaport ou o RA-MICRO, comparados na tabela abaixo. Se você quer um só sistema para tudo, um sistema de gestão jurídica com módulo de leads combina melhor.
 
 Esta página também responde às perguntas que advogados solo fazem. A configuração abaixo funciona igual para um advogado e para vinte.
 
@@ -195,7 +195,7 @@ Prefere o seu próprio cliente de IA? O Claude, o ChatGPT e outros se conectam v
 - Como regra geral, no Brasil o sigilo profissional é um dever do advogado pelo Estatuto da Advocacia e pelo Código de Ética e Disciplina da OAB, e a LGPD vale para os dados pessoais dos clientes. O que isso exige de um fornecedor na nuvem é algo que o seu escritório deve conferir, se preciso com a OAB, antes de inserir dados de clientes. Isto não é aconselhamento jurídico.
 - Em geral, o Código de Ética da OAB também limita a publicidade e a captação de clientela; confira as regras vigentes com a OAB. O CRM organiza as consultas que chegam até você e o relacionamento com quem já é cliente; ele não substitui essas regras, e o que enviar a um possível cliente continua sendo decisão sua.
 - Uma função personalizada com acesso de leitura **Atribuídos** limita um associado ou um advogado contratado aos registros atribuídos a ele. O registro de auditoria anota quem alterou qual registro, em todos os planos.
-- Para decidir você mesmo onde ficam os dados dos clientes, [hospede por conta própria](/features/self-hosted) o núcleo de código aberto. Uma instalação de hospedagem própria não tem caixa de entrada, Mate nem rotinas; MCP, REST e webhooks continuam.
+- Para decidir você mesmo onde ficam os dados dos clientes, [hospede por conta própria](/features/self-hosted) a edição Community. Uma instalação de hospedagem própria não tem caixa de entrada, Mate nem rotinas; MCP, REST e webhooks continuam.
 
 ## Quanto custa
 
@@ -209,7 +209,7 @@ Os preços são por usuário ativo por mês, cobrados mensalmente. Todo plano pa
 | As mesmas cinco pessoas com uma caixa de triagem compartilhada | Business | [[commercial.price.business.monthly.seats.5]] |
 | Escritório de dez pessoas, só pipeline e indicações | Starter | [[commercial.price.starter.monthly.seats.10]] |
 
-Cada plano cloud pago acrescenta créditos de IA hospedados mensais por usuário ativo para o Mate; veja os [preços](/pricing). Hospedar o núcleo de código aberto por conta própria não tem custo de licença.
+Cada plano cloud pago acrescenta créditos de IA hospedados mensais por usuário ativo para o Mate; veja os [preços](/pricing). Hospedar a edição Community por conta própria, para uso interno, não tem custo de licença.
 
 ## Como começar um CRM no escritório: migrando da planilha [#como-comecar-um-crm]
 
@@ -260,7 +260,7 @@ Não de forma nativa. O Customermates tem REST, webhooks e um nó da comunidade 
 A IA muda mais quem digita no CRM do que a necessidade de ter um. O Mate ou um cliente MCP, como o Claude, pode registrar uma consulta, mover um negócio e redigir uma resposta, mas precisa do histórico dos clientes, das etapas e dos dados de indicação para trabalhar, e isso vive no CRM. O Mate envia uma mensagem sem perguntar quando você manda enviar, então diga em cada pedido ou rotina se ele deve apenas salvar um rascunho.
 </FaqItem>
 <FaqItem question="Qual CRM gratuito é bom para advogados?">
-O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas. Dá para montar o quadro de triagem e testar o fluxo de consultas. Antes de inserir dados reais de clientes em qualquer CRM gratuito na nuvem, confira as regras de sigilo do seu escritório; o núcleo de código aberto pode ser [hospedado por conta própria](/features/self-hosted), e os [preços](/pricing) dos planos pagos estão na página de preços.
+O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas. Dá para montar o quadro de triagem e testar o fluxo de consultas. Antes de inserir dados reais de clientes em qualquer CRM gratuito na nuvem, confira as regras de sigilo do seu escritório; a edição Community pode ser [hospedada por conta própria](/features/self-hosted), e os [preços](/pricing) dos planos pagos estão na página de preços.
 </FaqItem>
 
 <FaqItem question="Dá para usar o WhatsApp com o CRM do escritório?">

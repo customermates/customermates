@@ -150,6 +150,29 @@ describe("an event for a subscription a workspace already holds", () => {
     expect(deleteAccountsForPlan.invoke).toHaveBeenCalledExactlyOnceWith({ companyId: "company-1", plan: "starter" });
   });
 
+  it("enforces the paid plan's account caps on the first payment after a trial, and not on later deliveries", async () => {
+    const bound = { ...unbound, status: "trial", lemonSqueezyId: "sub-1" };
+    const first = setup({
+      workspaces: [bound],
+      provider: [providerSubscription("sub-1", "active", "2026-10-01T00:00:00.000000Z")],
+      synced: { companyId: "company-1", changedPlan: null, active: true, becameActive: true, plan: "pro" } as never,
+    });
+
+    await first.interactor.invoke(event("sub-1", null));
+
+    expect(first.deleteAccountsForPlan.invoke).toHaveBeenCalledExactlyOnceWith({ companyId: "company-1", plan: "pro" });
+
+    const later = setup({
+      workspaces: [{ ...bound, status: "active" }],
+      provider: [providerSubscription("sub-1", "active", "2026-10-01T00:00:00.000000Z")],
+      synced: { companyId: "company-1", changedPlan: null, active: true, becameActive: false, plan: "pro" } as never,
+    });
+
+    await later.interactor.invoke(event("sub-1", null));
+
+    expect(later.deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+  });
+
   it("fails so the provider retries when the binding changed while the event was processed", async () => {
     const bound = { ...unbound, status: "active", lemonSqueezyId: "sub-1" };
     const { interactor, mails } = setup({
