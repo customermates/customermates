@@ -14,6 +14,9 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const TITLE_LIMIT = 60;
+// The owner set the homepage title on 2026-11-20 ("Customermates: Agentic CRM, Inbox and Follow-Ups for
+// Small Teams", 64 characters). It is the one deliberate exception and must not grow past 65 in any locale.
+const HOMEPAGE_TITLE_LIMIT = 65;
 const TITLE_MINIMUM = 30;
 const DESCRIPTION_LIMIT = 158;
 const DESCRIPTION_MINIMUM = 70;
@@ -82,6 +85,7 @@ function contentMeta(): Meta[] {
 const META = contentMeta();
 
 function limitFor({ collection, locale }: Meta): number {
+  if (collection === "homepage") return HOMEPAGE_TITLE_LIMIT;
   return PAGINATED_HUB_COLLECTIONS.has(collection) ? TITLE_LIMIT - pageSuffixAllowance(locale) : TITLE_LIMIT;
 }
 

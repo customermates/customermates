@@ -402,9 +402,9 @@ export default async function BuildingBlocksPage({ params }: StaticLocaleProps) 
               "One conversation read top to bottom: a LinkedIn message, Mate drafting into a card that waits for review, with the next step shown in the thread where Mate added it.",
             ],
             [
-              "Operating-system stack",
+              "Stacked benefit cards",
               "homepage-pillars.tsx",
-              "Four isometric layers (Knowledge, Data, Inbox, Agents). Hovering a pillar spreads the stack and lifts its layer.",
+              "Four cards on light tints (Agents, Inbox, Data, Knowledge) that stack while you scroll on desktop, each with a small product shot and a Mate speech bubble.",
             ],
           ].map(([name, file, body]) => (
             <li key={name} data-reveal className="mk-card p-6">

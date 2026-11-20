@@ -19,8 +19,10 @@ vi.mock("@/components/acquisition/lemon-squeezy-affiliate-script", () => ({
   LemonSqueezyAffiliateScript: () => jsx("template", { "data-lemon-squeezy-affiliate": "" }),
 }));
 vi.mock("@/app/components/navigation/marketing-shell", () => ({
-  MarketingShell: ({ children }: { children: ReactNode }) => children,
+  MarketingShell: ({ children, githubStars }: { children: ReactNode; githubStars?: number | null }) =>
+    jsx("div", { children, "data-github-stars": String(githubStars) }),
 }));
+vi.mock("@/components/marketing/github-stars", () => ({ getGithubStarCount: () => Promise.resolve(221) }));
 vi.mock("next/navigation", () => ({
   notFound: (): never => {
     throw new Error("NEXT_HTTP_ERROR_FALLBACK;404");
@@ -50,6 +52,10 @@ describe("StaticLayout rendering", () => {
 
     expect(state.setRequestLocale).toHaveBeenCalledWith("en");
     expect(revalidate).toBe(86400);
+  });
+
+  it("hands the cached GitHub star count to the navbar", async () => {
+    expect(await render()).toContain('data-github-stars="221"');
   });
 
   it("answers an app-only locale with a 404 instead of rendering marketing content", async () => {

@@ -15,7 +15,6 @@ import type { TemplatePromptText } from "@/core/templates/template-prompt-text";
 
 import { cloneSpec, cloneText } from "./template-fixtures";
 
-const SIGNUP = "https://customermates.com/signup";
 const DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`, "u");
 const PLACEHOLDER = /\{\w+\}/gu;
 const MIN_SEGMENT = 6;
@@ -31,11 +30,7 @@ function placeholders(text: string): string[] {
 }
 
 function promptFor(slug: (typeof TEMPLATE_SLUGS)[number], locale: string, options = {}) {
-  return renderTemplatePrompt(cloneSpec(slug), cloneText(slug, locale), {
-    deployment: "cloud",
-    signupUrl: SIGNUP,
-    ...options,
-  });
+  return renderTemplatePrompt(cloneSpec(slug), cloneText(slug, locale), options);
 }
 
 const ENGLISH = templatePromptText("en");
@@ -73,6 +68,10 @@ describe("template prompt scaffolding", () => {
         path.startsWith("workspace.") ||
         path.startsWith("procedure.") ||
         path.startsWith("roadRules.") ||
+        path.startsWith("accounts.") ||
+        path.startsWith("recordDetails.") ||
+        path.startsWith("sharing.") ||
+        path === "contactDetails" ||
         path === "routinesIntro",
     );
     for (const [path, english] of sentences) {
@@ -89,16 +88,10 @@ describe("template prompt scaffolding", () => {
 
   it.each(SCAFFOLD_CHECKED_LOCALES)("renders a %s prompt without English scaffolding", (locale) => {
     const mcpUrl = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
-    for (const options of [
-      {},
-      { deployment: "self-hosted" },
-      { connected: true },
-      { connected: true, mcpUrl },
-      { connected: false, mcpUrl },
-    ]) {
+    for (const options of [{}, { connected: true }, { connected: true, mcpUrl }, { connected: false, mcpUrl }]) {
       const prompt = promptFor("sales-pipeline", locale, options);
       for (const segment of ENGLISH_SEGMENTS) expect(prompt, `English scaffolding: ${segment}`).not.toContain(segment);
-      for (const heading of ["Get a workspace", "Before you write anything", "Lists and fields", "Rules"])
+      for (const heading of ["Your workspace", "Before you write anything", "Record details", "Rules"])
         expect(prompt).not.toContain(heading);
       for (const type of ["(date", "(text", "(number", "(choice", "(yes or no"]) expect(prompt).not.toContain(type);
     }
@@ -115,8 +108,7 @@ describe("template prompt scaffolding", () => {
     const german = promptFor("sales-pipeline", "de", { connected: true, mcpUrl });
     expect(german).toContain(`## 1. ${templatePromptText("de").headings.yourWorkspace}\n`);
     expect(german).toContain(mcpUrl);
-    expect(german).not.toContain("Get a workspace");
-    expect(german).not.toContain(templatePromptText("de").headings.getWorkspace);
+    expect(german).not.toContain(templatePromptText("de").workspace.unconnected);
   });
 
   it.each(APP_LOCALES)(
@@ -132,7 +124,7 @@ describe("template prompt scaffolding", () => {
       expect(pending).toContain(`## 1. ${copy.headings.yourWorkspace}\n${existsAt}\n\n`);
       expect(pending).not.toContain(connectedAt);
       expect(pending).not.toContain(copy.workspace.connected);
-      expect(pending).not.toContain(`## 1. ${copy.headings.getWorkspace}`);
+      expect(pending).not.toContain(copy.workspace.unconnected);
       expect(pending).not.toContain("template=");
       expect(connected).toContain(`## 1. ${copy.headings.yourWorkspace}\n${connectedAt}\n\n`);
       expect(connected).not.toContain(existsAt);
@@ -141,32 +133,37 @@ describe("template prompt scaffolding", () => {
     },
   );
 
-  it("says in English that the assistant still has to connect, and keeps the signup text without a workspace address", () => {
+  it("says in English that the assistant still has to connect, and asks to be connected without an address", () => {
     const mcpUrl = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
     const pending = promptFor("sales-pipeline", "en", { connected: false, mcpUrl });
     expect(pending).toContain("your assistant is not connected to it yet");
     expect(pending).not.toContain("you are connected");
-    expect(promptFor("sales-pipeline", "en", { connected: false })).toContain("## 1. Get a workspace\n");
+    expect(promptFor("sales-pipeline", "en", { connected: false })).toContain(
+      "## 1. Your workspace\nWork in the Customermates workspace you are connected to through MCP. If you are not connected to one yet, ask me to connect you before you change anything.\n",
+    );
   });
 
   it("writes the German prompt with German headings, field types and rules", () => {
     const prompt = promptFor("sales-pipeline", "de");
     const german = templatePromptText("de");
-    expect(prompt).toContain(`## 1. ${german.headings.getWorkspace}`);
+    expect(prompt).toContain(`## 1. ${german.headings.yourWorkspace}\n${german.workspace.unconnected}`);
     expect(prompt).toContain(`## 2. ${german.headings.beforeYouWrite}`);
-    expect(prompt).toContain(`## 3. ${german.headings.listsAndFields}`);
-    expect(prompt).toContain(`## 9. ${german.headings.questions}`);
+    expect(prompt).toContain(`## 3. ${german.headings.listsAndFields}\n- ${german.contactDetails}`);
+    expect(prompt).toContain(`## 7. ${german.headings.recordDetails}`);
+    expect(prompt).toContain(`## 10. ${german.headings.connectedAccounts}`);
+    expect(prompt).toContain(`## 11. ${german.headings.questions}`);
     expect(prompt).toContain(`\n## ${german.headings.rules}\n`);
     expect(prompt).toContain(`(${german.fieldTypes.date}`);
     expect(prompt).toContain(`${german.availability.rule}]`);
     expect(prompt).toContain(german.roadRules.sendNothing);
-    expect(prompt).toContain("https://customermates.com/signup?template=sales-pipeline");
+    expect(prompt).not.toContain("https://");
   });
 
   it("writes the Polish prompt with Polish headings, field types and rules", () => {
     const prompt = promptFor("sales-pipeline", "pl");
     const polish = templatePromptText("pl");
-    expect(prompt).toContain(`## 1. ${polish.headings.getWorkspace}`);
+    expect(prompt).toContain(`## 1. ${polish.headings.yourWorkspace}`);
+    expect(prompt).toContain(polish.accounts.approve);
     expect(prompt).toContain(`(${polish.fieldTypes.date}`);
     expect(prompt).toContain(`${polish.availability.rule}]`);
     expect(prompt).toContain(polish.roadRules.noSamples);
@@ -174,7 +171,7 @@ describe("template prompt scaffolding", () => {
 
   it("keeps the English prompt on the headings the onboarding step looks for", () => {
     const prompt = promptFor("client-tracker", "en");
-    expect(prompt).toContain("## 1. Get a workspace\n");
+    expect(prompt).toContain("## 1. Your workspace\n");
     expect(prompt).toContain("## 2. Before you write anything\n");
     expect(prompt).toContain("\n## Rules\n");
   });

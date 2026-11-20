@@ -10,12 +10,11 @@ import { cn } from "@/core/utils/cn";
 import { env } from "@/env";
 
 import { HomepageComposerText } from "./homepage-composer-text";
+import { HomepageMateBubble, MATE_NAME } from "./homepage-mate-bubble";
 import { HomepageMateLogo } from "./homepage-mate-logo";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { HomepageWorkspaceTabs } from "./homepage-workspace-tabs";
 import { SolutionProductStage } from "./solution-product-stage";
-
-const MATE_NAME = "Mate";
 
 const PROMPT_AGENTS = [
   { compact: false, name: "Claude", provider: "claude" },
@@ -138,7 +137,13 @@ export function HomepageWorkspaceGenerator({ generator, locale }: Props) {
         promptLabel={generator.promptLabel}
       />
 
-      <SolutionProductStage className="mt-0" locale={locale} solutionId={item.solution} />
+      <div className="relative">
+        <SolutionProductStage className="mt-0" locale={locale} solutionId={item.solution} />
+
+        <HomepageMateBubble className="right-3 bottom-8 hidden sm:flex lg:-right-4 lg:bottom-14">
+          {generator.mateBubble}
+        </HomepageMateBubble>
+      </div>
 
       <p className="mt-6 text-center">
         <AppLink

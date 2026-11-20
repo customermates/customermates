@@ -4,6 +4,7 @@ import { LemonSqueezyAffiliateScript } from "@/components/acquisition/lemon-sque
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { MarketingShell } from "@/app/components/navigation/marketing-shell";
+import { getGithubStarCount } from "@/components/marketing/github-stars";
 import { pagePublicationOptions } from "@/core/templates/template-deployment";
 import { hubVisibility } from "@/core/templates/template-publication";
 import { enableMarketingShellLocale } from "@/i18n/static-locale";
@@ -18,10 +19,11 @@ export const revalidate = 86400;
 export default async function StaticLayout({ children, params }: Props) {
   const locale = await enableMarketingShellLocale(params);
   const templatesInNav = hubVisibility(locale, pagePublicationOptions()) === "indexable";
+  const githubStars = await getGithubStarCount();
 
   return (
     <>
-      <MarketingShell appMode={env.APP_MODE} templatesInNav={templatesInNav}>
+      <MarketingShell appMode={env.APP_MODE} githubStars={githubStars} templatesInNav={templatesInNav}>
         {children}
       </MarketingShell>
 

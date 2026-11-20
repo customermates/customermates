@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Dimmi che cosa hai trovato prima di scrivere qualsiasi cosa: quanti di ogni tipo, con qualche esempio. Attendi la mia approvazione e lascia fuori ciò che rifiuto.",
+    "none": "Se non è collegato nessun account, dillo in una frase, proponi di collegare Gmail, Outlook o LinkedIn con connect_messaging_account e prosegui con le liste vuote.",
+    "propose": "Da lì scegli le persone, le organizzazioni e le richieste o trattative aperte che vanno nelle nuove liste, ognuna con l’indirizzo o il profilo da cui proviene. Salta newsletter, mittenti no-reply, notifiche e chi è già nello spazio di lavoro.",
+    "read": "Se ci sono account collegati, leggi le conversazioni e-mail e LinkedIn recenti con get_messaging_threads, e i prossimi appuntamenti con get_calendars quando una lista tiene traccia degli appuntamenti.",
+    "write": "Poi crea i record approvati con import_crm_records, con indirizzi e-mail, numeri di telefono e profili come identità nel campo recapiti, così le loro conversazioni si collegano da sole. Collega una conversazione a una trattativa o a un’organizzazione con manage_conversation_records solo quando le appartiene chiaramente."
+  },
   "anchorFields": {
     "channels": "Recapiti",
     "price": "Prezzo",
@@ -9,6 +16,7 @@
     "rule": "una regola di automazione",
     "unavailable": "non ancora disponibile, non configurare"
   },
+  "contactDetails": "Indirizzi e-mail, numeri di telefono e profili social vanno solo nel campo integrato dei recapiti (tipo di campo channels, nell’app Telefono, e-mail e social), mai in un campo di testo o link. Solo così messaggi e conversazioni si collegano da soli al record giusto.",
   "defaultView": {
     "marker": "vista predefinita",
     "rule": "Una vista contrassegnata come predefinita è la vista integrata della lista che mostra tutti i record: configurala lì invece di crearne una seconda e selezionala alla fine, così la lista si apre su di essa."
@@ -39,12 +47,13 @@
   "groupedBy": "raggruppata per {field}",
   "headings": {
     "beforeYouWrite": "Prima di scrivere qualsiasi cosa",
+    "connectedAccounts": "Riempire le liste dai miei account collegati",
     "dashboardWidgets": "Widget della dashboard",
     "followUpRoutines": "Routine di seguito",
-    "getWorkspace": "Ottenere uno spazio di lavoro",
     "knowledgePages": "Pagine della base di conoscenza (solo schemi, da riempire con i miei dati)",
     "listsAndFields": "Liste e campi",
     "questions": "Domande per me",
+    "recordDetails": "Dettaglio dei record",
     "relationships": "Relazioni",
     "rules": "Regole",
     "thisWorkspace": "Questo spazio di lavoro",
@@ -58,9 +67,14 @@
   "nameOnly": "solo il nome",
   "procedure": {
     "askQuestions": "Fai prima le domande in fondo. Lascia vuoto tutto ciò che non sai, invece di tirare a indovinare.",
+    "checkAccounts": "Controlla quali account sono collegati (connectedAccounts in get_workspace_context, oppure manage_connected_accounts con list): Gmail, Outlook, altra posta tramite IMAP e LinkedIn.",
     "describePlan": "Descrivi il piano qui sotto con parole semplici, adattato alle mie risposte, e attendi la mia approvazione prima di modificare qualsiasi cosa.",
     "readContext": "Chiama get_workspace_context e leggi la guida operativa, le liste, i campi, le viste e le pagine della base di conoscenza esistenti.",
     "reuse": "Riutilizza ciò che esiste già. Non creare mai una seconda lista per qualcosa che lo spazio di lavoro già monitora."
+  },
+  "recordDetails": {
+    "order": "Metti i campi di ogni lista nell’ordine indicato sopra con configure_record_model (la posizione del campo), così tutto il team vede per primi i campi più importanti nella pagina di dettaglio.",
+    "pins": "Poi fissa la fase, la prossima data e l’importo principale di ogni lista nel tuo layout di dettaglio con manage_record_detail_layout. I campi fissati sono personali, quindi dimmi quali dovrebbe fissare anche il team."
   },
   "relationship": "{source} sono collegati a {target} (mostrati come {sourceLabel} su {source} e {targetLabel} su {target})",
   "roadRules": {
@@ -76,11 +90,14 @@
     "optional": "facoltativa"
   },
   "routinesIntro": "Proponile come insieme. Configura solo quelle contrassegnate come disponibili e parlami delle altre.",
+  "sharing": {
+    "views": "Crea ogni vista con manage_data_views e condividila con tutto lo spazio di lavoro (share con visibility workspace), così tutto il team può aprirla.",
+    "widgets": "Crea ogni widget nella dashboard principale con manage_widgets e isTemplate true, così lo vede tutto il team."
+  },
   "workspace": {
-    "cloud": "Crea uno spazio di lavoro Customermates su {url} e collega il tuo assistente. Il modello è già preselezionato lì.",
     "connected": "Sei già collegato allo spazio di lavoro Customermates che ospiterà questo modello. Lavora al suo interno e non crearne un altro.",
     "connectedAt": "Questo spazio di lavoro esiste già e sei collegato tramite MCP all’indirizzo {mcpUrl}. Lavora in questo spazio di lavoro e in nessun altro.",
     "existsAt": "Questo spazio di lavoro esiste già, ma il tuo assistente non è ancora collegato. Collegalo tramite MCP all’indirizzo {mcpUrl}, con una chiave API da Impostazioni, Chiavi API e connettori. Finché manca il collegamento, chiedimi di completarlo prima di cambiare qualsiasi cosa. Poi lavora in questo spazio di lavoro e in nessun altro.",
-    "selfHosted": "Usa la tua istanza Customermates. Collega il tuo assistente al suo endpoint MCP all’indirizzo <indirizzo della tua istanza>/api/v1/mcp con una chiave API da Impostazioni, Chiavi API e connettori. Nulla qui dipende dal cloud ospitato."
+    "unconnected": "Lavora nello spazio di lavoro Customermates a cui sei collegato tramite MCP. Se non sei ancora collegato a nessuno, chiedimi di collegarti prima di modificare qualsiasi cosa."
   }
 }

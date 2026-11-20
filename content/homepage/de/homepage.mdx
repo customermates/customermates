@@ -2,19 +2,34 @@
 title: "Das CRM zum Nachfassen bei Kunden, selbst hostbar"
 description: "Customermates ist das CRM mit einsehbarem Quellcode, um bei jedem Kundengespräch nachzufassen: LinkedIn und E-Mail direkt am Kunden, ein datierter nächster Schritt an jedem Deal und Mate, das Antworten zum Prüfen und Senden entwirft. Made in Germany."
 rootMetadata:
-  defaultTitle: "Customermates: Jeden Kunden nachfassen | CRM selbst hosten"
+  defaultTitle: "Customermates: Agentic CRM, Inbox und Nachfassen für kleine Teams"
   defaultDescription: "Fassen Sie bei jedem Kundengespräch nach: LinkedIn- und E-Mail-Verläufe am Kunden, datierter nächster Schritt, Mate entwirft Antworten zum Prüfen und Senden."
 
 hero:
-  title: Fassen Sie bei jedem Kundengespräch nach.
-  subtitle: Verbinden Sie LinkedIn und E-Mail. Mate oder Ihr eigener KI-Agent entwirft jede Antwort und den nächsten Schritt, Sie prüfen und senden alles an einem Ort.
-  primaryCta:
-    label: "[[commercial.trial.days]] Tage kostenlos testen"
-    href: /auth/signup?job=followup
+  badge: "Rund um Ihre KI gebaut"
+  title: Das CRM, das für Sie nachfasst.
+  subtitle: "Customermates bündelt LinkedIn, E-Mail und WhatsApp an einem Ort. Mate, Ihr KI-Teammitglied, entwirft jede Antwort und den nächsten Schritt. Sie prüfen und senden."
+  picker:
+    question: "Was möchten Sie nachverfolgen?"
+    cta: "Mit {choice} kostenlos starten"
+    choices:
+      - label: "Vertriebs-Leads"
+        template: sales-pipeline
+      - label: "Kunden"
+        template: client-tracker
+      - label: "Website-Anfragen"
+        template: form-to-crm
+      - label: "WhatsApp-Anfragen"
+        template: whatsapp-enquiry-follow-up
+      - label: "Terminbuchungen"
+        template: booking-page
   secondaryCta:
     label: Film ansehen (81 s)
     href: "#film"
-  assurance: Keine Kreditkarte · Quellcode einsehbar · Datenbank in Frankfurt · Funktioniert mit Ihrem Claude oder ChatGPT
+  assurances:
+    sourceAvailable: "Quellcode einsehbar"
+    noCard: "Keine Kreditkarte"
+    database: "Datenbank in Frankfurt"
 
 generator:
   eyebrow: Aus einer einzigen Beschreibung
@@ -22,6 +37,7 @@ generator:
   description: Das baut die Einrichtung aus einem Satz. Beispieldaten, das echte Produkt.
   promptLabel: Ihre Beschreibung für Mate
   arrowLabel: daraus wurde dieser Workspace
+  mateBubble: "Diese Listen, die Pipeline und das Dashboard habe ich aus Ihrer Beschreibung gebaut."
   steps:
     - title: "Beschreiben Sie Ihr Geschäft"
       description: "Ein Satz zu Ihrem Team, Ihren Kunden und wie Sie verkaufen."
@@ -108,10 +124,11 @@ followUp:
 
 pillars:
   eyebrow: So funktioniert es
-  title: Alles, was Ihr Nachfassen braucht, an einem Ort. Vier Teile, die zusammenarbeiten.
+  title: "Alles, was Ihr Nachfassen braucht, an einem Ort."
   description: Ihr Wissen, Ihre Kundendaten und Ihre Gespräche liegen zusammen, damit jeder Agent, der Ihnen hilft, mit denselben Fakten arbeitet.
   knowledge:
     title: Wissen
+    bubble: "Die Antwort an Jonas habe ich mit Ihrem Angebotsleitfaden geschrieben."
     description: Leitfäden, Preise und Ihre Arbeitsweise, einmal aufgeschrieben. Mate und verbundene Agenten nutzen die Seiten, die ihre Rechte erlauben.
     plan: Jeder Tarif
     doc:
@@ -123,6 +140,7 @@ pillars:
       usedBy: Genutzt für den Entwurf an Jonas Weber
   data:
     title: Daten
+    bubble: "Halden & Co. steht auf Angebot gesendet. Der nächste Schritt ist am Dienstag fällig."
     description: Kunden, Deals und jede Liste, die Ihr Geschäft braucht, mit eigenen Feldern, Phasen und Ansichten.
     plan: Jeder Tarif
     lists:
@@ -142,6 +160,7 @@ pillars:
           value: Anna Lindqvist
   inbox:
     title: Posteingang
+    bubble: "Jonas hat auf LinkedIn geantwortet. Ich habe den Verlauf mit Halden & Co. verknüpft."
     description: E-Mail und LinkedIn, dazu WhatsApp, Instagram und Telegram, direkt beim Kunden, zu dem das Gespräch gehört.
     plan: Cloud, ab Pro
     thread:
@@ -150,6 +169,7 @@ pillars:
       linkedTo: Verknüpft mit Halden & Co.
   agents:
     title: Agenten
+    bubble: "Ihr Claude und ich arbeiten mit denselben Datensätzen und Regeln."
     description: Mate ist eingebaut. Oder verbinden Sie die KI, für die Sie schon bezahlen, und sie arbeitet mit denselben Daten und Regeln.
     plan: Jeder Tarif, Mate in bezahlter Cloud
     clients:
@@ -183,6 +203,12 @@ proofAndPartners:
     cta:
       label: Zum Partnerprogramm
       href: /affiliate
+
+trust:
+  label: "Customermates auf einen Blick"
+  database: "Datenbank in Frankfurt"
+  sourceAvailable: "Quellcode einsehbar"
+  agents: "Funktioniert mit Claude und ChatGPT"
 
 plansTeaser:
   eyebrow: Preise

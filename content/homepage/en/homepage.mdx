@@ -2,19 +2,34 @@
 title: "The Source-Available CRM for Client Follow-Up"
 description: "Customermates is the source-available CRM for following up on every client conversation: LinkedIn and email beside each client, a dated next step on each deal, and Mate drafting replies you review and send. Made in Germany."
 rootMetadata:
-  defaultTitle: "Customermates: Follow Up Every Client | Source-Available CRM"
+  defaultTitle: "Customermates: Agentic CRM, Inbox and Follow-Ups for Small Teams"
   defaultDescription: "Follow up on every client conversation: LinkedIn and email threads on the client, a dated next step on each, and Mate drafting replies you review and send."
 
 hero:
-  title: Follow up on every client conversation.
-  subtitle: Connect LinkedIn and email. Mate or your own AI agent drafts each reply and the next step, and you review and send them in one place.
-  primaryCta:
-    label: Start your [[commercial.trial.days]]-day trial
-    href: /auth/signup?job=followup
+  badge: "Built around your AI"
+  title: The CRM that follows up for you.
+  subtitle: "Customermates brings LinkedIn, email and WhatsApp into one place. Mate, your AI teammate, drafts every reply and next step. You review and send."
+  picker:
+    question: "What do you want to follow up on?"
+    cta: "Start free with {choice}"
+    choices:
+      - label: "Sales leads"
+        template: sales-pipeline
+      - label: "Clients"
+        template: client-tracker
+      - label: "Website inquiries"
+        template: form-to-crm
+      - label: "WhatsApp inquiries"
+        template: whatsapp-enquiry-follow-up
+      - label: "Bookings"
+        template: booking-page
   secondaryCta:
     label: Watch the film (73 s)
     href: "#film"
-  assurance: No credit card · Source-available · Database in Frankfurt · Works with your Claude or ChatGPT
+  assurances:
+    sourceAvailable: "Source available"
+    noCard: "No credit card"
+    database: "Database in Frankfurt"
 
 generator:
   eyebrow: Start from one description
@@ -22,6 +37,7 @@ generator:
   description: This is what setup builds from one sentence. Sample data, the real product.
   promptLabel: Your description to Mate
   arrowLabel: became this workspace
+  mateBubble: "I built these lists, the pipeline and the dashboard from your description."
   steps:
     - title: "Describe your business"
       description: "One sentence about your team, your clients and how you sell."
@@ -108,10 +124,11 @@ followUp:
 
 pillars:
   eyebrow: How it works
-  title: Everything your follow-up needs, in one place. Four parts that work together.
+  title: "Everything your follow-up needs, in one place."
   description: Your knowledge, your client data and your conversations live together, so every agent that helps you works from the same facts.
   knowledge:
     title: Knowledge
+    bubble: "I wrote the reply to Jonas with your proposal playbook."
     description: Playbooks, prices and how you work, written once. Mate and connected agents use the pages their permissions allow.
     plan: Every plan
     doc:
@@ -123,6 +140,7 @@ pillars:
       usedBy: Used for the draft to Jonas Weber
   data:
     title: Data
+    bubble: "Halden & Co. is at Proposal sent. The next step is due Tuesday."
     description: Clients, deals and any list your business needs, with your own fields, stages and views.
     plan: Every plan
     lists:
@@ -142,6 +160,7 @@ pillars:
           value: Anna Lindqvist
   inbox:
     title: Inbox
+    bubble: "Jonas replied on LinkedIn. I linked the thread to Halden & Co."
     description: Email and LinkedIn, plus WhatsApp, Instagram and Telegram, beside the client each conversation belongs to.
     plan: Cloud, from Pro
     thread:
@@ -150,6 +169,7 @@ pillars:
       linkedTo: Linked to Halden & Co.
   agents:
     title: Agents
+    bubble: "Your Claude and I work from the same records and rules."
     description: Mate is built in. Or connect the AI you already pay for, and it works with the same records and rules.
     plan: Every plan, Mate on paid Cloud
     clients:
@@ -183,6 +203,12 @@ proofAndPartners:
     cta:
       label: See the partner programme
       href: /affiliate
+
+trust:
+  label: "Customermates at a glance"
+  database: "Database in Frankfurt"
+  sourceAvailable: "Source available"
+  agents: "Works with Claude and ChatGPT"
 
 plansTeaser:
   eyebrow: Pricing

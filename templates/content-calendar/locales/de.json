@@ -22,7 +22,6 @@
       "label": "Rolle",
       "options": { "author": "Autor", "editor": "Redakteur", "reviewer": "Prüfer", "approver": "Freigebender", "client_contact": "Kundenkontakt", "guest": "Gast oder Interviewpartner" }
     },
-    "people.profile_url": { "label": "Profil-Link" },
     "pieces.owner": { "label": "Verantwortlich" },
     "pieces.reviewer": { "label": "Prüfer" },
     "pieces.format": {

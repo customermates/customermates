@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Sag mir, was du gefunden hast, bevor du etwas schreibst: wie viele von jeder Art, mit ein paar Beispielen. Warte auf meine Freigabe und lass weg, was ich ablehne.",
+    "none": "Ist kein Konto verbunden, sag das in einem Satz, biete an, Gmail, Outlook oder LinkedIn mit connect_messaging_account zu verbinden, und mach mit leeren Listen weiter.",
+    "propose": "Such daraus die Personen, Organisationen und offenen Anfragen oder Deals heraus, die in die neuen Listen gehören, jeweils mit der Adresse oder dem Profil, aus dem sie stammen. Lass Newsletter, No-Reply-Absender, Benachrichtigungen und alle weg, die schon im Workspace sind.",
+    "read": "Sind Konten verbunden, lies die letzten E-Mail-Verläufe und LinkedIn-Unterhaltungen mit get_messaging_threads und die anstehenden Termine mit get_calendars, wenn eine Liste Termine erfasst.",
+    "write": "Lege danach die freigegebenen Datensätze mit import_crm_records an, E-Mail-Adressen, Telefonnummern und Profile als Identitäten im Feld Kontaktdaten, damit sich ihre Unterhaltungen von selbst zuordnen. Verknüpfe eine Unterhaltung nur dann mit manage_conversation_records mit einem Deal oder einer Organisation, wenn sie eindeutig dorthin gehört."
+  },
   "anchorFields": {
     "channels": "Kontaktdaten",
     "price": "Preis",
@@ -9,6 +16,7 @@
     "rule": "eine Automatisierungsregel",
     "unavailable": "noch nicht verfügbar, nicht einrichten"
   },
+  "contactDetails": "E-Mail-Adressen, Telefonnummern und Social-Media-Profile kommen nur in das eingebaute Feld Kontaktdaten (Feldtyp channels, in der App Telefon, E-Mail & Social Media), nie in ein Text- oder Linkfeld. Nur so ordnen sich Nachrichten und Unterhaltungen von selbst dem richtigen Datensatz zu.",
   "defaultView": {
     "marker": "Standardansicht",
     "rule": "Eine als Standardansicht markierte Ansicht ist die eingebaute Ansicht der Liste, die alle Datensätze zeigt: Richte sie dort ein, statt eine zweite Ansicht anzulegen, und wähle sie am Ende aus, damit die Liste damit öffnet."
@@ -39,12 +47,13 @@
   "groupedBy": "gruppiert nach {field}",
   "headings": {
     "beforeYouWrite": "Bevor du etwas schreibst",
+    "connectedAccounts": "Listen aus meinen verbundenen Konten füllen",
     "dashboardWidgets": "Dashboard-Widgets",
     "followUpRoutines": "Folgeroutinen",
-    "getWorkspace": "Workspace anlegen",
     "knowledgePages": "Seiten der Wissensdatenbank (nur Gliederungen, mit meinen eigenen Fakten zu füllen)",
     "listsAndFields": "Listen und Felder",
     "questions": "Fragen an mich",
+    "recordDetails": "Detailansicht der Datensätze",
     "relationships": "Beziehungen",
     "rules": "Regeln",
     "thisWorkspace": "Dieser Workspace",
@@ -58,9 +67,14 @@
   "nameOnly": "nur der Name",
   "procedure": {
     "askQuestions": "Stelle zuerst die Fragen am Ende. Lass alles Unbekannte leer, statt zu raten.",
+    "checkAccounts": "Prüfe, welche Konten verbunden sind (connectedAccounts in get_workspace_context oder manage_connected_accounts mit list): Gmail, Outlook, andere E-Mail über IMAP und LinkedIn.",
     "describePlan": "Beschreibe den Plan unten in einfachen Worten, angepasst an meine Antworten, und warte auf meine Freigabe, bevor du etwas änderst.",
     "readContext": "Rufe get_workspace_context auf und lies den Betriebsleitfaden sowie die vorhandenen Listen, Felder, Ansichten und Seiten der Wissensdatenbank.",
     "reuse": "Nutze, was schon da ist. Lege nie eine zweite Liste für etwas an, das der Workspace bereits erfasst."
+  },
+  "recordDetails": {
+    "order": "Bring die Felder jeder Liste mit configure_record_model (Feldposition) in die oben genannte Reihenfolge, damit alle im Team die wichtigsten Felder zuerst in der Detailansicht sehen.",
+    "pins": "Hefte danach in deinem eigenen Detail-Layout mit manage_record_detail_layout die Phase, das nächste Datum und den wichtigsten Betrag jeder Liste an. Angeheftete Felder sind persönlich, sag mir also, welche das Team auch anheften sollte."
   },
   "relationship": "{source} sind mit {target} verknüpft (angezeigt als {sourceLabel} bei {source} und {targetLabel} bei {target})",
   "roadRules": {
@@ -76,11 +90,14 @@
     "optional": "optional"
   },
   "routinesIntro": "Schlage diese als Gesamtpaket vor. Richte nur die als verfügbar markierten ein und sag mir Bescheid über den Rest.",
+  "sharing": {
+    "views": "Lege jede Ansicht mit manage_data_views an und teile sie mit dem ganzen Workspace (share mit visibility workspace), damit alle im Team sie öffnen können.",
+    "widgets": "Lege jedes Widget mit manage_widgets und isTemplate true auf dem Haupt-Dashboard an, damit das ganze Team es sieht."
+  },
   "workspace": {
-    "cloud": "Lege unter {url} einen Customermates-Workspace an und verbinde deinen Assistenten damit. Die Vorlage ist dort vorausgewählt.",
     "connected": "Du bist bereits mit dem Customermates-Workspace verbunden, der diese Vorlage aufnehmen soll. Arbeite darin und lege keinen weiteren an.",
     "connectedAt": "Dieser Workspace existiert bereits, und du bist über MCP unter {mcpUrl} mit ihm verbunden. Arbeite in diesem Workspace und in keinem anderen.",
     "existsAt": "Dieser Workspace existiert bereits, aber dein Assistent ist noch nicht mit ihm verbunden. Verbinde ihn über MCP unter {mcpUrl}, mit einem API-Schlüssel aus Einstellungen, API-Schlüssel & Konnektoren. Solange die Verbindung fehlt, bitte mich, sie abzuschließen, bevor du etwas änderst. Arbeite danach in diesem Workspace und in keinem anderen.",
-    "selfHosted": "Nutze deine eigene Customermates-Instanz. Verbinde deinen Assistenten mit ihrem MCP-Endpunkt unter <Adresse deiner Instanz>/api/v1/mcp, mit einem API-Schlüssel aus Einstellungen, API-Schlüssel & Konnektoren. Nichts hier hängt von der gehosteten Cloud ab."
+    "unconnected": "Arbeite in dem Customermates-Workspace, mit dem du über MCP verbunden bist. Bist du noch mit keinem verbunden, bitte mich, dich zu verbinden, bevor du etwas änderst."
   }
 }

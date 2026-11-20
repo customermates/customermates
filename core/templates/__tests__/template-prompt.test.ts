@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { CLOUD_TRIAL, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 import { ruleIsRoutine } from "@/core/templates/compile-template-automation";
-import { renderTemplatePrompt, templateSignupUrl } from "@/core/templates/template-prompt";
+import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import { fillPrompt, templatePromptText } from "@/core/templates/template-prompt-text";
 import { templateCountry, templateRuleText } from "@/core/templates/template-rule-variants";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
@@ -49,11 +49,10 @@ const FIRST_ROUTINES: Record<string, string[]> = {
 };
 
 function routineLines(text: string): string[] {
-  const section = text.split(/^## 8\. .*$/m)[1]?.split(/^## 9\. /m)[0] ?? "";
+  const section = text.split(/^## 9\. .*$/m)[1]?.split(/^## 10\. /m)[0] ?? "";
   return section.split("\n").filter((line) => /^\d+\. /.test(line));
 }
 
-const SIGNUP = "https://customermates.com/signup";
 const DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`);
 
 function prompt(
@@ -61,25 +60,87 @@ function prompt(
   options: Partial<Parameters<typeof renderTemplatePrompt>[2]> = {},
   locale = "en",
 ) {
-  return renderTemplatePrompt(cloneSpec(slug), cloneText(slug, locale), {
-    deployment: "cloud",
-    signupUrl: SIGNUP,
-    ...options,
-  });
+  return renderTemplatePrompt(cloneSpec(slug), cloneText(slug, locale), options);
 }
 
 describe("renderTemplatePrompt", () => {
-  it("starts with the template and how to get a cloud workspace", () => {
+  it("starts with the template and one workspace step that works in the cloud and on an own instance", () => {
     const text = prompt("client-tracker");
     expect(text.startsWith("# Client tracker\n")).toBe(true);
-    expect(text).toContain("https://customermates.com/signup?template=client-tracker");
-    expect(text.indexOf("## 1. Get a workspace")).toBeLessThan(text.indexOf("## 2. Before you write anything"));
+    expect(text).toContain(
+      "## 1. Your workspace\nWork in the Customermates workspace you are connected to through MCP.",
+    );
+    expect(text.indexOf("## 1. Your workspace")).toBeLessThan(text.indexOf("## 2. Before you write anything"));
   });
 
-  it("tells a self-hoster to connect their own instance and does not mention the signup", () => {
-    const text = prompt("client-tracker", { deployment: "self-hosted" });
-    expect(text).toContain("<your instance address>/api/v1/mcp");
-    expect(text).not.toContain("signup");
+  it.each(TEMPLATE_SLUGS)("puts no address into the prompt of %s in any locale", (slug) => {
+    for (const locale of Object.keys(getTemplate(slug).publication)) {
+      const text = prompt(slug, {}, locale);
+      expect(text, `${slug} ${locale}`).not.toMatch(/https?:\/\//u);
+      expect(text, `${slug} ${locale}`).not.toContain("signup");
+      expect(text, `${slug} ${locale}`).not.toContain("?template=");
+    }
+  });
+
+  it("checks the connected accounts before planning and fills the lists from them only after approval", () => {
+    const text = prompt("sales-pipeline");
+    const before = text.split(/^## 2\. .*$/m)[1]?.split(/^## 3\. /m)[0] ?? "";
+    expect(before).toContain("Check which accounts are connected");
+    expect(before).toContain("Gmail, Outlook, other email through IMAP and LinkedIn");
+    const accounts = text.split(/^## 10\. Fill the lists from my connected accounts$/m)[1]?.split(/^## 11\. /m)[0];
+    expect(accounts).toBeDefined();
+    for (const tool of [
+      "connect_messaging_account",
+      "get_messaging_threads",
+      "import_crm_records",
+      "manage_conversation_records",
+    ])
+      expect(accounts).toContain(tool);
+    expect(accounts?.indexOf("Tell me what you found before you write anything")).toBeLessThan(
+      accounts?.indexOf("Then create the approved records") ?? -1,
+    );
+  });
+
+  it("keeps email, phone and social profiles in the contact details field", () => {
+    const text = prompt("sales-pipeline");
+    const lists = text.split(/^## 3\. .*$/m)[1]?.split(/^## 4\. /m)[0] ?? "";
+    expect(lists.split("\n")[1]).toContain("only into the built-in contact details field (field type channels");
+    expect(lists).toContain("never into a text or link field");
+  });
+
+  it("shares views and widgets with the whole workspace and sets up the record details", () => {
+    const text = prompt("sales-pipeline");
+    expect(text).toMatch(
+      /^## 5\. Views\n- Create each view with manage_data_views and share it with the whole workspace/m,
+    );
+    expect(text).toMatch(/^## 6\. Dashboard widgets\n- Create each widget on the main dashboard with manage_widgets/m);
+    expect(text).toMatch(/^## 7\. Record details\n- .*configure_record_model.*\n- .*manage_record_detail_layout/m);
+  });
+
+  it.each(TEMPLATE_SLUGS)("numbers the sections of %s the same way in every locale", (slug) => {
+    const spec = getTemplate(slug);
+    const expected = [
+      "1",
+      "2",
+      "3",
+      ...(spec.relationships.length ? ["4"] : []),
+      "5",
+      "6",
+      "7",
+      "8",
+      ...(spec.followUpRules.length ? ["9"] : []),
+      "10",
+      "11",
+    ];
+    for (const locale of Object.keys(spec.publication)) {
+      const copy = templatePromptText(locale);
+      const headings = prompt(slug, {}, locale)
+        .split("\n")
+        .filter((line) => /^## \d+\. /u.test(line));
+      expect(headings.map((line) => line.replace(/^## (\d+)\. .*$/u, "$1"))).toEqual(expected);
+      expect(headings).toContain(`## 10. ${copy.headings.connectedAccounts}`);
+      expect(headings).toContain(`## 7. ${copy.headings.recordDetails}`);
+    }
   });
 
   it("skips the signup for an assistant that is already connected to the workspace", () => {
@@ -213,7 +274,7 @@ describe("renderTemplatePrompt", () => {
 
   it("tells the agent the allowance in the first sentence about routines and keeps rules and routines apart", () => {
     const text = prompt("client-tracker", { routineAllowance: 5 });
-    const section = text.split(/^## 8\. .*$/m)[1]?.split(/^## 9\. /m)[0] ?? "";
+    const section = text.split(/^## 9\. .*$/m)[1]?.split(/^## 10\. /m)[0] ?? "";
     expect(section.indexOf("routine allowance of your plan is 5 per user")).toBeLessThan(section.indexOf("\n1. "));
     expect(section).toMatch(/- Tell the owner that an Action is overdue: .*\[an automation rule\]/);
     expect(section).not.toMatch(/^- Check in: no open Action/m);
@@ -271,12 +332,5 @@ describe("renderTemplatePrompt", () => {
   it.each(TEMPLATE_SLUGS)("contains no dash characters for %s", (slug) => {
     for (const locale of Object.keys(getTemplate(slug).publication))
       expect(DASHES.test(prompt(slug, {}, locale))).toBe(false);
-  });
-
-  it("builds the signup address with the template and keeps other query values", () => {
-    expect(templateSignupUrl("https://example.test/signup?ref=a", "client-tracker")).toBe(
-      "https://example.test/signup?ref=a&template=client-tracker",
-    );
-    expect(() => templateSignupUrl("/signup", "client-tracker")).toThrow();
   });
 });

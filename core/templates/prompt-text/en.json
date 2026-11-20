@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Tell me what you found before you write anything: how many of each, with a few examples. Wait for my approval and leave out whatever I reject.",
+    "none": "If no account is connected, say so in one sentence, offer to connect Gmail, Outlook or LinkedIn with connect_messaging_account, and carry on with empty lists.",
+    "propose": "From them, pick the people, organizations and open requests or deals that belong in the new lists, each with the address or profile it came from. Skip newsletters, no-reply senders, notifications and anyone already in the workspace.",
+    "read": "If accounts are connected, read the recent email threads and LinkedIn conversations with get_messaging_threads, and the coming meetings with get_calendars where a list tracks meetings.",
+    "write": "Then create the approved records with import_crm_records, with email addresses, phone numbers and profiles as identities in the contact details field, so their conversations link to them by themselves. Link a conversation to a deal or organization with manage_conversation_records only where it clearly belongs there."
+  },
   "anchorFields": {
     "channels": "Contact details",
     "price": "Price",
@@ -9,6 +16,7 @@
     "rule": "an automation rule",
     "unavailable": "not available yet, do not set up"
   },
+  "contactDetails": "Email addresses, phone numbers and social profiles go only into the built-in contact details field (field type channels, shown in the app as Phone, email & social), never into a text or link field. That is how messages and conversations link to the right record by themselves.",
   "defaultView": {
     "marker": "default view",
     "rule": "A view marked as default is the list's built-in view that shows every record: set it up there instead of creating a second view, then select it when you are done so the list opens on it."
@@ -39,12 +47,13 @@
   "groupedBy": "grouped by {field}",
   "headings": {
     "beforeYouWrite": "Before you write anything",
+    "connectedAccounts": "Fill the lists from my connected accounts",
     "dashboardWidgets": "Dashboard widgets",
     "followUpRoutines": "Follow-up routines",
-    "getWorkspace": "Get a workspace",
     "knowledgePages": "Knowledge Base pages (outlines only, filled with my own facts)",
     "listsAndFields": "Lists and fields",
     "questions": "Questions for me",
+    "recordDetails": "Record details",
     "relationships": "Relationships",
     "rules": "Rules",
     "thisWorkspace": "This workspace",
@@ -58,9 +67,14 @@
   "nameOnly": "name only",
   "procedure": {
     "askQuestions": "Ask the questions at the end first. Leave every unknown empty instead of guessing.",
+    "checkAccounts": "Check which accounts are connected (connectedAccounts in get_workspace_context, or manage_connected_accounts with list): Gmail, Outlook, other email through IMAP and LinkedIn.",
     "describePlan": "Describe the plan below in plain words, adapted to my answers, and wait for my approval before you change anything.",
     "readContext": "Call get_workspace_context and read the Operating Guide, the existing lists, fields, views and wiki pages.",
     "reuse": "Reuse what already exists. Never create a second list for something the workspace already tracks."
+  },
+  "recordDetails": {
+    "order": "Put each list's fields in the order given above with configure_record_model (the field position), so every teammate sees the most important fields first on the detail page.",
+    "pins": "Then pin the stage, the next date and the key amount of each list in your own detail layout with manage_record_detail_layout. Pins are personal, so tell me which ones the team should pin as well."
   },
   "relationship": "{source} link to {target} (shown as {sourceLabel} on {source} and {targetLabel} on {target})",
   "roadRules": {
@@ -76,11 +90,14 @@
     "optional": "optional"
   },
   "routinesIntro": "Propose these as a set. Set up only the ones marked as available and tell me about the rest.",
+  "sharing": {
+    "views": "Create each view with manage_data_views and share it with the whole workspace (share with visibility workspace), so every teammate can open it.",
+    "widgets": "Create each widget on the main dashboard with manage_widgets and isTemplate true, so the whole team sees it."
+  },
   "workspace": {
-    "cloud": "Create a Customermates workspace at {url} and connect your assistant to it. The template is preselected there.",
     "connected": "You are already connected to the Customermates workspace that will hold this template. Work in it and do not create another one.",
     "connectedAt": "This workspace already exists and you are connected to it through MCP at {mcpUrl}. Work in this workspace and in no other.",
     "existsAt": "This workspace already exists, but your assistant is not connected to it yet. Connect it through MCP at {mcpUrl}, with an API key from Settings, API keys. Until it is connected, ask me to finish the connection before you change anything. Then work in this workspace and in no other.",
-    "selfHosted": "Use your own Customermates instance. Connect your assistant to its MCP endpoint at <your instance address>/api/v1/mcp with an API key from Settings, API keys. Nothing here depends on the hosted cloud."
+    "unconnected": "Work in the Customermates workspace you are connected to through MCP. If you are not connected to one yet, ask me to connect you before you change anything."
   }
 }

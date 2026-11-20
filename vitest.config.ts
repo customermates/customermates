@@ -40,6 +40,8 @@ export const domTestFiles = [
   "app/[locale]/(public)/auth/mcp-consent/__tests__/mcp-consent-card.dom.test.ts",
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
   "app/[locale]/(static)/components/__tests__/homepage-viewport-video.dom.test.tsx",
+  "app/[locale]/(static)/components/__tests__/homepage-hero-picker.dom.test.tsx",
+  "app/[locale]/(static)/components/__tests__/homepage-hero-particles.dom.test.tsx",
   "app/**/wiki/components/__tests__/wiki-page-view.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-sheet.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-list.test.ts",

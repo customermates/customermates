@@ -17,7 +17,7 @@ export async function TemplateStepsSection({ signupHref }: { signupHref: string 
 
   return (
     <MarketingSection className="mk-section-tight" headerAlign="start" id="steps" title={t("stepsTitle")}>
-      <Steps className="max-w-2xl ps-10 sm:ps-11">
+      <Steps className="max-w-2xl">
         <Step title={t("step1Title")}>
           <p>{t("step1Body")}</p>
 
@@ -40,13 +40,7 @@ export async function TemplateStepsSection({ signupHref }: { signupHref: string 
   );
 }
 
-export async function TemplatePromptSection({
-  prompts,
-  slug,
-}: {
-  prompts: { cloud: string; selfHosted: string };
-  slug: string;
-}) {
+export async function TemplatePromptSection({ prompt }: { prompt: string }) {
   const t = await getTranslations("TemplatePages");
 
   return (
@@ -58,19 +52,18 @@ export async function TemplatePromptSection({
       title={t("promptTitle")}
     >
       <TemplateCopyPrompt
-        cloudPrompt={prompts.cloud}
-        idPrefix={`template-prompt-${slug}`}
         labels={{
-          cloud: t("promptCloud"),
           copied: t("copied"),
           copy: t("copy"),
           failed: t("copyFailed"),
           promptLabel: t("promptTitle"),
-          selfHosted: t("promptSelfHosted"),
-          switchLabel: t("promptSwitch"),
         }}
-        selfHostedPrompt={prompts.selfHosted}
+        prompt={prompt}
       />
+
+      <p className="mt-4 text-sm text-muted-foreground" data-template-own-instance="">
+        {t("promptOwnInstance")}
+      </p>
     </MarketingSection>
   );
 }
