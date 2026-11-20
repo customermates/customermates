@@ -61,7 +61,7 @@ comparison:
         source: Eén fasenveld met winkansen, als tabel of bord
         competitor: Aanpasbare pipelines op elk abonnement
       - name: Geplande activiteiten en herinneringen
-        source: Taken zijn een gewone lijst, zonder ingebouwde vervaldatums of herinneringen
+        source: Taken zijn een gewone lijst zonder ingebouwde vervaldatums; een automatisering op een datumveld stuurt herinneringen
         competitor: Elk abonnement
       - name: Omzetoverzicht
         source: Gewogen pipeline op basis van kansen per fase
@@ -93,7 +93,7 @@ comparison:
         source: Mate (Customermates Cloud, gehoste AI-credits)
         competitor: AI-rapportcreatie op elk abonnement; AI-e-mails schrijven en samenvattingen vanaf Premium
       - name: Automatisering
-        source: Routines voeren opgeslagen AI-instructies uit volgens een schema of bij een recordgebeurtenis (Customermates Cloud); webhooks en REST
+        source: Automatiseringen zonder AI op elk abonnement; routines voeren opgeslagen AI-instructies uit volgens een schema of bij een recordgebeurtenis (Customermates Cloud); webhooks en REST
         competitor: Regelgebaseerde automatiseringen vanaf Growth (50, 150 of 250 per bedrijf)
       - name: Gespreksopnames en transcripties
         source: false
@@ -132,7 +132,7 @@ cta:
   hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
 ---
 
-> Welk Pipedrive alternatief het beste past, hangt af van wat je bij Pipedrive tegenstaat. Als Growth de prijs is om e-mail, WhatsApp en automatiseringen in het CRM te krijgen, vergelijk dan HubSpot, Zoho CRM en Customermates; wil je zichtbare broncode of je eigen server, kijk dan naar Twenty (open source) of Customermates (source-available). Blijf bij Pipedrive als je team werkt met geplande activiteiten, e-mailsequenties, webformulieren of een telefoonapp, want Customermates heeft er geen van. Customermates publiceert deze vergelijking; elk detail over Pipedrive komt van pipedrive.com en is gecontroleerd op 9 november 2026.
+> Welk Pipedrive alternatief het beste past, hangt af van wat je bij Pipedrive tegenstaat. Als Growth de prijs is om e-mail, WhatsApp en automatiseringen in het CRM te krijgen, vergelijk dan HubSpot, Zoho CRM en Customermates; wil je zichtbare broncode of je eigen server, kijk dan naar Twenty (open source) of Customermates (source-available). Blijf bij Pipedrive als je team werkt met geplande activiteiten, e-mailsequenties of een telefoonapp, want Customermates heeft er geen van. Customermates publiceert deze vergelijking; elk detail over Pipedrive komt van pipedrive.com en is gecontroleerd op 9 november 2026.
 
 ## Wat is het beste alternatief voor Pipedrive?
 
@@ -140,9 +140,9 @@ Dat hangt af van de klus waarvoor je Pipedrive hebt ingehuurd. Deze tabel koppel
 
 | Jouw situatie | Betere keuze | Waarom |
 |---|---|---|
-| Je team werkt met een dagelijkse lijst geplande gesprekken en afspraken | Pipedrive | Activiteiten, meldingen en agendasynchronisatie zitten in elk abonnement; Customermates heeft geen ingebouwde vervaldatums of herinneringen voor taken |
+| Je team werkt met een dagelijkse lijst geplande gesprekken en afspraken | Pipedrive | Activiteiten, meldingen en agendasynchronisatie zitten in elk abonnement; Customermates heeft geen ingebouwde vervaldatums voor taken; herinneringen komen van een automatisering op een datumveld |
 | Je verstuurt e-mailsequenties of campagnes vanuit het CRM | Pipedrive Growth of hoger, of folk Premium | Sequenties van Pipedrive beginnen op Growth en Campaigns is een add-on; folk vermeldt e-mailsequenties op Premium; Customermates heeft geen sequenties of campagnes |
-| Je verzamelt leads op je website of verstuurt contracten voor e-handtekening | Pipedrive Premium | LeadBooster en contracten met e-handtekeningen zitten vanaf Premium in het abonnement; Customermates heeft geen formulieren, offertes of e-handtekeningen |
+| Je verzamelt leads op je website of verstuurt contracten voor e-handtekening | Pipedrive Premium | LeadBooster en contracten met e-handtekeningen zitten vanaf Premium in het abonnement; Customermates heeft openbare formulieren, maar geen offertes of e-handtekeningen |
 | Je verkopers werken vanaf hun telefoon, of je hebt single sign-on nodig | Pipedrive | Native iOS- en Android-apps en single sign-on op elk abonnement; Customermates heeft geen native app of SSO en draait in de mobiele browser |
 | Klanten schrijven op WhatsApp, LinkedIn, Instagram of Telegram en ook per e-mail | Customermates Pro of Business | Al deze kanalen delen één inbox en koppelen aan de contactpersoon |
 | Je prospecteert op LinkedIn en verkoopt via relaties | folk | Het Standard-abonnement vermeldt een LinkedIn-extensie, e-mail-, agenda- en WhatsApp-synchronisatie en verrijking van contactpersonen |
@@ -214,9 +214,9 @@ Pipedrive heeft ook een MCP-server. Het verschil is het bereik: de [MCP-server](
 
 Controleer dit voordat je een proefperiode start:
 
-- **Geen activiteitenagenda.** Een takenlijst is een gewone lijst met een naam, notities en relaties; vervaldatums en statussen zijn velden die je zelf toevoegt. Er zijn geen ingebouwde vervaldatums, geen herinneringen en geen meldingencentrum. Voor een team dat met de activiteitenlijst van Pipedrive werkt, is dit de grootste verandering.
-- **Geen sequenties, bulkmail, webformulieren, offertes, e-handtekeningen, telefonie, gespreksopname, verrijking of leadscoring.** Outreach gaat één bericht tegelijk, geschreven door jou of als concept opgesteld door Mate. Facturen blijven in je boekhoudsoftware; gewonnen deals kunnen via een webhook naar een n8n-instantie die je apart draait en van daaruit verder.
-- **Geen regelbouwer.** Routines zijn AI-instructies, geen als/dan-regels. Gebruik voor deterministische workflows webhooks, de REST API of een n8n-instantie die je apart draait.
+- **Geen activiteitenagenda.** Een takenlijst is een gewone lijst met een naam, notities en relaties; vervaldatums en statussen zijn velden die je zelf toevoegt. Er zijn geen ingebouwde vervaldatums; een automatisering op een datumveld stuurt herinneringen naar de pagina Meldingen en per e-mail. Voor een team dat met de activiteitenlijst van Pipedrive werkt, is dit de grootste verandering.
+- **Geen sequenties, bulkmail, offertes, e-handtekeningen, telefonie, gespreksopname, verrijking of leadscoring.** Outreach gaat één bericht tegelijk, geschreven door jou of als concept opgesteld door Mate. Facturen blijven in je boekhoudsoftware; gewonnen deals kunnen via een webhook naar een n8n-instantie die je apart draait en van daaruit verder.
+- **Een eenvoudigere regelbouwer.** Automatiseringen volgen één keten van trigger, voorwaarden en acties, zonder wachttijden of als/anders-vertakkingen. Gebruik voor langere workflows webhooks, de REST API of een n8n-instantie die je apart draait.
 - **Geen native mobiele apps en geen SSO.** Rechten gelden per lijst en actie, niet per veld.
 - **Eén faselijst voor alle deals.** Als je meerdere Pipedrive-pipelines gebruikt, voeg dan één veld met enkele keuze voor de pipeline toe en sla per pipeline één bordweergave op. De fases blijven gedeeld.
 
@@ -287,7 +287,7 @@ Ja. Exporteer elk type item uit Pipedrive als Excel-bestand en importeer het é�
 </FaqItem>
 
 <FaqItem question="Heeft Customermates automatiseringen zoals Pipedrive?">
-Niet van hetzelfde soort. De automatiseringen van Pipedrive zijn regels met triggers, vertragingen en als/anders-stappen, vanaf Growth. Customermates heeft geen regelbouwer; zijn routines voeren een opgeslagen instructie voor Mate uit volgens een schema of wanneer een record verandert, in Customermates Cloud met gehoste AI-credits: [[commercial.entitlement.starter.includedRoutinesPerUser]] per gebruiker op Starter en [[commercial.entitlement.pro.includedRoutinesPerUser]] op Pro. Voor deterministische workflows zijn er webhooks, de REST API en een communitynode voor je eigen n8n.
+Niet van hetzelfde soort. De automatiseringen van Pipedrive zijn regels met triggers, vertragingen en als/anders-stappen, vanaf Growth. De automatiseringen van Customermates zijn eenvoudiger, één keten van trigger, voorwaarden en acties zonder wachttijden of als/anders-stappen, op elk abonnement; zijn routines voeren een opgeslagen instructie voor Mate uit volgens een schema of wanneer een record verandert, in Customermates Cloud met gehoste AI-credits: [[commercial.entitlement.starter.includedRoutinesPerUser]] per gebruiker op Starter en [[commercial.entitlement.pro.includedRoutinesPerUser]] op Pro. Voor deterministische workflows zijn er webhooks, de REST API en een communitynode voor je eigen n8n.
 </FaqItem>
 </Faq>
 

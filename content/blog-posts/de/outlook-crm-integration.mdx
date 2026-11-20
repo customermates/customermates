@@ -58,7 +58,7 @@ Die meisten CRMs in der folgenden Tabelle kombinieren die ersten beiden: ein Add
 | Microsoft Dynamics 365 Sales | Dynamics 365 App für Outlook auf Desktop, Web und Mobilgerät: E-Mails, Besprechungen und Termine mit Firma, Verkaufschance oder Fall verknüpfen | Die serverseitige Synchronisierung läuft etwa alle 15 Minuten im Hintergrund; Kontakte lassen sich zwischen Exchange und Dynamics 365 synchronisieren | Nicht unterstützt für freigegebene Postfächer in Microsoft 365. Sales Professional steht auf der US-Preisseite mit 65 US-Dollar pro Nutzer und Monat bei jährlicher Zahlung |
 | Salesforce | Die Outlook-Integration, ein Seitenbereich in Outlook | Einstein Activity Capture für E-Mails und Termine | Salesforce for Outlook, das ältere Desktop-Produkt, wird eingestellt; Salesforce empfiehlt stattdessen die Outlook-Integration und Einstein Activity Capture |
 | Pipedrive | Pipedrive for Outlook, eine Marketplace-App von Baymats AB für Desktop und Web; 7 Tage kostenlos, danach ein eigenes Abo | E-Mail-Synchronisierung ab Growth mit Office 365 / Outlook, Exchange (EWS) und IMAP; verknüpft Konversationen mit Deals, Leads oder Projekten | Die E-Mail-Synchronisierung meldet auch Öffnungen. Das Add-in ist ein Drittanbieterprodukt |
-| Customermates | Kein Add-in | Outlook-Postfach im Posteingang des CRM ab Pro in Customermates Cloud; Kalender nur lesend | Keine Synchronisierung der Outlook-Kontakte, keine Termine schreiben. Details unten |
+| Customermates | Kein Add-in | Outlook-Postfach im Posteingang des CRM ab Pro in Customermates Cloud; geplante Termine landen in Ihrem Outlook-Kalender | Keine Synchronisierung der Outlook-Kontakte, kein Kalender-Sync in beide Richtungen. Details unten |
 
 Preise ändern sich; den Preis für Dynamics 365 haben wir am 8. Oktober 2026 auf [Microsofts Preisseite](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) geprüft.
 
@@ -99,7 +99,7 @@ Was danach synchronisiert wird und was nicht:
 |---|---|
 | Gesendete und empfangene E-Mails | Ja, aus den aktivierten Ordnern. Antworten werden über das Outlook-Konto selbst versendet |
 | E-Mail in einen Ordner verschieben | Ja, bei Outlook- und IMAP-Konten auch im echten Postfach |
-| Kalendertermine | Nur lesend. Termine erscheinen in der Aktivitäten-Zeitleiste; Customermates legt keine Termine an, ändert oder bucht keine |
+| Kalendertermine | Termine erscheinen in der Aktivitäten-Zeitleiste. Customermates schreibt nur die Termine, die Sie planen, und die Buchungen über Ihre Buchungsseiten (Cloud, ab Pro); andere Termine bleiben nur lesbar |
 | Outlook-Kontakte (Adressbuch) | Keine Synchronisierung, in keine Richtung. Kontakte entstehen durch Verknüpfen eines Teilnehmers oder im CRM |
 | Outlook-Aufgaben | Keine Synchronisierung |
 
@@ -122,7 +122,7 @@ Ein Team mit fünf Personen zahlt mit Pro [[commercial.price.pro.monthly.seats.5
 Um es mit Ihrem eigenen Outlook auszuprobieren, [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 <AcquisitionCallout title="Wann Customermates nicht passt" variant="boundary">
-Es gibt kein Outlook-Add-in, CRM-Daten schlagen Sie also in Customermates nach, nicht in einem Seitenbereich in Outlook. Outlook-Kontakte und -Aufgaben werden nicht synchronisiert, Kalendertermine sind nur lesbar. Serienmails oder Massenversand bietet Customermates nicht. Eine selbst gehostete Installation hat weder Posteingang noch Outlook-Anbindung, sondern REST, Webhooks und MCP. Wenn Ihr Team in Outlook bleiben muss oder die Kontakte mit dem Exchange-Adressbuch in beide Richtungen abgleichen will, wählen Sie ein CRM mit Web-Add-in und serverseitiger Synchronisierung aus der Tabelle oben.
+Es gibt kein Outlook-Add-in, CRM-Daten schlagen Sie also in Customermates nach, nicht in einem Seitenbereich in Outlook. Outlook-Kontakte und -Aufgaben werden nicht synchronisiert, Kalendertermine bleiben nur lesbar, außer den Terminen, die Sie planen, und den Buchungen über Ihre Buchungsseiten. Serienmails oder Massenversand bietet Customermates nicht. Eine selbst gehostete Installation hat weder Posteingang noch Outlook-Anbindung, sondern REST, Webhooks und MCP. Wenn Ihr Team in Outlook bleiben muss oder die Kontakte mit dem Exchange-Adressbuch in beide Richtungen abgleichen will, wählen Sie ein CRM mit Web-Add-in und serverseitiger Synchronisierung aus der Tabelle oben.
 </AcquisitionCallout>
 
 ## Jede Outlook-Integration vor dem Einsatz testen

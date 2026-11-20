@@ -1,6 +1,6 @@
 ---
 title: "Lead-Management-Software für kleine Teams"
-description: "Leads vom ersten Kontakt bis zum gewonnenen Deal verfolgen: Phase, Quelle, gespeicherte Ansichten und Gespräche am Kontakt. Ohne Scoring und Formulare."
+description: "Leads vom ersten Kontakt bis zum gewonnenen Deal verfolgen: Phase, Quelle, gespeicherte Ansichten und Gespräche am Kontakt. Mit Formularen, ohne Scoring."
 featureName: Lead Management
 
 relatedHrefs:
@@ -35,11 +35,11 @@ sections:
       - title: "Ab Pro"
         description: "E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Gespräche am Lead. Nur in Customermates Cloud."
       - title: "Nicht enthalten"
-        description: "Kein Lead-Scoring, keine Datenanreicherung, keine Webformulare, keine automatische Zuweisung, keine E-Mail-Sequenzen, keine Erinnerungen."
+        description: "Kein Lead-Scoring, keine Datenanreicherung, keine automatische Zuweisung, keine E-Mail-Sequenzen."
 
 hero:
   title: "Lead-Management: Bei jedem Lead nachfassen"
-  description: "Jeder Lead als Kontakt mit Phase, Quelle und allen E-Mails, LinkedIn- und WhatsApp-Nachrichten daneben. Sie sehen, welche Leads auf Sie warten, und lassen Mate das Nachfassen zur Prüfung entwerfen. Ohne Scoring und Formulare."
+  description: "Jeder Lead als Kontakt mit Phase, Quelle und allen E-Mails, LinkedIn- und WhatsApp-Nachrichten daneben. Sie sehen, welche Leads auf Sie warten, und lassen Mate das Nachfassen zur Prüfung entwerfen. Mit Formularen, ohne Scoring."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
@@ -60,13 +60,13 @@ Eine Lead-Management-Software hält alle Interessenten in einer Liste fest, zeig
 
 **Wo Leads einschlafen.** Ein Lead schläft ein, wenn die letzte Nachricht unbeantwortet bleibt oder niemand den nächsten Schritt festgelegt hat. Liegt das Gespräch am Lead, sehen Sie, was zuletzt gesagt wurde, und eine gespeicherte Ansicht, nach **Aktualisiert am** aufsteigend sortiert, listet die Leads, die niemand angefasst hat. In Customermates Cloud kann Mate das Nachfassen im Gespräch des Leads entwerfen, damit Sie es prüfen, bevor etwas gesendet wird.
 
-Genauso wichtig ist, was fehlt. Customermates vergibt keine Lead-Scores, reichert keine Daten an, stellt keine Webformulare bereit und verteilt Leads nicht automatisch im Rotationsprinzip. Wenn bei Ihnen Hunderte Leads im Monat aus Anzeigen und Formularen kommen, brauchen Sie diese Funktionen; die Tabelle weiter unten nennt Anbieter, die sie haben.
+Genauso wichtig ist, was fehlt. Customermates vergibt keine Lead-Scores, reichert keine Daten an und verteilt Leads nicht automatisch im Rotationsprinzip. Wenn bei Ihnen Hunderte Leads im Monat aus Anzeigen und Formularen kommen, brauchen Sie diese Funktionen; die Tabelle weiter unten nennt Anbieter, die sie haben.
 
 ## Was zum Lead Management gehört und was Customermates davon abdeckt
 
 | Schritt | In Customermates | Braucht ein anderes Tool |
 |---|---|---|
-| Erfassen | Von Hand, Excel-Import, neuer Kontakt direkt aus einem Gespräch im Posteingang, REST, MCP | Webformulare, Chat-Widgets, Lead-Formulare aus Anzeigen |
+| Erfassen | Von Hand, öffentliches Formular, Excel-Import, neuer Kontakt direkt aus einem Gespräch im Posteingang, REST, MCP | Chat-Widgets, Lead-Formulare aus Anzeigen |
 | Nachverfolgen | Phasenfeld am Kontakt, Deal-Phasen mit festen Gewichtungen, Änderungsverlauf | |
 | Qualifizieren | Ihre Kriterien als eigene Felder, gepflegt vom Team, von Mate oder Ihrem KI-Client | Automatische Scores und Firmendaten |
 | Zuweisen | Zugewiesene Nutzer an jedem Kontakt und Deal, von Hand oder per Anweisung | Verteilung nach Rotation oder Gebiet |
@@ -80,7 +80,7 @@ Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit ein
 - **Von Hand.** In der Kontaktliste auf **Hinzufügen**, ein paar Felder ausfüllen, fertig.
 - **Aus einem Gespräch (ab Pro).** Schreibt eine unbekannte Adresse an Ihr verbundenes Postfach, öffnen Sie die **Konversationseinstellungen**, klicken bei der Person auf **Verknüpfen** und wählen **„…“ erstellen**. Jede weitere Nachricht dieser Adresse erscheint am neuen Kontakt. Mehr dazu beim [einheitlichen Posteingang](/features/unified-inbox).
 - **Aus einer Tabelle.** Speichern Sie Ihre Liste als .xlsx-Datei und nutzen Sie **Weitere Aktionen › Aus Datei hinzufügen**, erst die Organisationen, dann die Kontakte. Leads, die Ihnen ein externer Dienstleister für Leadgenerierung liefert, übernehmen Sie auf demselben Weg.
-- **Aus einem Formular auf Ihrer Website.** Ihr Formular-Tool oder ein separater [n8n-Workflow](/features/workflow-automation) ruft die REST-API auf und legt den Kontakt mit seiner Quelle an. Einen eigenen Formular-Baukasten hat Customermates nicht.
+- **Aus einem Formular auf Ihrer Website.** Ihr Formular-Tool oder ein separater [n8n-Workflow](/features/workflow-automation) ruft die REST-API auf und legt den Kontakt mit seiner Quelle an. Customermates hat auch eigene öffentliche Formulare mit Link oder Einbettungscode, die den Datensatz direkt anlegen.
 - **Über Ihren KI-Client.** Claude, ChatGPT oder ein anderer MCP-Client legt Kontakte aus einer E-Mail-Signatur oder einer Teilnehmerliste an, mit [[derived.mcp.tools.total]] verfügbaren Tools.
 
 ## Einrichtung am Beispiel einer Beratung mit drei Personen
@@ -116,10 +116,10 @@ Selbst gehostet gibt es Mate nicht. Dort liest und schreibt Ihr eigener KI-Clien
 ## Was Customermates nicht kann
 
 - Kein Lead-Scoring und keine Datenanreicherung. Ein Feld Eignung hält fest, was Ihr Team entscheidet.
-- Keine einbettbaren Webformulare oder Chat-Widgets.
+- Keine Chat-Widgets.
 - Keine automatischen Zuweisungsregeln. Eine Routine kann einer schriftlichen Regel folgen („Leads von Messen an Jana“), ist aber eine Anweisung, keine Verteil-Engine.
 - Keine E-Mail-Sequenzen, keine Drip-Kampagnen, kein Massenversand. Nachfassen sind einzelne Nachrichten.
-- Keine Fälligkeitsdaten und keine Erinnerungen an Aufgaben. Legen Sie ein Datum in einem eigenen Feld ab und filtern Sie danach.
+- Keine eingebauten Fälligkeitsdaten an Aufgaben. Legen Sie ein Datum in einem eigenen Feld ab, filtern Sie danach und lassen Sie sich von einer Automatisierung erinnern.
 - Keine Mobile-App. Die Web-App funktioniert auch auf schmalen Bildschirmen.
 
 ## Welche Art von Tool passt
@@ -159,7 +159,7 @@ Ja. Speichern Sie die gelieferte Liste als .xlsx-Datei und importieren Sie sie, 
 </FaqItem>
 
 <FaqItem question="Lässt sich das Lead-Tracking mit meiner Website oder meinen Anzeigen verbinden?">
-Über die REST-API, n8n oder den Webhook Ihres Formular-Tools, ja: Diese legen den Kontakt an und schreiben UTM- oder Kampagnenwerte in eigene Felder. Einen Formular-Baukasten oder eine Anbindung an Werbeplattformen hat Customermates nicht.
+Über die REST-API, n8n oder den Webhook Ihres Formular-Tools, ja: Diese legen den Kontakt an und schreiben UTM- oder Kampagnenwerte in eigene Felder. Customermates hat auch eigene öffentliche Formulare, aber keine Anbindung an Werbeplattformen.
 </FaqItem>
 
 <FaqItem question="Was kostet Lead-Management-Software?">

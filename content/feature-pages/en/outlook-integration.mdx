@@ -35,11 +35,11 @@ sections:
       - title: "How it works"
         description: "No Outlook add-in or sidebar. Customermates reads and sends through the connected account, so it works whichever Outlook app you write in."
       - title: "Not included"
-        description: "No sync of Outlook address-book contacts, no creating or booking calendar events, no bulk email."
+        description: "No sync of Outlook address-book contacts, no two-way calendar sync, no bulk email."
 
 hero:
   title: "Every Outlook thread on its client, without an add-in"
-  description: "Connect Outlook once and its email threads land on the matching contact. See who is waiting for your answer, have Mate draft the reply and send it from the CRM or from Outlook. Calendar is read-only. Cloud from Pro, [[commercial.price.pro.monthly]] per user per month."
+  description: "Connect Outlook once and its email threads land on the matching contact. See who is waiting for your answer, have Mate draft the reply and send it from the CRM or from Outlook. Schedule meetings into your Outlook calendar. Cloud from Pro, [[commercial.price.pro.monthly]] per user per month."
   buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
@@ -82,7 +82,7 @@ If you need Outlook contacts kept in sync both ways, or a CRM pane inside Outloo
 
 **Replies and new emails from the CRM.** Reply in the thread's composer, with To, Cc and Bcc, Markdown formatting and attached files. Start a new email from a contact's **Contact details** block. Each Outlook account has its own font, link colour and signature on its **Email** tab. Once switched on, the signature is added to every email sent from that account, whether from the inbox, the API or MCP.
 
-**Calendar, read-only.** Events from the connected Outlook calendar appear in the **Account & calendar** category of activity timeline widgets, and AI clients read them over MCP with `get_calendars`. They also appear on the Calendar page next to the dates from your records. Customermates never creates, changes or books events in Outlook.
+**Calendar.** Events from the connected Outlook calendar appear in the **Account & calendar** category of activity timeline widgets, and AI clients read them over MCP with `get_calendars`. They also appear on the Calendar page next to the dates from your records. On Customermates Cloud from Pro you schedule meetings into Outlook and offer booking pages; Customermates does not change or move your other Outlook events.
 
 ## Set it up
 
@@ -115,7 +115,7 @@ The deciding point is the account allowance: Pro includes [[commercial.entitleme
 
 - No Outlook add-in, sidebar or ribbon button. CRM details are looked up in Customermates.
 - Outlook address-book contacts are not synchronized in either direction. Contacts are created in Customermates, by linking a sender, manually or by [XLSX import](/docs/app-records).
-- Calendar data is read-only. No meeting booking, no event writes.
+- No two-way calendar sync: Customermates writes only the meetings you schedule and the bookings from your booking pages, and other Outlook events stay read-only.
 - No mass email or sequences. Every email is written and sent individually.
 - Disconnecting an account permanently deletes the threads, messages and calendar events Customermates imported from it.
 - Providers limit how fast mail can be read and sent; the current budgets are in [messaging rate limits](/docs/messaging-rate-limits).

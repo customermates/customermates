@@ -35,7 +35,7 @@ sections:
       - title: "Widoki"
         description: "Tabela lub tablica, grupowana według pola wyboru, takiego jak Status, z zapisanymi widokami, które możesz udostępniać."
       - title: "Nie wchodzi w zakres"
-        description: "Brak terminów, przypomnień, powiadomień, zadań cyklicznych, zależności, rejestrowania czasu i wykresów Gantta."
+        description: "Brak wbudowanych terminów, zadań cyklicznych, zależności, rejestrowania czasu i wykresów Gantta."
 
 hero:
   title: "Zadania w CRM: zamień każdą obietnicę dla klienta w zadanie przy jego rekordzie"
@@ -60,7 +60,7 @@ Zadania w CRM oznaczają, że rzecz do zrobienia żyje przy rekordzie klienta: �
 
 **Gdzie to pomaga w follow-upie.** Obietnica złożona podczas rozmowy żyje w czyjejś głowie, dopóki nie stanie się zadaniem. Jako zadanie przy szansie sprzedaży i kontakcie pojawia się na obu rekordach, a zapisany widok szans sprzedaży bez żadnego zadania wskazuje każdego klienta, którego kolejnego kroku nikt nie zapisał.
 
-Nie ma wbudowanego terminu, przypomnienia, alertu o zaległości ani zadania cyklicznego. Pole **Status** w zadaniach to zwykłe pole Pojedynczy wybór, które tworzysz, któremu zmieniasz nazwę albo które zastępujesz innym. Customermates nie pasuje do zespołu, który planuje tydzień wokół przypomnień i terminów zadań. Lepiej sprawdzi się tam CRM z zaplanowanymi aktywnościami, a tabela niżej wymienia dwa takie. Jeśli chcesz zadań, które niosą kontekst klienta i które AI może tworzyć i aktualizować, czytaj dalej.
+Nie ma wbudowanego terminu, stanu zaległości ani zadania cyklicznego; przypomnienie wysyła automatyzacja na dodanym przez Ciebie polu daty. Pole **Status** w zadaniach to zwykłe pole Pojedynczy wybór, które tworzysz, któremu zmieniasz nazwę albo które zastępujesz innym. Customermates nie pasuje do zespołu, który planuje tydzień wokół zaplanowanych aktywności i terminów zadań. Lepiej sprawdzi się tam CRM z zaplanowanymi aktywnościami, a tabela niżej wymienia dwa takie. Jeśli chcesz zadań, które niosą kontekst klienta i które AI może tworzyć i aktualizować, czytaj dalej.
 
 ## Czym jest zadanie w Customermates
 
@@ -85,7 +85,7 @@ Przychodzisz z arkusza albo z innego narzędzia? Zadania importuje się ze skoro
 
 > Co poniedziałek o 8:00: wypisz moje zadania, których Data docelowa jest wcześniejsza niż dziś, a Status nie jest ani Ukończone, ani Zarchiwizowane. Pogrupuj je według powiązanej organizacji i zaproponuj następne działanie dla każdego. Niczego nie zmieniaj ani nie wysyłaj.
 
-Rutyny działają jako ich właściciel, z jego dostępem i kredytami, a wynik czytasz w szczegółach uruchomienia. Customermates nie wysyła powiadomienia po zakończeniu uruchomienia, więc rutyna nie zastępuje przypomnienia, dopóki ktoś jej nie otworzy. Inna przydatna rutyna reaguje na aktualizację szansy sprzedaży i, jeśli jej etap to teraz Wygrana, tworzy zadania wdrożeniowe i powiązuje je z szansą sprzedaży.
+Rutyny działają jako ich właściciel, z jego dostępem i kredytami, a wynik czytasz w szczegółach uruchomienia. Customermates nie wysyła powiadomienia po zakończeniu uruchomienia, więc do przypomnień użyj raczej automatyzacji na dacie. Inna przydatna rutyna reaguje na aktualizację szansy sprzedaży i, jeśli jej etap to teraz Wygrana, tworzy zadania wdrożeniowe i powiązuje je z szansą sprzedaży.
 
 **Z własnym klientem AI** Claude, ChatGPT lub inny klient podłączony przez [MCP](/docs/mcp) może używać `mutate_crm_record` na tych samych rekordach. Działa to także w instalacjach self-hosted, z kosztami Twojego dostawcy AI zamiast hostowanych kredytów.
 
@@ -113,7 +113,7 @@ Zadania są w każdym planie. Zespół pięciu osób na Starterze płaci [[comme
 
 <Faq>
 <FaqItem question="Czy Customermates ma terminy zadań i przypomnienia?">
-Nie. Zadania nie mają pola terminu, przypomnień ani powiadomień. Dodaj własne pole Data, posortuj po nim zapisany widok, a w Customermates Cloud pozwól rutynie wypisać zadania, których data minęła. Customermates nie wysyła e-maili z przypomnieniami; do tego potrzebujesz CRM z zaplanowanymi aktywnościami albo własnego harmonogramu czytającego API.
+Nie wbudowane. Zadania nie mają pola terminu, więc dodaj własne pole Data i posortuj po nim zapisany widok. Automatyzacja na tym polu powiadamia osobę przypisaną, gdy nadejdzie data, na stronie Powiadomienia i e-mailem, a w Customermates Cloud rutyna może wypisać zadania, których data minęła.
 </FaqItem>
 <FaqItem question="Czy mogę śledzić status zadań na tablicy Kanban?">
 Tak, przez pole Pojedynczy wybór. Dodaj pole **Status** do listy zadań. Pogrupuj tablicę według niego i przeciągaj karty między kolumnami; możesz zmieniać nazwy opcji albo grupować według innego pola, takiego jak Priorytet.

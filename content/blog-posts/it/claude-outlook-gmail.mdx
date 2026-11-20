@@ -51,7 +51,7 @@ Sono sette. La tabella dice chi gestisce ciascuna e cosa ottiene Claude, al 16 n
 | Server MCP di Gmail di Google | Google | Cercare e leggere conversazioni, etichette, creare bozze; nessuno strumento invia | Developer Preview nel Google Workspace Developer Preview Program; servono un progetto Google Cloud e un client OAuth proprio |
 | Offerte MCP di Microsoft (Work IQ MCP, vecchi strumenti Mail) | Microsoft | Leggere, scrivere e inviare posta tramite un server protetto da Entra | Work IQ richiede un Global Administrator e un piano di fatturazione a consumo in Copilot Studio; Microsoft riserva gli strumenti Mail alla compatibilità con il passato |
 | Ponti della community | Singoli sviluppatori, elencati in directory | Molto variabile a seconda del progetto | Nessun impegno di un fornitore; affidi l’accesso alla casella al programma di uno sconosciuto |
-| Un CRM con la casella collegata, come connettore (Customermates) | Customermates | Conversazioni presso il cliente, schede, attività, note, base di conoscenza, salvataggio di una bozza; calendario in sola lettura | Customermates Cloud da Pro, o prova |
+| Un CRM con la casella collegata, come connettore (Customermates) | Customermates | Conversazioni presso il cliente, schede, attività, note, base di conoscenza, salvataggio di una bozza; pianificare riunioni in un calendario collegato | Customermates Cloud da Pro, o prova |
 
 Quale scegliere dipende dal compito:
 
@@ -128,7 +128,7 @@ La maggior parte delle domande su «Claude e Outlook» mescola tre accessi. Sepa
 | Accesso | A cosa serve a Claude | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Casella di posta | Leggere la conversazione, formulare la risposta | Connettore Gmail | Claude for Outlook o connettore Microsoft 365 | Conversazioni della casella collegata nella Posta in arrivo, solo le cartelle che hai attivato |
-| Calendario | Proporre orari, verificare la disponibilità | Connettore Google Calendar, con accesso in scrittura | Claude for Outlook (trovare orari, invito come bozza) o connettore Microsoft 365, strumenti di scrittura dopo l’ok di un admin | Sola lettura (`get_calendars`), nessuna prenotazione |
+| Calendario | Proporre orari, verificare la disponibilità | Connettore Google Calendar, con accesso in scrittura | Claude for Outlook (trovare orari, invito come bozza) o connettore Microsoft 365, strumenti di scrittura dopo l’ok di un admin | `get_calendars` per leggere, `schedule_meeting` per pianificare, spostare e annullare riunioni (Cloud, da Pro in su) |
 | Cronologia del cliente | Chi è, quale trattativa, cosa è stato promesso | Assente | Assente | Schede, attività, note, file, base di conoscenza |
 | Invio | Inviare la risposta | Claude chiede prima, per impostazione predefinita | Componente aggiuntivo: non invia mai, la bozza resta in Outlook; connettore, account personali: Claude chiede prima; account di lavoro: solo dopo l’attivazione degli strumenti di scrittura da parte di un admin | `save_message_draft` salva una bozza; `send_email` invia subito se consenti lo strumento |
 
@@ -173,7 +173,7 @@ Un messaggio in arrivo è un testo scritto da uno sconosciuto, e Claude lo legge
 ## Quando Customermates è la scelta sbagliata per questo? [#wrong-choice]
 
 - **Vuoi solo consultare una casella.** Il connettore di Anthropic per Gmail o Microsoft 365 basta e non richiede alcun CRM.
-- **Claude deve fissare appuntamenti.** Customermates legge i calendari collegati solo in lettura e non prenota appuntamenti. Aggiungi per questo il connettore Google Calendar o Microsoft 365.
+- **Claude deve fissare appuntamenti.** In Customermates Cloud da Pro, Claude pianifica tramite Customermates nuove riunioni nel tuo calendario Google o Microsoft collegato, ma non modifica né sposta gli altri eventi. Aggiungi per questo il connettore Google Calendar o Microsoft 365.
 - **Sei su Free, Starter o su un’istanza self-hosted.** La Posta in arrivo e gli strumenti di messaggistica partono da Pro nel cloud. In self-hosting restano MCP, schede e base di conoscenza, ma senza casella.
 - **Non vuoi una copia della cronologia delle conversazioni.** Customermates importa nella sua Posta in arrivo le cartelle che hai attivato, e scollegare l’account cancella di nuovo l’importazione. I connettori di Anthropic tengono i dati recuperati solo nella chat.
 - **Ti servono sequenze.** Customermates non ha sequenze né invii di massa; ogni messaggio nasce singolarmente.
@@ -203,7 +203,7 @@ Non per impostazione predefinita. Con il connettore Gmail Claude chiede prima di
 </FaqItem>
 
 <FaqItem question="Claude può creare appuntamenti in Outlook o Google Calendar?">
-Con i connettori di Anthropic sì, e su Microsoft 365 solo con gli strumenti di scrittura attivi. Customermates legge i calendari collegati solo in lettura e non prenota appuntamenti.
+Con i connettori di Anthropic sì, e su Microsoft 365 solo con gli strumenti di scrittura attivi. Customermates, in Cloud da Pro, pianifica nuove riunioni in un calendario collegato ma non modifica gli altri eventi.
 </FaqItem>
 
 <FaqItem question="Funziona con un account Outlook.com personale?">

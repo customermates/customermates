@@ -131,13 +131,13 @@ cta:
 
 Un logiciel de relance client sert à ce que le prochain contact avec chaque client ait lieu et à montrer à celui qui le fait ce qui a été dit en dernier. Dans Customermates, cela donne des conversations LinkedIn et e-mail rattachées à la fiche client, une prochaine étape datée sur chaque client, et des brouillons de Mate ou de votre propre IA que vous relisez et envoyez.
 
-C’est une liste que vous ouvrez, pas un rappel qui vous trouve. Customermates n’envoie aucune notification de rappel, n’a pas d’échéance intégrée aux tâches et ne lance aucune séquence d’e-mails. Si votre équipe en dépend, la comparaison plus bas nomme deux outils qui conviennent mieux.
+C’est une liste que vous ouvrez, et une automatisation sur la date y ajoute un rappel qui vous trouve. Customermates n’a pas d’échéance intégrée aux tâches et ne lance aucune séquence d’e-mails. Si votre équipe en dépend, la comparaison plus bas nomme deux outils qui conviennent mieux.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Comment ça marche">Un champ Texte « Prochaine étape » et un champ Date « Date de la prochaine étape » sur le client, des vues enregistrées triées selon cette date, un widget À venir sur le tableau de bord et un filtre de boîte de réception pour les fils dont vous attendez la réponse.</SummaryItem>
   <SummaryItem label="Formules">Champs de date, vues enregistrées et tableau de bord sur toutes les formules, auto-hébergement compris. La boîte de réception demande Pro ou supérieur. Mate et les routines ne fonctionnent que dans Customermates Cloud.</SummaryItem>
   <SummaryItem label="Aide de l’IA">Mate ou votre propre client IA via MCP enregistre un brouillon de relance dans le fil. Vous le relisez, le modifiez et l’envoyez. Une routine peut préparer des brouillons selon un planning.</SummaryItem>
-  <SummaryItem label="Non inclus">Ni notifications, ni échéances sur les tâches, ni séquences, ni envoi en masse, ni appels ni SMS. Vous ouvrez la liste ; rien ne sonne.</SummaryItem>
+  <SummaryItem label="Non inclus">Ni échéances intégrées sur les tâches, ni séquences, ni envoi en masse, ni appels ni SMS. Les rappels viennent d’une automatisation que vous placez sur la date.</SummaryItem>
 </ArticleSummary>
 
 ## Que doit faire un logiciel de relance client ?
@@ -161,7 +161,7 @@ Voici la scène du vendredi de la démo plus haut, dans l’ordre où vous la tr
 1. **Vendredi, 16:42 : la réponse arrive.** Jonas Weber, de Halden & Co., répond sur LinkedIn : « Ça me va. Pouvez-vous m’envoyer la proposition révisée la semaine prochaine ? Je la présenterai à notre direction. » Les **Coordonnées** de sa fiche contiennent son profil LinkedIn et son adresse e-mail : ce fil et le fil d’e-mails du mois dernier apparaissent donc tous deux dans les **Activités** de l’enregistrement et dans la [boîte de réception](/features/unified-inbox).
 2. **Vendredi soir : vous demandez un brouillon.** Dans le fil, demandez à Mate : « Rédige une réponse : proposition révisée mardi, avec les deux options d’atelier. Mets Prochaine étape sur Envoyer la proposition révisée et Date de la prochaine étape sur mardi. » Mate enregistre le brouillon dans la conversation et remplit les deux champs. Votre propre client IA, comme Claude ou ChatGPT, peut faire de même via [MCP](/docs/mcp) dans Customermates Cloud. Demandez un brouillon, pas un envoi : Mate envoie dès que vous le lui dites.
 3. **Vous relisez et envoyez.** Le brouillon attend dans le fil avec **Envoyer le brouillon**, **Modifier** et **Abandonner**. Relisez-le face au fil, corrigez la formulation et envoyez-le. Il part sur LinkedIn depuis votre compte connecté, comme un message individuel.
-4. **Mardi matin : c’est sur votre tableau de bord.** Le widget À venir place Jonas à aujourd’hui, et votre vue « Relances » affiche le texte de **Prochaine étape** à côté de la date. Vous envoyez la proposition, écrivez une ligne dans les notes et repoussez **Date de la prochaine étape** au jour où vous reverrez le dossier. Si mardi passe, il bascule dans **En retard** le mercredi. Rien ne vous prévient : le tableau de bord est le rappel.
+4. **Mardi matin : c’est sur votre tableau de bord.** Le widget À venir place Jonas à aujourd’hui, et votre vue « Relances » affiche le texte de **Prochaine étape** à côté de la date. Vous envoyez la proposition, écrivez une ligne dans les notes et repoussez **Date de la prochaine étape** au jour où vous reverrez le dossier. Si mardi passe, il bascule dans **En retard** le mercredi. Une automatisation sur **Date de la prochaine étape** peut aussi vous prévenir ce matin-là, sur la page Notifications et par e-mail.
 
 | Sur la fiche de Jonas Weber | Valeur | D’où cela vient |
 |---|---|---|
@@ -203,7 +203,7 @@ La consigne « N’envoyez rien » compte. Mate envoie des messages sans redem
 Un exemple d’évènement : une routine réglée sur **Quand quelque chose change** pour les mises à jour d’affaires, avec l’instruction « Si l’étape est passée à Proposition, règle Date de la prochaine étape à cinq jours ouvrés à partir d’aujourd’hui et crée une tâche « Relancer la proposition » attribuée aux utilisateurs attribués de l’affaire. » Les modifications faites par une routine ne lancent jamais d’autres routines : cela ne peut donc pas boucler.
 
 <AcquisitionCallout title="Ce que la relance dans Customermates n’inclut pas" variant="boundary">
-  Ni notifications ni e-mails de rappel, ni échéance intégrée ni état de retard sur les tâches, ni tâches récurrentes. Ni séquences d’e-mails, ni campagnes goutte-à-goutte, ni envoi en masse ; chaque message est écrit et envoyé un à la fois. Une vue que vous partagez est en lecture seule pour vos collègues. Les installations auto-hébergées n’ont ni boîte de réception, ni Mate, ni routines.
+  Ni échéance intégrée ni état de retard sur les tâches, ni tâches récurrentes, et les rappels viennent d’automatisations sur des champs date. Ni séquences d’e-mails, ni campagnes goutte-à-goutte, ni envoi en masse ; chaque message est écrit et envoyé un à la fois. Une vue que vous partagez est en lecture seule pour vos collègues. Les installations auto-hébergées n’ont ni boîte de réception, ni Mate, ni routines.
 </AcquisitionCallout>
 
 ## Comment cela s’articule avec LinkedIn, l’e-mail et le reste ?
@@ -211,11 +211,11 @@ Un exemple d’évènement : une routine réglée sur **Quand quelque chose cha
 - **Boîte de réception (Pro et supérieur) :** les relances partent du canal d’origine, et un fil est relié au contact par ses participants : l’historique s’affiche donc sur l’enregistrement. Les [conversations LinkedIn](/features/linkedin-integration) fonctionnent comme l’e-mail, avec le compte LinkedIn que vous connectez.
 - **Tâches :** si une étape demande un responsable ou une liste de contrôle, créez une tâche liée au client. Les tâches n’ont pas d’échéance propre : donnez-leur un champ Date, comme dans la [gestion des tâches](/features/task-management).
 - **MCP :** votre propre client IA, comme Claude ou ChatGPT, peut lire les mêmes vues et fils via [[derived.mcp.tools.total]] outils MCP et enregistrer des brouillons. Cela fonctionne aussi en auto-hébergement, hors boîte de réception. Voir le [guide MCP](/docs/mcp).
-- **Webhooks et n8n :** si vous avez besoin d’une vraie notification, par exemple un message dans le chat de votre équipe quand une Date de la prochaine étape est dépassée, faites-la tourner dans n8n ou dans votre propre planificateur via l’API REST. n8n est un produit distinct avec ses propres formules. Voir [l’automatisation des workflows](/features/workflow-automation).
+- **Webhooks et n8n :** si vous avez besoin de la notification ailleurs, par exemple un message dans le chat de votre équipe quand une Date de la prochaine étape est dépassée, faites-la tourner dans n8n ou dans votre propre planificateur via l’API REST. n8n est un produit distinct avec ses propres formules. Voir [l’automatisation des workflows](/features/workflow-automation).
 
 ## Dans quels cas Customermates est-il le mauvais choix pour la relance ?
 
-Customermates publie cette page : lisez donc la comparaison en gardant cela en tête. Customermates est le mauvais choix si vous avez besoin de rappels qui vous atteignent, d’une cadence qui s’envoie seule ou d’une relance par téléphone ou par SMS : il n’y a ni notifications, ni séquences, ni canal téléphonie ou SMS, ni application mobile native.
+Customermates publie cette page : lisez donc la comparaison en gardant cela en tête. Customermates est le mauvais choix si vous avez besoin d’une cadence qui s’envoie seule ou d’une relance par téléphone ou par SMS : il n’y a ni séquences, ni canal téléphonie ou SMS, ni application mobile native.
 
 | Si vous avez besoin de | Regardez | Pourquoi |
 |---|---|---|
@@ -239,10 +239,10 @@ Cela dépend de votre façon de relancer. Si vous envoyez la même série d’e-
 Customermates propose une formule Free pour une personne avec [[commercial.limit.free.maxRecords]] enregistrements : champs de date, vues enregistrées et tableau de bord y fonctionnent, la liste de relances ne coûte donc rien. La boîte de réception, Mate et les routines commencent sur les formules payantes (la boîte de réception avec Pro) ; la Community Edition s’auto-héberge gratuitement, sans boîte de réception, Mate ni routines.
 </FaqItem>
 <FaqItem question="Customermates a-t-il des rappels de relance ou des échéances ?">
-Non. Il n’y a pas de notifications, et les tâches n’ont pas d’échéance intégrée. Ajoutez un champ Date personnalisé, triez une vue enregistrée selon ce champ et affichez-le dans un widget À venir sur votre tableau de bord. Si vous avez besoin d’une notification push, n8n ou un autre planificateur peut lire cette date via l’API et vous prévenir.
+Des rappels, oui, des échéances intégrées, non. Ajoutez un champ Date personnalisé, triez une vue enregistrée selon ce champ, affichez-le dans un widget À venir sur votre tableau de bord et ajoutez une automatisation qui vous prévient quand la date arrive. Si vous avez besoin d’une notification push sur votre téléphone, n8n ou un autre planificateur peut lire cette date via l’API et vous prévenir.
 </FaqItem>
 <FaqItem question="Existe-t-il un CRM qui repère les affaires dans les conversations par e-mail et me rappelle de relancer ?">
-Customermates n’envoie pas de rappels. Dans Customermates Cloud, une routine déclenchée par un e-mail entrant peut demander à Mate de vérifier si la conversation appartient à une affaire existante, de mettre à jour cette affaire et de définir sa Date de la prochaine étape, dans les limites des routines décrites dans le [guide des routines](/docs/app-routines#what-are-the-limits). L’affaire apparaît alors dans votre vue de relances. Le filtre de la boîte de réception pour les fils où vous avez écrit en dernier couvre le reste.
+Une automatisation sur la Date de la prochaine étape envoie le rappel. Dans Customermates Cloud, une routine déclenchée par un e-mail entrant peut demander à Mate de vérifier si la conversation appartient à une affaire existante, de mettre à jour cette affaire et de définir sa Date de la prochaine étape, dans les limites des routines décrites dans le [guide des routines](/docs/app-routines#what-are-the-limits). L’affaire apparaît alors dans votre vue de relances. Le filtre de la boîte de réception pour les fils où vous avez écrit en dernier couvre le reste.
 </FaqItem>
 <FaqItem question="Puis-je automatiser les e-mails de relance ?">
 Pas sous forme de séquence. Une routine dans Customermates Cloud peut écrire des brouillons individuels selon un planning, et vous les envoyez après relecture. Elle peut aussi envoyer si l’instruction le dit, un message par conversation. Les cadences en masse ou en plusieurs étapes demandent un outil de séquençage dédié.

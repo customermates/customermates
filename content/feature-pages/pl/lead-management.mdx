@@ -35,11 +35,11 @@ sections:
       - title: "Pro i wyższe"
         description: "Rozmowy e-mail, LinkedIn, WhatsApp, Instagram i Telegram przy leadzie. Tylko Customermates Cloud."
       - title: "Czego nie ma"
-        description: "Brak lead scoringu, wzbogacania danych, formularzy internetowych, automatycznego przydziału, sekwencji e-maili i przypomnień."
+        description: "Brak lead scoringu, wzbogacania danych, automatycznego przydziału i sekwencji e-maili."
 
 hero:
   title: "Lead management: wracaj do każdego leada"
-  description: "Trzymaj każdego leada jako kontakt z etapem, źródłem i każdą wiadomością e-mail, LinkedIn lub WhatsApp obok. Zobacz, które leady czekają na Ciebie, i pozwól Mate przygotować follow up do Twojej weryfikacji. Bez scoringu, bez formularzy."
+  description: "Trzymaj każdego leada jako kontakt z etapem, źródłem i każdą wiadomością e-mail, LinkedIn lub WhatsApp obok. Zobacz, które leady czekają na Ciebie, i pozwól Mate przygotować follow up do Twojej weryfikacji. Formularze publiczne, bez scoringu."
   buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Zobacz demo na żywo
@@ -60,7 +60,7 @@ Lead management to prowadzenie każdego potencjalnego klienta, czyli leada, od p
 
 **Gdzie leady cichną.** Lead zatrzymuje się, gdy ostatnia wiadomość zostaje bez odpowiedzi albo nikt nie ustawił następnego kroku. Gdy rozmowa leży przy leadzie, widzisz, co zostało powiedziane ostatnio, a zapisany widok posortowany według **Zaktualizowano**, od najstarszych, wypisuje leady, których nikt nie ruszał. Mate w Customermates Cloud może przygotować follow up w rozmowie leada, a Ty sprawdzasz go, zanim cokolwiek zostanie wysłane.
 
-To, czego brakuje, ma tak samo duże znaczenie. Customermates nie punktuje leadów, nie wzbogaca rekordów, nie hostuje formularzy internetowych i nie rozdziela niczego rotacyjnie. Jeśli Twoje leady napływają setkami z reklam i formularzy, potrzebujesz tych silników, a tabela niżej wskazuje narzędzia, które je mają.
+To, czego brakuje, ma tak samo duże znaczenie. Customermates nie punktuje leadów, nie wzbogaca rekordów i nie rozdziela niczego rotacyjnie. Jeśli Twoje leady napływają setkami z reklam i formularzy, potrzebujesz tych silników, a tabela niżej wskazuje narzędzia, które je mają.
 
 ## Co to jest lead i czym różni się od lead generation? [#co-to-jest-lead]
 
@@ -74,7 +74,7 @@ To, czego brakuje, ma tak samo duże znaczenie. Customermates nie punktuje lead�
 
 | Krok | W Customermates | Wymaga innego narzędzia |
 |---|---|---|
-| Przechwytywanie | Ręczne wprowadzanie, import Excela, powiązanie rozmowy ze skrzynki odbiorczej z nowym kontaktem, REST, MCP | Formularze internetowe, widżety czatu, formularze leadów z reklam |
+| Przechwytywanie | Ręczne wprowadzanie, publiczny formularz, import Excela, powiązanie rozmowy ze skrzynki odbiorczej z nowym kontaktem, REST, MCP | Widżety czatu, formularze leadów z reklam |
 | Śledzenie | Pole etapu przy kontaktach, etapy szans sprzedaży ze stałymi wagami, historia zmian | |
 | Kwalifikacja | Twoje własne kryteria jako pola niestandardowe, wypełniane przez ludzi, Mate albo Twojego klienta AI | Automatyczne punkty i dane firmograficzne |
 | Przydział | Przypisani użytkownicy przy każdym kontakcie i szansie sprzedaży, ustawiani ręcznie albo instrukcją | Rotacyjny przydział lub według terytorium |
@@ -88,7 +88,7 @@ Dla firmy doradczej, agencji albo założyciela, który dostaje kilkadziesiąt z
 - **Ręcznie.** **Dodaj** na liście kontaktów, kilka pól, gotowe.
 - **Z rozmowy (Pro i wyższe).** Gdy nieznany adres pisze na Twoją podłączoną skrzynkę odbiorczą, otwórz **Ustawienia wątku**, kliknij **Powiąż** obok osoby i wybierz **Utwórz „…”**. Każda późniejsza wiadomość z tego adresu pojawia się przy nowym kontakcie. Zobacz [wspólną skrzynkę odbiorczą](/features/unified-inbox).
 - **Z arkusza.** Zapisz listę jako skoroszyt .xlsx i użyj **Więcej działań › Dodaj z pliku**. Najpierw importuj organizacje, potem kontakty. Lista leadów kupiona od zewnętrznej agencji lead generation albo zbudowana przez nią trafia tą samą drogą.
-- **Z formularza na stronie, którego już używasz.** Twoje narzędzie do formularzy albo osobny [workflow n8n](/features/workflow-automation) wywołuje REST API i tworzy kontakt z wartością źródła. Customermates nie ma własnego kreatora formularzy.
+- **Z formularza na stronie, którego już używasz.** Twoje narzędzie do formularzy albo osobny [workflow n8n](/features/workflow-automation) wywołuje REST API i tworzy kontakt z wartością źródła. Customermates ma też własne publiczne formularze z linkiem lub kodem do osadzenia, które od razu tworzą rekord.
 - **Z Twojego klienta AI.** Claude, ChatGPT lub inny klient MCP może tworzyć kontakty z wklejonej stopki e-maila albo listy z wydarzenia, przy [[derived.mcp.tools.total]] dostępnych narzędziach.
 
 ## Jak to ustawić: trzyosobowa firma doradcza
@@ -133,10 +133,10 @@ Przy self-hostingu nie ma Mate. Twój własny klient AI robi to samo czytanie i 
 ## Czego nie robi
 
 - Brak lead scoringu i wzbogacania danych. Pole Dopasowanie zawiera to, co zdecyduje Twój zespół.
-- Brak osadzanych formularzy internetowych ani widżetów czatu.
+- Brak widżetów czatu.
 - Brak reguł automatycznego przydziału. Rutyna może zastosować Twoją spisaną regułę („przypisuj leady z Wydarzenia do Jany”), ale to instrukcja, a nie silnik rozdziału.
 - Brak sekwencji e-maili, kampanii kroplowych i masowych e-maili. Follow upy to pojedyncze wiadomości.
-- Brak przypomnień i terminów w zadaniach. Wpisz datę w pole niestandardowe i filtruj po niej.
+- Brak wbudowanych terminów w zadaniach. Wpisz datę w pole niestandardowe, filtruj po niej i pozwól automatyzacji przypomnieć.
 - Brak aplikacji mobilnej. Aplikacja webowa działa na wąskich ekranach.
 
 ## Jaki rodzaj narzędzia pasuje
@@ -180,7 +180,7 @@ To zależy od wolumenu. Przy setkach leadów z formularzy miesięcznie liczą si
 </FaqItem>
 
 <FaqItem question="Czy Customermates może zintegrować śledzenie leadów z moją stroną lub reklamami?">
-Przez REST API, n8n albo webhook narzędzia do formularzy, tak: tworzą kontakt i zapisują wartości UTM lub kampanii w polach niestandardowych. Customermates nie ma kreatora formularzy ani własnego połączenia z platformami reklamowymi.
+Przez REST API, n8n albo webhook narzędzia do formularzy, tak: tworzą kontakt i zapisują wartości UTM lub kampanii w polach niestandardowych. Customermates ma też własne publiczne formularze, ale nie ma własnego połączenia z platformami reklamowymi.
 </FaqItem>
 
 <FaqItem question="Czy mogę zaimportować leady od zewnętrznego dostawcy lead generation?">

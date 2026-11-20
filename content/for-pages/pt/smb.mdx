@@ -110,7 +110,7 @@ landing:
     eyebrow: Preços
     title: O Pro resolve. [[commercial.price.pro.monthly]] por pessoa ao mês.
     description: Uma caixa de e-mail da equipe que várias pessoas respondem exige o Business, a [[commercial.price.business.monthly]]. O Starter, a [[commercial.price.starter.monthly]], não tem caixa de entrada. A sua própria assinatura do Claude ou do ChatGPT continua com o provedor dela.
-    limits: Não serve se você precisa de orçamentos ou faturas, formulários web, telefone ou SMS, ou sequências de e-mail. Isso fica nas suas outras ferramentas.
+    limits: Não serve se você precisa de orçamentos ou faturas, telefone ou SMS, ou sequências de e-mail. Isso fica nas suas outras ferramentas.
     primaryCta:
       label: Comece seu teste de [[commercial.trial.days]] dias
       href: /auth/signup?job=followup
@@ -169,8 +169,9 @@ Um CRM para pequenas empresas passa a fazer sentido quando mais de uma pessoa co
     todos os planos.
   </SummaryItem>
   <SummaryItem label="Não inclui">
-    Sem formulários web, aplicativos nativos para celular, telefonia, SMS nem
-    agendamento no calendário, e sem orçamentos nem faturas.
+    Sem aplicativos nativos para celular, telefonia, SMS, orçamentos nem
+    faturas. As páginas de agendamento exigem o Customermates Cloud a partir do
+    Pro.
   </SummaryItem>
 </ArticleSummary>
 
@@ -226,7 +227,7 @@ O [espaço de trabalho de pequena empresa](https://demo.customermates.com/pt/w/p
   <Step title="Defina a próxima ação">
     Informe a data da próxima etapa no negócio ou crie uma tarefa vinculada a
     ele. As tarefas são registros que você atribui; datas e status são campos
-    que você configura, e não há lembretes embutidos.
+    que você configura, e uma automação nessa data pode lembrar você.
   </Step>
   <Step title="Revise o pipeline">
     Leve o negócio por Qualificado, Em conversa e Proposta enviada. O quadro do
@@ -258,9 +259,9 @@ O Customermates cuida dos relacionamentos com clientes e do lado de vendas do se
 | Tarefa | Onde ela fica |
 |---|---|
 | Orçamentos, faturas e contabilidade | O seu software de contabilidade. Passe os negócios ganhos adiante por [webhooks ou pela API REST](/features/api). |
-| Agendamento de compromissos | A sua ferramenta de agendamento. O Customermates não cria nem reserva eventos no calendário. |
+| Agendamento de compromissos | As páginas de agendamento do Customermates Cloud a partir do Pro, ou a sua ferramenta de agendamento. |
 | Ligações e SMS | O seu sistema de telefonia. Não há telefonia nem SMS. |
-| Formulários de captura de leads | O seu site ou ferramenta de formulários, enviando contatos pela API REST. Não há formulários web. |
+| Formulários de captura de leads | Os formulários públicos do Customermates em todos os planos, ou a sua ferramenta de formulários enviando contatos pela API REST. |
 | Trabalho especializado, como projetos, agenda ou uma loja | O sistema que executa esse trabalho, conectado pela API, por webhooks ou pelo n8n. |
 
 Também não estão incluídos: aplicativos nativos para celular (o aplicativo web roda no navegador), sequências de e-mail ou envio em massa, pontuação de leads e login único (SSO). Se um desses pontos decidir a sua compra, o [guia para escolher um CRM para pequenas empresas](/blog/crm-for-small-business) compara outras ferramentas.
@@ -284,7 +285,7 @@ No Customermates Cloud, o banco de dados roda na região AWS de Frankfurt. A [p�
 
 <Faq>
 <FaqItem question="Qual é o melhor CRM para pequenas empresas?">
-Um que a sua equipe mantenha atualizado. Se os negócios nascem de ligações, olhe um CRM com telefonia embutida. Se você precisa de formulários web e sequências de e-mail, uma ferramenta de automação de vendas serve melhor. Se os seus clientes decidem em conversas por e-mail, LinkedIn e WhatsApp com várias pessoas envolvidas, o Customermates serve. O [guia de CRM para pequenas empresas](/blog/crm-for-small-business) acompanha você na escolha.
+Um que a sua equipe mantenha atualizado. Se os negócios nascem de ligações, olhe um CRM com telefonia embutida. Se você precisa de sequências de e-mail, uma ferramenta de automação de vendas serve melhor. Se os seus clientes decidem em conversas por e-mail, LinkedIn e WhatsApp com várias pessoas envolvidas, o Customermates serve. O [guia de CRM para pequenas empresas](/blog/crm-for-small-business) acompanha você na escolha.
 </FaqItem>
 
 <FaqItem question="Um espaço de trabalho novo já vem com listas e etapas?">
@@ -296,11 +297,11 @@ Não. Os participantes são associados aos contatos por endereço de e-mail, nú
 </FaqItem>
 
 <FaqItem question="O Customermates consegue me lembrar dos acompanhamentos?">
-Não com lembretes embutidos. Adicione um campo de data, como uma próxima etapa, aos negócios ou às tarefas e salve uma visualização ordenada por ele. No Customermates Cloud, uma rotina pode pedir ao Mate que liste os negócios cuja próxima etapa já passou.
+Sim. Adicione um campo de data, como uma próxima etapa, aos negócios ou às tarefas, salve uma visualização ordenada por ele e adicione uma automação que avisa você quando a data chegar. No Customermates Cloud, uma rotina também pode pedir ao Mate que liste os negócios cuja próxima etapa já passou.
 </FaqItem>
 
 <FaqItem question="Ele substitui a minha ferramenta de contabilidade ou de agendamento?">
-Não. Não há orçamentos, faturas, agendamento no calendário, formulários web, telefonia nem SMS. Mantenha essas ferramentas e conecte-as pela API REST, por webhooks ou pelo n8n quando for útil.
+Não. Não há orçamentos, faturas, telefonia nem SMS. Os formulários públicos vêm em todos os planos e as páginas de agendamento no Customermates Cloud a partir do Pro. Mantenha essas ferramentas e conecte-as pela API REST, por webhooks ou pelo n8n quando for útil.
 </FaqItem>
 
 <FaqItem question="Existe um aplicativo para celular?">

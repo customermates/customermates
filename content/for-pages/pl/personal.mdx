@@ -62,7 +62,7 @@ Personal CRM, czyli osobisty CRM, to menedżer kontaktów dla jednej osoby: jede
     Mate (w Customermates Cloud, hostowane kredyty AI) lub Twój własny agent (Claude, ChatGPT albo dowolny klient obsługujący MCP) przygotowuje wiadomość lub odpowiedź. Ty sprawdzasz i wysyłasz.
   </SummaryItem>
   <SummaryItem label="Nie obejmuje">
-    Bez aplikacji mobilnej, bez synchronizacji kontaktów z telefonem ani Google, bez przypomnień o urodzinach i powiadomień, bez wzbogacania kontaktów.
+    Bez aplikacji mobilnej, bez synchronizacji kontaktów z telefonem ani Google, bez przypomnień o urodzinach, bez wzbogacania kontaktów.
   </SummaryItem>
 </ArticleSummary>
 
@@ -103,7 +103,7 @@ Monica, Dex, Queue i Mesh są zbudowane wokół przypomnień i aplikacji na tele
 ## Jak wybrać personal CRM: pięć pytań [#jak-wybrac-personal-crm]
 
 1. **Kim są ludzie w Twojej sieci?** Sieć zawodowa (klienci, potencjalni klienci, rekruterzy) potrzebuje rozmów z e-maila i LinkedIna obok rekordu. Przyjaciele i rodzina potrzebują raczej dziennika i przypomnień o urodzinach: Monica albo Queue.
-2. **Czy potrzebujesz aplikacji na telefon i powiadomień?** Jeśli tak, wybierz Dex, Queue lub Mesh. Customermates działa w przeglądarce i nie wysyła przypomnień.
+2. **Czy potrzebujesz aplikacji na telefon i powiadomień?** Jeśli tak, wybierz Dex, Queue lub Mesh. Customermates działa w przeglądarce, bez aplikacji i bez powiadomień push.
 3. **Gdzie mają leżeć dane?** Na własnym serwerze możesz hostować zarówno Monicę, jak i Community Edition Customermates; w chmurze obowiązuje cennik wybranego narzędzia.
 4. **Czy kontakty mają się synchronizować?** Dex synchronizuje się z LinkedInem i kontaktami, a Customermates przyjmuje jednorazowy import z Excela lub CSV.
 5. **Ile chcesz płacić?** Porównaj tabelę wyżej z sekcją „Ile to kosztuje”; do przetestowania wystarczy darmowy plan albo okres próbny.
@@ -156,7 +156,7 @@ Kontakt przechowuje dane kontaktowe (adres e-mail, numer telefonu, LinkedIn, Ins
 
 ### Dwa zapisane widoki przypominają za Ciebie
 
-Customermates nie wysyła przypomnień, więc systemem jest lista, którą otwierasz:
+Systemem jest lista, którą otwierasz, a automatyzacja na polu Następny kontakt może Ci też przypomnieć:
 
 1. **Czas na kontakt:** kontakty posortowane po Następnym kontakcie, rosnąco. Najwcześniejsze daty są pierwsze, więc każdy, kogo data minęła, jest na górze.
 2. **Cisza w kontakcie:** kontakty, których data **Zaktualizowano** jest **Starsza niż…** 90 dni. Ten filtr pozostaje względny, więc lista jest aktualna, kiedy ją otwierasz. Czyta własną datę aktualizacji rekordu kontaktu, więc po każdej rozmowie zaktualizuj Następny kontakt lub notatki.
@@ -219,9 +219,9 @@ Import to jednorazowa kopia; potem nic się nie synchronizuje. Eksport działa t
 
 - Bez natywnej aplikacji mobilnej i bez powiadomień push. Strony przestawiają się na wąskich ekranach, więc możesz sprawdzić kogoś w przeglądarce telefonu.
 - Bez synchronizacji z kontaktami w telefonie, Google Contacts ani LinkedInem, tylko jednorazowe importy z Excela lub CSV.
-- Bez przypomnień i alertów o urodzinach. Pole daty Urodziny przechowuje datę i milczy.
+- Bez alertów o urodzinach. Pole daty Urodziny przechowuje datę i milczy, a automatyzacja może Ci przypomnieć o dacie następnego kontaktu, gdy nadejdzie.
 - Bez wzbogacania kontaktów: nie sprawdza zmian pracy, zdjęć ani danych firm.
-- Bez skanowania wizytówek, rezerwacji w kalendarzu i sekwencji e-maili.
+- Bez skanowania wizytówek i sekwencji e-maili.
 - Plan darmowy nie ma skrzynki, Mate ani rutyn, a Community Edition w self-hostingu także nie, i nie wiąże się z opłatą licencyjną.
 
 Jeśli któraś z tych rzeczy jest powodem, dla którego chcesz personal CRM, wybierz Monicę, Dex, Queue lub Mesh z tabeli powyżej.
@@ -255,7 +255,7 @@ To zależy, czego potrzebujesz najpierw: Monica jako aplikacja open source dla p
 </FaqItem>
 
 <FaqItem question="Czy jest personal CRM dla przyjaciół i rodziny?">
-Jest, ale Customermates nie jest tu najlepszym wyborem: nie ma aplikacji mobilnej, alertów o urodzinach ani przypomnień. Monica (dziennik, urodziny i ważne daty, open source), Queue i Mesh (przypomnienia i urodziny na urządzeniach Apple) oraz Dex (przypomnienia o podtrzymaniu kontaktu na każdym urządzeniu) są do tego stworzone. Customermates pasuje do sieci głównie zawodowej.
+Jest, ale Customermates nie jest tu najlepszym wyborem: nie ma aplikacji mobilnej ani alertów o urodzinach. Monica (dziennik, urodziny i ważne daty, open source), Queue i Mesh (przypomnienia i urodziny na urządzeniach Apple) oraz Dex (przypomnienia o podtrzymaniu kontaktu na każdym urządzeniu) są do tego stworzone. Customermates pasuje do sieci głównie zawodowej.
 </FaqItem>
 
 <FaqItem question="Czy jest darmowy personal CRM i czy mogę zbudować własny?">

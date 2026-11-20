@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "Un CRM pour freelances : gardez le lien avec vos clients pendant que vous livrez"
-  description: Pour les freelances dont le travail vient de clients connus. Les conversations sont sur la fiche client, Mate ou votre propre client IA rédige la réponse et la prochaine étape, et vous relisez et envoyez. Sans facturation, suivi du temps, pages de réservation, formulaires web ni application mobile.
+  description: Pour les freelances dont le travail vient de clients connus. Les conversations sont sur la fiche client, Mate ou votre propre client IA rédige la réponse et la prochaine étape, et vous relisez et envoyez. Sans facturation, suivi du temps ni application mobile.
   buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
@@ -110,7 +110,7 @@ landing:
     eyebrow: Tarifs
     title: Pro suffit. [[commercial.price.pro.monthly]] par personne et par mois.
     description: Starter à [[commercial.price.starter.monthly]] n’a pas de boîte de réception. Pro ajoute un compte connecté pour votre e-mail ou LinkedIn. Votre abonnement Claude ou ChatGPT reste chez son fournisseur.
-    limits: Ne convient pas si vous avez besoin de facturation, de suivi du temps, de pages de réservation ou de formulaires web. Vos autres outils restent là pour ces besoins.
+    limits: Ne convient pas si vous avez besoin de facturation ou de suivi du temps. Vos autres outils restent là pour ces besoins.
     primaryCta:
       label: Essai gratuit de [[commercial.trial.days]] jours
       href: /auth/signup?job=followup
@@ -165,9 +165,9 @@ Un CRM de freelance trouve sa place quand votre travail dépend des relations :
     brouillons. MCP fonctionne avec toutes les formules.
   </SummaryItem>
   <SummaryItem label="Non inclus">
-    Factures, paiements, suivi du temps, pages de réservation, réservation via
-    calendrier, formulaires web, applications mobiles natives, téléphonie et
-    SMS.
+    Factures, paiements, suivi du temps, applications mobiles natives,
+    téléphonie et SMS. Les pages de réservation demandent Customermates Cloud
+    dès Pro.
   </SummaryItem>
 </ArticleSummary>
 
@@ -175,7 +175,7 @@ Un CRM de freelance trouve sa place quand votre travail dépend des relations :
 
 Customermates convient au travail en solo qui se gagne dans la conversation : un développeur qui prend des projets de trois ou quatre agences, une graphiste avec une poignée de clients sous contrat, un traducteur dont le travail vient de clients B2B récurrents. La question à laquelle il répond est « avec qui est-ce que je travaille, qu’est-ce qui est ouvert, et que dois-je faire ensuite avec eux ? »
 
-Il ne convient pas à une activité qui tourne sur des réservations et des paiements. Il n’y a ni page de réservation, ni réservation via calendrier, ni formulaire web sur votre site qui crée des enregistrements, ni facture, ni suivi des paiements. Il n’y a pas non plus d’application mobile native, de numéroteur téléphonique ni de SMS. Si ce sont les raisons pour lesquelles vous cherchez un logiciel, une suite pour freelances convient mieux, et il vaut mieux le savoir avant de vous inscrire.
+Il ne convient pas à une activité qui tourne sur des réservations et des paiements. Il n’y a ni facture ni suivi des paiements, et les pages de réservation demandent Customermates Cloud dès Pro. Il n’y a pas non plus d’application mobile native, de numéroteur téléphonique ni de SMS. Si ce sont les raisons pour lesquelles vous cherchez un logiciel, une suite pour freelances convient mieux, et il vaut mieux le savoir avant de vous inscrire.
 
 ## L’espace de travail d’exemple de freelance
 
@@ -187,7 +187,7 @@ La démo ouvre un espace de travail d’exemple avec des données d’exemple, p
 - **Projects** : le travail que vous avez accepté de faire, avec un tarif journalier, un nombre de jours et des honoraires calculés à partir des deux.
 - **Tasks** : des prochaines étapes concrètes, liées à un client ou à une demande.
 
-Les demandes passent par Inquiry, First call, Proposal sent, Won et Lost ; le travail gagné se poursuit sous forme de projet avec un statut allant de Planned à Billed. Billed n’est qu’une étiquette : la facturation reste dans votre outil de facturation. Ouvrez la liste des clients, puis un client : la page de détail montre les contacts liés, le projet en cours avec ses honoraires calculés, la demande ouverte, les notes récentes et le contexte des conversations, ainsi qu’une date **Next action**. Cette date est un champ configuré dans cet espace de travail, pas un rappel intégré. Les tâches de Customermates n’ont ni échéances, ni statuts, ni rappels intégrés : l’exemple ajoute donc un champ date et une vue enregistrée triée dessus. Les projets gardent leurs fichiers, comme le PDF de la proposition ou les résultats de tests, dans un champ Fichier, et une vue **Project calendar** montre chaque projet de son début à son échéance. La page Calendrier ajoute les prochaines actions et les appels du calendrier Google connecté, et le tableau de bord liste les prochaines actions des deux semaines à venir.
+Les demandes passent par Inquiry, First call, Proposal sent, Won et Lost ; le travail gagné se poursuit sous forme de projet avec un statut allant de Planned à Billed. Billed n’est qu’une étiquette : la facturation reste dans votre outil de facturation. Ouvrez la liste des clients, puis un client : la page de détail montre les contacts liés, le projet en cours avec ses honoraires calculés, la demande ouverte, les notes récentes et le contexte des conversations, ainsi qu’une date **Next action**. Cette date est un champ configuré dans cet espace de travail, et une automatisation sur ce champ peut vous la rappeler. Les tâches de Customermates n’ont ni échéances ni statuts intégrés, l’exemple ajoute donc un champ date et une vue enregistrée triée dessus. Les projets gardent leurs fichiers, comme le PDF de la proposition ou les résultats de tests, dans un champ Fichier, et une vue **Project calendar** montre chaque projet de son début à son échéance. La page Calendrier ajoute les prochaines actions et les appels du calendrier Google connecté, et le tableau de bord liste les prochaines actions des deux semaines à venir.
 
 <ProofRail label="Espace de travail de freelance dans la démo">
   <ProofItem label="Relation">Clients avec contacts liés</ProofItem>
@@ -294,11 +294,11 @@ Il fonctionne pour une personne. Starter est facturé par utilisateur : un ind�
 </FaqItem>
 
 <FaqItem question="Customermates peut-il envoyer des factures ou prendre des réservations ?">
-Non. Il n’a ni factures, ni paiements, ni suivi du temps, ni page de réservation, ni réservation via calendrier. Gardez ces outils et connectez-les via des webhooks, l’API REST ou un workflow n8n que vous exploitez séparément, s’ils proposent une API.
+Il n’a ni factures, ni paiements, ni suivi du temps. Les réservations passent par les pages de réservation de Customermates Cloud dès Pro, qui placent la réunion dans votre agenda Google ou Microsoft connecté. Gardez vos outils de facturation et connectez-les via des webhooks, l’API REST ou un workflow n8n que vous exploitez séparément, s’ils proposent une API.
 </FaqItem>
 
 <FaqItem question="Y a-t-il une application mobile, un formulaire web ou des SMS ?">
-Non. Il n’y a ni application mobile native, ni formulaire web qui crée des enregistrements depuis votre site, ni téléphonie ni SMS.
+Il n’y a ni application mobile native, ni téléphonie, ni SMS. Les formulaires publics créent en revanche des enregistrements depuis votre site, dans toutes les formules, via un lien ou un extrait de code à intégrer.
 </FaqItem>
 
 <FaqItem question="Un nouvel espace de travail contient-il ces listes ?">

@@ -51,7 +51,7 @@ Es gibt sieben Wege. Die Tabelle nennt, wer den Zugang betreibt und was Claude d
 | Googles Gmail-MCP-Server | Google | Threads suchen und lesen, Labels, Entwürfe anlegen; kein Tool sendet | Developer Preview im Google Workspace Developer Preview Program; Google-Cloud-Projekt und eigener OAuth-Client nötig |
 | Microsofts MCP-Angebote (Work IQ MCP, ältere Mail-Tools) | Microsoft | Mail lesen, schreiben und senden über einen Entra-geschützten Server | Work IQ braucht einen Global Administrator und einen nutzungsbasierten Abrechnungsplan in Copilot Studio; die Mail-Tools sind laut Microsoft nur noch für Kompatibilität gedacht |
 | Community-Brücken | Einzelne Entwickler, gelistet in Verzeichnissen | Je nach Projekt sehr unterschiedlich | Keine Zusage eines Anbieters; Sie geben einem fremden Programm Zugriff auf Ihr Postfach |
-| CRM mit eingebundenem Postfach als Connector (Customermates) | Customermates | Verläufe am Kunden, Datensätze, Aktivitäten, Notizen, Wissensdatenbank, Antwortentwurf speichern; Kalender nur lesend | Customermates Cloud ab Pro oder Testphase |
+| CRM mit eingebundenem Postfach als Connector (Customermates) | Customermates | Verläufe am Kunden, Datensätze, Aktivitäten, Notizen, Wissensdatenbank, Antwortentwurf speichern; Termine in einen verbundenen Kalender planen | Customermates Cloud ab Pro oder Testphase |
 
 Welcher Weg passt, hängt an der Aufgabe:
 
@@ -128,7 +128,7 @@ Die meisten Fragen zu „Claude und Outlook“ vermischen drei Zugriffe. Getrenn
 | Zugriff | Wofür Claude ihn braucht | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Postfach | Den Verlauf lesen, die Antwort formulieren | Gmail-Connector | Claude for Outlook oder Microsoft-365-Connector | Verläufe des verbundenen Postfachs im Posteingang, nur Ordner, die Sie eingeschaltet haben |
-| Kalender | Terminvorschläge, Verfügbarkeit | Google-Calendar-Connector, mit Schreibzugriff | Claude for Outlook (Zeiten finden, Einladung als Entwurf) oder Microsoft-365-Connector, Schreib-Tools nach Admin-Freigabe | Nur lesend (`get_calendars`), kein Buchen |
+| Kalender | Terminvorschläge, Verfügbarkeit | Google-Calendar-Connector, mit Schreibzugriff | Claude for Outlook (Zeiten finden, Einladung als Entwurf) oder Microsoft-365-Connector, Schreib-Tools nach Admin-Freigabe | `get_calendars` zum Lesen, `schedule_meeting` zum Buchen, Verschieben und Absagen von Terminen (Cloud, ab Pro) |
 | Kundenhistorie | Wer ist das, welcher Deal, was wurde zugesagt | Nicht vorhanden | Nicht vorhanden | Datensätze, Aktivitäten, Notizen, Dateien, Wissensdatenbank |
 | Senden | Die Antwort verschicken | Claude fragt standardmäßig vorher | Add-in: sendet nie, der Entwurf bleibt in Outlook; Connector, private Konten: Claude fragt vorher; Arbeitskonten: erst nach Admin-Freigabe der Schreib-Tools | `save_message_draft` legt einen Entwurf ab; `send_email` sendet sofort, wenn Sie das Tool erlauben |
 
@@ -173,7 +173,7 @@ Eine eingehende Mail ist Text von einem Fremden, und Claude liest ihn. Google wa
 ## Wann ist Customermates dafür die falsche Wahl? [#wrong-choice]
 
 - **Sie wollen nur ein Postfach durchsuchen.** Der Connector von Anthropic für Gmail oder Microsoft 365 reicht, und er braucht kein CRM.
-- **Claude soll Termine vereinbaren.** Customermates liest verbundene Kalender nur lesend und bucht keine Termine. Nehmen Sie dafür den Connector für Google Calendar oder Microsoft 365 dazu.
+- **Claude soll Termine vereinbaren.** In Customermates Cloud ab Pro plant Claude über Customermates neue Termine in Ihren verbundenen Google- oder Microsoft-Kalender, ändert oder verschiebt aber keine anderen Termine. Nehmen Sie dafür den Connector für Google Calendar oder Microsoft 365 dazu.
 - **Sie nutzen Free, Starter oder eine selbst gehostete Instanz.** Der Posteingang und die Messaging-Tools beginnen bei Pro in der Cloud. Selbst gehostet bleiben MCP, Datensätze und Wissensdatenbank, aber ohne Postfach.
 - **Sie wollen keine Kopie des Verlaufs.** Customermates importiert die eingeschalteten Ordner in seinen Posteingang, und Trennen des Kontos löscht den Import wieder. Die Connectors von Anthropic halten abgerufene Daten dagegen nur am Chat.
 - **Sie brauchen Serienmails.** Customermates kennt keine Sequenzen und keinen Massenversand; jede Nachricht entsteht einzeln.
@@ -203,7 +203,7 @@ Nicht standardmäßig. Beim Gmail-Connector fragt Claude vor jedem Senden, Antwo
 </FaqItem>
 
 <FaqItem question="Kann Claude Termine in Outlook oder Google Calendar anlegen?">
-Mit den Connectors von Anthropic ja, bei Microsoft 365 nur mit aktivierten Schreib-Tools. Customermates liest verbundene Kalender nur und bucht keine Termine.
+Mit den Connectors von Anthropic ja, bei Microsoft 365 nur mit aktivierten Schreib-Tools. Customermates plant in Cloud ab Pro neue Termine in einen verbundenen Kalender, ändert aber keine anderen Termine.
 </FaqItem>
 
 <FaqItem question="Funktioniert das mit einem privaten Outlook.com-Konto?">

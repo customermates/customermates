@@ -35,11 +35,11 @@ sections:
       - title: "Funktionsweise"
         description: "Kein Outlook-Add-in, keine Seitenleiste. Customermates liest und sendet über das verbundene Konto, deshalb ist egal, in welcher Outlook-App Sie schreiben."
       - title: "Nicht enthalten"
-        description: "Kein Abgleich des Outlook-Adressbuchs, kein Anlegen oder Buchen von Terminen, kein Massenversand."
+        description: "Kein Abgleich des Outlook-Adressbuchs, kein Kalender-Sync in beide Richtungen, kein Massenversand."
 
 hero:
   title: "Jeder Outlook-Verlauf bei seinem Kunden, ohne Add-in"
-  description: "Verbinden Sie Outlook einmal, und die E-Mail-Verläufe landen beim passenden Kontakt. Sie sehen, wer auf Ihre Antwort wartet, lassen Mate die Antwort entwerfen und senden sie aus dem CRM oder aus Outlook. Kalender nur lesend. Cloud ab Pro, [[commercial.price.pro.monthly]] pro Nutzer und Monat."
+  description: "Verbinden Sie Outlook einmal, und die E-Mail-Verläufe landen beim passenden Kontakt. Sie sehen, wer auf Ihre Antwort wartet, lassen Mate die Antwort entwerfen und senden sie aus dem CRM oder aus Outlook. Besprechungen planen Sie direkt in Ihren Outlook-Kalender. Cloud ab Pro, [[commercial.price.pro.monthly]] pro Nutzer und Monat."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
@@ -82,7 +82,7 @@ Brauchen Sie einen beidseitigen Abgleich der Outlook-Kontakte oder einen CRM-Ber
 
 **Antworten und neue E-Mails aus dem CRM.** Sie antworten im Editor des Verlaufs, mit An, Cc und Bcc, Markdown-Formatierung und angehängten Dateien. Eine neue E-Mail starten Sie im Block **Kontaktdaten** eines Kontakts. Jedes Outlook-Konto hat im Tab **E-Mail** eigene Schriftart, Linkfarbe und Signatur. Ist die Signatur eingeschaltet, wird sie an jede E-Mail aus diesem Konto angehängt, ob sie aus dem Posteingang, über die API oder über MCP gesendet wird.
 
-**Kalender, nur lesend.** Termine aus dem verbundenen Outlook-Kalender erscheinen in der Kategorie **Konto & Kalender** von Aktivitätsverlauf-Widgets, und KI-Clients lesen sie über MCP mit `get_calendars`. Sie erscheinen auch auf der Kalenderseite neben den Terminen aus Ihren Datensätzen. In Outlook legt Customermates keine Termine an, ändert keine und bucht keine.
+**Kalender.** Termine aus dem verbundenen Outlook-Kalender erscheinen in der Kategorie **Konto & Kalender** von Aktivitätsverlauf-Widgets, und KI-Clients lesen sie über MCP mit `get_calendars`. Sie erscheinen auch auf der Kalenderseite neben den Terminen aus Ihren Datensätzen. In Customermates Cloud ab Pro planen Sie Besprechungen in Outlook und bieten Buchungsseiten an; Ihre anderen Outlook-Termine ändert oder verschiebt Customermates nicht.
 
 ## Einrichtung
 
@@ -115,7 +115,7 @@ Entscheidend ist die Zahl der verbundenen Konten: Pro enthält [[commercial.enti
 
 - Kein Outlook-Add-in, keine Seitenleiste, keine Schaltfläche im Menüband. CRM-Daten schlagen Sie in Customermates nach.
 - Outlook-Adressbuchkontakte werden in keine Richtung synchronisiert. Kontakte entstehen in Customermates, durch Verknüpfen eines Absenders, von Hand oder per [XLSX-Import](/docs/app-records).
-- Kalenderdaten werden nur gelesen. Keine Terminbuchung, kein Schreiben von Terminen.
+- Kein Kalender-Sync in beide Richtungen: Customermates schreibt nur die Termine, die Sie planen, und die Buchungen über Ihre Buchungsseiten; andere Outlook-Termine bleiben nur lesbar.
 - Kein Massenversand und keine Sequenzen. Jede E-Mail wird einzeln geschrieben und gesendet.
 - Wenn Sie ein Konto trennen, werden die importierten Verläufe, Nachrichten und Kalendertermine dauerhaft gelöscht.
 - Anbieter begrenzen, wie schnell Mails gelesen und gesendet werden können; die aktuellen Werte stehen unter [Messaging-Ratenlimits](/docs/messaging-rate-limits).

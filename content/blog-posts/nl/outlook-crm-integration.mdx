@@ -58,7 +58,7 @@ De meeste CRM's in de volgende tabel combineren de eerste twee: een add-in om di
 | Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook op desktop, web en mobiel: koppel e-mails, vergaderingen en afspraken aan een account, opportunity of case | Server-side synchronisatie draait op de achtergrond ongeveer elke 15 minuten; contactpersonen kunnen tussen Exchange en Dynamics 365 synchroniseren | Niet ondersteund op gedeelde mailboxen van Microsoft 365. Sales Professional staat vermeld voor $65 per gebruiker per maand, jaarlijks betaald |
 | Salesforce | De Outlook-integratie, een zijpaneel in Outlook | Einstein Activity Capture voor synchronisatie van e-mail en afspraken | Salesforce for Outlook, het oudere desktopproduct, wordt uitgefaseerd; Salesforce raadt in plaats daarvan de Outlook-integratie en Einstein Activity Capture aan |
 | Pipedrive | Pipedrive for Outlook, een Marketplace-app van Baymats AB, voor desktop en web; 7 dagen gratis proefperiode, daarna een betaald abonnement | E-mailsynchronisatie vanaf Growth, met Office 365 / Outlook, Exchange (EWS) en IMAP; koppelt gesprekken aan deals, leads of projecten | E-mailsynchronisatie biedt ook tracking van geopende mails. De add-in is een product van een derde partij met een eigen abonnement |
-| Customermates | Geen add-in | Outlook-mailbox in de CRM-inbox vanaf Pro in Customermates Cloud; agenda alleen-lezen | Geen synchronisatie van Outlook-contactpersonen en geen schrijfacties in de agenda. Details in de volgende paragrafen |
+| Customermates | Geen add-in | Outlook-mailbox in de CRM-inbox vanaf Pro in Customermates Cloud; afspraken die je plant komen in je Outlook-agenda | Geen synchronisatie van Outlook-contactpersonen en geen tweerichtingssynchronisatie van de agenda. Details in de volgende paragrafen |
 
 Prijzen veranderen; de prijs van Dynamics 365 is op 8 oktober 2026 gecontroleerd op [de prijspagina van Microsoft](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
 
@@ -99,7 +99,7 @@ Wat er daarna synchroniseert, en wat niet:
 |---|---|
 | Verzonden en ontvangen e-mail | Ja, uit de mappen die je hebt aangezet. Antwoorden vertrekken vanaf het Outlook-account zelf |
 | Een e-mail naar een map verplaatsen | Ja, voor Outlook- en IMAP-accounts gebeurt de verplaatsing ook in de echte mailbox |
-| Agenda-afspraken | Alleen-lezen. Vergaderingen verschijnen in de activiteitentijdlijn; Customermates maakt, bewerkt of boekt geen afspraken |
+| Agenda-afspraken | Vergaderingen verschijnen in de activiteitentijdlijn. Customermates schrijft alleen de afspraken die je plant en de boekingen via je boekingspagina's (Cloud, vanaf Pro); andere afspraken blijven alleen-lezen |
 | Outlook-contactpersonen (adresboek) | In geen van beide richtingen gesynchroniseerd. Contactpersonen ontstaan door een deelnemer te koppelen of in het CRM |
 | Outlook-taken | Niet gesynchroniseerd |
 
@@ -122,7 +122,7 @@ Een team van vijf personen op Pro betaalt [[commercial.price.pro.monthly.seats.5
 Wil je het met je eigen Outlook proberen, [start dan je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
 
 <AcquisitionCallout title="Waar Customermates niet de juiste keuze is" variant="boundary">
-Er is geen Outlook-add-in, dus CRM-details zoek je op in Customermates en niet in een zijpaneel van Outlook. Outlook-contactpersonen en -taken synchroniseren niet en agenda-afspraken zijn alleen-lezen. Customermates heeft geen e-mailsequenties of massamail. Een zelf gehoste installatie heeft helemaal geen inbox en geen Outlook-koppeling; die biedt REST, webhooks en MCP. Moet je team binnen Outlook blijven, of heeft het tweerichtingssynchronisatie van contactpersonen met het Exchange-adresboek nodig, kies dan een CRM met een webadd-in en server-side synchronisatie uit de tabel hierboven.
+Er is geen Outlook-add-in, dus CRM-details zoek je op in Customermates en niet in een zijpaneel van Outlook. Outlook-contactpersonen en -taken synchroniseren niet en agenda-afspraken blijven alleen-lezen, behalve de afspraken die je plant en de boekingen via je boekingspagina's. Customermates heeft geen e-mailsequenties of massamail. Een zelf gehoste installatie heeft helemaal geen inbox en geen Outlook-koppeling; die biedt REST, webhooks en MCP. Moet je team binnen Outlook blijven, of heeft het tweerichtingssynchronisatie van contactpersonen met het Exchange-adresboek nodig, kies dan een CRM met een webadd-in en server-side synchronisatie uit de tabel hierboven.
 </AcquisitionCallout>
 
 ## Test elke Outlook-integratie voordat je haar uitrolt

@@ -90,7 +90,7 @@ Native of zelf bouwen? Een native koppeling met een app-marktplaats is snel aang
 | REST API | Jouw systeem naar CRM | Records aanmaken, lezen, zoeken, bijwerken en verwijderen vanuit code of een automatiseringstool | Elk abonnement, self-hosted inbegrepen |
 | MCP | AI-client naar CRM | Laat Claude, ChatGPT, Cursor, Codex of Gemini CLI in een gesprek records lezen en schrijven | Elk abonnement, self-hosted inbegrepen |
 | n8n community node | Beide | Eigen Customermates-nodes in een apart draaiende n8n-instantie | Acties bij elk abonnement, triggers bij betaalde abonnementen en self-hosted; n8n wordt door n8n gefactureerd |
-| Gecombineerde inbox | Kanalen naar CRM | Gmail-, Outlook-, IMAP-, LinkedIn-, WhatsApp-, Instagram- en Telegram-gesprekken naast het record, plus agenda's van Google en Microsoft met alleen leesrechten | Customermates Cloud, Pro of hoger |
+| Gecombineerde inbox | Kanalen naar CRM | Gmail-, Outlook-, IMAP-, LinkedIn-, WhatsApp-, Instagram- en Telegram-gesprekken naast het record, plus agenda's van Google en Microsoft met afspraken plannen en boekingspagina's | Customermates Cloud, Pro of hoger |
 
 Webhooks, REST en MCP horen bij Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand. De [gecombineerde inbox](/features/unified-inbox) begint bij Pro voor [[commercial.price.pro.monthly]] per gebruiker per maand en bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker; Business bevat [[commercial.entitlement.business.includedAccountsPerUser]] per gebruiker en gedeelde accounts. Self-hosted installaties krijgen REST, webhooks en MCP maar geen inbox, dus berichtgebeurtenissen gaan daar nooit af.
 
@@ -100,7 +100,7 @@ Webhooks, REST en MCP horen bij Starter voor [[commercial.price.starter.monthly]
 |---|---|---|
 | Een bericht in één Slack-kanaal plaatsen als er een deal wordt aangemaakt | Een webhook met een bodysjabloon, gestuurd naar een inkomende Slack-webhook | Geen automatiseringstool nodig |
 | Gewonnen deals doorgeven aan je boekhoudsoftware | n8n, Make of Zapier op een `record.updated`-webhook voor de lijst Deals | Die tools controleren de faseswaarde en roepen de API van de boekhoudtool aan |
-| Contactpersonen aanmaken vanuit je websiteformulier | De formuliertool of n8n roept `POST /api/v1/records/mutate` aan | Customermates heeft geen eigen insluitbaar formulier |
+| Contactpersonen aanmaken vanuit je websiteformulier | De formuliertool of n8n roept `POST /api/v1/records/mutate` aan | Het koppelt je bestaande formulier, en een openbaar formulier van Customermates kan het record ook direct aanmaken |
 | Records spiegelen naar een datawarehouse | Webhooks, ontdubbeld op de gebeurtenis-`id` | Bijna realtime, zonder polling |
 | Een AI na een gesprek vijf deals laten bijwerken | MCP vanuit Claude, ChatGPT of een andere client | De client ontdekt de tools en doet de aanroepen |
 | Een spreadsheet met bestaande klanten overzetten | XLSX-import, één lijst tegelijk | Sneller dan een API-script voor een eenmalige verhuizing |
@@ -158,7 +158,7 @@ Customermates heeft geen Slack-app, geen Slack-kanaal in de inbox en geen scherm
 ## Wat niet is inbegrepen
 
 <AcquisitionCallout title="Grenzen die je kent voordat je een integratie plant" variant="boundary">
-  Geen app-marktplaats en geen connectors met één klik. Geen native integratie met Slack, Microsoft Teams, boekhouding of agenda's om afspraken te boeken. Agenda's zijn alleen-lezen. Geen insluitbare webformulieren. Gegevensoverdracht via bestanden: je importeert Excel, CSV of JSON en exporteert XLSX of JSON, één lijst tegelijk, zonder export van het hele account. n8n, Make en Zapier zijn aparte producten met aparte rekeningen.
+  Geen app-marktplaats en geen connectors met één klik. Geen native integratie met Slack, Microsoft Teams of boekhouding. Afspraken plannen en boekingspagina's vragen Customermates Cloud vanaf Pro. Gegevensoverdracht via bestanden: je importeert Excel, CSV of JSON en exporteert XLSX of JSON, één lijst tegelijk, zonder export van het hele account. n8n, Make en Zapier zijn aparte producten met aparte rekeningen.
 </AcquisitionCallout>
 
 Heeft je team honderden kant-en-klare connectors nodig die door de leverancier worden onderhouden en die een niet-technisch persoon in een instellingenscherm aanzet, dan past een CRM met een eigen app-marktplaats beter. Customermates past bij teams die graag een webhook aansluiten of een AI-client de aanroepen laten doen, en die dezelfde interfaces willen of ze nu de cloud gebruiken of zelf hosten. Koppelingen met een ERP volgen hetzelfde patroon; de [gids over CRM en ERP koppelen](/blog/crm-erp-integration) loopt het door.

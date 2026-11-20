@@ -36,7 +36,7 @@ First come the definition, plans and installation as Anthropic describes them on
   <SummaryItem label="Short answer">A skill is a folder with a SKILL.md file. Claude reads only its name and description at first and loads the instructions when your task matches.</SummaryItem>
   <SummaryItem label="Plans">Anthropic's Help Center lists Free, Pro, Max, Ultra, Team and Enterprise, with code execution turned on. Its API documentation lists custom skills for Pro through Enterprise. Claude Code loads skills from a folder.</SummaryItem>
   <SummaryItem label="The skill">A follow-up pass over your Customermates CRM through MCP: find open conversations with no dated next step, draft one reply each, propose a date.</SummaryItem>
-  <SummaryItem label="Limits">An instruction in a skill is not a lock. The tool permissions in Claude are what protect you. Customermates sends no reminders.</SummaryItem>
+  <SummaryItem label="Limits">An instruction in a skill is not a lock. The tool permissions in Claude are what protect you. Reminders in Customermates come from an automation you set up on the date.</SummaryItem>
   <SummaryItem label="Disclosure">Customermates publishes this page. We checked the skill's structure against Anthropic's requirements; there are no measured results for what it produces.</SummaryItem>
 </ArticleSummary>
 
@@ -132,7 +132,7 @@ Run one follow-up pass over the user's client conversations in Customermates. Dr
 4. For each record, call `Customermates:read_crm_record`, then `Customermates:get_activities` for that record (messages, notes, changes) and read the newest thread with `Customermates:get_messaging_threads` and its threadId. Work out who wrote last, when, and what was agreed or promised. Skip records without a conversation and say so.
 5. Write one draft per record, at most 120 words, in the language of the thread. Confirm what was agreed and add one concrete next step. No pressure, no pitch. Write no sign-off: the connected account adds its signature when the draft is sent.
 6. Save the draft with `Customermates:save_message_draft` and the threadId. If that tool is not available (no inbox on this plan), show the draft in the chat instead.
-7. Propose a next step date. Use the date promised in the thread; if there is none, suggest one and give the reason. After the user approves, write the next step text and date with `Customermates:mutate_crm_record` (read the record first for its current version and follow the tool's own schema). Nothing reminds anyone automatically: the date shows in saved views and the Upcoming widget.
+7. Propose a next step date. Use the date promised in the thread; if there is none, suggest one and give the reason. After the user approves, write the next step text and date with `Customermates:mutate_crm_record` (read the record first for its current version and follow the tool's own schema). The date shows in saved views and the Upcoming widget, and an automation on that date field can remind the user when it is reached.
 8. Finish with a short table: record, last contact, draft saved (yes or no), proposed date. List the records you skipped and why. State that nothing was sent.
 ```
 
@@ -183,7 +183,7 @@ If you like the selection, let the skill save a draft and set the date for one r
 | The skill cannot | Why it matters | What you do |
 | --- | --- | --- |
 | Stop anything from being sent | An instruction in a skill is not a lock. The sending tools stay available in the connector. Customermates tells clients to ask before sending but does not enforce it | Set `send_email` and `send_chat_message` to Blocked or Needs approval |
-| Remind you | Customermates sends no reminders and tasks have no built-in due date. The date shows in views and in the Upcoming widget | Open the dashboard; for a notification you need an external scheduler |
+| Remind you | The skill itself sends nothing later, and tasks have no built-in due date. The date shows in views and in the Upcoming widget | In Customermates, add an automation that starts when that date is reached; it notifies you on the Notifications page and by email |
 | Save drafts without an inbox | The inbox belongs to Pro and higher and exists only in the cloud. On Free, Starter and self-hosted instances Claude shows the draft in the chat | Copy it into your mail program |
 | Set a date without a date field | There is no built-in field for it | Add the two fields |
 | Know what is not in the thread | It marks missing facts as "[to confirm]", but right or wrong, they are still your responsibility | Read every draft before it goes out |
@@ -193,9 +193,9 @@ What Claude reads goes to Anthropic. Whether your client data may be processed t
 
 ## Where does Customermates fit, and where not? [#customermates]
 
-*Disclosure: Customermates publishes this page.* Customermates is an open-source AI CRM made in Germany for small teams that deal with clients. The MCP endpoint belongs to the AGPL core and runs on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. The inbox with email and LinkedIn history on the client record starts at Pro for [[commercial.price.pro.monthly]] per user per month. You can try the skill during the trial: [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup), no credit card.
+*Disclosure: Customermates publishes this page.* Customermates is a source-available AI CRM made in Germany for small teams that deal with clients. The MCP endpoint belongs to the core product and runs on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. The inbox with email and LinkedIn history on the client record starts at Pro for [[commercial.price.pro.monthly]] per user per month. You can try the skill during the trial: [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup), no credit card.
 
-Customermates is the wrong choice if you need a phone dialer, email sequences, reminders that reach you or a native mobile app. And if your team uses HubSpot or Salesforce, take their own connector, described in the [HubSpot MCP post](/blog/hubspot-mcp) and the [Salesforce MCP post](/blog/salesforce-mcp). The skill's steps carry over: swap the tool names for those of your CRM.
+Customermates is the wrong choice if you need a phone dialer, email sequences or a native mobile app. And if your team uses HubSpot or Salesforce, take their own connector, described in the [HubSpot MCP post](/blog/hubspot-mcp) and the [Salesforce MCP post](/blog/salesforce-mcp). The skill's steps carry over: swap the tool names for those of your CRM.
 
 How a follow-up draft should be built is in the [guide to the sales follow-up email](/blog/sales-follow-up-email). How to run a tickler file in a CRM is in the post on the [tickler file](/blog/tickler-file). And how Claude can support a whole sales week is in the guide to [Claude for sales](/blog/claude-for-sales).
 
@@ -235,4 +235,4 @@ Anthropic forbids the words "claude" and "anthropic" in a skill name, allows onl
 </FaqItem>
 </Faq>
 
-Claude facts checked on 16 November 2026 on [Anthropic: What are skills?](https://support.claude.com/en/articles/12512176-what-are-skills), [Anthropic: Using skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude), [Anthropic: Creating custom skills](https://support.claude.com/en/articles/12512198-creating-custom-skills), [Anthropic: Agent Skills in the platform documentation](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), [Anthropic: Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices), [Claude Code: Skills](https://code.claude.com/docs/en/skills) and [the open Agent Skills specification](https://agentskills.io/specification). The skill's structure was checked against these requirements; we have not run it through a measured test with a live account.
+Claude facts checked on 16 November 2026 on [Anthropic: What are skills?](https://support.claude.com/en/articles/12512176-what-are-skills), [Anthropic: Using skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude), [Anthropic: Creating custom skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills), [Anthropic: Agent Skills in the platform documentation](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), [Anthropic: Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices), [Claude Code: Skills](https://code.claude.com/docs/en/skills) and [the open Agent Skills specification](https://agentskills.io/specification). The skill's structure was checked against these requirements; we have not run it through a measured test with a live account.

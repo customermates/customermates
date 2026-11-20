@@ -34,7 +34,7 @@ Deze gids legt uit wat een tickler file is, loopt het systeem met 43 mappen door
   <SummaryItem label="Het idee">Berg een item op onder de datum waarop je het weer wilt zien en open elke ochtend alleen de map van vandaag. Het systeem onthoudt het voor je tot de dag aanbreekt.</SummaryItem>
   <SummaryItem label="Papier">43 mappen: 31 genummerd voor de dagen van de maand en 12 met de naam van een maand. Items voor latere maanden wachten in een maandmap en verhuizen naar de dagmappen zodra die maand begint.</SummaryItem>
   <SummaryItem label="Outlook">Een opvolgvlag op één e-mail, met een begin- en einddatum en een optionele herinnering. Hij volgt één bericht, niet de klant erachter.</SummaryItem>
-  <SummaryItem label="Customermates">Een datumveld, een weergave die erop sorteert en de widget Aankomend met een sectie Achterstallig. Werkt op elk pakket, ook zelf gehost. Het stuurt geen herinneringen: de lijst is de herinnering.</SummaryItem>
+  <SummaryItem label="Customermates">Een datumveld, een weergave die erop sorteert en de widget Aankomend met een sectie Achterstallig. Werkt op elk pakket, ook zelf gehost. De lijst is de herinnering, en een automatisering op de datum kan je een melding sturen zodra die aan de beurt is.</SummaryItem>
   <SummaryItem label="Transparantie">Customermates publiceert deze gids. De andere opties worden beschreven op wat ze passend maakt, niet op rang.</SummaryItem>
 </ArticleSummary>
 
@@ -76,7 +76,7 @@ Vier manieren dekken bijna elk geval. De rij van Customermates is ons eigen prod
 | Papier, 43 mappen | Een map per dag en per maand | Nee. Je opent elke ochtend de map van vandaag | Het papier zelf | Je werkt met fysieke post, rekeningen, tickets en formulieren |
 | Outlook-opvolgvlag | Een vlag op een bericht met Vandaag, Morgen, Deze week, Volgende week, Geen datum of een eigen begin- en einddatum | Herinnering toevoegen stelt een herinnering in; gevlagde berichten staan in de Takenbalk, in Taken en in de dagelijkse takenlijst van de Agenda | Eén e-mailbericht | De opvolging begint bij een e-mail in Outlook |
 | Spreadsheet | Een datumkolom die je sorteert | Niet tenzij je het zelf bouwt | Een kolom met notities | Eén persoon met een korte lijst |
-| Datumveld in een CRM (Customermates) | Een datumveld bij de klant of deal | Nee. Customermates stuurt er geen; een gesorteerde weergave en de widget Aankomend zijn de herinnering | Het record met notities, gekoppelde contactpersonen en bedrijven en, vanaf Pro, LinkedIn- en e-mailgesprekken | Klanten en deals met een geschiedenis, voor één persoon of een team |
+| Datumveld in een CRM (Customermates) | Een datumveld bij de klant of deal | Ja, met een automatisering op het datumveld, op de pagina Meldingen en per e-mail; een gesorteerde weergave en de widget Aankomend tonen de rest | Het record met notities, gekoppelde contactpersonen en bedrijven en, vanaf Pro, LinkedIn- en e-mailgesprekken | Klanten en deals met een geschiedenis, voor één persoon of een team |
 
 Microsoft documenteert de vlagopties voor Outlook voor Microsoft 365, Outlook 2024 en Outlook 2021 en merkt op dat je met een IMAP-account de vlagtekst niet kunt wijzigen en geen begin- en einddatum kunt instellen. Gecontroleerd op 11 november 2026 aan de hand van [Microsoft Support: Flag email messages for follow up](https://support.microsoft.com/en-us/outlook/flag-email-messages-for-follow-up).
 
@@ -110,7 +110,7 @@ Eerst hoe de papieren onderdelen overeenkomen met Customermates:
 | De map van vandaag openen | Open het dashboard: de records van vandaag en de sectie Achterstallig |
 | De map achteraan zetten | Verplaats de datum van elk record nadat je hebt gehandeld, of wis hem |
 | Het papier in de map | Het record: notities, gekoppelde contactpersonen en bedrijven, bestanden en, vanaf Pro, gesprekken |
-| Eraan denken de la te openen | Blijft je eigen gewoonte. Customermates stuurt geen herinneringen |
+| Eraan denken de la te openen | Een automatisering op de datum kan je een melding sturen, anders blijft het je eigen gewoonte |
 
 <Steps>
   <Step title="Voeg twee velden toe">Voeg in **Datamodel** een veld van het type **Datum** met de naam "Datum volgende stap" en een veld van het type **Tekst** met de naam "Volgende stap" toe aan **Contactpersonen** of **Deals**, of aan allebei als je leads op deals leven. Op een pakket met Mate kun je Mate vragen ze toe te voegen. Taken hebben geen ingebouwde deadline, dus hetzelfde datumveld werkt daar ook; [taakbeheer](/features/task-management) laat zien hoe taken aan klanten worden gekoppeld.</Step>
@@ -123,7 +123,7 @@ Eerst hoe de papieren onderdelen overeenkomen met Customermates:
 Datumvelden, opgeslagen weergaven en de widget Aankomend hebben geen pakketlimiet: ze werken op Free, op betaalde pakketten en zelf gehost. Wil je dezelfde datums in een andere agenda-app zien, maak dan in de agenda een abonnements-URL: dat is een privé, alleen-lezen feed, en je agenda-app bepaalt hoe vaak hij vernieuwt. De [dashboardgids](/docs/app-dashboard) behandelt de widgetopties en de [agendagids](/docs/app-calendar) de feed.
 
 <AcquisitionCallout title="Waar Customermates de verkeerde tickler file is" variant="boundary">
-  Customermates stuurt geen herinneringen of meldingen, kent geen terugkerende taken en geeft taken geen ingebouwde deadline, dus de lijst herinnert je alleen wanneer je hem opent. Het bewaart geen papier (een scan in een Bestand-veld wordt opgeslagen en getoond, maar de tekst wordt niet gelezen), heeft geen native mobiele app en geen tweerichtingssynchronisatie met Outlook- of Google-agenda's; de agendafeed is eenrichting en alleen-lezen. Het is ook geen juridische termijnenagenda: een datumveld is informatie, geen gerechtelijke termijn. Heb je een melding nodig die jou vindt, gebruik dan een Outlook-vlag met herinnering of je agenda-app, of laat een scheduler zoals n8n de datum via de API lezen.
+  Customermates kent geen terugkerende taken en geeft taken geen ingebouwde deadline; een herinnering komt van een automatisering op een datumveld, op de pagina Meldingen en per e-mail. Het bewaart geen papier (een scan in een Bestand-veld wordt opgeslagen en getoond, maar de tekst wordt niet gelezen), heeft geen native mobiele app en geen tweerichtingssynchronisatie met Outlook- of Google-agenda's; de agendafeed is eenrichting en alleen-lezen. Het is ook geen juridische termijnenagenda: een datumveld is informatie, geen gerechtelijke termijn. Wil je de melding liever in Outlook of je agenda-app, gebruik dan een Outlook-vlag met herinnering of je agenda-app, of laat een scheduler zoals n8n de datum via de API lezen.
 </AcquisitionCallout>
 
 Customermates Cloud heeft een Free-pakket voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate of routines. Je eerste werkruimte begint met een proefperiode van [[commercial.trial.days]] dagen op Pro en gaat daarna over naar Free, tenzij je een betaald pakket kiest; betaalde pakketten beginnen bij [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd, zie de [prijzenpagina](/pricing). De Community Edition kun je [zelf hosten](/features/self-hosted) zonder licentiekosten, zonder inbox en Mate. Wil je de tickler op je eigen klanten uitproberen, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup): Pro, geen creditcard. Voeg de twee velden eerst toe aan Deals.
@@ -162,7 +162,7 @@ Ja. Elke lijst met een datumkolom die je sorteert en dagelijks opent, werkt: een
 Niet helemaal. Een agenda bevat afspraken op een tijdstip. Een tickler bevat items die je op een dag weer wilt zien, met het item of de context erbij. Een gesorteerde lijst met een datum doet beide, en Customermates kan dezelfde datums ook in zijn Agenda tonen.
 </FaqItem>
 <FaqItem question="Stuurt Customermates tickler-herinneringen?">
-Nee. Er zijn geen meldingen en taken hebben geen ingebouwde deadline. Je voegt een datumveld toe, sorteert een opgeslagen weergave erop en toont het in de widget Aankomend; de lijst is de herinnering. Heb je een pushmelding nodig, dan kan een Outlook-vlag met herinnering of een scheduler die de datum via de API leest die sturen.
+Ja, met een automatisering. Taken hebben geen ingebouwde deadline, dus je voegt een datumveld toe, sorteert een opgeslagen weergave erop en toont het in de widget Aankomend; een automatisering die start zodra die datum bereikt is, stuurt je een melding op de pagina Meldingen en per e-mail. Heb je een pushmelding nodig, dan kan een Outlook-vlag met herinnering of een scheduler die de datum via de API leest die sturen.
 </FaqItem>
 </Faq>
 

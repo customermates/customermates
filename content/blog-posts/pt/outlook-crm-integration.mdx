@@ -58,7 +58,7 @@ A maioria dos CRMs da próxima tabela combina os dois primeiros: um add-in para 
 | Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook no desktop, na web e no celular: vincule e-mails, reuniões e compromissos a uma conta, oportunidade ou caso | A sincronização no servidor roda em segundo plano mais ou menos a cada 15 minutos; os contatos podem sincronizar entre o Exchange e o Dynamics 365 | Sem suporte a caixas compartilhadas do Microsoft 365. O Sales Professional é listado a US$ 65 por usuário por mês, pagos anualmente |
 | Salesforce | A integração com o Outlook, um painel lateral no Outlook | Einstein Activity Capture para sincronizar e-mails e eventos | O Salesforce for Outlook, o produto desktop mais antigo, está sendo desativado; o Salesforce recomenda a integração com o Outlook e o Einstein Activity Capture |
 | Pipedrive | Pipedrive for Outlook, um app do Marketplace criado pela Baymats AB, para desktop e web; teste gratuito de 7 dias e depois assinatura paga | Sincronização de e-mail no Growth e acima, com Office 365 / Outlook, Exchange (EWS) e IMAP; vincula conversas a negócios, leads ou projetos | A sincronização de e-mail também oferece rastreamento de abertura. O add-in é um produto de terceiros, com assinatura própria |
-| Customermates | Sem add-in | Caixa de e-mail do Outlook na caixa de entrada do CRM, no Pro e acima do Customermates Cloud; calendário somente leitura | Sem sincronização de contatos do Outlook e sem escrita no calendário. Detalhes nas próximas seções |
+| Customermates | Sem add-in | Caixa de e-mail do Outlook na caixa de entrada do CRM, no Pro e acima do Customermates Cloud; as reuniões que você marca vão para o calendário do Outlook | Sem sincronização de contatos do Outlook e sem sincronização bidirecional do calendário. Detalhes nas próximas seções |
 
 Os preços mudam; o preço do Dynamics 365 foi verificado em 8 de outubro de 2026 na [página de preços da Microsoft](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
 
@@ -100,7 +100,7 @@ O que sincroniza depois, e o que não sincroniza:
 |---|---|
 | E-mails enviados e recebidos | Sim, das pastas que você ativou. As respostas saem da própria conta do Outlook |
 | Mover um e-mail para uma pasta | Sim, em contas Outlook e IMAP a mudança acontece também na caixa de e-mail real |
-| Eventos do calendário | Somente leitura. As reuniões aparecem na linha do tempo de atividades; o Customermates não cria, edita nem agenda eventos |
+| Eventos do calendário | As reuniões aparecem na linha do tempo de atividades. O Customermates grava só as reuniões que você marca e as reservas das suas páginas de agendamento (Cloud, a partir do Pro); os outros eventos continuam somente leitura |
 | Contatos do Outlook (agenda de endereços) | Não sincronizam em nenhum dos sentidos. Os contatos são criados ao vincular um participante ou no CRM |
 | Tarefas do Outlook | Não sincronizam |
 
@@ -123,7 +123,7 @@ Uma equipe de cinco pessoas no Pro paga [[commercial.price.pro.monthly.seats.5]]
 Para testar com o seu próprio Outlook, [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
 
 <AcquisitionCallout title="Onde o Customermates não é a melhor escolha" variant="boundary">
-Não existe add-in do Outlook, então os detalhes do CRM são consultados no Customermates, e não em um painel lateral do Outlook. Contatos e tarefas do Outlook não sincronizam, e os eventos do calendário são somente leitura. O Customermates não tem sequências de e-mail nem e-mail em massa. Uma instalação com hospedagem própria não tem caixa de entrada nem conexão com o Outlook; ela oferece REST, webhooks e MCP. Se a sua equipe precisa ficar dentro do Outlook, ou precisa de sincronização de contatos nos dois sentidos com a agenda de endereços do Exchange, escolha um CRM com add-in web e sincronização no servidor, da tabela acima.
+Não existe add-in do Outlook, então os detalhes do CRM são consultados no Customermates, e não em um painel lateral do Outlook. Contatos e tarefas do Outlook não sincronizam, e os eventos do calendário continuam somente leitura, exceto as reuniões que você marca e as reservas das suas páginas de agendamento. O Customermates não tem sequências de e-mail nem e-mail em massa. Uma instalação com hospedagem própria não tem caixa de entrada nem conexão com o Outlook; ela oferece REST, webhooks e MCP. Se a sua equipe precisa ficar dentro do Outlook, ou precisa de sincronização de contatos nos dois sentidos com a agenda de endereços do Exchange, escolha um CRM com add-in web e sincronização no servidor, da tabela acima.
 </AcquisitionCallout>
 
 ## Teste qualquer CRM para Outlook antes de liberar para a equipe

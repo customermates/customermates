@@ -33,7 +33,7 @@ sections:
       - title: "Kosten"
         description: "Een routine-uitvoering gebruikt de maandelijkse gehoste AI-credits van de eigenaar en stopt bij 10 credits. n8n factureert zijn eigen abonnementen."
       - title: "Niet inbegrepen"
-        description: "Geen visuele builder of vertakkingen in het CRM, geen e-mailreeksen en geen herinneringen voor taken."
+        description: "Geen vertakkingen of wachttijden in het CRM, geen e-mailreeksen en geen ingebouwde deadlines voor taken."
 
 hero:
   title: Sales automation in je CRM met AI-routines en open webhooks
@@ -54,15 +54,15 @@ cta:
   hint: "✓ Geen creditcard nodig ✓ Eerste [[commercial.trial.days]] dagen gratis"
 ---
 
-Sales automation in je CRM betekent dat een terugkerende CRM-stap gebeurt zonder dat iemand eraan hoeft te denken: een deal wordt gewonnen en de onboardingtaken staan er, een klant mailt en een conceptantwoord ligt klaar. In Customermates bouw je het met **routines** (Mate, de gehoste assistent, voert een opgeslagen instructie uit volgens een schema of wanneer een record verandert, alleen in de cloud), met **webhooks, de REST API en n8n** voor regels die elke keer hetzelfde moeten werken, of met je eigen AI-client via **MCP**.
+Sales automation in je CRM betekent dat een terugkerende CRM-stap gebeurt zonder dat iemand eraan hoeft te denken: een deal wordt gewonnen en de onboardingtaken staan er, een klant mailt en een conceptantwoord ligt klaar. In Customermates bouw je het met **automatiseringen** (vaste regels zonder AI, op elk abonnement), met **routines** (Mate, de gehoste assistent, voert een opgeslagen instructie uit volgens een schema of wanneer een record verandert, alleen in de cloud), met **webhooks, de REST API en n8n** voor regels die elke keer hetzelfde moeten werken, of met je eigen AI-client via **MCP**.
 
-De grens is makkelijk te benoemen. Customermates automatiseert werk op afzonderlijke records. Het heeft geen e-mailreeksen, druppelcampagnes of massale outreach, geen leadscoring, geen webformulieren en geen visuele workflowbuilder met vertakkingen in het CRM; dat deel hoort bij n8n, een apart product. Bedoel je met "CRM-automatisering" marketingautomatisering, dan laat de volgende sectie zien waar de grens loopt.
+De grens is makkelijk te benoemen. Customermates automatiseert werk op afzonderlijke records. Het heeft geen e-mailreeksen, druppelcampagnes of massale outreach, geen leadscoring, en de automatiseringen volgen één keten zonder vertakkingen; flows met vertakkingen horen bij n8n, een apart product. Bedoel je met "CRM-automatisering" marketingautomatisering, dan laat de volgende sectie zien waar de grens loopt.
 
 <ArticleSummary title="In één oogopslag">
   <SummaryItem label="Drie routes">Routines voor werk waarbij lezen en inschatten nodig is. Webhooks plus n8n of je eigen code voor vaste regels. Je eigen AI-client via MCP voor recordupdates waar je om vraagt.</SummaryItem>
   <SummaryItem label="Abonnementen">Routines in elk betaald Cloud-abonnement: [[commercial.entitlement.starter.includedRoutinesPerUser]] per gebruiker op Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] op Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] op Business. REST en MCP in elk abonnement; webhooks in elk betaald abonnement, ook bij zelf hosten.</SummaryItem>
   <SummaryItem label="Kosten">Een routine-uitvoering gebruikt de maandelijkse gehoste AI-credits van de eigenaar en stopt bij 10 credits. n8n factureert zijn eigen abonnementen.</SummaryItem>
-  <SummaryItem label="Niet inbegrepen">Geen visuele builder of vertakkingen in het CRM, geen e-mailreeksen, geen herinneringen voor taken, geen leadscoring.</SummaryItem>
+  <SummaryItem label="Niet inbegrepen">Geen vertakkingen of wachttijden in het CRM, geen e-mailreeksen, geen leadscoring.</SummaryItem>
 </ArticleSummary>
 
 ## Wat is CRM automation en welke soort dekt Customermates?
@@ -71,9 +71,9 @@ CRM automation, ook wel sales automatisering, omvat twee verschillende taken. **
 
 | Soort automatisering | Typische voorbeelden | In Customermates |
 |---|---|---|
-| Recordworkflows | Taken aanmaken als een deal is gewonnen, in een teamkanaal posten als een deal is aangemaakt, deals tonen waar niemand aan heeft gezeten | Ja: routines, webhooks, REST, n8n en MCP |
+| Recordworkflows | Taken aanmaken als een deal is gewonnen, in een teamkanaal posten als een deal is aangemaakt, deals tonen waar niemand aan heeft gezeten | Ja: automatiseringen, routines, webhooks, REST, n8n en MCP |
 | AI-werk op records | Een deal bijwerken op basis van gespreksnotities, een antwoord aan een klant opstellen | Ja: Mate in de chat, routines (Cloud), je eigen AI-client via MCP |
-| Marketingautomatisering | E-mailreeksen, druppelcampagnes, massale outreach, leadscoring, webformulieren | Nee. Gebruik een aparte tool en haal de resultaten binnen via REST of n8n |
+| Marketingautomatisering | E-mailreeksen, druppelcampagnes, massale outreach, leadscoring | Nee. Gebruik een aparte tool en haal de resultaten binnen via REST of n8n |
 
 Een conceptantwoord is één bericht in één gesprek, geen reeks. Heb je de derde rij nodig, houd dan een gespecialiseerde tool daarvoor en gebruik Customermates als de plek waar je klantgegevens vastliggen.
 
@@ -92,7 +92,7 @@ Automatiseer eerst wat je nu al handmatig goed doet. Een proces dat in de prakti
 
 | Klus | Gebruik | Abonnement |
 |---|---|---|
-| Herinnering voor follow-up: een taak voor elke deal waarvan de datum voor het volgende contact is verstreken | Routine volgens een schema | Elk betaald Cloud-abonnement |
+| Herinnering voor follow-up: een melding zodra de datum voor het volgende contact bereikt is, of een taak voor elke deal waarvan de datum is verstreken | Automatisering op de datum, of routine volgens een schema | Automatisering: elk abonnement. Routine: elk betaald Cloud-abonnement |
 | Conceptantwoord als een klant mailt | Routine bij **E-mail ontvangen** | Cloud, Pro en hoger |
 | Onboardingtaken als een deal is gewonnen | Routine bij **Record bijgewerkt** voor Deals, of een webhook naar n8n | Routine: betaald Cloud. Webhook: betaalde abonnementen |
 | Bericht in een teamchat als een deal is aangemaakt | Webhook naar n8n, of een webhook met een sjabloon voor de body | Betaalde abonnementen |
@@ -123,7 +123,7 @@ Een uitvoering zonder toezicht mag records aanmaken en bijwerken, notities toevo
 
 ## Hoe bouw ik een routine voor herinneringen aan follow-up?
 
-Customermates stuurt geen herinneringsmeldingen en taken hebben geen deadline, dus een herinnering is hier een taak die een routine aanmaakt op basis van een datum die je zelf bijhoudt. De routine draait elke ochtend, vindt deals waarvan de datum is verstreken en zet één taak per deal in de takenlijst. Daarvoor heb je een **Datum**-veld nodig, zoals "Volgend contact", bij Deals; de [gids over follow-up](/features/follow-up) laat zien hoe je het toevoegt en hoe je de bijbehorende weergaven opslaat.
+Taken hebben geen ingebouwde deadline. Een automatisering op een datumveld kan je al een melding sturen zodra de datum bereikt is; de routine hier gaat verder en maakt van elke verstreken datum die je zelf bijhoudt een taak. De routine draait elke ochtend, vindt deals waarvan de datum is verstreken en zet één taak per deal in de takenlijst. Daarvoor heb je een **Datum**-veld nodig, zoals "Volgend contact", bij Deals; de [gids over follow-up](/features/follow-up) laat zien hoe je het toevoegt en hoe je de bijbehorende weergaven opslaat.
 
 <Steps>
   <Step title="Voeg het datumveld toe">Voeg in **Datamodel** een veld van het type **Datum** met de naam "Volgend contact" toe aan **Deals** en vul het in bij de deals die je wilt opvolgen.</Step>
@@ -139,7 +139,7 @@ Zoek elke deal die niet in Gewonnen of Verloren staat en waarvan de datum Volgen
 
 De datum in de taaknaam voorkomt dat de routine dezelfde taak twee keer aanmaakt. Zodra de persoon de datum Volgend contact verschuift, krijgt de volgende vervaldatum een eigen taak.
 
-Creditgebruik: een dagelijks schema betekent 30 of 31 uitvoeringen per maand en elke uitvoering stopt bij 10 credits, dus het plafond ligt rond 300 credits per maand. Controleer het maandelijkse tegoed van je abonnement op de [prijspagina](/pricing) voordat je dagelijks draait; een wekelijks schema heeft een plafond van 50. Eén credit is één Amerikaanse cent aan gemeten kosten van de aanbieder. Niemand krijgt een melding: de taken wachten in de takenlijst. Heb je een pushbericht in je teamchat nodig als een datum is verstreken, laat die controle dan draaien vanuit de schematrigger van n8n tegen de REST API.
+Creditgebruik: een dagelijks schema betekent 30 of 31 uitvoeringen per maand en elke uitvoering stopt bij 10 credits, dus het plafond ligt rond 300 credits per maand. Controleer het maandelijkse tegoed van je abonnement op de [prijspagina](/pricing) voordat je dagelijks draait; een wekelijks schema heeft een plafond van 50. Eén credit is één Amerikaanse cent aan gemeten kosten van de aanbieder. De routine zelf stuurt niemand een melding: de taken wachten in de takenlijst, en een automatisering op dezelfde datum kan een melding toevoegen. Heb je een pushbericht in je teamchat nodig als een datum is verstreken, laat die controle dan draaien vanuit de schematrigger van n8n tegen de REST API.
 
 ## Hoe stel ik antwoorden op als een klant mailt?
 
@@ -198,7 +198,7 @@ Externe MCP-aanroepen werken anders. De server controleert autorisatie en valida
 
 ## Is er een open-source CRM met een workflowbuilder?
 
-Customermates is source-available (fair-code), geen open source, en heeft geen workflowbuilder in het CRM. [n8n](https://n8n.io/) vervult die rol. De kenmerken die hier tellen zijn een visuele builder, JavaScript of Python in elke stap en kant-en-klare nodes voor apps zoals Slack, en het koppelt aan Customermates via webhooks en de REST API. Je kunt de Community Edition zelf hosten onder de [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), die gebruik alleen toestaat voor je eigen interne zakelijke doeleinden of voor niet-commercieel of persoonlijk gebruik, of je abonneert je op n8n Cloud, [geprijsd op maandelijkse workflowuitvoeringen](https://n8n.io/pricing/). Customermates bevat geen n8n-runtime of -abonnement.
+Customermates is source-available (fair-code), geen open source, en de automatiseringen in het CRM volgen één keten zonder vertakkingen of wachttijden. Voor grotere flows vervult [n8n](https://n8n.io/) die rol. De kenmerken die hier tellen zijn een visuele builder, JavaScript of Python in elke stap en kant-en-klare nodes voor apps zoals Slack, en het koppelt aan Customermates via webhooks en de REST API. Je kunt de Community Edition zelf hosten onder de [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), die gebruik alleen toestaat voor je eigen interne zakelijke doeleinden of voor niet-commercieel of persoonlijk gebruik, of je abonneert je op n8n Cloud, [geprijsd op maandelijkse workflowuitvoeringen](https://n8n.io/pricing/). Customermates bevat geen n8n-runtime of -abonnement.
 
 De communitynode [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) biedt eigen CRM-nodes als je die liever gebruikt dan HTTP Request-nodes. Gebruik versie 2 of hoger: versie 1.x richt zich op endpoints die de API niet meer heeft, dus de workflows daarvan falen totdat je bijwerkt.
 
@@ -216,10 +216,10 @@ Ons advies: laat een routine een fasewijziging voorstellen in een notitie en laa
 
 ## Wat automatiseert Customermates niet?
 
-- Geen visuele workflowbuilder, vertakkingen of wachttijden in het CRM. Gebruik n8n of een vergelijkbare tool.
+- Geen vertakkingen of wachttijden in het CRM: automatiseringen volgen één keten van trigger, voorwaarden en acties. Gebruik voor meer n8n of een vergelijkbare tool.
 - Geen e-mailreeksen, druppelcampagnes of massamail. Een conceptantwoord is één bericht in één gesprek.
-- Geen deadlines, herinneringen of meldingencentrum voor taken. Een eigen datumveld op de deal plus de routine voor follow-up hierboven geeft je een lijst om uit te werken, zoals bij [follow-ups](/features/follow-up).
-- Geen leadscoring, gegevensverrijking of webformulieren. Stuur formulierinzendingen binnen via REST of n8n.
+- Geen ingebouwde deadlines voor taken. Een eigen datumveld op de deal plus een automatisering of de routine voor follow-up hierboven geeft je herinneringen en een lijst om uit te werken, zoals bij [follow-ups](/features/follow-up).
+- Geen leadscoring of gegevensverrijking. Openbare formulieren maken records direct aan; andere formuliertools sturen inzendingen binnen via REST of n8n.
 - Geen routines, Mate of inbox in [self hosted Customermates](/features/self-hosted). Webhooks, REST en MCP werken daar wel.
 - Geen garantie dat een routine draait: het uurlijkse maximum, de debounce of een eigenaar zonder credits kan een uitvoering overslaan. Stappen die voor elke gebeurtenis moeten draaien, horen op een webhook, waar mislukte leveringen opnieuw worden geprobeerd en opnieuw kunnen worden verstuurd.
 
@@ -249,7 +249,7 @@ Vier staan hierboven stap voor stap uitgewerkt: een routine voor herinneringen a
 </FaqItem>
 
 <FaqItem question="Heeft Customermates een visuele workflowbuilder?">
-Nee. Er is geen drag-and-dropbuilder en geen vertakkende regels in Customermates. Routines nemen in plaats daarvan een instructie in gewone taal, en visuele flows met vertakkingen draaien in n8n, gekoppeld via webhooks en de REST API.
+Deels. Automatiseringen bouw je uit kaarten voor trigger, voorwaarden en acties in één kolom, zonder vertakkingen. Routines nemen een instructie in gewone taal, en visuele flows met vertakkingen draaien in n8n, gekoppeld via webhooks en de REST API.
 </FaqItem>
 
 <FaqItem question="Kan een CRM zichzelf automatisch bijwerken?">
@@ -261,7 +261,7 @@ Marketingautomatisering verstuurt campagnes volgens een tijdschema naar lijsten 
 </FaqItem>
 
 <FaqItem question="Wat gebeurt er met deals als follow-ups na gesprekken worden vergeten?">
-Ze blijven in hun fase staan totdat iemand ze toevallig tegenkomt, en ze blijven meetellen in de gewogen pipeline. Customermates herinnert niemand eraan: er zijn geen deadlines voor taken en geen meldingen. Wat helpt is een eigen datumveld "Volgend contact" op de deal plus de routine voor follow-up hierboven, die een taak aanmaakt voor elke deal waarvan de datum is verstreken.
+Ze blijven in hun fase staan totdat iemand ze toevallig tegenkomt, en ze blijven meetellen in de gewogen pipeline. Taken hebben geen ingebouwde deadlines. Wat helpt is een eigen datumveld "Volgend contact" op de deal met een automatisering die de verantwoordelijke een melding stuurt zodra die bereikt is, plus de routine voor follow-up hierboven, die een taak aanmaakt voor elke deal waarvan de datum is verstreken.
 </FaqItem>
 
 <FaqItem question="Werken routines als ik zelf host?">

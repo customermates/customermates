@@ -67,7 +67,7 @@ In de drukke periode gaat steeds hetzelfde bericht de deur uit: "we missen nog d
     MCP spreekt). Jij controleert en verstuurt.
   </SummaryItem>
   <SummaryItem label="Niet inbegrepen">
-    Geen herinneringen voor deadlines, urenregistratie, facturatie, digitale
+    Geen deadlinebewaking, urenregistratie, facturatie, digitale
     handtekeningen of klantenportaal.
   </SummaryItem>
 </ArticleSummary>
@@ -148,13 +148,13 @@ Een mogelijke inrichting op de lijst Organisaties, met veldnamen die je zelf kie
 - **Risicoclassificatie** (Enkele keuze: Laag, Gemiddeld, Hoog): de uitkomst van je eigen beoordeling.
 - **Wwft-dossier** (Bestand): de vastgelegde stukken, voor zover je die in het CRM wilt bewaren.
 
-Met een opgeslagen weergave "Wwft: nog te controleren", gefilterd op organisaties waarbij UBO vastgesteld niet op Ja staat, zie je meteen welke dossiers nog openstaan. Heb je een nieuwe klant aangenomen, dan kan Mate of je eigen AI-client op verzoek een taak aanmaken met de stappen die je kantoor hanteert. Een datum voor de volgende beoordeling voeg je zelf als datumveld toe; Customermates herinnert je er niet aan.
+Met een opgeslagen weergave "Wwft: nog te controleren", gefilterd op organisaties waarbij UBO vastgesteld niet op Ja staat, zie je meteen welke dossiers nog openstaan. Heb je een nieuwe klant aangenomen, dan kan Mate of je eigen AI-client op verzoek een taak aanmaken met de stappen die je kantoor hanteert. Een datum voor de volgende beoordeling voeg je zelf als datumveld toe; een automatisering op dat veld kan je eraan herinneren.
 
 Voor gewone klantdocumenten werkt het bijna hetzelfde. Een bestand dat een klant per e-mail stuurt, blijft in het gesprek in de inbox staan. De getekende opdrachtbevestiging komt in een veld van het type Bestand bij de deal. Wil je per opdracht een vaste lijst van wat je nodig hebt, bijvoorbeeld jaaropgaven, bankafschriften, het hypotheekoverzicht, de WOZ-beschikking of de voorlopige aanslag, zet die dan als checklist in de notities van de taak "Documentenverzoek sturen". Een klantenportaal waar klanten zelf documenten uploaden bestaat niet; documenten komen binnen via e-mail of chat, of je legt ze zelf vast.
 
 ## Wat Customermates niet doet voor accountants
 
-- **Geen deadlinebewaking.** Taken hebben geen vervaldatums, herinneringen of meldingen. Een veld Uiterste indiendatum en een gesorteerde weergave laten zien wat eraan komt; bindende deadlinebewaking hoort in je kantoorsoftware of fiscale software.
+- **Geen deadlinebewaking.** Taken hebben geen ingebouwde vervaldatum. Een veld Uiterste indiendatum en een gesorteerde weergave laten zien wat eraan komt, en een automatisering op die datum kan je een melding sturen; bindende deadlinebewaking hoort in je kantoorsoftware of fiscale software.
 - Geen urenregistratie, facturatie, voorstellen of digitale handtekeningen. Voeg de getekende opdrachtbevestiging toe aan een veld Bestand bij de deal.
 - Geen klantenportaal.
 - Geen terugkerende opdrachten die het CRM zelf volgens een schema aanmaakt; gebruik Mate, een MCP-client of de REST API met een n8n-workflow die je apart draait.
@@ -235,7 +235,7 @@ Dat hangt ervan af wat je in één hulpmiddel wilt. Karbon en Canopy combineren 
 </FaqItem>
 
 <FaqItem question="Hoe beheren accountantskantoren deadlines en opleveringen aan klanten?">
-Meestal in kantoorsoftware of fiscale software die de deadlinelijst bijhoudt. Een CRM voegt de klantkant toe: welke opdracht op welke documenten wacht en wat er is gezegd. Houd in Customermates een Uiterste indiendatum bij elke deal en sorteer een opgeslagen weergave daarop. Customermates verstuurt geen herinneringen.
+Meestal in kantoorsoftware of fiscale software die de deadlinelijst bijhoudt. Een CRM voegt de klantkant toe: welke opdracht op welke documenten wacht en wat er is gezegd. Houd in Customermates een Uiterste indiendatum bij elke deal en sorteer een opgeslagen weergave daarop. Een automatisering op die datum kan je er ook aan herinneren op de pagina Meldingen en per e-mail.
 </FaqItem>
 
 <FaqItem question="Kan Customermates opdrachtbevestigingen bijhouden?">

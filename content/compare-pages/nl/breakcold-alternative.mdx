@@ -90,7 +90,7 @@ comparison:
         source: false
         competitor: Geen sequencebouwer op de prijs- of functiepagina's
       - name: Taken en herinneringen
-        source: Geen vervaldatums voor taken en geen herinneringen; een datumveld, opgeslagen weergaven en een widget Aankomend
+        source: Geen ingebouwde vervaldatums voor taken; een datumveld met een automatisering die je herinnert, opgeslagen weergaven en een widget Aankomend
         competitor: Taken met herinneringen en toegewezen personen
       - name: REST API en webhooks
         source: REST API in elk abonnement, webhooks bij betaalde abonnementen en self-hosted
@@ -183,7 +183,7 @@ Customermates is ons eigen product, dus controleer elke regel aan de hand van de
 
 **Gesprekken bij elke klant.** Vanaf Pro brengt de [gecombineerde inbox](/features/unified-inbox) Gmail-, Outlook- en IMAP-mailboxen, LinkedIn, WhatsApp, Instagram en Telegram samen in één lijst, en je antwoordt op het oorspronkelijke kanaal. [LinkedIn in Customermates](/features/linkedin-integration) omvat Sales Navigator en Recruiter InMail. Koppel een deelnemer één keer aan een contactpersoon, en elk gesprek met dat adres of die gebruikersnaam verschijnt op de tijdlijn van de contactpersoon.
 
-**Een volgende stap bij elke klant.** Voeg een datumveld zoals "Volgend contact" toe aan contactpersonen of deals, sorteer een opgeslagen weergave erop en zet een widget Aankomend op het dashboard. De [gids over opvolging](/features/follow-up) loopt het stap voor stap door. Er komt geen melding; jij opent de lijst.
+**Een volgende stap bij elke klant.** Voeg een datumveld zoals "Volgend contact" toe aan contactpersonen of deals, sorteer een opgeslagen weergave erop en zet een widget Aankomend op het dashboard. De [gids over opvolging](/features/follow-up) loopt het stap voor stap door. Een automatisering op die datum kan je herinneren, of je opent de lijst.
 
 **AI die concepten voor je opstelt.** In Customermates Cloud vat Mate gesprekken samen, stelt antwoorden op, werkt records bij en bouwt weergaven, met gehoste AI-credits: een maandelijkse hoeveelheid per actieve gebruiker, vermeld op de [prijspagina](/pricing). Routines voeren een opgeslagen instructie uit op een vast tijdstip of wanneer een record verandert. Mate verstuurt een bericht zonder te vragen als jij zegt dat het moet worden verstuurd, dus vraag om concepten als je eerst wilt controleren. Liever Claude of ChatGPT? Koppel die aan de [MCP-server](/docs/mcp), met [[derived.mcp.tools.total]] tools in elk abonnement, Free inbegrepen, en bij self-hosted installaties. De modelaanroepen lopen dan via je eigen AI-aanbieder, en onze [gids over CRM's met Claude](/blog/claude-crm) laat zien hoe de opties zich verhouden.
 
@@ -196,7 +196,7 @@ Controleer dit voordat je een proefperiode start:
 - **Geen dataverrijking, geen gespreksopname en geen telefonie.** Contactgegevens zijn wat je team of je AI-client invoert, en meetings blijven in je meetingtool.
 - **Geen sequences en geen bulk-e-mail.** Berichten gaan één voor één de deur uit, door jou geschreven of door Mate opgesteld. Ook de prijs- en functiepagina's van Breakcold noemen geen sequencebouwer; de functiepagina verwijst voor outreach naar agents zoals OpenClaw en Hermes AI. Geen van beide tools is de keuze voor campagnes met meerdere stappen.
 - **Geen browserextensie.** Profielen komen niet met één klik in het CRM terecht.
-- **Geen herinneringen en geen vervaldatums voor taken.** Een datumveld en een widget Aankomend tonen wat er moet gebeuren, maar niets stuurt een melding.
+- **Geen ingebouwde vervaldatums voor taken.** Een datumveld en een widget Aankomend tonen wat er moet gebeuren, en een automatisering op dat veld kan je een melding sturen zodra de datum bereikt is.
 - **Geen automatische detectie van stille gesprekken.** Niets houdt in de gaten of een gesprek stilvalt, tenzij je daar een routine voor schrijft.
 - **Eén gekoppeld account per gebruiker bij Pro.** Twee kanalen per persoon vragen Business.
 - **Geen goedkeuringswachtrij voor verzenden.** Mate verstuurt wanneer je dat zegt, en daarom raadt deze pagina concepten aan.
@@ -211,7 +211,7 @@ Neem een adviesbureau van drie personen dat projecten verkoopt aan klanten die h
 |---|---|
 | Personen en bedrijven | Contactpersonen en organisaties |
 | Een pipeline met fasen | Deals, hernoemd naar "Projecten", met een fasenveld: Lead 10%, Voorstel 40%, Onderhandeling 70%, Gewonnen 100%, Verloren 0% |
-| Een taak met een herinnering | Een datumveld "Volgend contact" en een widget Aankomend; er wordt geen herinnering verstuurd |
+| Een taak met een herinnering | Een datumveld "Volgend contact" met een automatisering die je herinnert, plus een widget Aankomend |
 | Chief of Staff stelt concepten op in de takenwachtrij | Mate of een routine slaat een concept op in het gesprek; jij controleert en verstuurt |
 | Eén inbox voor elk kanaal | De gecombineerde inbox met LinkedIn en Gmail gekoppeld |
 | Dataverrijking en gespreksopname | Niet beschikbaar; notities met de hand of via je AI-client |

@@ -61,10 +61,6 @@ Fair-code is a model described at [faircode.io](https://faircode.io), not a lice
 
 Every contributor agrees to the [Contributor License Agreement](./.github/CLA.md), a few plain-English sentences. It gives Customermates permission to license your contribution on any terms, and it means you are not liable for your contribution. [`.github/CONTRIBUTING.md`](./.github/CONTRIBUTING.md) explains the pull request rules, including the rule for `ee/`.
 
-## What happens to the licence history?
-
-Until 16 November 2026 the first-party code outside `ee/` was licensed under AGPL-3.0-only, and the folder `ee/` was licensed under the Customermates Commercial License version 1.0 of 6 August 2026. From that date the code outside `ee/` is licensed under the Sustainable Use License, and `ee/` is licensed under version 1.1 of the Customermates Enterprise License. The additional permission for Community Builds under the AGPL no longer exists. A copy that you received before that date keeps the licence it came with.
-
 ## Where do I ask?
 
 Questions about the licence, enterprise licences, embedding, white-labelling and multi-client setups go through the [contact page](https://customermates.com/contact). Plans and prices are on the [pricing page](https://customermates.com/pricing). The licence pages in the documentation are [Licence](https://customermates.com/docs/licence), [Licence FAQ](https://customermates.com/docs/licence-faq) and [Compare editions](https://customermates.com/docs/compare-editions).

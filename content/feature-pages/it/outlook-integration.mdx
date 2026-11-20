@@ -35,11 +35,11 @@ sections:
       - title: "Come funziona"
         description: "Nessun add-in o barra laterale in Outlook. Customermates legge e invia tramite l’account collegato, quindi funziona con qualunque app di Outlook usi per scrivere."
       - title: "Non incluso"
-        description: "Nessuna sincronizzazione dei contatti della rubrica di Outlook, nessuna creazione o prenotazione di eventi del calendario, nessuna e-mail di massa."
+        description: "Nessuna sincronizzazione dei contatti della rubrica di Outlook, nessuna sincronizzazione bidirezionale del calendario, nessuna e-mail di massa."
 
 hero:
   title: "CRM Outlook: ogni thread di Outlook sul suo cliente, senza add-in"
-  description: "Collega Outlook una volta e i suoi thread di e-mail arrivano sul contatto corrispondente. Vedi chi aspetta una tua risposta, fai preparare la risposta a Mate e inviala dal CRM o da Outlook. Il calendario è in sola lettura. Cloud da Pro, [[commercial.price.pro.monthly]] per utente al mese."
+  description: "Collega Outlook una volta e i suoi thread di e-mail arrivano sul contatto corrispondente. Vedi chi aspetta una tua risposta, fai preparare la risposta a Mate e inviala dal CRM o da Outlook. Pianifica riunioni nel tuo calendario Outlook. Cloud da Pro, [[commercial.price.pro.monthly]] per utente al mese."
   buttonLeftText: "Avvia la prova di [[commercial.trial.days]] giorni"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Guarda la demo dal vivo
@@ -82,7 +82,7 @@ Se ti serve la sincronizzazione dei contatti di Outlook in entrambe le direzioni
 
 **Risposte e nuove e-mail dal CRM.** Rispondi nell’editor del thread, con A, Cc e Ccn, formattazione Markdown e file allegati. Avvia una nuova e-mail dal blocco **Recapiti** di un contatto. Ogni account Outlook ha il proprio carattere, il proprio colore dei link e la propria firma nella scheda **E-mail**. Una volta attivata, la firma viene aggiunta a ogni e-mail inviata da quell’account, sia dalla posta in arrivo sia dall’API o da MCP.
 
-**Calendario, in sola lettura.** Gli eventi del calendario Outlook collegato compaiono nella categoria **Account e calendario** dei widget della cronologia delle attività, e i client IA li leggono tramite MCP con `get_calendars`. Compaiono anche nella pagina Calendario accanto alle date dei tuoi record. Customermates non crea, modifica né prenota mai eventi in Outlook.
+**Calendario.** Gli eventi del calendario Outlook collegato compaiono nella categoria **Account e calendario** dei widget della cronologia delle attività, e i client IA li leggono tramite MCP con `get_calendars`. Compaiono anche nella pagina Calendario accanto alle date dei tuoi record. In Customermates Cloud da Pro pianifichi riunioni in Outlook e offri pagine di prenotazione; Customermates non modifica né sposta gli altri eventi di Outlook.
 
 ## Configurazione
 
@@ -115,7 +115,7 @@ Il punto decisivo è la dotazione di account: Pro include [[commercial.entitleme
 
 - Nessun add-in, barra laterale o pulsante della barra multifunzione in Outlook. I dettagli del CRM si consultano in Customermates.
 - I contatti della rubrica di Outlook non vengono sincronizzati in nessuna direzione. I contatti si creano in Customermates, collegando un mittente, a mano o con l’[importazione XLSX](/docs/app-records).
-- I dati del calendario sono in sola lettura. Nessuna prenotazione di riunioni, nessuna scrittura di eventi.
+- Nessuna sincronizzazione bidirezionale del calendario: Customermates scrive solo le riunioni che pianifichi e le prenotazioni dalle tue pagine di prenotazione, e gli altri eventi di Outlook restano in sola lettura.
 - Nessuna e-mail di massa né sequenze. Ogni e-mail viene scritta e inviata singolarmente.
 - Scollegare un account elimina in modo permanente i thread, i messaggi e gli eventi del calendario che Customermates ha importato da esso.
 - I provider limitano la velocità con cui la posta può essere letta e inviata; i budget attuali sono nei [limiti di frequenza della messaggistica](/docs/messaging-rate-limits).

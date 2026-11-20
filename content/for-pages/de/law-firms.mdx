@@ -72,7 +72,7 @@ Die Seite richtet sich an Einzelanwälte ebenso wie an Kanzleien mit zwanzig Ber
   </SummaryItem>
   <SummaryItem label="Nicht enthalten">
     Fristenkalender, Aktenführung, beA, Zeiterfassung, Abrechnung,
-    Fremdgeldverwaltung, Webformulare, E-Signatur und ein Mandantenportal.
+    Fremdgeldverwaltung, E-Signatur und ein Mandantenportal.
   </SummaryItem>
 </ArticleSummary>
 
@@ -178,11 +178,11 @@ Lieber mit dem eigenen KI-Client? Claude, ChatGPT und andere verbinden sich übe
 
 ## Was Customermates für Kanzleien nicht leistet
 
-- Kein Fristenkalender und keine Fristenkontrolle. Ein Datumsfeld am Deal ist eine Information, keine Frist, und Aufgaben haben weder Fälligkeitsdatum noch Erinnerung. Eine Wiedervorlage mit Erinnerung gibt es nicht.
+- Kein Fristenkalender und keine Fristenkontrolle. Ein Datumsfeld am Deal ist eine Information, keine Frist, und Aufgaben haben kein eingebautes Fälligkeitsdatum. Eine Automatisierung auf ein Datum kann Sie erinnern, ersetzt aber keine Fristenkontrolle.
 - Keine Aktenführung. Die Akte liegt in Ihrem Dokumentensystem, der Link dazu am Deal; einzelne Dokumente lassen sich in einem Feld vom Typ Datei ablegen, und Dateien aus Nachrichten bleiben bei der Konversation im Posteingang.
 - Keine Zeiterfassung, keine RVG-Abrechnung, keine Rechnungen und keine Fremdgeldverwaltung. Bei jeder Änderung an einem Deal löst ein Webhook aus; ein separat betriebener n8n-Workflow kann einen neuen Mandanten an Ihre Kanzleisoftware übergeben, sofern diese eine API hat.
-- Keine Webformulare für Anfragen, keine E-Signatur und kein Mandantenportal. Ein Formularwerkzeug kann über die REST-API Deals anlegen.
-- Kein beA, keine SMS- oder Telefonanbindung, keine Terminbuchung und keine mobile App.
+- Keine E-Signatur und kein Mandantenportal. Öffentliche Formulare legen in jedem Tarif Anfragen direkt als Datensätze an.
+- Kein beA, keine SMS- oder Telefonanbindung und keine mobile App. Terminplanung und Buchungsseiten brauchen Customermates Cloud ab Pro.
 - Keine Zertifizierung wie ISO 27001 oder SOC 2.
 
 ## Mandantendaten und Berufsgeheimnis

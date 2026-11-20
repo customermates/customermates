@@ -72,7 +72,7 @@ comparison:
         source: Thread-Status Ungelesen, Offen, Geschlossen und Spam, dazu Filter und gespeicherte Ansichten
         competitor: Jedes Label bekommt einen eigenen Posteingang in der Seitenleiste
       - name: Erinnerungen und Zurückstellen
-        source: Ein Datumsfeld, das Sie am Datensatz anlegen
+        source: Ein Datumsfeld am Datensatz mit einer Automatisierung, die erinnert; kein Schlummern im Posteingang
         competitor: Eine Erinnerung bringt den Chat zum fälligen Zeitpunkt wieder nach oben
       - name: Gespeicherte Antworten
         source: Entwürfe von Mate oder Ihrem eigenen KI-Client
@@ -190,7 +190,7 @@ Customermates ist unser Produkt, wiegen Sie diesen Abschnitt also gegen den zu K
 
 **LinkedIn neben der E-Mail beim Kunden.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und per IMAP, LinkedIn (inklusive Sales Navigator und Recruiter-InMail), WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. Verknüpfen Sie einen Gesprächspartner einmal mit einem Kontakt, erscheint jede Konversation mit dieser Adresse oder LinkedIn-Identität am Kontakt. Eine Konversation mit einem Deal zu verknüpfen, ist ein bewusster Schritt von Ihnen oder einem Agenten. [LinkedIn in Customermates](/features/linkedin-integration) beschreibt die Einzelheiten.
 
-**Ein nächster Schritt für jede offene Konversation.** Customermates hat weder eingebaute Erinnerungen noch Fälligkeitsdaten bei Aufgaben. Sie legen ein Datumsfeld wie „Nächster Schritt“ an Deals oder Kontakten an, sortieren eine gespeicherte Ansicht danach und teilen sie mit dem Workspace, und das Widget „Anstehend“ auf dem Dashboard listet sie nach diesem Datum, mit einem Abschnitt „Überfällig“ für frühere. Niemand wird automatisch erinnert, die Liste hilft also nur, wenn jemand sie öffnet. [Nachfassen in Customermates](/features/follow-up) zeigt die Einrichtung.
+**Ein nächster Schritt für jede offene Konversation.** Customermates hat keine eingebauten Fälligkeitsdaten bei Aufgaben. Sie legen ein Datumsfeld wie „Nächster Schritt“ an Deals oder Kontakten an, sortieren eine gespeicherte Ansicht danach und teilen sie mit dem Workspace, und das Widget „Anstehend“ auf dem Dashboard listet sie nach diesem Datum, mit einem Abschnitt „Überfällig“ für frühere. Eine Automatisierung auf diesem Datum kann die zugewiesene Person erinnern, damit das Nachfassen nicht davon abhängt, dass jemand die Liste öffnet. [Nachfassen in Customermates](/features/follow-up) zeigt die Einrichtung.
 
 **Entwürfe, die Sie prüfen und senden.** In Customermates Cloud speichert Mate einen Antwortentwurf in der Konversation, den Sie bearbeiten und senden. Ihr eigenes Claude oder ChatGPT kann das über den [MCP-Server](/docs/mcp), der in jedem Tarif und auch bei selbst gehosteten Installationen [[derived.mcp.tools.total]] Tools bereitstellt, mit Ihrem eigenen KI-Anbieter. Mate sendet eine Nachricht, sobald Sie ihm das Senden auftragen; bitten Sie deshalb um einen Entwurf, wenn Sie vorher prüfen möchten. Mate nutzt gehostete KI-Credits mit einem monatlichen Kontingent pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht.
 
@@ -203,7 +203,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Es ist kein Posteingang für die Tastatur.** Der [dokumentierte Posteingang](/docs/app-inbox) hat Thread-Status, Filter, gespeicherte Ansichten und Entwürfe. Zurückstellen, Snippets und Label-Posteingänge gibt es nicht. Bei Hunderten LinkedIn-Nachrichten am Tag ist Kondo schneller.
 - **Nachrichten können nicht auf Ihrem Rechner bleiben.** Verbundene Konversationen werden in die Datenbank von Customermates synchronisiert.
 - **Der Posteingang beginnt bei Pro und gibt es nur in Customermates Cloud.** Free, Starter und selbst gehostete Installationen haben keine verbundenen Konten, und ein Konto pro Pro-Nutzer heißt: LinkedIn plus Postfach braucht Business.
-- **Keine Erinnerungen, die einen Chat zurückbringen.** Ein Datumsfeld und eine gespeicherte Ansicht ersetzen sie, und jemand muss die Ansicht öffnen.
+- **Kein Schlummern, das einen Chat zurückbringt.** Ein Datumsfeld mit einer Automatisierung, die erinnert, ersetzt es.
 - **Keine Sequenzen, kein Serienversand, keine Datenanreicherung und keine nativen Smartphone-Apps.** Nachrichten gehen einzeln raus, selbst geschrieben oder von Mate entworfen. Auch Kondo sagt, es automatisiere nichts.
 - **Ein kleiner kostenloser Tarif.** Free umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; mehr braucht nach [[commercial.trial.days]] Tagen Testphase einen bezahlten Tarif.
 
@@ -214,7 +214,7 @@ Nehmen wir eine Einzelberaterin, die Kunden- und Interessentengespräche über L
 | In Kondo | In Customermates |
 |---|---|
 | Labels wie Hot und Proposal sent | Ein Phasenfeld an jedem Deal: Lead 10 %, Angebot gesendet 50 %, Verhandlung 70 %, Gewonnen 100 %, Verloren 0 % |
-| Eine Erinnerung „in vier Tagen“ | Ein Datumsfeld „Nächster Schritt“ am Deal und eine danach sortierte gespeicherte Ansicht |
+| Eine Erinnerung „in vier Tagen“ | Ein Datumsfeld „Nächster Schritt“ am Deal, eine Automatisierung, die an dem Tag erinnert, und eine danach sortierte gespeicherte Ansicht |
 | Ein Snippet für die erste Antwort | Ein Entwurf von Mate oder Ihrem eigenen KI-Client |
 | Notizen zu einer Person | Das Notizfeld am Kontakt |
 | LinkedIn-Chats im Kondo-Posteingang | LinkedIn unter Kanäle verbunden, jeder Thread mit seinem Deal verknüpft |

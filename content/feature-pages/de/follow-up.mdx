@@ -131,13 +131,13 @@ cta:
 
 Angebote nachfassen heißt, den nächsten Kontakt mit einem Kunden zu terminieren, damit er stattfindet, und beim Nachfassen den letzten Stand zu kennen. Eine Follow-up-Software wie Customermates hält dafür LinkedIn- und E-Mail-Verläufe am Kundendatensatz bereit, gibt jedem Kunden einen datierten nächsten Schritt und lässt Mate oder Ihre eigene KI Entwürfe schreiben, die Sie prüfen und senden.
 
-Das ist eine Liste, die Sie öffnen, kein Hinweis, der Sie findet. Customermates verschickt keine Erinnerungen, kennt kein Fälligkeitsdatum an Aufgaben und führt keine E-Mail-Sequenzen aus. Wenn Ihr Vertrieb darauf angewiesen ist, nennt der Vergleich weiter unten zwei Tools, die besser passen.
+Das ist eine Liste, die Sie öffnen, und eine Automatisierung auf dem Datum ergänzt eine Erinnerung, die Sie findet. Customermates kennt kein Fälligkeitsdatum an Aufgaben und führt keine E-Mail-Sequenzen aus. Wenn Ihr Vertrieb darauf angewiesen ist, nennt der Vergleich weiter unten zwei Tools, die besser passen.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Prinzip">Ein Textfeld „Nächster Schritt“ und ein Datumsfeld „Nächster Schritt am“ am Kunden, danach sortierte gespeicherte Ansichten, ein Widget „Anstehend“ auf dem Dashboard und ein Posteingang-Filter für Gespräche, in denen Sie auf Antwort warten.</SummaryItem>
   <SummaryItem label="Tarife">Datumsfelder, gespeicherte Ansichten und Dashboard in jedem Tarif, auch selbst gehostet. Der Posteingang braucht Pro oder höher. Mate und Routinen gibt es nur in Customermates Cloud.</SummaryItem>
   <SummaryItem label="KI-Hilfe">Mate oder Ihr eigener KI-Client über MCP legt einen Nachfass-Entwurf im Gespräch ab. Sie prüfen, bearbeiten und senden. Eine Routine kann Entwürfe nach Zeitplan vorbereiten.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine Benachrichtigungen, kein Fälligkeitsdatum an Aufgaben, keine Sequenzen und kein Massenversand, keine Anrufe und keine SMS. Sie öffnen die Liste; nichts meldet sich von selbst.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Kein eingebautes Fälligkeitsdatum an Aufgaben, keine Sequenzen und kein Massenversand, keine Anrufe und keine SMS. Erinnerungen kommen von einer Automatisierung, die Sie auf das Datum legen.</SummaryItem>
 </ArticleSummary>
 
 ## Was muss eine Follow-up-Software leisten?
@@ -161,7 +161,7 @@ Das ist die Freitagsszene aus der Demo weiter oben, in der Reihenfolge, in der S
 1. **Freitag, 16:42: die Antwort kommt.** Jonas Weber von Halden & Co. antwortet auf LinkedIn: „Können Sie mir nächste Woche das überarbeitete Angebot schicken? Dann nehme ich es mit in die Geschäftsführung.“ In den **Kontaktdaten** seines Kontakts stehen sein LinkedIn-Profil und seine E-Mail-Adresse, deshalb erscheinen dieser Verlauf und der E-Mail-Verlauf vom Vormonat beide in den **Aktivitäten** des Datensatzes und im [Posteingang](/features/unified-inbox).
 2. **Freitagabend: Sie bitten um einen Entwurf.** Bitten Sie Mate im Gespräch: „Entwirf eine Antwort: überarbeitetes Angebot am Dienstag, mit den zwei Workshop-Varianten. Setze Nächster Schritt auf Überarbeitetes Angebot senden und Nächster Schritt am auf Dienstag.“ Mate legt den Entwurf im Gespräch ab und füllt die beiden Felder. Ihr eigener KI-Client, etwa Claude oder ChatGPT, kann das in Customermates Cloud über [MCP](/docs/mcp) genauso. Bitten Sie um einen Entwurf, nicht ums Senden: Mate sendet in dem Moment, in dem Sie es verlangen.
 3. **Sie prüfen und senden.** Der Entwurf bleibt im Gespräch, mit **Entwurf senden**, **Bearbeiten** und **Verwerfen**. Lesen Sie ihn gegen den Verlauf, korrigieren Sie den Wortlaut und senden Sie ihn. Die Nachricht geht von Ihrem verbundenen Konto auf LinkedIn hinaus, als einzelne Nachricht.
-4. **Dienstagmorgen: es steht auf dem Dashboard.** Das Widget „Anstehend“ nennt Jonas Weber unter heute, und Ihre Ansicht „Nachfassen“ zeigt den Text von **Nächster Schritt** neben dem Datum. Sie senden das Angebot, notieren eine Zeile und setzen **Nächster Schritt am** auf den Tag, an dem Sie wieder nachsehen. Verstreicht der Dienstag, rutscht er am Mittwoch unter **Überfällig**. Nichts benachrichtigt Sie, das Dashboard ist also die Erinnerung.
+4. **Dienstagmorgen: es steht auf dem Dashboard.** Das Widget „Anstehend“ nennt Jonas Weber unter heute, und Ihre Ansicht „Nachfassen“ zeigt den Text von **Nächster Schritt** neben dem Datum. Sie senden das Angebot, notieren eine Zeile und setzen **Nächster Schritt am** auf den Tag, an dem Sie wieder nachsehen. Verstreicht der Dienstag, rutscht er am Mittwoch unter **Überfällig**. Eine Automatisierung auf **Nächster Schritt am** kann Sie an dem Morgen zusätzlich benachrichtigen, auf der Seite Benachrichtigungen und per E-Mail.
 
 | Am Datensatz von Jonas Weber | Wert | Woher es kommt |
 |---|---|---|
@@ -203,7 +203,7 @@ Der Satz „Nichts senden“ ist wichtig. Mate sendet Nachrichten ohne erneute R
 Ein Beispiel mit Ereignis: eine Routine mit **Wenn sich etwas ändert** für Deal-Aktualisierungen und der Anweisung „Wenn die Phase auf Angebot gewechselt ist: Nächster Schritt am auf fünf Werktage ab heute setzen und eine Aufgabe ‚Angebot nachfassen‘ anlegen, zugewiesen an die zugewiesenen Personen des Deals.“ Änderungen durch eine Routine lösen keine anderen Routinen aus, eine Schleife entsteht also nicht.
 
 <AcquisitionCallout title="Was Nachfassen in Customermates nicht umfasst" variant="boundary">
-  Keine Benachrichtigungen oder Erinnerungs-E-Mails, kein eingebautes Fälligkeitsdatum und kein Überfällig-Zustand an Aufgaben, keine wiederkehrenden Aufgaben. Keine E-Mail-Sequenzen, keine Drip-Kampagnen und kein Massenversand; jede Nachricht wird einzeln geschrieben und gesendet. Eine Ansicht, die Sie teilen, ist für Ihre Kolleginnen und Kollegen nur lesbar. Selbst gehostete Installationen haben keinen Posteingang, kein Mate und keine Routinen.
+  Kein eingebautes Fälligkeitsdatum und kein Überfällig-Zustand an Aufgaben und keine wiederkehrenden Aufgaben; Erinnerungen kommen von Automatisierungen auf Datumsfeldern. Keine E-Mail-Sequenzen, keine Drip-Kampagnen und kein Massenversand; jede Nachricht wird einzeln geschrieben und gesendet. Eine Ansicht, die Sie teilen, ist für Ihre Kolleginnen und Kollegen nur lesbar. Selbst gehostete Installationen haben keinen Posteingang, kein Mate und keine Routinen.
 </AcquisitionCallout>
 
 ## Wie hängt das mit LinkedIn, E-Mail und dem Rest zusammen?
@@ -211,11 +211,11 @@ Ein Beispiel mit Ereignis: eine Routine mit **Wenn sich etwas ändert** für Dea
 - **Posteingang (ab Pro):** Nachfass-Nachrichten werden über den ursprünglichen Kanal versendet. Ein Gespräch ist über seine Teilnehmer mit dem Kontakt verknüpft, der Verlauf erscheint also am Datensatz. [LinkedIn-Gespräche](/features/linkedin-integration) funktionieren wie E-Mail, über das LinkedIn-Konto, das Sie verbinden.
 - **Aufgaben:** Braucht ein Schritt eine eigene Zuständigkeit oder eine Checkliste, legen Sie eine Aufgabe am Kunden an. Aufgaben haben kein eigenes Fälligkeitsdatum; geben Sie ihnen ein Datumsfeld, wie in der [Aufgabenverwaltung](/features/task-management) beschrieben.
 - **MCP:** Ihr eigener KI-Client, etwa Claude oder ChatGPT, liest dieselben Ansichten und Gespräche über [[derived.mcp.tools.total]] MCP-Tools und speichert Entwürfe. Das funktioniert auch selbst gehostet, dort ohne Posteingang. Siehe [MCP-Anleitung](/docs/mcp).
-- **Webhooks und n8n:** Wenn Sie wirklich eine Benachrichtigung brauchen, etwa eine Nachricht im Team-Chat, sobald ein Datum bei Nächster Schritt am überschritten ist, richten Sie das in n8n oder einem eigenen zeitgesteuerten Dienst über die REST-API ein. n8n ist ein separates Produkt mit eigenen Tarifen. Siehe [Workflow-Automatisierung](/features/workflow-automation).
+- **Webhooks und n8n:** Wenn Sie die Benachrichtigung woanders brauchen, etwa als Nachricht im Team-Chat, sobald ein Datum bei Nächster Schritt am überschritten ist, richten Sie das in n8n oder einem eigenen zeitgesteuerten Dienst über die REST-API ein. n8n ist ein separates Produkt mit eigenen Tarifen. Siehe [Workflow-Automatisierung](/features/workflow-automation).
 
 ## Wann ist Customermates die falsche Wahl zum Nachfassen?
 
-Diese Seite stammt von Customermates; lesen Sie den Vergleich mit diesem Wissen. Customermates ist die falsche Wahl, wenn Sie Erinnerungen brauchen, die Sie erreichen, eine Abfolge, die sich selbst versendet, oder Nachfassen per Telefon oder SMS: Es gibt keine Benachrichtigungen, keine Sequenzen, keinen Telefonie- oder SMS-Kanal und keine native Mobile-App.
+Diese Seite stammt von Customermates; lesen Sie den Vergleich mit diesem Wissen. Customermates ist die falsche Wahl, wenn Sie eine Abfolge brauchen, die sich selbst versendet, oder Nachfassen per Telefon oder SMS: Es gibt keine Sequenzen, keinen Telefonie- oder SMS-Kanal und keine native Mobile-App.
 
 | Wenn Sie das brauchen | Schauen Sie sich an | Warum |
 |---|---|---|
@@ -242,7 +242,7 @@ Customermates hat einen Free-Tarif für eine Person mit [[commercial.limit.free.
 Follow-up heißt Nachfassen: der nächste Kontakt nach einem Gespräch, einem Angebot oder einer unbeantworteten Nachricht. Im CRM geht es darum, dass dieser Kontakt nicht vergessen wird und dass die Person, die nachfasst, den letzten Stand kennt.
 </FaqItem>
 <FaqItem question="Hat Customermates Erinnerungen oder Fälligkeitsdaten?">
-Nein. Es gibt keine Benachrichtigungen, und Aufgaben haben kein eingebautes Fälligkeitsdatum. Legen Sie ein eigenes Datumsfeld an, sortieren Sie eine gespeicherte Ansicht danach und zeigen Sie es in einem Widget „Anstehend“ auf Ihrem Dashboard an. Wenn Sie eine Push-Benachrichtigung brauchen, kann n8n oder ein anderer zeitgesteuerter Dienst das Datum über die API lesen und Sie benachrichtigen.
+Erinnerungen ja, eingebaute Fälligkeitsdaten nein. Legen Sie ein eigenes Datumsfeld an, sortieren Sie eine gespeicherte Ansicht danach, zeigen Sie es in einem Widget „Anstehend“ auf Ihrem Dashboard an und legen Sie eine Automatisierung an, die Sie benachrichtigt, wenn das Datum erreicht ist. Wenn Sie eine Push-Benachrichtigung auf dem Smartphone brauchen, kann n8n oder ein anderer zeitgesteuerter Dienst das Datum über die API lesen und Sie benachrichtigen.
 </FaqItem>
 <FaqItem question="Wie kann ich das Nachfassen im Vertrieb automatisieren?">
 Nicht als Sequenz. Eine Routine in Customermates Cloud schreibt nach Zeitplan einzelne Entwürfe, die Sie nach dem Lesen senden. Sie kann auch selbst senden, wenn die Anweisung das sagt, dann eine Nachricht pro Gespräch. Mehrstufige oder massenhafte Abfolgen brauchen ein eigenes Sequenz-Tool.

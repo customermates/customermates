@@ -72,7 +72,7 @@ comparison:
         source: Stati della conversazione Non letta, Aperta, Chiusa e Spam, più filtri e viste salvate
         competitor: Ogni etichetta ha la propria casella nella barra laterale
       - name: Promemoria e posticipo
-        source: Un campo data che aggiungi al record
+        source: Un campo data sul record con un’automazione che te lo ricorda; nessuna posticipazione nella posta in arrivo
         competitor: Un promemoria riporta la chat in cima alla posta in arrivo alla scadenza
       - name: Risposte salvate
         source: Bozze di Mate o del tuo client IA
@@ -190,7 +190,7 @@ Customermates è il nostro prodotto, quindi pesa questa sezione rispetto a quell
 
 **LinkedIn accanto all’e-mail sulla scheda del cliente.** Da Pro, la [posta in arrivo unificata](/features/unified-inbox) porta le caselle Gmail, Outlook e IMAP, LinkedIn (compresi Sales Navigator e Recruiter InMail), WhatsApp, Instagram e Telegram in un unico elenco, e rispondi sul canale originale. Collega un partecipante a un contatto una volta sola e ogni conversazione con quell’indirizzo o quell’identità LinkedIn compare sul contatto. Collegare una conversazione a una trattativa è un passaggio che fai tu o un agente di proposito. [LinkedIn in Customermates](/features/linkedin-integration) ha i dettagli.
 
-**Un prossimo passo su ogni conversazione aperta.** Customermates non ha promemoria né scadenze per le attività integrati. Aggiungi un campo data come «Prossimo passo» alle trattative o ai contatti, ordini una vista salvata per quel campo e condividi la vista con lo spazio di lavoro, e il widget In arrivo della dashboard li elenca per quella data, con una sezione Scaduti per quelli precedenti. Nessuno riceve un promemoria automatico, quindi l’elenco aiuta solo quando qualcuno lo apre. [Il follow up in Customermates](/features/follow-up) mostra la configurazione.
+**Un prossimo passo su ogni conversazione aperta.** Customermates non ha scadenze integrate per le attività. Aggiungi un campo data come «Prossimo passo» alle trattative o ai contatti, ordini una vista salvata per quel campo e condividi la vista con lo spazio di lavoro, e il widget In arrivo della dashboard li elenca per quella data, con una sezione Scaduti per quelli precedenti. Un’automazione su quella data può avvisare l’assegnatario, così il follow-up non dipende da chi apre l’elenco. [Il follow up in Customermates](/features/follow-up) mostra la configurazione.
 
 **Bozze che rivedi e invii.** In Customermates Cloud, Mate salva una bozza di risposta nella conversazione, e tu la modifichi e la invii. Il tuo Claude o ChatGPT può fare lo stesso tramite il [server MCP](/docs/mcp), con [[derived.mcp.tools.total]] strumenti su ogni piano e nelle installazioni self-hosted, usando il tuo provider IA. Mate invia un messaggio appena gli dici di inviarlo, quindi chiedi una bozza quando vuoi rivederla prima. Mate usa crediti IA ospitati, con una quota mensile per utente attivo indicata nella [pagina dei prezzi](/pricing).
 
@@ -203,7 +203,7 @@ Controlla questi punti prima di iniziare una prova:
 - **Non è una posta in arrivo pensata per la tastiera.** La [posta in arrivo documentata](/docs/app-inbox) ha stati delle conversazioni, filtri, viste salvate e bozze. Non ha posticipi, snippet né caselle per etichetta. Per centinaia di messaggi LinkedIn al giorno, Kondo è più veloce.
 - **I messaggi non possono restare sul tuo computer.** Le conversazioni collegate vengono sincronizzate nel database di Customermates.
 - **La posta in arrivo parte da Pro ed esiste solo in Customermates Cloud.** Free, Starter e le installazioni self-hosted non hanno account collegati, e un account per utente Pro significa che LinkedIn più una casella di posta richiede Business.
-- **Nessun promemoria che riporti indietro una chat.** Un campo data e una vista salvata li sostituiscono, e qualcuno deve aprire la vista.
+- **Nessuna posticipazione che riporti indietro una chat.** La sostituisce un campo data con un’automazione che te lo ricorda.
 - **Nessuna sequenza, nessun invio di massa, nessun arricchimento e nessuna app mobile nativa.** I messaggi partono uno alla volta, scritti da te o preparati da Mate. Kondo dice di non automatizzare nemmeno lui.
 - **Un piano gratuito piccolo.** Free copre [[commercial.limit.free.maxMembers]] persona e [[commercial.limit.free.maxRecords]] record, senza posta in arrivo, Mate né routine; per avere di più serve un piano a pagamento dopo la prova di [[commercial.trial.days]] giorni.
 
@@ -214,7 +214,7 @@ Prendi un consulente autonomo che gestisce le conversazioni con clienti e potenz
 | In Kondo | In Customermates |
 |---|---|
 | Etichette come Hot e Proposal sent | Un campo fase su ogni trattativa: Lead 10%, Proposta inviata 50%, Negoziazione 70%, Vinta 100%, Persa 0% |
-| Un promemoria «tra quattro giorni» | Un campo data «Prossimo passo» sulla trattativa e una vista salvata ordinata per quel campo |
+| Un promemoria «tra quattro giorni» | Un campo data «Prossimo passo» sulla trattativa, un’automazione che te lo ricorda quel giorno e una vista salvata ordinata per quel campo |
 | Uno snippet per la prima risposta | Una bozza di Mate o del tuo client IA |
 | Note su una persona | Il campo note sul contatto |
 | Chat LinkedIn nella posta di Kondo | LinkedIn collegato in Canali, ogni conversazione collegata alla sua trattativa |

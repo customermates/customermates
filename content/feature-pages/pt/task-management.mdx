@@ -1,6 +1,6 @@
 ---
 title: "Tarefas no CRM: tarefas ligadas a cada negócio"
-description: "Tarefas no CRM ligadas a contatos, organizações, negócios e serviços, sem prazos nem lembretes embutidos. Com responsáveis, notas e campos personalizados."
+description: "Tarefas no CRM ligadas a contatos, organizações, negócios e serviços, com lembretes por automação nas datas. Com responsáveis, notas e campos próprios."
 featureName: Gestão de tarefas
 
 relatedHrefs:
@@ -35,7 +35,7 @@ sections:
       - title: "Visualizações"
         description: "Tabela ou quadro, agrupados por um campo de escolha como Status, com visualizações salvas que você pode compartilhar."
       - title: "Não incluído"
-        description: "Sem prazos, lembretes, notificações, tarefas recorrentes, dependências, controle de tempo nem gráficos de Gantt."
+        description: "Sem prazos nativos, tarefas recorrentes, dependências, controle de tempo nem gráficos de Gantt."
 
 hero:
   title: "Tarefas no CRM: cada promessa a um cliente vira uma tarefa no registro dele"
@@ -60,7 +60,7 @@ Gestão de tarefas no CRM significa que o to-do mora no registro do cliente: "en
 
 **Onde isso ajuda no follow-up.** O que você prometeu em uma ligação fica na cabeça de alguém até virar tarefa. Como tarefa no negócio e no contato, ela aparece nos dois registros, e uma visualização salva dos negócios sem nenhuma tarefa lista todos os clientes cujo próximo passo ninguém registrou.
 
-Não há prazo embutido, lembrete, alerta de atraso nem tarefa recorrente. Um campo **Status** nas tarefas é um campo comum de Escolha única que você cria, renomeia ou substitui. O Customermates não serve para uma equipe que planeja a semana em torno de lembretes e prazos de tarefas. Nesse caso combina mais um CRM com atividades agendadas, e a tabela abaixo cita dois. Se você quer tarefas que carreguem o contexto do cliente e que uma IA possa criar e atualizar, continue lendo.
+Não há prazo embutido, estado de atraso nem tarefa recorrente; um lembrete vem de uma automação em um campo de data que você adiciona. Um campo **Status** nas tarefas é um campo comum de Escolha única que você cria, renomeia ou substitui. O Customermates não serve para uma equipe que planeja a semana em torno de atividades agendadas e prazos de tarefas. Nesse caso combina mais um CRM com atividades agendadas, e a tabela abaixo cita dois. Se você quer tarefas que carreguem o contexto do cliente e que uma IA possa criar e atualizar, continue lendo.
 
 ## O que é uma tarefa no Customermates
 
@@ -85,7 +85,7 @@ Vem de uma planilha ou de outra ferramenta? As tarefas podem ser importadas de u
 
 > Toda segunda-feira às 8h: liste as minhas tarefas com Data-alvo anterior a hoje e Status diferente de Concluída e Arquivada. Agrupe por organização vinculada e sugira a próxima ação para cada uma. Não altere nem envie nada.
 
-As rotinas rodam como o seu dono, com o acesso e os créditos dele, e você lê o resultado nos detalhes da execução. O Customermates não envia nenhuma notificação quando uma execução termina, então uma rotina não substitui um lembrete, a menos que alguém a abra. Outra rotina útil reage quando um negócio é atualizado e, se a etapa dele passou a ser Ganho, cria as tarefas de onboarding e as vincula ao negócio.
+As rotinas rodam como o seu dono, com o acesso e os créditos dele, e você lê o resultado nos detalhes da execução. O Customermates não envia nenhuma notificação quando uma execução termina, então, para um lembrete, use uma automação na data. Outra rotina útil reage quando um negócio é atualizado e, se a etapa dele passou a ser Ganho, cria as tarefas de onboarding e as vincula ao negócio.
 
 **Com o seu próprio cliente de IA**, Claude, ChatGPT ou outro cliente conectado por [MCP](/docs/mcp) pode usar `mutate_crm_record` nos mesmos registros. Isso funciona também em instalações com hospedagem própria, com os custos do seu provedor de IA no lugar dos créditos hospedados.
 
@@ -113,7 +113,7 @@ As tarefas estão incluídas em todos os planos. Uma equipe de cinco pessoas no 
 
 <Faq>
 <FaqItem question="O Customermates tem prazos e lembretes de tarefas?">
-Não. As tarefas não têm campo de prazo, lembretes nem notificações. Adicione um campo de Data personalizado, ordene uma visualização salva por ele e, no Customermates Cloud, deixe uma rotina listar as tarefas cuja data já passou. O Customermates não envia e-mails de lembrete; para isso você precisa de um CRM com atividades agendadas ou de um agendador seu que leia a API.
+Não nativos. As tarefas não têm campo de prazo, então adicione um campo de Data personalizado e ordene uma visualização salva por ele. Uma automação nesse campo avisa a pessoa atribuída quando a data chega, na página Notificações e por e-mail, e no Customermates Cloud uma rotina pode listar as tarefas cuja data já passou.
 </FaqItem>
 <FaqItem question="Posso acompanhar o status das tarefas em um quadro Kanban?">
 Sim, por meio de um campo de Escolha única. Adicione um campo **Status** à sua lista de tarefas. Agrupe o quadro por ele e arraste os cartões entre as colunas; você pode renomear as opções ou agrupar por outro campo, como Prioridade.

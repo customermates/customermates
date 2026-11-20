@@ -34,7 +34,7 @@ This guide explains what a tickler file is, walks through the 43-folder system w
   <SummaryItem label="The idea">File an item under the date you need to see it again, and open only today's folder each morning. The file does the remembering until the day comes.</SummaryItem>
   <SummaryItem label="Paper">43 folders: 31 numbered for the days of the month and 12 named for the months. Items for later months wait in a month folder and move into the day folders when that month starts.</SummaryItem>
   <SummaryItem label="Outlook">A follow-up flag on a single email, with a start and due date and an optional reminder. It follows one message, not the client behind it.</SummaryItem>
-  <SummaryItem label="Customermates">A Date field, a view sorted by it and the Upcoming widget with an Overdue section. Works on every plan, self-hosted included. It sends no reminders: the list is the reminder.</SummaryItem>
+  <SummaryItem label="Customermates">A Date field, a view sorted by it and the Upcoming widget with an Overdue section. Works on every plan, self-hosted included. The list is the reminder, and an automation on the date can notify you when it comes due.</SummaryItem>
   <SummaryItem label="Disclosure">Customermates publishes this guide. The other options are described by fit, not ranked.</SummaryItem>
 </ArticleSummary>
 
@@ -76,7 +76,7 @@ Four ways cover almost every case. The Customermates row is our own product; the
 | Paper, 43 folders | A folder per day and per month | No. You open today's folder each morning | The paper itself | You handle physical mail, bills, tickets and forms |
 | Outlook follow-up flag | A flag on a message with Today, Tomorrow, This Week, Next Week, No Date or a custom start and due date | Add Reminder sets a reminder; flagged messages appear in the To-Do Bar, in Tasks and in the Calendar daily task list | One email message | The follow-up starts from an email in Outlook |
 | Spreadsheet | A date column you sort | Not unless you build it yourself | A notes column | One person with a short list |
-| Date field in a CRM (Customermates) | A Date field on the client or deal | No. Customermates sends none; a sorted view and the Upcoming widget are the reminder | The record with notes, linked contacts and companies and, from Pro, LinkedIn and email conversations | Clients and deals with a history, for one person or a team |
+| Date field in a CRM (Customermates) | A Date field on the client or deal | Yes, with an automation on the date field, on the Notifications page and by email; a sorted view and the Upcoming widget show the rest | The record with notes, linked contacts and companies and, from Pro, LinkedIn and email conversations | Clients and deals with a history, for one person or a team |
 
 Microsoft documents the flag options for Outlook for Microsoft 365, Outlook 2024 and Outlook 2021, and notes that with an IMAP account you cannot change the flag text or set start and due dates. Checked on 11 November 2026 against [Microsoft Support: Flag email messages for follow up](https://support.microsoft.com/en-us/outlook/flag-email-messages-for-follow-up).
 
@@ -110,7 +110,7 @@ First, how the paper parts map to Customermates:
 | Open today's folder | Open the dashboard: today's records and the Overdue section |
 | Move the folder to the back | Move each record's date after you act, or clear it |
 | The paper in the folder | The record: notes, linked contacts and companies, files and, from Pro, conversations |
-| Remembering to open the drawer | Still your habit. Customermates sends no reminders |
+| Remembering to open the drawer | An automation on the date can notify you, or you keep the habit of opening the view |
 
 <Steps>
   <Step title="Add two fields">In **Data model**, add a field of type **Date** named "Next step date" and a field of type **Text** named "Next step" to **Contacts** or **Deals**, or to both if your leads live on deals. On a plan with Mate, you can ask it to add them. Tasks have no built-in due date, so the same Date field works there too; [task management](/features/task-management) shows how tasks link to clients.</Step>
@@ -123,7 +123,7 @@ First, how the paper parts map to Customermates:
 Date fields, saved views and the Upcoming widget have no plan limit: they work on Free, on paid plans and self-hosted. To see the same dates in another calendar app, create a subscription URL in the calendar: it is a private, read-only feed, and your calendar app decides how often it refreshes. The [dashboard guide](/docs/app-dashboard) covers the widget options and the [calendar guide](/docs/app-calendar) covers the feed.
 
 <AcquisitionCallout title="Where Customermates is the wrong tickler file" variant="boundary">
-  Customermates sends no reminders or notifications, has no recurring tasks and gives tasks no built-in due date, so the list only reminds you when you open it. It holds no paper (a scan in a File field is stored and shown, but its text is not read), has no native mobile app and has no two-way sync with Outlook or Google calendars; the calendar feed is one-way and read-only. It is not a legal deadline calendar either: a date field is information, not a court deadline. If you need an alert that finds you, use an Outlook flag with a reminder or your calendar app, or let a scheduler such as n8n read the date through the API.
+  Customermates has no recurring tasks and gives tasks no built-in due date; a reminder comes from an automation on a date field, on the Notifications page and by email. It holds no paper (a scan in a File field is stored and shown, but its text is not read), has no native mobile app and has no two-way sync with Outlook or Google calendars; the calendar feed is one-way and read-only. It is not a legal deadline calendar either: a date field is information, not a court deadline. If you want the alert in Outlook or your calendar app instead, use an Outlook flag with a reminder or your calendar app, or let a scheduler such as n8n read the date through the API.
 </AcquisitionCallout>
 
 Customermates Cloud has a Free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. Your first workspace starts with a [[commercial.trial.days]]-day trial of Pro and then moves to Free unless you choose a paid plan; paid plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly, see the [pricing page](/pricing). The Community Edition can be [self-hosted](/features/self-hosted) with no licence fee, without the inbox and Mate. To try the tickler on your own clients, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup): Pro, no credit card. Add the two fields to Deals first.
@@ -153,7 +153,7 @@ Yes. Any list with a date column that you sort and open daily works: an Outlook 
 Not quite. A calendar holds appointments at a time. A tickler holds items you want to see again on a day, with the item or its context attached. A sorted list with a date does both jobs, and Customermates can also show the same dates in its Calendar.
 </FaqItem>
 <FaqItem question="Does Customermates send tickler reminders?">
-No. There are no notifications and tasks have no built-in due date. You add a Date field, sort a saved view by it and show it in the Upcoming widget; the list is the reminder. If you need a push alert, an Outlook flag with a reminder or a scheduler reading the date through the API can send it.
+Yes, through an automation. Tasks have no built-in due date, so you add a Date field, sort a saved view by it and show it in the Upcoming widget; an automation that starts when that date is reached notifies you on the Notifications page and by email. If you need a push alert, an Outlook flag with a reminder or a scheduler reading the date through the API can send it.
 </FaqItem>
 </Faq>
 

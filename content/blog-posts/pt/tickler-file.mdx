@@ -34,7 +34,7 @@ Este guia explica o que é um tickler file, percorre o sistema de 43 pastas com 
   <SummaryItem label="A ideia">Arquive um item na data em que você precisa vê-lo de novo e abra só a pasta de hoje a cada manhã. O arquivo faz a lembrança até o dia chegar.</SummaryItem>
   <SummaryItem label="Papel">43 pastas: 31 numeradas para os dias do mês e 12 com o nome dos meses. Os itens de meses futuros esperam em uma pasta de mês e passam para as pastas de dia quando esse mês começa.</SummaryItem>
   <SummaryItem label="Outlook">Uma sinalização de acompanhamento em um único e-mail, com data de início e de conclusão e um lembrete opcional. Ela acompanha uma mensagem, não o cliente por trás dela.</SummaryItem>
-  <SummaryItem label="Customermates">Um campo Data, uma visualização ordenada por ele e o widget Próximos com uma seção Atrasados. Funciona em todos os planos, inclusive na hospedagem própria. Não envia lembretes: a lista é o lembrete.</SummaryItem>
+  <SummaryItem label="Customermates">Um campo Data, uma visualização ordenada por ele e o widget Próximos com uma seção Atrasados. Funciona em todos os planos, inclusive na hospedagem própria. A lista é o lembrete, e uma automação na data pode avisar você no vencimento.</SummaryItem>
   <SummaryItem label="Transparência">O Customermates publica este guia. As outras opções são descritas pelo encaixe, sem ranking.</SummaryItem>
 </ArticleSummary>
 
@@ -87,7 +87,7 @@ Quatro caminhos cobrem quase todos os casos. A linha do Customermates é o nosso
 | Papel, 43 pastas | Uma pasta por dia e por mês | Não. Você abre a pasta de hoje a cada manhã | O próprio papel | Você lida com correspondência física, contas, ingressos e formulários |
 | Sinalização de acompanhamento do Outlook | Uma sinalização em uma mensagem com Hoje, Amanhã, Esta Semana, Próxima Semana, Sem Data ou datas de início e de conclusão personalizadas | Adicionar Lembrete cria um lembrete; mensagens sinalizadas aparecem na Barra de Tarefas Pendentes, em Tarefas e na lista diária de tarefas do Calendário | Uma mensagem de e-mail | O follow-up começa de um e-mail no Outlook |
 | Planilha | Uma coluna de data que você ordena | Não, a menos que você mesmo monte isso | Uma coluna de notas | Uma pessoa com uma lista curta |
-| Campo de data em um CRM (Customermates) | Um campo Data no cliente ou no negócio | Não. O Customermates não envia nenhum; uma visualização ordenada e o widget Próximos são o lembrete | O registro com notas, contatos e empresas vinculados e, a partir do Pro, conversas de LinkedIn e e-mail | Clientes e negócios com histórico, para uma pessoa ou um time |
+| Campo de data em um CRM (Customermates) | Um campo Data no cliente ou no negócio | Sim, com uma automação no campo de data, na página Notificações e por e-mail; uma visualização ordenada e o widget Próximos mostram o resto | O registro com notas, contatos e empresas vinculados e, a partir do Pro, conversas de LinkedIn e e-mail | Clientes e negócios com histórico, para uma pessoa ou um time |
 
 A Microsoft documenta as opções de sinalização para o Outlook do Microsoft 365, o Outlook 2024 e o Outlook 2021 e observa que, com uma conta IMAP, não é possível alterar o texto da sinalização nem definir datas de início e de conclusão. Verificado em 11 de novembro de 2026 em [Microsoft Support: Flag email messages for follow up](https://support.microsoft.com/en-us/outlook/flag-email-messages-for-follow-up).
 
@@ -123,7 +123,7 @@ Primeiro, como as partes do papel correspondem ao Customermates:
 | Abrir a pasta de hoje | Abrir o painel: os registros de hoje e a seção Atrasados |
 | Mandar a pasta para o fim | Mudar a data de cada registro depois de agir, ou limpá-la |
 | O papel dentro da pasta | O registro: notas, contatos e empresas vinculados, arquivos e, a partir do Pro, conversas |
-| Lembrar de abrir a gaveta | Continua sendo um hábito seu. O Customermates não envia lembretes |
+| Lembrar de abrir a gaveta | Uma automação na data pode avisar você; senão, continua sendo um hábito seu |
 
 <Steps>
   <Step title="Adicione dois campos">Em **Modelo de dados**, adicione um campo do tipo **Data** chamado "Data do próximo passo" e um campo do tipo **Texto** chamado "Próximo passo" a **Contatos** ou **Negócios**, ou a ambos se os seus leads vivem nos negócios. Em um plano com o Mate, você pode pedir que ele os adicione. As tarefas não têm data de vencimento nativa, então o mesmo campo Data funciona nelas também; o [gerenciamento de tarefas](/features/task-management) mostra como as tarefas se vinculam aos clientes.</Step>
@@ -136,7 +136,7 @@ Primeiro, como as partes do papel correspondem ao Customermates:
 Campos de data, visualizações salvas e o widget Próximos não têm limite de plano: funcionam no Free, nos planos pagos e na hospedagem própria. Para ver as mesmas datas em outro aplicativo de calendário, crie uma URL de assinatura no calendário: é um feed privado e somente leitura, e o seu aplicativo de calendário decide com que frequência atualizá-lo. O [guia do painel](/docs/app-dashboard) cobre as opções do widget e o [guia do calendário](/docs/app-calendar) cobre o feed.
 
 <AcquisitionCallout title="Onde o Customermates é o tickler file errado" variant="boundary">
-  O Customermates não envia lembretes nem notificações, não tem tarefas recorrentes e não dá às tarefas uma data de vencimento nativa, então a lista só lembra você quando você a abre. Ela não guarda papel (uma digitalização em um campo Arquivo é armazenado e exibido, mas o texto dele não é lido), não tem aplicativo móvel nativo e não tem sincronização bidirecional com os calendários do Outlook ou do Google; o feed do calendário é de mão única e somente leitura. Também não é um calendário de prazos legais: um campo de data é informação, não um prazo judicial. Se você precisa de um alerta que encontre você, use uma sinalização do Outlook com lembrete ou o seu aplicativo de calendário, ou deixe um agendador como o n8n ler a data pela API.
+  O Customermates não tem tarefas recorrentes e não dá às tarefas uma data de vencimento nativa; um lembrete vem de uma automação em um campo de data, na página Notificações e por e-mail. Ela não guarda papel (uma digitalização em um campo Arquivo é armazenado e exibido, mas o texto dele não é lido), não tem aplicativo móvel nativo e não tem sincronização bidirecional com os calendários do Outlook ou do Google; o feed do calendário é de mão única e somente leitura. Também não é um calendário de prazos legais: um campo de data é informação, não um prazo judicial. Se você prefere o alerta no Outlook ou no seu aplicativo de calendário, use uma sinalização do Outlook com lembrete ou o seu aplicativo de calendário, ou deixe um agendador como o n8n ler a data pela API.
 </AcquisitionCallout>
 
 O Customermates Cloud tem um plano Free para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem rotinas. O seu primeiro espaço de trabalho começa com um teste de [[commercial.trial.days]] dias do Pro e depois passa para o Free, a menos que você escolha um plano pago; os planos pagos começam em [[commercial.price.starter.monthly]] por usuário ao mês, cobrados mensalmente, veja a [página de preços](/pricing). A edição Community pode ser [hospedada por você](/features/self-hosted) sem taxa de licença, sem a caixa de entrada e sem o Mate. Para testar o tickler com os seus próprios clientes, [inicie o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup): Pro, sem cartão de crédito. Adicione primeiro os dois campos aos Negócios.
@@ -166,7 +166,7 @@ Sim. Qualquer lista com uma coluna de data que você ordena e abre todo dia func
 Não exatamente. Um calendário guarda compromissos em um horário. Um tickler guarda itens que você quer ver de novo em um dia, com o item ou o contexto dele anexado. Uma lista ordenada com data faz os dois trabalhos, e o Customermates também pode mostrar as mesmas datas no seu Calendário.
 </FaqItem>
 <FaqItem question="O Customermates envia lembretes do tickler?">
-Não. Não há notificações, e as tarefas não têm data de vencimento nativa. Você adiciona um campo Data, ordena uma visualização salva por ele e o mostra no widget Próximos; a lista é o lembrete. Se você precisa de um alerta por push, uma sinalização do Outlook com lembrete ou um agendador que leia a data pela API pode enviá-lo.
+Sim, com uma automação. As tarefas não têm data de vencimento nativa, então você adiciona um campo Data, ordena uma visualização salva por ele e o mostra no widget Próximos; uma automação que começa quando essa data chega avisa você na página Notificações e por e-mail. Se você precisa de um alerta por push, uma sinalização do Outlook com lembrete ou um agendador que leia a data pela API pode enviá-lo.
 </FaqItem>
 </Faq>
 

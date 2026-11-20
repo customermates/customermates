@@ -51,7 +51,7 @@ There are seven. The table says who runs each one and what Claude gets, as of 16
 | Google's Gmail MCP server | Google | Search and read threads, labels, create drafts; no tool sends | Developer Preview in the Google Workspace Developer Preview Program; needs a Google Cloud project and your own OAuth client |
 | Microsoft's MCP offerings (Work IQ MCP, older Mail tools) | Microsoft | Read, write and send mail through an Entra-protected server | Work IQ needs a Global Administrator and a usage-based billing plan in Copilot Studio; Microsoft calls the Mail tools backward-compatibility only |
 | Community bridges | Individual developers, listed in directories | Varies widely by project | No vendor commitment; you hand a stranger's program access to your mailbox |
-| A CRM with the mailbox connected, as a connector (Customermates) | Customermates | Threads at the client, records, activity, notes, knowledge base, save a reply draft; calendar read-only | Customermates Cloud on Pro or a trial |
+| A CRM with the mailbox connected, as a connector (Customermates) | Customermates | Threads at the client, records, activity, notes, knowledge base, save a reply draft; schedule meetings into a connected calendar | Customermates Cloud on Pro or a trial |
 
 Which one fits depends on the job:
 
@@ -128,7 +128,7 @@ Most questions about "Claude and Outlook" mix three kinds of access. Taken apart
 | Access | What Claude needs it for | Gmail | Outlook | Customermates |
 | --- | --- | --- | --- | --- |
 | Mailbox | Read the thread, word the reply | Gmail connector | Claude for Outlook or Microsoft 365 connector | Threads of the connected mailbox in the inbox, only folders you switched on |
-| Calendar | Suggest times, check availability | Google Calendar connector, with write access | Claude for Outlook (find times, invite as a draft) or Microsoft 365 connector, write tools after admin approval | Read-only (`get_calendars`), no booking |
+| Calendar | Suggest times, check availability | Google Calendar connector, with write access | Claude for Outlook (find times, invite as a draft) or Microsoft 365 connector, write tools after admin approval | `get_calendars` to read, `schedule_meeting` to book, move and cancel meetings (Cloud, Pro and up) |
 | Client history | Who this is, which deal, what was promised | Not there | Not there | Records, activity, notes, files, knowledge base |
 | Sending | Send the reply | Claude asks first by default | Add-in: never sends, the draft stays in Outlook; connector, personal accounts: Claude asks first; work accounts: only after an admin enables write tools | `save_message_draft` stores a draft; `send_email` sends at once if you allow the tool |
 
@@ -173,7 +173,7 @@ An incoming message is text from a stranger, and Claude reads it. Google's guide
 ## When is Customermates the wrong choice for this? [#wrong-choice]
 
 - **You only want to search one mailbox.** Anthropic's connector for Gmail or Microsoft 365 is enough, and it needs no CRM.
-- **Claude should schedule meetings.** Customermates reads connected calendars read-only and books no appointments. Add the Google Calendar or Microsoft 365 connector for that.
+- **Claude should manage your whole calendar.** On Customermates Cloud from Pro, Claude can schedule a meeting into your connected Google or Microsoft calendar through Customermates, but it does not edit or move other events. Add the Google Calendar or Microsoft 365 connector for that.
 - **You are on Free, Starter or a self-hosted instance.** The inbox and the messaging tools start at Pro in the cloud. Self-hosted keeps MCP, records and the knowledge base, but no mailbox.
 - **You do not want a copy of the thread history.** Customermates imports the folders you switched on into its inbox, and disconnecting the account deletes the import again. Anthropic's connectors keep retrieved data only with the chat.
 - **You need sequences.** Customermates has no sequences and no mass sending; each message is written individually.
@@ -203,7 +203,7 @@ Not by default. With the Gmail connector Claude asks before every send, reply an
 </FaqItem>
 
 <FaqItem question="Can Claude create meetings in Outlook or Google Calendar?">
-With Anthropic's connectors yes, and on Microsoft 365 only with write tools enabled. Customermates reads connected calendars read-only and books no appointments.
+With Anthropic's connectors yes, and on Microsoft 365 only with write tools enabled. Customermates, on Cloud from Pro, schedules new meetings into a connected calendar but does not edit other events.
 </FaqItem>
 
 <FaqItem question="Does this work with a personal Outlook.com account?">

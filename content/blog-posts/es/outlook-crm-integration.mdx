@@ -58,7 +58,7 @@ La mayoría de los CRM de la tabla siguiente combinan los dos primeros: un compl
 | Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook en escritorio, web y móvil: vincula correos, reuniones y citas a una cuenta, una oportunidad o un caso | La sincronización del lado del servidor se ejecuta en segundo plano aproximadamente cada 15 minutos; los contactos pueden sincronizarse entre Exchange y Dynamics 365 | No es compatible con los buzones compartidos de Microsoft 365. Sales Professional figura a 65 USD por usuario al mes, con pago anual |
 | Salesforce | La integración con Outlook, un panel lateral en Outlook | Einstein Activity Capture para sincronizar correos y eventos | Salesforce for Outlook, el producto de escritorio anterior, se está retirando; Salesforce recomienda en su lugar la integración con Outlook y Einstein Activity Capture |
 | Pipedrive | Pipedrive for Outlook, una app del Marketplace creada por Baymats AB, para escritorio y web; prueba gratuita de 7 días y después suscripción de pago | Sincronización de correo en Growth y superiores, con Office 365 / Outlook, Exchange (EWS) e IMAP; vincula conversaciones con oportunidades, leads o proyectos | La sincronización de correo también ofrece seguimiento de aperturas. El complemento es un producto de terceros con su propia suscripción |
-| Customermates | Sin complemento | Buzón de Outlook en la bandeja del CRM desde Pro en Customermates Cloud; calendario de solo lectura | Sin sincronización de contactos de Outlook y sin escritura en el calendario. Detalles en las secciones siguientes |
+| Customermates | Sin complemento | Buzón de Outlook en la bandeja del CRM desde Pro en Customermates Cloud; las reuniones que programas van a tu calendario de Outlook | Sin sincronización de contactos de Outlook y sin sincronización bidireccional del calendario. Detalles en las secciones siguientes |
 
 Los precios cambian; el precio de Dynamics 365 se comprobó el 8 de octubre de 2026 en la [página de precios de Microsoft](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
 
@@ -100,7 +100,7 @@ Qué se sincroniza después y qué no:
 |---|---|
 | Correo enviado y recibido | Sí, de las carpetas que activaste. Las respuestas salen desde la propia cuenta de Outlook |
 | Mover un correo a una carpeta | Sí, en las cuentas de Outlook e IMAP el movimiento también se hace en el buzón real |
-| Eventos del calendario | Solo lectura. Las reuniones aparecen en la cronología de actividad; Customermates no crea, edita ni reserva eventos |
+| Eventos del calendario | Las reuniones aparecen en la cronología de actividad. Customermates solo escribe las reuniones que programas y las reservas de tus páginas de reserva (Cloud, desde Pro); los demás eventos siguen siendo de solo lectura |
 | Contactos de Outlook (libreta de direcciones) | No se sincronizan en ningún sentido. Los contactos se crean vinculando a un participante o en el CRM |
 | Tareas de Outlook | No se sincronizan |
 
@@ -123,7 +123,7 @@ Un equipo de cinco personas en Pro paga [[commercial.price.pro.monthly.seats.5]]
 Para probarlo con tu propio Outlook, [empieza tu prueba](/auth/signup?job=followup): [[commercial.trial.days]] días de Pro sin tarjeta de crédito.
 
 <AcquisitionCallout title="Dónde Customermates no es la opción adecuada" variant="boundary">
-No hay complemento de Outlook, así que los datos del CRM se consultan en Customermates, no en un panel lateral de Outlook. Los contactos y las tareas de Outlook no se sincronizan, y los eventos del calendario son de solo lectura. Customermates no tiene secuencias de correo ni correo masivo. Una instalación autoalojada no tiene bandeja de entrada ni conexión con Outlook en absoluto; ofrece REST, webhooks y MCP. Si tu equipo debe quedarse dentro de Outlook, o necesita sincronización bidireccional de contactos con la libreta de direcciones de Exchange, elige un CRM con complemento web y sincronización en el servidor de la tabla de arriba.
+No hay complemento de Outlook, así que los datos del CRM se consultan en Customermates, no en un panel lateral de Outlook. Los contactos y las tareas de Outlook no se sincronizan, y los eventos del calendario siguen siendo de solo lectura, salvo las reuniones que programas y las reservas de tus páginas de reserva. Customermates no tiene secuencias de correo ni correo masivo. Una instalación autoalojada no tiene bandeja de entrada ni conexión con Outlook en absoluto; ofrece REST, webhooks y MCP. Si tu equipo debe quedarse dentro de Outlook, o necesita sincronización bidireccional de contactos con la libreta de direcciones de Exchange, elige un CRM con complemento web y sincronización en el servidor de la tabla de arriba.
 </AcquisitionCallout>
 
 ## Prueba cualquier integración con Outlook antes de desplegarla

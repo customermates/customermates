@@ -1,6 +1,6 @@
 ---
 title: "Logiciel de gestion des leads pour petites équipes"
-description: "Suivez chaque lead du premier message à l’affaire gagnée : étape, source, vues enregistrées et conversations sur le contact. Sans scoring ni formulaires."
+description: "Suivez chaque lead du premier message à l’affaire gagnée : étape, source, vues enregistrées et conversations sur le contact. Avec formulaires, sans scoring."
 featureName: Gestion des leads
 
 relatedHrefs:
@@ -35,11 +35,11 @@ sections:
       - title: "Pro et au-delà"
         description: "Conversations par e-mail, LinkedIn, WhatsApp, Instagram et Telegram sur le lead. Customermates Cloud uniquement."
       - title: "Non inclus"
-        description: "Pas de scoring des leads, d’enrichissement, de formulaires web, d’assignation automatique, de séquences d’e-mails ni de rappels."
+        description: "Pas de scoring des leads, d’enrichissement, d’assignation automatique ni de séquences d’e-mails."
 
 hero:
   title: "Gestion des leads : relancez chaque lead"
-  description: "Chaque lead est un contact avec étape, source et chaque e-mail, message LinkedIn ou WhatsApp à côté. Voyez quels leads attendent votre réponse et laissez Mate rédiger la relance à relire et envoyer. Sans scoring ni formulaires."
+  description: "Chaque lead est un contact avec étape, source et chaque e-mail, message LinkedIn ou WhatsApp à côté. Voyez quels leads attendent votre réponse et laissez Mate rédiger la relance à relire et envoyer. Avec formulaires, sans scoring."
   buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
@@ -60,13 +60,13 @@ Un logiciel de gestion des leads garde chaque client potentiel dans une seule li
 
 **Où les leads s’éteignent.** Un lead s’éteint quand le dernier message reste sans réponse ou que personne n’a fixé la prochaine étape. Avec la conversation sur le lead, vous voyez ce qui a été dit en dernier, et une vue enregistrée triée par **Mis à jour le**, du plus ancien au plus récent, liste les leads que personne n’a touchés. Dans Customermates Cloud, Mate peut rédiger la relance dans la conversation du lead, que vous relisez avant tout envoi.
 
-Ce qu’il laisse de côté compte tout autant. Customermates ne note aucun lead, n’enrichit aucun enregistrement, n’héberge aucun formulaire web et ne répartit rien en tourniquet. Si vos leads arrivent par centaines depuis des publicités et des formulaires, vous avez besoin de ces moteurs, et le tableau plus bas nomme des outils qui en disposent.
+Ce qu’il laisse de côté compte tout autant. Customermates ne note aucun lead, n’enrichit aucun enregistrement et ne répartit rien en tourniquet. Si vos leads arrivent par centaines depuis des publicités et des formulaires, vous avez besoin de ces moteurs, et le tableau plus bas nomme des outils qui en disposent.
 
 ## Ce que couvre la gestion des leads, et quelles parties Customermates assure
 
 | Étape | Dans Customermates | Nécessite un autre outil |
 |---|---|---|
-| Capture | Saisie manuelle, import Excel, liaison d’une conversation de la boîte de réception à un nouveau contact, REST, MCP | Formulaires web, widgets de chat, formulaires de leads publicitaires |
+| Capture | Saisie manuelle, formulaire public, import Excel, liaison d’une conversation de la boîte de réception à un nouveau contact, REST, MCP | Widgets de chat, formulaires de leads publicitaires |
 | Suivi | Un champ d’étape sur les contacts, des étapes d’affaire à poids fixes, historique des modifications | |
 | Qualification | Vos propres critères sous forme de champs personnalisés, remplis par des personnes, Mate ou votre client IA | Scores automatiques et données firmographiques |
 | Attribution | Utilisateurs assignés sur chaque contact et chaque affaire, définis à la main ou par une consigne | Répartition en tourniquet ou par territoire |
@@ -80,7 +80,7 @@ Pour un cabinet de conseil, une agence ou un fondateur qui reçoit quelques diza
 - **À la main.** **Ajouter** sur la liste des contacts, quelques champs, c’est fait.
 - **Depuis une conversation (Pro et au-delà).** Quand une adresse inconnue écrit à votre boîte de réception connectée, ouvrez **Paramètres de la conversation**, cliquez sur **Lier** à côté de la personne et choisissez **Créer « … »**. Chaque message ultérieur de cette adresse s’affiche sur le nouveau contact. Voir la [boîte de réception unifiée](/features/unified-inbox).
 - **Depuis un tableur.** Enregistrez votre liste en classeur .xlsx et utilisez **Plus d’actions › Ajouter depuis un fichier**. Importez d’abord les organisations, puis les contacts. Une liste de leads achetée à une agence externe de génération de leads, ou construite par elle, s’importe de la même façon.
-- **Depuis un formulaire de site web que vous utilisez déjà.** Votre outil de formulaire ou un [workflow n8n](/features/workflow-automation) distinct appelle l’API REST et crée le contact avec sa valeur de source. Customermates n’a pas de générateur de formulaires propre.
+- **Depuis un formulaire de site web que vous utilisez déjà.** Votre outil de formulaire ou un [workflow n8n](/features/workflow-automation) distinct appelle l’API REST et crée le contact avec sa valeur de source. Customermates a aussi ses propres formulaires publics, avec un lien ou un code d’intégration, qui créent directement l’enregistrement.
 - **Depuis votre client IA.** Claude, ChatGPT ou un autre client MCP peut créer des contacts à partir d’une signature d’e-mail ou d’une liste d’évènement collée, avec [[derived.mcp.tools.total]] outils disponibles.
 
 ## Mise en place : un cabinet de trois personnes
@@ -116,10 +116,10 @@ En auto-hébergement, il n’y a pas de Mate. Votre propre client IA fait le mê
 ## Ce qu’il ne fait pas
 
 - Pas de scoring des leads ni d’enrichissement de données. Un champ Adéquation contient ce que décide votre équipe.
-- Pas de formulaires web ni de widgets de chat intégrés.
+- Pas de widgets de chat intégrés.
 - Pas de règles d’assignation automatique. Une routine peut suivre votre règle écrite (« assigner à Jana les leads venant d’Évènement »), mais c’est une consigne, pas un moteur de répartition.
 - Pas de séquences d’e-mails, de campagnes d’envois échelonnés ni d’envois en masse. Les relances sont des messages isolés.
-- Pas de rappels ni d’échéances sur les tâches. Mettez une date dans un champ personnalisé et filtrez dessus.
+- Pas d’échéances intégrées sur les tâches. Mettez une date dans un champ personnalisé, filtrez dessus et laissez une automatisation vous prévenir.
 - Pas d’application mobile. L’application web fonctionne sur les écrans étroits.
 
 ## Quel type d’outil convient
@@ -155,7 +155,7 @@ Cela dépend du volume. Avec des centaines de leads par mois issus de formulaire
 </FaqItem>
 
 <FaqItem question="Customermates peut-il intégrer le suivi des leads à mon site web ou à mes publicités ?">
-Via l’API REST, n8n ou le webhook de votre propre outil de formulaire, oui : ils créent le contact et écrivent les valeurs UTM ou de campagne dans des champs personnalisés. Customermates n’a ni générateur de formulaires ni connexion propre à une plateforme publicitaire.
+Via l’API REST, n8n ou le webhook de votre propre outil de formulaire, oui : ils créent le contact et écrivent les valeurs UTM ou de campagne dans des champs personnalisés. Customermates a aussi ses propres formulaires publics, mais pas de connexion propre à une plateforme publicitaire.
 </FaqItem>
 
 <FaqItem question="Puis-je importer des leads d’un prestataire externe de génération de leads ?">

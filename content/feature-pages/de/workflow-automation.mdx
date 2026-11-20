@@ -33,7 +33,7 @@ sections:
       - title: "Kosten"
         description: "Ein Routinenlauf verbraucht die monatlichen gehosteten KI-Credits seines Eigentümers und stoppt bei 10 Credits. n8n wird separat abgerechnet."
       - title: "Nicht enthalten"
-        description: "Kein visueller Workflow-Editor und keine Verzweigungen im CRM, keine E-Mail-Sequenzen und keine Erinnerungen an Aufgaben."
+        description: "Keine Verzweigungen oder Wartezeiten im CRM, keine E-Mail-Sequenzen und keine eingebauten Fälligkeiten an Aufgaben."
 
 hero:
   title: Vertriebsautomatisierung im CRM mit KI-Routinen und offenen Webhooks
@@ -54,15 +54,15 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Vertriebsautomatisierung im CRM heißt: Ein wiederkehrender Arbeitsschritt erledigt sich, ohne dass jemand daran denken muss. Ein Deal wechselt auf „Gewonnen“, und die Onboarding-Aufgaben sind angelegt; ein Kunde schreibt, und ein Antwortentwurf liegt bereit. In Customermates bauen Sie das mit **Routinen** (Mate, der gehostete KI-Assistent, führt eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus, nur in der Cloud), mit **Webhooks, REST-API und n8n** für Regeln, die jedes Mal gleich laufen müssen, oder mit Ihrem eigenen KI-Client über **MCP**.
+Vertriebsautomatisierung im CRM heißt: Ein wiederkehrender Arbeitsschritt erledigt sich, ohne dass jemand daran denken muss. Ein Deal wechselt auf „Gewonnen“, und die Onboarding-Aufgaben sind angelegt; ein Kunde schreibt, und ein Antwortentwurf liegt bereit. In Customermates bauen Sie das mit **Automatisierungen** (feste Wenn-dann-Regeln ohne KI, in jedem Tarif), mit **Routinen** (Mate, der gehostete KI-Assistent, führt eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus, nur in der Cloud), mit **Webhooks, REST-API und n8n** für Regeln, die jedes Mal gleich laufen müssen, oder mit Ihrem eigenen KI-Client über **MCP**.
 
-Die Grenze ist schnell gezogen. Customermates automatisiert Arbeit an einzelnen Datensätzen. Es gibt keine E-Mail-Sequenzen, keine Drip-Kampagnen und keinen Massenversand, kein Lead-Scoring, keine Webformulare und keinen visuellen Workflow-Editor mit Verzweigungen im CRM; diesen Teil übernimmt n8n als eigenständiges Produkt. Wenn Sie unter CRM-Automatisierung Marketing-Automatisierung verstehen, zeigt der nächste Abschnitt, wo die Linie verläuft.
+Die Grenze ist schnell gezogen. Customermates automatisiert Arbeit an einzelnen Datensätzen. Es gibt keine E-Mail-Sequenzen, keine Drip-Kampagnen, keinen Massenversand und kein Lead-Scoring, und Automatisierungen laufen als eine Kette ohne Verzweigungen; Abläufe mit Verzweigungen übernimmt n8n als eigenständiges Produkt. Wenn Sie unter CRM-Automatisierung Marketing-Automatisierung verstehen, zeigt der nächste Abschnitt, wo die Linie verläuft.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Drei Wege">Routinen für Arbeit, bei der gelesen und abgewogen werden muss. Webhooks mit n8n oder eigenem Code für feste Regeln. Ihr eigener KI-Client über MCP für Datensatzänderungen, die Sie anfordern.</SummaryItem>
   <SummaryItem label="Tarife">Routinen in jedem bezahlten Cloud-Tarif: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business. REST und MCP in jedem Tarif, Webhooks in jedem bezahlten Tarif, auch selbst gehostet.</SummaryItem>
   <SummaryItem label="Kosten">Ein Routinenlauf verbraucht die monatlichen gehosteten KI-Credits seines Eigentümers und stoppt bei 10 Credits. n8n wird separat abgerechnet.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Kein visueller Workflow-Editor und keine Verzweigungen im CRM, keine E-Mail-Sequenzen, keine Erinnerungen an Aufgaben, kein Lead-Scoring.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Verzweigungen oder Wartezeiten im CRM, keine E-Mail-Sequenzen, kein Lead-Scoring.</SummaryItem>
 </ArticleSummary>
 
 ## Was ist CRM-Automatisierung, und welche Art deckt Customermates ab?
@@ -71,9 +71,9 @@ Unter CRM-Automatisierung laufen zwei verschiedene Aufgaben zusammen. **Abläufe
 
 | Art der Automatisierung | Typische Beispiele | In Customermates |
 |---|---|---|
-| Abläufe an Datensätzen | Aufgaben anlegen, wenn ein Deal gewonnen ist; im Team-Kanal posten, wenn ein Deal entsteht; liegengebliebene Deals auflisten | Ja: Routinen, Webhooks, REST, n8n und MCP |
+| Abläufe an Datensätzen | Aufgaben anlegen, wenn ein Deal gewonnen ist; im Team-Kanal posten, wenn ein Deal entsteht; liegengebliebene Deals auflisten | Ja: Automatisierungen, Routinen, Webhooks, REST, n8n und MCP |
 | KI-Arbeit an Datensätzen | Einen Deal aus Gesprächsnotizen aktualisieren, eine Antwort an einen Kunden entwerfen | Ja: Mate im Chat, Routinen (Cloud), Ihr eigener KI-Client über MCP |
-| Marketing-Automatisierung | E-Mail-Sequenzen, Drip-Kampagnen, Massenversand, Lead-Scoring, Webformulare | Nein. Nehmen Sie ein eigenes Tool und holen Sie dessen Ergebnisse per REST oder n8n ins CRM |
+| Marketing-Automatisierung | E-Mail-Sequenzen, Drip-Kampagnen, Massenversand, Lead-Scoring | Nein. Nehmen Sie ein eigenes Tool und holen Sie dessen Ergebnisse per REST oder n8n ins CRM |
 
 Ein Antwortentwurf ist eine Nachricht in einer Konversation, keine Sequenz. Brauchen Sie die dritte Zeile, behalten Sie dafür ein spezialisiertes Tool und nutzen Customermates als führendes System dahinter.
 
@@ -81,7 +81,7 @@ Ein Antwortentwurf ist eine Nachricht in einer Konversation, keine Sequenz. Brau
 
 | Aufgabe | Lösung | Tarif |
 |---|---|---|
-| Nachfass-Erinnerung: eine Aufgabe für jeden Deal, dessen Datum für den nächsten Kontakt verstrichen ist | Routine nach Zeitplan | Jeder bezahlte Cloud-Tarif |
+| Nachfass-Erinnerung: eine Benachrichtigung, wenn das Datum für den nächsten Kontakt erreicht ist, oder eine Aufgabe für jeden Deal mit verstrichenem Datum | Automatisierung auf das Datumsfeld oder Routine nach Zeitplan | Automatisierung: jeder Tarif. Routine: jeder bezahlte Cloud-Tarif |
 | Antwortentwurf, wenn ein Kunde per E-Mail schreibt | Routine auf **E-Mail empfangen** | Cloud, ab Pro |
 | Onboarding-Aufgaben bei gewonnenem Deal | Routine auf **Datensatz aktualisiert** für Deals oder Webhook an n8n | Routine: bezahlte Cloud. Webhook: bezahlte Tarife |
 | Nachricht im Team-Chat bei neuem Deal | Webhook an n8n oder Webhook mit Body-Vorlage | Bezahlte Tarife |
@@ -112,7 +112,7 @@ Ein unbeaufsichtigter Lauf darf ohne Rückfrage Datensätze anlegen und ändern,
 
 ## Wie baue ich eine Routine, die ans Nachfassen erinnert?
 
-Customermates schickt keine Benachrichtigungen, und Aufgaben haben kein Fälligkeitsdatum. Eine Erinnerung ist hier deshalb eine Aufgabe, die eine Routine aus einem Datum anlegt, das Sie selbst pflegen. Die Routine läuft jeden Morgen, findet Deals mit verstrichenem Datum und legt pro Deal eine Aufgabe in der Aufgabenliste an. Dafür brauchen Sie ein Feld vom Typ **Datum** wie „Nächster Kontakt“ an den Deals; wie Sie es anlegen und passende Ansichten speichern, zeigt der [Leitfaden zum Nachfassen](/features/follow-up).
+Aufgaben haben kein eingebautes Fälligkeitsdatum. Eine Automatisierung auf einem Datumsfeld kann Sie schon benachrichtigen, wenn das Datum erreicht ist; die Routine hier geht weiter und macht aus jedem verstrichenen Datum, das Sie selbst pflegen, eine Aufgabe. Die Routine läuft jeden Morgen, findet Deals mit verstrichenem Datum und legt pro Deal eine Aufgabe in der Aufgabenliste an. Dafür brauchen Sie ein Feld vom Typ **Datum** wie „Nächster Kontakt“ an den Deals; wie Sie es anlegen und passende Ansichten speichern, zeigt der [Leitfaden zum Nachfassen](/features/follow-up).
 
 <Steps>
   <Step title="Datumsfeld anlegen">Fügen Sie unter **Datenmodell** den **Deals** ein Feld vom Typ **Datum** mit dem Namen „Nächster Kontakt“ hinzu und tragen Sie es bei den Deals ein, die Sie nachfassen wollen.</Step>
@@ -128,7 +128,7 @@ Alle Deals finden, die nicht in „Gewonnen“ oder „Verloren“ stehen und de
 
 Das Datum im Aufgabennamen verhindert, dass die Routine dieselbe Aufgabe zweimal anlegt. Sobald die Person das Datum für den nächsten Kontakt verschiebt, bekommt der nächste Termin eine eigene Aufgabe.
 
-Credit-Verbrauch: Ein täglicher Zeitplan sind 30 oder 31 Läufe im Monat, und jeder Lauf stoppt bei 10 Credits, die Obergrenze liegt also bei rund 300 Credits im Monat. Prüfen Sie auf der [Preisseite](/pricing), wie viel Ihr Tarif monatlich enthält, bevor Sie täglich laufen lassen; ein wöchentlicher Zeitplan hat eine Obergrenze von 50. Ein Credit entspricht einem US-Cent gemessener Anbieterkosten. Niemanden erreicht eine Meldung: Die Aufgaben warten in der Aufgabenliste. Wenn Sie eine Push-Nachricht in Ihren Team-Chat brauchen, sobald ein Datum verstreicht, lassen Sie diese Prüfung vom Zeitplan-Trigger in n8n gegen die REST-API laufen.
+Credit-Verbrauch: Ein täglicher Zeitplan sind 30 oder 31 Läufe im Monat, und jeder Lauf stoppt bei 10 Credits, die Obergrenze liegt also bei rund 300 Credits im Monat. Prüfen Sie auf der [Preisseite](/pricing), wie viel Ihr Tarif monatlich enthält, bevor Sie täglich laufen lassen; ein wöchentlicher Zeitplan hat eine Obergrenze von 50. Ein Credit entspricht einem US-Cent gemessener Anbieterkosten. Die Routine selbst benachrichtigt niemanden: Die Aufgaben warten in der Aufgabenliste, und eine Automatisierung auf demselben Datum kann eine Benachrichtigung ergänzen. Wenn Sie eine Push-Nachricht in Ihren Team-Chat brauchen, sobald ein Datum verstreicht, lassen Sie diese Prüfung vom Zeitplan-Trigger in n8n gegen die REST-API laufen.
 
 ## Wie entwerfe ich Antworten, wenn ein Kunde schreibt?
 
@@ -187,7 +187,7 @@ Externe MCP-Aufrufe funktionieren anders. Der Server prüft Berechtigung und Ein
 
 ## Gibt es ein Open Source CRM mit Workflow Builder?
 
-Der Quellcode von Customermates ist einsehbar, aber nicht Open Source im Sinne der OSI-Definition, und das CRM hat keinen Workflow-Editor. Diese Rolle übernimmt [n8n](https://n8n.io/). Die Funktionen, auf die es hier ankommt: ein visueller Editor, JavaScript oder Python in jedem Schritt und fertige Nodes für Apps wie Slack; mit Customermates verbindet es sich über Webhooks und die REST-API. Die Community Edition können Sie selbst hosten, unter der [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), die die Nutzung nur für eigene interne Geschäftszwecke oder für nicht kommerzielle und private Zwecke erlaubt. Alternativ abonnieren Sie n8n Cloud, das [nach monatlichen Workflow-Ausführungen abgerechnet wird](https://n8n.io/pricing/). Customermates enthält weder eine n8n-Laufzeit noch ein n8n-Abonnement.
+Der Quellcode von Customermates ist einsehbar, aber nicht Open Source im Sinne der OSI-Definition, und die Automatisierungen im CRM laufen als eine Kette ohne Verzweigungen oder Wartezeiten. Für größere Abläufe übernimmt diese Rolle [n8n](https://n8n.io/). Die Funktionen, auf die es hier ankommt: ein visueller Editor, JavaScript oder Python in jedem Schritt und fertige Nodes für Apps wie Slack; mit Customermates verbindet es sich über Webhooks und die REST-API. Die Community Edition können Sie selbst hosten, unter der [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), die die Nutzung nur für eigene interne Geschäftszwecke oder für nicht kommerzielle und private Zwecke erlaubt. Alternativ abonnieren Sie n8n Cloud, das [nach monatlichen Workflow-Ausführungen abgerechnet wird](https://n8n.io/pricing/). Customermates enthält weder eine n8n-Laufzeit noch ein n8n-Abonnement.
 
 Der Community-Node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) bietet eigene CRM-Nodes, falls Sie diese den HTTP-Request-Nodes vorziehen. Nutzen Sie Version 2 oder neuer: Version 1.x zielt auf Endpunkte, die die API nicht mehr hat, ihre Workflows schlagen deshalb fehl, bis Sie aktualisieren.
 
@@ -205,10 +205,10 @@ Unser Rat: Lassen Sie eine Routine einen Phasenwechsel nur in einer Notiz vorsch
 
 ## Was automatisiert Customermates nicht?
 
-- Kein visueller Workflow-Editor, keine Verzweigungen und keine Wartezeiten im CRM. Dafür gibt es n8n oder vergleichbare Tools.
+- Keine Verzweigungen und keine Wartezeiten im CRM: Automatisierungen laufen als eine Kette aus Auslöser, Bedingungen und Aktionen. Für mehr gibt es n8n oder vergleichbare Tools.
 - Keine E-Mail-Sequenzen, keine Drip-Kampagnen und keine Massenmails. Ein Antwortentwurf ist eine Nachricht in einer Konversation.
-- Keine Fälligkeitsdaten an Aufgaben, keine Erinnerungen und keine Benachrichtigungszentrale. Ein eigenes Datumsfeld am Deal und die Nachfass-Routine oben ergeben eine Liste, an der Sie arbeiten, wie bei [Follow-ups](/features/follow-up) beschrieben.
-- Kein Lead-Scoring, keine Datenanreicherung und keine Webformulare. Formulareinträge kommen per REST oder n8n ins CRM.
+- Keine eingebauten Fälligkeitsdaten an Aufgaben. Ein eigenes Datumsfeld am Deal und eine Automatisierung oder die Nachfass-Routine oben ergeben Erinnerungen und eine Liste, an der Sie arbeiten, wie bei [Follow-ups](/features/follow-up) beschrieben.
+- Kein Lead-Scoring und keine Datenanreicherung. Öffentliche Formulare legen Datensätze direkt an; andere Formular-Tools schicken Einträge per REST oder n8n ins CRM.
 - Keine Routinen, kein Mate und kein Posteingang im [selbst gehosteten Customermates](/features/self-hosted). Webhooks, REST und MCP funktionieren dort.
 - Keine Garantie, dass eine Routine läuft: Stundenlimit, Wartefenster oder ein Eigentümer ohne Credits können einen Lauf ausfallen lassen. Schritte, die bei jedem Ereignis laufen müssen, gehören auf einen Webhook: Fehlgeschlagene Zustellungen werden dort wiederholt und lassen sich erneut senden.
 
@@ -230,7 +230,7 @@ Vier sind oben Schritt für Schritt eingerichtet: eine Nachfass-Routine, ein Ant
 </FaqItem>
 
 <FaqItem question="Hat Customermates einen visuellen Workflow-Editor?">
-Nein. Customermates hat keinen Drag-and-drop-Editor und keine eigenen Verzweigungsregeln. Routinen nehmen stattdessen eine Anweisung in normaler Sprache entgegen, und visuelle Abläufe mit Verzweigungen laufen in n8n, angebunden über Webhooks und die REST-API.
+Teilweise. Automatisierungen bauen Sie aus Karten für Auslöser, Bedingungen und Aktionen in einer Spalte, ohne Verzweigungen. Routinen nehmen eine Anweisung in normaler Sprache entgegen, und visuelle Abläufe mit Verzweigungen laufen in n8n, angebunden über Webhooks und die REST-API.
 </FaqItem>
 
 <FaqItem question="Pflegt sich ein CRM automatisch selbst?">
@@ -242,7 +242,7 @@ Marketing-Automatisierung verschickt Kampagnen nach Zeitplan an Kontaktlisten. C
 </FaqItem>
 
 <FaqItem question="Was passiert mit Deals, wenn Follow-ups nach Meetings vergessen werden?">
-Sie bleiben in ihrer Phase stehen, bis jemand zufällig darauf stößt, und zählen in der gewichteten Pipeline weiter mit. Customermates meldet sich nicht von selbst: Es gibt keine Fälligkeitsdaten an Aufgaben und keine Benachrichtigungen. Was hilft, ist ein eigenes Datumsfeld „Nächster Kontakt“ am Deal plus die Nachfass-Routine oben, die für jeden Deal mit verstrichenem Datum eine Aufgabe anlegt.
+Sie bleiben in ihrer Phase stehen, bis jemand zufällig darauf stößt, und zählen in der gewichteten Pipeline weiter mit. Aufgaben haben keine eingebauten Fälligkeitsdaten. Was hilft, ist ein eigenes Datumsfeld „Nächster Kontakt“ am Deal, eine Automatisierung, die die zuständige Person benachrichtigt, wenn es erreicht ist, und die Nachfass-Routine oben, die für jeden Deal mit verstrichenem Datum eine Aufgabe anlegt.
 </FaqItem>
 
 <FaqItem question="Laufen Routinen auch beim Self-Hosting?">

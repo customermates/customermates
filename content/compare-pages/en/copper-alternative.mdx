@@ -84,7 +84,7 @@ comparison:
         source: Mate and Routines (Customermates Cloud, hosted AI credits)
         competitor: Copper GPT in ChatGPT, read-only; AI email template generator and rewriter from Professional
       - name: Follow-ups and reminders
-        source: No task due dates or reminders; a date field, saved views and an Upcoming widget
+        source: No built-in task due dates; a date field with an automation that reminds you, saved views and an Upcoming widget
         competitor: Reminders and tasks on every plan; deal recommendations that suggest next steps
       - name: Workflow automation
         source: Routines you write (Customermates Cloud)
@@ -96,7 +96,7 @@ comparison:
         source: false
         competitor: On every plan
       - name: Web forms
-        source: false
+        source: Public forms with a link or an embed snippet, on every plan
         competitor: Forms on every plan
       - name: REST API and webhooks
         source: REST API on every plan, webhooks on paid plans and self-hosted
@@ -137,7 +137,7 @@ cta:
 |---|---|---|
 | You want the CRM inside Gmail: contact cards, tasks and reminders beside the inbox | Copper | Its Chrome extension brings Copper into Gmail and Google Calendar; Customermates has no Gmail sidebar and mail reaches it only through the connected account |
 | You want LinkedIn conversations next to email on the client | Customermates Pro or Business | LinkedIn chats, InMail and Sales Navigator threads sit in the inbox; Copper's LinkedIn page describes profile capture and lists message sync as coming soon |
-| You want contact enrichment, bulk email, email series or web forms | Copper | Enrichment and forms are on every Copper plan, bulk email from Professional and email series on Business; Customermates has none of them |
+| You want contact enrichment, bulk email or email series | Copper | Enrichment and forms are on every Copper plan, bulk email from Professional and email series on Business; Customermates has public forms but none of the others |
 | You want a free plan after the trial | Customermates | Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records; Copper's pricing page lists a free start, not a free plan |
 | You want Claude or ChatGPT to read and update the CRM | Customermates | The MCP server has [[derived.mcp.tools.total]] tools on every plan; Copper lists an MCP as coming soon, and its Copper GPT is read-only |
 | You need a source-available licence or your own server | Customermates | The Community Edition self-hosts with Docker Compose, without the inbox and Mate; Copper lists no self-hosted edition |
@@ -212,7 +212,7 @@ Customermates is our product, so check each line against its own docs. It is a s
 
 **Private by default.** Your conversations are private; admins cannot read them either. You share a single thread with the team, or, on Business, a whole connected account.
 
-**A next step on every client.** Add a date field such as "Next contact" to contacts or deals, sort a saved view by it and add an Upcoming widget to the dashboard. The [follow-up guide](/features/follow-up) walks through it. Nothing pings you; you open the list.
+**A next step on every client.** Add a date field such as "Next contact" to contacts or deals, sort a saved view by it and add an Upcoming widget to the dashboard. The [follow-up guide](/features/follow-up) walks through it. An automation on that date can remind you, or you open the list.
 
 **AI that drafts for you.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views, using hosted AI credits: a monthly allowance per active user, listed on the [pricing page](/pricing). Mate sends a message without asking when you tell it to send, so ask for drafts when you want to review first. Prefer Claude or ChatGPT? Connect it to the [MCP server](/docs/mcp), with [[derived.mcp.tools.total]] tools on every plan, Free included, and on self-hosted installs. Its model calls then run on your own AI provider, and our [guide to CRMs with Claude](/blog/claude-crm) shows how the options compare.
 
@@ -225,9 +225,8 @@ Check these before you start a trial:
 - **No Gmail sidebar and no Chrome extension.** Mail reaches Customermates only through the connected account, and you work in the inbox or on the contact. If you want the CRM inside the Gmail window, choose Copper.
 - **No profile capture and no enrichment.** Contact data is what your team or your AI client enters, and a LinkedIn profile does not land in the CRM with one click.
 - **No bulk email, no email series and no sequences.** Messages go out one at a time, written by you or drafted by Mate.
-- **No web forms.** There is no embeddable lead-capture form.
-- **No reminders and no task due dates.** A date field and an Upcoming widget show what is due, but nothing sends a notification.
-- **Read-only calendar.** Customermates shows calendar events from your Google account but does not create, change or book them; Copper's calendar sync creates and manages events.
+- **No built-in task due dates.** A date field and an Upcoming widget show what is due, and an automation on that field can notify you when the date is reached.
+- **No two-way calendar sync.** On Customermates Cloud from Pro you can schedule meetings into your Google calendar and offer booking pages, but other events stay read-only in Customermates; Copper's calendar sync creates and manages events.
 - **A narrower Google connection.** Customermates connects Gmail and Google Calendar. Copper also lists Google Drive linking, Google Contact sync and a Sheets and Looker Studio integration.
 - **No phone, SMS, mobile apps or single sign-on.** Customermates has no telephony, no native iOS or Android app and no SSO.
 - **One connected account per user on Pro.** Gmail and LinkedIn for the same person need Business.
@@ -241,7 +240,7 @@ Take a three-person agency on Google Workspace that wins clients on LinkedIn. Ev
 |---|---|
 | People and companies | Contacts and organizations |
 | A sales pipeline with stages | Deals with a stage field: Lead 10%, Proposal 40%, Negotiation 70%, Won 100%, Lost 0% |
-| A task with a reminder | A date field "Next contact" and an Upcoming widget; no reminder is sent |
+| A task with a reminder | A date field "Next contact" with an automation that reminds you, plus an Upcoming widget |
 | The Chrome extension in Gmail | Gmail connected as a channel; the thread shows in the inbox and on the contact |
 | A LinkedIn profile captured with the extension | The LinkedIn conversation in the inbox, linked to the contact |
 | Enrichment and bulk email | Not available; notes by hand or through your AI client |

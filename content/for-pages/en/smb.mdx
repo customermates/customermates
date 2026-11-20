@@ -110,7 +110,7 @@ landing:
     eyebrow: Pricing
     title: Pro covers it. [[commercial.price.pro.monthly]] per person per month.
     description: A team mailbox that several people answer needs Business at [[commercial.price.business.monthly]]. Starter at [[commercial.price.starter.monthly]] has no inbox. Your own Claude or ChatGPT subscription stays with its provider.
-    limits: Not a fit if you need quotes or invoices, web forms, phone or SMS, or email sequences. Those stay in your other tools.
+    limits: Not a fit if you need quotes or invoices, phone or SMS, or email sequences. Those stay in your other tools.
     primaryCta:
       label: Start your [[commercial.trial.days]]-day trial
       href: /auth/signup?job=followup
@@ -166,8 +166,8 @@ A small business needs a CRM once more than one person talks to the same custome
     Your own AI client connects through MCP on every plan.
   </SummaryItem>
   <SummaryItem label="Not included">
-    No web forms, native mobile apps, telephony, SMS or calendar booking, and
-    no quotes or invoices.
+    No native mobile apps, telephony, SMS, quotes or invoices. Booking pages
+    need Customermates Cloud on Pro or higher.
   </SummaryItem>
 </ArticleSummary>
 
@@ -199,7 +199,7 @@ The [small business workspace](https://demo.customermates.com/en/w/small-busines
   <Step title="Set the next action">
     Enter the next step date on the deal or create a task linked to it. Tasks
     are records you assign; dates and status are fields you configure, and
-    there are no built-in reminders.
+    an automation on that date can remind you.
   </Step>
   <Step title="Review the pipeline">
     Move the deal through Qualified, Conversation and Proposal sent. The
@@ -231,9 +231,9 @@ Customermates owns customer relationships and the sales side of your business. O
 | Job | Where it stays |
 |---|---|
 | Quotes, invoices and bookkeeping | Your accounting software. Pass won deals on through [webhooks or the REST API](/features/api). |
-| Appointment booking | Your booking tool. Customermates does not create or book calendar events. |
+| Appointment booking | Booking pages on Customermates Cloud from Pro, or your booking tool. |
 | Phone calls and SMS | Your phone system. There is no telephony or SMS. |
-| Lead capture forms | Your website or form tool, sending contacts through the REST API. There are no web forms. |
+| Lead capture forms | Customermates public forms on every plan, or your form tool sending contacts through the REST API. |
 | Specialist work such as projects, scheduling or a shop | The system that runs that work, connected through the API, webhooks or n8n. |
 
 Also not included: native mobile apps (the web app runs in the browser), email sequences or bulk sending, lead scoring and single sign-on. If one of these decides your purchase, the [guide to choosing a small business CRM](/blog/crm-for-small-business) compares other tools.
@@ -257,7 +257,7 @@ In Customermates Cloud, the database runs in the AWS Frankfurt region. The [subp
 
 <Faq>
 <FaqItem question="Which CRM fits a small business?">
-One your team keeps current. If deals come from calls, look at a CRM with calling built in. If you need web forms and email sequences, a sales automation tool fits better. If your customers decide in email, LinkedIn and WhatsApp threads with several people involved, Customermates fits. The [small business CRM guide](/blog/crm-for-small-business) walks through the choice.
+One your team keeps current. If deals come from calls, look at a CRM with calling built in. If you need email sequences, a sales automation tool fits better. If your customers decide in email, LinkedIn and WhatsApp threads with several people involved, Customermates fits. The [small business CRM guide](/blog/crm-for-small-business) walks through the choice.
 </FaqItem>
 
 <FaqItem question="Does a new workspace come with lists and stages?">
@@ -269,11 +269,11 @@ No. Participants are matched to contacts by email address, phone number or Linke
 </FaqItem>
 
 <FaqItem question="Can Customermates remind me of follow-ups?">
-Not with built-in reminders. Add a date field such as a next step to deals or tasks and save a view sorted by it. On Customermates Cloud, a routine can ask Mate to list deals whose next step has passed.
+Yes. Add a date field such as a next step to deals or tasks, save a view sorted by it and add an automation that notifies you when the date is reached. On Customermates Cloud, a routine can also ask Mate to list deals whose next step has passed.
 </FaqItem>
 
 <FaqItem question="Does it replace my accounting or booking tool?">
-No. There are no quotes, invoices, calendar booking, web forms, telephony or SMS. Keep those tools and connect them through the REST API, webhooks or n8n where useful.
+No. There are no quotes, invoices, telephony or SMS. Public forms come with every plan and booking pages with Customermates Cloud from Pro. Keep those tools and connect them through the REST API, webhooks or n8n where useful.
 </FaqItem>
 
 <FaqItem question="Is there a mobile app?">

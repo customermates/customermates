@@ -1,6 +1,6 @@
 ---
 title: "CRM Task Management: Tasks Linked to Every Deal"
-description: "Tasks in Customermates link to contacts, organizations, deals and services, with assignees, notes and custom fields. No due dates or reminders built in."
+description: "Tasks in Customermates link to contacts, organizations, deals and services, with assignees and custom fields. Reminders come from automations on date fields."
 featureName: Task Management
 
 relatedHrefs:
@@ -35,7 +35,7 @@ sections:
       - title: "Views"
         description: "Table or board, grouped by a choice field such as Status, with saved views you can share."
       - title: "Not included"
-        description: "No due dates, reminders, notifications, recurring tasks, dependencies, time tracking or Gantt charts."
+        description: "No built-in due dates, recurring tasks, dependencies, time tracking or Gantt charts."
 
 hero:
   title: "Turn every promise to a client into a task on its record"
@@ -60,7 +60,7 @@ CRM task management means the to-do lives on the customer record: "send the revi
 
 **Where this helps you follow up.** What you promised on a call lives in someone's head until it is a task. As a task on the deal and the contact, it shows on both records, and a saved view of deals with no task at all lists every client whose next step nobody recorded.
 
-There is no built-in due date, no reminder, no overdue alert and no recurring task. A **Status** field on tasks is an ordinary Single choice field you create, rename or replace. Customermates does not suit a team that plans its week around reminder pings and task deadlines. A CRM with scheduled activities fits better there, and the table below names two. If you want tasks that carry their client context and that an AI can create and update, read on.
+There is no built-in due date, no overdue state and no recurring task; a reminder comes from an automation on a date field you add. A **Status** field on tasks is an ordinary Single choice field you create, rename or replace. Customermates does not suit a team that plans its week around scheduled activities and task deadlines. A CRM with scheduled activities fits better there, and the table below names two. If you want tasks that carry their client context and that an AI can create and update, read on.
 
 ## What a task is in Customermates
 
@@ -85,7 +85,7 @@ Coming from a spreadsheet or another tool? Tasks import from an XLSX workbook or
 
 > Every Monday at 8:00: list my tasks whose Target date is before today and whose Status is not Done or Archived. Group them by linked organization and suggest the next action for each. Do not change or send anything.
 
-Routines run as their owner, with that owner's access and credits, and you read the result in the run's details. Customermates sends no notification when a run finishes, so a routine does not replace a reminder unless someone opens it. Another useful routine reacts when a deal is updated and, if its stage is now Won, creates the onboarding tasks and links them to the deal.
+Routines run as their owner, with that owner's access and credits, and you read the result in the run's details. Customermates sends no notification when a run finishes, so for a reminder, use an automation on the date instead. Another useful routine reacts when a deal is updated and, if its stage is now Won, creates the onboarding tasks and links them to the deal.
 
 **With your own AI client**, Claude, ChatGPT or another client connected through [MCP](/docs/mcp) can use `mutate_crm_record` against the same records. This works on self-hosted installations too, with your AI provider's costs instead of hosted credits.
 
@@ -113,7 +113,7 @@ Tasks are included on every plan. A team of five on Starter pays [[commercial.pr
 
 <Faq>
 <FaqItem question="Does Customermates have task due dates and reminders?">
-No. Tasks have no due date field, no reminders and no notifications. Add a custom Date field, sort a saved view by it, and in Customermates Cloud let a routine list the tasks whose date has passed. Customermates sends no reminder emails; for those you need a CRM with scheduled activities or your own scheduler reading the API.
+Not built in. Tasks have no due date field, so add a custom Date field and sort a saved view by it. An automation on that field notifies the assignee when the date is reached, on the Notifications page and by email, and in Customermates Cloud a routine can list the tasks whose date has passed.
 </FaqItem>
 <FaqItem question="Can I track task status on a Kanban board?">
 Yes, through a Single choice field. Add a **Status** field to your tasks list. Group the board by it and drag cards between columns; you can rename the options or group by a different field, such as Priority.

@@ -34,7 +34,7 @@ Ten przewodnik wyjaśnia, czym jest tickler file, przechodzi przez system 43 fol
   <SummaryItem label="Idea">Wkładasz pozycję pod datą, w której chcesz ją zobaczyć ponownie, i każdego ranka otwierasz tylko dzisiejszy folder. Do tego dnia pamięta za Ciebie kartoteka.</SummaryItem>
   <SummaryItem label="Papier">43 foldery: 31 ponumerowanych na dni miesiąca i 12 nazwanych od miesięcy. Pozycje na późniejsze miesiące czekają w folderze miesiąca i przechodzą do folderów dni, gdy ten miesiąc się zaczyna.</SummaryItem>
   <SummaryItem label="Outlook">Flaga follow-up na jednym e-mailu, z datą rozpoczęcia i terminem oraz opcjonalnym przypomnieniem. Podąża za jedną wiadomością, a nie za klientem, który za nią stoi.</SummaryItem>
-  <SummaryItem label="Customermates">Pole Data, widok posortowany według niego i widżet Nadchodzące z sekcją Po terminie. Działa w każdym planie, także w self-hostingu. Nie wysyła przypomnień: przypomnieniem jest lista.</SummaryItem>
+  <SummaryItem label="Customermates">Pole Data, widok posortowany według niego i widżet Nadchodzące z sekcją Po terminie. Działa w każdym planie, także w self-hostingu. Przypomnieniem jest lista, a automatyzacja na dacie może Cię powiadomić, gdy nadejdzie termin.</SummaryItem>
   <SummaryItem label="Ujawnienie">Customermates jest wydawcą tego przewodnika. Pozostałe opcje opisujemy według dopasowania, bez rankingu.</SummaryItem>
 </ArticleSummary>
 
@@ -76,7 +76,7 @@ Cztery sposoby pokrywają prawie każdy przypadek. Wiersz Customermates to nasz 
 | Papier, 43 foldery | Folder na każdy dzień i miesiąc | Nie. Każdego ranka otwierasz dzisiejszy folder | Sam papier | Obsługujesz fizyczną pocztę, rachunki, bilety i formularze |
 | Flaga follow-up w Outlooku | Flaga na wiadomości z opcjami na dziś, jutro, ten tydzień, przyszły tydzień, bez daty albo z własną datą rozpoczęcia i terminu | Dodanie przypomnienia ustawia przypomnienie; oznaczone wiadomości pojawiają się na pasku zadań do wykonania, w Zadaniach i na dziennej liście zadań w Kalendarzu | Jedna wiadomość e-mail | Follow-up zaczyna się od e-maila w Outlooku |
 | Arkusz kalkulacyjny | Kolumna z datą, którą sortujesz | Nie, chyba że zbudujesz to sam | Kolumna z notatkami | Jedna osoba z krótką listą |
-| Pole daty w CRM (Customermates) | Pole Data przy kliencie lub szansie sprzedaży | Nie. Customermates żadnych nie wysyła; przypomnieniem są posortowany widok i widżet Nadchodzące | Rekord z notatkami, powiązanymi kontaktami i firmami oraz, od planu Pro, rozmowami z LinkedIn i e-maila | Klienci i szanse sprzedaży z historią, dla jednej osoby lub zespołu |
+| Pole daty w CRM (Customermates) | Pole Data przy kliencie lub szansie sprzedaży | Tak, przez automatyzację na polu daty, na stronie Powiadomienia i e-mailem; resztę pokazują posortowany widok i widżet Nadchodzące | Rekord z notatkami, powiązanymi kontaktami i firmami oraz, od planu Pro, rozmowami z LinkedIn i e-maila | Klienci i szanse sprzedaży z historią, dla jednej osoby lub zespołu |
 
 Microsoft opisuje opcje flagi dla Outlooka w Microsoft 365, Outlooka 2024 i Outlooka 2021 oraz zaznacza, że przy koncie IMAP nie można zmienić tekstu flagi ani ustawić dat rozpoczęcia i terminu. Sprawdzone 11 listopada 2026 w [Microsoft Support: Flag email messages for follow up](https://support.microsoft.com/en-us/outlook/flag-email-messages-for-follow-up).
 
@@ -110,7 +110,7 @@ Najpierw, jak papierowe elementy odpowiadają temu, co jest w Customermates:
 | Otworzyć dzisiejszy folder | Otworzyć pulpit: dzisiejsze rekordy i sekcja Po terminie |
 | Przenieść folder na koniec | Przesunąć datę każdego rekordu po działaniu albo ją wyczyścić |
 | Papier w folderze | Rekord: notatki, powiązane kontakty i firmy, pliki oraz, od planu Pro, rozmowy |
-| Pamiętanie o otwarciu szuflady | Nadal Twój nawyk. Customermates nie wysyła przypomnień |
+| Pamiętanie o otwarciu szuflady | Automatyzacja na dacie może Cię powiadomić, w przeciwnym razie to nadal Twój nawyk |
 
 <Steps>
   <Step title="Dodaj dwa pola">W **Model danych** dodaj pole typu **Data** o nazwie „Data kolejnego kroku” i pole typu **Tekst** o nazwie „Kolejny krok” do **Kontakty** lub **Szanse sprzedaży**, albo do obu, jeśli Twoje leady żyją na szansach sprzedaży. W planie z Mate możesz poprosić go o ich dodanie. Zadania nie mają wbudowanego terminu, więc to samo pole Data działa także tam; [zarządzanie zadaniami](/features/task-management) pokazuje, jak zadania łączą się z klientami.</Step>
@@ -123,7 +123,7 @@ Najpierw, jak papierowe elementy odpowiadają temu, co jest w Customermates:
 Pola daty, zapisane widoki i widżet Nadchodzące nie mają limitu w planie: działają w Free, w planach płatnych i w self-hostingu. Aby zobaczyć te same daty w innej aplikacji kalendarza, utwórz w kalendarzu adres subskrypcji: to prywatny kanał tylko do odczytu, a aplikacja kalendarza sama decyduje, jak często go odświeża. [Przewodnik po pulpicie](/docs/app-dashboard) opisuje opcje widżetu, a [przewodnik po kalendarzu](/docs/app-calendar) opisuje kanał.
 
 <AcquisitionCallout title="Gdzie Customermates jest złym tickler file" variant="boundary">
-  Customermates nie wysyła przypomnień ani powiadomień, nie ma zadań cyklicznych i nie daje zadaniom wbudowanego terminu, więc lista przypomina Ci o czymś tylko wtedy, gdy ją otworzysz. Nie przechowuje papieru (skan w polu Plik jest zapisany i wyświetlany, ale jego tekst nie jest odczytywany), nie ma natywnej aplikacji mobilnej i nie ma dwukierunkowej synchronizacji z kalendarzami Outlook ani Google; kanał kalendarza jest jednokierunkowy i tylko do odczytu. Nie jest też kalendarzem terminów prawnych: pole daty to informacja, a nie termin sądowy. Jeśli potrzebujesz alertu, który sam Cię znajdzie, użyj flagi Outlooka z przypomnieniem albo aplikacji kalendarza, albo pozwól harmonogramowi, takiemu jak n8n, odczytać datę przez API.
+  Customermates nie ma zadań cyklicznych i nie daje zadaniom wbudowanego terminu; przypomnienie wysyła automatyzacja na polu daty, na stronie Powiadomienia i e-mailem. Nie przechowuje papieru (skan w polu Plik jest zapisany i wyświetlany, ale jego tekst nie jest odczytywany), nie ma natywnej aplikacji mobilnej i nie ma dwukierunkowej synchronizacji z kalendarzami Outlook ani Google; kanał kalendarza jest jednokierunkowy i tylko do odczytu. Nie jest też kalendarzem terminów prawnych: pole daty to informacja, a nie termin sądowy. Jeśli wolisz alert w Outlooku lub w aplikacji kalendarza, użyj flagi Outlooka z przypomnieniem albo aplikacji kalendarza, albo pozwól harmonogramowi, takiemu jak n8n, odczytać datę przez API.
 </AcquisitionCallout>
 
 Customermates Cloud ma plan Free dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn. Twoja pierwsza przestrzeń robocza startuje z [[commercial.trial.days]]-dniowym okresem próbnym planu Pro, a potem przechodzi na Free, chyba że wybierzesz plan płatny; plany płatne zaczynają się od [[commercial.price.starter.monthly]] za użytkownika miesięcznie, rozliczane miesięcznie, zobacz [stronę z cennikiem](/pricing). Community Edition można uruchomić jako [self-hosting](/features/self-hosted) bez opłaty licencyjnej (do użytku wewnętrznego), bez skrzynki odbiorczej i Mate. Aby wypróbować tickler na własnych klientach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup): Pro, bez karty kredytowej. Najpierw dodaj dwa pola do Szans sprzedaży.
@@ -160,7 +160,7 @@ Nie do końca. Kalendarz trzyma spotkania o określonej godzinie. Tickler trzyma
 </FaqItem>
 
 <FaqItem question="Czy Customermates wysyła przypomnienia tickler?">
-Nie. Nie ma powiadomień, a zadania nie mają wbudowanego terminu. Dodajesz pole Data, sortujesz po nim zapisany widok i pokazujesz je w widżecie Nadchodzące; przypomnieniem jest lista. Jeśli potrzebujesz alertu push, wyśle go flaga Outlooka z przypomnieniem albo harmonogram odczytujący datę przez API.
+Tak, przez automatyzację. Zadania nie mają wbudowanego terminu, więc dodajesz pole Data, sortujesz po nim zapisany widok i pokazujesz je w widżecie Nadchodzące; automatyzacja, która startuje, gdy nadejdzie ta data, powiadamia Cię na stronie Powiadomienia i e-mailem. Jeśli potrzebujesz alertu push, wyśle go flaga Outlooka z przypomnieniem albo harmonogram odczytujący datę przez API.
 </FaqItem>
 </Faq>
 

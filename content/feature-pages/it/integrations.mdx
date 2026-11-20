@@ -56,7 +56,7 @@ Questa scelta ha un costo che è giusto conoscere subito. Non esiste un catalogo
 | API REST | Dal tuo sistema al CRM | Creare, leggere, cercare, aggiornare ed eliminare record da codice o da uno strumento di automazione | Ogni piano, self-hosted compreso |
 | MCP | Dal client IA al CRM | Lasciare che Claude, ChatGPT, Cursor, Codex o Gemini CLI leggano e scrivano record in una conversazione | Ogni piano, self-hosted compreso |
 | Nodo della community per n8n | Entrambe | Nodi Customermates dedicati in un’istanza n8n gestita a parte | Azioni in ogni piano, trigger nei piani a pagamento e self-hosted; n8n si paga a n8n |
-| Posta in arrivo unificata | Dai canali al CRM | Conversazioni Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram accanto al record, più calendari Google e Microsoft in sola lettura | Customermates Cloud, Pro o superiore |
+| Posta in arrivo unificata | Dai canali al CRM | Conversazioni Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram accanto al record, più calendari Google e Microsoft con pianificazione delle riunioni e pagine di prenotazione | Customermates Cloud, Pro o superiore |
 
 Webhook, REST e MCP sono inclusi in Starter a [[commercial.price.starter.monthly]] per utente al mese. La [posta in arrivo unificata](/features/unified-inbox) parte da Pro a [[commercial.price.pro.monthly]] per utente al mese e include [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente; Business ne include [[commercial.entitlement.business.includedAccountsPerUser]] per utente più gli account condivisi. Le installazioni self-hosted hanno REST, webhook e MCP ma non la posta in arrivo, quindi gli eventi di messaggistica lì non scattano mai.
 
@@ -66,7 +66,7 @@ Webhook, REST e MCP sono inclusi in Starter a [[commercial.price.starter.monthly
 |---|---|---|
 | Pubblicare un messaggio in un canale Slack quando viene creata una trattativa | Un webhook con un modello del corpo, inviato a un webhook in entrata di Slack | Non serve uno strumento di automazione |
 | Passare le trattative vinte al tuo programma di contabilità | n8n, Make o Zapier su un webhook `record.updated` per la lista Trattative | Questi strumenti controllano il valore della fase e chiamano l’API del programma di contabilità |
-| Creare contatti dal modulo del tuo sito | Lo strumento del modulo o n8n chiama `POST /api/v1/records/mutate` | Customermates non ha un modulo incorporabile proprio |
+| Creare contatti dal modulo del tuo sito | Lo strumento del modulo o n8n chiama `POST /api/v1/records/mutate` | Collega il tuo modulo esistente, e un modulo pubblico di Customermates può anche creare il record direttamente |
 | Rispecchiare i record in un data warehouse | Webhook, deduplicati per `id` dell’evento | Quasi in tempo reale, senza interrogazioni periodiche |
 | Chiedere a un’IA di aggiornare cinque trattative dopo una chiamata | MCP da Claude, ChatGPT o un altro client | Il client scopre gli strumenti ed esegue le chiamate |
 | Portare dentro un foglio di calcolo di clienti esistenti | Importazione XLSX, una lista alla volta | Più rapida di uno script API per un trasferimento una tantum |
@@ -124,7 +124,7 @@ Customermates non ha un’app Slack, né un canale Slack nella posta in arrivo, 
 ## Cosa non è incluso
 
 <AcquisitionCallout title="Limiti da conoscere prima di pianificare un’integrazione" variant="boundary">
-  Nessun marketplace di app e nessun connettore a un clic. Nessuna integrazione nativa con Slack, Microsoft Teams, programmi di contabilità o prenotazione di calendario. I calendari sono in sola lettura. Nessun modulo web incorporabile. Il trasferimento dei dati tramite file importa Excel, CSV o JSON ed esporta XLSX o JSON, una lista alla volta, senza esportazione dell’intero account. n8n, Make e Zapier sono prodotti separati con fatture separate.
+  Nessun marketplace di app e nessun connettore a un clic. Nessuna integrazione nativa con Slack, Microsoft Teams o programmi di contabilità. La pianificazione delle riunioni e le pagine di prenotazione richiedono Customermates Cloud da Pro in su. Il trasferimento dei dati tramite file importa Excel, CSV o JSON ed esporta XLSX o JSON, una lista alla volta, senza esportazione dell’intero account. n8n, Make e Zapier sono prodotti separati con fatture separate.
 </AcquisitionCallout>
 
 Se il tuo team ha bisogno di centinaia di connettori già pronti e mantenuti dal fornitore, che una persona non tecnica attiva da una schermata di impostazioni, un CRM con un proprio marketplace di app fa meglio al caso tuo. Customermates si adatta ai team che collegano volentieri un webhook o lasciano che un client IA faccia le chiamate, e che vogliono le stesse interfacce sia che usino il cloud sia che installino sul proprio server. I collegamenti con un ERP seguono lo stesso schema; la [guida all’integrazione tra CRM e ERP](/blog/crm-erp-integration) li illustra passo per passo.

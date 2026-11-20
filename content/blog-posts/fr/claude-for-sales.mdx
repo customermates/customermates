@@ -59,7 +59,7 @@ Claude répond quand vous demandez ; il ne surveille pas votre pipeline entre d
 | Savoir ce que vous ne lui avez pas donné | Il comble les trous avec des noms, fonctions et dates plausibles. La recherche web d’Anthropic affiche ses sources, et son article d’aide recommande tout de même de les recouper | Demandez « non précisé » et le marquage des suppositions ; vérifiez tout ce qui part vers un acheteur |
 | Envoyer tout seul dans un simple chat | Sans connecteur, il n’existe aucune action d’envoi. Avec un connecteur qui a un outil d’envoi, l’appel envoie aussitôt | Demandez un brouillon et envoyez-le vous-même |
 | Atteindre un CRM qui n’est pas sur l’internet public | Anthropic exécute les connecteurs personnalisés depuis son cloud : le serveur MCP doit donc être joignable depuis internet (aide d’Anthropic, vérifiée le 12 novembre 2026) | Utilisez une adresse de CRM publique, ou un client comme Claude Code qui tourne sur votre machine |
-| Réserver des rendez-vous, appeler, lancer des séquences ou noter des leads | Customermates n’a ni téléphonie, ni moteur de séquences ou d’envoi en masse, ni scoring de leads, et ne lit les agendas connectés qu’en lecture | Prenez les outils prévus pour cela et laissez Claude écrire le texte |
+| Appeler, lancer des séquences ou noter des leads | Customermates n’a ni téléphonie, ni moteur de séquences ou d’envoi en masse, ni scoring de leads | Prenez les outils prévus pour cela et laissez Claude écrire le texte |
 | Décider d’un prix ou d’un engagement | Ce sont des engagements que vous seul pouvez prendre | Gardez-les hors des prompts, ou relisez-les ligne par ligne |
 
 ## Comment Claude accède-t-il aux données de vos clients ? [#client-data]
@@ -118,7 +118,7 @@ Pour chaque affaire signalée, donne-moi une question à trancher avant la revue
 Lecture seule. Ne modifie aucune fiche.
 ```
 
-Vérifiez que la « prochaine étape » dont vous parlez existe comme champ dans votre espace de travail. Customermates n’a ni échéances ni statuts intégrés sur les tâches ; une prochaine étape datée sur une affaire est un champ date ordinaire que vous ajoutez, et personne n’est relancé automatiquement.
+Vérifiez que la « prochaine étape » dont vous parlez existe comme champ dans votre espace de travail. Customermates n’a ni échéances ni statuts intégrés sur les tâches ; une prochaine étape datée sur une affaire est un champ date ordinaire que vous ajoutez, et une automatisation peut vous le rappeler quand la date arrive.
 
 ### Avant l’appel : recherche et préparation [#call-prep]
 
