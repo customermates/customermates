@@ -34,7 +34,7 @@ Questa guida spiega come funziona il tickler file, passa in rassegna il sistema 
   <SummaryItem label="L’idea">Archivi ogni elemento nella data in cui devi rivederlo e ogni mattina apri solo la cartella di oggi. Fino al giorno stabilito, ricorda l’archivio al posto tuo.</SummaryItem>
   <SummaryItem label="Carta">43 cartelle: 31 numerate per i giorni del mese e 12 con il nome dei mesi. Quello che riguarda un mese successivo aspetta nella cartella del mese e passa nelle cartelle dei giorni quando il mese comincia.</SummaryItem>
   <SummaryItem label="Outlook">Un flag di completamento su una singola e-mail, con data di inizio e di scadenza e un promemoria facoltativo. Segue un messaggio, non il cliente che c’è dietro.</SummaryItem>
-  <SummaryItem label="Customermates">Un campo Data, una vista ordinata per quel campo e il widget «In arrivo» con una sezione «Scaduti». Funziona su ogni piano, anche in self-hosting. Non invia promemoria: la lista è il promemoria.</SummaryItem>
+  <SummaryItem label="Customermates">Un campo Data, una vista ordinata per quel campo e il widget «In arrivo» con una sezione «Scaduti». Funziona su ogni piano, anche in self-hosting. La lista è il promemoria, e un’automazione sulla data può avvisarti alla scadenza.</SummaryItem>
   <SummaryItem label="Trasparenza">Customermates pubblica questa guida. Le altre opzioni sono descritte per adattamento, non messe in classifica.</SummaryItem>
 </ArticleSummary>
 
@@ -78,7 +78,7 @@ Quattro strade coprono quasi ogni caso. La riga Customermates è il nostro prodo
 | Carta, 43 cartelle | Una cartella per giorno e per mese | No. Apri la cartella di oggi ogni mattina | Il foglio stesso | Gestisci posta, bollette, biglietti e moduli fisici |
 | Flag di Outlook | Un flag su un messaggio con Oggi, Domani, Questa settimana, Prossima settimana, Nessuna data o date di inizio e scadenza personalizzate | «Aggiungi promemoria» imposta un promemoria; i messaggi contrassegnati compaiono nella barra To-Do, in Attività e nell’elenco attività del giorno del calendario | Una sola e-mail | Il follow up parte da un’e-mail in Outlook |
 | Foglio di calcolo (Excel) | Una colonna di date che ordini | Solo se lo costruisci tu | Una colonna di note | Una persona con una lista breve |
-| Campo Data in un CRM (Customermates) | Un campo Data sul cliente o sulla trattativa | No. Customermates non ne invia; una vista ordinata e il widget «In arrivo» fanno da promemoria | La scheda con note, contatti e aziende collegati e, da Pro, le conversazioni LinkedIn ed e-mail | Clienti e trattative con una storia, per una persona o un team |
+| Campo Data in un CRM (Customermates) | Un campo Data sul cliente o sulla trattativa | Sì, con un’automazione sul campo data, nella pagina Notifiche e via e-mail; una vista ordinata e il widget «In arrivo» mostrano il resto | La scheda con note, contatti e aziende collegati e, da Pro, le conversazioni LinkedIn ed e-mail | Clienti e trattative con una storia, per una persona o un team |
 
 Microsoft documenta le opzioni del flag per Outlook per Microsoft 365, Outlook 2024 e Outlook 2021 e precisa che con un account IMAP non puoi modificare il testo del contrassegno né impostare le date di inizio e di scadenza. Verificato l’11 novembre 2026 su [Supporto Microsoft: Contrassegnare i messaggi di posta elettronica per il completamento](https://support.microsoft.com/it-it/outlook/flag-email-messages-for-follow-up).
 
@@ -112,7 +112,7 @@ Prima, la corrispondenza tra carta e Customermates:
 | Aprire la cartella di oggi | Aprire la dashboard: le schede di oggi e la sezione «Scaduti» |
 | Spostare la cartella in fondo | Spostare la data di ogni scheda dopo averla gestita, oppure cancellarla |
 | Il foglio nella cartella | La scheda: note, contatti e aziende collegati, file e, da Pro, conversazioni |
-| Ricordarsi di aprire il cassetto | Resta una tua abitudine. Customermates non invia promemoria |
+| Ricordarsi di aprire il cassetto | Un’automazione sulla data può avvisarti, altrimenti resta una tua abitudine |
 
 <Steps>
   <Step title="Aggiungi due campi">In **Modello dati**, aggiungi un campo di tipo **Data** chiamato «Data del prossimo passo» e un campo di tipo **Testo** chiamato «Prossimo passo» a **Contatti** o **Trattative**, o a entrambi se i tuoi lead vivono sulle trattative. Con un piano che include Mate puoi chiedere a lui di aggiungerli. Le attività non hanno una scadenza integrata, quindi lo stesso campo Data funziona anche lì; la [gestione delle attività nel CRM](/features/task-management) mostra come collegarle ai clienti.</Step>
@@ -125,7 +125,7 @@ Prima, la corrispondenza tra carta e Customermates:
 I campi Data, le viste salvate e il widget «In arrivo» non hanno limiti di piano: funzionano in Free, nei piani a pagamento e in self-hosting. Per vedere le stesse date in un’altra app di calendario, crea un URL di sottoscrizione nel calendario: è un feed privato di sola lettura, e la tua app di calendario decide ogni quanto aggiornarlo. La [guida alla dashboard](/docs/app-dashboard) spiega le opzioni del widget e la [guida al calendario](/docs/app-calendar) il feed.
 
 <AcquisitionCallout title="Dove Customermates è lo scadenzario clienti sbagliato" variant="boundary">
-  Customermates non invia promemoria né notifiche, non ha attività ricorrenti e non dà alle attività una scadenza integrata: la lista ti ricorda qualcosa solo quando la apri. Non tiene carta (una scansione in un campo File viene salvata e mostrata, ma il suo testo non viene letto), non ha un’app mobile nativa e non ha una sincronizzazione nei due sensi con i calendari di Outlook o Google; il feed del calendario va in una sola direzione ed è di sola lettura. Non è nemmeno un calendario di termini legali: un campo Data è un’informazione, non un termine processuale. Non gestisce neppure lo scadenzario dei pagamenti, perché non ha fatture. Se ti serve un avviso che ti raggiunga, usa un flag di Outlook con promemoria o la tua app di calendario, oppure fai leggere la data a uno scheduler come n8n tramite l’API.
+  Customermates non ha attività ricorrenti e non dà alle attività una scadenza integrata; un promemoria arriva da un’automazione su un campo data, nella pagina Notifiche e via e-mail. Non tiene carta (una scansione in un campo File viene salvata e mostrata, ma il suo testo non viene letto), non ha un’app mobile nativa e non ha una sincronizzazione nei due sensi con i calendari di Outlook o Google; il feed del calendario va in una sola direzione ed è di sola lettura. Non è nemmeno un calendario di termini legali: un campo Data è un’informazione, non un termine processuale. Non gestisce neppure lo scadenzario dei pagamenti, perché non ha fatture. Se preferisci l’avviso in Outlook o nella tua app di calendario, usa un flag di Outlook con promemoria o la tua app di calendario, oppure fai leggere la data a uno scheduler come n8n tramite l’API.
 </AcquisitionCallout>
 
 Customermates Cloud ha un piano Free per [[commercial.limit.free.maxMembers]] persona e [[commercial.limit.free.maxRecords]] record, senza posta in arrivo, Mate né routine. Il tuo primo spazio di lavoro parte con una prova di [[commercial.trial.days]] giorni di Pro e poi passa a Free se non scegli un piano a pagamento; i piani a pagamento partono da [[commercial.price.starter.monthly]] per utente al mese, fatturati mensilmente, vedi la [pagina dei prezzi](/pricing). La Community Edition si può [installare in self-hosting](/features/self-hosted) senza costi di licenza, senza posta in arrivo e senza Mate. Per provare lo scadenzario sui tuoi clienti, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup): Pro, senza carta di credito. Aggiungi prima i due campi alle trattative.
@@ -152,7 +152,7 @@ Sì. Bastano poche colonne: cliente, cosa fare, data, esito e note. Ordina per d
 Nella scheda Messaggio apri il menu Completa e scegli una data: Oggi, Domani, Questa settimana, Prossima settimana, Nessuna data o Personalizzata. «Aggiungi promemoria» aggiunge un promemoria. Con un account IMAP le date di inizio e di scadenza non sono disponibili.
 </FaqItem>
 <FaqItem question="Customermates invia promemoria dello scadenzario?">
-No. Non ci sono notifiche e le attività non hanno una scadenza integrata. Aggiungi un campo Data, ordina una vista salvata per quel campo e mostralo nel widget «In arrivo»; la lista è il promemoria. Per un avviso, un flag di Outlook con promemoria o uno scheduler che legge la data tramite l’API può inviarlo.
+Sì, con un’automazione. Le attività non hanno una scadenza integrata, quindi aggiungi un campo Data, ordina una vista salvata per quel campo e mostralo nel widget «In arrivo»; un’automazione che parte quando arriva quella data ti avvisa nella pagina Notifiche e via e-mail. Per un avviso push, un flag di Outlook con promemoria o uno scheduler che legge la data tramite l’API può inviarlo.
 </FaqItem>
 </Faq>
 
