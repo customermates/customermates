@@ -131,13 +131,13 @@ cta:
 
 El software de seguimiento al cliente hace que el siguiente contacto con cada cliente ocurra y muestra a quien lo hace qué se dijo la última vez. En Customermates eso significa conversaciones de LinkedIn y de correo en el registro del cliente, un siguiente paso con fecha en cada cliente y borradores de Mate o de tu propio cliente de IA que tú revisas y envías.
 
-Es una lista que abres, no un recordatorio que te encuentra. Customermates no envía notificaciones de recordatorio, no tiene fechas de vencimiento integradas en las tareas y no ejecuta secuencias de correo. Si tu equipo depende de eso, la comparación de más abajo nombra dos herramientas que encajan mejor.
+Es una lista que abres, y una automatización sobre la fecha le añade un recordatorio que te encuentra. Customermates no tiene fechas de vencimiento integradas en las tareas y no ejecuta secuencias de correo. Si tu equipo depende de eso, la comparación de más abajo nombra dos herramientas que encajan mejor.
 
 <ArticleSummary title="De un vistazo">
   <SummaryItem label="Cómo funciona">Un campo de texto «Siguiente paso» y un campo de Fecha «Fecha del siguiente paso» en el cliente, vistas guardadas ordenadas por esa fecha, un widget Próximos en el panel y un filtro de la bandeja de entrada para las conversaciones en las que esperas respuesta.</SummaryItem>
   <SummaryItem label="Planes">Los campos de fecha, las vistas guardadas y el panel funcionan en todos los planes, también autoalojado. La bandeja de entrada requiere Pro o superior. Mate y las rutinas solo funcionan en Customermates Cloud.</SummaryItem>
   <SummaryItem label="Ayuda de IA">Mate o tu propio cliente de IA por MCP guarda un borrador de seguimiento en la conversación. Tú lo revisas, lo editas y lo envías. Una rutina puede preparar borradores con un horario.</SummaryItem>
-  <SummaryItem label="No incluido">Sin notificaciones, sin fechas de vencimiento en las tareas, sin secuencias ni correo masivo, sin llamadas ni SMS. Tú abres la lista; nada te avisa.</SummaryItem>
+  <SummaryItem label="No incluido">Sin fechas de vencimiento integradas en las tareas, sin secuencias ni correo masivo, sin llamadas ni SMS. Los recordatorios llegan de una automatización que pones sobre la fecha.</SummaryItem>
 </ArticleSummary>
 
 ## ¿Qué es el seguimiento al cliente y cómo se hace bien? [#que-es-el-seguimiento-al-cliente]
@@ -171,7 +171,7 @@ Esta es la escena del viernes de la demostración de más arriba, en el orden en
 1. **Viernes, 16:42: llega la respuesta.** Jonas Weber, de Halden & Co., responde en LinkedIn: «¿Podrías enviarme el alcance revisado la semana que viene? Así puedo llevarlo a nuestro consejo». Su registro de contacto guarda su perfil de LinkedIn y su dirección de correo en **Datos de contacto**, así que esta conversación y la de correo del mes pasado aparecen en las **Actividades** del registro y en la [bandeja de entrada](/features/unified-inbox).
 2. **Viernes por la noche: pides un borrador.** En la conversación, pídele a Mate: «Redacta una respuesta: alcance revisado el martes, con las dos opciones de taller. Pon Siguiente paso en Enviar el alcance revisado y Fecha del siguiente paso en el martes». Mate guarda el borrador en la conversación y rellena los dos campos. Tu propio cliente de IA, como Claude o ChatGPT, puede hacer lo mismo por [MCP](/docs/mcp) en Customermates Cloud. Pide un borrador, no un envío: Mate envía en cuanto se lo dices.
 3. **Revisas y envías.** El borrador espera en la conversación con **Enviar el borrador**, **Editar** y **Descartar**. Léelo frente a la conversación, corrige la redacción y envíalo. Sale por LinkedIn desde tu cuenta conectada como un mensaje individual.
-4. **Martes por la mañana: está en tu panel.** El widget Próximos lista a Jonas en hoy, y tu vista «Seguimientos» muestra el texto de **Siguiente paso** junto a la fecha. Envías el alcance, escribes una línea en las notas y cambias **Fecha del siguiente paso** al día en que volverás a mirar. Si pasa el martes, el miércoles Jonas pasa a **Vencidos**. Nada te avisa, así que el panel es el recordatorio.
+4. **Martes por la mañana: está en tu panel.** El widget Próximos lista a Jonas en hoy, y tu vista «Seguimientos» muestra el texto de **Siguiente paso** junto a la fecha. Envías el alcance, escribes una línea en las notas y cambias **Fecha del siguiente paso** al día en que volverás a mirar. Si pasa el martes, el miércoles Jonas pasa a **Vencidos**. Una automatización sobre **Fecha del siguiente paso** también puede avisarte esa mañana, en la página Notificaciones y por correo.
 
 | En el registro de Jonas Weber | Valor | De dónde viene |
 |---|---|---|
@@ -229,7 +229,7 @@ La frase «No envíes nada» importa. Mate envía mensajes sin volver a pregunta
 Un ejemplo con evento: una rutina configurada en **Cuando algo cambia** para las actualizaciones de oportunidades, con la instrucción «Si la etapa ha cambiado a Propuesta, pon la Fecha del siguiente paso a cinco días laborables desde hoy y crea una tarea "Dar seguimiento a la propuesta" asignada a los usuarios asignados a la oportunidad». Los cambios que hace una rutina nunca inician otras rutinas, así que esto no puede entrar en bucle.
 
 <AcquisitionCallout title="Lo que el seguimiento en Customermates no incluye" variant="boundary">
-  Sin notificaciones ni correos de recordatorio, sin fecha de vencimiento ni estado vencido integrados en las tareas, sin tareas recurrentes. Sin secuencias de correo, campañas de goteo ni envío masivo; cada mensaje se escribe y se envía uno a uno. Una vista que compartes es de solo lectura para tus compañeros. Las instalaciones autoalojadas no tienen bandeja de entrada, ni Mate, ni rutinas.
+  Sin fecha de vencimiento ni estado vencido integrados en las tareas y sin tareas recurrentes; los recordatorios llegan de automatizaciones sobre campos de fecha. Sin secuencias de correo, campañas de goteo ni envío masivo; cada mensaje se escribe y se envía uno a uno. Una vista que compartes es de solo lectura para tus compañeros. Las instalaciones autoalojadas no tienen bandeja de entrada, ni Mate, ni rutinas.
 </AcquisitionCallout>
 
 ## ¿Cómo se conecta con LinkedIn, el correo y el resto?
@@ -237,11 +237,11 @@ Un ejemplo con evento: una rutina configurada en **Cuando algo cambia** para las
 - **Bandeja de entrada (Pro y superiores):** los seguimientos salen por el canal original, y una conversación se vincula con el contacto a través de sus participantes, así que el historial aparece en el registro. Las [conversaciones de LinkedIn](/features/linkedin-integration) funcionan igual que el correo, con la cuenta de LinkedIn que conectes.
 - **Tareas:** si un paso necesita su propio responsable o su propia lista de comprobación, crea una tarea vinculada al cliente. Las tareas no tienen fecha de vencimiento propia, así que dales un campo Fecha como en la [gestión de tareas](/features/task-management).
 - **MCP:** tu propio cliente de IA, como Claude o ChatGPT, puede leer las mismas vistas y conversaciones mediante [[derived.mcp.tools.total]] herramientas MCP y guardar borradores. Esto también funciona autoalojado, menos la bandeja de entrada. Consulta la [guía de MCP](/docs/mcp).
-- **Webhooks y n8n:** si necesitas una notificación de verdad, por ejemplo un mensaje en el chat de tu equipo cuando pasa una Fecha del siguiente paso, ejecútala en n8n o en tu propio planificador contra la API REST. n8n es un producto aparte con sus propios planes. Consulta la [automatización de flujos de trabajo](/features/workflow-automation).
+- **Webhooks y n8n:** si necesitas la notificación en otro sitio, por ejemplo un mensaje en el chat de tu equipo cuando pasa una Fecha del siguiente paso, ejecútala en n8n o en tu propio planificador contra la API REST. n8n es un producto aparte con sus propios planes. Consulta la [automatización de flujos de trabajo](/features/workflow-automation).
 
 ## ¿Dónde es Customermates la opción equivocada para el seguimiento de clientes?
 
-Customermates publica esta página, así que lee la comparación teniéndolo en cuenta. Es la opción equivocada si necesitas recordatorios que te lleguen, una cadencia que se envíe sola o seguimiento por teléfono o por SMS: no hay notificaciones, secuencias, telefonía ni canales de SMS, y tampoco una aplicación móvil nativa.
+Customermates publica esta página, así que lee la comparación teniéndolo en cuenta. Es la opción equivocada si necesitas una cadencia que se envíe sola o seguimiento por teléfono o por SMS: no hay secuencias, telefonía ni canales de SMS, y tampoco una aplicación móvil nativa.
 
 | Si necesitas | Mira | Por qué |
 |---|---|---|
@@ -277,10 +277,10 @@ Customermates tiene un plan Free para una persona con [[commercial.limit.free.ma
 Customermates ayuda con el ciclo de revisión, no con la cadencia: una vista guardada lista los clientes cuyo siguiente paso vence o cuya conversación terminó con un mensaje tuyo, y una rutina en Customermates Cloud puede guardar borradores para ellos con un horario. Para secuencias temporizadas de varios pasos usa una herramienta de secuencias, y ten en cuenta que Customermates no hace ni registra llamadas telefónicas, así que un lead al que llamaste sin respuesta necesita una nota y una fecha de siguiente paso de tu parte.
 </FaqItem>
 <FaqItem question="¿Tiene Customermates recordatorios de seguimiento o fechas de vencimiento?">
-No. No hay notificaciones, y las tareas no tienen fecha de vencimiento integrada. Añade un campo de Fecha personalizado, ordena una vista guardada por él y muéstralo en un widget Próximos de tu panel. Si necesitas una notificación push, n8n u otro planificador puede leer esa fecha mediante la API y avisarte.
+Recordatorios sí, fechas de vencimiento integradas no. Añade un campo de Fecha personalizado, ordena una vista guardada por él, muéstralo en un widget Próximos de tu panel y añade una automatización que te avise cuando llegue la fecha. Si necesitas una notificación push en el teléfono, n8n u otro planificador puede leer esa fecha mediante la API y avisarte.
 </FaqItem>
 <FaqItem question="¿Hay un CRM que encuentre oportunidades en las conversaciones de correo y me recuerde hacer seguimiento?">
-Customermates no envía recordatorios. En Customermates Cloud, una rutina activada por un correo entrante puede pedirle a Mate que compruebe si la conversación pertenece a una oportunidad existente, actualice esa oportunidad y fije su Fecha del siguiente paso, dentro de los límites de las rutinas de la [guía de rutinas](/docs/app-routines#what-are-the-limits). La oportunidad aparece entonces en tu vista de seguimiento. El filtro de la bandeja de entrada para las conversaciones en las que escribiste tú el último mensaje cubre el resto.
+Una automatización sobre la Fecha del siguiente paso envía el recordatorio. En Customermates Cloud, una rutina activada por un correo entrante puede pedirle a Mate que compruebe si la conversación pertenece a una oportunidad existente, actualice esa oportunidad y fije su Fecha del siguiente paso, dentro de los límites de las rutinas de la [guía de rutinas](/docs/app-routines#what-are-the-limits). La oportunidad aparece entonces en tu vista de seguimiento. El filtro de la bandeja de entrada para las conversaciones en las que escribiste tú el último mensaje cubre el resto.
 </FaqItem>
 <FaqItem question="¿Puedo automatizar los correos de seguimiento?">
 No como secuencia. Una rutina en Customermates Cloud puede escribir borradores individuales con un horario, y tú los envías después de leerlos. También puede enviar si la instrucción lo indica, un mensaje por conversación. Las cadencias masivas o de varios pasos necesitan una herramienta de secuencias específica.

@@ -131,13 +131,13 @@ cta:
 
 O software de follow-up de clientes garante que o próximo contato com cada cliente aconteça e mostra a quem o faz o que foi dito por último. No Customermates, isso significa conversas de LinkedIn e e-mail no registro do cliente, um próximo passo com data em cada cliente e rascunhos do Mate ou do seu próprio cliente de IA que você revisa e envia.
 
-É uma lista que você abre, não um lembrete que vai atrás de você. O Customermates não envia notificações de lembrete, não tem prazos embutidos nas tarefas e não executa sequências de e-mail. Se a sua equipe depende disso, a comparação mais abaixo indica duas ferramentas que se encaixam melhor.
+É uma lista que você abre, e uma automação na data acrescenta um lembrete que vai atrás de você. O Customermates não tem prazos embutidos nas tarefas e não executa sequências de e-mail. Se a sua equipe depende disso, a comparação mais abaixo indica duas ferramentas que se encaixam melhor.
 
 <ArticleSummary title="Em resumo">
   <SummaryItem label="Como funciona">Um campo de texto “Próximo passo” e um campo de Data “Data do próximo passo” no cliente, visualizações salvas ordenadas por essa data, um widget Próximos no painel e um filtro da caixa de entrada para as conversas em que você aguarda resposta.</SummaryItem>
   <SummaryItem label="Planos">Campos de data, visualizações salvas e o painel funcionam em todos os planos, inclusive hospedado por conta própria. A caixa de entrada exige o Pro ou superior. O Mate e as rotinas rodam apenas no Customermates Cloud.</SummaryItem>
   <SummaryItem label="Ajuda da IA">O Mate, ou o seu próprio cliente de IA via MCP, salva um rascunho de follow-up na conversa. Você revisa, edita e envia. Uma rotina pode preparar rascunhos em horários definidos.</SummaryItem>
-  <SummaryItem label="Não incluído">Sem notificações, sem prazos nas tarefas, sem sequências nem e-mail em massa, sem ligações nem SMS. Você abre a lista; nada avisa você.</SummaryItem>
+  <SummaryItem label="Não incluído">Sem prazos nativos nas tarefas, sem sequências nem e-mail em massa, sem ligações nem SMS. Os lembretes vêm de uma automação que você coloca na data.</SummaryItem>
 </ArticleSummary>
 
 ## O que é follow-up de clientes? [#o-que-e-follow-up-de-clientes]
@@ -171,7 +171,7 @@ Esta é a cena de sexta-feira da demo mais acima, na ordem em que você a trabal
 1. **Sexta-feira, 16h42: a resposta chega.** Jonas Weber, da Halden & Co., responde no LinkedIn: “Você pode me mandar o escopo revisado na semana que vem? Assim eu levo para o nosso conselho.” O registro de contato dele guarda o perfil do LinkedIn e o endereço de e-mail em **Dados de contato**, então essa conversa e a conversa de e-mail do mês passado aparecem nas **Atividades** do registro e na [caixa de entrada](/features/unified-inbox).
 2. **Sexta-feira à noite: você pede um rascunho.** Na conversa, peça ao Mate: “Prepare uma resposta: escopo revisado na terça-feira, com as duas opções de workshop. Defina Próximo passo como Enviar escopo revisado e Data do próximo passo como terça-feira.” O Mate salva o rascunho na conversa e preenche os dois campos. O seu próprio cliente de IA, como o Claude ou o ChatGPT, pode fazer o mesmo via [MCP](/docs/mcp) no Customermates Cloud. Peça um rascunho, não um envio: o Mate envia no instante em que você manda.
 3. **Você revisa e envia.** O rascunho espera na conversa com **Enviar rascunho**, **Editar** e **Descartar**. Leia-o comparando com a conversa, ajuste as palavras e envie. Ele sai pelo LinkedIn, da sua conta conectada, como uma mensagem individual.
-4. **Terça-feira de manhã: ele está no seu painel.** O widget Próximos lista o Jonas em hoje, e a sua visualização “Follow-ups” mostra o texto do **Próximo passo** dele ao lado da data. Você envia o escopo, escreve uma linha nas notas e muda a **Data do próximo passo** para o dia em que vai voltar a olhar. Se a terça-feira passar, ele vai para **Atrasados** na quarta-feira. Nada avisa você, então o painel é o lembrete.
+4. **Terça-feira de manhã: ele está no seu painel.** O widget Próximos lista o Jonas em hoje, e a sua visualização “Follow-ups” mostra o texto do **Próximo passo** dele ao lado da data. Você envia o escopo, escreve uma linha nas notas e muda a **Data do próximo passo** para o dia em que vai voltar a olhar. Se a terça-feira passar, ele vai para **Atrasados** na quarta-feira. Uma automação na **Data do próximo passo** também pode avisar você nessa manhã, na página Notificações e por e-mail.
 
 | No registro de Jonas Weber | Valor | De onde vem |
 |---|---|---|
@@ -242,7 +242,7 @@ A linha “Não envie nada” importa. O Mate envia mensagens sem perguntar de n
 Um exemplo por evento: uma rotina definida como **Quando algo muda** para atualizações de negócios, com a instrução “Se a etapa mudou para Proposta, defina a Data do próximo passo para cinco dias úteis a partir de hoje e crie uma tarefa ‘Fazer follow-up da proposta’ atribuída aos usuários atribuídos ao negócio.” As alterações feitas por uma rotina nunca iniciam outras rotinas, então isso não pode entrar em loop.
 
 <AcquisitionCallout title="O que o follow-up no Customermates não inclui" variant="boundary">
-  Sem notificações nem e-mails de lembrete, sem prazo nem estado de atraso embutidos nas tarefas, sem tarefas recorrentes. Sem sequências de e-mail, campanhas gota a gota nem envio em massa; cada mensagem é escrita e enviada uma por vez. Uma visualização que você compartilha é somente leitura para os seus colegas. As instalações com hospedagem própria não têm caixa de entrada, Mate nem rotinas.
+  Sem prazo nem estado de atraso embutidos nas tarefas e sem tarefas recorrentes; os lembretes vêm de automações em campos de data. Sem sequências de e-mail, campanhas gota a gota nem envio em massa; cada mensagem é escrita e enviada uma por vez. Uma visualização que você compartilha é somente leitura para os seus colegas. As instalações com hospedagem própria não têm caixa de entrada, Mate nem rotinas.
 </AcquisitionCallout>
 
 ## Como ele se conecta ao LinkedIn, ao e-mail e ao resto?
@@ -250,11 +250,11 @@ Um exemplo por evento: uma rotina definida como **Quando algo muda** para atuali
 - **Caixa de entrada (Pro e superiores):** os follow-ups saem pelo canal original, e uma conversa se vincula ao contato por meio dos participantes, então o histórico aparece no registro. As [conversas do LinkedIn](/features/linkedin-integration) funcionam como o e-mail, com a conta do LinkedIn que você conecta.
 - **Tarefas:** se um passo precisa de um responsável próprio ou de um checklist, crie uma tarefa vinculada ao cliente. As tarefas não têm prazo próprio, então dê a elas um campo Data, como na [gestão de tarefas](/features/task-management).
 - **MCP:** o seu próprio cliente de IA, como o Claude ou o ChatGPT, pode ler as mesmas visualizações e conversas por meio de [[derived.mcp.tools.total]] ferramentas MCP e salvar rascunhos. Isso funciona também na hospedagem própria, sem a caixa de entrada. Veja o [guia do MCP](/docs/mcp).
-- **Webhooks e n8n:** se você precisa de uma notificação de verdade, por exemplo uma mensagem no chat da equipe quando uma Data do próximo passo vence, faça isso rodar no n8n ou no seu próprio agendador, por meio da API REST. O n8n é um produto separado, com planos próprios. Veja a [automação de fluxos de trabalho](/features/workflow-automation).
+- **Webhooks e n8n:** se você precisa da notificação em outro lugar, por exemplo uma mensagem no chat da equipe quando uma Data do próximo passo vence, faça isso rodar no n8n ou no seu próprio agendador, por meio da API REST. O n8n é um produto separado, com planos próprios. Veja a [automação de fluxos de trabalho](/features/workflow-automation).
 
 ## Onde o Customermates é a escolha errada para o follow-up de clientes?
 
-O Customermates publica esta página, então leia a comparação com isso em mente. Ele é a escolha errada se você precisa de lembretes que cheguem até você, de uma cadência que se envia sozinha ou de follow-up por telefone ou mensagem de texto: não há notificações, sequências, telefonia nem canais de SMS, e não há aplicativo móvel nativo.
+O Customermates publica esta página, então leia a comparação com isso em mente. Ele é a escolha errada se você precisa de uma cadência que se envia sozinha ou de follow-up por telefone ou mensagem de texto: não há sequências, telefonia nem canais de SMS, e não há aplicativo móvel nativo.
 
 | Se você precisa de | Veja | Por quê |
 |---|---|---|
@@ -293,10 +293,10 @@ O Customermates tem um plano Free para uma pessoa com [[commercial.limit.free.ma
 O Customermates ajuda mais no ciclo de revisão do que na cadência: uma visualização salva lista os clientes cujo próximo passo vence ou cuja conversa você escreveu por último, e uma rotina no Customermates Cloud pode salvar rascunhos de mensagens para eles em horários definidos. Para sequências temporizadas em várias etapas, use uma ferramenta de sequências, e lembre que o Customermates não faz nem registra ligações telefônicas, então um lead para quem você ligou sem resposta precisa de uma nota e de uma data do próximo passo feitas por você.
 </FaqItem>
 <FaqItem question="O Customermates tem lembretes ou prazos de follow-up?">
-Não. Não há notificações, e as tarefas não têm prazo embutido. Adicione um campo Data personalizado, ordene uma visualização salva por ele e mostre-o em um widget Próximos no seu painel. Se você precisa de uma notificação push, o n8n ou outro agendador pode ler essa data pela API e avisar você.
+Lembretes sim, prazos embutidos não. Adicione um campo Data personalizado, ordene uma visualização salva por ele, mostre-o em um widget Próximos no seu painel e adicione uma automação que avise você quando a data chegar. Se você precisa de uma notificação push no celular, o n8n ou outro agendador pode ler essa data pela API e avisar você.
 </FaqItem>
 <FaqItem question="Existe um CRM que encontra negócios nas conversas por e-mail e me lembra de fazer o follow-up?">
-O Customermates não envia lembretes. No Customermates Cloud, uma rotina disparada por um e-mail recebido pode pedir ao Mate que verifique se a conversa pertence a um negócio existente, atualize esse negócio e defina a Data do próximo passo dele, dentro dos limites de rotina do [guia de rotinas](/docs/app-routines#what-are-the-limits). O negócio então aparece na sua visualização de follow-ups. O filtro da caixa de entrada para as conversas em que você enviou por último cobre o resto.
+Uma automação na Data do próximo passo envia o lembrete. No Customermates Cloud, uma rotina disparada por um e-mail recebido pode pedir ao Mate que verifique se a conversa pertence a um negócio existente, atualize esse negócio e defina a Data do próximo passo dele, dentro dos limites de rotina do [guia de rotinas](/docs/app-routines#what-are-the-limits). O negócio então aparece na sua visualização de follow-ups. O filtro da caixa de entrada para as conversas em que você enviou por último cobre o resto.
 </FaqItem>
 <FaqItem question="Posso automatizar e-mails de follow-up?">
 Não como uma sequência. Uma rotina no Customermates Cloud pode escrever rascunhos individuais em horários definidos, e você os envia depois de ler. Ela também pode enviar, se a instrução mandar, uma mensagem por conversa. Cadências em massa ou em várias etapas exigem uma ferramenta de sequências dedicada.

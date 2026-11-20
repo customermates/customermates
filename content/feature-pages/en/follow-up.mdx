@@ -131,13 +131,13 @@ cta:
 
 Client follow-up software makes sure the next contact with each client happens and shows whoever makes it what was said last. In Customermates that means LinkedIn and email conversations on the client record, a dated next step on each client, and drafts from Mate or your own AI client that you review and send.
 
-It is a list you open, not a reminder that finds you. Customermates sends no reminder notifications, has no due dates built into tasks and runs no email sequences. If your team depends on those, the comparison further down names two tools that fit better.
+It is a list you open, and an automation on the date can add a reminder that finds you. Customermates has no due dates built into tasks and runs no email sequences. If your team depends on those, the comparison further down names two tools that fit better.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="How it works">A "Next step" text field and a "Next step date" Date field on the client, saved views sorted by that date, an Upcoming widget on the dashboard and an inbox filter for threads you are waiting on.</SummaryItem>
   <SummaryItem label="Plans">Date fields, saved views and the dashboard work on every plan, self-hosted included. The inbox needs Pro or higher. Mate and routines run in Customermates Cloud only.</SummaryItem>
   <SummaryItem label="AI help">Mate or your own AI client over MCP saves a follow-up draft in the thread. You review, edit and send it. A routine can prepare drafts on a schedule.</SummaryItem>
-  <SummaryItem label="Not included">No notifications, no due dates on tasks, no sequences or bulk email, no calls or SMS. You open the list; nothing pings you.</SummaryItem>
+  <SummaryItem label="Not included">No built-in due dates on tasks, no sequences or bulk email, no calls or SMS. Reminders come from an automation you set up on the date.</SummaryItem>
 </ArticleSummary>
 
 ## What does client follow-up software need to do?
@@ -161,7 +161,7 @@ This is the Friday scene from the demo further up, in the order you would work i
 1. **Friday, 16:42: the reply arrives.** Jonas Weber at Halden & Co. answers on LinkedIn: "Could you send the revised scope next week? Then I can take it to our board." His contact record holds his LinkedIn profile and his email address in **Contact details**, so this thread and last month's email thread both appear on the record's **Activities** and in the [inbox](/features/unified-inbox).
 2. **Friday evening: you ask for a draft.** In the thread, ask Mate: "Draft a reply: revised scope on Tuesday, with the two workshop options. Set Next step to Send revised scope and Next step date to Tuesday." Mate saves the draft in the conversation and fills the two fields. Your own AI client, such as Claude or ChatGPT, can do the same over [MCP](/docs/mcp) on Customermates Cloud. Ask for a draft, not a send: Mate sends the moment you tell it to.
 3. **You review and send.** The draft waits in the thread with **Send draft**, **Edit** and **Discard**. Read it against the thread, fix the wording and send it. It goes out on LinkedIn from your connected account as one individual message.
-4. **Tuesday morning: it is on your dashboard.** The Upcoming widget lists Jonas under today, and your "Follow-ups" view shows his **Next step** text beside the date. You send the scope, write one line in the notes and move **Next step date** to the day you will check back. If Tuesday passes, he moves to **Overdue** on Wednesday. Nothing notifies you, so the dashboard is the reminder.
+4. **Tuesday morning: it is on your dashboard.** The Upcoming widget lists Jonas under today, and your "Follow-ups" view shows his **Next step** text beside the date. You send the scope, write one line in the notes and move **Next step date** to the day you will check back. If Tuesday passes, he moves to **Overdue** on Wednesday. An automation on **Next step date** can also notify you that morning, on the Notifications page and by email.
 
 | On Jonas Weber's record | Value | Where it comes from |
 |---|---|---|
@@ -199,7 +199,7 @@ The "Do not send anything" line matters. Mate sends messages without asking agai
 An event example: a routine set to **When something changes** for deal updates, with the instruction "If the stage changed to Proposal, set Next step date to five working days from today and create a task 'Follow up on proposal' assigned to the deal's assigned users." Changes a routine makes never start other routines, so this cannot loop.
 
 <AcquisitionCallout title="What follow-up in Customermates does not include" variant="boundary">
-  No notifications or reminder emails, no built-in due date or overdue state on tasks, no recurring tasks. No email sequences, drip campaigns or bulk sending; every message is written and sent one at a time. A view you share is read-only for your colleagues. Self-hosted installations have no inbox, no Mate and no routines.
+  No built-in due date or overdue state on tasks and no recurring tasks; reminders come from automations on date fields. No email sequences, drip campaigns or bulk sending; every message is written and sent one at a time. A view you share is read-only for your colleagues. Self-hosted installations have no inbox, no Mate and no routines.
 </AcquisitionCallout>
 
 ## How does it connect to LinkedIn, email and the rest?
@@ -207,11 +207,11 @@ An event example: a routine set to **When something changes** for deal updates, 
 - **Inbox (Pro and higher):** follow-ups go out from the original channel, and a thread links to the contact through its participants, so the history shows on the record. [LinkedIn conversations](/features/linkedin-integration) work the same way as email, with the LinkedIn account you connect.
 - **Tasks:** if a step needs its own owner or checklist, create a task linked to the client. Tasks have no due date of their own, so give them a Date field as in [task management](/features/task-management).
 - **MCP:** your own AI client, such as Claude or ChatGPT, can read the same views and threads through [[derived.mcp.tools.total]] MCP tools and save drafts. This works self-hosted too, minus the inbox. See the [MCP guide](/docs/mcp).
-- **Webhooks and n8n:** if you need a real notification, for example a message in your team chat when a Next step date passes, run that in n8n or your own scheduler against the REST API. n8n is a separate product with its own plans. See [workflow automation](/features/workflow-automation).
+- **Webhooks and n8n:** if you need the notification somewhere else, for example a message in your team chat when a Next step date passes, run that in n8n or your own scheduler against the REST API. n8n is a separate product with its own plans. See [workflow automation](/features/workflow-automation).
 
 ## Where is Customermates the wrong choice for client follow-up?
 
-Customermates publishes this page, so read the comparison with that in mind. It is the wrong choice if you need reminders that reach you, a cadence that sends itself, or follow-up by phone or text: there are no notifications, sequences, telephony or SMS channels, and no native mobile app.
+Customermates publishes this page, so read the comparison with that in mind. It is the wrong choice if you need a cadence that sends itself or follow-up by phone or text: there are no sequences, telephony or SMS channels, and no native mobile app.
 
 | If you need | Look at | Why |
 |---|---|---|
@@ -238,10 +238,10 @@ Customermates has a Free plan for one person with [[commercial.limit.free.maxRec
 Customermates helps with the review loop rather than the cadence: a saved view lists the clients whose next step is due or whose thread you wrote last, and a routine in Customermates Cloud can save draft messages for them on a schedule. For timed multi-step sequences use a sequencing tool, and note that Customermates does not place or log phone calls, so a lead you called without an answer needs a note and a next step date from you.
 </FaqItem>
 <FaqItem question="Does Customermates have follow-up reminders or due dates?">
-No. There are no notifications, and tasks have no built-in due date. Add a custom Date field, sort a saved view by it and show it in an Upcoming widget on your dashboard. If you need a push notification, n8n or another scheduler can read that date through the API and notify you.
+Reminders, yes; built-in due dates, no. Add a custom Date field, sort a saved view by it, show it in an Upcoming widget on your dashboard and add an automation that notifies you when the date is reached. If you need a push notification on your phone, n8n or another scheduler can read that date through the API and notify you.
 </FaqItem>
 <FaqItem question="Is there a CRM that finds deals in email conversations and reminds me to follow up?">
-Customermates does not send reminders. In Customermates Cloud, a routine triggered by incoming email can ask Mate to check whether the conversation belongs to an existing deal, update that deal and set its Next step date, within the routine limits in the [routines guide](/docs/app-routines#what-are-the-limits). The deal then appears in your follow-up view. The inbox filter for threads you sent last covers the rest.
+An automation on the Next step date sends the reminder. In Customermates Cloud, a routine triggered by incoming email can ask Mate to check whether the conversation belongs to an existing deal, update that deal and set its Next step date, within the routine limits in the [routines guide](/docs/app-routines#what-are-the-limits). The deal then appears in your follow-up view. The inbox filter for threads you sent last covers the rest.
 </FaqItem>
 <FaqItem question="Can I automate follow-up emails?">
 Not as a sequence. A routine in Customermates Cloud can write individual drafts on a schedule, and you send them after a read. It can also send if the instruction says so, one message per conversation. Bulk or multi-step cadences need a dedicated sequencing tool.

@@ -131,13 +131,13 @@ cta:
 
 Een offerte opvolgen betekent zorgen dat het volgende contact met elke klant plaatsvindt en dat degene die het opneemt ziet wat er het laatst is gezegd. Follow-up software doet dat in Customermates met LinkedIn- en e-mailgesprekken in het klantrecord, een volgende stap met een datum bij elke klant en concepten van Mate of je eigen AI-client die jij nakijkt en verstuurt.
 
-Het is een lijst die je zelf opent, geen herinnering die naar je toe komt. Customermates stuurt geen herinneringsmeldingen, heeft geen einddatums in taken en draait geen e-mailreeksen. Hangt je team daarvan af, dan noemt de vergelijking verderop twee tools die beter passen.
+Het is een lijst die je zelf opent, en een automatisering op de datum voegt een herinnering toe die naar je toe komt. Customermates heeft geen einddatums in taken en draait geen e-mailreeksen. Hangt je team daarvan af, dan noemt de vergelijking verderop twee tools die beter passen.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="Hoe het werkt">Een tekstveld "Volgende stap" en een datumveld "Datum volgende stap" bij de klant, opgeslagen weergaven gesorteerd op die datum, een Aankomend-widget op het dashboard en een inboxfilter voor gesprekken waarop je wacht.</SummaryItem>
   <SummaryItem label="Abonnementen">Datumvelden, opgeslagen weergaven en het dashboard werken bij elk abonnement, self-hosted inbegrepen. De inbox vraagt Pro of hoger. Mate en routines draaien alleen in Customermates Cloud.</SummaryItem>
   <SummaryItem label="AI-hulp">Mate of je eigen AI-client via MCP slaat een follow-upconcept op in het gesprek. Jij kijkt het na, bewerkt en verstuurt het. Een routine kan concepten volgens een schema voorbereiden.</SummaryItem>
-  <SummaryItem label="Niet inbegrepen">Geen meldingen, geen einddatums bij taken, geen reeksen of bulkmail, geen telefoon of sms. Jij opent de lijst; niets pingt je.</SummaryItem>
+  <SummaryItem label="Niet inbegrepen">Geen ingebouwde einddatums bij taken, geen reeksen of bulkmail, geen telefoon of sms. Herinneringen komen van een automatisering die je op de datum zet.</SummaryItem>
 </ArticleSummary>
 
 ## Wanneer en hoe volg je een offerte op? [#offerte-opvolgen-timing]
@@ -179,7 +179,7 @@ Dit is de scène van vrijdag uit de demo hierboven, in de volgorde waarin je haa
 1. **Vrijdag, 16:42: het antwoord komt binnen.** Jonas Weber van Halden & Co. antwoordt op LinkedIn: "Kun je volgende week de herziene scope sturen? Dan kan ik hem aan ons bestuur voorleggen." Zijn contactrecord bevat zijn LinkedIn-profiel en zijn e-mailadres in **Contactgegevens**, dus dit gesprek en het e-mailgesprek van vorige maand staan allebei bij de **Activiteiten** van het record en in de [inbox](/features/unified-inbox).
 2. **Vrijdagavond: je vraagt om een concept.** Vraag in het gesprek aan Mate: "Stel een antwoord op: herziene scope op dinsdag, met de twee workshopopties. Zet Volgende stap op Herziene scope versturen en Datum volgende stap op dinsdag." Mate slaat het concept op in het gesprek en vult de twee velden. Je eigen AI-client, zoals Claude of ChatGPT, kan hetzelfde doen via [MCP](/docs/mcp) in Customermates Cloud. Vraag om een concept, niet om verzenden: Mate verstuurt zodra jij dat zegt.
 3. **Je kijkt na en verstuurt.** Het concept wacht in het gesprek met **Concept versturen**, **Bewerken** en **Weggooien**. Lees het naast het gesprek, pas de formulering aan en verstuur het. Het gaat vanuit je gekoppelde account op LinkedIn de deur uit als één persoonlijk bericht.
-4. **Dinsdagochtend: het staat op je dashboard.** De Aankomend-widget toont Jonas onder vandaag, en je weergave "Follow-ups" toont de tekst van zijn **Volgende stap** naast de datum. Je stuurt de scope, schrijft één regel in de notities en zet **Datum volgende stap** op de dag waarop je weer wilt kijken. Gaat dinsdag voorbij, dan verschuift hij woensdag naar **Achterstallig**. Niets meldt het je, dus het dashboard is de herinnering.
+4. **Dinsdagochtend: het staat op je dashboard.** De Aankomend-widget toont Jonas onder vandaag, en je weergave "Follow-ups" toont de tekst van zijn **Volgende stap** naast de datum. Je stuurt de scope, schrijft één regel in de notities en zet **Datum volgende stap** op de dag waarop je weer wilt kijken. Gaat dinsdag voorbij, dan verschuift hij woensdag naar **Achterstallig**. Een automatisering op **Datum volgende stap** kan je die ochtend ook een melding sturen, op de pagina Meldingen en per e-mail.
 
 | Op het record van Jonas Weber | Waarde | Waar het vandaan komt |
 |---|---|---|
@@ -217,7 +217,7 @@ De regel "Verstuur niets" is belangrijk. Mate verstuurt berichten zonder opnieuw
 Een voorbeeld op basis van een gebeurtenis: een routine met **Wanneer er iets verandert** voor dealwijzigingen, met de instructie "Als de fase is veranderd naar Voorstel, zet Datum volgende stap op vijf werkdagen vanaf vandaag en maak een taak 'Offerte opvolgen' aan, toegewezen aan de toegewezen gebruikers van de deal." Wijzigingen die een routine aanbrengt, starten nooit andere routines, dus dit kan geen lus worden.
 
 <AcquisitionCallout title="Wat follow-up in Customermates niet bevat" variant="boundary">
-  Geen meldingen of herinneringsmails, geen ingebouwde einddatum of status Achterstallig bij taken, geen terugkerende taken. Geen e-mailreeksen, drip-campagnes of bulkverzending; elk bericht wordt één voor één geschreven en verstuurd. Een weergave die je deelt, is voor je collega's alleen-lezen. Self-hosted installaties hebben geen inbox, geen Mate en geen routines.
+  Geen ingebouwde einddatum of status Achterstallig bij taken en geen terugkerende taken; herinneringen komen van automatiseringen op datumvelden. Geen e-mailreeksen, drip-campagnes of bulkverzending; elk bericht wordt één voor één geschreven en verstuurd. Een weergave die je deelt, is voor je collega's alleen-lezen. Self-hosted installaties hebben geen inbox, geen Mate en geen routines.
 </AcquisitionCallout>
 
 ## Hoe verbindt het met LinkedIn, e-mail en de rest?
@@ -225,11 +225,11 @@ Een voorbeeld op basis van een gebeurtenis: een routine met **Wanneer er iets ve
 - **Inbox (Pro en hoger):** follow-ups gaan via het oorspronkelijke kanaal de deur uit, en een gesprek koppelt via zijn deelnemers aan de contactpersoon, zodat de geschiedenis op het record staat. [LinkedIn-gesprekken](/features/linkedin-integration) werken net als e-mail, met het LinkedIn-account dat je koppelt.
 - **Taken:** heeft een stap een eigen eigenaar of checklist nodig, maak dan een taak aan die aan de klant is gekoppeld. Taken hebben geen eigen einddatum, dus geef ze een datumveld zoals bij [taakbeheer](/features/task-management).
 - **MCP:** je eigen AI-client, zoals Claude of ChatGPT, kan dezelfde weergaven en gesprekken lezen via [[derived.mcp.tools.total]] MCP-tools en concepten opslaan. Dat werkt ook self-hosted, min de inbox. Zie de [MCP-gids](/docs/mcp).
-- **Webhooks en n8n:** heb je een echte melding nodig, bijvoorbeeld een bericht in je teamchat als een Datum volgende stap voorbij is, laat die dan draaien in n8n of je eigen planner op de REST API. n8n is een apart product met eigen abonnementen. Zie [workflowautomatisering](/features/workflow-automation).
+- **Webhooks en n8n:** heb je de melding ergens anders nodig, bijvoorbeeld een bericht in je teamchat als een Datum volgende stap voorbij is, laat die dan draaien in n8n of je eigen planner op de REST API. n8n is een apart product met eigen abonnementen. Zie [workflowautomatisering](/features/workflow-automation).
 
 ## Waar is Customermates de verkeerde keuze voor klantopvolging?
 
-Customermates publiceert deze pagina, dus lees de vergelijking met dat in je achterhoofd. Het is de verkeerde keuze als je herinneringen nodig hebt die je bereiken, een cadans die zichzelf verstuurt of follow-up per telefoon of sms: er zijn geen meldingen, reeksen, telefonie of sms-kanalen, en geen native mobiele app.
+Customermates publiceert deze pagina, dus lees de vergelijking met dat in je achterhoofd. Het is de verkeerde keuze als je een cadans nodig hebt die zichzelf verstuurt of follow-up per telefoon of sms: er zijn geen reeksen, telefonie of sms-kanalen, en geen native mobiele app.
 
 | Als je nodig hebt | Kijk naar | Waarom |
 |---|---|---|
@@ -256,10 +256,10 @@ Customermates heeft een Free-abonnement voor één persoon met [[commercial.limi
 Customermates helpt bij de controlelus, niet bij de cadans: een opgeslagen weergave toont de klanten van wie de volgende stap aan de beurt is of bij wie jij het laatst schreef, en een routine in Customermates Cloud kan er volgens een schema conceptberichten voor opslaan. Gebruik voor getimede reeksen in meerdere stappen een sequencingtool, en let op dat Customermates geen telefoongesprekken plaatst of registreert, dus een lead die je hebt gebeld zonder antwoord vraagt van jou een notitie en een datum volgende stap.
 </FaqItem>
 <FaqItem question="Heeft Customermates herinneringen of einddatums voor follow-up?">
-Nee. Er zijn geen meldingen, en taken hebben geen ingebouwde einddatum. Voeg een eigen datumveld toe, sorteer een opgeslagen weergave erop en toon het in een Aankomend-widget op je dashboard. Heb je een pushmelding nodig, dan kan n8n of een andere planner die datum via de API lezen en je waarschuwen.
+Herinneringen wel, ingebouwde einddatums niet. Voeg een eigen datumveld toe, sorteer een opgeslagen weergave erop, toon het in een Aankomend-widget op je dashboard en voeg een automatisering toe die je een melding stuurt zodra de datum bereikt is. Heb je een pushmelding op je telefoon nodig, dan kan n8n of een andere planner die datum via de API lezen en je waarschuwen.
 </FaqItem>
 <FaqItem question="Is er een CRM dat deals in e-mailgesprekken vindt en me eraan herinnert op te volgen?">
-Customermates verstuurt geen herinneringen. In Customermates Cloud kan een routine die door een binnenkomende e-mail wordt gestart Mate laten controleren of het gesprek bij een bestaande deal hoort, die deal bijwerken en de Datum volgende stap instellen, binnen de routinelimieten in de [gids over routines](/docs/app-routines#what-are-the-limits). De deal verschijnt dan in je follow-upweergave. Het inboxfilter voor gesprekken waarin jij het laatst schreef dekt de rest.
+Een automatisering op Datum volgende stap verstuurt de herinnering. In Customermates Cloud kan een routine die door een binnenkomende e-mail wordt gestart Mate laten controleren of het gesprek bij een bestaande deal hoort, die deal bijwerken en de Datum volgende stap instellen, binnen de routinelimieten in de [gids over routines](/docs/app-routines#what-are-the-limits). De deal verschijnt dan in je follow-upweergave. Het inboxfilter voor gesprekken waarin jij het laatst schreef dekt de rest.
 </FaqItem>
 <FaqItem question="Kan ik follow-upmails automatiseren?">
 Niet als reeks. Een routine in Customermates Cloud kan volgens een schema losse concepten schrijven, en jij verstuurt ze na het lezen. Ze kan ook versturen als de instructie dat zegt, één bericht per gesprek. Bulk- of reeksen in meerdere stappen vragen een speciale sequencingtool.

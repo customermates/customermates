@@ -131,13 +131,13 @@ cta:
 
 Follow up CRM pomaga dopilnować, żeby kolejny kontakt z każdym klientem się odbył, i pokazuje osobie, która go podejmuje, co zostało powiedziane ostatnio. W Customermates oznacza to rozmowy z LinkedIna i e-maile na rekordzie klienta, następny krok z datą przy każdym kliencie oraz szkice od Mate albo Twojego własnego klienta AI, które sprawdzasz i wysyłasz.
 
-To lista, którą otwierasz sam, a nie przypomnienie, które samo Cię znajduje. Customermates nie wysyła powiadomień z przypomnieniami, nie ma terminów wbudowanych w zadania i nie uruchamia sekwencji e-maili. Jeśli Twój zespół na tym polega, porównanie niżej wskazuje dwa narzędzia, które lepiej się do tego nadają.
+To lista, którą otwierasz sam, a automatyzacja na dacie dodaje przypomnienie, które samo Cię znajduje. Customermates nie ma terminów wbudowanych w zadania i nie uruchamia sekwencji e-maili. Jeśli Twój zespół na tym polega, porównanie niżej wskazuje dwa narzędzia, które lepiej się do tego nadają.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Jak to działa">Pole tekstowe „Następny krok” i pole daty „Data następnego kroku” przy kliencie, zapisane widoki posortowane według tej daty, widżet Nadchodzące na pulpicie i filtr skrzynki odbiorczej dla wątków, na które czekasz.</SummaryItem>
   <SummaryItem label="Plany">Pola dat, zapisane widoki i pulpit działają w każdym planie, także self-hosted. Skrzynka odbiorcza wymaga planu Pro lub wyższego. Mate i rutyny działają tylko w Customermates Cloud.</SummaryItem>
   <SummaryItem label="Pomoc AI">Mate albo Twój własny klient AI przez MCP zapisuje szkic follow up w wątku. Ty sprawdzasz go, edytujesz i wysyłasz. Rutyna może przygotowywać szkice według harmonogramu.</SummaryItem>
-  <SummaryItem label="Czego nie ma">Brak powiadomień, brak terminów w zadaniach, brak sekwencji i masowych e-maili, brak połączeń i SMS-ów. To Ty otwierasz listę; nic Cię nie powiadamia.</SummaryItem>
+  <SummaryItem label="Czego nie ma">Brak wbudowanych terminów w zadaniach, brak sekwencji i masowych e-maili, brak połączeń i SMS-ów. Przypomnienia wysyła automatyzacja, którą ustawiasz na dacie.</SummaryItem>
 </ArticleSummary>
 
 ## Co powinien umieć program do follow up klienta?
@@ -161,7 +161,7 @@ To piątkowa scena z dema wyżej, w kolejności pracy. Nazwy to dane przykładow
 1. **Piątek, 16:42: przychodzi odpowiedź.** Jonas Weber z Halden & Co. odpowiada na LinkedInie: „Możesz wysłać mi zmieniony zakres w przyszłym tygodniu? Wtedy przedstawię go naszemu zarządowi.” Jego rekord kontaktu zawiera profil LinkedIn i adres e-mail w polu **Dane kontaktowe**, więc ten wątek i zeszłomiesięczny wątek e-mail pojawiają się na rekordzie w sekcji **Aktywności** i we [wspólnej skrzynce odbiorczej](/features/unified-inbox).
 2. **Piątek wieczorem: prosisz o szkic.** W wątku poproś Mate: „Przygotuj odpowiedź: zmieniony zakres we wtorek, z dwiema opcjami warsztatów. Ustaw Następny krok na Wysłać zmieniony zakres, a Datę następnego kroku na wtorek.” Mate zapisuje szkic w rozmowie i wypełnia dwa pola. Twój własny klient AI, taki jak Claude czy ChatGPT, może zrobić to samo przez [MCP](/docs/mcp) w Customermates Cloud. Proś o szkic, a nie o wysłanie: Mate wysyła w chwili, gdy mu to powiesz.
 3. **Sprawdzasz i wysyłasz.** Szkic czeka w wątku z przyciskami **Wyślij szkic**, **Edytuj** i **Odrzuć**. Przeczytaj go na tle wątku, popraw sformułowania i wyślij. Wychodzi na LinkedInie z Twojego podłączonego konta jako jedna indywidualna wiadomość.
-4. **Wtorek rano: jest na pulpicie.** Widżet Nadchodzące wypisuje Jonasa pod dzisiejszą datą, a Twój widok „Follow upy” pokazuje tekst z pola **Następny krok** obok daty. Wysyłasz zakres, piszesz jedno zdanie w notatkach i przesuwasz pole **Data następnego kroku** na dzień, w którym sprawdzisz ponownie. Jeśli wtorek minie, w środę Jonas przechodzi do **Po terminie**. Nic Cię nie powiadamia, więc przypomnieniem jest pulpit.
+4. **Wtorek rano: jest na pulpicie.** Widżet Nadchodzące wypisuje Jonasa pod dzisiejszą datą, a Twój widok „Follow upy” pokazuje tekst z pola **Następny krok** obok daty. Wysyłasz zakres, piszesz jedno zdanie w notatkach i przesuwasz pole **Data następnego kroku** na dzień, w którym sprawdzisz ponownie. Jeśli wtorek minie, w środę Jonas przechodzi do **Po terminie**. Automatyzacja na polu **Data następnego kroku** może też powiadomić Cię tego ranka, na stronie Powiadomienia i e-mailem.
 
 | Na rekordzie Jonasa Webera | Wartość | Skąd się bierze |
 |---|---|---|
@@ -199,7 +199,7 @@ Zdanie „Niczego nie wysyłaj” ma znaczenie. Mate wysyła wiadomości bez pon
 Przykład oparty na zdarzeniu: rutyna ustawiona na **Gdy coś się zmieni** dla aktualizacji szans sprzedaży, z instrukcją „Jeśli etap zmienił się na Oferta, ustaw Datę następnego kroku na pięć dni roboczych od dziś i utwórz zadanie «Follow up po ofercie» przypisane do użytkowników przypisanych do szansy sprzedaży.” Zmiany wykonane przez rutynę nigdy nie uruchamiają innych rutyn, więc nie może to wpaść w pętlę.
 
 <AcquisitionCallout title="Czego follow up w Customermates nie obejmuje" variant="boundary">
-  Brak powiadomień i e-maili z przypomnieniami, brak wbudowanego terminu ani stanu po terminie w zadaniach, brak zadań cyklicznych. Brak sekwencji e-maili, kampanii kroplowych i masowej wysyłki; każda wiadomość jest pisana i wysyłana pojedynczo. Widok, który udostępnisz, jest dla Twoich współpracowników tylko do odczytu. Instalacje self-hosted nie mają skrzynki odbiorczej, Mate ani rutyn.
+  Brak wbudowanego terminu ani stanu po terminie w zadaniach i brak zadań cyklicznych; przypomnienia wysyłają automatyzacje na polach dat. Brak sekwencji e-maili, kampanii kroplowych i masowej wysyłki; każda wiadomość jest pisana i wysyłana pojedynczo. Widok, który udostępnisz, jest dla Twoich współpracowników tylko do odczytu. Instalacje self-hosted nie mają skrzynki odbiorczej, Mate ani rutyn.
 </AcquisitionCallout>
 
 ## Jak łączy się z LinkedInem, e-mailem i resztą?
@@ -207,11 +207,11 @@ Przykład oparty na zdarzeniu: rutyna ustawiona na **Gdy coś się zmieni** dla 
 - **Skrzynka odbiorcza (Pro i wyższe):** follow upy wychodzą z oryginalnego kanału, a wątek łączy się z kontaktem przez swoich uczestników, więc historia widnieje na rekordzie. [Rozmowy z LinkedIna](/features/linkedin-integration) działają tak samo jak e-mail, z kontem LinkedIn, które podłączysz.
 - **Zadania:** jeśli krok potrzebuje własnego właściciela albo listy kontrolnej, utwórz zadanie powiązane z klientem. Zadania nie mają własnego terminu, więc dodaj do nich pole Data, jak w [zarządzaniu zadaniami](/features/task-management).
 - **MCP:** Twój własny klient AI, taki jak Claude czy ChatGPT, może czytać te same widoki i wątki przez [[derived.mcp.tools.total]] narzędzi MCP i zapisywać szkice. Działa to także w self-hostingu, minus skrzynka odbiorcza. Zobacz [poradnik o MCP](/docs/mcp).
-- **Webhooki i n8n:** jeśli potrzebujesz prawdziwego powiadomienia, na przykład wiadomości na czacie zespołu, gdy minie Data następnego kroku, uruchom to w n8n albo we własnym harmonogramie przez REST API. n8n to osobny produkt z własnymi planami. Zobacz [automatyzację workflow](/features/workflow-automation).
+- **Webhooki i n8n:** jeśli potrzebujesz powiadomienia gdzie indziej, na przykład wiadomości na czacie zespołu, gdy minie Data następnego kroku, uruchom to w n8n albo we własnym harmonogramie przez REST API. n8n to osobny produkt z własnymi planami. Zobacz [automatyzację workflow](/features/workflow-automation).
 
 ## Kiedy Customermates jest złym wyborem do follow upu klienta?
 
-Customermates publikuje tę stronę, więc pamiętaj o tym, czytając porównanie. To zły wybór, jeśli potrzebujesz przypomnień, które do Ciebie docierają, automatycznej sekwencji kontaktów albo follow upu telefonem lub SMS-em: nie ma powiadomień, sekwencji, telefonii ani kanałów SMS, nie ma też natywnej aplikacji mobilnej.
+Customermates publikuje tę stronę, więc pamiętaj o tym, czytając porównanie. To zły wybór, jeśli potrzebujesz automatycznej sekwencji kontaktów albo follow upu telefonem lub SMS-em: nie ma sekwencji, telefonii ani kanałów SMS, nie ma też natywnej aplikacji mobilnej.
 
 | Jeśli potrzebujesz | Na co spojrzeć | Dlaczego |
 |---|---|---|
@@ -238,10 +238,10 @@ Customermates ma plan Free dla jednej osoby z [[commercial.limit.free.maxRecords
 Customermates pomaga w pętli przeglądu, a nie w rytmie wysyłek: zapisany widok wypisuje klientów, u których następny krok jest do wykonania albo w których wątku Twoja wiadomość była ostatnia, a rutyna w Customermates Cloud może według harmonogramu zapisywać dla nich szkice wiadomości. Do sekwencji w czasie z wieloma krokami użyj narzędzia do sekwencji i pamiętaj, że Customermates nie wykonuje ani nie rejestruje połączeń telefonicznych, więc lead, do którego telefon pozostał bez odpowiedzi, wymaga od Ciebie notatki i daty następnego kroku.
 </FaqItem>
 <FaqItem question="Czy Customermates ma przypomnienia o follow upie albo terminy?">
-Nie. Nie ma powiadomień, a zadania nie mają wbudowanego terminu. Dodaj własne pole Data, posortuj według niego zapisany widok i pokaż je w widżecie Nadchodzące na pulpicie. Jeśli potrzebujesz powiadomienia push, n8n albo inny harmonogram może odczytać tę datę przez API i Cię powiadomić.
+Przypomnienia tak, wbudowane terminy nie. Dodaj własne pole Data, posortuj według niego zapisany widok, pokaż je w widżecie Nadchodzące na pulpicie i dodaj automatyzację, która powiadomi Cię, gdy nadejdzie data. Jeśli potrzebujesz powiadomienia push na telefonie, n8n albo inny harmonogram może odczytać tę datę przez API i Cię powiadomić.
 </FaqItem>
 <FaqItem question="Czy jest CRM, który znajduje szanse sprzedaży w rozmowach e-mail i przypomina mi o follow upie?">
-Customermates nie wysyła przypomnień. W Customermates Cloud rutyna uruchamiana przychodzącym e-mailem może poprosić Mate o sprawdzenie, czy rozmowa należy do istniejącej szansy sprzedaży, zaktualizowanie jej i ustawienie jej Daty następnego kroku, w granicach limitów rutyn z [poradnika o rutynach](/docs/app-routines#what-are-the-limits). Szansa sprzedaży pojawia się wtedy w Twoim widoku follow up. Filtr skrzynki odbiorczej dla wątków, w których ostatnia była Twoja wiadomość, pokrywa resztę.
+Automatyzacja na polu Data następnego kroku wysyła przypomnienie. W Customermates Cloud rutyna uruchamiana przychodzącym e-mailem może poprosić Mate o sprawdzenie, czy rozmowa należy do istniejącej szansy sprzedaży, zaktualizowanie jej i ustawienie jej Daty następnego kroku, w granicach limitów rutyn z [poradnika o rutynach](/docs/app-routines#what-are-the-limits). Szansa sprzedaży pojawia się wtedy w Twoim widoku follow up. Filtr skrzynki odbiorczej dla wątków, w których ostatnia była Twoja wiadomość, pokrywa resztę.
 </FaqItem>
 <FaqItem question="Czy mogę zautomatyzować e-maile follow up?">
 Nie jako sekwencję. Rutyna w Customermates Cloud może według harmonogramu pisać pojedyncze szkice, a Ty wysyłasz je po przeczytaniu. Może też wysyłać, jeśli instrukcja tak mówi, jedną wiadomość na rozmowę. Masowe lub wieloetapowe cykle wymagają dedykowanego narzędzia do sekwencji.
