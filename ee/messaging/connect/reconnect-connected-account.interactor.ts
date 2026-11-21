@@ -18,7 +18,7 @@ import { redirectTo } from "@/features/auth/auth-outcome";
 import { signHostedAuthState } from "../webhook-signature";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { retryAfterPhrase } from "../retry-after.server";
-import { unipileErrorCode } from "../messaging.service";
+import { isUnipileTransientError, unipileErrorCode } from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 import { env } from "@/env";
 import type { ReconnectConnectedAccountRepo } from "./reconnect-connected-account.repo";
@@ -64,7 +64,10 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     } catch (err) {
       if (!(err instanceof UnipileRequestError)) throw err;
 
-      ErrorReporter.captureException(err, { tags: { kind: "unipile-auth-link" } });
+      ErrorReporter.captureException(err, {
+        ...(isUnipileTransientError(err) && { level: "warning" as const }),
+        tags: { kind: "unipile-auth-link" },
+      });
       return fail(unipileErrorCode(err), [], { retryAfter: await retryAfterPhrase(err.retryAfterSeconds) });
     }
 
