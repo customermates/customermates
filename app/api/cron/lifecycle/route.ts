@@ -24,6 +24,7 @@ import {
   getPruneWikiKnowledgeGapsInteractor,
   getSyncStaleWikiSectionsInteractor,
 } from "@/core/di";
+import { isUnipileRateLimit, isUnipileTransientError } from "@/ee/messaging/messaging.service";
 import { env } from "@/env";
 
 export const runtime = "nodejs";
@@ -96,6 +97,11 @@ async function failedSteps(steps: LifecycleStep[]): Promise<StepFailure[]> {
   });
 }
 
+// A Unipile timeout, outage or rate limit is retried by tomorrow's lifecycle run, so it is a warning, not an error.
+function isRetryableUpstreamFailure(error: unknown): boolean {
+  return isUnipileTransientError(error) || isUnipileRateLimit(error);
+}
+
 function stepFailureSummary({ name, error }: StepFailure): string {
   return `${name} (${error instanceof Error ? error.message : String(error)})`;
 }
@@ -117,10 +123,20 @@ export async function GET(req: Request) {
     );
   }
 
-  if (failures.length) {
+  const retryable = failures.filter(({ error }) => isRetryableUpstreamFailure(error));
+  for (const { name, error } of retryable) {
+    ErrorReporter.captureException(error, {
+      level: "warning",
+      tags: { kind: "lifecycle-step", step: name },
+    });
+  }
+
+  const fatal = failures.filter((failure) => !retryable.includes(failure));
+
+  if (fatal.length) {
     throw new AggregateError(
-      failures.map(({ error }) => error),
-      `Lifecycle steps failed: ${failures.map(stepFailureSummary).join(", ")}`,
+      fatal.map(({ error }) => error),
+      `Lifecycle steps failed: ${fatal.map(stepFailureSummary).join(", ")}`,
     );
   }
 
