@@ -1,17 +1,20 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
-import type { AutomationRuleDto, AutomationRulePreview } from "@/features/automation-rules/automation-rule.schema";
+import type { AutomationPaletteKind } from "@/components/automations/automation-palette";
+import type {
+  AutomationRuleDto,
+  AutomationRulePreview,
+  AutomationRuleRunDto,
+} from "@/features/automation-rules/automation-rule.schema";
 import type { AutomationBuilderModel } from "./automation-builder-model";
 import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger, DraftUnavailable } from "./automation-draft";
 import type { WebhookOption } from "./automation-webhook-options";
 
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
 import { Action, Resource } from "@/generated/prisma";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
-import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
-import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { actionData } from "@/core/utils/action-data";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import {
@@ -20,7 +23,7 @@ import {
 } from "@/features/automation-rules/automation-rule.schema";
 
 import {
-  composeAutomationAction,
+  deleteAutomationRuleAction,
   previewAutomationRuleAction,
   setAutomationRuleEnabledAction,
   upsertAutomationRuleAction,
@@ -36,7 +39,6 @@ import {
   effectsForTrigger,
   emptyChainDraft,
   ruleToDraft,
-  seedToDraft,
 } from "./automation-draft";
 
 export type AutomationBuilderContext = {
@@ -48,8 +50,7 @@ export type AutomationBuilderContext = {
   timezone: string;
 };
 
-export type AutomationBuilderScreen = "start" | "chain";
-export type AutomationBuilderPane = "preview" | "runs";
+export type AutomationBuilderPane = "runs" | "settings";
 export type AutomationPaletteSlot = { index: number };
 export type AutomationSaveOutcome = "saved" | "incomplete" | "unavailable" | "failed";
 
@@ -60,7 +61,36 @@ export function automationCardId(issue: string): string | null {
   if (group === "effects") return `effect-${position}`;
   return group === "conditions" ? `condition-${position}` : null;
 }
-export type AutomationBuilderOpenOptions = { pane?: AutomationBuilderPane; typeId?: string; draft?: AutomationDraft };
+export type AutomationBuilderOpenOptions = {
+  pane?: AutomationBuilderPane;
+  typeId?: string;
+  draft?: AutomationDraft;
+  composed?: boolean;
+};
+
+type StepRef = { group: "conditions" | "effects"; index: number };
+
+function stepRef(id: string): StepRef | null {
+  const [kind, position] = id.split("-");
+  const index = Number(position);
+  if (position === undefined || !Number.isInteger(index)) return null;
+  if (kind === "condition") return { group: "conditions", index };
+  return kind === "effect" ? { group: "effects", index } : null;
+}
+
+function stepId(ref: StepRef): string {
+  return `${ref.group === "conditions" ? "condition" : "effect"}-${ref.index}`;
+}
+
+function swapIssues(issues: string[], group: "conditions" | "effects", from: number, to: number): string[] {
+  return issues.map((issue) => {
+    const [head, position, ...rest] = issue.split(".");
+    if (head !== group || position === undefined) return issue;
+    const index = Number(position);
+    const swapped = index === from ? to : index === to ? from : index;
+    return [head, String(swapped), ...rest].join(".");
+  });
+}
 
 function reindexIssues(issues: string[], group: "conditions" | "effects", at: number, shift: 1 | -1): string[] {
   return issues.flatMap((issue) => {
@@ -100,23 +130,20 @@ const BLANK_DRAFT: AutomationDraft = {
 
 export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   context: AutomationBuilderContext | null = null;
-  screen: AutomationBuilderScreen = "start";
-  pane: AutomationBuilderPane = "preview";
+  pane: AutomationBuilderPane = "runs";
   expanded: string | null = null;
+  placeholder = false;
+  replay: AutomationRuleRunDto | null = null;
   palette: AutomationPaletteSlot | null = null;
   invalid: string[] = [];
   preview: AutomationRulePreview | null = null;
   previewLoading = false;
   rule: AutomationRuleDto | null = null;
-  composerText = "";
-  composing = false;
   composedByMate = false;
-  composerRefusal: string | null = null;
   onSaved: ((rule: AutomationRuleDto) => void) | null = null;
 
   private previewTimer: ReturnType<typeof setTimeout> | undefined;
   private previewGeneration = 0;
-  private composeGeneration = 0;
   private openGeneration = 0;
 
   constructor(rootStore: RootStore) {
@@ -124,28 +151,33 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
 
     makeObservable(this, {
       context: observable.ref,
-      screen: observable,
       pane: observable,
       expanded: observable,
+      placeholder: observable,
+      replay: observable.ref,
       palette: observable.ref,
       invalid: observable.ref,
       preview: observable.ref,
       previewLoading: observable,
       rule: observable.ref,
-      composerText: observable,
-      composing: observable,
       composedByMate: observable,
-      composerRefusal: observable,
       unavailable: computed,
       isOwner: computed,
       isAdmin: computed,
       canPauseAsAdmin: computed,
+      canDelete: computed,
+      canDuplicate: computed,
       openForCreate: action,
       openForRule: action,
       applyDraft: action,
-      startFromScratch: action,
       setPane: action,
-      toggleCard: action,
+      select: action,
+      insertStep: action,
+      moveStep: action,
+      duplicateStep: action,
+      removeStep: action,
+      showRun: action,
+      closeRun: action,
       openPalette: action,
       closePalette: action,
       setName: action,
@@ -157,7 +189,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       removeEffect: action,
       addCondition: action,
       addEffect: action,
-      setComposerText: action,
     });
   }
 
@@ -196,6 +227,18 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     return userStore.can(Resource.company, Action.readOwn) || userStore.can(Resource.company, Action.readAll);
   }
 
+  get canDelete(): boolean {
+    return (
+      this.isExisting &&
+      this.rootStore.userStore.can(Resource.routines, Action.delete) &&
+      (this.isAdmin || this.isOwner)
+    );
+  }
+
+  get canDuplicate(): boolean {
+    return this.isExisting && this.allows(Action.create);
+  }
+
   get canAddCondition(): boolean {
     return this.form.conditions.length < AUTOMATION_CONDITION_LIMIT;
   }
@@ -223,26 +266,23 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   private begin(
     context: AutomationBuilderContext,
     draft: AutomationDraft,
-    screen: AutomationBuilderScreen,
     pane: AutomationBuilderPane,
     rule: AutomationRuleDto | null,
     onSaved: (rule: AutomationRuleDto) => void,
+    composed = false,
   ) {
     this.openGeneration += 1;
     this.context = context;
     this.onSaved = onSaved;
     this.rule = rule;
-    this.screen = screen;
     this.pane = pane;
     this.expanded = null;
+    this.placeholder = false;
+    this.replay = null;
     this.palette = null;
     this.invalid = [];
     this.preview = null;
-    this.composerText = "";
-    this.composerRefusal = null;
-    this.composedByMate = false;
-    this.composeGeneration += 1;
-    this.composing = false;
+    this.composedByMate = composed;
     this.onInitOrRefresh({ ...BLANK_DRAFT, ...draft });
     this.open();
     this.schedulePreview(0);
@@ -257,11 +297,12 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.begin(
       context,
       prefilled ?? emptyChainDraft(context.model, { typeId: options.typeId, timezone: context.timezone }),
-      prefilled ? "chain" : "start",
-      "preview",
+      "settings",
       null,
       onSaved,
+      Boolean(prefilled && options.composed),
     );
+    if (!prefilled) this.markBlank();
   };
 
   openForRule = (
@@ -270,52 +311,51 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     onSaved: (rule: AutomationRuleDto) => void,
     options: AutomationBuilderOpenOptions = {},
   ) => {
-    this.begin(
-      context,
-      ruleToDraft(rule, context.model, context.timezone),
-      "chain",
-      options.pane ?? "preview",
-      rule,
-      onSaved,
-    );
+    this.begin(context, ruleToDraft(rule, context.model, context.timezone), options.pane ?? "runs", rule, onSaved);
   };
 
   applyDraft = (draft: AutomationDraft, composed = false) => {
-    this.composeGeneration += 1;
-    this.composing = false;
     this.form = { ...BLANK_DRAFT, ...draft };
-    this.screen = "chain";
     this.composedByMate = composed;
     this.invalid = [];
     this.expanded = null;
+    this.placeholder = false;
+    this.replay = null;
     this.schedulePreview(0);
   };
 
-  startFromScratch = () => {
-    if (!this.context) return;
-    this.applyDraft(
-      emptyChainDraft(this.context.model, { timezone: this.context.timezone, typeId: this.form.trigger.typeId }),
-    );
-  };
+  private markBlank() {
+    this.placeholder = true;
+    this.expanded = "trigger";
+  }
 
   setPane = (pane: AutomationBuilderPane) => {
     this.pane = pane;
   };
 
-  toggleCard = (id: string) => {
-    this.expanded = this.expanded === id ? null : id;
+  select = (id: string | null) => {
+    this.expanded = id;
+    this.palette = null;
+    if (id) this.replay = null;
+  };
+
+  showRun = (run: AutomationRuleRunDto) => {
+    this.replay = run;
+    this.expanded = null;
+    this.palette = null;
+  };
+
+  closeRun = () => {
+    this.replay = null;
   };
 
   openPalette = (slot: AutomationPaletteSlot) => {
     this.palette = slot;
+    this.replay = null;
   };
 
   closePalette = () => {
     this.palette = null;
-  };
-
-  setComposerText = (text: string) => {
-    this.composerText = text;
   };
 
   setName = (name: string) => {
@@ -327,6 +367,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   };
 
   patchTrigger = (patch: Partial<DraftTrigger>) => {
+    this.placeholder = false;
     this.form.trigger = { ...this.form.trigger, ...patch };
     if (this.model) this.form.effects = effectsForTrigger(this.form.effects, this.form.trigger, this.model);
     this.schedulePreview();
@@ -346,6 +387,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const field = list.fields[0];
     next.splice(at, 0, blankCondition(field?.id ?? "", conditionOperatorsFor(field)[0]));
     this.form.conditions = next;
+    this.placeholder = false;
     this.invalid = reindexIssues(this.invalid, "conditions", at, 1);
     this.expanded = `condition-${at}`;
     this.palette = null;
@@ -368,6 +410,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const next = [...this.form.effects];
     next.splice(at, 0, blankEffect(kind, this.model, this.form.trigger.typeId));
     this.form.effects = next;
+    this.placeholder = false;
     this.invalid = reindexIssues(this.invalid, "effects", at, 1).filter((issue) => issue !== "effects");
     this.expanded = `effect-${at}`;
     this.palette = null;
@@ -377,6 +420,76 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.form.effects = this.form.effects.filter((_, item) => item !== index);
     this.invalid = reindexIssues(this.invalid, "effects", index, -1);
     this.expanded = null;
+  };
+
+  insertStep = (position: number, kind: AutomationPaletteKind) => {
+    const conditionCount = this.form.conditions.length;
+    if (kind === "condition") this.addCondition(Math.min(Math.max(0, position - 1), conditionCount));
+    else this.addEffect(kind, Math.max(0, position - 1 - conditionCount));
+  };
+
+  moveStep = (id: string, delta: -1 | 1) => {
+    const ref = stepRef(id);
+    if (!ref) return;
+    const list: unknown[] = ref.group === "conditions" ? [...this.form.conditions] : [...this.form.effects];
+    const to = ref.index + delta;
+    if (to < 0 || to >= list.length) return;
+    [list[ref.index], list[to]] = [list[to], list[ref.index]];
+    if (ref.group === "conditions") this.form.conditions = list as DraftCondition[];
+    else this.form.effects = list as DraftEffect[];
+    this.invalid = swapIssues(this.invalid, ref.group, ref.index, to);
+    this.expanded = stepId({ group: ref.group, index: to });
+    if (ref.group === "conditions") this.schedulePreview();
+  };
+
+  duplicateStep = (id: string) => {
+    const ref = stepRef(id);
+    if (!ref) return;
+    const at = ref.index + 1;
+    if (ref.group === "conditions") {
+      const source = this.form.conditions[ref.index];
+      if (!source || !this.canAddCondition) return;
+      const next = [...this.form.conditions];
+      next.splice(at, 0, toJS(source));
+      this.form.conditions = next;
+      this.schedulePreview();
+    } else {
+      const source = this.form.effects[ref.index];
+      if (!source || !this.canAddEffect) return;
+      const next = [...this.form.effects];
+      next.splice(at, 0, toJS(source));
+      this.form.effects = next;
+    }
+    this.invalid = reindexIssues(this.invalid, ref.group, at, 1);
+    this.expanded = stepId({ group: ref.group, index: at });
+  };
+
+  removeStep = (id: string) => {
+    const ref = stepRef(id);
+    if (!ref) return;
+    if (ref.group === "conditions") this.removeCondition(ref.index);
+    else this.removeEffect(ref.index);
+  };
+
+  duplicateRule = (name: string) => {
+    const context = this.context;
+    const onSaved = this.onSaved;
+    if (!context || !onSaved || !this.canDuplicate) return;
+    const copy = toJS(this.form);
+    this.begin(context, { ...copy, id: undefined, name }, "settings", null, onSaved);
+  };
+
+  deleteRule = async (): Promise<boolean> => {
+    const id = this.form.id;
+    if (!id || !this.canDelete) return false;
+    const result = await deleteAutomationRuleAction({ id });
+    if (!result.ok) {
+      toastZodErrorTree(result.error);
+      return false;
+    }
+    this.close();
+    await this.rootStore.automationsStore.refresh();
+    return true;
   };
 
   private schedulePreview(delay = AUTOMATION_PREVIEW_DELAY_MS) {
@@ -427,43 +540,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     }
   };
 
-  compose = async (): Promise<"drafted" | "refused" | "failed" | "stale"> => {
-    const context = this.context;
-    const sentence = this.composerText.trim();
-    if (!context || !sentence || this.composing) return "failed";
-    const generation = ++this.composeGeneration;
-    runInAction(() => {
-      this.composing = true;
-      this.composerRefusal = null;
-    });
-    try {
-      const result = await composeAutomationAction({ sentence });
-      if (generation !== this.composeGeneration || !this.isOpen) return "stale";
-      if (!result.ok) {
-        if (!notifyIfWorkspaceChanged(result.failure)) toastZodErrorTree(serializedFailureErrorTree(result.failure));
-        return "failed";
-      }
-      if (result.data.status === "refused") {
-        runInAction(() => {
-          this.composerRefusal = result.data.status === "refused" ? result.data.reason : null;
-        });
-        return "refused";
-      }
-      this.applyDraft(seedToDraft(result.data.draft, context.model, context.timezone), true);
-      return "drafted";
-    } catch (error) {
-      if (generation !== this.composeGeneration) return "stale";
-      reportApplicationError(error);
-      return "failed";
-    } finally {
-      if (generation === this.composeGeneration) {
-        runInAction(() => {
-          this.composing = false;
-        });
-      }
-    }
-  };
-
   pauseAsAdmin = async (): Promise<boolean> => {
     const id = this.form.id;
     if (!id || !this.canPauseAsAdmin || this.isLoading) return false;
@@ -502,8 +578,9 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const unavailable = this.unavailable;
     const converted = draftToUpsert(this.form, model);
     const unchosen = this.context ? draftModelIssues(this.form, this.context.runtimes) : [];
-    if (unavailable.length > 0 || !converted.ok || unchosen.length > 0) {
+    if (unavailable.length > 0 || !converted.ok || unchosen.length > 0 || this.placeholder) {
       const issues = [
+        ...(this.placeholder ? ["trigger"] : []),
         ...unavailable.map((entry) => entry.card),
         ...(converted.ok ? [] : converted.issues),
         ...unchosen,
@@ -552,8 +629,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.openGeneration += 1;
     clearTimeout(this.previewTimer);
     this.previewGeneration += 1;
-    this.composeGeneration += 1;
-    this.composing = false;
     return true;
   }
 }

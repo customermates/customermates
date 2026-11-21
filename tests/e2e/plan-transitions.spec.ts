@@ -180,7 +180,7 @@ async function billingControls(page: Page, slug: string) {
 }
 
 function channelCard(page: Page, address: string) {
-  return page.getByRole("button").filter({ hasText: address });
+  return page.locator("#connections-inbox [data-connected-account]", { hasText: address });
 }
 
 const ASK_ADMIN = (plan: string) => `Only workspace admins can change the plan. Ask an admin to choose ${plan}.`;
@@ -259,8 +259,12 @@ test.describe("plans on Customermates Cloud", () => {
     await expect(allowance).toContainText("You are using every routine your Starter plan includes");
     await expect(allowance.getByRole("link", { name: "Upgrade to Pro" })).toBeVisible();
     await expect(page.getByText("Morning digest", { exact: true })).toBeVisible();
-    await page.goto(appPath(slug, "/settings/channels"));
-    await expect(page.locator("[data-locked-feature]")).toContainText(englishMessages.MessagingUpsell.title);
+    // Connections also holds the AI apps and API keys, so only its inbox section carries the plan notice.
+    await page.goto(appPath(slug, "/settings/connections"));
+    await expect(page.locator('[data-upsell-notice="connections-messaging"]')).toContainText(
+      englishMessages.MessagingUpsell.title,
+    );
+    await expect(page.locator("#connections-keys")).toBeVisible();
     await page.goto(appPath(slug, "/settings/webhooks"));
     await expect(page.getByText(hook, { exact: false })).toBeVisible();
 
@@ -285,11 +289,11 @@ test.describe("plans on Customermates Cloud", () => {
     ]);
     expect(await readSurfaces(page, slug)).toEqual(surfaces({}));
     expect(await mateUsage(page, slug)).toBe("Pro plan · 3x Mate usage");
-    await page.goto(appPath(slug, "/settings/channels"));
-    await expect(page.locator("[data-locked-feature]")).toHaveCount(0);
+    await page.goto(appPath(slug, "/settings/connections"));
+    await expect(page.locator('[data-upsell-notice="connections-messaging"]')).toHaveCount(0);
     for (const address of ["first@synthetic.test", "second@synthetic.test"]) {
-      await expect(channelCard(page, address)).toContainText(/Status\s*Deleted/);
-      await expect(channelCard(page, address)).not.toContainText(/Status\s*Connected/);
+      await expect(channelCard(page, address)).toHaveAttribute("data-status", "deleted");
+      await expect(channelCard(page, address)).not.toHaveAttribute("data-status", "ok");
     }
 
     await deliverWebhookBody(request, starterBody);
@@ -356,7 +360,7 @@ test.describe("plans on Customermates Cloud", () => {
         await connectAccount(database, colleague, "outlook", "member-2@synthetic.test", 20),
       ];
 
-      await page.goto(appPath(slug, "/settings/channels"));
+      await page.goto(appPath(slug, "/settings/connections"));
       await page.locator("#settings-channels-connect").click();
       await page.getByRole("menuitem", { name: "Gmail" }).click();
       await expect(page.getByText(englishMessages.ConnectedAccountsCard.accountLimitReached)).toBeVisible();
@@ -385,13 +389,13 @@ test.describe("plans on Customermates Cloud", () => {
       for (const kept of ["admin-1", "member-1"]) expect(noticeText).not.toContain(`${kept}@synthetic.test`);
       expect(sentEmailsTo(member.email).filter((email) => email.subject === REMOVED_NOTICE)).toEqual([]);
 
-      await page.goto(appPath(slug, "/settings/channels"));
-      await expect(channelCard(page, "admin-1@synthetic.test")).toContainText(/Status\s*Connected/);
+      await page.goto(appPath(slug, "/settings/connections"));
+      await expect(channelCard(page, "admin-1@synthetic.test")).toHaveAttribute("data-status", "ok");
       for (const address of ["admin-2", "admin-3"])
-        await expect(channelCard(page, `${address}@synthetic.test`)).toContainText(/Status\s*Deleted/);
-      await member.page.goto(appPath(slug, "/settings/channels"));
-      await expect(channelCard(member.page, "member-1@synthetic.test")).toContainText(/Status\s*Connected/);
-      await expect(channelCard(member.page, "member-2@synthetic.test")).toContainText(/Status\s*Deleted/);
+        await expect(channelCard(page, `${address}@synthetic.test`)).toHaveAttribute("data-status", "deleted");
+      await member.page.goto(appPath(slug, "/settings/connections"));
+      await expect(channelCard(member.page, "member-1@synthetic.test")).toHaveAttribute("data-status", "ok");
+      await expect(channelCard(member.page, "member-2@synthetic.test")).toHaveAttribute("data-status", "deleted");
       await expect(channelCard(member.page, "admin-1@synthetic.test")).toHaveCount(0);
       expect(await inboxState(member.page, slug)).toBe("open");
 
@@ -403,7 +407,7 @@ test.describe("plans on Customermates Cloud", () => {
       await page.keyboard.press("Escape");
       await expect(upsell).toHaveCount(0);
 
-      await member.page.goto(appPath(slug, "/settings/channels"));
+      await member.page.goto(appPath(slug, "/settings/connections"));
       await member.page.locator("#settings-channels-connect").click();
       await member.page.getByRole("menuitem", { name: "Gmail" }).click();
       const memberUpsell = member.page.locator("[data-connect-upsell]");
@@ -432,7 +436,7 @@ test.describe("plans on Customermates Cloud", () => {
         await connectAccount(database, owner, "outlook", "admin-4@synthetic.test", 5),
         await connectAccount(database, owner, "linkedin", "admin-5@synthetic.test", 4),
       );
-      await page.goto(appPath(slug, "/settings/channels"));
+      await page.goto(appPath(slug, "/settings/connections"));
       await page.locator("#settings-channels-connect").click();
       await page.getByRole("menuitem", { name: "Gmail" }).click();
       await expect(page.getByText(englishMessages.ConnectedAccountsCard.accountLimitReached)).toBeVisible();
@@ -1074,30 +1078,32 @@ test.describe("plans on Customermates Cloud", () => {
       const paid = await subscribe(request, workspace, "business", 2);
       const shared = await connectAccount(database, owner, "google", "shared@synthetic.test", 30);
       await shareAccount(database, shared.id);
-      await teammate.page.goto(appPath(slug, "/settings/channels"));
-      await expect(channelCard(teammate.page, "shared@synthetic.test")).toContainText(/Visibility\s*Shared/);
+      await teammate.page.goto(appPath(slug, "/settings/connections"));
+      await expect(
+        channelCard(teammate.page, "shared@synthetic.test").getByText("Shared", { exact: true }),
+      ).toBeVisible();
 
       await moveTo(request, paid, { plan: "pro", quantity: 2 });
       expect(await sharedAccounts(database, workspace.companyId)).toEqual([
         { address: "shared@synthetic.test", shared: false },
       ]);
-      await page.goto(appPath(slug, "/settings/channels"));
-      await channelCard(page, "shared@synthetic.test").click();
+      await page.goto(appPath(slug, "/settings/connections"));
+      await channelCard(page, "shared@synthetic.test").getByRole("button", { name: /shared@synthetic\.test/ }).first().click();
       const dialog = page.getByRole("dialog");
       const visibility = dialog.locator("#connected-account-visibility");
       await expect(visibility).not.toBeChecked();
       await expect(visibility).toBeDisabled();
       await expect(dialog).toContainText("Private");
       await expect(dialog.locator('[data-upsell-notice="shared-accounts"]')).toContainText("Upgrade to Business");
-      await teammate.page.goto(appPath(slug, "/settings/channels"));
+      await teammate.page.goto(appPath(slug, "/settings/connections"));
       await expect(channelCard(teammate.page, "shared@synthetic.test")).toHaveCount(0);
 
       await moveTo(request, paid, { plan: "business", quantity: 2 });
       expect(await sharedAccounts(database, workspace.companyId)).toEqual([
         { address: "shared@synthetic.test", shared: false },
       ]);
-      await page.goto(appPath(slug, "/settings/channels"));
-      await channelCard(page, "shared@synthetic.test").click();
+      await page.goto(appPath(slug, "/settings/connections"));
+      await channelCard(page, "shared@synthetic.test").getByRole("button", { name: /shared@synthetic\.test/ }).first().click();
       await expect(page.getByRole("dialog").locator("#connected-account-visibility")).toBeEnabled();
       await expect(page.getByRole("dialog").locator("#connected-account-visibility")).not.toBeChecked();
       await page.getByRole("dialog").locator("#connected-account-visibility").click();
@@ -1357,10 +1363,17 @@ test.describe("self-hosted installs", () => {
     test.setTimeout(240_000);
     const errors = collectPageErrors(page);
     const slug = workspace.slug;
-    for (const path of ["/settings/billing", "/inbox", "/settings/channels"]) {
+    for (const path of ["/settings/billing", "/inbox"]) {
       await page.goto(appPath(slug, path));
       await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard$"));
     }
+    // Connections holds the AI apps and API keys of a self-hosted install, without the inbox section.
+    await page.goto(appPath(slug, "/settings/channels"));
+    await expect(page).toHaveURL(appUrlPattern(slug, "/settings/connections\\?section=apps$"));
+    await expect(page.locator("#connections-apps")).toBeVisible();
+    await page.goto(appPath(slug, "/settings/connections"));
+    await expect(page.locator("#connections-keys")).toBeVisible();
+    await expect(page.locator("#connections-inbox")).toHaveCount(0);
     await page.goto(appPath(slug, "/routines"));
     await expect(page).toHaveURL(appUrlPattern(slug, "/automations\\?filters=automationKind%3Ain%3Aroutine$"));
     await page.goto(appPath(slug, "/dashboard?agentChat=open"));

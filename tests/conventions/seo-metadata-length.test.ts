@@ -14,6 +14,9 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const TITLE_LIMIT = 60;
+// The owner replaced the 64-character homepage title on 2026-11-21 with one that matches the H1
+// ("Customermates: The AI CRM That Follows Up for You"), so the homepage follows the normal limit again.
+const HOMEPAGE_TITLE_LIMIT = TITLE_LIMIT;
 const TITLE_MINIMUM = 30;
 const DESCRIPTION_LIMIT = 158;
 const DESCRIPTION_MINIMUM = 70;
@@ -82,6 +85,7 @@ function contentMeta(): Meta[] {
 const META = contentMeta();
 
 function limitFor({ collection, locale }: Meta): number {
+  if (collection === "homepage") return HOMEPAGE_TITLE_LIMIT;
   return PAGINATED_HUB_COLLECTIONS.has(collection) ? TITLE_LIMIT - pageSuffixAllowance(locale) : TITLE_LIMIT;
 }
 

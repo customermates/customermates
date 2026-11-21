@@ -22,7 +22,6 @@
       "label": "Role",
       "options": { "author": "Author", "editor": "Editor", "reviewer": "Reviewer", "approver": "Approver", "client_contact": "Client contact", "guest": "Guest or interviewee" }
     },
-    "people.profile_url": { "label": "Profile link" },
     "pieces.owner": { "label": "Owner" },
     "pieces.reviewer": { "label": "Reviewer" },
     "pieces.format": {

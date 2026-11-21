@@ -463,6 +463,11 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       await runWithoutTenant(() => prisma.widget.count({ where: { companyId: ws.companyId, deletedAt: null } })),
     ).toBe(5);
     expect(await runWithoutTenant(() => prisma.dataView.count({ where: { companyId: ws.companyId } }))).toBe(3);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.dataView.count({ where: { companyId: ws.companyId, visibility: "workspace" } }),
+      ),
+    ).toBe(3);
     expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("skip");
   });
 

@@ -857,8 +857,6 @@
     }
   },
   "AgentJobs": {
-    "credits": "Credits used: {credits}",
-    "description": "What your agents did, with the tools they called.",
     "empty": "No agent has run yet.",
     "errors": {
       "contextLimit": "The task needed more context than one run can hold",
@@ -885,7 +883,6 @@
       "toolLimit": "Stopped at the tool call limit"
     },
     "loadFailed": "The agent runs could not be loaded. Try again.",
-    "rule": "Automation: {name}",
     "status": {
       "cancelled": "Cancelled",
       "claimed": "Starting",
@@ -896,7 +893,6 @@
       "timedOut": "Timed out"
     },
     "title": "Recent agent runs",
-    "tokens": "{input} in, {output} out",
     "transcript": {
       "assistant": "Agent",
       "called": "Called {name}",
@@ -920,7 +916,6 @@
   },
   "AgentKeys": {
     "add": "Add key",
-    "checkedAt": "Last checked",
     "endsIn": "Ends in {last4}",
     "fields": {
       "apiKey": "API key",
@@ -931,11 +926,9 @@
       "labelPlaceholder": "Production",
       "provider": "Provider"
     },
-    "intro": "Agents carry out the agent steps of your automations. They can run on Mate, on your own AI key or on a runner on your own machine. Keys are stored encrypted and never shown again.",
     "keysDescription": "Your own API key from Anthropic, OpenAI or Google. Agent steps set to your own key run on it and the provider bills you directly.",
     "keysEmpty": "No provider key yet.",
     "keysTitle": "Provider keys",
-    "lastUsedAt": "Last used",
     "modalTitle": "Add a provider key",
     "planRequired": "Running agents on your own key is included in the paid plans.",
     "providers": {
@@ -950,11 +943,10 @@
   },
   "AgentRuntime": {
     "available": "Available",
-    "description": "Agent steps can run on any of these once it is available in this workspace.",
     "names": {
       "mate": "Mate",
-      "ownKey": "Your own key",
-      "runner": "Your own runner"
+      "ownKey": "Your own AI key",
+      "runner": "Your own computer"
     },
     "reasons": {
       "noKey": "Add a provider key",
@@ -967,8 +959,24 @@
       "mate": "The hosted agent of Customermates, paid with your AI credits.",
       "ownKey": "An agent in our cloud that uses your provider key. The provider bills you.",
       "runner": "Claude Code or Codex on your own machine, under your own login."
+    }
+  },
+  "AgentsPage": {
+    "allRuns": "All runs in Automations",
+    "description": "Pick one per automation. Set up as many as you like here.",
+    "keyChecked": "checked {date}",
+    "keyCount": "{count, plural, one {# key} other {# keys}}",
+    "keyLastUsed": "last used {date}",
+    "mate": {
+      "description": "The agent hosted by Customermates. Its runs use your workspace's AI credits.",
+      "notInPlan": "Your plan does not include Mate yet.",
+      "ready": "Mate is ready for the agent steps of your automations.",
+      "seePlans": "See plans",
+      "selfHosted": "Mate runs in the Customermates cloud, so it is not part of a self-hosted instance.",
+      "usage": "Plan and credits"
     },
-    "title": "Where agents run"
+    "onlineCount": "{count} online",
+    "title": "Where agent steps run"
   },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
@@ -1101,7 +1109,6 @@
       "ownerMissing": "Switched off because it has no owner.",
       "planPaused": "Switched off because the plan allows fewer active rules. It switches on again when the plan does."
     },
-    "edit": "Edit",
     "effect": {
       "agent": "Ask an agent",
       "callWebhook": "Call a webhook",
@@ -1218,14 +1225,12 @@
     },
     "builder": {
       "active": "Active",
-      "addStep": "Add a step",
       "anyList": "Any list",
       "composedNotice": "Mate drafted this from your sentence. Nothing is saved until you switch it on.",
       "if": "If",
       "needsStep": "Add at least one step that does something.",
-      "panesLabel": "Preview and runs",
+      "panesLabel": "Runs and settings",
       "paused": "Paused",
-      "previewTab": "Preview",
       "readOnlyAdminPause": "As an administrator you can still pause it with the switch.",
       "readOnlyNoOwner": "This automation has no owner any more, so nobody can change it.",
       "readOnlyOwner": "Only its owner, {owner}, can change this automation.",
@@ -1233,11 +1238,43 @@
       "removeStep": "Remove step",
       "runsTab": "Runs",
       "switchOn": "Switch on",
-      "then": "Then",
       "webhook": "Webhook",
       "webhookNoneSubscribed": "No webhook has selected the event for automations yet. Select it in the settings of a webhook.",
       "webhookRestricted": "Your role cannot see the webhooks of this workspace, so this step keeps the webhook it has.",
       "when": "When"
+    },
+    "canvas": {
+      "addHere": "Add a step here",
+      "addStep": "Add step",
+      "agentPlaceholder": "Write what the agent should do",
+      "agentStep": "Ask the agent",
+      "chooseEvents": "Choose the events that start it",
+      "closeStep": "Close step",
+      "copyName": "{name} (copy)",
+      "duplicate": "Duplicate step",
+      "duplicateAutomation": "Duplicate automation",
+      "label": "Automation steps",
+      "moveDown": "Move down",
+      "moveUp": "Move up",
+      "noOwner": "No owner",
+      "placeholder": "Choose what starts this automation",
+      "replay": {
+        "back": "Back to editing",
+        "changed": "The automation changed after this run, so some steps could not be matched.",
+        "notRecorded": "Not recorded",
+        "show": "Show on canvas",
+        "showing": "Showing the run from {time}"
+      },
+      "runsAs": "Runs as {name}",
+      "runsOn": "Runs on",
+      "runtime": {
+        "free": "Free · exact steps",
+        "mate": "Mate · agent",
+        "ownKey": "Own AI key · agent",
+        "runner": "Own runner · agent"
+      },
+      "settingsTab": "Settings",
+      "stepActions": "Step actions"
     },
     "columns": {
       "enabled": "Active",
@@ -1396,9 +1433,9 @@
         "agent": "ask your agent to {prompt}",
         "callWebhook": "call a webhook",
         "createRecord": "create a {list}",
-        "kept": "run a step that is kept as it is",
         "notifyAssignees": "notify the assignees",
         "notifyBoth": "notify the owner and the assignees",
+        "notifyMembers": "notify the chosen members",
         "notifyOwner": "notify the owner",
         "setField": "set {field}"
       },
@@ -1409,14 +1446,6 @@
       "somethingForYou": "do something for you"
     },
     "start": {
-      "compose": "Draft it",
-      "composerLabel": "Tell Mate what should happen when …",
-      "composerNote": "Mate drafts the steps. Nothing is saved until you switch it on.",
-      "composerPlaceholder": "… a new enquiry arrives, remind me the next morning to answer it",
-      "exact": "Exact steps, no AI",
-      "noAgent": "No way to run an agent is set up yet, so agent steps will not run.",
-      "recipesBody": "Each recipe is a complete chain. Change anything, give it a name, switch it on.",
-      "recipesTitle": "Start from a recipe",
       "refusal": {
         "credits": "Your Mate credits are used up for this period. Pick a recipe or start from scratch.",
         "invalid": "The draft did not fit your workspace. Try naming the list or the field.",
@@ -1424,10 +1453,7 @@
         "unavailable": "Mate is not available right now. Pick a recipe or start from scratch.",
         "unclear": "Mate could not tell what should happen. Say what sets it off and what it should do.",
         "unsupported": "An automation cannot do that yet. Describe it as a trigger and exact steps."
-      },
-      "scratch": "Start from scratch",
-      "scratchBody": "An empty chain. Pick a trigger, then add steps.",
-      "usesAgent": "Uses an agent"
+      }
     },
     "truncated": "This list holds at most {rules} automations and {routines} routines, and your workspace has more. The ones not listed still run.",
     "unavailable": {
@@ -1448,7 +1474,7 @@
     "chooseCalendar": "Choose a calendar",
     "closed": "Closed",
     "days": "{days, plural, one {# day} other {# days}}",
-    "demoNote": "Booking pages need a connected calendar and are not available in the demo workspace.",
+    "demoNote": "This is the demo workspace: you can look at booking pages, but changes are not saved.",
     "description": "A booking page lets anyone book a meeting in your connected calendar without an account. Visitors see your free times, and each booking creates the calendar event, the person and a record in your CRM.",
     "edit": "Edit",
     "editTitle": "Edit booking page",
@@ -1486,6 +1512,7 @@
       "cancelTitle": "Cancel the booking with {name}?",
       "keep": "Keep booking",
       "loadFailed": "Free times could not be loaded.",
+      "menu": "Actions for the booking with {name}",
       "noSlots": "This page has no other free times.",
       "reschedule": "Reschedule",
       "rescheduleConfirm": "Move booking",
@@ -1501,14 +1528,15 @@
     },
     "minutes": "{minutes} min",
     "new": "New booking page",
+    "newShort": "New page",
     "newTitle": "New booking page",
     "noCalendar": "The calendar of this page is gone, for example because its account was disconnected. Visitors see the page as unavailable until a calendar is chosen. Bookings already made stay.",
     "notice": "{hours, plural, =0 {No minimum notice} one {# hour ahead} other {# hours ahead}}",
     "open": "Open page",
+    "pageActions": "Actions for {title}",
     "pagePreviewHint": "How visitors see this page. The times follow your working hours; busy times in your calendar only apply on the live page.",
     "pagePreviewLabel": "Preview",
     "pagePreviewTitle": "Your booking page",
-    "panelActive": "Active",
     "panelClose": "Close booking pages",
     "panelLocked": "Booking pages need a plan with messaging and access to the inbox.",
     "panelOwner": "Booking pages of {owner}",
@@ -1516,14 +1544,19 @@
     "panelUnavailable": "Unavailable",
     "panelYours": "Your booking pages",
     "paused": "Paused",
+    "placeInPerson": "In person",
+    "placeVideo": "Video call",
     "removeQuestion": "Remove question",
     "roundRobin": "Share this page with colleagues (round robin)",
-    "roundRobinChip": "{count} hosts",
     "roundRobinHint": "A time is offered when at least one host is free. Each booking goes to the free host with the fewest upcoming bookings, into that host's connected calendar. You always host as well.",
     "saved": "Booking page saved",
     "selfHostedNote": "Booking pages use the hosted calendar connection and are not available when self-hosting.",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
     "unavailableField": "Field no longer available",
     "upcoming": "{count, plural, =0 {No upcoming bookings} one {# upcoming booking} other {# upcoming bookings}}",
+    "upcomingCount": "{count} upcoming",
+    "upcomingTitle": "Upcoming bookings",
     "weekdays": {
       "friday": "Friday",
       "monday": "Monday",
@@ -1684,9 +1717,8 @@
       "settings": {
         "activity": "audit log, history, changes, log, Activity, audit log, who changed what",
         "agents": "agents, agent step, AI key, own key, Anthropic, OpenAI, Google, runner, Claude Code, Codex, agent runs, provider keys",
-        "api-keys": "tokens, API, MCP, developer, access keys, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP server, n8n, integration",
         "billing": "plan, subscription, invoices, payment, pricing, upgrade, receipt",
-        "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendars, inbox sync, calendar sync, email sync, SMTP, IMAP, Office 365, Sales Navigator",
+        "connections": "channels, connected accounts, email accounts, LinkedIn, WhatsApp, integrations, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendars, inbox sync, calendar sync, email sync, SMTP, IMAP, Office 365, Sales Navigator, API keys, tokens, API, MCP, developer, access keys, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI apps, MCP server, n8n, integration",
         "general": "workspace name, rename workspace, leave workspace",
         "incoming-webhooks": "inbound webhooks, receive data, secret address, webhook URL, post JSON, create records from other tools, form tool, Zapier, Make, n8n",
         "members": "team, users, people, colleagues, invite, seats",
@@ -2606,7 +2638,6 @@
     "connectedNote": "Connected",
     "connectedToastDescription": "Importing your history in the background. This can take a few minutes, feel free to keep working.",
     "connectedToastTitle": "Channel connected",
-    "description": "Connect the channels your inbox pulls from, like email, WhatsApp and LinkedIn. Channels are private by default and can be shared with your workspace. By connecting one, you authorize us to process its messages, contacts and calendar on your behalf. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink> and <termsOfServiceLink>Terms</termsOfServiceLink>.",
     "disconnect": "Disconnect",
     "disconnectedToastDescription": "This account is no longer connected at the provider. Reconnect it with your current login details.",
     "disconnectedToastTitle": "Account disconnected",
@@ -2659,7 +2690,6 @@
       "comfortable": "Comfortable",
       "compact": "Compact"
     },
-    "emptyState": "You haven't connected any channels yet.",
     "expiredLinkToastDescription": "This connection link has expired. Generate a new one from this page and try again.",
     "expiredLinkToastTitle": "Link expired",
     "failedToastDescription": "Something went wrong. Try again or contact support if it keeps happening.",
@@ -2728,15 +2758,64 @@
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
   "ConnectedApps": {
-    "connect": "Connect an AI app",
-    "connectedSince": "Connected since",
-    "description": "AI apps such as Claude or ChatGPT that you connected to this workspace with your sign-in. Each app acts with your permissions.",
     "disconnectDescription": "{name} loses access to this workspace at once. To use it again, connect it again and approve the access.",
     "disconnectTitle": "Disconnect this app?",
     "empty": "No AI app is connected yet. Connect Claude, ChatGPT or another AI app to work with this workspace from there.",
-    "lastActive": "Last active",
-    "title": "Connected AI apps",
     "toastDisconnected": "App disconnected"
+  },
+  "Connections": {
+    "apps": {
+      "alsoWorksWith": "Also works with",
+      "clients": {
+        "claude": "Claude",
+        "cursor": "Cursor",
+        "gemini": "Gemini",
+        "openai": "ChatGPT"
+      },
+      "connect": "Connect an app",
+      "connected": "Connected",
+      "description": "AI apps you signed in to with your Customermates account. They act with your permissions.",
+      "detail": "since {since} · active {active}",
+      "otherApp": "Other app",
+      "title": "AI apps"
+    },
+    "filterLabel": "Show connections",
+    "filters": {
+      "all": "All",
+      "apps": "AI apps",
+      "inbox": "Inbox",
+      "keys": "API keys"
+    },
+    "inbox": {
+      "actions": "Options for {name}",
+      "capabilities": {
+        "calendar": "Calendar",
+        "email": "Email",
+        "messages": "Messages",
+        "posts": "Posts"
+      },
+      "connect": "Connect account",
+      "description": "Mail, messengers and calendars your inbox and calendar read from. Private unless you share them.",
+      "empty": "No account connected yet. Connect your email, calendar or a messenger to fill your inbox.",
+      "privacyNote": "By connecting an account, you let us process its messages, contacts and calendar for you. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink> and <termsOfServiceLink>Terms</termsOfServiceLink>.",
+      "sharedBy": "shared by {name}",
+      "synced": "synced {time}",
+      "title": "Inbox & calendar"
+    },
+    "keys": {
+      "actions": "Options for {name}",
+      "columns": {
+        "expires": "Expires",
+        "key": "Key",
+        "lastUsed": "Last used",
+        "name": "Name"
+      },
+      "create": "Create key",
+      "created": "Created {date}",
+      "description": "For your own scripts and tools like Zapier.",
+      "empty": "No API key yet.",
+      "title": "API keys"
+    }
   },
   "ContactHistory": {
     "ariaOpenInInbox": "Open in inbox",
@@ -2791,6 +2870,37 @@
       }
     },
     "title": "Let's talk."
+  },
+  "CreatePalette": {
+    "add": {
+      "createListDescription": "Start blank or from a template",
+      "placeholder": "Search what to add"
+    },
+    "automation": {
+      "agent": "Agent",
+      "ai": "Create with AI",
+      "blankDescription": "An empty chain. Pick a trigger, then add steps.",
+      "exact": "Exact",
+      "placeholder": "Describe what should happen, or search templates"
+    },
+    "blank": "Start blank",
+    "hintBrowseAll": "Browse all {count} templates",
+    "hintMatching": "Show matches only",
+    "list": {
+      "ai": "Create list with AI",
+      "aiRequest": "Create a new list in this workspace for this: {text}",
+      "blank": "Blank list",
+      "blankDescription": "Name it, then add fields.",
+      "libraryHeading": "From the template library",
+      "listCount": "{count, plural, one {# list} other {# lists}}",
+      "placeholder": "Describe the list, or search templates",
+      "templateRequest": "Add the lists from the template “{name}” to this workspace. What it covers: {summary}"
+    },
+    "noTemplates": "No template matches. Keep typing or start blank.",
+    "or": "Or",
+    "quoted": "“{text}”",
+    "searchPlaceholder": "Search templates",
+    "templates": "Templates"
   },
   "Dashboard": {
     "activityWidget": {
@@ -3101,6 +3211,7 @@
       "link": "Link",
       "linkPrivate": "Only you can open this link until you share the view.",
       "linkShared": "Teammates who can see this view open it with this link. Others see that it isn't shared with them.",
+      "menu": "Share",
       "menuItem": "Share…",
       "ownShared": "Shared",
       "private": "Only me",
@@ -3132,10 +3243,9 @@
       "savedPrivate": "The view is private again",
       "savedRoles": "Shared with the selected roles",
       "savedWorkspace": "Shared with everyone in this workspace",
+      "saveViewFirst": "Save the current filters as a view to share them",
       "sharedBy": "Shared by {name}",
-      "tabForm": "Form",
-      "tabShare": "Share view",
-      "tabsLabel": "Share options",
+      "thisView": "Share this view",
       "title": "Share “{name}”",
       "withEveryone": "With everyone · only {name} can edit it",
       "withRoles": "With selected roles · only {name} can edit it",
@@ -3974,7 +4084,6 @@
   },
   "NavigationBar": {
     "addEntity": "Add {entity}",
-    "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
     "affiliate": "Affiliate Program",
     "automations": "Automations",
@@ -4005,6 +4114,8 @@
       "consultants": "Consultants",
       "emailAndGmail": "Email and Gmail",
       "freelancers": "Freelancers",
+      "github": "Customermates on GitHub",
+      "githubStars": "Customermates on GitHub, {count, plural, one {# star} other {# stars}}",
       "integrations": "Integrations",
       "jobClientData": "Client data in one place",
       "jobFollowUp": "Follow up every client",
@@ -4078,8 +4189,7 @@
     "turnOffNamedKind": "Turn off {kind}"
   },
   "Notifications": {
-    "dayToday": "Today",
-    "dayYesterday": "Yesterday",
+    "bellLabelUnread": "Notifications, {count} unread",
     "emailMode": {
       "digest": "Daily digest",
       "instant": "Email right away",
@@ -4088,8 +4198,13 @@
     "empty": "You are all caught up.",
     "emptyDescription": "Reminders, replies and automation alerts show up here.",
     "emptyFiltered": "No notifications of this kind so far.",
-    "filterAll": "All",
+    "emptyUnread": "No unread notifications.",
     "filtersLabel": "Filter by kind",
+    "groups": {
+      "earlier": "Earlier",
+      "thisWeek": "This week",
+      "today": "Today"
+    },
     "kindHelp": {
       "dueToday": "Reminders for dates that arrive today.",
       "replyReceived": "When a message you were waiting for arrives.",
@@ -4101,6 +4216,15 @@
       "ruleAlert": "Automation alerts"
     },
     "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "pageFilters": {
+      "all": "All",
+      "dueToday": "Due today",
+      "replyReceived": "Replies",
+      "ruleAlert": "Alerts",
+      "unread": "Unread"
+    },
+    "panelFilterLabel": "Show unread or all notifications",
     "preferences": {
       "description": "The Notifications page always shows everything. Choose here how often each kind from this workspace also reaches you by email.",
       "emailNotConfigured": "Email is not configured on this server, so notifications reach you on the Notifications page only. The person who runs the server can set up email delivery.",
@@ -4114,6 +4238,8 @@
       "pauseOn": "Emails from this workspace are paused until {date}.",
       "title": "Notification emails"
     },
+    "seeAll": "See all notifications",
+    "settings": "Notification settings",
     "turnOff": {
       "body": "{email} will no longer get emails for “{kind}” from {workspace}. They can be switched back on under Profile & preferences.",
       "confirm": "Turn off emails",
@@ -4835,6 +4961,8 @@
   "Planner": {
     "addSource": "Add date source",
     "calendarSync": "Export & subscribe",
+    "closeCalendarSync": "Close export & subscribe",
+    "closeSources": "Close date sources",
     "connectCalendar": "Connect a calendar",
     "createSubscription": "Create subscription URL",
     "download": "Download .ics",
@@ -4929,9 +5057,6 @@
     "caption": "Every client conversation from email, LinkedIn and WhatsApp in one place. Mate sets up your workspace and drafts the follow-up, you review and send. Works with Claude, ChatGPT or any agent that speaks MCP.",
     "play": "Play the film",
     "title": "Customermates product film"
-  },
-  "ProfileSections": {
-    "apiKeysDescription": "Long-lived API keys for programmatic access."
   },
   "PublicBooking": {
     "bookAgain": "Book a new time",
@@ -5058,6 +5183,16 @@
       "workspaceDisabled": "Public links and forms are turned off in this workspace's settings."
     },
     "byline": "Sent to {workspace}",
+    "dialog": {
+      "copyLink": "Copy form link",
+      "description": "People fill it in from a link or on your website, and each entry becomes a record in this list.",
+      "linkCopied": "Form link copied",
+      "loading": "Checking the form …",
+      "menu": "Public form",
+      "none": "Collect entries from a link or your website",
+      "status": "{state, select, on {On} other {Off}} · {count, plural, one {# submission} other {# submissions}}",
+      "title": "Public form for {list}"
+    },
     "errors": {
       "consent": "Agree to continue.",
       "email": "Enter a valid email address.",
@@ -6126,8 +6261,6 @@
     "at": "at",
     "configurationHeading": "Configuration",
     "customSchedule": "This routine uses a custom schedule: {expression}",
-    "detailsTab": "Details",
-    "disabled": "Paused",
     "enabled": "Active",
     "enabledHelp": "This routine can currently be executed.",
     "eventSuppressionNote": "Events caused by routines do not trigger routines.",
@@ -6217,6 +6350,7 @@
     "wednesday": "Wednesday"
   },
   "Runners": {
+    "actions": "Options for {name}",
     "add": "Add runner",
     "addDescription": "Name the machine the runner will run on. You receive a token once, and the runner uses it to pick up your agent jobs in this workspace.",
     "addTitle": "Add a runner",
@@ -6225,24 +6359,25 @@
       "codex": "Codex",
       "gemini": "Gemini CLI"
     },
-    "clients": "CLIs found",
+    "computersTitle": "Your computers",
     "description": "A runner lets your agent steps run with your own Claude Code, Codex or Gemini CLI on your machine. It picks up the jobs of the automations you own, runs the CLI you are signed in to and reports back. Customermates never receives your CLI login.",
     "dockerDescription": "Runs the same runner in a container. Mount the login folder of your CLI so it stays signed in. On macOS Claude Code keeps its login in the Keychain: pass its API key or token as a variable there.",
     "dockerTitle": "Run with Docker",
     "empty": "You have no runner yet. Add one to run agent steps with your own CLI.",
     "installDescription": "Needs Node 24 and one of Claude Code, Codex or Gemini CLI, signed in on that machine.",
     "installTitle": "Run with Node",
-    "lastSeen": "Last seen",
-    "machine": "Machine",
     "noClients": "No CLI found",
     "offline": {
       "body": "Your agent jobs are waiting, and no runner of yours that could take them has connected in the last 10 minutes. Start your runner or check the machine it runs on. A job that waits longer than 15 minutes ends as timed out.",
       "title": "Your runner is offline"
     },
+    "offlineSince": "Offline since {date}",
     "owner": "Added by",
     "revoke": "Revoke",
     "revokeDescription": "{name} can no longer pick up jobs, and the jobs it is running or that wait for it end as cancelled. This cannot be undone. Add a new runner to connect the machine again.",
     "revokeTitle": "Revoke this runner?",
+    "startCommand": "Start command",
+    "startCommandCopied": "Start command copied. It reads the runner token from CUSTOMERMATES_RUNNER_TOKEN.",
     "status": {
       "neverSeen": "Never connected",
       "offline": "Offline",
@@ -6300,9 +6435,8 @@
     "account": "Account",
     "activity": "Audit log",
     "agents": "Agents",
-    "apiKeys": "API keys & connectors",
     "billing": "Billing",
-    "channels": "Channels & calendars",
+    "connections": "Connections",
     "deliveries": "Webhook log",
     "general": "General",
     "incomingWebhooks": "Incoming webhooks",
@@ -6566,10 +6700,8 @@
     "pairedBody": "This template supports our page on {name}.",
     "pairedLink": "Read about {name}",
     "pairedTitle": "Part of a wider solution",
-    "promptCloud": "Cloud",
-    "promptLead": "One self-contained prompt. Choose where your workspace runs, then copy it.",
-    "promptSelfHosted": "Self-hosted",
-    "promptSwitch": "Where your workspace runs",
+    "promptLead": "One prompt for Claude, ChatGPT or Codex. It builds the lists, views, dashboard and record pages for your whole team and fills them from your connected email and LinkedIn once you approve.",
+    "promptOwnInstance": "Running your own instance? The same prompt works there.",
     "promptTitle": "The prompt",
     "proofLead": "Copy this setup into your AI agent and it builds it in your CRM for you to approve.",
     "proofOpen": "Open the template",
@@ -6589,12 +6721,12 @@
     "sourcesTitle": "Sources",
     "stagesTitle": "Stages",
     "startFree": "Start free trial",
-    "step1Body": "Create a free Customermates workspace with this template preselected, or use your own self-hosted instance.",
+    "step1Body": "This template is set up in your new workspace in about a minute.",
     "step1Link": "Start free trial",
-    "step1Title": "Get a workspace",
-    "step2Body": "Copy the prompt below into Claude, ChatGPT or Codex, connected to your workspace. It reads your workspace first and proposes the setup in plain words.",
+    "step1Title": "Start free",
+    "step2Body": "Copy the prompt below into Claude, ChatGPT or Codex, connected to your workspace. It reads your workspace and your connected email and LinkedIn first, then proposes the setup in plain words.",
     "step2Title": "Paste the prompt into your AI agent",
-    "step3Body": "Nothing is written until you say yes. The agent creates no sample records, sends nothing and tells you what exists when it is done.",
+    "step3Body": "Nothing is written until you say yes. The agent shows you the contacts it found before adding them, creates no sample records, sends nothing and tells you what exists when it is done.",
     "step3Title": "Approve the plan",
     "stepsTitle": "How it works",
     "switchKit": {

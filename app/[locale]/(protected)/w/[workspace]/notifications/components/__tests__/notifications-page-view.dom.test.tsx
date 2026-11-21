@@ -93,7 +93,7 @@ const TODAY_UNREAD = notification("1", new Date(NOW.getTime() - 60 * 60 * 1000),
 });
 const TODAY_READ = notification("2", new Date(NOW.getTime() - 2 * 60 * 60 * 1000), { read: true });
 const YESTERDAY_UNREAD = notification("3", new Date(NOW.getTime() - DAY_MS), { kind: "ruleAlert" });
-const EARLIER_UNREAD = notification("4", new Date(NOW.getTime() - 5 * DAY_MS));
+const EARLIER_UNREAD = notification("4", new Date(NOW.getTime() - 10 * DAY_MS));
 
 function inbox(overrides: Partial<NotificationInbox> = {}): NotificationInbox {
   return {
@@ -116,7 +116,32 @@ function render(initialInbox: NotificationInbox) {
 }
 
 function rows() {
-  return [...container.querySelectorAll<HTMLElement>("li > a, li > button")];
+  return [...container.querySelectorAll<HTMLElement>("[data-notification-row]")];
+}
+
+function opener(row: HTMLElement) {
+  return row.querySelector<HTMLElement>("[data-notification-open]");
+}
+
+function markReadButton(row: HTMLElement) {
+  return row.querySelector<HTMLButtonElement>("button[aria-label='Notifications.markRead']");
+}
+
+function headings() {
+  return [...container.querySelectorAll("h2")].map((heading) => heading.textContent);
+}
+
+function segment(label: string) {
+  return [...container.querySelectorAll<HTMLButtonElement>("[role='tab']")].find((tab) => tab.textContent === label);
+}
+
+async function choose(label: string) {
+  const tab = segment(label);
+  await act(async () => {
+    tab?.focus();
+    tab?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+    await Promise.resolve();
+  });
 }
 
 function unreadDots() {
@@ -158,38 +183,33 @@ afterEach(() => {
 });
 
 describe("NotificationsPageView", () => {
-  it("renders the rows grouped by day with title, body, kind, relative time and an unread dot", () => {
+  it("groups the rows into Today and This week with a kind tile, title, body, relative time and an unread dot", () => {
     render(inbox());
 
-    expect([...container.querySelectorAll("h2")].map((heading) => heading.textContent)).toEqual([
-      "Notifications.dayToday",
-      "Notifications.dayYesterday",
-    ]);
+    expect(headings()).toEqual(["Notifications.groups.today", "Notifications.groups.thisWeek"]);
     expect(container.querySelectorAll("section")).toHaveLength(2);
     expect(rows()).toHaveLength(3);
     expect(rows()[0].textContent).toContain("Title 1");
     expect(rows()[0].textContent).toContain("Body one");
-    expect(rows()[0].textContent).toContain("Notifications.kinds.replyReceived");
+    expect(rows()[0].textContent).not.toContain("Notifications.kinds.replyReceived");
     expect(rows()[0].textContent).toContain("just now");
-    expect(rows()[0].getAttribute("href")).toBe("/records/deals");
+    expect(opener(rows()[0])?.getAttribute("href")).toBe("/records/deals");
+    expect(rows()[0].querySelector(".bg-info\\/12")).not.toBeNull();
     expect(unreadDots()).toHaveLength(2);
     expect(rows()[1].querySelector("[role='img']")).toBeNull();
   });
 
-  it("names an older day with the formatted date", () => {
+  it("puts anything older than a week under Earlier", () => {
     render(inbox({ items: [TODAY_READ, EARLIER_UNREAD] }));
 
-    expect([...container.querySelectorAll("h2")].map((heading) => heading.textContent)).toEqual([
-      "Notifications.dayToday",
-      "earlier day",
-    ]);
+    expect(headings()).toEqual(["Notifications.groups.today", "Notifications.groups.earlier"]);
   });
 
   it("marks an unread notification read when its row is opened", async () => {
     harness.markNotificationsReadAction.mockResolvedValue({ ok: true, data: { marked: 1 } });
     render(inbox());
 
-    await click(rows()[0]);
+    await click(opener(rows()[0]));
 
     expect(harness.markNotificationsReadAction).toHaveBeenCalledWith({ ids: [TODAY_UNREAD.id] });
     expect(unreadDots()).toHaveLength(1);
@@ -199,16 +219,28 @@ describe("NotificationsPageView", () => {
     harness.markNotificationsReadAction.mockResolvedValue({ ok: true, data: { marked: 1 } });
     render(inbox());
 
-    await click(rows()[2]);
+    await click(opener(rows()[2]));
 
-    expect(rows()[2].tagName).toBe("BUTTON");
+    expect(opener(rows()[2])?.tagName).toBe("BUTTON");
     expect(harness.markNotificationsReadAction).toHaveBeenCalledWith({ ids: [YESTERDAY_UNREAD.id] });
+  });
+
+  it("marks a row read from its inline button without opening it", async () => {
+    harness.markNotificationsReadAction.mockResolvedValue({ ok: true, data: { marked: 1 } });
+    render(inbox());
+    expect(markReadButton(rows()[1])).toBeNull();
+
+    await click(markReadButton(rows()[0]));
+
+    expect(harness.markNotificationsReadAction).toHaveBeenCalledWith({ ids: [TODAY_UNREAD.id] });
+    expect(rows()[0].hasAttribute("data-unread")).toBe(false);
+    expect(markReadButton(rows()[0])).toBeNull();
   });
 
   it("does not call the server for a notification that is already read", async () => {
     render(inbox());
 
-    await click(rows()[1]);
+    await click(opener(rows()[1]));
 
     expect(harness.markNotificationsReadAction).not.toHaveBeenCalled();
   });
@@ -227,6 +259,14 @@ describe("NotificationsPageView", () => {
     expect(markAll()?.disabled).toBe(true);
   });
 
+  it("links the settings action to the notification preferences", () => {
+    render(inbox());
+
+    expect(barContainer.querySelector("#notifications-settings")?.getAttribute("href")).toBe(
+      "/settings/profile#notification-preferences",
+    );
+  });
+
   it("pages with Load more until the last page", async () => {
     harness.getNotificationsAction.mockResolvedValue({
       ok: true,
@@ -243,19 +283,20 @@ describe("NotificationsPageView", () => {
     expect(button("Common.actions.loadMore")).toBeUndefined();
   });
 
-  it("filters the loaded notifications by kind and explains an empty filter", () => {
+  it("filters by unread and by kind in one segmented control and explains an empty filter", async () => {
     render(inbox({ nextBefore: null }));
-    const chip = (label: string) => button(label);
-    expect(chip("Notifications.filterAll")?.getAttribute("aria-pressed")).toBe("true");
+    expect(segment("Notifications.pageFilters.all")?.dataset.state).toBe("active");
 
-    act(() => chip("Notifications.kinds.ruleAlert")?.click());
+    await choose("Notifications.pageFilters.ruleAlert");
     expect(rows().map((row) => row.textContent)).toEqual([expect.stringContaining("Title 3")]);
-    expect(chip("Notifications.kinds.ruleAlert")?.getAttribute("aria-pressed")).toBe("true");
 
-    act(() => chip("Notifications.kinds.dueToday")?.click());
+    await choose("Notifications.pageFilters.unread");
+    expect(rows()).toHaveLength(2);
+
+    await choose("Notifications.pageFilters.dueToday");
     expect(rows()).toHaveLength(1);
 
-    act(() => chip("Notifications.filterAll")?.click());
+    await choose("Notifications.pageFilters.all");
     expect(rows()).toHaveLength(3);
   });
 

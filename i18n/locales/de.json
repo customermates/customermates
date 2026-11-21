@@ -857,8 +857,6 @@
     }
   },
   "AgentJobs": {
-    "credits": "Verbrauchte Credits: {credits}",
-    "description": "Was deine Agenten getan haben, mit den Werkzeugen, die sie aufgerufen haben.",
     "empty": "Noch kein Agent gelaufen.",
     "errors": {
       "contextLimit": "Die Aufgabe brauchte mehr Kontext, als ein Lauf fassen kann",
@@ -885,7 +883,6 @@
       "toolLimit": "Am Limit der Werkzeugaufrufe gestoppt"
     },
     "loadFailed": "Die Agentenläufe konnten nicht geladen werden. Versuche es noch einmal.",
-    "rule": "Automatisierung: {name}",
     "status": {
       "cancelled": "Abgebrochen",
       "claimed": "Startet",
@@ -896,7 +893,6 @@
       "timedOut": "Zeitüberschreitung"
     },
     "title": "Letzte Agentenläufe",
-    "tokens": "{input} ein, {output} aus",
     "transcript": {
       "assistant": "Agent",
       "called": "{name} aufgerufen",
@@ -920,7 +916,6 @@
   },
   "AgentKeys": {
     "add": "Schlüssel hinzufügen",
-    "checkedAt": "Zuletzt geprüft",
     "endsIn": "Endet auf {last4}",
     "fields": {
       "apiKey": "API-Schlüssel",
@@ -931,11 +926,9 @@
       "labelPlaceholder": "Produktion",
       "provider": "Anbieter"
     },
-    "intro": "Agenten führen die Agent-Schritte deiner Automatisierungen aus. Sie können auf Mate, mit deinem eigenen KI-Schlüssel oder auf einem Runner auf deinem eigenen Rechner laufen. Schlüssel werden verschlüsselt gespeichert und nie wieder angezeigt.",
     "keysDescription": "Dein eigener API-Schlüssel von Anthropic, OpenAI oder Google. Agent-Schritte mit deinem eigenen Schlüssel laufen darauf, und der Anbieter rechnet direkt mit dir ab.",
     "keysEmpty": "Noch kein Anbieter-Schlüssel.",
     "keysTitle": "Anbieter-Schlüssel",
-    "lastUsedAt": "Zuletzt verwendet",
     "modalTitle": "Anbieter-Schlüssel hinzufügen",
     "planRequired": "Agenten mit deinem eigenen Schlüssel auszuführen ist in den kostenpflichtigen Tarifen enthalten.",
     "providers": {
@@ -950,11 +943,10 @@
   },
   "AgentRuntime": {
     "available": "Verfügbar",
-    "description": "Agent-Schritte können auf jeder dieser Möglichkeiten laufen, sobald sie in diesem Workspace verfügbar ist.",
     "names": {
       "mate": "Mate",
-      "ownKey": "Dein eigener Schlüssel",
-      "runner": "Dein eigener Runner"
+      "ownKey": "Dein eigener KI-Schlüssel",
+      "runner": "Dein eigener Computer"
     },
     "reasons": {
       "noKey": "Anbieter-Schlüssel hinzufügen",
@@ -967,8 +959,24 @@
       "mate": "Der gehostete Agent von Customermates, bezahlt mit deinen KI-Credits.",
       "ownKey": "Ein Agent in unserer Cloud, der deinen Anbieter-Schlüssel nutzt. Der Anbieter rechnet mit dir ab.",
       "runner": "Claude Code oder Codex auf deinem eigenen Rechner, mit deinem eigenen Login."
+    }
+  },
+  "AgentsPage": {
+    "allRuns": "Alle Läufe in Automatisierungen",
+    "description": "Wähle pro Automatisierung eine Möglichkeit. Hier richtest du so viele ein, wie du willst.",
+    "keyChecked": "geprüft {date}",
+    "keyCount": "{count, plural, one {# Schlüssel} other {# Schlüssel}}",
+    "keyLastUsed": "zuletzt verwendet {date}",
+    "mate": {
+      "description": "Der von Customermates gehostete Agent. Seine Läufe nutzen die KI-Credits deines Workspace.",
+      "notInPlan": "Dein Tarif enthält Mate noch nicht.",
+      "ready": "Mate ist bereit für die Agent-Schritte deiner Automatisierungen.",
+      "seePlans": "Tarife ansehen",
+      "selfHosted": "Mate läuft in der Customermates-Cloud und gehört deshalb nicht zu einer selbst gehosteten Instanz.",
+      "usage": "Tarif und Credits"
     },
-    "title": "Wo Agenten laufen"
+    "onlineCount": "Online: {count}",
+    "title": "Wo Agent-Schritte laufen"
   },
   "ApiKeyModal": {
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
@@ -1101,7 +1109,6 @@
       "ownerMissing": "Ausgeschaltet, weil sie keine Eigentümerin und keinen Eigentümer hat.",
       "planPaused": "Ausgeschaltet, weil der Tarif weniger aktive Regeln erlaubt. Sie schaltet sich wieder ein, sobald der Tarif es erlaubt."
     },
-    "edit": "Bearbeiten",
     "effect": {
       "agent": "Agenten fragen",
       "callWebhook": "Webhook aufrufen",
@@ -1218,14 +1225,12 @@
     },
     "builder": {
       "active": "Aktiv",
-      "addStep": "Schritt hinzufügen",
       "anyList": "Jede Liste",
       "composedNotice": "Mate hat das aus deinem Satz entworfen. Nichts wird gespeichert, bis du es einschaltest.",
       "if": "Falls",
       "needsStep": "Füge mindestens einen Schritt hinzu, der etwas tut.",
-      "panesLabel": "Vorschau und Läufe",
+      "panesLabel": "Läufe und Einstellungen",
       "paused": "Pausiert",
-      "previewTab": "Vorschau",
       "readOnlyAdminPause": "Als Admin kannst du sie mit dem Schalter weiterhin pausieren.",
       "readOnlyNoOwner": "Diese Automatisierung hat keine Eigentümerin und keinen Eigentümer mehr, deshalb kann sie niemand ändern.",
       "readOnlyOwner": "Diese Automatisierung gehört {owner}. Nur diese Person kann sie ändern.",
@@ -1233,11 +1238,43 @@
       "removeStep": "Schritt entfernen",
       "runsTab": "Läufe",
       "switchOn": "Einschalten",
-      "then": "Dann",
       "webhook": "Webhook",
       "webhookNoneSubscribed": "Noch kein Webhook hat das Ereignis für Automatisierungen ausgewählt. Wähle es in den Einstellungen eines Webhooks aus.",
       "webhookRestricted": "Deine Rolle darf die Webhooks dieses Arbeitsbereichs nicht sehen. Der Schritt behält deshalb seinen Webhook.",
       "when": "Wenn"
+    },
+    "canvas": {
+      "addHere": "Hier einen Schritt einfügen",
+      "addStep": "Schritt hinzufügen",
+      "agentPlaceholder": "Schreib, was der Agent tun soll",
+      "agentStep": "Agent fragen",
+      "chooseEvents": "Wähl die Ereignisse, die sie starten",
+      "closeStep": "Schritt schließen",
+      "copyName": "{name} (Kopie)",
+      "duplicate": "Schritt duplizieren",
+      "duplicateAutomation": "Automatisierung duplizieren",
+      "label": "Schritte der Automatisierung",
+      "moveDown": "Nach unten",
+      "moveUp": "Nach oben",
+      "noOwner": "Ohne Eigentümerin oder Eigentümer",
+      "placeholder": "Wähl aus, was diese Automatisierung startet",
+      "replay": {
+        "back": "Zurück zum Bearbeiten",
+        "changed": "Die Automatisierung wurde nach diesem Lauf geändert, daher lassen sich nicht alle Schritte zuordnen.",
+        "notRecorded": "Nicht erfasst",
+        "show": "Im Ablauf zeigen",
+        "showing": "Lauf von {time}"
+      },
+      "runsAs": "Läuft als {name}",
+      "runsOn": "Läuft auf",
+      "runtime": {
+        "free": "Kostenlos · feste Schritte",
+        "mate": "Mate · Agent",
+        "ownKey": "Eigener KI-Schlüssel · Agent",
+        "runner": "Eigener Runner · Agent"
+      },
+      "settingsTab": "Einstellungen",
+      "stepActions": "Aktionen für den Schritt"
     },
     "columns": {
       "enabled": "Aktiv",
@@ -1396,9 +1433,9 @@
         "agent": "deinen Agenten bitten, {prompt}",
         "callWebhook": "einen Webhook aufrufen",
         "createRecord": "ein Element in {list} anlegen",
-        "kept": "einen unverändert belassenen Schritt ausführen",
         "notifyAssignees": "die Zugewiesenen benachrichtigen",
         "notifyBoth": "die Besitzerin oder den Besitzer und die Zugewiesenen benachrichtigen",
+        "notifyMembers": "die ausgewählten Mitglieder benachrichtigen",
         "notifyOwner": "die Besitzerin oder den Besitzer benachrichtigen",
         "setField": "{field} setzen"
       },
@@ -1409,14 +1446,6 @@
       "somethingForYou": "etwas für dich zu erledigen"
     },
     "start": {
-      "compose": "Entwerfen",
-      "composerLabel": "Sag Mate, was passieren soll, wenn …",
-      "composerNote": "Mate entwirft die Schritte. Nichts wird gespeichert, bis du es einschaltest.",
-      "composerPlaceholder": "… eine neue Anfrage eingeht, erinnere mich am nächsten Morgen daran, sie zu beantworten",
-      "exact": "Genaue Schritte, keine KI",
-      "noAgent": "Es ist noch keine Möglichkeit eingerichtet, einen Agenten auszuführen, daher laufen Agent-Schritte nicht.",
-      "recipesBody": "Jedes Rezept ist eine vollständige Kette. Ändere, was du willst, gib ihr einen Namen und schalte sie ein.",
-      "recipesTitle": "Mit einem Rezept starten",
       "refusal": {
         "credits": "Deine Mate-Credits sind für diesen Zeitraum aufgebraucht. Wähle ein Rezept oder starte von null.",
         "invalid": "Der Entwurf passte nicht zu deinem Arbeitsbereich. Nenne am besten die Liste oder das Feld.",
@@ -1424,10 +1453,7 @@
         "unavailable": "Mate ist gerade nicht verfügbar. Wähle ein Rezept oder starte von null.",
         "unclear": "Mate konnte nicht erkennen, was passieren soll. Sag, was es auslöst und was es tun soll.",
         "unsupported": "Das kann eine Automatisierung noch nicht. Beschreibe es als Auslöser und genaue Schritte."
-      },
-      "scratch": "Von Grund auf neu",
-      "scratchBody": "Eine leere Kette. Wähle einen Auslöser und füge dann Schritte hinzu.",
-      "usesAgent": "Nutzt einen Agenten"
+      }
     },
     "truncated": "Diese Liste fasst höchstens {rules} Automatisierungen und {routines} Routinen, und dein Arbeitsbereich hat mehr. Die nicht aufgeführten laufen weiter.",
     "unavailable": {
@@ -1448,7 +1474,7 @@
     "chooseCalendar": "Kalender wählen",
     "closed": "Geschlossen",
     "days": "{days, plural, one {# Tag} other {# Tage}}",
-    "demoNote": "Buchungsseiten brauchen einen verbundenen Kalender und sind im Demo-Workspace nicht verfügbar.",
+    "demoNote": "Das ist der Demo-Workspace: Du kannst dir Buchungsseiten ansehen, aber Änderungen werden nicht gespeichert.",
     "description": "Auf einer Buchungsseite kann jeder ohne Konto einen Termin in deinem verbundenen Kalender buchen. Besucher sehen deine freien Zeiten, und jede Buchung legt den Termin im Kalender, die Person und einen Datensatz in deinem CRM an.",
     "edit": "Bearbeiten",
     "editTitle": "Buchungsseite bearbeiten",
@@ -1486,6 +1512,7 @@
       "cancelTitle": "Buchung mit {name} stornieren?",
       "keep": "Buchung behalten",
       "loadFailed": "Freie Zeiten konnten nicht geladen werden.",
+      "menu": "Aktionen für die Buchung mit {name}",
       "noSlots": "Diese Seite hat keine anderen freien Zeiten.",
       "reschedule": "Verschieben",
       "rescheduleConfirm": "Buchung verschieben",
@@ -1501,14 +1528,15 @@
     },
     "minutes": "{minutes} Min.",
     "new": "Neue Buchungsseite",
+    "newShort": "Neue Seite",
     "newTitle": "Neue Buchungsseite",
     "noCalendar": "Der Kalender dieser Seite ist nicht mehr da, zum Beispiel weil sein Konto getrennt wurde. Besucher sehen die Seite als nicht verfügbar, bis ein Kalender gewählt ist. Bereits gebuchte Termine bleiben.",
     "notice": "{hours, plural, =0 {Kein Mindestvorlauf} one {# Stunde im Voraus} other {# Stunden im Voraus}}",
     "open": "Seite öffnen",
+    "pageActions": "Aktionen für {title}",
     "pagePreviewHint": "So sehen Besucher diese Seite. Die Zeiten folgen deinen Arbeitszeiten; belegte Zeiten deines Kalenders gelten erst auf der echten Seite.",
     "pagePreviewLabel": "Vorschau",
     "pagePreviewTitle": "Deine Buchungsseite",
-    "panelActive": "Aktiv",
     "panelClose": "Buchungsseiten schließen",
     "panelLocked": "Buchungsseiten brauchen einen Tarif mit Nachrichten und Zugriff auf den Posteingang.",
     "panelOwner": "Buchungsseiten von {owner}",
@@ -1516,14 +1544,19 @@
     "panelUnavailable": "Nicht verfügbar",
     "panelYours": "Deine Buchungsseiten",
     "paused": "Pausiert",
+    "placeInPerson": "Vor Ort",
+    "placeVideo": "Videoanruf",
     "removeQuestion": "Frage entfernen",
     "roundRobin": "Seite mit Kollegen teilen (Round Robin)",
-    "roundRobinChip": "{count} Gastgeber",
     "roundRobinHint": "Eine Zeit wird angeboten, wenn mindestens ein Gastgeber frei ist. Jede Buchung geht an den freien Gastgeber mit den wenigsten anstehenden Buchungen, in dessen verbundenen Kalender. Du bist immer auch Gastgeber.",
     "saved": "Buchungsseite gespeichert",
     "selfHostedNote": "Buchungsseiten nutzen die gehostete Kalenderverbindung und sind beim Self-Hosting nicht verfügbar.",
+    "today": "Heute",
+    "tomorrow": "Morgen",
     "unavailableField": "Feld nicht mehr verfügbar",
     "upcoming": "{count, plural, =0 {Keine anstehenden Buchungen} one {# anstehende Buchung} other {# anstehende Buchungen}}",
+    "upcomingCount": "{count} anstehend",
+    "upcomingTitle": "Anstehende Buchungen",
     "weekdays": {
       "friday": "Freitag",
       "monday": "Montag",
@@ -1684,9 +1717,8 @@
       "settings": {
         "activity": "Audit-Log, Verlauf, Änderungen, Protokoll, Aktivität, Audit-Log, Änderungsprotokoll, wer hat was geändert",
         "agents": "Agenten, Agent-Schritt, KI-Schlüssel, eigener Schlüssel, Anthropic, OpenAI, Google, Runner, Claude Code, Codex, Agentenläufe, Anbieter-Schlüssel",
-        "api-keys": "Token, API, MCP, Entwickler, Zugangsschlüssel, Konnektoren, Connectors, Claude, ChatGPT, Codex, Gemini, Cursor, KI, MCP-Server, n8n, Integration",
         "billing": "Tarif, Abonnement, Rechnungen, Zahlung, Preise, Upgrade, Beleg, Rechnung",
-        "channels": "verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen, Google, Google Kalender, Gmail, Microsoft, Outlook, Instagram, Telegram, Kalender, Postfach-Synchronisierung, Kalender-Synchronisierung, E-Mail-Synchronisierung, SMTP, IMAP, Office 365, Sales Navigator",
+        "connections": "Kanäle, verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen, Google, Google Kalender, Gmail, Microsoft, Outlook, Instagram, Telegram, Kalender, Postfach-Synchronisierung, Kalender-Synchronisierung, E-Mail-Synchronisierung, SMTP, IMAP, Office 365, Sales Navigator, API-Schlüssel, Token, API, MCP, Entwickler, Zugangsschlüssel, Konnektoren, Connectors, Claude, ChatGPT, Codex, Gemini, Cursor, KI-Apps, MCP-Server, n8n, Integration",
         "general": "Workspace-Name, Workspace umbenennen, Workspace verlassen",
         "incoming-webhooks": "eingehende Webhooks, Daten empfangen, geheime Adresse, Webhook-URL, JSON senden, Datensätze aus anderen Tools anlegen, Formular-Tool, Zapier, Make, n8n",
         "members": "Team, Benutzer, Personen, Kollegen, einladen, Plätze, Lizenzen",
@@ -2606,7 +2638,6 @@
     "connectedNote": "Verbunden",
     "connectedToastDescription": "Dein Verlauf wird im Hintergrund importiert. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit weiterarbeiten.",
     "connectedToastTitle": "Kanal verbunden",
-    "description": "Verbinde die Kanäle, aus denen dein Posteingang Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können mit deinem Workspace geteilt werden. Mit dem Verbinden beauftragst du uns, Nachrichten, Kontakte und Kalender des Kontos in deinem Auftrag zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
     "disconnect": "Trennen",
     "disconnectedToastDescription": "Dieses Konto ist beim Anbieter nicht mehr verbunden. Verbinde es mit deinen aktuellen Anmeldedaten neu.",
     "disconnectedToastTitle": "Konto getrennt",
@@ -2659,7 +2690,6 @@
       "comfortable": "Großzügig",
       "compact": "Kompakt"
     },
-    "emptyState": "Du hast noch keine Kanäle verbunden.",
     "expiredLinkToastDescription": "Dieser Verbindungslink ist abgelaufen. Erstelle auf dieser Seite einen neuen und versuche es erneut.",
     "expiredLinkToastTitle": "Link abgelaufen",
     "failedToastDescription": "Da ist etwas schiefgelaufen. Versuche es erneut oder kontaktiere den Support, wenn das Problem bestehen bleibt.",
@@ -2728,15 +2758,64 @@
     "visibilityUpdateFailed": "Sichtbarkeit konnte nicht aktualisiert werden. Bitte erneut versuchen."
   },
   "ConnectedApps": {
-    "connect": "KI-App verbinden",
-    "connectedSince": "Verbunden seit",
-    "description": "KI-Apps wie Claude oder ChatGPT, die du mit deiner Anmeldung mit diesem Workspace verbunden hast. Jede App handelt mit deinen Berechtigungen.",
     "disconnectDescription": "{name} verliert sofort den Zugriff auf diesen Workspace. Um die App wieder zu nutzen, verbinde sie erneut und bestätige den Zugriff.",
     "disconnectTitle": "Diese App trennen?",
     "empty": "Noch ist keine KI-App verbunden. Verbinde Claude, ChatGPT oder eine andere KI-App, um von dort aus mit diesem Workspace zu arbeiten.",
-    "lastActive": "Zuletzt aktiv",
-    "title": "Verbundene KI-Apps",
     "toastDisconnected": "App getrennt"
+  },
+  "Connections": {
+    "apps": {
+      "alsoWorksWith": "Funktioniert auch mit",
+      "clients": {
+        "claude": "Claude",
+        "cursor": "Cursor",
+        "gemini": "Gemini",
+        "openai": "ChatGPT"
+      },
+      "connect": "App verbinden",
+      "connected": "Verbunden",
+      "description": "KI-Apps, bei denen du dich mit deinem Customermates-Konto angemeldet hast. Sie handeln mit deinen Berechtigungen.",
+      "detail": "seit {since} · aktiv {active}",
+      "otherApp": "Andere App",
+      "title": "KI-Apps"
+    },
+    "filterLabel": "Verbindungen anzeigen",
+    "filters": {
+      "all": "Alle",
+      "apps": "KI-Apps",
+      "inbox": "Posteingang",
+      "keys": "API-Schlüssel"
+    },
+    "inbox": {
+      "actions": "Optionen für {name}",
+      "capabilities": {
+        "calendar": "Kalender",
+        "email": "E-Mail",
+        "messages": "Nachrichten",
+        "posts": "Beiträge"
+      },
+      "connect": "Konto verbinden",
+      "description": "Postfächer, Messenger und Kalender, aus denen dein Posteingang und Kalender lesen. Privat, bis du sie teilst.",
+      "empty": "Noch kein Konto verbunden. Verbinde deine E-Mail, deinen Kalender oder einen Messenger, um deinen Posteingang zu füllen.",
+      "privacyNote": "Mit dem Verbinden eines Kontos beauftragst du uns, seine Nachrichten, Kontakte und seinen Kalender für dich zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
+      "sharedBy": "geteilt von {name}",
+      "synced": "synchronisiert {time}",
+      "title": "Posteingang & Kalender"
+    },
+    "keys": {
+      "actions": "Optionen für {name}",
+      "columns": {
+        "expires": "Läuft ab",
+        "key": "Schlüssel",
+        "lastUsed": "Zuletzt verwendet",
+        "name": "Name"
+      },
+      "create": "Schlüssel erstellen",
+      "created": "Erstellt am {date}",
+      "description": "Für deine eigenen Skripte und Tools wie Zapier.",
+      "empty": "Noch kein API-Schlüssel.",
+      "title": "API-Schlüssel"
+    }
   },
   "ContactHistory": {
     "ariaOpenInInbox": "Im Posteingang öffnen",
@@ -2791,6 +2870,37 @@
       }
     },
     "title": "Lassen Sie uns reden."
+  },
+  "CreatePalette": {
+    "add": {
+      "createListDescription": "Leer starten oder mit einer Vorlage",
+      "placeholder": "Suchen, was du hinzufügen willst"
+    },
+    "automation": {
+      "agent": "Agent",
+      "ai": "Mit KI erstellen",
+      "blankDescription": "Eine leere Kette. Wähle einen Auslöser und füge dann Schritte hinzu.",
+      "exact": "Exakt",
+      "placeholder": "Beschreib, was passieren soll, oder such eine Vorlage"
+    },
+    "blank": "Leer starten",
+    "hintBrowseAll": "Alle {count} Vorlagen ansehen",
+    "hintMatching": "Nur Treffer zeigen",
+    "list": {
+      "ai": "Liste mit KI erstellen",
+      "aiRequest": "Leg in diesem Workspace eine neue Liste dafür an: {text}",
+      "blank": "Leere Liste",
+      "blankDescription": "Gib ihr einen Namen und füge dann Felder hinzu.",
+      "libraryHeading": "Aus der Vorlagenbibliothek",
+      "listCount": "{count, plural, one {# Liste} other {# Listen}}",
+      "placeholder": "Beschreib die Liste oder such eine Vorlage",
+      "templateRequest": "Leg die Listen der Vorlage „{name}“ in diesem Workspace an. Worum es geht: {summary}"
+    },
+    "noTemplates": "Keine Vorlage passt. Tipp weiter oder starte leer.",
+    "or": "Oder",
+    "quoted": "„{text}“",
+    "searchPlaceholder": "Vorlagen durchsuchen",
+    "templates": "Vorlagen"
   },
   "Dashboard": {
     "activityWidget": {
@@ -3101,6 +3211,7 @@
       "link": "Link",
       "linkPrivate": "Nur du kannst diesen Link öffnen, bis du die Ansicht teilst.",
       "linkShared": "Teammitglieder, die diese Ansicht sehen dürfen, öffnen sie mit diesem Link. Andere sehen, dass sie nicht mit ihnen geteilt ist.",
+      "menu": "Teilen",
       "menuItem": "Teilen…",
       "ownShared": "Geteilt",
       "private": "Nur ich",
@@ -3132,10 +3243,9 @@
       "savedPrivate": "Die Ansicht ist wieder privat",
       "savedRoles": "Mit den ausgewählten Rollen geteilt",
       "savedWorkspace": "Mit allen in diesem Workspace geteilt",
+      "saveViewFirst": "Speichere die aktuellen Filter als Ansicht, um sie zu teilen",
       "sharedBy": "Geteilt von {name}",
-      "tabForm": "Formular",
-      "tabShare": "Ansicht teilen",
-      "tabsLabel": "Optionen zum Teilen",
+      "thisView": "Diese Ansicht teilen",
       "title": "„{name}“ teilen",
       "withEveryone": "Mit allen · nur {name} kann sie ändern",
       "withRoles": "Mit ausgewählten Rollen · nur {name} kann sie ändern",
@@ -3974,7 +4084,6 @@
   },
   "NavigationBar": {
     "addEntity": "{entity} hinzufügen",
-    "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
     "addPickerTitle": "Neu anlegen…",
     "affiliate": "Affiliate-Programm",
     "automations": "Automatisierungen",
@@ -4005,6 +4114,8 @@
       "consultants": "Beratungen",
       "emailAndGmail": "E-Mail und Gmail",
       "freelancers": "Freelancer",
+      "github": "Customermates auf GitHub",
+      "githubStars": "Customermates auf GitHub, {count, plural, one {# Stern} other {# Sterne}}",
       "integrations": "Integrationen",
       "jobClientData": "Kundendaten an einem Ort",
       "jobFollowUp": "Bei jedem Kunden nachfassen",
@@ -4078,8 +4189,7 @@
     "turnOffNamedKind": "{kind} ausschalten"
   },
   "Notifications": {
-    "dayToday": "Heute",
-    "dayYesterday": "Gestern",
+    "bellLabelUnread": "Benachrichtigungen, {count} ungelesen",
     "emailMode": {
       "digest": "Tägliche Zusammenfassung",
       "instant": "Sofort per E-Mail",
@@ -4088,8 +4198,13 @@
     "empty": "Alles erledigt, nichts Neues.",
     "emptyDescription": "Erinnerungen, Antworten und Hinweise von Automatisierungen erscheinen hier.",
     "emptyFiltered": "Bisher keine Benachrichtigungen dieser Art.",
-    "filterAll": "Alle",
+    "emptyUnread": "Keine ungelesenen Benachrichtigungen.",
     "filtersLabel": "Nach Art filtern",
+    "groups": {
+      "earlier": "Früher",
+      "thisWeek": "Diese Woche",
+      "today": "Heute"
+    },
     "kindHelp": {
       "dueToday": "Erinnerungen an Termine, die heute anstehen.",
       "replyReceived": "Wenn eine Nachricht eintrifft, auf die du wartest.",
@@ -4101,6 +4216,15 @@
       "ruleAlert": "Hinweise von Automatisierungen"
     },
     "markAllRead": "Alle als gelesen markieren",
+    "markRead": "Als gelesen markieren",
+    "pageFilters": {
+      "all": "Alle",
+      "dueToday": "Heute fällig",
+      "replyReceived": "Antworten",
+      "ruleAlert": "Hinweise",
+      "unread": "Ungelesen"
+    },
+    "panelFilterLabel": "Ungelesene oder alle Benachrichtigungen zeigen",
     "preferences": {
       "description": "Die Seite Benachrichtigungen zeigt immer alles. Hier legst du fest, wie oft dich jede Art aus diesem Workspace zusätzlich per E-Mail erreicht.",
       "emailNotConfigured": "Auf diesem Server ist kein E-Mail-Versand eingerichtet, deshalb erreichen dich Benachrichtigungen nur auf der Seite Benachrichtigungen. Wer den Server betreibt, kann den E-Mail-Versand einrichten.",
@@ -4114,6 +4238,8 @@
       "pauseOn": "E-Mails aus diesem Workspace sind bis {date} pausiert.",
       "title": "E-Mails zu Benachrichtigungen"
     },
+    "seeAll": "Alle Benachrichtigungen ansehen",
+    "settings": "Einstellungen für Benachrichtigungen",
     "turnOff": {
       "body": "{email} bekommt dann keine E-Mails mehr zu „{kind}“ aus {workspace}. Unter Profil & Einstellungen lassen sie sich wieder einschalten.",
       "confirm": "E-Mails ausschalten",
@@ -4835,6 +4961,8 @@
   "Planner": {
     "addSource": "Datumsquelle hinzufügen",
     "calendarSync": "Exportieren & abonnieren",
+    "closeCalendarSync": "Exportieren & abonnieren schließen",
+    "closeSources": "Datumsquellen schließen",
     "connectCalendar": "Kalender verbinden",
     "createSubscription": "Abonnement-URL erstellen",
     "download": ".ics herunterladen",
@@ -4929,9 +5057,6 @@
     "caption": "Jedes Kundengespräch aus E-Mail, LinkedIn und WhatsApp an einem Ort. Mate richtet Ihren Workspace ein und entwirft das Nachfassen, Sie prüfen und senden. Funktioniert mit Claude, ChatGPT oder jedem Agenten, der MCP spricht.",
     "play": "Film abspielen",
     "title": "Customermates-Produktfilm"
-  },
-  "ProfileSections": {
-    "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
   },
   "PublicBooking": {
     "bookAgain": "Neue Zeit buchen",
@@ -5058,6 +5183,16 @@
       "workspaceDisabled": "Öffentliche Links und Formulare sind in den Einstellungen dieses Workspace ausgeschaltet."
     },
     "byline": "Gesendet an {workspace}",
+    "dialog": {
+      "copyLink": "Formular-Link kopieren",
+      "description": "Leute füllen es über einen Link oder auf deiner Website aus, und jeder Eintrag wird ein Datensatz in dieser Liste.",
+      "linkCopied": "Formular-Link kopiert",
+      "loading": "Formular wird geprüft …",
+      "menu": "Öffentliches Formular",
+      "none": "Einträge über einen Link oder deine Website sammeln",
+      "status": "{state, select, on {An} other {Aus}} · {count, plural, one {# Einsendung} other {# Einsendungen}}",
+      "title": "Öffentliches Formular für {list}"
+    },
     "errors": {
       "consent": "Stimme zu, um fortzufahren.",
       "email": "Gib eine gültige E-Mail-Adresse ein.",
@@ -6126,8 +6261,6 @@
     "at": "um",
     "configurationHeading": "Konfiguration",
     "customSchedule": "Diese Routine nutzt einen eigenen Zeitplan: {expression}",
-    "detailsTab": "Details",
-    "disabled": "Pausiert",
     "enabled": "Aktiv",
     "enabledHelp": "Diese Routine kann derzeit ausgeführt werden.",
     "eventSuppressionNote": "Von Routinen verursachte Ereignisse lösen keine Routinen aus.",
@@ -6217,6 +6350,7 @@
     "wednesday": "Mittwoch"
   },
   "Runners": {
+    "actions": "Optionen für {name}",
     "add": "Runner hinzufügen",
     "addDescription": "Gib den Rechner an, auf dem der Runner läuft. Du erhältst einmalig einen Token, mit dem der Runner deine Agent-Aufträge in diesem Workspace abholt.",
     "addTitle": "Runner hinzufügen",
@@ -6225,24 +6359,25 @@
       "codex": "Codex",
       "gemini": "Gemini CLI"
     },
-    "clients": "Gefundene CLIs",
+    "computersTitle": "Deine Computer",
     "description": "Mit einem Runner laufen deine Agent-Schritte mit deinem eigenen Claude Code, Codex oder Gemini CLI auf deinem Rechner. Er holt die Aufträge der Automatisierungen ab, die dir gehören, führt die CLI aus, bei der du angemeldet bist, und meldet das Ergebnis zurück. Customermates erhält nie deine CLI-Anmeldung.",
     "dockerDescription": "Startet denselben Runner in einem Container. Binde den Anmeldeordner deiner CLI ein, damit sie angemeldet bleibt. Unter macOS liegt die Anmeldung von Claude Code im Schlüsselbund: Übergib dort den API-Schlüssel oder Token als Variable.",
     "dockerTitle": "Mit Docker starten",
     "empty": "Du hast noch keinen Runner. Füge einen hinzu, um Agentenschritte mit deiner eigenen CLI auszuführen.",
     "installDescription": "Benötigt Node 24 und Claude Code, Codex oder Gemini CLI, auf diesem Rechner angemeldet.",
     "installTitle": "Mit Node starten",
-    "lastSeen": "Zuletzt gesehen",
-    "machine": "Rechner",
     "noClients": "Keine CLI gefunden",
     "offline": {
       "body": "Deine Agent-Aufträge warten, und seit 10 Minuten hat sich kein Runner von dir verbunden, der sie übernehmen könnte. Starte deinen Runner oder prüfe den Rechner, auf dem er läuft. Ein Auftrag, der länger als 15 Minuten wartet, endet mit Zeitüberschreitung.",
       "title": "Dein Runner ist offline"
     },
+    "offlineSince": "Offline seit {date}",
     "owner": "Hinzugefügt von",
     "revoke": "Widerrufen",
     "revokeDescription": "{name} kann keine Aufträge mehr abholen, und die Aufträge, die er gerade ausführt oder die auf ihn warten, enden als abgebrochen. Das lässt sich nicht rückgängig machen. Füge einen neuen Runner hinzu, um den Rechner erneut zu verbinden.",
     "revokeTitle": "Diesen Runner widerrufen?",
+    "startCommand": "Startbefehl",
+    "startCommandCopied": "Startbefehl kopiert. Er liest das Runner-Token aus CUSTOMERMATES_RUNNER_TOKEN.",
     "status": {
       "neverSeen": "Nie verbunden",
       "offline": "Offline",
@@ -6300,9 +6435,8 @@
     "account": "Konto",
     "activity": "Audit-Log",
     "agents": "Agenten",
-    "apiKeys": "API-Schlüssel & Konnektoren",
     "billing": "Abrechnung",
-    "channels": "Kanäle & Kalender",
+    "connections": "Verbindungen",
     "deliveries": "Webhook-Protokoll",
     "general": "Allgemein",
     "incomingWebhooks": "Eingehende Webhooks",
@@ -6566,10 +6700,8 @@
     "pairedBody": "Diese Vorlage ergänzt unsere Seite zu {name}.",
     "pairedLink": "Mehr zu {name}",
     "pairedTitle": "Teil einer größeren Lösung",
-    "promptCloud": "Cloud",
-    "promptLead": "Ein in sich geschlossener Prompt. Wählen Sie, wo Ihr Arbeitsbereich läuft, und kopieren Sie ihn.",
-    "promptSelfHosted": "Selbst gehostet",
-    "promptSwitch": "Wo Ihr Arbeitsbereich läuft",
+    "promptLead": "Ein Prompt für Claude, ChatGPT oder Codex. Er baut Listen, Ansichten, Dashboard und Detailseiten für Ihr ganzes Team und füllt sie nach Ihrer Freigabe aus Ihren verbundenen E-Mail- und LinkedIn-Konten.",
+    "promptOwnInstance": "Sie betreiben eine eigene Instanz? Der gleiche Prompt funktioniert auch dort.",
     "promptTitle": "Der Prompt",
     "proofLead": "Kopieren Sie diesen Aufbau in Ihren KI-Agenten, und er baut ihn in Ihrem CRM zur Genehmigung auf.",
     "proofOpen": "Vorlage öffnen",
@@ -6589,12 +6721,12 @@
     "sourcesTitle": "Quellen",
     "stagesTitle": "Phasen",
     "startFree": "Kostenlos testen",
-    "step1Body": "Legen Sie einen kostenlosen Customermates-Arbeitsbereich an, in dem diese Vorlage vorgewählt ist, oder nutzen Sie Ihre eigene selbst gehostete Instanz.",
+    "step1Body": "Diese Vorlage ist in Ihrem neuen Arbeitsbereich in etwa einer Minute eingerichtet.",
     "step1Link": "Kostenlos testen",
-    "step1Title": "Arbeitsbereich anlegen",
-    "step2Body": "Kopieren Sie den Prompt unten in Claude, ChatGPT oder Codex, verbunden mit Ihrem Arbeitsbereich. Der Agent liest zuerst Ihren Arbeitsbereich und beschreibt den Aufbau in einfachen Worten.",
+    "step1Title": "Kostenlos starten",
+    "step2Body": "Kopieren Sie den Prompt unten in Claude, ChatGPT oder Codex, verbunden mit Ihrem Arbeitsbereich. Der Agent liest zuerst Ihren Arbeitsbereich und Ihre verbundenen E-Mail- und LinkedIn-Konten und beschreibt den Aufbau dann in einfachen Worten.",
     "step2Title": "Prompt in Ihren KI-Agenten einfügen",
-    "step3Body": "Es wird nichts geschrieben, bevor Sie zustimmen. Der Agent legt keine Beispieldaten an, versendet nichts und sagt Ihnen am Ende, was vorhanden ist.",
+    "step3Body": "Es wird nichts geschrieben, bevor Sie zustimmen. Der Agent zeigt Ihnen die gefundenen Kontakte, bevor er sie anlegt, erstellt keine Beispieldaten, versendet nichts und sagt Ihnen am Ende, was vorhanden ist.",
     "step3Title": "Plan genehmigen",
     "stepsTitle": "So funktioniert es",
     "switchKit": {

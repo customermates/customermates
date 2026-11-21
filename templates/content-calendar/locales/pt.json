@@ -22,7 +22,6 @@
       "label": "Papel",
       "options": { "author": "Autor", "editor": "Editor", "reviewer": "Revisor", "approver": "Aprovador", "client_contact": "Contato do cliente", "guest": "Convidado ou entrevistado" }
     },
-    "people.profile_url": { "label": "Link do perfil" },
     "pieces.owner": { "label": "Responsável" },
     "pieces.reviewer": { "label": "Revisor" },
     "pieces.format": {

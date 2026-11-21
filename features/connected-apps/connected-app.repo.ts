@@ -1,6 +1,7 @@
 export type ConnectedAppGrant = {
   clientId: string;
   name: string;
+  device: string | null;
   connectedAt: Date;
   lastActiveAt: Date;
   refreshableUntil: Date;

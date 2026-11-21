@@ -17,10 +17,11 @@ type Props = {
   account?: MarketingAccount;
   appMode: AppMode;
   children: React.ReactNode;
+  githubStars?: number | null;
   templatesInNav?: boolean;
 };
 
-export function MarketingShell({ account: knownAccount, appMode, children, templatesInNav }: Props) {
+export function MarketingShell({ account: knownAccount, appMode, children, githubStars, templatesInNav }: Props) {
   const pathname = usePathname();
   const isDocs = pathname === "/docs" || pathname.startsWith("/docs/");
   const { accountState, markSignedOut, profile } = useMarketingAccountState(knownAccount, !isDocs, pathname);
@@ -32,6 +33,7 @@ export function MarketingShell({ account: knownAccount, appMode, children, templ
     <PublicScrollport
       accountState={accountState}
       appMode={appMode}
+      githubStars={githubStars}
       hasValidSession={accountState !== "unauthenticated"}
       onboardingIntent={onboardingIntent}
       profile={profile}

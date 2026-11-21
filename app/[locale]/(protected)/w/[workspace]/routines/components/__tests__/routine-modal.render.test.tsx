@@ -8,25 +8,29 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RoutineTriggerKind } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
-  breakpoint: "",
   store: null as unknown as TestRoutineStore,
-  wide: true,
+  wide: false,
 }));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 vi.mock("@/hooks/use-media-query", () => ({
-  useIsWiderThan: (breakpoint: string) => {
-    harness.breakpoint = breakpoint;
-    return harness.wide;
-  },
+  useIsWiderThan: () => harness.wide,
 }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ routineModalStore: harness.store, routineRunChatStore: {} }),
+}));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({ formatRelativeTime: () => "just now", formatTime: () => "08:00" }),
+}));
+vi.mock("@/components/ui/tooltip", () => ({
+  Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
+  TooltipTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  TooltipContent: () => null,
 }));
 vi.mock("@/app/components/agent-chat/agent-chat-store-context", () => ({
   AgentChatStoreProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -40,14 +44,16 @@ vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
 vi.mock("@/components/modal", () => ({
   AppModal: ({
     actions = [],
+    controls,
     children,
-    size,
   }: {
     actions?: { id: string; label: string; onClick: () => unknown }[];
+    controls?: { node: ReactNode };
     children: ReactNode;
-    size: string;
   }) => (
-    <div data-modal-size={size}>
+    <div data-modal>
+      {controls?.node}
+
       <div data-modal-actions>
         {actions.map((action) => (
           <button key={action.id} id={action.id} type="button" onClick={() => void action.onClick()}>
@@ -66,17 +72,20 @@ vi.mock("@/components/card/app-card", () => ({
 vi.mock("@/components/card/app-card-header", () => ({
   AppCardHeader: ({ children }: { children: ReactNode }) => <header>{children}</header>,
 }));
-vi.mock("@/components/card/app-card-body", () => ({
-  AppCardBody: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
-    <div data-app-card-body {...props}>
-      {children}
-    </div>
-  ),
-}));
-vi.mock("@/components/forms/form-footer-actions", () => ({
-  FormFooterActions: ({ store }: { store: { canManage: boolean } }) =>
-    store.canManage ? (
-      <div data-form-actions>
+vi.mock("@/components/automations/canvas/automation-flow-canvas", async () => {
+  const { AutomationStepColumn } = await import("@/components/automations/canvas/automation-step-column");
+  return {
+    AutomationFlowCanvas: (props: Parameters<typeof AutomationStepColumn>[0]) => (
+      <div data-flow>
+        <AutomationStepColumn {...props} />
+      </div>
+    ),
+  };
+});
+vi.mock("@/components/forms/unsaved-changes-bar", () => ({
+  UnsavedChangesBar: ({ store }: { store: { canManage: boolean; hasUnsavedChanges: boolean } }) =>
+    store.canManage && store.hasUnsavedChanges ? (
+      <div data-slot="unsaved-changes-bar">
         <button id="routine-modal-save" type="submit">
           save
         </button>
@@ -92,6 +101,12 @@ vi.mock("../routine-configuration-pane", () => ({
       configuration
     </div>
   ),
+}));
+vi.mock("../routine-trigger-fields", () => ({
+  RoutineTriggerFields: () => <div data-trigger-fields>trigger</div>,
+}));
+vi.mock("../routine-agent-fields", () => ({
+  RoutineAgentFields: () => <div data-agent-fields>agent</div>,
 }));
 vi.mock("../routine-run-detail", () => ({
   ROUTINE_RUN_CHAT_UI_TARGETS: {},
@@ -110,32 +125,52 @@ vi.mock("../routine-runs-pane", () => ({
 import { RoutineModal } from "../routine-modal";
 
 class TestRoutineStore {
-  activeTab: "details" | "runs" = "details";
+  activeTab: "details" | "runs" = "runs";
+  selectedStep: "trigger" | "agent" | null = null;
   form = {
     id: "routine-1" as string | undefined,
     name: "Daily digest",
+    prompt: "Draft follow-ups for deals due today",
     enabled: true,
     triggerKind: RoutineTriggerKind.schedule,
+    timezone: "Europe/Berlin",
+    triggerEvents: [] as string[],
+    owner: { firstName: "Max", lastName: "Bergmann", avatarUrl: null, status: "active" },
   };
-  openRun_: { id: string } | null = null;
+  openRun_: { id: string; status: string; createdAt: Date } | null = null;
   hasUnsavedChanges = false;
   isOwner = true;
   isAdmin = false;
   canManage = true;
+  canCreate = true;
   isLoading = false;
   isStartingRun = false;
+  latestRunAt: Date | null = null;
+  compiledCron = "0 8 * * 1-5";
+  rootStore = { userStore: { user: null }, automationsStore: { refresh: vi.fn() } };
 
   get isReadOnly() {
     return !this.canManage;
   }
 
+  get canAdministerOtherRoutine() {
+    return this.isAdmin && !this.isOwner;
+  }
+
+  allows = () => this.canCreate;
+  getError = () => undefined;
+  onChange = vi.fn();
   setActiveTab = (value: "details" | "runs") => {
     this.activeTab = value;
+  };
+  selectStep = (step: "trigger" | "agent" | null) => {
+    this.selectedStep = step;
   };
   closeRun = () => {
     this.openRun_ = null;
   };
   runNow = vi.fn();
+  duplicate = vi.fn();
   delete = vi.fn();
   pause = vi.fn();
 }
@@ -154,11 +189,12 @@ function expectUniqueIds() {
   expect(new Set(ids).size).toBe(ids.length);
 }
 
+const step = (id: string) => container.querySelector<HTMLButtonElement>(`[data-automation-step="${id}"]`);
+
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   harness.store = new TestRoutineStore();
-  harness.wide = true;
-  harness.breakpoint = "";
+  harness.wide = false;
   renderVersion = 0;
   container = document.createElement("div");
   document.body.append(container);
@@ -170,66 +206,45 @@ afterEach(() => {
   container.remove();
 });
 
-describe("RoutineModal responsive rendering", () => {
-  it("keeps a read-own owner read-only without Save, Test, or Delete controls", () => {
-    harness.store.canManage = false;
-
+describe("RoutineModal on the automation canvas", () => {
+  it("renders a routine as a schedule trigger and one Ask the agent node with the Mate badge", () => {
     render();
 
-    expect(container.querySelector("[data-configuration-pane]")?.getAttribute("data-read-only")).toBe("true");
-    expect(container.querySelector("#routine-modal-save")).toBeNull();
-    expect(container.querySelector("#routines-run-now")).toBeNull();
-    expect(container.querySelector("#delete-routine")).toBeNull();
+    expect(
+      [...container.querySelectorAll("[data-automation-step]")].map((node) =>
+        node.getAttribute("data-automation-step"),
+      ),
+    ).toEqual(["trigger", "agent"]);
+    expect(step("trigger")?.textContent).toContain("Automations.builder.when");
+    expect(step("agent")?.textContent).toContain("Automations.canvas.agentStep");
+    expect(step("agent")?.textContent).toContain("Automations.runsOn.mate");
+    expect(step("agent")?.textContent).toContain("Draft follow-ups for deals due today");
+    expect(container.querySelector("[data-automation-add]")).toBeNull();
+    expect(container.querySelector("[data-automation-step-toolbar]")).toBeNull();
+    expect(container.querySelector("[data-automation-runtime]")?.textContent).toBe("Automations.canvas.runtime.mate");
+    expectUniqueIds();
   });
 
-  it("keeps Test for a manage-capable owner and adds Delete only for a system administrator", () => {
+  it("opens the instructions in the panel when the agent node is chosen, and the schedule for the trigger", () => {
     render();
-
-    expect(container.querySelector("#routines-run-now")).not.toBeNull();
-    expect(container.querySelector("#routine-modal-save")).toBeNull();
-    harness.store.hasUnsavedChanges = true;
-    render();
-    expect(container.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
-    expect(container.querySelector("#routine-modal-save")).not.toBeNull();
-    expect(container.querySelector("#delete-routine")).toBeNull();
-
-    harness.store.isAdmin = true;
-    render();
-    expect(container.querySelector("#routines-run-now")).not.toBeNull();
-    expect(container.querySelector("#delete-routine")).not.toBeNull();
-
-    harness.store.isOwner = false;
-    harness.store.canManage = false;
-    render();
-    expect(container.querySelector("#routine-modal-save")).toBeNull();
-    expect(container.querySelector("#routines-run-now")).toBeNull();
-    expect(container.querySelector("#delete-routine")).not.toBeNull();
-  });
-
-  it("renders existing routines as a divider-free 5xl split with no desktop tablist", () => {
-    render();
-
-    expect(harness.breakpoint).toBe("lg");
-    expect(container.querySelector("[data-modal-size='5xl']")).not.toBeNull();
-    const layout = container.querySelector("[data-routine-layout='wide']");
-    expect(layout).not.toBeNull();
-    expect(layout?.className).toContain("gap-6");
-    expect(layout?.className).not.toContain("divide-");
-    expect(container.querySelector("[data-configuration-pane]")).not.toBeNull();
     expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
-    expect(container.querySelector("[role='tablist']")).toBeNull();
-    expectUniqueIds();
+
+    act(() => step("agent")?.click());
+    render();
+    expect(harness.store.selectedStep).toBe("agent");
+    expect(container.querySelector("[data-agent-fields]")).not.toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).toBeNull();
+    expect(container.querySelector("[data-automation-panel='sheet']")).not.toBeNull();
+
+    act(() => step("trigger")?.click());
+    render();
+    expect(container.querySelector("[data-trigger-fields]")).not.toBeNull();
   });
 
-  it("renders compact Details/Runs tabs and keeps create configuration-only", () => {
-    harness.wide = false;
+  it("shows Runs and Settings when nothing is selected, and only settings for a new routine", () => {
     render();
-
-    expect(container.querySelector("[data-modal-size='lg']")).not.toBeNull();
-    expect(container.querySelector("[role='tablist']")).not.toBeNull();
-    expect(container.querySelector("#routine-tab-details")).not.toBeNull();
     expect(container.querySelector("#routine-tab-runs")).not.toBeNull();
-    expectUniqueIds();
+    expect(container.querySelector("#routine-tab-details")).not.toBeNull();
 
     harness.store.form.id = undefined;
     render();
@@ -240,32 +255,67 @@ describe("RoutineModal responsive rendering", () => {
     expectUniqueIds();
   });
 
-  it("renders a selected run as the full modal across resize and returns to compact Runs", () => {
-    harness.store.openRun_ = { id: "run-1" };
-    harness.store.activeTab = "runs";
+  it("keeps a read-own owner read-only without Save, Run now, or Delete controls", () => {
+    harness.store.canManage = false;
+    harness.store.canCreate = false;
+    harness.store.activeTab = "details";
+
     render();
+
+    expect(container.querySelector("[data-configuration-pane]")?.getAttribute("data-read-only")).toBe("true");
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    expect(container.querySelector("#routines-run-now")).toBeNull();
+    expect(container.querySelector("#delete-routine")).toBeNull();
+    expect(container.querySelector<HTMLButtonElement>("#routine-active")?.disabled).toBe(true);
+  });
+
+  it("keeps Run now for a manage-capable owner and adds Delete only for a system administrator", () => {
+    render();
+    expect(container.querySelector("#routines-run-now")).not.toBeNull();
+    expect(container.querySelector("#routine-duplicate")).not.toBeNull();
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    harness.store.hasUnsavedChanges = true;
+    render();
+    expect(container.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
+    expect(container.querySelector("#delete-routine")).toBeNull();
+
+    harness.store.isAdmin = true;
+    render();
+    expect(container.querySelector("#delete-routine")).not.toBeNull();
+
+    harness.store.isOwner = false;
+    harness.store.canManage = false;
+    harness.store.hasUnsavedChanges = false;
+    render();
+    expect(container.querySelector("#routines-run-now")).toBeNull();
+    expect(container.querySelector("#delete-routine")).not.toBeNull();
+    expect(container.querySelector<HTMLButtonElement>("#routine-active")?.disabled).toBe(false);
+  });
+
+  it("replays a selected run on the canvas and returns with Back to editing", () => {
+    harness.store.openRun_ = { id: "run-1", status: "failed", createdAt: new Date() };
+    render();
+
     expect(container.querySelector("[data-routine-layout='run']")).not.toBeNull();
-    expect(container.querySelectorAll('[role="region"][aria-label="RoutineDetail.runDetails"]')).toHaveLength(1);
-    expect(container.querySelector("[data-configuration-pane]")).toBeNull();
-    expect(container.querySelector("[data-runs-pane]")).toBeNull();
     expect(container.querySelector("[data-run-detail='run-1']")).not.toBeNull();
-    expect(container.querySelector("[data-form-actions]")).toBeNull();
-    expect(container.querySelector("[data-modal-actions]")?.children).toHaveLength(1);
+    expect(container.querySelector("[data-slot='unsaved-changes-bar']")).toBeNull();
+    const mark = (id: string) =>
+      step(id)?.parentElement?.querySelector("[data-automation-step-mark]")?.getAttribute("data-automation-step-mark");
+    expect(mark("trigger")).toBe("ok");
+    expect(mark("agent")).toBe("failed");
 
-    harness.wide = false;
-    render();
-    expect(harness.store.openRun_?.id).toBe("run-1");
-    expect(container.querySelector("[data-routine-layout='run']")).not.toBeNull();
-    expect(container.querySelector("[data-configuration-pane]")).toBeNull();
-    expect(container.querySelector("[role='tablist']")).toBeNull();
-    expectUniqueIds();
-
-    act(() => container.querySelector<HTMLButtonElement>("#routine-run-back")?.click());
+    act(() => container.querySelector<HTMLButtonElement>("[data-automation-replay-back]")?.click());
     render();
     expect(harness.store.openRun_).toBeNull();
-    expect(harness.store.activeTab).toBe("runs");
     expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
-    expect(container.querySelector("[data-form-actions]")).toBeNull();
     expectUniqueIds();
+  });
+
+  it("uses the React Flow canvas on wide screens", () => {
+    harness.wide = true;
+    render();
+
+    expect(container.querySelector("[data-flow]")).not.toBeNull();
+    expect(container.querySelector("[data-automation-panel='sheet']")).toBeNull();
   });
 });

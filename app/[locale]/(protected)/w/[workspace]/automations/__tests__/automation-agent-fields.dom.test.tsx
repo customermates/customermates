@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
-import type { RootStore } from "@/core/stores/root.store";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { DraftAgent } from "../components/automation-draft";
@@ -35,16 +34,11 @@ vi.mock("@/components/ui/select", () => ({
   SelectItem: ({ children, value }: { children: ReactNode; value: string }) => <li data-value={value}>{children}</li>,
 }));
 
-import { Zap } from "lucide-react";
-
-import { AutomationCard, AutomationConnector } from "@/components/automations/automation-card";
 import { UpsertAutomationRuleSchema } from "@/features/automation-rules/automation-rule.schema";
 import { AutomationPalette } from "@/components/automations/automation-palette";
 
 import { AGENT_SETTINGS_HREF, AutomationAgentFields } from "../components/automation-agent-fields";
 import { toAutomationBuilderModel } from "../components/automation-builder-model";
-import { AutomationBuilderStore } from "../components/automation-builder.store";
-import { AutomationCardChain } from "../components/automation-card-chain";
 import { AutomationConditionFields } from "../components/automation-condition-fields";
 import { blankAgentEffect, blankCondition, emptyDraft } from "../components/automation-draft";
 import { AutomationEffectFields } from "../components/automation-effect-fields";
@@ -517,25 +511,6 @@ describe("the trigger card", () => {
 });
 
 describe("the step palette and the keyboard", () => {
-  function chainStore(webhooks: [] | null = []) {
-    const store = new AutomationBuilderStore({
-      registerModalStore: vi.fn(),
-      userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
-      localeStore: { getTranslation: (key: string) => key },
-    } as unknown as RootStore);
-    act(() => {
-      store.openForCreate(
-        { model: MODEL, runtimes: runtimes(), webhooks, composer: false, cloud: false, timezone: "UTC" },
-        vi.fn(),
-        { typeId: DEALS },
-      );
-      store.startFromScratch();
-    });
-    return store;
-  }
-
-  const connectors = () => [...container.querySelectorAll<HTMLButtonElement>("[data-automation-connector] button")];
-
   it("closes on Escape without letting the key reach the dialog around it", () => {
     const onClose = vi.fn();
     const outer = vi.fn();
@@ -563,135 +538,6 @@ describe("the step palette and the keyboard", () => {
     });
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(outer).toHaveBeenCalledTimes(1);
-  });
-
-  it("switches Call a webhook off, with the reason, for a member who cannot see webhooks", () => {
-    const item = () => container.querySelector<HTMLButtonElement>('[data-automation-palette-item="callWebhook"]');
-
-    const restricted = chainStore(null);
-    mount(<AutomationCardChain store={restricted} />);
-    act(() => connectors()[0]?.click());
-    expect(item()?.disabled).toBe(true);
-    expect(item()?.querySelector("[data-automation-palette-reason]")?.textContent).toBe(
-      "Automations.palette.callWebhook.restricted",
-    );
-    expect(item()?.textContent).not.toContain("Automations.palette.callWebhook.hint");
-    act(() => item()?.click());
-    expect(restricted.form.effects).toEqual([]);
-
-    const visible = chainStore([]);
-    mount(<AutomationCardChain store={visible} />);
-    act(() => connectors()[0]?.click());
-    expect(item()?.disabled).toBe(false);
-    expect(item()?.querySelector("[data-automation-palette-reason]")).toBeNull();
-    expect(item()?.textContent).toContain("Automations.palette.callWebhook.hint");
-  });
-
-  it("puts the focus on the card that was just added", () => {
-    const store = chainStore();
-    mount(<AutomationCardChain store={store} />);
-
-    act(() => connectors()[0]?.click());
-    act(() => container.querySelector<HTMLButtonElement>('[data-automation-palette-item="notify"]')?.click());
-
-    const header = container.querySelector('[data-automation-card="effect-0"] button[aria-expanded="true"]');
-    expect(header).not.toBeNull();
-    expect(document.activeElement).toBe(header);
-
-    act(() => connectors()[0]?.click());
-    act(() => container.querySelector<HTMLButtonElement>('[data-automation-palette-item="condition"]')?.click());
-    expect(document.activeElement).toBe(
-      container.querySelector('[data-automation-card="condition-0"] button[aria-expanded="true"]'),
-    );
-  });
-
-  it("moves the focus to the neighbouring card, or to the last +, after a step is removed", () => {
-    const store = chainStore();
-    act(() => {
-      store.addEffect("notify", 0);
-      store.addEffect("agent", 1);
-      store.addCondition(0);
-    });
-    mount(<AutomationCardChain store={store} />);
-    const header = (card: string) =>
-      container.querySelector<HTMLButtonElement>(`[data-automation-card="${card}"] button[aria-expanded]`);
-    const removeOpenCard = (card: string) => {
-      if (header(card)?.getAttribute("aria-expanded") !== "true") act(() => header(card)?.click());
-      const buttons = [...container.querySelectorAll<HTMLButtonElement>(`[data-automation-card="${card}"] button`)];
-      act(() => buttons.find((button) => button.textContent === "Automations.builder.removeStep")?.click());
-    };
-
-    removeOpenCard("condition-0");
-    expect(store.form.conditions).toHaveLength(0);
-    expect(document.activeElement).toBe(header("effect-0"));
-
-    removeOpenCard("effect-0");
-    expect(store.form.effects.map((effect) => effect.kind)).toEqual(["agent"]);
-    expect(document.activeElement).toBe(header("effect-0"));
-
-    removeOpenCard("effect-0");
-    expect(store.form.effects).toEqual([]);
-    expect(connectors()).toHaveLength(1);
-    expect(document.activeElement).toBe(connectors()[0]);
-  });
-
-  it("hands the focus back to the + it was opened from when it is closed without a choice", () => {
-    const store = chainStore();
-    act(() => store.addEffect("notify", 0));
-    mount(<AutomationCardChain store={store} />);
-
-    act(() => connectors()[1]?.click());
-    const search = container.querySelector<HTMLInputElement>("[data-automation-palette] input");
-    act(() => {
-      search?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
-    });
-
-    expect(container.querySelector("[data-automation-palette]")).toBeNull();
-    expect(store.isOpen).toBe(true);
-    expect(document.activeElement).toBe(connectors()[1]);
-  });
-});
-
-describe("a card of someone else's automation", () => {
-  const card = (readOnly: boolean) => (
-    <AutomationCard
-      expanded
-      cardId="effect-0"
-      icon={Zap}
-      kindLabel="Then"
-      readOnly={readOnly}
-      removeLabel="Remove step"
-      sentence="notify the owner"
-      onRemove={vi.fn()}
-      onToggle={vi.fn()}
-    >
-      <input aria-label="Title" />
-    </AutomationCard>
-  );
-
-  it("can be opened and read, but every field in it is switched off and it cannot be removed", () => {
-    mount(card(true));
-
-    expect(container.querySelector("fieldset")?.disabled).toBe(true);
-    expect(container.querySelector("input")?.matches(":disabled")).toBe(true);
-    expect(container.querySelector('button[aria-expanded="true"]')?.matches(":disabled")).toBe(false);
-    expect(container.textContent).not.toContain("Remove step");
-  });
-
-  it("stays editable and removable for its owner", () => {
-    mount(card(false));
-
-    expect(container.querySelector("fieldset")?.disabled).toBe(false);
-    expect(container.querySelector("input")?.matches(":disabled")).toBe(false);
-    expect(container.textContent).toContain("Remove step");
-  });
-
-  it("shows the line between cards without the button that adds a step", () => {
-    mount(<AutomationConnector active={false} label="Add a step" />);
-    expect(container.querySelector("button")).toBeNull();
-
-    mount(<AutomationConnector active={false} label="Add a step" onAdd={vi.fn()} />);
-    expect(container.querySelector("button")?.getAttribute("aria-label")).toBe("Add a step");
   });
 });
 

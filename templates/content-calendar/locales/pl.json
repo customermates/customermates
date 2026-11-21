@@ -22,7 +22,6 @@
       "label": "Rola",
       "options": { "author": "Autor", "editor": "Redaktor", "reviewer": "Recenzent", "approver": "Osoba akceptująca", "client_contact": "Kontakt po stronie klienta", "guest": "Gość lub rozmówca" }
     },
-    "people.profile_url": { "label": "Link do profilu" },
     "pieces.owner": { "label": "Osoba odpowiedzialna" },
     "pieces.reviewer": { "label": "Recenzent" },
     "pieces.format": {

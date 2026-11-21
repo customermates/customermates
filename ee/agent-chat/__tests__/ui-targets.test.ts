@@ -121,21 +121,24 @@ describe("agent interface targets", () => {
     expect(agentRouteVisible("/settings/agents", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/agents", "cloud", reads(Resource.company))).toBe(true);
     expect(agentRouteVisible("/settings/members", "cloud", reads(Resource.users))).toBe(true);
-    expect(agentRouteVisible("/settings/api-keys", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/connections", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/connections", "cloud", reads(Resource.inboxMessages))).toBe(true);
+    expect(agentRouteVisible("/settings/connections", "self-hosted", reads(Resource.inboxMessages))).toBe(false);
+    expect(agentRouteVisible("/settings/connections", "self-hosted", reads(Resource.api))).toBe(true);
     expect(agentRouteVisible("/settings/profile", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/dashboard", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/automations", "cloud", reads(Resource.wiki))).toBe(false);
     expect(agentRouteVisible("/automations", "cloud", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/automations", "self-hosted", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
-    for (const path of ["/inbox", "/settings/channels", "/settings/billing"])
+    for (const path of ["/inbox", "/settings/billing"])
       expect(agentRouteVisible(path, "self-hosted", everything), path).toBe(false);
     expect(agentRouteVisible("*", "cloud", reads())).toBe(true);
   });
 
   it("names every routable target's page with the label keys the sidebar can show", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
-    expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
+    expect(agentUiPageLabelKeys("/settings/connections")).toEqual(["SettingsNav.connections"]);
     expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
     expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual(["SettingsNav.incomingWebhooks"]);
     expect(agentUiPageLabelKeys("/settings/agents")).toEqual(["SettingsNav.agents"]);
@@ -187,15 +190,15 @@ describe("agent interface targets", () => {
     const expected: Record<string, string> = {
       "webhook-modal-delete": "a webhook row",
       "role-modal-delete": "a role row",
-      "api-key-delete": "an API key card",
+      "api-key-delete": "an API key row",
       "webhook-delivery-modal-resend": "a delivery row",
-      "connected-account-tab-details": "a channel card",
-      "connected-account-tab-email": "a channel card",
-      "connected-account-tab-folders": "a channel card",
-      "connected-account-visibility": "a channel card",
-      "connected-account-resync": "a channel card",
-      "connected-account-reactivate": "a channel card",
-      "connected-account-disconnect": "a channel card",
+      "connected-account-tab-details": "an account row",
+      "connected-account-tab-email": "an account row",
+      "connected-account-tab-folders": "an account row",
+      "connected-account-visibility": "an account row",
+      "connected-account-resync": "an account row",
+      "connected-account-reactivate": "an account row",
+      "connected-account-disconnect": "an account row",
     };
     for (const [id, opener] of Object.entries(expected)) expect(findAgentUiTarget(id)?.prerequisite, id).toBe(opener);
     expect(findAgentUiTarget("invite-modal-tab-email")?.prerequisite).toBe("settings-members-add");

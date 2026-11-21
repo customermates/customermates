@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import type { NotificationPreferencesDto } from "@/features/notifications/notification.schema";
 
+import { NOTIFICATION_PREFERENCES_ANCHOR } from "@/app/components/notifications/notification-links";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -78,7 +79,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
 
   if (initial.emailConfigured === false) {
     return (
-      <AppCard className="max-w-3xl">
+      <AppCard className="max-w-3xl scroll-mt-20" id={NOTIFICATION_PREFERENCES_ANCHOR}>
         <AppCardHeader className="flex-col items-start gap-1">
           <h2 className="text-base font-semibold">{t("Notifications.preferences.title")}</h2>
         </AppCardHeader>
@@ -93,7 +94,7 @@ export function NotificationPreferencesCard({ initial }: Props) {
   }
 
   return (
-    <AppCard className="max-w-3xl">
+    <AppCard className="max-w-3xl scroll-mt-20" id={NOTIFICATION_PREFERENCES_ANCHOR}>
       <AppCardHeader className="flex-col items-start gap-1">
         <h2 className="text-base font-semibold">{t("Notifications.preferences.title")}</h2>
 

@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Dis-moi ce que tu as trouvé avant d’écrire quoi que ce soit : combien de chaque sorte, avec quelques exemples. Attends mon accord et laisse de côté ce que je refuse.",
+    "none": "Si aucun compte n’est connecté, dis-le en une phrase, propose de connecter Gmail, Outlook ou LinkedIn avec connect_messaging_account, et continue avec des listes vides.",
+    "propose": "À partir de là, repère les personnes, organisations et demandes ou affaires ouvertes qui ont leur place dans les nouvelles listes, chacune avec l’adresse ou le profil d’où elle vient. Ignore les newsletters, les expéditeurs no-reply, les notifications et les personnes déjà présentes dans l’espace de travail.",
+    "read": "Si des comptes sont connectés, lis les fils d’e-mails et les conversations LinkedIn récents avec get_messaging_threads, et les prochains rendez-vous avec get_calendars quand une liste suit des rendez-vous.",
+    "write": "Crée ensuite les fiches approuvées avec import_crm_records, avec les adresses e-mail, numéros de téléphone et profils comme identités dans le champ coordonnées, pour que leurs conversations s’y rattachent toutes seules. Rattache une conversation à une affaire ou une organisation avec manage_conversation_records seulement quand elle lui appartient clairement."
+  },
   "anchorFields": {
     "channels": "Coordonnées",
     "price": "Prix",
@@ -9,6 +16,7 @@
     "rule": "une règle d’automatisation",
     "unavailable": "pas encore disponible, ne pas configurer"
   },
+  "contactDetails": "Les adresses e-mail, numéros de téléphone et profils sociaux vont uniquement dans le champ intégré des coordonnées (type de champ channels, affiché dans l’app comme Téléphone, e-mail et réseaux sociaux), jamais dans un champ texte ou lien. C’est ainsi que les messages et les conversations se rattachent tout seuls à la bonne fiche.",
   "defaultView": {
     "marker": "vue par défaut",
     "rule": "Une vue marquée comme vue par défaut est la vue intégrée de la liste qui affiche tous les enregistrements : configure-la là plutôt que de créer une deuxième vue, puis sélectionne-la à la fin pour que la liste s’ouvre dessus."
@@ -39,12 +47,13 @@
   "groupedBy": "groupé par {field}",
   "headings": {
     "beforeYouWrite": "Avant d’écrire quoi que ce soit",
+    "connectedAccounts": "Remplir les listes depuis mes comptes connectés",
     "dashboardWidgets": "Widgets du tableau de bord",
     "followUpRoutines": "Routines de suivi",
-    "getWorkspace": "Obtenir un espace de travail",
     "knowledgePages": "Pages de la base de connaissances (plans seulement, à remplir avec mes propres informations)",
     "listsAndFields": "Listes et champs",
     "questions": "Questions pour moi",
+    "recordDetails": "Détail des fiches",
     "relationships": "Relations",
     "rules": "Règles",
     "thisWorkspace": "Cet espace de travail",
@@ -58,9 +67,14 @@
   "nameOnly": "nom uniquement",
   "procedure": {
     "askQuestions": "Pose d’abord les questions de la fin. Laisse vide tout ce qui est inconnu au lieu de deviner.",
+    "checkAccounts": "Vérifie quels comptes sont connectés (connectedAccounts dans get_workspace_context, ou manage_connected_accounts avec list) : Gmail, Outlook, une autre messagerie par IMAP et LinkedIn.",
     "describePlan": "Décris le plan ci-dessous en termes simples, adapté à mes réponses, et attends mon accord avant de modifier quoi que ce soit.",
     "readContext": "Appelle get_workspace_context et lis le guide opérationnel, ainsi que les listes, champs, vues et pages de la base de connaissances existants.",
     "reuse": "Réutilise ce qui existe déjà. Ne crée jamais une deuxième liste pour ce que l’espace de travail suit déjà."
+  },
+  "recordDetails": {
+    "order": "Range les champs de chaque liste dans l’ordre indiqué ci-dessus avec configure_record_model (la position du champ), pour que toute l’équipe voie d’abord les champs les plus importants sur la page de détail.",
+    "pins": "Épingle ensuite l’étape, la prochaine date et le montant clé de chaque liste dans ta propre mise en page de détail avec manage_record_detail_layout. Les épingles sont personnelles, alors dis-moi lesquelles l’équipe devrait aussi épingler."
   },
   "relationship": "{source} sont liés à {target} (affichés comme {sourceLabel} sur {source} et {targetLabel} sur {target})",
   "roadRules": {
@@ -76,11 +90,14 @@
     "optional": "facultative"
   },
   "routinesIntro": "Propose-les comme un ensemble. Ne configure que celles marquées comme disponibles et parle-moi des autres.",
+  "sharing": {
+    "views": "Crée chaque vue avec manage_data_views et partage-la avec tout l’espace de travail (share avec visibility workspace), pour que toute l’équipe puisse l’ouvrir.",
+    "widgets": "Crée chaque widget sur le tableau de bord principal avec manage_widgets et isTemplate true, pour que toute l’équipe le voie."
+  },
   "workspace": {
-    "cloud": "Crée un espace de travail Customermates sur {url} et connecte ton assistant. Le modèle y est présélectionné.",
     "connected": "Tu es déjà connecté à l’espace de travail Customermates qui accueillera ce modèle. Travaille dedans et n’en crée pas un autre.",
     "connectedAt": "Cet espace de travail existe déjà et tu y es connecté par MCP à l’adresse {mcpUrl}. Travaille dans cet espace de travail et dans aucun autre.",
     "existsAt": "Cet espace de travail existe déjà, mais ton assistant n’y est pas encore connecté. Connecte-le par MCP à l’adresse {mcpUrl}, avec une clé API tirée de Paramètres, Clés API et connecteurs. Tant que la connexion manque, demande-moi de la terminer avant de modifier quoi que ce soit. Travaille ensuite dans cet espace de travail et dans aucun autre.",
-    "selfHosted": "Utilise ta propre instance Customermates. Connecte ton assistant à son point de terminaison MCP à l’adresse <adresse de ton instance>/api/v1/mcp avec une clé API tirée de Paramètres, Clés API et connecteurs. Rien ici ne dépend du cloud hébergé."
+    "unconnected": "Travaille dans l’espace de travail Customermates auquel tu es connecté par MCP. Si tu n’es encore connecté à aucun, demande-moi de te connecter avant de modifier quoi que ce soit."
   }
 }

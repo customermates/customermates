@@ -12,7 +12,7 @@ import {
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
-import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentsPageText, type AgentAppName } from "../agent-native";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 import { es } from "./locales/client-management.es";
 import { pt } from "./locales/client-management.pt";
@@ -2334,11 +2334,11 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return key;
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:halversonRenewal": "Claude Desktop",
-  "deal:greystoneStart": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:halversonRenewal": "Claude",
+  "deal:greystoneStart": "Claude",
   "deal:westmoorCanteen": "ChatGPT",
-  "contact:tom": "Codex CLI",
+  "contact:tom": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2949,7 +2949,7 @@ export default defineSolution<Strings>({
           ],
         },
       ],
-      apiKeys: agentApiKeys([74, 41, 9]),
+      ...agentConnections([74, 41, 9]),
       files: [
         ...SIGNED_CONTRACTS.map((key): FileSpec => {
           const facts = CONTRACT_FACTS[key];

@@ -4,6 +4,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -14,6 +15,7 @@ import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 import { type WorkspaceBookingLinkList, WorkspaceBookingLinkListSchema } from "./booking.schema";
 import { toBookingLinkDto } from "./booking-link-dto";
 
+@AllowInDemoMode
 @TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetWorkspaceBookingLinksInteractor extends AuthenticatedInteractor<void, WorkspaceBookingLinkList> {
   constructor(

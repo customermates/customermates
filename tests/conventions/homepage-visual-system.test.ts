@@ -53,10 +53,15 @@ const components = [
   "homepage-follow-up-desk.tsx",
   "homepage-follow-up.tsx",
   "homepage-hero.tsx",
+  "homepage-hero-drift.tsx",
+  "homepage-hero-particles.tsx",
+  "homepage-hero-picker.tsx",
+  "homepage-mate-bubble.tsx",
   "homepage-pillars.tsx",
   "homepage-plans.tsx",
   "homepage-product-stage.tsx",
   "homepage-proof-partners.tsx",
+  "homepage-trust-strip.tsx",
   "homepage-viewport-video.tsx",
   "homepage-workspace-generator.tsx",
 ].map(readComponent);
@@ -68,6 +73,7 @@ describe("homepage visual-system adoption", () => {
     const order = [
       "<HomepageHero",
       "<ProductFilm",
+      "<HomepageTrustStrip",
       "<UseCasesSection",
       "<HomepageWorkspaceGenerator",
       "<HomepageFollowUp",
@@ -147,7 +153,6 @@ describe("homepage visual-system adoption", () => {
 
     expect(solutionStage).toContain("<HomepageProductStage");
     expect(readFileSync(join(process.cwd(), "components/marketing/marketing-hero.tsx"), "utf8").match(/<h1\b/gu)).toHaveLength(1);
-    expect(readComponent("homepage-hero.tsx")).toContain("<MarketingHero");
     expect(stage).toContain("PRODUCT_STAGE_INTERVAL_MS = 6_000");
     expect(stage).toContain("useHomepageMotion<HTMLDivElement>()");
     expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered;");
@@ -183,18 +188,43 @@ describe("homepage visual-system adoption", () => {
     expect(motionSource).toContain('document.addEventListener("visibilitychange"');
   });
 
-  it("opens with one plain centered claim, a trial call to action and the film link", () => {
+  it("opens with a centered hero: the claim and template picker over a large particle C, app icons drifting beside it", () => {
     const hero = readComponent("homepage-hero.tsx");
-    const sharedHero = readFileSync(join(process.cwd(), "components/marketing/marketing-hero.tsx"), "utf8");
+    const picker = readComponent("homepage-hero-picker.tsx");
+    const particles = readComponent("homepage-hero-particles.tsx");
+    const engine = readComponent("homepage-hero-particles-engine.ts");
 
-    expect(sharedHero).toContain("mk-enter mx-auto flex max-w-[60rem] flex-col items-center text-center");
-    expect(readOpeningElementContaining(sharedHero, 'className="mk-hero mt-4"')).not.toContain("text-primary");
-    expect(hero).toContain("primary={heroSection.primaryCta}");
-    expect(hero).toContain("secondary={{ ...heroSection.secondaryCta, play: true }}");
-    expect(hero).not.toMatch(/RotatingAccent|GridPattern|titleRotations/u);
-    expect(englishHomepage).toContain('href: "#film"');
-    expect(germanHomepage).toContain('href: "#film"');
-    expect(englishHomepage).toContain("job=followup");
+    expect(hero.match(/<h1\b/gu)).toHaveLength(1);
+    expect(hero).not.toContain("<MarketingHero");
+    expect(hero).toContain("<HomepageHeroPicker");
+    expect(hero).toContain("<HomepageHeroParticles");
+    expect(hero).toContain("items-center text-center");
+    expect(hero).not.toContain("homepage-hero-grid");
+    expect(hero).toContain('href={secondaryCta.href}');
+    expect(hero).toContain("mk-button-ghost");
+    expect(hero).not.toMatch(/mk-button-secondary|mk-play/u);
+    expect(hero).toContain('HOMEPAGE_SOURCE_AVAILABLE_HREF = "/features/open-source-crm"');
+    expect(hero).not.toMatch(/github\.com|self-host/iu);
+    expect(hero).not.toMatch(/RotatingAccent|GridPattern|titleRotations|<iframe\b/u);
+    expect(picker).toContain("aria-pressed");
+    expect(picker).toContain("homepageHeroCtaLabel(cta, selected.label)");
+    expect(particles).toContain('import("./homepage-hero-particles-engine")');
+    expect(particles).toContain('window.addEventListener("load", begin, { once: true })');
+    expect(particles).toContain("requestIdleCallback");
+    expect(particles).not.toMatch(/from "\.\/homepage-hero-particles-engine"/u);
+    expect(engine).toContain("IntersectionObserver");
+    expect(engine).toContain("REDUCED_MOTION_QUERY");
+    expect(engine).toContain('document.visibilityState === "visible"');
+    expect(engine).toContain("MutationObserver");
+    expect(hero).toContain('className="homepage-hero-field"');
+    expect(hero).toContain("<HomepageHeroDrift");
+    expect(globalStyles).toMatch(/\.homepage-hero-field \{[^}]*pointer-events: none;/u);
+    expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.homepage-drift-tile/u);
+    for (const mdx of [englishHomepage, germanHomepage]) {
+      expect(mdx).toContain('href: "#film"');
+      expect(mdx).toContain("{choice}");
+      expect(mdx).not.toMatch(/\n  primaryCta:|\n  assurance:/u);
+    }
   });
 
   it("shows prompt-to-workspace scenes and the follow-up desk in both locales without em dashes", () => {

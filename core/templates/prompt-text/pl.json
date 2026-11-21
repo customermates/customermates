@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Zanim cokolwiek zapiszesz, powiedz mi, co znalazłeś: ile czego, z kilkoma przykładami. Poczekaj na moją zgodę i pomiń to, co odrzucę.",
+    "none": "Jeśli żadne konto nie jest połączone, powiedz to w jednym zdaniu, zaproponuj połączenie Gmaila, Outlooka lub LinkedIna przez connect_messaging_account i kontynuuj z pustymi listami.",
+    "propose": "Wybierz z nich osoby, organizacje i otwarte zapytania lub szanse sprzedaży, które pasują do nowych list, każdą z adresem lub profilem, z którego pochodzi. Pomiń newslettery, nadawców no-reply, powiadomienia i każdego, kto już jest w przestrzeni roboczej.",
+    "read": "Jeśli konta są połączone, przeczytaj ostatnie wątki e-mail i rozmowy na LinkedIn przez get_messaging_threads, a nadchodzące spotkania przez get_calendars, jeśli któraś lista śledzi spotkania.",
+    "write": "Potem utwórz zatwierdzone rekordy przez import_crm_records, z adresami e-mail, numerami telefonów i profilami jako tożsamościami w polu danych kontaktowych, żeby ich rozmowy przypisały się same. Łącz rozmowę z szansą sprzedaży lub organizacją przez manage_conversation_records tylko wtedy, gdy wyraźnie do niej należy."
+  },
   "anchorFields": {
     "channels": "Dane kontaktowe",
     "price": "Cena",
@@ -9,6 +16,7 @@
     "rule": "reguła automatyzacji",
     "unavailable": "jeszcze niedostępne, nie konfiguruj"
   },
+  "contactDetails": "Adresy e-mail, numery telefonów i profile społecznościowe trafiają tylko do wbudowanego pola danych kontaktowych (typ pola channels, w aplikacji Telefon, e-mail i social media), nigdy do pola tekstowego ani pola linku. Tylko wtedy wiadomości i rozmowy same przypisują się do właściwego rekordu.",
   "defaultView": {
     "marker": "widok domyślny",
     "rule": "Widok oznaczony jako domyślny to wbudowany widok listy pokazujący wszystkie rekordy: skonfiguruj go tam, zamiast tworzyć drugi widok, a na końcu wybierz go, aby lista otwierała się na nim."
@@ -41,12 +49,13 @@
   "groupedBy": "pogrupowany według {field}",
   "headings": {
     "beforeYouWrite": "Zanim cokolwiek zapiszesz",
+    "connectedAccounts": "Wypełnij listy z moich połączonych kont",
     "dashboardWidgets": "Widżety pulpitu",
     "followUpRoutines": "Rutyny działań następczych",
-    "getWorkspace": "Załóż przestrzeń roboczą",
     "knowledgePages": "Strony bazy wiedzy (tylko szkice, do uzupełnienia moimi własnymi danymi)",
     "listsAndFields": "Listy i pola",
     "questions": "Pytania do mnie",
+    "recordDetails": "Szczegóły rekordów",
     "relationships": "Relacje",
     "rules": "Zasady",
     "thisWorkspace": "Ta przestrzeń robocza",
@@ -60,9 +69,14 @@
   "nameOnly": "tylko nazwa",
   "procedure": {
     "askQuestions": "Najpierw zadaj pytania z końca. Zostaw puste wszystko, czego nie wiesz, zamiast zgadywać.",
+    "checkAccounts": "Sprawdź, które konta są połączone (connectedAccounts w get_workspace_context albo manage_connected_accounts z list): Gmail, Outlook, inna poczta przez IMAP i LinkedIn.",
     "describePlan": "Opisz poniższy plan prostymi słowami, dopasowany do moich odpowiedzi, i poczekaj na moją zgodę, zanim cokolwiek zmienisz.",
     "readContext": "Wywołaj get_workspace_context i przeczytaj przewodnik operacyjny oraz istniejące listy, pola, widoki i strony bazy wiedzy.",
     "reuse": "Wykorzystaj to, co już istnieje. Nigdy nie zakładaj drugiej listy dla czegoś, co przestrzeń robocza już śledzi."
+  },
+  "recordDetails": {
+    "order": "Ustaw pola każdej listy w kolejności podanej wyżej przez configure_record_model (pozycja pola), żeby cały zespół widział najważniejsze pola na górze strony szczegółów.",
+    "pins": "Potem przypnij etap, najbliższą datę i najważniejszą kwotę każdej listy we własnym układzie szczegółów przez manage_record_detail_layout. Przypięcia są osobiste, więc powiedz mi, które pola zespół też powinien przypiąć."
   },
   "relationship": "{source} łączą się z {target} (widoczne jako {sourceLabel} w {source} i {targetLabel} w {target})",
   "roadRules": {
@@ -78,11 +92,14 @@
     "optional": "opcjonalna"
   },
   "routinesIntro": "Zaproponuj je jako zestaw. Skonfiguruj tylko te oznaczone jako dostępne, a o pozostałych mi powiedz.",
+  "sharing": {
+    "views": "Utwórz każdy widok przez manage_data_views i udostępnij go całej przestrzeni roboczej (share z visibility workspace), żeby każdy w zespole mógł go otworzyć.",
+    "widgets": "Utwórz każdy widżet na głównym pulpicie przez manage_widgets z isTemplate true, żeby widział go cały zespół."
+  },
   "workspace": {
-    "cloud": "Załóż przestrzeń roboczą Customermates pod adresem {url} i połącz z nią asystenta. Szablon jest tam już wybrany.",
     "connected": "Jesteś już połączony z przestrzenią roboczą Customermates, która przyjmie ten szablon. Pracuj w niej i nie zakładaj kolejnej.",
     "connectedAt": "Ta przestrzeń robocza już istnieje i jesteś z nią połączony przez MCP pod adresem {mcpUrl}. Pracuj w tej przestrzeni roboczej i w żadnej innej.",
     "existsAt": "Ta przestrzeń robocza już istnieje, ale asystent nie jest jeszcze z nią połączony. Połącz go przez MCP pod adresem {mcpUrl} za pomocą klucza API z Ustawienia, Klucze API i konektory. Dopóki połączenia nie ma, poproś mnie o jego dokończenie, zanim cokolwiek zmienisz. Potem pracuj w tej przestrzeni roboczej i w żadnej innej.",
-    "selfHosted": "Użyj własnej instancji Customermates. Połącz asystenta z jej punktem końcowym MCP pod adresem <adres instancji>/api/v1/mcp za pomocą klucza API z Ustawienia, Klucze API i konektory. Nic tutaj nie zależy od hostowanej chmury."
+    "unconnected": "Pracuj w przestrzeni roboczej Customermates, z którą jesteś połączony przez MCP. Jeśli nie jesteś jeszcze połączony z żadną, poproś mnie o połączenie, zanim cokolwiek zmienisz."
   }
 }

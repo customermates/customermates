@@ -6,7 +6,7 @@ import type { RoutineDto, RoutineOwnerDto, RoutineRunDto, UpsertRoutineData } fr
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { FormEvent } from "react";
 
-import { Resource, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import { Action, Resource, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
 import {
@@ -95,8 +95,12 @@ function routineFormFor(routine: RoutineDto): RoutineModalForm {
   };
 }
 
+export type RoutineCanvasStep = "trigger" | "agent";
+
 export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   activeTab: "details" | "runs" = "details";
+  selectedStep: RoutineCanvasStep | null = null;
+  lastRunAt: Date | null = null;
   runs: RoutineRunDto[] = [];
   openRunId: string | null = null;
   disabledReason: string | null = null;
@@ -125,6 +129,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     makeObservable(this, {
       activeTab: observable,
+      selectedStep: observable,
+      lastRunAt: observable.ref,
       runs: observable,
       openRunId: observable,
       disabledReason: observable,
@@ -135,6 +141,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       recordModel: observable.ref,
 
       openRun_: computed,
+      latestRunAt: computed,
       usesRecordTrigger: computed,
       watchesRecordChanges: computed,
       hasActiveRuns: computed,
@@ -151,6 +158,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       openForCreate: action,
       openForEdit: action,
       setActiveTab: action,
+      selectStep: action,
+      duplicate: action,
       openRun: action,
       closeRun: action,
       loadRuns: action,
@@ -192,6 +201,13 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   get watchesRecordChanges(): boolean {
     return (this.form?.triggerEvents ?? []).some(isRecordChangeEvent);
+  }
+
+  get latestRunAt(): Date | null {
+    const newest = this.runs[0]?.createdAt ?? null;
+    if (!newest) return this.lastRunAt;
+    if (!this.lastRunAt) return newest;
+    return newest > this.lastRunAt ? newest : this.lastRunAt;
   }
 
   get openRun_(): RoutineRunDto | null {
@@ -271,6 +287,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     runInAction(() => {
       this.activeTab = "details";
+      this.selectedStep = null;
+      this.lastRunAt = null;
       this.disabledReason = null;
       this.openWith({
         ...EMPTY_ROUTINE_FORM,
@@ -297,11 +315,29 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     if (!this.ownsRunsSession(generation, routine.id)) return;
 
     runInAction(() => {
-      this.activeTab = "details";
+      this.activeTab = "runs";
+      this.selectedStep = null;
+      this.lastRunAt = routine.lastRunAt;
       this.disabledReason = routine.enabled ? null : routine.disabledReason;
       this.openWith(routineFormFor(routine));
     });
     void this.loadRuns(routine.id);
+  };
+
+  selectStep = (step: RoutineCanvasStep | null) => {
+    this.selectedStep = step;
+    if (step) this.openRunId = null;
+  };
+
+  duplicate = (name: string) => {
+    if (!this.form.id || !this.allows(Action.create)) return;
+    const copy = toJS(this.form);
+    this.beginRunsSession(null);
+    this.activeTab = "details";
+    this.selectedStep = null;
+    this.lastRunAt = null;
+    this.disabledReason = null;
+    this.openWith({ ...copy, id: undefined, ownerUserId: null, owner: null, name });
   };
 
   setActiveTab = (tab: "details" | "runs") => {
@@ -318,6 +354,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     runInAction(() => {
       this.activeTab = "runs";
+      this.selectedStep = null;
       this.openRunId = run.id;
     });
     this.focusAfterRender("routine-run-detail-heading");

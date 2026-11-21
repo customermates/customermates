@@ -318,7 +318,7 @@ export const pl: Strings = {
       "Customermates ma punkt końcowy MCP, dzięki czemu klient AI, którego już używamy, może czytać i aktualizować ten obszar roboczy. Max pracuje w Claude Desktop; wszyscy inni mogą podłączyć własnego klienta w ten sam sposób.",
       "",
       "## Jak Max podłączył Claude Desktop",
-      "- Max utworzył osobisty klucz API o nazwie Claude Desktop w Ustawienia, Klucze API i konektory i wpisał go do konfiguracji klienta. Klienci z własnym konektorem mogą zalogować się przez OAuth, bez klucza.",
+      "- Max dodał Customermates do Claude Desktop jako własny konektor i zalogował się przez OAuth, bez klucza; połączenie widać wśród połączonych aplikacji AI. Narzędzia, które nie potrafią się zalogować, dostają osobisty klucz API w Ustawienia, Klucze API i konektory.",
       "- Klucz działa jako Max i tylko w tym obszarze roboczym. Widzi i zmienia dokładnie to, na co pozwala jego rola, nic więcej.",
       "- Klient korzysta z naszego własnego dostawcy AI, który rozlicza użycie modelu.",
       "",

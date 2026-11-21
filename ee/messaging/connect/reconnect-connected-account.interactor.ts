@@ -57,7 +57,7 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createReconnectAuthLink({
         accountId: account.unipileAccountId,
-        redirectUri: workspaceReturnUrl(baseUrl, this.user.company?.slug, settingsHref("channels")),
+        redirectUri: workspaceReturnUrl(baseUrl, this.user.company?.slug, settingsHref("connections")),
         expiresOn,
         state,
       });

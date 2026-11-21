@@ -5,6 +5,7 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
 import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
+import type { ShareDataViewInteractor } from "@/features/data-view/share-data-view.interactor";
 import type { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
 import type { SavePlannerInteractor } from "@/features/planner/save-planner.interactor";
 import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
@@ -212,6 +213,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private postalCodes: Pick<PostalCodeService, "lookup"> = {
       lookup: () => Promise.resolve({ status: "unavailable" }),
     },
+    private shareView?: Pick<ShareDataViewInteractor, "invoke">,
   ) {
     super();
   }
@@ -697,6 +699,10 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         });
         if (!created.ok) throw phaseFailure(failureOf(created.error));
         id = created.data.id;
+      }
+      if (this.shareView) {
+        const shared = await this.shareView.invoke({ id, visibility: "workspace", roleIds: [] });
+        if (!shared.ok) throw phaseFailure(failureOf(shared.error));
       }
       views.push({
         id,

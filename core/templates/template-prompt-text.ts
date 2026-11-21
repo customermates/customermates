@@ -31,20 +31,23 @@ export const PROMPT_FIELD_TYPES = [
 export type PromptPluralForms = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
 
 export type TemplatePromptText = {
+  accounts: { approve: string; none: string; propose: string; read: string; write: string };
   anchorFields: { channels: string; price: string; value: string };
   availability: { routine: string; rule: string; unavailable: string };
+  contactDetails: string;
   defaultView: { marker: string; rule: string };
   due: { afterDays: PromptPluralForms; sameDay: string };
   fieldTypes: Record<(typeof PROMPT_FIELD_TYPES)[number], string>;
   groupedBy: string;
   headings: {
     beforeYouWrite: string;
+    connectedAccounts: string;
     dashboardWidgets: string;
     followUpRoutines: string;
-    getWorkspace: string;
     knowledgePages: string;
     listsAndFields: string;
     questions: string;
+    recordDetails: string;
     relationships: string;
     rules: string;
     thisWorkspace: string;
@@ -53,12 +56,14 @@ export type TemplatePromptText = {
   };
   layouts: { board: string; table: string };
   nameOnly: string;
-  procedure: { askQuestions: string; describePlan: string; readContext: string; reuse: string };
+  procedure: { askQuestions: string; checkAccounts: string; describePlan: string; readContext: string; reuse: string };
+  recordDetails: { order: string; pins: string };
   relationship: string;
   roadRules: { neverInvent: string; noSamples: string; readBack: string; sendNothing: string; sensitiveData: string };
   routineAllowance: { limited: string; none: string; optional: string };
   routinesIntro: string;
-  workspace: { cloud: string; connected: string; connectedAt: string; existsAt: string; selfHosted: string };
+  sharing: { views: string; widgets: string };
+  workspace: { connected: string; connectedAt: string; existsAt: string; unconnected: string };
 };
 
 const PROMPT_TEXT: Readonly<Record<AppLocale, TemplatePromptText>> = { de, en, es, fr, it, nl, pl, pt };

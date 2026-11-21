@@ -11,6 +11,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 export const ApiKeyDtoSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
+  start: z.string().nullish(),
   createdAt: z.date(),
   expiresAt: z.date().nullable(),
   lastRequest: z.date().nullable(),
@@ -34,6 +35,7 @@ export class GetApiKeysInteractor extends AuthenticatedInteractor<void, ApiKey[]
       data: keys.map((key) => ({
         id: key.id,
         name: key.name,
+        start: key.start ?? null,
         createdAt: key.createdAt,
         expiresAt: key.expiresAt,
         lastRequest: key.lastRequest,

@@ -23,10 +23,6 @@ import {
 } from "lucide-react";
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import { Alert } from "@/components/shared/alert";
-import { AppCard } from "@/components/card/app-card";
-import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DATA_VIEW_PAGE_CLASS_NAME } from "@/components/data-view/data-view-geometry";
@@ -83,7 +79,10 @@ import { PlannerWeekSchedule } from "./planner-week-schedule";
 import { PlannerTimeline } from "./planner-timeline";
 import { PlannerEventModal } from "./planner-event-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { PlannerSubscriptionsModal } from "./planner-subscriptions-modal";
+import { PlannerSidePanel } from "./planner-side-panel";
+import { PlannerSubscriptionsPanel } from "./planner-subscriptions-panel";
+
+type PlannerPanel = "booking" | "sources" | "subscriptions";
 
 const EMPTY_RESULT: PlannerResult = { sources: [], events: [], personalTruncated: false };
 const UTC = "UTC";
@@ -131,13 +130,13 @@ const PlannerPageViewContent = observer(function PlannerPageView({
   const [anchor, setAnchor] = useState(() => zonedDate(new Date(), options.config.timeZone));
   const { data, refreshing, failed } = settings;
   const [sourceEditor, setSourceEditor] = useState<{ source: PlannerSource; creating: boolean } | null>(null);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
   const [jumping, setJumping] = useState(false);
-  const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
-  const [bookingOpen, setBookingOpen] = useState(bookingRequested);
+  const [panel, setPanel] = useState<PlannerPanel | null>(bookingRequested ? "booking" : null);
   useEffect(() => {
-    if (bookingRequested) setBookingOpen(true);
+    if (bookingRequested) setPanel("booking");
   }, [bookingRequested]);
+  const togglePanel = useCallback((next: PlannerPanel) => setPanel((open) => (open === next ? null : next)), []);
+  const closePanel = useCallback(() => setPanel(null), []);
   const [eventDetail, setEventDetail] = useState<PlannerEntry | null>(null);
   const [creating, setCreating] = useState<{
     date: CalendarDate;
@@ -329,21 +328,23 @@ const PlannerPageViewContent = observer(function PlannerPageView({
             id: "planner-sources",
             icon: SlidersHorizontal,
             label: t("Planner.sources"),
-            onClick: () => setSourcesOpen(true),
+            pressed: panel === "sources",
+            onClick: () => togglePanel("sources"),
           },
           {
             id: "planner-booking",
             icon: CalendarClock,
             label: t("Booking.panelTitle"),
-            pressed: bookingOpen,
-            onClick: () => setBookingOpen((open) => !open),
+            pressed: panel === "booking",
+            onClick: () => togglePanel("booking"),
           },
           {
             id: "planner-sync",
             icon: Download,
             label: t("Planner.calendarSync"),
             disabled: !clientReady,
-            onClick: () => setSubscriptionsOpen(true),
+            pressed: panel === "subscriptions",
+            onClick: () => togglePanel("subscriptions"),
           },
           {
             id: "planner-add",
@@ -355,7 +356,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({
         ]}
       />
     ),
-    [t, clientReady, canAddSource, addSource, bookingOpen],
+    [t, clientReady, canAddSource, addSource, panel, togglePanel],
   );
   useSetTopBarActions(topBarActions);
   const recordName = (row: { id: string }) => {
@@ -517,171 +518,167 @@ const PlannerPageViewContent = observer(function PlannerPageView({
         )}
       </div>
 
-      {bookingOpen && <BookingPanel state={booking} onClose={() => setBookingOpen(false)} />}
+      {panel === "booking" && <BookingPanel state={booking} onClose={closePanel} />}
 
-      {sourcesOpen && (
-        <AppModal open titleInContent size="lg" title={t("Planner.sources")} onClose={() => setSourcesOpen(false)}>
-          <AppCard>
-            <AppCardHeader>
-              <AppModalTitle className="min-w-0 break-words text-base font-semibold">
-                {t("Planner.sources")}
-              </AppModalTitle>
-            </AppCardHeader>
+      {panel === "sources" && (
+        <PlannerSidePanel
+          bodyClassName="gap-4 px-5 py-4"
+          closeLabel={t("Planner.closeSources")}
+          data-planner-sources=""
+          title={t("Planner.sources")}
+          onClose={closePanel}
+        >
+          <div className="-mx-1.5 space-y-0.5">
+            {config.sources.map((source) => {
+              const menu = (
+                <>
+                  <DropdownMenuItem onSelect={() => setSourceEditor({ source, creating: false })}>
+                    <Pencil aria-hidden className="size-4" />
 
-            <AppCardBody>
-              <div className="-mx-1.5 space-y-0.5">
-                {config.sources.map((source) => {
-                  const menu = (
-                    <>
-                      <DropdownMenuItem onSelect={() => setSourceEditor({ source, creating: false })}>
-                        <Pencil aria-hidden className="size-4" />
+                    {t("Planner.sourceSettings")}
+                  </DropdownMenuItem>
 
-                        {t("Planner.sourceSettings")}
-                      </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <IntlLink href={sourceHref(source)}>
+                      <ArrowUpRight aria-hidden className="size-4" />
 
-                      <DropdownMenuItem asChild>
-                        <IntlLink href={sourceHref(source)}>
-                          <ArrowUpRight aria-hidden className="size-4" />
+                      {t("Planner.openList")}
+                    </IntlLink>
+                  </DropdownMenuItem>
 
-                          {t("Planner.openList")}
-                        </IntlLink>
-                      </DropdownMenuItem>
+                  <DropdownMenuSeparator />
 
-                      <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() =>
+                      setConfig((current) => ({
+                        ...current,
+                        sources: current.sources.filter((item) => item.id !== source.id),
+                      }))
+                    }
+                  >
+                    <Trash2 aria-hidden className="size-4" />
 
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onSelect={() =>
+                    {t("Planner.removeSource")}
+                  </DropdownMenuItem>
+                </>
+              );
+              return (
+                <ItemActions
+                  key={source.id}
+                  label={t("Planner.sourceActions", { source: sourceName(source) })}
+                  menu={menu}
+                >
+                  <div
+                    className="flex min-w-0 items-center gap-2.5 rounded-md p-1.5 text-sm hover:bg-accent/50"
+                    data-planner-source={source.id}
+                  >
+                    <Checkbox
+                      checked={source.enabled}
+                      id={`planner-source-${source.id}`}
+                      onCheckedChange={(checked) =>
+                        setConfig((current) => ({
+                          ...current,
+                          sources: current.sources.map((item) =>
+                            item.id === source.id ? { ...item, enabled: checked === true } : item,
+                          ),
+                        }))
+                      }
+                    />
+
+                    <span
+                      aria-hidden
+                      className="size-2 shrink-0 rounded-full"
+                      style={calendarSwatchStyle(source.color)}
+                    />
+
+                    <Label
+                      className="min-w-0 flex-1 cursor-pointer flex-col items-start gap-0.5 leading-snug"
+                      htmlFor={`planner-source-${source.id}`}
+                    >
+                      <span className="w-full truncate">{sourceName(source)}</span>
+
+                      {source.filters.length > 0 && (
+                        <span className="text-xs font-normal text-muted-foreground">
+                          {t("Planner.filterCount", { count: source.filters.length })}
+                        </span>
+                      )}
+                    </Label>
+
+                    <ItemActionsTrigger />
+                  </div>
+                </ItemActions>
+              );
+            })}
+          </div>
+
+          {config.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("Planner.noSources")}</p>}
+
+          <Button className="self-start" disabled={!canAddSource} size="sm" variant="secondary" onClick={addSource}>
+            <Plus aria-hidden className="size-4" />
+
+            {t("Planner.addSource")}
+          </Button>
+
+          {options.personalAvailable && (
+            <section className="space-y-1.5 border-t pt-4">
+              <h3 className="text-sm font-medium">{t("Planner.personalCalendars")}</h3>
+
+              {options.calendars.length ? (
+                options.calendars.map((calendar) => {
+                  const ProviderIcon = getProviderIcon(calendar.provider);
+                  return (
+                    <div
+                      key={calendar.id}
+                      className="-mx-1.5 flex min-w-0 items-center gap-2.5 rounded-md p-1.5 text-sm hover:bg-accent/50"
+                    >
+                      <Checkbox
+                        checked={config.calendarIds.includes(calendar.id)}
+                        id={`planner-personal-${calendar.id}`}
+                        onCheckedChange={(checked) =>
                           setConfig((current) => ({
                             ...current,
-                            sources: current.sources.filter((item) => item.id !== source.id),
+                            calendarIds: checked
+                              ? [...new Set([...current.calendarIds, calendar.id])]
+                              : current.calendarIds.filter((id) => id !== calendar.id),
                           }))
                         }
+                      />
+
+                      <ProviderIcon aria-hidden className="size-4 shrink-0" />
+
+                      <Label
+                        className="min-w-0 flex-1 cursor-pointer leading-snug"
+                        htmlFor={`planner-personal-${calendar.id}`}
                       >
-                        <Trash2 aria-hidden className="size-4" />
-
-                        {t("Planner.removeSource")}
-                      </DropdownMenuItem>
-                    </>
+                        <span className="truncate">{calendar.name}</span>
+                      </Label>
+                    </div>
                   );
-                  return (
-                    <ItemActions
-                      key={source.id}
-                      label={t("Planner.sourceActions", { source: sourceName(source) })}
-                      menu={menu}
-                    >
-                      <div
-                        className="flex min-w-0 items-center gap-2.5 rounded-md p-1.5 text-sm hover:bg-accent/50"
-                        data-planner-source={source.id}
-                      >
-                        <Checkbox
-                          checked={source.enabled}
-                          id={`planner-source-${source.id}`}
-                          onCheckedChange={(checked) =>
-                            setConfig((current) => ({
-                              ...current,
-                              sources: current.sources.map((item) =>
-                                item.id === source.id ? { ...item, enabled: checked === true } : item,
-                              ),
-                            }))
-                          }
-                        />
-
-                        <span
-                          aria-hidden
-                          className="size-2 shrink-0 rounded-full"
-                          style={calendarSwatchStyle(source.color)}
-                        />
-
-                        <Label
-                          className="min-w-0 flex-1 cursor-pointer flex-col items-start gap-0.5 leading-snug"
-                          htmlFor={`planner-source-${source.id}`}
-                        >
-                          <span className="w-full truncate">{sourceName(source)}</span>
-
-                          {source.filters.length > 0 && (
-                            <span className="text-xs font-normal text-muted-foreground">
-                              {t("Planner.filterCount", { count: source.filters.length })}
-                            </span>
-                          )}
-                        </Label>
-
-                        <ItemActionsTrigger />
-                      </div>
-                    </ItemActions>
-                  );
-                })}
-              </div>
-
-              {config.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("Planner.noSources")}</p>}
-
-              <Button className="self-start" disabled={!canAddSource} size="sm" variant="secondary" onClick={addSource}>
-                <Plus aria-hidden className="size-4" />
-
-                {t("Planner.addSource")}
-              </Button>
-
-              {options.personalAvailable && (
-                <section className="space-y-1.5 border-t pt-4">
-                  <h3 className="text-sm font-medium">{t("Planner.personalCalendars")}</h3>
-
-                  {options.calendars.length ? (
-                    options.calendars.map((calendar) => {
-                      const ProviderIcon = getProviderIcon(calendar.provider);
-                      return (
-                        <div
-                          key={calendar.id}
-                          className="-mx-1.5 flex min-w-0 items-center gap-2.5 rounded-md p-1.5 text-sm hover:bg-accent/50"
-                        >
-                          <Checkbox
-                            checked={config.calendarIds.includes(calendar.id)}
-                            id={`planner-personal-${calendar.id}`}
-                            onCheckedChange={(checked) =>
-                              setConfig((current) => ({
-                                ...current,
-                                calendarIds: checked
-                                  ? [...new Set([...current.calendarIds, calendar.id])]
-                                  : current.calendarIds.filter((id) => id !== calendar.id),
-                              }))
-                            }
-                          />
-
-                          <ProviderIcon aria-hidden className="size-4 shrink-0" />
-
-                          <Label
-                            className="min-w-0 flex-1 cursor-pointer leading-snug"
-                            htmlFor={`planner-personal-${calendar.id}`}
-                          >
-                            <span className="truncate">{calendar.name}</span>
-                          </Label>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <ConnectChannelButton
-                      channels={["google", "outlook"]}
-                      id="planner-connect-calendar"
-                      label={t("Planner.connectCalendar")}
-                    />
-                  )}
-                </section>
+                })
+              ) : (
+                <ConnectChannelButton
+                  channels={["google", "outlook"]}
+                  id="planner-connect-calendar"
+                  label={t("Planner.connectCalendar")}
+                />
               )}
+            </section>
+          )}
 
-              <FormAutocomplete
-                id="planner-time-zone"
-                items={timeZones}
-                label={t("Planner.timeZone")}
-                renderValue={(items) => items.map((item) => item.data?.label ?? item.key).join("")}
-                value={config.timeZone}
-                onValueChange={(value) => {
-                  if (typeof value === "string" && value) setConfig((current) => ({ ...current, timeZone: value }));
-                }}
-              >
-                {(item) => <FormAutocompleteItem textValue={item.label}>{item.label}</FormAutocompleteItem>}
-              </FormAutocomplete>
-            </AppCardBody>
-          </AppCard>
-        </AppModal>
+          <FormAutocomplete
+            id="planner-time-zone"
+            items={timeZones}
+            label={t("Planner.timeZone")}
+            renderValue={(items) => items.map((item) => item.data?.label ?? item.key).join("")}
+            value={config.timeZone}
+            onValueChange={(value) => {
+              if (typeof value === "string" && value) setConfig((current) => ({ ...current, timeZone: value }));
+            }}
+          >
+            {(item) => <FormAutocompleteItem textValue={item.label}>{item.label}</FormAutocompleteItem>}
+          </FormAutocomplete>
+        </PlannerSidePanel>
       )}
 
       {sourceEditor && (
@@ -694,13 +691,13 @@ const PlannerPageViewContent = observer(function PlannerPageView({
         />
       )}
 
-      {subscriptionsOpen && (
-        <PlannerSubscriptionsModal
+      {panel === "subscriptions" && (
+        <PlannerSubscriptionsPanel
           config={config}
           personalAvailable={options.personalAvailable}
           truncated={plannerIsTruncated(result)}
           window={range}
-          onClose={() => setSubscriptionsOpen(false)}
+          onClose={closePanel}
         />
       )}
 

@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentsPageText, type AgentAppName } from "../agent-native";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 import {
   address,
@@ -421,7 +421,7 @@ const en = {
       "Customermates has an MCP endpoint, so an AI client we already use can read and update this workspace. Max works from Claude Desktop; everyone else can connect their own client the same way.",
       "",
       "## How Max connected Claude Desktop",
-      "- Max created a personal API key named Claude Desktop under Settings, API keys & connectors, and put it into the client's configuration. Clients with a custom connector can sign in with OAuth instead, without a key.",
+      "- Max added Customermates to Claude Desktop as a custom connector and signed in with OAuth, without a key; the connection shows under connected AI apps. Tools that cannot sign in get a personal API key under Settings, API keys & connectors.",
       "- The key acts as Max in this workspace only. It can see and change exactly what his role allows, nothing more.",
       "- The client uses our own AI provider, which bills the model use.",
       "",
@@ -1094,7 +1094,7 @@ const de: Strings = {
       "Customermates hat einen MCP-Endpunkt, damit ein KI-Client, den wir ohnehin nutzen, diesen Arbeitsbereich lesen und ändern kann. Max arbeitet mit Claude Desktop; alle anderen können ihren eigenen Client genauso verbinden.",
       "",
       "## So hat Max Claude Desktop verbunden",
-      "- Max hat unter Einstellungen, API-Schlüssel einen persönlichen Schlüssel mit dem Namen Claude Desktop angelegt und ihn in die Konfiguration des Clients eingetragen. Clients mit eigenem Connector melden sich stattdessen per OAuth an, ganz ohne Schlüssel.",
+      "- Max hat Customermates in Claude Desktop als eigenen Connector hinzugefügt und sich per OAuth angemeldet, ganz ohne Schlüssel; die Verbindung steht unter den verbundenen KI-Apps. Tools, die sich nicht anmelden können, bekommen unter Einstellungen, API-Schlüssel einen persönlichen Schlüssel.",
       "- Der Schlüssel handelt als Max und nur in diesem Arbeitsbereich. Er sieht und ändert genau das, was Max' Rolle erlaubt, nicht mehr.",
       "- Der Client nutzt unseren eigenen KI-Anbieter, der die Modellnutzung abrechnet.",
       "",
@@ -2073,13 +2073,13 @@ const DEAL_AGENT_NOTES: Partial<Record<DealKey, AgentNoteKey>> = {
 const TASK_AGENT_NOTES: Partial<Record<TaskKey, AgentNoteKey>> = { investorUpdate: "investorUpdateTask" };
 const INVESTOR_AGENT_NOTES: Partial<Record<InvestorKey, AgentNoteKey>> = { seedFund: "seedFundPrep" };
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:packagingLines": "Claude Desktop",
-  "task:investorUpdate": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:packagingLines": "Claude",
+  "task:investorUpdate": "Claude",
   "deal:precisionRollout": "ChatGPT",
   "investor:seedFund": "ChatGPT",
-  "deal:valvesInspection": "Codex CLI",
-  "deal:coatingsExpansion": "Codex CLI",
+  "deal:valvesInspection": "Codex",
+  "deal:coatingsExpansion": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2631,7 +2631,7 @@ export default defineSolution<Strings>({
           deliveries: 3,
         },
       ],
-      apiKeys: agentApiKeys([40, 26, 11]),
+      ...agentConnections([40, 26, 11]),
       routines: [
         {
           key: "demoRecap",

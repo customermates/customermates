@@ -122,13 +122,13 @@ test("the search finds every channel and AI client connection and starts it on i
     await input.fill("Claude");
     await expect(options.first()).toContainText(connect.claude, { timeout: 2000 });
   }).toPass({ timeout: 20000 });
-  await expect(options.first()).toContainText(englishMessages.SettingsNav.apiKeys);
+  await expect(options.first()).toContainText(englishMessages.SettingsNav.connections);
   await input.fill("codex");
   await expect(options.filter({ hasText: connect.openai })).toBeVisible();
   await input.fill("gemini");
   await expect(options.filter({ hasText: connect.gemini })).toBeVisible();
   await input.fill("connectors");
-  await expect(options.filter({ hasText: englishMessages.SettingsNav.apiKeys }).first()).toBeVisible();
+  await expect(options.filter({ hasText: englishMessages.SettingsNav.connections }).first()).toBeVisible();
 
   if (e2eAppMode() !== "self-hosted") {
     await input.fill("Google Calendar");
@@ -149,7 +149,7 @@ test("the search finds every channel and AI client connection and starts it on i
   await input.fill("Claude");
   await expect(options.first()).toContainText(connect.claude);
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/api-keys$"));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections$"));
   await expect(
     page
       .getByRole("dialog")
@@ -160,7 +160,7 @@ test("the search finds every channel and AI client connection and starts it on i
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(
-    page.getByRole("link", { name: englishMessages.SettingsNav.apiKeys, exact: true }).first(),
+    page.getByRole("link", { name: englishMessages.SettingsNav.connections, exact: true }).first(),
   ).toBeVisible();
 
   if (e2eAppMode() === "self-hosted") return;
@@ -175,7 +175,7 @@ test("the search finds every channel and AI client connection and starts it on i
   await page.keyboard.press("Enter");
   const request = await started;
   expect(request.postData()).toContain("google");
-  await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/channels$"));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections$"));
 });
 
 test("the calendar's date sources offer connecting Google or Microsoft calendars in place", async ({

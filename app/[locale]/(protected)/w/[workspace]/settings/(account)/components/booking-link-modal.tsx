@@ -17,6 +17,7 @@ import { FormSwitch } from "@/components/forms/form-switch";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModal } from "@/components/modal";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,7 @@ export const BookingLinkModal = observer(() => {
     [],
   );
   const recordList = store.selectedRecordList;
+  const locked = store.isReadOnly;
   const noneItem = { value: NONE, label: t("Booking.fields.none") };
   const weekdayLabels: Record<(typeof WORKING_WEEKDAYS)[number], string> = {
     monday: t("Booking.weekdays.monday"),
@@ -75,6 +77,10 @@ export const BookingLinkModal = observer(() => {
               data-booking-layout={wide ? "wide" : "compact"}
             >
               <div className="flex min-w-0 flex-col gap-4">
+                {store.viewOnly ? (
+                  <Alert data-booking-view-only="" description={t("Booking.demoNote")} role="status" variant="info" />
+                ) : null}
+
                 <FormInput required id="title" label={t("Booking.fields.title")} />
 
                 <FormTextarea id="description" label={t("Booking.fields.description")} rows={2} />
@@ -98,6 +104,7 @@ export const BookingLinkModal = observer(() => {
                     <div className="flex items-center gap-3">
                       <Switch
                         checked={form.assignment === "roundRobin"}
+                        disabled={locked}
                         id="booking-round-robin"
                         onCheckedChange={(checked) => store.onChange("assignment", checked ? "roundRobin" : "single")}
                       />
@@ -117,6 +124,7 @@ export const BookingLinkModal = observer(() => {
                               <Switch
                                 aria-label={host.name}
                                 checked={form.hostUserIds.includes(host.userId)}
+                                disabled={locked}
                                 id={`booking-host-${host.userId}`}
                                 onCheckedChange={(checked) => store.toggleHost(host.userId, checked)}
                               />
@@ -199,6 +207,7 @@ export const BookingLinkModal = observer(() => {
                         <Switch
                           aria-label={weekdayLabels[day]}
                           checked={open}
+                          disabled={locked}
                           id={`booking-day-${day}`}
                           onCheckedChange={(next) => store.setDay(day, { open: next })}
                         />
@@ -210,6 +219,7 @@ export const BookingLinkModal = observer(() => {
                             <Input
                               aria-label={t("Booking.fields.from")}
                               className="w-28"
+                              readOnly={locked}
                               type="time"
                               value={window.start}
                               onChange={(event) => store.setDay(day, { start: event.target.value })}
@@ -220,6 +230,7 @@ export const BookingLinkModal = observer(() => {
                             <Input
                               aria-label={t("Booking.fields.to")}
                               className="w-28"
+                              readOnly={locked}
                               type="time"
                               value={window.end}
                               onChange={(event) => store.setDay(day, { end: event.target.value })}
@@ -303,6 +314,7 @@ export const BookingLinkModal = observer(() => {
                           <label className="flex items-center gap-2 text-sm">
                             <Switch
                               checked={question.required}
+                              disabled={locked}
                               onCheckedChange={(next) => store.setQuestion(index, { required: next })}
                             />
 
@@ -310,6 +322,7 @@ export const BookingLinkModal = observer(() => {
                           </label>
 
                           <IconButton
+                            disabled={locked}
                             icon={X}
                             label={t("Booking.removeQuestion")}
                             onClick={() => store.removeQuestion(index)}
@@ -322,6 +335,7 @@ export const BookingLinkModal = observer(() => {
                           {store.unusedQuestionFields.map((field) => (
                             <Button
                               key={field.id}
+                              disabled={locked}
                               size="sm"
                               type="button"
                               variant="secondary"

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 import type { SolutionId } from "@/core/solutions/solution-catalog";
 
-import { AGENT_KEY_NAMES, agentApiKeys } from "../seeds/solutions/agent-native";
+import { AGENT_APP_NAMES, INTEGRATION_KEYS, agentConnections } from "../seeds/solutions/agent-native";
 import type { MessagingProvider, SolutionContent } from "../seeds/solutions/define-solution";
 import { inboxThreads } from "../seeds/solutions/inbox-threads";
 import { SOLUTION_SUBSCRIPTION } from "../seeds/solutions/seed-solution";
@@ -70,8 +70,11 @@ describe("agent-native demo workspaces", () => {
   it.each(plans.map(({ workspace, content }) => [workspace.slug, content] as const))(
     "%s shows that Claude, ChatGPT and Codex can create, update and automate",
     (_slug, content) => {
-      expect((content.apiKeys ?? []).map((key) => key.name)).toEqual([...AGENT_KEY_NAMES]);
-      expect(new Set((content.apiKeys ?? []).map((key) => key.createdDaysAgo)).size).toBe(AGENT_KEY_NAMES.length);
+      expect((content.agentApps ?? []).map((app) => app.name)).toEqual([...AGENT_APP_NAMES]);
+      expect(new Set((content.agentApps ?? []).map((app) => app.connectedDaysAgo)).size).toBe(AGENT_APP_NAMES.length);
+      expect((content.apiKeys ?? []).map((key) => key.name)).toEqual(INTEGRATION_KEYS.map((key) => key.name));
+      expect((content.apiKeys ?? []).every((key) => key.lastUsedMinutesAgo !== undefined)).toBe(true);
+      expect((content.apiKeys ?? []).map((key) => key.name)).not.toContain("Claude Desktop");
       expect(new Set(agentNotes(content))).toEqual(new Set(["Claude", "ChatGPT", "Codex"]));
       const agents = content.wiki.find(({ key }) => key === "agents");
       expect(agents).toMatchObject({ kind: "knowledge" });
@@ -123,11 +126,21 @@ describe("agent-native demo workspaces", () => {
     ).toThrow("draft");
   });
 
-  it("names the three agent clients on every key list", () => {
-    expect(agentApiKeys([3, 2, 1])).toEqual([
-      { name: "Claude Desktop", createdDaysAgo: 3 },
-      { name: "ChatGPT", createdDaysAgo: 2 },
-      { name: "Codex CLI", createdDaysAgo: 1 },
+  it("connects Claude, ChatGPT and Codex as AI apps with a device and keeps the API keys for integrations", () => {
+    const { agentApps, apiKeys } = agentConnections([30, 20, 10]);
+    expect(agentApps.map(({ name, device, connectedDaysAgo }) => [name, device, connectedDaysAgo])).toEqual([
+      ["Claude", "Claude Desktop · MacBook Pro", 30],
+      ["ChatGPT", "chatgpt.com", 20],
+      ["Codex", "Codex CLI · MacBook Pro", 10],
     ]);
+    const recent = (app: (typeof agentApps)[number]) =>
+      app.activeMinutesAgo > 0 && app.activeMinutesAgo < app.connectedDaysAgo * 1440;
+    expect(agentApps.every(recent)).toBe(true);
+    expect(apiKeys.map(({ name, createdDaysAgo }) => [name, createdDaysAgo])).toEqual([
+      ["Zapier", 39],
+      ["n8n", 29],
+      ["Webflow", 19],
+    ]);
+    expect(apiKeys.every((key) => (key.lastUsedMinutesAgo ?? 0) > 0)).toBe(true);
   });
 });

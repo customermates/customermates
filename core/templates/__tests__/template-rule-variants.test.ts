@@ -87,7 +87,7 @@ describe("rule variants", () => {
   });
 
   it("puts the variant into the prompt of a Brazilian workspace", () => {
-    const options = { deployment: "cloud", signupUrl: "https://customermates.com/signup" } as const;
+    const options = {};
     const spec = cloneSpec("client-support-desk");
     const portuguese = renderTemplatePrompt(spec, cloneText("client-support-desk", "pt"), options);
     expect(portuguese).toContain("em 15 dias");

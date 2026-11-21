@@ -146,6 +146,18 @@ describe("NotificationsStore", () => {
     expect(harness.getNotificationsAction).toHaveBeenCalledWith({ limit: 1 });
     expect(store.unreadCount).toBe(7);
     expect(store.items).toEqual([]);
+    expect(store.hasLoaded).toBe(false);
+  });
+
+  it("counts as loaded once the bell panel fetched the newest page", async () => {
+    const store = new NotificationsStore();
+    harness.getNotificationsAction.mockResolvedValue({ ok: true, data: inbox({ items: [NEWEST] }) });
+    expect(store.hasLoaded).toBe(false);
+
+    await store.refreshNewest();
+
+    expect(store.hasLoaded).toBe(true);
+    expect(store.items).toEqual([NEWEST]);
   });
 
   it("puts new notifications in front on a background refresh and keeps what was loaded", async () => {

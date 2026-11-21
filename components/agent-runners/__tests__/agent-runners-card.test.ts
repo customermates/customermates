@@ -47,6 +47,10 @@ vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
 
 vi.mock("../agent-runner-modal", () => ({ AgentRunnerModal: () => createElement("div", { "data-modal": true }) }));
 
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: (props: Record<string, unknown>) => createElement("a", props),
+}));
+
 import { AgentRunnersCard } from "../agent-runners-card";
 
 const RUNNER_ID = "44444444-4444-4444-8444-444444444444";
@@ -83,7 +87,7 @@ describe("AgentRunnersCard", () => {
   it("explains what a runner is and offers to add one when there is none", () => {
     const html = render([]);
 
-    expect(html).toContain("Runners.title");
+    expect(html).toContain("Runners.computersTitle");
     expect(html).toContain("Runners.description");
     expect(html).toContain("Runners.add");
     expect(html).not.toContain("data-agent-runner=");
@@ -110,18 +114,24 @@ describe("AgentRunnersCard", () => {
     const html = render([runner(), runner({ id: "b", name: "orphan", createdByName: null })]);
 
     expect(html.match(/Runners\.owner/g)).toHaveLength(1);
-    expect(html).toContain('<span data-agent-runner-owner="">Ada Owner</span>');
+    expect(html).toContain('<span data-agent-runner-owner="">· Runners.owner Ada Owner</span>');
   });
 
-  it("shows name, status, machine, CLIs with versions and last seen of each runner", () => {
+  it("shows name, status, machine, CLIs with versions and the start command of each runner", () => {
     const html = render([runner()]);
 
     expect(html).toContain("Office laptop");
     expect(html).toContain("Runners.status.online");
     expect(html).toContain("ws-main");
     expect(html).toContain("Runners.clientNames.claude 2.1.318");
-    expect(html).toContain("at 2026-11-17T09:00:00.000Z");
+    expect(html).toContain("Runners.startCommand");
     expect(html).toContain('data-status="online"');
+  });
+
+  it("says since when an offline runner has been away", () => {
+    const html = render([runner({ online: false })]);
+
+    expect(html).toContain("Runners.offlineSince:at 2026-11-17T09:00:00.000Z");
   });
 
   it("marks an offline, a never connected and a revoked runner", () => {
@@ -138,24 +148,25 @@ describe("AgentRunnersCard", () => {
     expect(html).toContain("Runners.noClients");
   });
 
-  it("offers Revoke for a runner that is not revoked and not for one that is", () => {
+  it("offers the Revoke menu for a runner that is not revoked and not for one that is", () => {
     const html = render([runner(), runner({ id: "c", name: "gone", revokedAt: "2026-11-17T09:30:00.000Z" })]);
 
-    expect(html.match(/Runners\.revoke</g)).toHaveLength(1);
+    expect(html.match(/data-item-actions-trigger=""/g)).toHaveLength(1);
+    expect(html).toContain('aria-label="Runners.actions:Office laptop"');
   });
 
-  it("shows neither Add runner nor Revoke to a member who may neither create nor delete", () => {
+  it("shows neither Add runner nor the Revoke menu to a member who may neither create nor delete", () => {
     harness.canManage = false;
     harness.canRevoke = false;
 
     const html = render([runner()]);
 
     expect(html).not.toContain("Runners.add<");
-    expect(html).not.toContain("Runners.revoke<");
+    expect(html).not.toContain("data-item-actions-trigger");
     expect(html).toContain("Office laptop");
   });
 
-  it("offers Revoke by the delete permission, as the server checks it, not by the create permission", () => {
+  it("offers the Revoke menu by the delete permission, as the server checks it, not by the create permission", () => {
     harness.canManage = true;
     harness.canRevoke = false;
     const createOnly = render([runner()]);
@@ -165,9 +176,9 @@ describe("AgentRunnersCard", () => {
     const deleteOnly = render([runner()]);
 
     expect(createOnly).toContain("Runners.add<");
-    expect(createOnly).not.toContain("Runners.revoke<");
+    expect(createOnly).not.toContain("data-item-actions-trigger");
     expect(deleteOnly).not.toContain("Runners.add<");
-    expect(deleteOnly).toContain("Runners.revoke<");
+    expect(deleteOnly).toContain("data-item-actions-trigger");
   });
 
   it("never puts a token or a token hash on the page", () => {

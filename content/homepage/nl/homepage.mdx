@@ -2,19 +2,34 @@
 title: "Customermates: het source-available CRM voor klantopvolging"
 description: "Customermates source-available CRM: elk klantgesprek opvolgen met LinkedIn en e-mail bij de klant, een volgende stap met datum en concepten van Mate."
 rootMetadata:
-  defaultTitle: "Customermates: elke klant opvolgen | AI-CRM"
-  defaultDescription: "Elk klantgesprek opvolgen: LinkedIn- en e-mailthreads bij de klant, een volgende stap met datum en concepten van Mate die jij nakijkt en verstuurt."
+  defaultTitle: "Customermates: het AI-CRM dat voor jou opvolgt"
+  defaultDescription: "Customermates brengt LinkedIn, e-mail en WhatsApp samen. Mate, je AI-teamgenoot, schrijft elk antwoord en de volgende stap. Jij controleert en verstuurt."
 
 hero:
-  title: Volg elk klantgesprek op.
-  subtitle: Koppel LinkedIn en e-mail. Mate of je eigen AI-agent schrijft elk antwoord en de volgende stap, en jij leest ze na en verstuurt ze op één plek.
-  primaryCta:
-    label: Start je proefperiode van [[commercial.trial.days]] dagen
-    href: /auth/signup?job=followup
+  badge: "Gebouwd rond jouw AI"
+  title: Het CRM dat voor jou opvolgt.
+  subtitle: "Customermates brengt LinkedIn, e-mail en WhatsApp samen op één plek. Mate, je AI-teamgenoot, schrijft elk antwoord en de volgende stap. Jij controleert en verstuurt."
+  picker:
+    question: "Wat wil je opvolgen?"
+    cta: "Gratis starten met {choice}"
+    choices:
+      - label: "Saleskansen"
+        template: sales-pipeline
+      - label: "Klanten"
+        template: client-tracker
+      - label: "Websiteaanvragen"
+        template: form-to-crm
+      - label: "WhatsApp-aanvragen"
+        template: whatsapp-enquiry-follow-up
+      - label: "Afspraken"
+        template: booking-page
   secondaryCta:
     label: Bekijk de film (73 s)
     href: "#film"
-  assurance: Geen creditcard · Source-available (fair-code) · Database in Frankfurt · Werkt met je Claude of ChatGPT
+  assurances:
+    sourceAvailable: "Broncode beschikbaar"
+    noCard: "Geen creditcard"
+    database: "Database in Frankfurt"
 
 generator:
   eyebrow: Begin met één beschrijving
@@ -22,6 +37,7 @@ generator:
   description: Zo bouwt de setup een werkruimte uit één zin. Voorbeeldgegevens, het echte product.
   promptLabel: Je beschrijving aan Mate
   arrowLabel: werd deze werkruimte
+  mateBubble: "Deze lijsten, de pipeline en het dashboard heb ik uit je beschrijving gebouwd."
   steps:
     - title: "Beschrijf je bedrijf"
       description: "Eén zin over je team, je klanten en hoe je verkoopt."
@@ -108,10 +124,11 @@ followUp:
 
 pillars:
   eyebrow: Zo werkt het
-  title: Alles wat je opvolging nodig heeft, op één plek. Vier onderdelen die samenwerken.
+  title: "Alles wat je opvolging nodig heeft, op één plek."
   description: Je kennis, je klantgegevens en je gesprekken staan bij elkaar, zodat elke agent die je helpt met dezelfde feiten werkt.
   knowledge:
     title: Kennis
+    bubble: "Ik schreef het antwoord aan Jonas met je voorstel-playbook."
     description: Playbooks, prijzen en hoe je werkt, één keer opgeschreven. Mate en gekoppelde agents gebruiken de pagina's die hun rechten toestaan.
     plan: Elk abonnement
     doc:
@@ -123,6 +140,7 @@ pillars:
       usedBy: Gebruikt voor het concept aan Jonas Weber
   data:
     title: Data
+    bubble: "Halden & Co. staat op Voorstel verstuurd. De volgende stap is dinsdag."
     description: Klanten, deals en elke lijst die je bedrijf nodig heeft, met je eigen velden, fases en weergaven.
     plan: Elk abonnement
     lists:
@@ -142,6 +160,7 @@ pillars:
           value: Anna Lindqvist
   inbox:
     title: Inbox
+    bubble: "Jonas antwoordde op LinkedIn. Ik heb het gesprek aan Halden & Co. gekoppeld."
     description: E-mail en LinkedIn, plus WhatsApp, Instagram en Telegram, naast de klant waar elk gesprek bij hoort.
     plan: Cloud, vanaf Pro
     thread:
@@ -150,6 +169,7 @@ pillars:
       linkedTo: Gekoppeld aan Halden & Co.
   agents:
     title: Agents
+    bubble: "Jouw Claude en ik werken met dezelfde records en regels."
     description: Mate is ingebouwd. Of koppel de AI die je al betaalt, en die werkt met dezelfde records en regels.
     plan: Elk abonnement, Mate in betaalde Cloud-abonnementen
     clients:
@@ -183,6 +203,12 @@ proofAndPartners:
     cta:
       label: Bekijk het partnerprogramma
       href: /affiliate
+
+trust:
+  label: "Customermates in het kort"
+  database: "Database in Frankfurt"
+  sourceAvailable: "Broncode beschikbaar"
+  agents: "Werkt met Claude en ChatGPT"
 
 plansTeaser:
   eyebrow: Prijzen

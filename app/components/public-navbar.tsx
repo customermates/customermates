@@ -3,7 +3,7 @@
 import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
 import type { AppMode } from "@/core/config/environment";
 
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Github, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -31,10 +31,12 @@ import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-b
 import { isPrimaryPublicNavLink, PublicNavbarMenu } from "./navigation/public-navbar-menu";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { marketingButtonClassName } from "@/components/marketing/marketing-button";
+import { GITHUB_REPOSITORY_URL } from "@/components/marketing/github-repository";
 
 type Props = {
   accountState: AccountState;
   appMode: AppMode;
+  githubStars?: number | null;
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
@@ -48,6 +50,7 @@ const mobileOverviewRowClassName =
 export function PublicNavbar({
   accountState,
   appMode,
+  githubStars = null,
   hasValidSession,
   onboardingIntent,
   onSignedOut,
@@ -208,19 +211,50 @@ export function PublicNavbar({
   const desktopSignOut = renderSignOutButton();
   const hasDesktopActions = Boolean(desktopCta || desktopTrial || desktopSignOut);
 
+  function renderGithubButton() {
+    const label =
+      githubStars === null
+        ? t("NavigationBar.public.github")
+        : t("NavigationBar.public.githubStars", { count: githubStars });
+
+    return (
+      <Button
+        asChild
+        className="size-8 rounded-md p-0 text-subdued hover:text-foreground"
+        size="icon-sm"
+        variant="ghost"
+      >
+        <AppLink
+          external
+          appearance="unstyled"
+          aria-label={label}
+          data-public-nav-github=""
+          href={GITHUB_REPOSITORY_URL}
+          rel="noopener noreferrer"
+          target="_blank"
+          title={label}
+        >
+          <Github aria-hidden className="size-4" />
+        </AppLink>
+      </Button>
+    );
+  }
+
   function renderPreferenceButtons() {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <LocaleMenu appMode={appMode} className="[&_summary]:size-8" />
 
         <ThemeSwitcher />
+
+        {renderGithubButton()}
       </div>
     );
   }
 
   return (
     <div className="border-b border-border">
-      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:h-14 xl:max-w-[75rem] xl:gap-4">
+      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:h-14 xl:max-w-[75rem] xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:gap-6">
         <div className="hidden justify-self-start xl:flex">{renderHomeButton()}</div>
 
         <PublicNavbarMenu
@@ -245,7 +279,7 @@ export function PublicNavbar({
               />
 
               {hasDesktopActions ? (
-                <div className="ml-1 flex items-center gap-1 [[data-session-hint]_&]:hidden" data-public-nav-actions="">
+                <div className="ml-2 flex items-center gap-2 [[data-session-hint]_&]:hidden" data-public-nav-actions="">
                   {desktopCta}
 
                   {desktopTrial}

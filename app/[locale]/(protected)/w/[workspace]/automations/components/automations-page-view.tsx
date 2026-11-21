@@ -37,6 +37,8 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { deleteAutomationRuleAction, getAutomationRoutineAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
+import { AutomationCreatePalette } from "./automation-create-palette";
+import { AutomationCreatePaletteStore } from "./automation-create-palette.store";
 import { openFocusedRoutine } from "./automation-focus";
 import { showsRoutinesOnly } from "./automation-kind-filter";
 import { type AutomationsPrefill, prefillOpening } from "./automation-prefill";
@@ -83,6 +85,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   const { showConfirmation, showTrashConfirmation } = useDeleteConfirmation();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const prefillApplied = useRef(false);
+  const [createPalette] = useState(() => new AutomationCreatePaletteStore(automationBuilderStore));
 
   useDataViewSync(automationsStore, initial);
 
@@ -101,8 +104,8 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   const refreshAfterSave = useCallback(() => runUserAction(refresh), [refresh]);
 
   const openNew = useCallback(
-    (typeId?: string) => automationBuilderStore.openForCreate(context(), refreshAfterSave, { typeId }),
-    [automationBuilderStore, context, refreshAfterSave],
+    (typeId?: string) => createPalette.open({ context: context(), onSaved: refreshAfterSave, typeId }),
+    [context, createPalette, refreshAfterSave],
   );
 
   const canCreate = automationsStore.canCreate;
@@ -112,11 +115,12 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     prefillApplied.current = true;
     const ctx = context();
     const opening = prefillOpening(prefill, { canCreate, model: ctx.model, timezone: ctx.timezone });
-    if (opening) automationBuilderStore.openForCreate(ctx, refreshAfterSave, opening);
-  }, [automationBuilderStore, canCreate, context, prefill, refreshAfterSave]);
+    if (opening?.draft) automationBuilderStore.openForCreate(ctx, refreshAfterSave, opening);
+    else if (opening) createPalette.open({ context: ctx, onSaved: refreshAfterSave, typeId: opening.typeId });
+  }, [automationBuilderStore, canCreate, context, createPalette, prefill, refreshAfterSave]);
 
   const openItem = useCallback(
-    (item: AutomationListItemDto, pane: "preview" | "runs" = "preview") => {
+    (item: AutomationListItemDto, pane?: "runs") => {
       if (item.rule) {
         automationBuilderStore.openForRule(context(), item.rule, refreshAfterSave, { pane });
         return;
@@ -241,7 +245,6 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
 
   const onRoutineRecipe = useCallback(
     (recipe: AutomationRecipe, text: { title: string; prompt: string }) => {
-      automationBuilderStore.close();
       runUserAction(() =>
         routineModalStore.openForCreate({
           name: text.title,
@@ -250,7 +253,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
         }),
       );
     },
-    [automationBuilderStore, routineModalStore],
+    [routineModalStore],
   );
 
   const addMenu = useMemo(
@@ -389,7 +392,9 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
         {body}
       </DataViewLayout>
 
-      <AutomationBuilderModal store={automationBuilderStore} onRoutineRecipe={onRoutineRecipe} />
+      <AutomationCreatePalette store={createPalette} onRoutineRecipe={onRoutineRecipe} />
+
+      <AutomationBuilderModal store={automationBuilderStore} />
     </>
   );
 });

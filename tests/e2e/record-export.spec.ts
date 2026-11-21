@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
+import { createBlankListFromPalette } from "./add-palette";
 import { companyUrlPattern, pagePath } from "./app-paths";
 import { test, expect } from "./fixtures";
 import { openRecordDetails, recordItem } from "./record-rows";
@@ -109,11 +110,8 @@ test("exports a customer-created type through the same transfer menu", async ({
   await page.goto(pagePath(page, `/records/${presetId(companyId, "service")}`));
   if (!(await page.locator("#nav-add").isVisible()))
     await page.locator("#sidebar-trigger").click();
-  await page.locator("#nav-add").click();
+  await createBlankListFromPalette(page);
   const dialog = page.getByRole("dialog");
-  await dialog
-    .getByRole("button", { name: "Create list", exact: true })
-    .click();
   await dialog
     .getByRole("textbox", { name: "Name", exact: false })
     .first()

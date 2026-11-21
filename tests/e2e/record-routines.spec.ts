@@ -34,7 +34,10 @@ test("persists a routine for a customer-created type and matches only its config
   await page.getByRole("menuitem", { name: "Routine (Mate on a schedule)" }).click();
   const routine = page.getByRole("dialog", { name: "Routine", exact: true });
   await routine.locator("#name").fill("Project follow-up");
+  // The prompt and the trigger are steps on the canvas; each opens its fields in the side panel.
+  await routine.locator('[data-automation-step="agent"]').click();
   await routine.locator("#prompt").fill("Summarize the changed project without sending messages.");
+  await routine.locator('[data-automation-step="trigger"]').click();
   await routine.getByRole("combobox", { name: "Trigger", exact: false }).first().click();
   await page.getByRole("option", { name: "When something changes", exact: true }).click();
   await routine.locator("#triggerEvents").click();
@@ -60,6 +63,7 @@ test("persists a routine for a customer-created type and matches only its config
   });
   await page.reload();
   await page.getByRole("button", { name: "Project follow-up", exact: true }).click();
+  await routine.locator('[data-automation-step="trigger"]').click();
   await expect(routine.getByRole("combobox", { name: "Records from", exact: false })).toContainText("Projects");
   await expect(routine.locator('[id="recordTrigger.changedFieldIds"]')).toContainText(field.rows[0].label);
   await expectPaletteText(page, "record-trigger-filters", "query:search", "Ready");

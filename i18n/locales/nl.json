@@ -857,8 +857,6 @@
     }
   },
   "AgentJobs": {
-    "credits": "Verbruikte credits: {credits}",
-    "description": "Wat je agents deden, met de tools die ze aanriepen.",
     "empty": "Er is nog geen agent uitgevoerd.",
     "errors": {
       "contextLimit": "De taak had meer context nodig dan in één uitvoering past",
@@ -885,7 +883,6 @@
       "toolLimit": "Gestopt bij de limiet voor toolaanroepen"
     },
     "loadFailed": "De agentuitvoeringen konden niet worden geladen. Probeer het opnieuw.",
-    "rule": "Automatisering: {name}",
     "status": {
       "cancelled": "Geannuleerd",
       "claimed": "Wordt gestart",
@@ -896,7 +893,6 @@
       "timedOut": "Time-out"
     },
     "title": "Recente agentuitvoeringen",
-    "tokens": "{input} in, {output} uit",
     "transcript": {
       "assistant": "Agent",
       "called": "{name} aangeroepen",
@@ -920,7 +916,6 @@
   },
   "AgentKeys": {
     "add": "Sleutel toevoegen",
-    "checkedAt": "Laatst gecontroleerd",
     "endsIn": "Eindigt op {last4}",
     "fields": {
       "apiKey": "API-sleutel",
@@ -931,11 +926,9 @@
       "labelPlaceholder": "Productie",
       "provider": "Aanbieder"
     },
-    "intro": "Agents voeren de agentstappen van je automatiseringen uit. Ze kunnen draaien op Mate, op je eigen AI-sleutel of op een runner op je eigen machine. Sleutels worden versleuteld opgeslagen en nooit meer getoond.",
     "keysDescription": "Je eigen API-sleutel van Anthropic, OpenAI of Google. Agentstappen die op je eigen sleutel staan, draaien daarop en de aanbieder rekent direct met je af.",
     "keysEmpty": "Nog geen sleutel van een aanbieder.",
     "keysTitle": "Sleutels van aanbieders",
-    "lastUsedAt": "Laatst gebruikt",
     "modalTitle": "Sleutel van een aanbieder toevoegen",
     "planRequired": "Agents uitvoeren op je eigen sleutel zit in de betaalde pakketten.",
     "providers": {
@@ -950,11 +943,10 @@
   },
   "AgentRuntime": {
     "available": "Beschikbaar",
-    "description": "Agentstappen kunnen op elk van deze opties draaien zodra die in deze werkruimte beschikbaar is.",
     "names": {
       "mate": "Mate",
-      "ownKey": "Je eigen sleutel",
-      "runner": "Je eigen runner"
+      "ownKey": "Je eigen AI-sleutel",
+      "runner": "Je eigen computer"
     },
     "reasons": {
       "noKey": "Voeg een sleutel van een aanbieder toe",
@@ -967,8 +959,24 @@
       "mate": "De gehoste agent van Customermates, betaald met je AI-credits.",
       "ownKey": "Een agent in onze cloud die de sleutel van je aanbieder gebruikt. De aanbieder rekent met je af.",
       "runner": "Claude Code of Codex op je eigen machine, met je eigen login."
+    }
+  },
+  "AgentsPage": {
+    "allRuns": "Alle uitvoeringen in Automatiseringen",
+    "description": "Kies er één per automatisering. Hier stel je er zoveel in als je wilt.",
+    "keyChecked": "gecontroleerd {date}",
+    "keyCount": "{count, plural, one {# sleutel} other {# sleutels}}",
+    "keyLastUsed": "laatst gebruikt {date}",
+    "mate": {
+      "description": "De agent die Customermates host. Zijn uitvoeringen gebruiken de AI-credits van je werkruimte.",
+      "notInPlan": "Je abonnement bevat Mate nog niet.",
+      "ready": "Mate staat klaar voor de agentstappen van je automatiseringen.",
+      "seePlans": "Abonnementen bekijken",
+      "selfHosted": "Mate draait in de cloud van Customermates en hoort dus niet bij een zelf gehoste installatie.",
+      "usage": "Abonnement en credits"
     },
-    "title": "Waar agents draaien"
+    "onlineCount": "Online: {count}",
+    "title": "Waar agentstappen draaien"
   },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",
@@ -1101,7 +1109,6 @@
       "ownerMissing": "Uitgezet omdat ze geen eigenaar heeft.",
       "planPaused": "Uitgezet omdat het abonnement minder actieve regels toestaat. Ze gaat weer aan zodra het abonnement dat toelaat."
     },
-    "edit": "Bewerken",
     "effect": {
       "agent": "Een agent vragen",
       "callWebhook": "Een webhook aanroepen",
@@ -1218,14 +1225,12 @@
     },
     "builder": {
       "active": "Actief",
-      "addStep": "Stap toevoegen",
       "anyList": "Elke lijst",
       "composedNotice": "Mate heeft dit uit je zin opgesteld. Er wordt niets opgeslagen tot je het inschakelt.",
       "if": "Als",
       "needsStep": "Voeg minstens één stap toe die iets doet.",
-      "panesLabel": "Voorbeeld en uitvoeringen",
+      "panesLabel": "Uitvoeringen en instellingen",
       "paused": "Gepauzeerd",
-      "previewTab": "Voorbeeld",
       "readOnlyAdminPause": "Als beheerder kun je haar nog wel pauzeren met de schakelaar.",
       "readOnlyNoOwner": "Deze automatisering heeft geen eigenaar meer, dus niemand kan haar wijzigen.",
       "readOnlyOwner": "Alleen de eigenaar, {owner}, kan deze automatisering wijzigen.",
@@ -1233,11 +1238,43 @@
       "removeStep": "Stap verwijderen",
       "runsTab": "Uitvoeringen",
       "switchOn": "Inschakelen",
-      "then": "Dan",
       "webhook": "Webhook",
       "webhookNoneSubscribed": "Nog geen webhook heeft de gebeurtenis voor automatiseringen geselecteerd. Selecteer die in de instellingen van een webhook.",
       "webhookRestricted": "Je rol mag de webhooks van deze werkruimte niet zien, dus deze stap behoudt de webhook die hij heeft.",
       "when": "Wanneer"
+    },
+    "canvas": {
+      "addHere": "Hier een stap toevoegen",
+      "addStep": "Stap toevoegen",
+      "agentPlaceholder": "Schrijf wat de agent moet doen",
+      "agentStep": "Vraag de agent",
+      "chooseEvents": "Kies de gebeurtenissen die hem starten",
+      "closeStep": "Stap sluiten",
+      "copyName": "{name} (kopie)",
+      "duplicate": "Stap dupliceren",
+      "duplicateAutomation": "Automatisering dupliceren",
+      "label": "Stappen van de automatisering",
+      "moveDown": "Omlaag",
+      "moveUp": "Omhoog",
+      "noOwner": "Geen eigenaar",
+      "placeholder": "Kies wat deze automatisering start",
+      "replay": {
+        "back": "Terug naar bewerken",
+        "changed": "De automatisering is na deze uitvoering gewijzigd, dus sommige stappen konden niet worden gekoppeld.",
+        "notRecorded": "Niet vastgelegd",
+        "show": "Op het canvas tonen",
+        "showing": "Uitvoering van {time}"
+      },
+      "runsAs": "Draait als {name}",
+      "runsOn": "Draait op",
+      "runtime": {
+        "free": "Gratis · vaste stappen",
+        "mate": "Mate · AI-agent",
+        "ownKey": "Eigen AI-sleutel · agent",
+        "runner": "Eigen runner · agent"
+      },
+      "settingsTab": "Instellingen",
+      "stepActions": "Acties voor de stap"
     },
     "columns": {
       "enabled": "Actief",
@@ -1396,9 +1433,9 @@
         "agent": "je agent vragen om {prompt}",
         "callWebhook": "een webhook aanroepen",
         "createRecord": "een item aanmaken in {list}",
-        "kept": "een ongewijzigde stap uitvoeren",
         "notifyAssignees": "de toegewezen mensen waarschuwen",
         "notifyBoth": "de verantwoordelijke en de toegewezen mensen waarschuwen",
+        "notifyMembers": "de gekozen leden melden",
         "notifyOwner": "de verantwoordelijke waarschuwen",
         "setField": "{field} instellen"
       },
@@ -1409,14 +1446,6 @@
       "somethingForYou": "iets voor je te doen"
     },
     "start": {
-      "compose": "Opstellen",
-      "composerLabel": "Vertel Mate wat er moet gebeuren wanneer …",
-      "composerNote": "Mate stelt de stappen op. Er wordt niets opgeslagen tot je het inschakelt.",
-      "composerPlaceholder": "… er een nieuwe aanvraag binnenkomt, herinner me de volgende ochtend eraan om te antwoorden",
-      "exact": "Exacte stappen, geen AI",
-      "noAgent": "Er is nog geen manier ingesteld om een agent uit te voeren, dus agentstappen draaien niet.",
-      "recipesBody": "Elk recept is een complete keten. Pas aan wat je wilt, geef het een naam en schakel het in.",
-      "recipesTitle": "Beginnen met een recept",
       "refusal": {
         "credits": "Je Mate-credits zijn voor deze periode op. Kies een recept of begin helemaal opnieuw.",
         "invalid": "Het concept paste niet bij je werkruimte. Probeer de lijst of het veld te noemen.",
@@ -1424,10 +1453,7 @@
         "unavailable": "Mate is nu niet beschikbaar. Kies een recept of begin helemaal opnieuw.",
         "unclear": "Mate begreep niet wat er moet gebeuren. Zeg wat het in gang zet en wat het moet doen.",
         "unsupported": "Dat kan een automatisering nog niet. Beschrijf het als een trigger en exacte stappen."
-      },
-      "scratch": "Helemaal opnieuw beginnen",
-      "scratchBody": "Een lege keten. Kies een trigger en voeg dan stappen toe.",
-      "usesAgent": "Gebruikt een agent"
+      }
     },
     "truncated": "Deze lijst bevat hoogstens {rules} automatiseringen en {routines} routines, en je werkruimte heeft er meer. De niet getoonde blijven gewoon lopen.",
     "unavailable": {
@@ -1448,7 +1474,7 @@
     "chooseCalendar": "Agenda kiezen",
     "closed": "Gesloten",
     "days": "{days, plural, one {# dag} other {# dagen}}",
-    "demoNote": "Boekingspagina's hebben een gekoppelde agenda nodig en zijn niet beschikbaar in de demowerkruimte.",
+    "demoNote": "Dit is de demowerkruimte: je kunt boekingspagina's bekijken, maar wijzigingen worden niet opgeslagen.",
     "description": "Met een boekingspagina kan iedereen zonder account een afspraak boeken in je gekoppelde agenda. Bezoekers zien je vrije tijden, en elke boeking maakt de afspraak in de agenda, de persoon en een record in je CRM aan.",
     "edit": "Bewerken",
     "editTitle": "Boekingspagina bewerken",
@@ -1486,6 +1512,7 @@
       "cancelTitle": "Boeking met {name} annuleren?",
       "keep": "Boeking houden",
       "loadFailed": "Vrije tijden konden niet worden geladen.",
+      "menu": "Acties voor de boeking met {name}",
       "noSlots": "Deze pagina heeft geen andere vrije tijden.",
       "reschedule": "Verplaatsen",
       "rescheduleConfirm": "Boeking verplaatsen",
@@ -1501,14 +1528,15 @@
     },
     "minutes": "{minutes} min",
     "new": "Nieuwe boekingspagina",
+    "newShort": "Nieuwe pagina",
     "newTitle": "Nieuwe boekingspagina",
     "noCalendar": "De agenda van deze pagina is er niet meer, bijvoorbeeld omdat het account is losgekoppeld. Bezoekers zien de pagina als niet beschikbaar totdat er een agenda is gekozen. Boekingen die al zijn gemaakt, blijven staan.",
     "notice": "{hours, plural, =0 {Geen minimale aanlooptijd} one {# uur vooraf} other {# uur vooraf}}",
     "open": "Pagina openen",
+    "pageActions": "Acties voor {title}",
     "pagePreviewHint": "Zo zien bezoekers deze pagina. De tijden volgen je werktijden; bezette tijden in je agenda gelden pas op de echte pagina.",
     "pagePreviewLabel": "Voorbeeld",
     "pagePreviewTitle": "Jouw boekingspagina",
-    "panelActive": "Actief",
     "panelClose": "Boekingspagina's sluiten",
     "panelLocked": "Boekingspagina's vereisen een abonnement met berichten en toegang tot de inbox.",
     "panelOwner": "Boekingspagina's van {owner}",
@@ -1516,14 +1544,19 @@
     "panelUnavailable": "Niet beschikbaar",
     "panelYours": "Jouw boekingspagina's",
     "paused": "Gepauzeerd",
+    "placeInPerson": "Op locatie",
+    "placeVideo": "Videogesprek",
     "removeQuestion": "Vraag verwijderen",
     "roundRobin": "Deze pagina delen met collega's (round robin)",
-    "roundRobinChip": "Hosts: {count}",
     "roundRobinHint": "Er wordt een tijd aangeboden als minstens één host vrij is. Elke boeking gaat naar de vrije host met de minste aankomende boekingen, in de gekoppelde agenda van die host. Jij bent altijd ook host.",
     "saved": "Boekingspagina opgeslagen",
     "selfHostedNote": "Boekingspagina's gebruiken de gehoste agendaverbinding en zijn niet beschikbaar bij zelf hosten.",
+    "today": "Vandaag",
+    "tomorrow": "Morgen",
     "unavailableField": "Veld niet meer beschikbaar",
     "upcoming": "{count, plural, =0 {Geen aankomende boekingen} one {# aankomende boeking} other {# aankomende boekingen}}",
+    "upcomingCount": "{count} aankomend",
+    "upcomingTitle": "Aankomende boekingen",
     "weekdays": {
       "friday": "Vrijdag",
       "monday": "Maandag",
@@ -1684,9 +1717,8 @@
       "settings": {
         "activity": "auditlog, geschiedenis, wijzigingen, logboek, activiteit, auditlog, wie heeft wat gewijzigd",
         "agents": "agents, agentstap, AI-sleutel, eigen sleutel, Anthropic, OpenAI, Google, runner, Claude Code, Codex, agentuitvoeringen, sleutels van aanbieders",
-        "api-keys": "tokens, API, MCP, ontwikkelaar, toegangssleutels, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP-server, n8n, integratie",
         "billing": "abonnement, facturen, betaling, prijzen, upgraden, bon",
-        "channels": "gekoppelde accounts, e-mailaccounts, LinkedIn, WhatsApp, integraties, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agenda's, inboxsynchronisatie, agendasynchronisatie, e-mailsynchronisatie, SMTP, IMAP, Office 365, Sales Navigator",
+        "connections": "kanalen, gekoppelde accounts, e-mailaccounts, LinkedIn, WhatsApp, integraties, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agenda's, inboxsynchronisatie, agendasynchronisatie, e-mailsynchronisatie, SMTP, IMAP, Office 365, Sales Navigator, API-sleutels, tokens, API, MCP, ontwikkelaar, toegangssleutels, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI-apps, MCP-server, n8n, integratie",
         "general": "werkruimtenaam, werkruimte hernoemen, werkruimte verlaten",
         "incoming-webhooks": "inkomende webhooks, gegevens ontvangen, geheim adres, webhook-URL, JSON versturen, records aanmaken vanuit andere tools, formuliertool, Zapier, Make, n8n",
         "members": "team, gebruikers, personen, collega's, uitnodigen, licenties",
@@ -2606,7 +2638,6 @@
     "connectedNote": "Gekoppeld",
     "connectedToastDescription": "Je geschiedenis wordt op de achtergrond geïmporteerd. Dit kan een paar minuten duren, je kunt gewoon doorwerken.",
     "connectedToastTitle": "Kanaal gekoppeld",
-    "description": "Koppel de kanalen waaruit je inbox berichten haalt, zoals e-mail, WhatsApp en LinkedIn. Kanalen zijn standaard privé en kunnen met je werkruimte worden gedeeld. Door een kanaal te koppelen, machtig je ons om de berichten, contacten en agenda ervan namens jou te verwerken. Zie onze <dataPrivacyLink>Privacyverklaring</dataPrivacyLink>, <subprocessorsLink>Subverwerkers</subprocessorsLink> en <termsOfServiceLink>Voorwaarden</termsOfServiceLink>.",
     "disconnect": "Ontkoppelen",
     "disconnectedToastDescription": "Dit account is bij de provider niet meer gekoppeld. Koppel het opnieuw met je huidige inloggegevens.",
     "disconnectedToastTitle": "Account ontkoppeld",
@@ -2659,7 +2690,6 @@
       "comfortable": "Ruim",
       "compact": "Compact"
     },
-    "emptyState": "Je hebt nog geen kanalen gekoppeld.",
     "expiredLinkToastDescription": "Deze koppelingslink is verlopen. Maak op deze pagina een nieuwe aan en probeer het opnieuw.",
     "expiredLinkToastTitle": "Link verlopen",
     "failedToastDescription": "Er is iets misgegaan. Probeer het opnieuw of neem contact op met support als het probleem blijft bestaan.",
@@ -2728,15 +2758,64 @@
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
   },
   "ConnectedApps": {
-    "connect": "AI-app koppelen",
-    "connectedSince": "Gekoppeld sinds",
-    "description": "AI-apps zoals Claude of ChatGPT die je met je login aan deze werkruimte hebt gekoppeld. Elke app werkt met jouw rechten.",
     "disconnectDescription": "{name} verliest direct de toegang tot deze werkruimte. Koppel de app opnieuw en keur de toegang goed om hem weer te gebruiken.",
     "disconnectTitle": "Deze app ontkoppelen?",
     "empty": "Er is nog geen AI-app gekoppeld. Koppel Claude, ChatGPT of een andere AI-app om van daaruit met deze werkruimte te werken.",
-    "lastActive": "Laatst actief",
-    "title": "Gekoppelde AI-apps",
     "toastDisconnected": "App ontkoppeld"
+  },
+  "Connections": {
+    "apps": {
+      "alsoWorksWith": "Werkt ook met",
+      "clients": {
+        "claude": "Claude",
+        "cursor": "Cursor",
+        "gemini": "Gemini",
+        "openai": "ChatGPT"
+      },
+      "connect": "App koppelen",
+      "connected": "Gekoppeld",
+      "description": "AI-apps waarin je bent ingelogd met je Customermates-account. Ze handelen met jouw rechten.",
+      "detail": "sinds {since} · actief {active}",
+      "otherApp": "Andere app",
+      "title": "AI-apps"
+    },
+    "filterLabel": "Koppelingen tonen",
+    "filters": {
+      "all": "Alle",
+      "apps": "AI-apps",
+      "inbox": "Inbox",
+      "keys": "API-sleutels"
+    },
+    "inbox": {
+      "actions": "Opties voor {name}",
+      "capabilities": {
+        "calendar": "Agenda",
+        "email": "E-mail",
+        "messages": "Berichten",
+        "posts": "Posts"
+      },
+      "connect": "Account koppelen",
+      "description": "Mailboxen, messengers en agenda's waaruit je inbox en agenda lezen. Privé tot je ze deelt.",
+      "empty": "Nog geen account gekoppeld. Koppel je e-mail, agenda of een messenger om je inbox te vullen.",
+      "privacyNote": "Door een account te koppelen, machtig je ons om de berichten, contacten en agenda ervan voor jou te verwerken. Zie onze <dataPrivacyLink>Privacyverklaring</dataPrivacyLink>, <subprocessorsLink>Subverwerkers</subprocessorsLink> en <termsOfServiceLink>Voorwaarden</termsOfServiceLink>.",
+      "sharedBy": "gedeeld door {name}",
+      "synced": "gesynchroniseerd {time}",
+      "title": "Inbox & agenda"
+    },
+    "keys": {
+      "actions": "Opties voor {name}",
+      "columns": {
+        "expires": "Verloopt",
+        "key": "Sleutel",
+        "lastUsed": "Laatst gebruikt",
+        "name": "Naam"
+      },
+      "create": "Sleutel maken",
+      "created": "Gemaakt op {date}",
+      "description": "Voor je eigen scripts en tools zoals Zapier.",
+      "empty": "Nog geen API-sleutel.",
+      "title": "API-sleutels"
+    }
   },
   "ContactHistory": {
     "ariaOpenInInbox": "Openen in inbox",
@@ -2791,6 +2870,37 @@
       }
     },
     "title": "Laten we praten."
+  },
+  "CreatePalette": {
+    "add": {
+      "createListDescription": "Leeg beginnen of met een sjabloon",
+      "placeholder": "Zoek wat je wilt toevoegen"
+    },
+    "automation": {
+      "agent": "Agent",
+      "ai": "Maken met AI",
+      "blankDescription": "Een lege keten. Kies een trigger en voeg dan stappen toe.",
+      "exact": "Exact",
+      "placeholder": "Beschrijf wat er moet gebeuren of zoek een sjabloon"
+    },
+    "blank": "Leeg beginnen",
+    "hintBrowseAll": "Alle {count} sjablonen bekijken",
+    "hintMatching": "Alleen treffers tonen",
+    "list": {
+      "ai": "Lijst maken met AI",
+      "aiRequest": "Maak in deze werkruimte een nieuwe lijst hiervoor: {text}",
+      "blank": "Lege lijst",
+      "blankDescription": "Geef hem een naam en voeg dan velden toe.",
+      "libraryHeading": "Uit de sjabloonbibliotheek",
+      "listCount": "{count, plural, one {# lijst} other {# lijsten}}",
+      "placeholder": "Beschrijf de lijst of zoek een sjabloon",
+      "templateRequest": "Voeg de lijsten van het sjabloon “{name}” toe aan deze werkruimte. Waar het over gaat: {summary}"
+    },
+    "noTemplates": "Geen sjabloon past. Typ verder of begin leeg.",
+    "or": "Of",
+    "quoted": "“{text}”",
+    "searchPlaceholder": "Sjablonen zoeken",
+    "templates": "Sjablonen"
   },
   "Dashboard": {
     "activityWidget": {
@@ -3101,6 +3211,7 @@
       "link": "Link",
       "linkPrivate": "Alleen jij kunt deze link openen totdat je de weergave deelt.",
       "linkShared": "Teamgenoten die deze weergave mogen zien, openen hem met deze link. Anderen zien dat hij niet met hen is gedeeld.",
+      "menu": "Delen",
       "menuItem": "Delen…",
       "ownShared": "Gedeeld",
       "private": "Alleen ik",
@@ -3132,10 +3243,9 @@
       "savedPrivate": "De weergave is weer privé",
       "savedRoles": "Gedeeld met de geselecteerde rollen",
       "savedWorkspace": "Gedeeld met iedereen in deze werkruimte",
+      "saveViewFirst": "Bewaar de huidige filters als weergave om ze te delen",
       "sharedBy": "Gedeeld door {name}",
-      "tabForm": "Formulier",
-      "tabShare": "Weergave delen",
-      "tabsLabel": "Deelopties",
+      "thisView": "Deze weergave delen",
       "title": "“{name}” delen",
       "withEveryone": "Met iedereen · alleen {name} kan hem bewerken",
       "withRoles": "Met geselecteerde rollen · alleen {name} kan hem bewerken",
@@ -3974,7 +4084,6 @@
   },
   "NavigationBar": {
     "addEntity": "{entity} toevoegen",
-    "addPickerDescription": "Kies het type record dat je wilt aanmaken.",
     "addPickerTitle": "Nieuw aanmaken…",
     "affiliate": "Affiliateprogramma",
     "automations": "Automatiseringen",
@@ -4005,6 +4114,8 @@
       "consultants": "Consultants",
       "emailAndGmail": "E-mail en Gmail",
       "freelancers": "Freelancers",
+      "github": "Customermates op GitHub",
+      "githubStars": "Customermates op GitHub, {count, plural, one {# ster} other {# sterren}}",
       "integrations": "Integraties",
       "jobClientData": "Klantgegevens op één plek",
       "jobFollowUp": "Volg elke klant op",
@@ -4078,8 +4189,7 @@
     "turnOffNamedKind": "{kind} uitzetten"
   },
   "Notifications": {
-    "dayToday": "Vandaag",
-    "dayYesterday": "Gisteren",
+    "bellLabelUnread": "Meldingen, {count} ongelezen",
     "emailMode": {
       "digest": "Dagelijkse samenvatting",
       "instant": "Direct per e-mail",
@@ -4088,8 +4198,13 @@
     "empty": "Je bent helemaal bij.",
     "emptyDescription": "Herinneringen, antwoorden en meldingen van automatiseringen verschijnen hier.",
     "emptyFiltered": "Nog geen meldingen van deze soort.",
-    "filterAll": "Alle",
+    "emptyUnread": "Geen ongelezen meldingen.",
     "filtersLabel": "Filteren op soort",
+    "groups": {
+      "earlier": "Eerder",
+      "thisWeek": "Deze week",
+      "today": "Vandaag"
+    },
     "kindHelp": {
       "dueToday": "Herinneringen voor datums die vandaag aanbreken.",
       "replyReceived": "Wanneer een bericht binnenkomt waar je op wachtte.",
@@ -4101,6 +4216,15 @@
       "ruleAlert": "Meldingen van automatiseringen"
     },
     "markAllRead": "Alles als gelezen markeren",
+    "markRead": "Markeren als gelezen",
+    "pageFilters": {
+      "all": "Alle",
+      "dueToday": "Vandaag",
+      "replyReceived": "Antwoorden",
+      "ruleAlert": "Automatisch",
+      "unread": "Ongelezen"
+    },
+    "panelFilterLabel": "Ongelezen of alle meldingen tonen",
     "preferences": {
       "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort uit deze werkruimte je ook per e-mail bereikt.",
       "emailNotConfigured": "Op deze server is geen e-mailverzending ingesteld, dus meldingen bereiken je alleen op de pagina Meldingen. Wie de server beheert, kan e-mailverzending instellen.",
@@ -4114,6 +4238,8 @@
       "pauseOn": "E-mails uit deze werkruimte zijn gepauzeerd tot {date}.",
       "title": "E-mails over meldingen"
     },
+    "seeAll": "Alle meldingen bekijken",
+    "settings": "Instellingen voor meldingen",
     "turnOff": {
       "body": "{email} krijgt dan geen e-mails meer over “{kind}” uit {workspace}. Onder Profiel & voorkeuren zijn ze weer aan te zetten.",
       "confirm": "E-mails uitzetten",
@@ -4835,6 +4961,8 @@
   "Planner": {
     "addSource": "Datumbron toevoegen",
     "calendarSync": "Exporteren en abonneren",
+    "closeCalendarSync": "Exporteren en abonneren sluiten",
+    "closeSources": "Datumbronnen sluiten",
     "connectCalendar": "Een agenda koppelen",
     "createSubscription": "Abonnements-URL maken",
     "download": ".ics downloaden",
@@ -4929,9 +5057,6 @@
     "caption": "Elk klantgesprek uit e-mail, LinkedIn en WhatsApp op één plek. Mate richt je werkruimte in en schrijft de opvolging, jij controleert en verstuurt. Werkt met Claude, ChatGPT of elke agent die MCP spreekt.",
     "play": "Film afspelen",
     "title": "Productfilm van Customermates"
-  },
-  "ProfileSections": {
-    "apiKeysDescription": "Langlopende API-sleutels voor programmatische toegang."
   },
   "PublicBooking": {
     "bookAgain": "Een nieuwe tijd boeken",
@@ -5058,6 +5183,16 @@
       "workspaceDisabled": "Openbare links en formulieren zijn uitgeschakeld in de instellingen van deze werkruimte."
     },
     "byline": "Verzonden naar {workspace}",
+    "dialog": {
+      "copyLink": "Formulierlink kopiëren",
+      "description": "Mensen vullen het in via een link of op je website, en elke inzending wordt een record in deze lijst.",
+      "linkCopied": "Formulierlink gekopieerd",
+      "loading": "Formulier controleren …",
+      "menu": "Openbaar formulier",
+      "none": "Verzamel inzendingen via een link of je website",
+      "status": "{state, select, on {Aan} other {Uit}} · {count, plural, one {# inzending} other {# inzendingen}}",
+      "title": "Openbaar formulier voor {list}"
+    },
     "errors": {
       "consent": "Ga akkoord om door te gaan.",
       "email": "Voer een geldig e-mailadres in.",
@@ -6126,8 +6261,6 @@
     "at": "om",
     "configurationHeading": "Configuratie",
     "customSchedule": "Deze routine gebruikt een aangepast schema: {expression}",
-    "detailsTab": "Details",
-    "disabled": "Gepauzeerd",
     "enabled": "Actief",
     "enabledHelp": "Deze routine kan momenteel worden uitgevoerd.",
     "eventSuppressionNote": "Gebeurtenissen die door routines worden veroorzaakt, activeren geen routines.",
@@ -6217,6 +6350,7 @@
     "wednesday": "Woensdag"
   },
   "Runners": {
+    "actions": "Opties voor {name}",
     "add": "Runner toevoegen",
     "addDescription": "Geef de machine op waarop de runner draait. Je krijgt het token één keer; de runner gebruikt het om jouw agenttaken in deze werkruimte op te halen.",
     "addTitle": "Een runner toevoegen",
@@ -6225,24 +6359,25 @@
       "codex": "Codex",
       "gemini": "Gemini CLI"
     },
-    "clients": "Gevonden CLI’s",
+    "computersTitle": "Je computers",
     "description": "Met een runner draaien jouw agentstappen met je eigen Claude Code, Codex of Gemini CLI op je machine. Hij haalt de taken op van de automatiseringen waarvan jij de eigenaar bent, voert de CLI uit waarin je bent ingelogd en meldt het resultaat terug. Customermates ontvangt nooit je CLI-login.",
     "dockerDescription": "Draait dezelfde runner in een container. Koppel de loginmap van je CLI zodat die ingelogd blijft. Op macOS bewaart Claude Code de login in de Sleutelhanger: geef daar de API-sleutel of het token als variabele mee.",
     "dockerTitle": "Draaien met Docker",
     "empty": "Je hebt nog geen runner. Voeg er een toe om agentstappen met je eigen CLI uit te voeren.",
     "installDescription": "Vereist Node 24 en Claude Code, Codex of Gemini CLI, ingelogd op die machine.",
     "installTitle": "Draaien met Node",
-    "lastSeen": "Laatst gezien",
-    "machine": "Machine",
     "noClients": "Geen CLI gevonden",
     "offline": {
       "body": "Jouw agenttaken wachten, en de afgelopen 10 minuten heeft zich geen runner van jou verbonden die ze kan oppakken. Start je runner of controleer de machine waarop hij draait. Een taak die langer dan 15 minuten wacht, eindigt met een time-out.",
       "title": "Je runner is offline"
     },
+    "offlineSince": "Offline sinds {date}",
     "owner": "Toegevoegd door",
     "revoke": "Intrekken",
     "revokeDescription": "{name} kan geen taken meer ophalen, en de taken die hij uitvoert of die op hem wachten eindigen als geannuleerd. Dit kan niet ongedaan worden gemaakt. Voeg een nieuwe runner toe om de machine opnieuw te verbinden.",
     "revokeTitle": "Deze runner intrekken?",
+    "startCommand": "Startopdracht",
+    "startCommandCopied": "Startopdracht gekopieerd. Die leest het runner-token uit CUSTOMERMATES_RUNNER_TOKEN.",
     "status": {
       "neverSeen": "Nooit verbonden",
       "offline": "Offline",
@@ -6300,9 +6435,8 @@
     "account": "Account",
     "activity": "Auditlog",
     "agents": "Agents",
-    "apiKeys": "API-sleutels & connectoren",
     "billing": "Facturering",
-    "channels": "Kanalen & agenda's",
+    "connections": "Koppelingen",
     "deliveries": "Webhooklog",
     "general": "Algemeen",
     "incomingWebhooks": "Inkomende webhooks",
@@ -6566,10 +6700,8 @@
     "pairedBody": "Dit sjabloon hoort bij onze pagina over {name}.",
     "pairedLink": "Lees meer over {name}",
     "pairedTitle": "Onderdeel van een bredere oplossing",
-    "promptCloud": "Cloud",
-    "promptLead": "Eén zelfstandige prompt. Kies waar je werkruimte draait en kopieer hem dan.",
-    "promptSelfHosted": "Zelf gehost",
-    "promptSwitch": "Waar je werkruimte draait",
+    "promptLead": "Eén prompt voor Claude, ChatGPT of Codex. Hij bouwt de lijsten, weergaven, het dashboard en de recordpagina's voor je hele team en vult ze na je goedkeuring vanuit je gekoppelde e-mail en LinkedIn.",
+    "promptOwnInstance": "Draai je een eigen instantie? Dezelfde prompt werkt daar ook.",
     "promptTitle": "De prompt",
     "proofLead": "Kopieer deze opzet in je AI-agent en hij bouwt hem in je CRM op ter goedkeuring.",
     "proofOpen": "Open het sjabloon",
@@ -6589,12 +6721,12 @@
     "sourcesTitle": "Bronnen",
     "stagesTitle": "Fasen",
     "startFree": "Start gratis",
-    "step1Body": "Maak een gratis Customermates-werkruimte met dit sjabloon alvast gekozen, of gebruik je eigen zelf gehoste instantie.",
+    "step1Body": "Dit sjabloon staat in ongeveer een minuut klaar in je nieuwe werkruimte.",
     "step1Link": "Start gratis",
-    "step1Title": "Zorg voor een werkruimte",
-    "step2Body": "Kopieer de prompt hieronder in Claude, ChatGPT of Codex, gekoppeld aan je werkruimte. De agent leest eerst je werkruimte en stelt de opzet in gewone woorden voor.",
+    "step1Title": "Start gratis",
+    "step2Body": "Kopieer de prompt hieronder in Claude, ChatGPT of Codex, gekoppeld aan je werkruimte. Hij leest eerst je werkruimte en je gekoppelde e-mail en LinkedIn en stelt dan de opzet in gewone woorden voor.",
     "step2Title": "Plak de prompt in je AI-agent",
-    "step3Body": "Er wordt niets geschreven voordat je ja zegt. De agent maakt geen voorbeeldrecords aan, verstuurt niets en vertelt je aan het eind wat er bestaat.",
+    "step3Body": "Er wordt niets geschreven voordat je ja zegt. De agent laat je de gevonden contacten zien voordat hij ze toevoegt, maakt geen voorbeeldrecords aan, verstuurt niets en vertelt je aan het eind wat er bestaat.",
     "step3Title": "Keur het plan goed",
     "stepsTitle": "Zo werkt het",
     "switchKit": {

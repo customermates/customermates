@@ -221,7 +221,8 @@ test("the host cancels one booking with a reason and moves another from the book
   const cara = upcoming.filter({ hasText: "Cara Cancel" });
   const mona = upcoming.filter({ hasText: "Mona Move" });
 
-  await clickHydrated(cara.locator("[data-booking-host-cancel]"));
+  await clickHydrated(cara.locator("[data-item-actions-trigger]"));
+  await page.locator("[data-booking-host-cancel]").click();
   const confirm = page.locator('[data-slot="confirm-dialog"]');
   await expect(confirm).toContainText(hostActions.cancelTitle.replace("{name}", "Cara Cancel"));
   await confirm.locator("[data-booking-host-cancel-reason]").fill("Out sick");
@@ -238,7 +239,8 @@ test("the host cancels one booking with a reason and moves another from the book
   ]);
   expect(cancelledEvent.rows[0].status).toBe("cancelled");
 
-  await mona.locator("[data-booking-host-reschedule]").click();
+  await mona.locator("[data-item-actions-trigger]").click();
+  await page.locator("[data-booking-host-reschedule]").click();
   const reschedule = page.locator("[data-booking-host-reschedule-dialog]");
   await expect(reschedule).toContainText(hostActions.rescheduleTitle.replace("{name}", "Mona Move"));
   await reschedule.locator("[data-booking-slots] button").nth(3).click();

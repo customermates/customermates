@@ -251,7 +251,7 @@ describe("RoutineModalStore", () => {
 
       await store.openForEdit(makeRoutine({ enabled: false, disabledReason: "adminPaused" }));
 
-      expect(store.activeTab).toBe("details");
+      expect(store.activeTab).toBe("runs");
       expect(store.openRunId).toBeNull();
       expect(store.disabledReason).toBe("adminPaused");
       expect(store.runsNextCursor).toBeNull();
@@ -744,6 +744,7 @@ describe("RoutineModalStore", () => {
     });
     const store = makeStore();
     await store.openForEdit(makeRoutine());
+    store.setActiveTab("details");
 
     expect(store.activeTab).toBe("details");
 
@@ -779,7 +780,7 @@ describe("RoutineModalStore", () => {
     await runPromise;
 
     expect(store.form.id).toBe(secondRoutine.id);
-    expect(store.activeTab).toBe("details");
+    expect(store.activeTab).toBe("runs");
     expect(store.isStartingRun).toBe(false);
     expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(runPageRequestsAfterSwitch);
     expect(sonner.toast.success).not.toHaveBeenCalled();
@@ -792,6 +793,7 @@ describe("RoutineModalStore", () => {
     });
     const store = makeStore();
     await store.openForEdit(makeRoutine());
+    store.setActiveTab("details");
 
     await store.runNow();
 

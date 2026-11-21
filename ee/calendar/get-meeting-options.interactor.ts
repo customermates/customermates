@@ -4,6 +4,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -18,6 +19,7 @@ import {
   MeetingOptionsSchema,
 } from "./meeting.schema";
 
+@AllowInDemoMode
 @TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMeetingOptionsInteractor extends AuthenticatedInteractor<MeetingOptionsQuery, MeetingOptions> {
   constructor(

@@ -364,7 +364,7 @@ const EMAIL_PREVIEW_CASES = [
         ...copy,
         greeting: withFirstName(copy.greeting),
         body: copy.body.replace("{accounts}", accounts).replace("{plan}", messages.Subscription.planNames.pro),
-        href: `${PREVIEW_BASE_URL}/settings/channels`,
+        href: `${PREVIEW_BASE_URL}/settings/connections`,
       });
     },
   },

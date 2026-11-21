@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Vertel me wat je hebt gevonden voordat je iets schrijft: hoeveel van elk, met een paar voorbeelden. Wacht op mijn goedkeuring en laat weg wat ik afwijs.",
+    "none": "Is er geen account verbonden, zeg dat dan in één zin, bied aan Gmail, Outlook of LinkedIn te verbinden met connect_messaging_account en ga verder met lege lijsten.",
+    "propose": "Kies daaruit de personen, organisaties en open aanvragen of deals die in de nieuwe lijsten horen, elk met het adres of profiel waar ze vandaan komen. Sla nieuwsbrieven, no-reply-afzenders, meldingen en iedereen die al in de werkruimte staat over.",
+    "read": "Zijn er accounts verbonden, lees dan de recente e-mailgesprekken en LinkedIn-gesprekken met get_messaging_threads, en de komende afspraken met get_calendars als een lijst afspraken bijhoudt.",
+    "write": "Maak daarna de goedgekeurde records aan met import_crm_records, met e-mailadressen, telefoonnummers en profielen als identiteiten in het veld contactgegevens, zodat hun gesprekken vanzelf gekoppeld worden. Koppel een gesprek alleen met manage_conversation_records aan een deal of organisatie als het daar duidelijk bij hoort."
+  },
   "anchorFields": {
     "channels": "Contactgegevens",
     "price": "Prijs",
@@ -9,6 +16,7 @@
     "rule": "een automatiseringsregel",
     "unavailable": "nog niet beschikbaar, niet instellen"
   },
+  "contactDetails": "E-mailadressen, telefoonnummers en sociale profielen komen alleen in het ingebouwde veld contactgegevens (veldtype channels, in de app Telefoon, e-mail en social media), nooit in een tekst- of linkveld. Zo worden berichten en gesprekken vanzelf aan het juiste record gekoppeld.",
   "defaultView": {
     "marker": "standaardweergave",
     "rule": "Een weergave die als standaard is gemarkeerd, is de ingebouwde weergave van de lijst die alle records toont: stel die daar in in plaats van een tweede weergave te maken, en selecteer hem aan het einde zodat de lijst erop opent."
@@ -39,12 +47,13 @@
   "groupedBy": "gegroepeerd op {field}",
   "headings": {
     "beforeYouWrite": "Voordat je iets schrijft",
+    "connectedAccounts": "De lijsten vullen vanuit mijn verbonden accounts",
     "dashboardWidgets": "Dashboardwidgets",
     "followUpRoutines": "Opvolgroutines",
-    "getWorkspace": "Een werkruimte aanmaken",
     "knowledgePages": "Kennisbankpagina’s (alleen opzetten, te vullen met mijn eigen gegevens)",
     "listsAndFields": "Lijsten en velden",
     "questions": "Vragen aan mij",
+    "recordDetails": "Detailweergave van records",
     "relationships": "Relaties",
     "rules": "Regels",
     "thisWorkspace": "Deze werkruimte",
@@ -58,9 +67,14 @@
   "nameOnly": "alleen de naam",
   "procedure": {
     "askQuestions": "Stel eerst de vragen aan het eind. Laat alles wat onbekend is leeg in plaats van te gokken.",
+    "checkAccounts": "Controleer welke accounts verbonden zijn (connectedAccounts in get_workspace_context, of manage_connected_accounts met list): Gmail, Outlook, andere e-mail via IMAP en LinkedIn.",
     "describePlan": "Beschrijf het plan hieronder in gewone woorden, afgestemd op mijn antwoorden, en wacht op mijn goedkeuring voordat je iets wijzigt.",
     "readContext": "Roep get_workspace_context aan en lees de werkhandleiding en de bestaande lijsten, velden, weergaven en kennisbankpagina’s.",
     "reuse": "Hergebruik wat er al is. Maak nooit een tweede lijst voor iets wat de werkruimte al bijhoudt."
+  },
+  "recordDetails": {
+    "order": "Zet de velden van elke lijst in de volgorde hierboven met configure_record_model (de veldpositie), zodat iedereen in het team de belangrijkste velden eerst ziet op de detailpagina.",
+    "pins": "Zet daarna de fase, de volgende datum en het belangrijkste bedrag van elke lijst vast in je eigen detailindeling met manage_record_detail_layout. Vastgezette velden zijn persoonlijk, dus vertel me welke het team ook moet vastzetten."
   },
   "relationship": "{source} zijn gekoppeld aan {target} (getoond als {sourceLabel} bij {source} en {targetLabel} bij {target})",
   "roadRules": {
@@ -76,11 +90,14 @@
     "optional": "optioneel"
   },
   "routinesIntro": "Stel deze voor als een geheel. Stel alleen de als beschikbaar gemarkeerde in en vertel me over de rest.",
+  "sharing": {
+    "views": "Maak elke weergave aan met manage_data_views en deel hem met de hele werkruimte (share met visibility workspace), zodat iedereen in het team hem kan openen.",
+    "widgets": "Maak elke widget aan op het hoofddashboard met manage_widgets en isTemplate true, zodat het hele team hem ziet."
+  },
   "workspace": {
-    "cloud": "Maak een Customermates-werkruimte aan via {url} en verbind je assistent ermee. Het sjabloon is daar al voorgeselecteerd.",
     "connected": "Je bent al verbonden met de Customermates-werkruimte die dit sjabloon gaat bevatten. Werk daarin en maak geen nieuwe aan.",
     "connectedAt": "Deze werkruimte bestaat al en je bent er via MCP mee verbonden op {mcpUrl}. Werk in deze werkruimte en in geen andere.",
     "existsAt": "Deze werkruimte bestaat al, maar je assistent is er nog niet mee verbonden. Verbind hem via MCP op {mcpUrl}, met een API-sleutel uit Instellingen, API-sleutels & connectoren. Zolang de verbinding ontbreekt, vraag me haar af te ronden voordat je iets wijzigt. Werk daarna in deze werkruimte en in geen andere.",
-    "selfHosted": "Gebruik je eigen Customermates-instantie. Verbind je assistent met het MCP-eindpunt op <adres van je instantie>/api/v1/mcp met een API-sleutel uit Instellingen, API-sleutels & connectoren. Niets hiervan hangt af van de gehoste cloud."
+    "unconnected": "Werk in de Customermates-werkruimte waarmee je via MCP verbonden bent. Ben je nog met geen enkele verbonden, vraag me dan je te verbinden voordat je iets wijzigt."
   }
 }

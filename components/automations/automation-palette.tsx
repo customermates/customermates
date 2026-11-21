@@ -2,10 +2,11 @@
 
 import type { LucideIcon } from "lucide-react";
 
-import { Bell, Filter, ListPlus, Pencil, Search, Sparkles, Webhook, X } from "lucide-react";
+import { Bell, Filter, ListPlus, Pencil, Search, Webhook, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { AutomationAgentIcon } from "@/components/automations/automation-agent-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -27,7 +28,7 @@ const ITEMS: Record<AutomationPaletteKind, { group: Group; icon: LucideIcon }> =
   createRecord: { group: "record", icon: ListPlus },
   notify: { group: "people", icon: Bell },
   callWebhook: { group: "integrations", icon: Webhook },
-  agent: { group: "agent", icon: Sparkles },
+  agent: { group: "agent", icon: AutomationAgentIcon },
 };
 
 const GROUP_ORDER: Group[] = ["condition", "record", "people", "integrations", "agent"];

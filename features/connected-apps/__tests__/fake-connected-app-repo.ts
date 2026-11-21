@@ -30,6 +30,7 @@ export class FakeConnectedAppRepo implements ConnectedAppRepo {
       grants.set(token.clientId, {
         clientId: token.clientId,
         name: this.names[token.clientId] ?? token.clientId,
+        device: null,
         connectedAt: grant && grant.connectedAt < token.createdAt ? grant.connectedAt : token.createdAt,
         lastActiveAt: grant && grant.lastActiveAt > token.updatedAt ? grant.lastActiveAt : token.updatedAt,
         refreshableUntil:

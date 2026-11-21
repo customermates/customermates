@@ -16,12 +16,6 @@
   <a href="#product-film">Film</a>
 </p>
 
-<p align="center">
-  <a href="https://www.opensourcealternatives.to">
-    <img src="public/images/brand/open-source-alternatives-badge.svg" alt="As seen on Open Source Alternatives" width="270" height="20" />
-  </a>
-</p>
-
 
 <p align="center">
   <a href="#product-film"><img src=".github/media/customermates-film.webp" alt="Customermates: every client conversation in one place. Follow up on every one." width="1200"></a>

@@ -22,7 +22,6 @@
       "label": "Rol",
       "options": { "author": "Auteur", "editor": "Redacteur", "reviewer": "Reviewer", "approver": "Goedkeurder", "client_contact": "Klantcontact", "guest": "Gast of geïnterviewde" }
     },
-    "people.profile_url": { "label": "Link naar profiel" },
     "pieces.owner": { "label": "Eigenaar" },
     "pieces.reviewer": { "label": "Reviewer" },
     "pieces.format": {

@@ -38,6 +38,7 @@ export class GetConnectedAppsInteractor extends AuthenticatedInteractor<void, Co
         .map((grant) => ({
           id: grant.clientId,
           name: grant.name,
+          device: grant.device,
           connectedAt: grant.connectedAt,
           lastActiveAt: grant.lastActiveAt,
         })),

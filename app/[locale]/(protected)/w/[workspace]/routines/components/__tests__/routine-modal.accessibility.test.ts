@@ -29,10 +29,7 @@ describe("routine modal accessibility contract", () => {
     expect(configuration).toContain("RoutineDetail.ownerPermissionReadOnly");
     expect(configuration).toContain("{store.isReadOnly && (");
     expect(configuration).toContain("store.isOwner && !store.canManage");
-    expect(configuration).toContain("{store.canManage ? (");
     expect(configuration).not.toContain("{store.isOwner ? (");
-    expect(configuration).toContain("data-routine-enabled-field");
-    expect(configuration).toContain('htmlFor="enabled"');
     expect(configuration).toContain('form.enabled ? t("RoutineModal.enabledHelp") : t("RoutineModal.pausedHelp")');
     expect(configuration).not.toContain('Alert color="warning"');
     expect(configuration).not.toContain("disabledReasonCopy");
@@ -41,22 +38,17 @@ describe("routine modal accessibility contract", () => {
     expect(emptyState).not.toContain("const testDescription = !store.isOwner");
   });
 
-  it("uses a divider-free wide split and full-modal run drilldown", () => {
+  it("renders the routine on the shared automation canvas and replays runs in its panel", () => {
     const modal = read("routine-modal.tsx");
     const runsPane = read("routine-runs-pane.tsx");
     const runDetail = read("routine-run-detail.tsx");
-    const bodyTag = "<App" + "CardBody";
 
-    expect(modal).toContain('size={isExistingRoutine && wide ? "5xl" : "lg"}');
-    expect(modal).toContain('data-routine-layout="wide"');
-    expect(modal).toContain('className="grid min-w-0 items-start gap-6');
-    expect(modal).toContain("lg:min-h-[36rem] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]");
-    expect(modal).toContain("pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]");
+    expect(modal).toContain("<AutomationDrawerShell");
+    expect(modal).toContain("<AutomationCanvas actions={canvasActions} steps={steps} />");
     expect(modal).toContain('data-routine-layout="run"');
-    expect(modal).toMatch(/\{!openRun && \(\s*<UnsavedChangesBar/);
-    expect(modal.split(bodyTag)).toHaveLength(5);
-    expect(modal).not.toContain("border-l");
-    expect(modal).not.toContain("overflow-y-hidden!");
+    expect(modal).toContain("<AutomationReplayBanner");
+    expect(modal).toContain('routineModalStore.onChange("enabled", enabled)');
+    expect(modal).toMatch(/openRun \? undefined : \(\s*<UnsavedChangesBar/);
     expect(runsPane).not.toContain("sticky top-0");
     expect(runsPane).not.toContain("border-b");
     expect(runDetail).toContain("<AgentConversationLog");
@@ -78,7 +70,6 @@ describe("routine modal accessibility contract", () => {
     expect(runDetail).toContain("store.openRun(run)");
     expect(runDetail).toContain("RoutineDetail.transcriptOwnerOnly");
     expect(runDetail).toContain("useAgentChatConfig(routineRunChatStore, transcriptSelected)");
-    expect(modal.indexOf("isExistingRoutine && wide")).toBeLessThan(modal.indexOf("<SegmentedControl"));
   });
 
   it("keeps new routines configuration-only and restores focus after run drilldown", () => {

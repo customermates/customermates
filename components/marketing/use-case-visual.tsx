@@ -10,12 +10,12 @@ import {
   FileText,
   Plug,
   Search,
-  Sparkles,
   UsersRound,
 } from "lucide-react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { Google, Linkedin, Whatsapp } from "@/components/icons/channel-icon";
+import { MateOrb } from "@/components/mate/mate-orb";
 import { cn } from "@/core/utils/cn";
 
 function Line({ className }: { className?: string }) {
@@ -27,11 +27,7 @@ function Window({ children, className }: { children: ReactNode; className?: stri
 }
 
 function MateMark() {
-  return (
-    <span aria-hidden className="mk-mini-mate">
-      <Sparkles className="size-2.5" />
-    </span>
-  );
+  return <MateOrb className="size-3.5" />;
 }
 
 function Row({ children, active }: { children: ReactNode; active?: boolean }) {
