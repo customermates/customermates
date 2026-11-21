@@ -18,7 +18,13 @@ vi.mock("@/i18n/navigation", async () => {
   };
 });
 
-import { AppLink, contentHrefForLocale, fallbackLanguageOfContentHref, protectedHrefFromContent } from "../app-link";
+import {
+  AppLink,
+  contentHrefForLocale,
+  fallbackLanguageOfContentHref,
+  protectedHrefFromContent,
+  staticFileHref,
+} from "../app-link";
 
 import { CONTENT_LOCALES, isAppLocale, isRoutingLocale } from "@/i18n/locale-registry";
 
@@ -123,5 +129,37 @@ describe("protectedHrefFromContent", () => {
     );
 
     expect(hardNavigation).toBe('<a href="/dashboard?tab=sales#pipeline">Dashboard</a>');
+  });
+});
+
+describe("staticFileHref", () => {
+  it("keeps same-origin links to public files as written, without a locale", () => {
+    expect(staticFileHref("/templates/crm-template-en.xlsx")).toBe("/templates/crm-template-en.xlsx");
+    expect(staticFileHref("/templates/crm-erp-field-ownership.csv?v=2#top")).toBe(
+      "/templates/crm-erp-field-ownership.csv?v=2#top",
+    );
+    expect(staticFileHref("/downloads/sales-plan/sales-plan-template-en.csv")).toBe(
+      "/downloads/sales-plan/sales-plan-template-en.csv",
+    );
+  });
+
+  it("leaves pages, external and protocol-relative links alone", () => {
+    expect(staticFileHref("/templates/client-tracker")).toBeNull();
+    expect(staticFileHref("/templates")).toBeNull();
+    expect(staticFileHref("https://example.com/file.csv")).toBeNull();
+    expect(staticFileHref("//example.com/file.csv")).toBeNull();
+    expect(contentHrefForLocale("/templates/crm-template-en.xlsx", "ja")).toBeNull();
+  });
+
+  it("renders a native anchor without a locale prefix for a file under a localized route", () => {
+    for (const locale of ["en", "de", "ja"]) {
+      routeState.locale = locale;
+      routeState.pathname = "/features/knowledge-base";
+      const file = renderToStaticMarkup(
+        createElement(AppLink, { appearance: "unstyled", href: "/templates/knowledge-base-starter-en.zip" }, "Pack"),
+      );
+
+      expect(file, locale).toBe('<a href="/templates/knowledge-base-starter-en.zip">Pack</a>');
+    }
   });
 });
