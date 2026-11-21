@@ -45,6 +45,8 @@ vi.mock("@/core/di", () => ({
 
 import { GET } from "../route";
 
+import { UnipileRequestError } from "@/ee/messaging/unipile-request-error";
+
 const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const UNIPILE_STEPS = [3, 4, 5];
 
@@ -148,5 +150,51 @@ describe("lifecycle cron", () => {
     expect(sentry.captureException).toHaveBeenCalledWith(failure, {
       tags: { kind: "wiki-section-cron-sync" },
     });
+  });
+
+  it("reports a Unipile timeout or outage in a cleanup step as a warning, since the next daily run retries it", async () => {
+    mockEnv.VERCEL_ENV = "production";
+    const timeout = new UnipileRequestError(0, null, "{}");
+    const outage = new UnipileRequestError(503, null, "");
+    const rateLimit = new UnipileRequestError(429, null, "", 19);
+    invokes[5].mockRejectedValueOnce(timeout);
+    invokes[3].mockRejectedValueOnce(outage);
+    invokes[4].mockRejectedValueOnce(rateLimit);
+
+    const response = await callLifecycle();
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    expect(calledSteps()).toEqual(invokes.map((_, index) => index));
+    expect(sentry.captureException).toHaveBeenCalledWith(timeout, {
+      level: "warning",
+      tags: { kind: "lifecycle-step", step: "deleteOrphanedUnipileAccounts" },
+    });
+    expect(sentry.captureException).toHaveBeenCalledWith(outage, {
+      level: "warning",
+      tags: {
+        kind: "lifecycle-step",
+        step: "deleteConnectedAccountsForExpiredTrials",
+      },
+    });
+    expect(sentry.captureException).toHaveBeenCalledWith(rateLimit, {
+      level: "warning",
+      tags: {
+        kind: "lifecycle-step",
+        step: "deleteConnectedAccountsForInactiveOwners",
+      },
+    });
+  });
+
+  it("still fails on a Unipile client error, which a retry will not fix", async () => {
+    mockEnv.VERCEL_ENV = "production";
+    const unauthorized = new UnipileRequestError(401, "errors/invalid_credentials", "");
+    invokes[5].mockRejectedValueOnce(unauthorized);
+
+    const error = await callLifecycle().catch((thrown: unknown) => thrown);
+
+    expect(error).toBeInstanceOf(AggregateError);
+    expect((error as AggregateError).errors).toEqual([unauthorized]);
+    expect(sentry.captureException).not.toHaveBeenCalled();
   });
 });
