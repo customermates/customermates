@@ -1,4 +1,5 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { agentRuntimeCard, openAgentRuntime } from "./agents-page";
 import { appPath } from "./app-paths";
 import { confirmDeletion } from "./configure";
 import { collectPageErrors, expect, test } from "./fixtures";
@@ -34,14 +35,16 @@ test("an administrator adds, tests and removes a provider key and the key is nev
     ).rows;
 
   await page.goto(appPath(workspace.slug, "/settings/agents"));
+  await openAgentRuntime(page, "ownKey");
 
   await test.step("a workspace without a key says so and offers the key runtime only after one is added", async () => {
     await expect(page.locator("#agent-keys")).toContainText(keys.keysEmpty);
-    const ownKey = page.locator('#agent-runtimes [data-agent-runtime="ownKey"]');
-    await expect(ownKey).toHaveAttribute("data-available", "false");
+    const ownKey = agentRuntimeCard(page, "ownKey");
+    await expect(ownKey).toHaveAttribute("data-status", "unavailable");
     await expect(ownKey).toContainText(runtime.reasons.noKey);
-    await expect(page.locator("[data-agent-runners-card]")).toContainText(englishMessages.Runners.title);
-    await expect(page.locator("[data-agent-runner]")).toHaveCount(0);
+    // One runtime shows its details at a time: the runners stay behind their own card.
+    await expect(agentRuntimeCard(page, "runner")).toBeVisible();
+    await expect(page.locator("#agent-runners")).toHaveCount(0);
     await expect(page.locator("#agent-runs")).toContainText(englishMessages.AgentJobs.empty);
   });
 
@@ -68,11 +71,9 @@ test("an administrator adds, tests and removes a provider key and the key is nev
 
     const row = page.locator('[data-agent-key="anthropic"]');
     await expect(row).toContainText("Production");
-    await expect(row.locator("[data-agent-key-last4]")).toHaveText("Ends in 0001");
-    await expect(page.locator('#agent-runtimes [data-agent-runtime="ownKey"]')).toHaveAttribute(
-      "data-available",
-      "true",
-    );
+    await expect(row).toContainText("Ends in 0001");
+    await expect(agentRuntimeCard(page, "ownKey")).toHaveAttribute("data-status", "keys");
+    await expect(agentRuntimeCard(page, "ownKey")).toContainText("1 key");
     expect(await page.content()).not.toContain(KEY);
 
     const [saved] = await stored();
@@ -85,12 +86,10 @@ test("an administrator adds, tests and removes a provider key and the key is nev
 
   await test.step("the key is still listed after a reload and the runtime page counts it", async () => {
     await page.reload();
+    await openAgentRuntime(page, "ownKey");
     const row = page.locator('[data-agent-key="anthropic"]');
-    await expect(row.locator("[data-agent-key-last4]")).toHaveText("Ends in 0001");
-    await expect(page.locator('#agent-runtimes [data-agent-runtime="ownKey"]')).toHaveAttribute(
-      "data-available",
-      "true",
-    );
+    await expect(row).toContainText("Ends in 0001");
+    await expect(agentRuntimeCard(page, "ownKey")).toHaveAttribute("data-status", "keys");
     expect(await page.content()).not.toContain(KEY);
   });
 
@@ -104,12 +103,10 @@ test("an administrator adds, tests and removes a provider key and the key is nev
     await confirmDeletion(page);
     await expect(page.locator("#agent-keys")).toContainText(keys.keysEmpty);
     await expect(page.locator('[data-agent-key="anthropic"]')).toHaveCount(0);
-    await expect(page.locator('#agent-runtimes [data-agent-runtime="ownKey"]')).toHaveAttribute(
-      "data-available",
-      "false",
-    );
+    await expect(agentRuntimeCard(page, "ownKey")).toHaveAttribute("data-status", "unavailable");
     expect(await stored()).toEqual([]);
     await page.reload();
+    await openAgentRuntime(page, "ownKey");
     await expect(page.locator("#agent-keys")).toContainText(keys.keysEmpty);
   });
 
@@ -123,7 +120,7 @@ test("an administrator adds, tests and removes a provider key and the key is nev
 
     const row = page.locator('[data-agent-key="anthropic"]');
     await expect(row).toContainText("Restricted");
-    await expect(row.locator("[data-agent-key-last4]")).toHaveText("Ends in 0002");
+    await expect(row).toContainText("Ends in 0002");
     await expect(row.locator("[data-agent-key-unverified]")).toHaveText(keys.unverifiedNote);
     const [saved] = await stored();
     expect(saved).toMatchObject({ provider: "anthropic", keyLast4: "0002", validatedAt: null });

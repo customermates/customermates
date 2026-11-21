@@ -107,8 +107,8 @@ export const SYNTHETIC_SEED_TIMELINE = {
     };
   },
   connectedAccount: (index: number) => ({
-    createdAt: timestamp("2026-07-20T08:00:00.000Z", index, 4 * DAY),
-    updatedAt: timestamp("2026-07-20T08:00:00.000Z", index, 4 * DAY),
+    createdAt: timestamp("2026-07-20T08:00:00.000Z", index, 2 * DAY),
+    updatedAt: timestamp("2026-07-20T08:00:00.000Z", index, 2 * DAY),
   }),
   webhook: {
     createdAt: moment("2026-08-01T10:00:00.000Z"),

@@ -3,11 +3,10 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bot,
   Building2,
+  Cable,
   CreditCard,
   Download,
   History,
-  KeyRound,
-  Mail,
   Send,
   Shield,
   SlidersHorizontal,
@@ -28,6 +27,7 @@ type SettingsSubroute = {
   labelKey: string;
   icon: LucideIcon;
   resource?: Resource;
+  anyResource?: readonly { resource: Resource; cloudOnly?: boolean }[];
   cloudOnly?: boolean;
 };
 
@@ -36,13 +36,11 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "profile", icon: UserCircle, labelKey: "SettingsNav.profile" },
     { slug: "workspaces", icon: Building2, labelKey: "SettingsNav.workspaces" },
     {
-      slug: "channels",
-      icon: Mail,
-      labelKey: "SettingsNav.channels",
-      resource: Resource.inboxMessages,
-      cloudOnly: true,
+      slug: "connections",
+      icon: Cable,
+      labelKey: "SettingsNav.connections",
+      anyResource: [{ resource: Resource.inboxMessages, cloudOnly: true }, { resource: Resource.api }],
     },
-    { slug: "api-keys", icon: KeyRound, labelKey: "SettingsNav.apiKeys", resource: Resource.api },
   ],
   workspace: [
     { slug: "general", icon: SlidersHorizontal, labelKey: "SettingsNav.general" },
@@ -72,6 +70,11 @@ export function visibleSubroutes(
 ): SettingsSubroute[] {
   return SETTINGS_SECTIONS[section].filter(
     (subroute) =>
-      (appMode !== "self-hosted" || !subroute.cloudOnly) && (!subroute.resource || canAccess(subroute.resource)),
+      (appMode !== "self-hosted" || !subroute.cloudOnly) &&
+      (!subroute.resource || canAccess(subroute.resource)) &&
+      (!subroute.anyResource ||
+        subroute.anyResource.some(
+          (entry) => (appMode !== "self-hosted" || !entry.cloudOnly) && canAccess(entry.resource),
+        )),
   );
 }

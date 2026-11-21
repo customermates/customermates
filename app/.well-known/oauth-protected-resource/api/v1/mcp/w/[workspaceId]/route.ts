@@ -3,8 +3,9 @@ import { oAuthProtectedResourceMetadata } from "better-auth/plugins";
 import { auth } from "@/core/auth/better-auth";
 import { env } from "@/env";
 import { isMcpWorkspaceId, mcpWorkspaceUrl } from "@/features/auth/mcp-resource";
+import { publicOAuthMetadata } from "@/features/auth/oauth-discovery-request";
 
-const protectedResourceMetadata = oAuthProtectedResourceMetadata(auth);
+const protectedResourceMetadata = publicOAuthMetadata(oAuthProtectedResourceMetadata(auth));
 
 export async function GET(request: Request, { params }: { params: Promise<{ workspaceId: string }> }) {
   const { workspaceId } = await params;

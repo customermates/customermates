@@ -97,7 +97,7 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
           values: { count: reconnectAccounts },
           action: {
             labelKey: "ConnectedAccountsCard.title",
-            href: `/${this.rootStore.localeStore.locale}${settingsHref("channels")}`,
+            href: `/${this.rootStore.localeStore.locale}${settingsHref("connections")}`,
           },
         });
       }

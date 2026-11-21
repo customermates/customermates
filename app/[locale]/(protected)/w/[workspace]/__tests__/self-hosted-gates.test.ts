@@ -21,7 +21,6 @@ describe("cloud-only pages on a self-hosted instance", () => {
   it.each([
     ["Inbox", () => import("../inbox/page"), { searchParams }],
     ["Billing", () => import("../settings/(workspace)/billing/page"), { searchParams }],
-    ["Channels", () => import("../settings/(account)/channels/page"), { searchParams }],
   ] as const)(
     "send %s to the Dashboard in the locale of the request",
     async (_page, load, props) => {
@@ -31,6 +30,14 @@ describe("cloud-only pages on a self-hosted instance", () => {
     },
     60_000,
   );
+
+  it("send Channels to the AI apps on the Connections page, since the inbox part is cloud-only", async () => {
+    const { default: Page } = (await import("../settings/(account)/channels/page")) as {
+      default: (props?: unknown) => Promise<unknown>;
+    };
+
+    await expect(Page({ searchParams })).rejects.toThrow("NEXT_REDIRECT /de/w/acme/settings/connections?section=apps");
+  }, 60_000);
 
   it("send Routines to Automations, the page that replaced it and explains itself on self-hosted", async () => {
     const { default: Page } = (await import("../routines/page")) as { default: (props?: unknown) => Promise<unknown> };

@@ -8,7 +8,6 @@ import { noAgentRuntimes } from "@/features/automation-rules/agent-runtime-avail
 import { Action, Resource } from "@/generated/prisma";
 
 const actions = vi.hoisted(() => ({
-  composeAutomationAction: vi.fn(),
   previewAutomationRuleAction: vi.fn(),
   setAutomationRuleEnabledAction: vi.fn(),
   upsertAutomationRuleAction: vi.fn(),
@@ -132,32 +131,33 @@ describe("AutomationBuilderStore", () => {
     vi.useRealTimers();
   });
 
-  it("opens a new automation on the start screen with an empty chain and nothing to discard", () => {
+  it("opens a new automation as an empty chain on the list asked for, with nothing to discard", () => {
     const { store } = open();
 
     expect(store.isOpen).toBe(true);
-    expect(store.screen).toBe("start");
     expect(store.form.effects).toEqual([]);
+    expect(store.form.trigger.typeId).toBe(DEALS);
     expect(store.isExisting).toBe(false);
     expect(store.hasUnsavedChanges).toBe(false);
-  });
-
-  it("moves to the chain once a draft is applied and then guards unsaved changes", () => {
-    const { store } = open();
-
-    store.startFromScratch();
-    expect(store.screen).toBe("chain");
-    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.composedByMate).toBe(false);
 
     store.setName("Follow up");
     expect(store.hasUnsavedChanges).toBe(true);
+  });
+
+  it("marks a draft handed over from the composer as drafted by Mate, and only a draft", () => {
+    const draft = { name: "Composed", enabled: true, trigger: open().store.form.trigger, conditions: [], effects: [] };
+
+    expect(open({ draft, composed: true }).store.composedByMate).toBe(true);
+    expect(open({ draft }).store.composedByMate).toBe(false);
+    expect(open({ composed: true }).store.composedByMate).toBe(false);
+    expect(open({ draft, composed: true }).store.form.name).toBe("Composed");
   });
 
   it("opens a saved rule on the chain, on the tab asked for", () => {
     const store = makeStore();
     store.openForRule(CONTEXT, { ...SAVED, effects: [] } as never, vi.fn(), { pane: "runs" });
 
-    expect(store.screen).toBe("chain");
     expect(store.pane).toBe("runs");
     expect(store.isExisting).toBe(true);
     expect(store.form.id).toBe(RULE);
@@ -177,7 +177,6 @@ describe("AutomationBuilderStore", () => {
     store.openForCreate(CONTEXT, vi.fn(), {
       draft: { name: "Reminder", enabled: true, trigger: store.form.trigger, conditions: [], effects: [] },
     });
-    expect(store.screen).toBe("chain");
     expect(store.isExisting).toBe(false);
     expect(store.form.id).toBeUndefined();
     expect(store.form.name).toBe("Reminder");
@@ -185,7 +184,6 @@ describe("AutomationBuilderStore", () => {
 
   it("adds steps from the palette at the position asked for and opens the new card", () => {
     const { store } = open();
-    store.startFromScratch();
 
     store.openPalette({ index: 0 });
     expect(store.palette).toEqual({ index: 0 });
@@ -206,7 +204,6 @@ describe("AutomationBuilderStore", () => {
 
   it("refuses to save an incomplete chain, names what is missing and opens that card", async () => {
     const { store, onSaved } = open();
-    store.startFromScratch();
     store.setName("Needs a step");
 
     expect(await store.save()).toBe("incomplete");
@@ -296,7 +293,6 @@ describe("AutomationBuilderStore", () => {
 
   it("keeps a red mark on the card it was given to when cards are removed or added", async () => {
     const { store } = open();
-    store.startFromScratch();
     store.setName("Flags");
     store.addEffect("notify", 0);
     store.addEffect("agent", 0);
@@ -322,7 +318,6 @@ describe("AutomationBuilderStore", () => {
 
   it("moves a red mark along with its step when another step is put in front of it", async () => {
     const { store } = open();
-    store.startFromScratch();
     store.setName("Flags");
 
     expect(await store.save()).toBe("incomplete");
@@ -341,7 +336,6 @@ describe("AutomationBuilderStore", () => {
   it("saves a complete chain, hands the rule back and closes", async () => {
     actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: SAVED });
     const { store, onSaved } = open();
-    store.startFromScratch();
     store.patchTrigger({ kind: "recordCreated" });
     store.setName("Ask on creation");
     store.addEffect("agent", 0);
@@ -364,7 +358,6 @@ describe("AutomationBuilderStore", () => {
   it("stays open and reports the failure when the server refuses the rule", async () => {
     actions.upsertAutomationRuleAction.mockResolvedValue({ ok: false, error: { errors: [], properties: {} } });
     const { store, onSaved } = open();
-    store.startFromScratch();
     store.setName("Refused");
     store.addEffect("notify", 0);
 
@@ -378,7 +371,6 @@ describe("AutomationBuilderStore", () => {
     let release: (result: unknown) => void = () => undefined;
     actions.upsertAutomationRuleAction.mockReturnValue(new Promise((resolve) => (release = resolve)));
     const { store, onSaved } = open();
-    store.startFromScratch();
     store.setName("Slow save");
     store.addEffect("notify", 0);
     const saving = store.save();
@@ -401,7 +393,6 @@ describe("AutomationBuilderStore", () => {
     let release: (result: unknown) => void = () => undefined;
     actions.upsertAutomationRuleAction.mockReturnValue(new Promise((resolve) => (release = resolve)));
     const { store } = open();
-    store.startFromScratch();
     store.setName("Slow save");
     store.addEffect("notify", 0);
     const saving = store.save();
@@ -528,7 +519,6 @@ describe("AutomationBuilderStore", () => {
 
   it("starts a new condition with a comparison its field can be saved with", () => {
     const { store } = open();
-    store.startFromScratch();
 
     store.addCondition(0);
 
@@ -537,7 +527,6 @@ describe("AutomationBuilderStore", () => {
 
   it("drops the link of a create step when the trigger moves to a list or an event the link does not fit", () => {
     const { store } = open();
-    store.startFromScratch();
     store.addEffect("createRecord", 0);
     const linked = () => {
       const step = store.form.effects[0];
@@ -564,7 +553,6 @@ describe("AutomationBuilderStore", () => {
 
   it("previews a date reminder once the trigger is complete, after a short delay", async () => {
     const { store } = open();
-    store.startFromScratch();
     store.patchTrigger({ kind: "dateReached", fieldId: "" });
     await vi.advanceTimersByTimeAsync(AUTOMATION_PREVIEW_DELAY_MS);
     expect(actions.previewAutomationRuleAction).not.toHaveBeenCalled();
@@ -585,7 +573,6 @@ describe("AutomationBuilderStore", () => {
 
   it("keeps the last answer for the latest edit when previews overlap", async () => {
     const { store } = open();
-    store.startFromScratch();
     let release: (value: unknown) => void = () => undefined;
     actions.previewAutomationRuleAction
       .mockImplementationOnce(() => new Promise((resolve) => (release = resolve)))
@@ -602,96 +589,5 @@ describe("AutomationBuilderStore", () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.preview?.total).toBe(9);
-  });
-
-  it("turns a composed sentence into a draft that waits for the user to switch it on", async () => {
-    actions.composeAutomationAction.mockResolvedValue({
-      ok: true,
-      data: {
-        status: "draft",
-        draft: {
-          name: "Offer follow-up",
-          enabled: true,
-          trigger: { kind: "recordCreated", typeId: DEALS },
-          conditions: [],
-          effects: [
-            {
-              kind: "notify",
-              recipients: { ruleOwner: true, assignees: false, userIds: [] },
-              notificationKind: "ruleAlert",
-              title: "{{record.name}}",
-            },
-          ],
-        },
-      },
-    });
-    const { store } = open();
-    store.setComposerText("When a deal is created, tell me");
-
-    expect(await store.compose()).toBe("drafted");
-
-    expect(actions.composeAutomationAction).toHaveBeenCalledWith({ sentence: "When a deal is created, tell me" });
-    expect(store.screen).toBe("chain");
-    expect(store.composedByMate).toBe(true);
-    expect(store.form.name).toBe("Offer follow-up");
-    expect(store.form.effects.map((effect) => effect.kind)).toEqual(["notify"]);
-    expect(actions.upsertAutomationRuleAction).not.toHaveBeenCalled();
-  });
-
-  it("drops a composed draft that arrives after the builder moved on to another rule", async () => {
-    let answer: (value: unknown) => void = () => undefined;
-    actions.composeAutomationAction.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
-    const { store } = open();
-    store.setComposerText("When a deal is created, tell me");
-    const pending = store.compose();
-    expect(store.composing).toBe(true);
-
-    store.close();
-    store.openForRule(CONTEXT, { ...SAVED, name: "Rule B" } as never, vi.fn());
-    expect(store.composing).toBe(false);
-    answer({
-      ok: true,
-      data: {
-        status: "draft",
-        draft: { name: "Composed", enabled: true, trigger: { kind: "recordCreated", typeId: DEALS }, effects: [] },
-      },
-    });
-
-    expect(await pending).toBe("stale");
-    expect(store.form.id).toBe(RULE);
-    expect(store.form.name).toBe("Rule B");
-    expect(store.composedByMate).toBe(false);
-    expect(store.composing).toBe(false);
-  });
-
-  it("drops a composed draft once the user picked a recipe or started from scratch instead", async () => {
-    let answer: (value: unknown) => void = () => undefined;
-    actions.composeAutomationAction.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
-    const { store } = open();
-    store.setComposerText("Tell me about new deals");
-    const pending = store.compose();
-
-    store.startFromScratch();
-    store.setName("My own chain");
-    answer({ ok: true, data: { status: "refused", reason: "unsupported" } });
-
-    expect(await pending).toBe("stale");
-    expect(store.form.name).toBe("My own chain");
-    expect(store.composerRefusal).toBeNull();
-    expect(store.composing).toBe(false);
-  });
-
-  it("shows the reason when Mate refuses and ignores an empty sentence", async () => {
-    actions.composeAutomationAction.mockResolvedValue({ ok: true, data: { status: "refused", reason: "unsupported" } });
-    const { store } = open();
-
-    expect(await store.compose()).toBe("failed");
-    expect(actions.composeAutomationAction).not.toHaveBeenCalled();
-
-    store.setComposerText("Wait three days, then email them");
-    expect(await store.compose()).toBe("refused");
-    expect(store.composerRefusal).toBe("unsupported");
-    expect(store.screen).toBe("start");
-    expect(store.composing).toBe(false);
   });
 });

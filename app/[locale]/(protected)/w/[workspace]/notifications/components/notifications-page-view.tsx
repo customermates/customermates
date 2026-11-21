@@ -1,32 +1,30 @@
 "use client";
 
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, Settings } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import type { HydrationSafeIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import type { NotificationDto, NotificationInbox } from "@/features/notifications/notification.schema";
-import type { NotificationsStore } from "./notifications.store";
+import type { NotificationInbox } from "@/features/notifications/notification.schema";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { NOTIFICATION_PREFERENCES_HREF } from "@/app/components/notifications/notification-links";
+import { NotificationRow } from "@/app/components/notifications/notification-row";
 import { PageState } from "@/components/page-state/page-state";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { cn } from "@/core/utils/cn";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
-import { IntlLink } from "@/i18n/navigation";
 
 import {
-  filterNotificationsByKind,
-  groupNotificationsByDay,
-  NOTIFICATION_KIND_FILTERS,
-  resolveNotificationDayLabel,
-  type NotificationKindFilter,
+  filterNotificationsForPage,
+  groupNotificationsByAge,
+  NOTIFICATION_PAGE_FILTERS,
+  type NotificationPageFilter,
 } from "./notifications-page-model";
 import { NotificationsPageSkeleton } from "./notifications-page-skeleton";
 
@@ -34,59 +32,11 @@ const REFRESH_INTERVAL_MS = 30_000;
 
 type Props = { initialInbox: NotificationInbox };
 
-type RowProps = {
-  item: NotificationDto;
-  intlStore: HydrationSafeIntlStore;
-  store: NotificationsStore;
-};
-
-function NotificationRow({ item, intlStore, store }: RowProps) {
-  const t = useTranslations();
-  const content = (
-    <>
-      <span aria-hidden={item.read || undefined} className="flex h-5 w-2 shrink-0 items-center">
-        {!item.read && (
-          <span aria-label={t("Notifications.unread")} className="size-2 rounded-full bg-primary" role="img" />
-        )}
-      </span>
-
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="flex items-start justify-between gap-3">
-          <span className={cn("min-w-0 text-sm", item.read ? "text-foreground" : "font-semibold")}>{item.title}</span>
-
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {intlStore.formatRelativeTime(new Date(item.createdAt))}
-          </span>
-        </span>
-
-        {item.body && <span className="line-clamp-2 text-xs text-muted-foreground">{item.body}</span>}
-
-        <span className="text-xs text-muted-foreground">{t(`Notifications.kinds.${item.kind}`)}</span>
-      </span>
-    </>
-  );
-  const className =
-    "flex w-full items-start gap-3 border-b border-border px-4 py-3 text-start hover:bg-accent focus-visible:bg-accent";
-  const markRead = () => {
-    if (!item.read) runUserAction(() => store.markRead([item.id]));
-  };
-
-  return item.href ? (
-    <IntlLink className={className} href={item.href} onClick={markRead}>
-      {content}
-    </IntlLink>
-  ) : (
-    <button className={className} type="button" onClick={markRead}>
-      {content}
-    </button>
-  );
-}
-
 const NotificationsPageViewContent = observer(function NotificationsPageView({ initialInbox }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const { notificationsStore: store } = useRootStore();
-  const [kind, setKind] = useState<NotificationKindFilter>("all");
+  const [filter, setFilter] = useState<NotificationPageFilter>("all");
   const appliedInbox = useRef<NotificationInbox | null>(null);
 
   if (appliedInbox.current !== initialInbox) {
@@ -118,6 +68,13 @@ const NotificationsPageViewContent = observer(function NotificationsPageView({ i
             disabled: !canMarkAll,
             onClick: store.markAllRead,
           },
+          {
+            id: "notifications-settings",
+            anchorId: "notifications-settings",
+            icon: Settings,
+            label: t("Notifications.settings"),
+            href: NOTIFICATION_PREFERENCES_HREF,
+          },
         ]}
       />
     ),
@@ -137,55 +94,49 @@ const NotificationsPageViewContent = observer(function NotificationsPageView({ i
     );
   }
 
-  const visible = filterNotificationsByKind(store.items, kind);
-  const now = new Date();
-  const groups = intlStore.rendersZonedValues
-    ? groupNotificationsByDay(visible)
-    : [{ key: "all", date: now, items: visible }];
+  const visible = filterNotificationsForPage(store.items, filter);
+  const sections = intlStore.rendersZonedValues
+    ? groupNotificationsByAge(visible, new Date())
+    : [{ group: null, items: visible }];
+  const markRead = (id: string) => runUserAction(() => store.markRead([id]));
 
   return (
     <div className="flex w-full flex-col pb-6">
-      <div
-        aria-label={t("Notifications.filtersLabel")}
-        className="flex flex-wrap items-center gap-1 border-b border-border bg-background px-4 pt-1 pb-4"
-        data-joins-top-bar=""
-        role="group"
-      >
-        {NOTIFICATION_KIND_FILTERS.map((option) => (
-          <Button
-            key={option}
-            aria-pressed={kind === option}
-            className="h-7 rounded-full px-2.5 text-xs"
-            size="sm"
-            type="button"
-            variant={kind === option ? "default" : "secondary"}
-            onClick={() => setKind(option)}
-          >
-            {option === "all" ? t("Notifications.filterAll") : t(`Notifications.kinds.${option}`)}
-          </Button>
-        ))}
+      <div className="border-b border-border bg-background px-4 pt-1 pb-4" data-joins-top-bar="">
+        <SegmentedControl
+          className="w-full sm:w-fit"
+          items={NOTIFICATION_PAGE_FILTERS.map((option) => ({
+            value: option,
+            label: t(`Notifications.pageFilters.${option}`),
+          }))}
+          label={t("Notifications.filtersLabel")}
+          listClassName="[&>button]:px-1.5 [&>button]:text-xs sm:[&>button]:px-3 sm:[&>button]:text-sm"
+          value={filter}
+          onValueChange={setFilter}
+        />
       </div>
 
       {visible.length === 0 ? (
-        <p className="px-4 py-10 text-sm text-muted-foreground">{t("Notifications.emptyFiltered")}</p>
+        <p className="px-4 py-10 text-sm text-muted-foreground">
+          {filter === "unread" ? t("Notifications.emptyUnread") : t("Notifications.emptyFiltered")}
+        </p>
       ) : (
-        groups.map((group) => (
-          <section key={group.key}>
-            {intlStore.rendersZonedValues && (
-              <h2 className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-2 text-xs font-medium text-muted-foreground backdrop-blur">
-                {resolveNotificationDayLabel(
-                  group.date,
-                  now,
-                  { today: t("Notifications.dayToday"), yesterday: t("Notifications.dayYesterday") },
-                  (date) => intlStore.formatDescriptiveShortDate(date),
-                )}
+        sections.map((section) => (
+          <section key={section.group ?? "all"}>
+            {section.group && (
+              <h2 className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase backdrop-blur">
+                {t(`Notifications.groups.${section.group}`)}
               </h2>
             )}
 
             <ul>
-              {group.items.map((item) => (
+              {section.items.map((item) => (
                 <li key={item.id}>
-                  <NotificationRow intlStore={intlStore} item={item} store={store} />
+                  <NotificationRow
+                    item={item}
+                    time={intlStore.formatRelativeTime(new Date(item.createdAt))}
+                    onMarkRead={markRead}
+                  />
                 </li>
               ))}
             </ul>

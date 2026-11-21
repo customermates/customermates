@@ -23,6 +23,9 @@ const NUMBER_TYPES = new Set(["number", "currency"]);
 const PLAN_FIELD_SKIPPED = new Set(["file"]);
 const MULTIPLE_TYPES = new Set(["select", "text", "url"]);
 const SYSTEM_COLUMN = /^system:/;
+const CONTACT_TYPES = new Set(["text", "url"]);
+const CONTACT_KEY =
+  /(?:^|_)(?:e_?mail|phone|mobile|telephone|fax|linkedin|xing|instagram|facebook|twitter|tiktok|whatsapp|telegram|social|profile)(?:_|$)/u;
 
 function distinct(keys: readonly string[], at: (index: number) => Path, report: Report, label: string) {
   const seen = new Set<string>();
@@ -83,6 +86,8 @@ function declaredFieldIssues(spec: TemplateSpecObject, report: Report, claim: Re
       spec.lists.some((list) => list.role === "people" && list.key === refList(field.key))
     )
       report([...path, "type"], "The people list already has channels.");
+    if (CONTACT_TYPES.has(field.type) && CONTACT_KEY.test(field.key.split(".")[1] ?? ""))
+      report([...path, "type"], "Contact details belong in the channels field of the people list.");
     if ((field.type === "select") !== field.options.length > 0)
       report([...path, "options"], "Only select fields have options.");
     if (field.multiple && !MULTIPLE_TYPES.has(field.type)) report([...path, "multiple"], "This field holds one value.");

@@ -31,7 +31,7 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
   const locale = useLocale();
 
   return (
-    <footer className={cn("mt-auto w-full border-t border-border bg-background text-sm", className)}>
+    <footer className={cn("mt-auto w-full overflow-hidden border-t border-border bg-background text-sm", className)}>
       <MarketingContainer className="py-14 md:py-16">
         <div className="flex flex-col gap-8 border-b border-border pb-10 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col items-start gap-5">
@@ -315,6 +315,10 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
           </ul>
         </div>
       </MarketingContainer>
+
+      <div aria-hidden className="footer-wordmark-frame" data-footer-wordmark="">
+        <div className="footer-wordmark" />
+      </div>
     </footer>
   );
 }

@@ -12,7 +12,6 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { templateDeployment } from "@/core/templates/template-deployment";
-import { signupUrl } from "@/core/templates/template-page-model";
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { routineAllowanceOf } from "@/ee/subscription/entitlements";
@@ -72,8 +71,6 @@ export class GetOnboardingTemplatePromptInteractor {
       ok: true as const,
       data: {
         prompt: renderTemplatePrompt(bundle.spec, text, {
-          deployment: mode,
-          signupUrl: signupUrl(data.locale),
           connected,
           mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
           routineAllowance,

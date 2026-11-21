@@ -4,8 +4,9 @@ import type { FormEvent, ReactNode } from "react";
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
+import { MateOrb } from "@/components/mate/mate-orb";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
@@ -169,7 +170,7 @@ export function ViewMetaOverlay({
             }}
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
-              <Sparkles aria-hidden className="size-4" />
+              <MateOrb className="size-5" />
             </span>
 
             <span className="flex min-w-0 flex-1 flex-col gap-1">

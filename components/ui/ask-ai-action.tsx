@@ -1,10 +1,10 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { AppModalButtonActionProps } from "@/components/modal/app-modal-action";
 
+import { MateIcon } from "@/components/mate/mate-icon";
 import { AppModalAction } from "@/components/modal/app-modal-action";
 import { TopBarActionButton } from "@/components/shared/top-bar-action-buttons";
 
@@ -34,7 +34,7 @@ export function useAskAiAction() {
     id: "ask-ai",
     kind: "assistant",
     anchorId,
-    icon: Sparkles,
+    icon: MateIcon,
     label: t("DataView.views.askAi"),
     onClick,
   });

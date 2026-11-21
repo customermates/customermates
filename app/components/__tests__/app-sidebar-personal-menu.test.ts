@@ -94,6 +94,10 @@ function rootStoreWith(user: TenantUser | null) {
     workspacesStore: { items: [], current: null, canCreate: true, requestSwitch: vi.fn() },
     addPickerStore: {
       isOpen: false,
+      screen: "add",
+      query: "",
+      listTemplates: null,
+      setQuery: vi.fn(),
       focusReturnFallback: null,
       focusReturnTarget: null,
       close: vi.fn(),

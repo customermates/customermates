@@ -106,6 +106,7 @@ export type PlatformBookingLink = {
   assignment: "single" | "roundRobin";
   successMessage: string;
   hostUserIds: string[];
+  enabled: boolean;
   createdAt: Date;
 };
 
@@ -435,6 +436,7 @@ export function buildTeamPlatformFixtures(
     assignment: "single",
     successMessage: "Thanks, Max will call you at the chosen time.",
     hostUserIds: [],
+    enabled: true,
     createdAt: storyMoment(45),
   };
   const roundRobinLink: PlatformBookingLink = {
@@ -452,7 +454,26 @@ export function buildTeamPlatformFixtures(
     assignment: "roundRobin",
     successMessage: "Thanks, the host named in your confirmation will be there at the chosen time.",
     hostUserIds: [clara],
+    enabled: true,
     createdAt: storyMoment(30),
+  };
+  const supportLink: PlatformBookingLink = {
+    id: fixture("bookingLink", 3),
+    userId: max,
+    token: `hl-support-checkin-${tag}-demo`,
+    title: "Support check-in",
+    description: "Half an hour to go through open tickets, backups and anything that slowed your team down.",
+    durationMinutes: 30,
+    bufferMinutes: 10,
+    timeZone: content.timeZone,
+    workingHours: DEFAULT_WORKING_HOURS,
+    withVideo: true,
+    personTypeId: contactList,
+    assignment: "single",
+    successMessage: "Thanks, the video link is in your confirmation.",
+    hostUserIds: [],
+    enabled: false,
+    createdAt: storyMoment(60),
   };
   const booking = (
     index: number,
@@ -497,6 +518,8 @@ export function buildTeamPlatformFixtures(
     booking(4, roundRobinLink, "sophie", clara, -6, "10:00", 15),
     booking(5, singleLink, "chloe", max, 8, "16:00", 9, { rescheduledAt: storyMoment(2, 120) }),
     booking(6, singleLink, "megan", max, -17, "11:00", 18),
+    booking(7, singleLink, "james", max, 12, "09:30", 1),
+    booking(8, supportLink, "sophie", max, -26, "15:00", 29),
   ];
 
   const timezone = content.timeZone;
@@ -955,7 +978,7 @@ export function buildTeamPlatformFixtures(
       { userId: max, kind: "replyReceived", emailMode: "instant" },
       { userId: max, kind: "ruleAlert", emailMode: "digest" },
     ],
-    bookingLinks: [singleLink, roundRobinLink],
+    bookingLinks: [singleLink, roundRobinLink, supportLink],
     bookings,
     form,
     incomingWebhook,
@@ -1201,7 +1224,7 @@ export async function seedSolutionPlatform(
       startFieldId: null,
       questions: json([]),
       successMessage: link.successMessage,
-      enabled: true,
+      enabled: link.enabled,
       assignment: link.assignment,
       inviteeChanges: true,
       createdAt: link.createdAt,

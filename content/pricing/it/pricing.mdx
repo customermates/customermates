@@ -27,7 +27,7 @@ pricing:
     features:
       - "[[commercial.limit.free.fileStorageBytes]] di spazio per i file per spazio di lavoro"
       - "API e MCP con [[commercial.limit.free.apiRequestsPerMinute]] richieste al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno"
-      - "Nessuna posta in arrivo, Mate, routine, webhook né trigger n8n"
+      - "Nessuna posta in arrivo, Mate, automazioni pianificate, webhook né trigger n8n"
   - plan: starter
     title: Starter
     description: "Il tuo CRM e la tua IA"
@@ -39,7 +39,7 @@ pricing:
       - Contatti, aziende, trattative e attività
       - "Collega la tua IA tramite MCP: Claude, ChatGPT o Gemini"
       - API REST, webhook e il tuo n8n
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per utente: Mate lavora a orari fissi o quando un record cambia"
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] automazione pianificata per utente: Mate lavora a orari fissi o quando un record cambia"
       - "Utilizzo di Mate: 1x per utente attivo, la dotazione di base"
     missingFeatures:
       - Posta in arrivo unificata per LinkedIn ed e-mail
@@ -58,7 +58,7 @@ pricing:
       - Mate prepara le risposte dal tuo playbook, tu le rivedi e le invii
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente incluso"
       - Condividi le singole conversazioni con i colleghi
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routine per utente: Mate lavora a orari fissi o quando un record cambia"
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] automazioni pianificate per utente: Mate lavora a orari fissi o quando un record cambia"
       - Pianificazione delle riunioni, pagine di prenotazione e LinkedIn Sales Navigator
       - "Utilizzo di Mate: 3x Starter per utente attivo"
       - Tutto ciò che c’è in Starter
@@ -74,7 +74,7 @@ pricing:
       - Tutto ciò che c’è in Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] account collegati per utente inclusi"
       - "Condivisione dell’intero account: condividi un account collegato con il team"
-      - "Routine per utente: [[commercial.entitlement.business.includedRoutinesPerUser]] (uso equo)"
+      - "Automazioni pianificate per utente: [[commercial.entitlement.business.includedRoutinesPerUser]] (uso equo)"
       - Assistenza prioritaria
       - "Utilizzo di Mate: 10x Starter per utente attivo, il massimo di utilizzo per euro"
   - plan: max
@@ -185,7 +185,7 @@ comparison:
         enterprise: true
   - title: CRM di base
     rows:
-      - label: Routine per utente
+      - label: Automazioni pianificate per utente
         catalogFact: includedRoutinesPerUser
       - label: Automazioni attive
         catalogFact: activeAutomationRules
@@ -320,16 +320,16 @@ faq:
     content: "Sì. Un solo accesso può appartenere a più spazi di lavoro del tutto separati, per esempio uno per le vendite e uno per la contabilità, e passare dall’uno all’altro. Ogni spazio di lavoro ha il proprio piano, il proprio abbonamento e le proprie fatture, e i posti si contano per spazio di lavoro: una persona attiva in due spazi di lavoro è un posto a pagamento in entrambi. Il primo spazio di lavoro che crei include la prova gratuita di [[commercial.trial.days]] giorni; ogni spazio di lavoro aggiuntivo parte scegliendo un piano. Un’istanza self-hosted gestisce un numero qualsiasi di spazi di lavoro senza fatturazione."
   - id: pricing-faq-10
     title: Che cosa ottengo se faccio self-hosting?
-    content: "Un’istanza self-hosted ha sempre le funzioni di Starter: CRM di base, MCP, API REST, webhook e le interfacce n8n, senza fatturazione. La posta in arrivo unificata, Mate, le routine e la configurazione con l’IA girano solo su Customermates Cloud. MCP con il tuo client IA funziona su un’istanza self-hosted, e quel client usa il tuo provider IA."
+    content: "Un’istanza self-hosted ha sempre le funzioni di Starter: CRM di base, MCP, API REST, webhook e le interfacce n8n, senza fatturazione. La posta in arrivo unificata, Mate, le automazioni pianificate e la configurazione con l’IA girano solo su Customermates Cloud. MCP con il tuo client IA funziona su un’istanza self-hosted, e quel client usa il tuo provider IA."
   - id: pricing-faq-11
     title: Dove sono conservati i miei dati e le credenziali degli account collegati?
     content: "Il database cloud gira ad AWS Francoforte, e gli account collegati accedono tramite il flusso ospitato di Unipile, quindi Customermates non riceve mai password dei provider né token OAuth. La risposta completa è nella documentazione: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
   - id: pricing-faq-12
     title: "Che cos’è il piano Free?"
-    content: "Il tuo primo spazio di lavoro Cloud parte con la prova di Pro di [[commercial.trial.days]] giorni, senza carta di credito; ogni altro spazio di lavoro parte scegliendo un piano. Se la prova finisce senza un piano a pagamento, lo spazio di lavoro passa a Free invece di essere bloccato, e nulla viene eliminato. Free serve per provare Customermates da solo: [[commercial.limit.free.maxMembers]] persona, fino a [[commercial.limit.free.maxRecords]] record e [[commercial.limit.free.fileStorageBytes]] di spazio per i file per spazio di lavoro. Non ha posta in arrivo né account collegati, né Mate, né routine, né webhook, né trigger n8n. L’API REST e MCP sono incluse con fino a [[commercial.limit.free.apiRequestsPerMinute]] richieste al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno per spazio di lavoro, così puoi portare il tuo Claude o ChatGPT. Record e file oltre un limite restano; viene rifiutata solo l’aggiunta di altri. Puoi passare a un piano a pagamento in qualsiasi momento. Un’istanza self-hosted resta gratuita senza questi limiti."
+    content: "Il tuo primo spazio di lavoro Cloud parte con la prova di Pro di [[commercial.trial.days]] giorni, senza carta di credito; ogni altro spazio di lavoro parte scegliendo un piano. Se la prova finisce senza un piano a pagamento, lo spazio di lavoro passa a Free invece di essere bloccato, e nulla viene eliminato. Free serve per provare Customermates da solo: [[commercial.limit.free.maxMembers]] persona, fino a [[commercial.limit.free.maxRecords]] record e [[commercial.limit.free.fileStorageBytes]] di spazio per i file per spazio di lavoro. Non ha posta in arrivo né account collegati, né Mate, né automazioni pianificate, né webhook, né trigger n8n. L’API REST e MCP sono incluse con fino a [[commercial.limit.free.apiRequestsPerMinute]] richieste al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno per spazio di lavoro, così puoi portare il tuo Claude o ChatGPT. Record e file oltre un limite restano; viene rifiutata solo l’aggiunta di altri. Puoi passare a un piano a pagamento in qualsiasi momento. Un’istanza self-hosted resta gratuita senza questi limiti."
   - id: pricing-faq-13
     title: "Che cosa succede al mio team quando uno spazio di lavoro passa a Free?"
-    content: "Free mantiene [[commercial.limit.free.maxMembers]] persona attiva per spazio di lavoro: la persona che ha creato lo spazio di lavoro, oppure il primo amministratore in ordine di tempo. Tutti gli altri vengono messi in pausa, non rimossi. Le persone in pausa non possono aprire lo spazio di lavoro, e i loro record, le loro note e la loro cronologia restano. Gli inviti aperti e le richieste di adesione vengono annullati, le routine vengono messe in pausa, le automazioni oltre il limite Free di [[commercial.entitlement.free.activeAutomationRules]] vengono disattivate, i moduli pubblici non accettano più invii oltre il limite mensile di [[commercial.entitlement.free.formSubmissionsPerMonth]] e i webhook esistenti smettono di inviare. Un amministratore può passare il posto attivo a un altro amministratore. Appena lo spazio di lavoro sceglie un qualsiasi piano a pagamento, tutte le persone in pausa tornano automaticamente e contano di nuovo come posto a pagamento, e routine, automazioni, moduli e webhook riprendono."
+    content: "Free mantiene [[commercial.limit.free.maxMembers]] persona attiva per spazio di lavoro: la persona che ha creato lo spazio di lavoro, oppure il primo amministratore in ordine di tempo. Tutti gli altri vengono messi in pausa, non rimossi. Le persone in pausa non possono aprire lo spazio di lavoro, e i loro record, le loro note e la loro cronologia restano. Gli inviti aperti e le richieste di adesione vengono annullati, le automazioni pianificate vengono messe in pausa, le altre automazioni oltre il limite Free di [[commercial.entitlement.free.activeAutomationRules]] vengono disattivate, i moduli pubblici non accettano più invii oltre il limite mensile di [[commercial.entitlement.free.formSubmissionsPerMonth]] e i webhook esistenti smettono di inviare. Un amministratore può passare il posto attivo a un altro amministratore. Appena lo spazio di lavoro sceglie un qualsiasi piano a pagamento, tutte le persone in pausa tornano automaticamente e contano di nuovo come posto a pagamento, e tutte le automazioni, i moduli e i webhook riprendono."
   - id: pricing-faq-14
     title: "Come monitorate l’uso di un’istanza self-hosted?"
     content: "Non lo facciamo. Una Community Edition self-hosted non ha una chiave di licenza e non segnala l’uso a Customermates: l’immagine pubblicata non ha ping di licenza e disattiva la telemetria di Next.js e Prisma, e gli errori dell’app restano nei tuoi log. La licenza vale per i suoi termini, non per la telemetria: la Sustainable Use License limita l’uso alla tua azienda, e le funzioni Enterprise, l’integrazione e il white-label richiedono un accordo. Un piano Cloud non sblocca nulla su un’istanza self-hosted. Altre informazioni: https://customermates.com/docs/licence-faq e https://customermates.com/docs/compare-editions"

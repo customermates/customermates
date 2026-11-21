@@ -189,13 +189,13 @@ describe("DashboardPageView", () => {
   it("offers Create list to people who manage the data model of a workspace without lists", () => {
     const html = renderDashboard("ready", { navigation: { canManageSchema: true, hasLists: false, types: [] } });
     const props = harness.pageStateProps.mock.lastCall?.[0] as PageStateProps & {
-      action: ReactElement<{ onClick: () => void }>;
+      action: ReactElement<{ onClick: (event: { currentTarget: unknown }) => void }>;
     };
 
     expect(html).toContain('data-page-state="empty"');
     expect(html).toContain("RecordModel.createList");
     expect(html).toContain("Common.emptyState.dashboardNoListsBody");
-    props.action.props.onClick();
+    props.action.props.onClick({ currentTarget: {} });
     expect(harness.push).toHaveBeenCalledWith("/configure?create=true");
   });
 

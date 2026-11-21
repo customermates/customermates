@@ -40,6 +40,25 @@ describe("marketing process steps", () => {
     expect(markup.match(/data-process-step="true"/gu)).toHaveLength(2);
   });
 
+  it("keeps the rail padding of the primitive on the template pages so the line runs through the step numbers", () => {
+    const sections = readFileSync(
+      join(
+        REPO_ROOT,
+        "components",
+        "marketing",
+        "templates",
+        "template-sections.tsx",
+      ),
+      "utf8",
+    );
+    const usages = [...sections.matchAll(/<Steps\b[^>]*>/gu)].map(
+      (match) => match[0],
+    );
+
+    expect(usages.length).toBeGreaterThan(0);
+    for (const usage of usages) expect(usage).not.toMatch(/\bp[sxl]-\d/u);
+  });
+
   it("documents S-08 as the same one-column vertical rail at every width", () => {
     const patterns = readFileSync(
       join(

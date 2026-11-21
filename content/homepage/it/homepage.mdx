@@ -2,19 +2,34 @@
 title: "CRM source-available per il follow up di ogni cliente"
 description: "CRM source-available per seguire ogni conversazione con i clienti: LinkedIn ed e-mail sul cliente, prossimo passo datato e bozze di Mate da rivedere e inviare."
 rootMetadata:
-  defaultTitle: "Customermates: segui ogni cliente | CRM con IA"
-  defaultDescription: "Segui ogni conversazione con i clienti: thread LinkedIn ed e-mail sul cliente, un prossimo passo datato e risposte di Mate da rivedere e inviare."
+  defaultTitle: "Customermates: il CRM con IA che fa i follow-up per te"
+  defaultDescription: "Customermates riunisce LinkedIn, e-mail e WhatsApp in un solo posto. Mate, il tuo collega IA, prepara ogni risposta e il prossimo passo. Tu controlli e invii."
 
 hero:
-  title: Segui ogni conversazione con i clienti.
-  subtitle: Collega LinkedIn e l’e-mail. Mate o il tuo agente IA prepara ogni risposta e il prossimo passo, e tu rivedi e invii tutto in un unico posto.
-  primaryCta:
-    label: Inizia la prova di [[commercial.trial.days]] giorni
-    href: /auth/signup?job=followup
+  badge: "Costruito attorno alla tua IA"
+  title: Il CRM che fa i follow-up per te.
+  subtitle: "Customermates riunisce LinkedIn, e-mail e WhatsApp in un unico posto. Mate, il tuo collega IA, prepara ogni risposta e il prossimo passo. Tu controlli e invii."
+  picker:
+    question: "Cosa vuoi seguire?"
+    cta: "Inizia gratis con {choice}"
+    choices:
+      - label: "Lead commerciali"
+        template: sales-pipeline
+      - label: "Clienti"
+        template: client-tracker
+      - label: "Richieste dal sito"
+        template: form-to-crm
+      - label: "Richieste WhatsApp"
+        template: whatsapp-enquiry-follow-up
+      - label: "Prenotazioni"
+        template: booking-page
   secondaryCta:
     label: Guarda il film (83 s)
     href: "#film"
-  assurance: Nessuna carta di credito · Source-available · Database a Francoforte · Funziona con il tuo Claude o ChatGPT
+  assurances:
+    sourceAvailable: "Codice sorgente disponibile"
+    noCard: "Nessuna carta di credito"
+    database: "Database a Francoforte"
 
 generator:
   eyebrow: Parti da una descrizione
@@ -22,6 +37,7 @@ generator:
   description: Ecco cosa costruisce la configurazione a partire da una frase. Dati di esempio, il prodotto vero.
   promptLabel: La tua descrizione per Mate
   arrowLabel: è diventata questo spazio di lavoro
+  mateBubble: "Ho creato queste liste, la pipeline e la dashboard dalla tua descrizione."
   steps:
     - title: "Descrivi la tua attività"
       description: "Una frase sul tuo team, i tuoi clienti e come vendi."
@@ -108,10 +124,11 @@ followUp:
 
 pillars:
   eyebrow: Come funziona
-  title: Tutto ciò che serve al tuo follow up, in un unico posto. Quattro parti che lavorano insieme.
+  title: "Tutto ciò che serve al tuo follow up, in un unico posto."
   description: La tua conoscenza, i dati dei clienti e le conversazioni vivono insieme, così ogni agente che ti aiuta lavora sugli stessi fatti.
   knowledge:
     title: Conoscenza
+    bubble: "Ho scritto la risposta a Jonas con il tuo playbook delle proposte."
     description: Playbook, prezzi e il tuo modo di lavorare, scritti una volta sola. Mate e gli agenti collegati usano le pagine che i loro permessi consentono.
     plan: Ogni piano
     doc:
@@ -123,6 +140,7 @@ pillars:
       usedBy: Usato per la bozza a Jonas Weber
   data:
     title: Dati
+    bubble: "Halden & Co. è a Proposta inviata. Il prossimo passo scade martedì."
     description: Clienti, trattative e qualsiasi lista serva alla tua attività, con campi, fasi e viste tuoi.
     plan: Ogni piano
     lists:
@@ -142,6 +160,7 @@ pillars:
           value: Anna Lindqvist
   inbox:
     title: Posta in arrivo
+    bubble: "Jonas ha risposto su LinkedIn. Ho collegato la conversazione a Halden & Co."
     description: E-mail e LinkedIn, più WhatsApp, Instagram e Telegram, accanto al cliente a cui appartiene ogni conversazione.
     plan: Cloud, da Pro
     thread:
@@ -150,6 +169,7 @@ pillars:
       linkedTo: Collegato a Halden & Co.
   agents:
     title: Agenti
+    bubble: "Il tuo Claude e io lavoriamo con gli stessi record e le stesse regole."
     description: Mate è integrato. Oppure collega l’IA che già paghi, e lavora con gli stessi record e le stesse regole.
     plan: Ogni piano, Mate nei piani Cloud a pagamento
     clients:
@@ -183,6 +203,12 @@ proofAndPartners:
     cta:
       label: Vedi il programma partner
       href: /affiliate
+
+trust:
+  label: "Customermates in breve"
+  database: "Database a Francoforte"
+  sourceAvailable: "Codice sorgente disponibile"
+  agents: "Funziona con Claude e ChatGPT"
 
 plansTeaser:
   eyebrow: Prezzi

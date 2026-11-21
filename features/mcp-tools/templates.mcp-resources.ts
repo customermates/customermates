@@ -10,7 +10,6 @@ import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { compileTemplate } from "@/core/templates/compile-template";
 import { compileTemplateAutomation } from "@/core/templates/compile-template-automation";
 import { templateDeployment } from "@/core/templates/template-deployment";
-import { signupUrl } from "@/core/templates/template-page-model";
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import { listOfferedTemplates, loadTemplate } from "@/core/templates/template-registry";
 import { type TemplateSlug, isTemplateSlug } from "@/core/templates/template-slugs";
@@ -70,8 +69,6 @@ export async function templateResourceContents(slug: TemplateSlug, locale: strin
 export async function templatePromptText(slug: TemplateSlug, locale: string): Promise<string> {
   const { spec, text } = await loadTemplate(slug, locale);
   return renderTemplatePrompt(spec, text, {
-    deployment: templateDeployment(),
-    signupUrl: signupUrl(locale),
     connected: true,
     routineAllowance: await workspaceRoutineAllowance(),
   });

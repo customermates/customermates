@@ -45,7 +45,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
   await page.goto(pagePath(page, "/routines"));
   await expect(page.getByRole("row").filter({ hasText: "Weekly digest" })).toBeVisible();
   await page.getByRole("button", { name: "Weekly digest", exact: true }).click();
-  const routineModal = page.getByRole("dialog", { name: "Routine", exact: true });
+  const routineModal = page.getByRole("dialog", { name: "Edit automation", exact: true });
   await routineModal.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(confirmation).toContainText("It moves to Trash, where you can restore it for 30 days.");
   await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();

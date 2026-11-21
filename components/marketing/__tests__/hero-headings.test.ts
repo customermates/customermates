@@ -10,6 +10,7 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/",
 }));
 vi.mock("@/components/marketing/source-badge", () => ({ SourceBadge: () => null }));
+vi.mock("@/components/marketing/ai-badge", () => ({ AiBadge: () => null }));
 
 import { HomepageHero } from "@/app/[locale]/(static)/components/homepage-hero";
 import { PageHero } from "../page-hero";
@@ -38,13 +39,27 @@ function headingText(html: string): string {
 }
 
 describe("hero headings", () => {
-  it("keeps the whole homepage claim inside one h1 with the trial and film calls to action", () => {
+  it("keeps the whole homepage claim inside one h1 with the template picker and film calls to action", () => {
     const html = renderToStaticMarkup(
       createElement(HomepageHero, {
         heroSection: {
-          assurance: "No credit card",
-          primaryCta: { href: "/auth/signup?job=followup", label: "Start your 14-day trial" },
-          secondaryCta: { href: "#film", label: "Watch the film (46 s)" },
+          assurances: {
+            database: "Database in Frankfurt",
+            noCard: "No credit card",
+            sourceAvailable: "Source available",
+          },
+          badge: "Works with Claude, ChatGPT, Codex and Gemini",
+          picker: {
+            choices: [
+              { label: "Sales leads", template: "sales-pipeline" },
+              { label: "Clients", template: "client-tracker" },
+              { label: "Website inquiries", template: "form-to-crm" },
+              { label: "Bookings", template: "booking-page" },
+            ],
+            cta: "Start free with {choice}",
+            question: "What do you want to follow up on?",
+          },
+          secondaryCta: { href: "#film", label: "Watch the film" },
           subtitle: "Subtitle",
           title: "Follow up on every client conversation.",
         },
@@ -53,7 +68,10 @@ describe("hero headings", () => {
 
     expect(headingText(html)).toBe("Follow up on every client conversation.");
     expect(html).toContain('href="#film"');
-    expect(html).toContain("job=followup");
+    expect(html).toContain("Start free with Sales leads");
+    expect(html).toContain("job=followup&amp;template=sales-pipeline");
+    expect(html).toContain('/features/open-source-crm"');
+    expect(html).not.toContain("github.com");
   });
 
   it("keeps a page hero's accent phrase beside the h1 rather than inside it", () => {

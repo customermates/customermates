@@ -3,8 +3,7 @@ import { isPurchasablePlanId, type PurchasablePlanId } from "@/core/commercial/p
 export type SettingsSlug =
   | "profile"
   | "workspaces"
-  | "channels"
-  | "api-keys"
+  | "connections"
   | "general"
   | "members"
   | "roles"

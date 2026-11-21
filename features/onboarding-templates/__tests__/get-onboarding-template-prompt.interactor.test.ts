@@ -11,7 +11,7 @@ import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { GetOnboardingTemplatePromptInteractor } from "../get-onboarding-template-prompt.interactor";
 
 function routineLines(prompt: string): string[] {
-  const section = prompt.split(/^## 8\. .*$/m)[1]?.split(/^## 9\. /m)[0] ?? "";
+  const section = prompt.split(/^## 9\. .*$/m)[1]?.split(/^## 10\. /m)[0] ?? "";
   return section.split("\n").filter((line) => /^\d+\. /.test(line));
 }
 

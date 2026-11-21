@@ -341,17 +341,18 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "settings-api-keys",
-    route: settingsHref("api-keys"),
+    route: settingsHref("connections"),
     controls: [
       {
         control: "generate",
-        description: "Top bar Add button that opens the API key dialog (roles with API Manage)",
+        description:
+          "Create key button in the API keys section of Connections that opens the API key dialog (roles with API Manage)",
       },
     ],
   },
   {
     scope: "api-key",
-    route: settingsHref("api-keys"),
+    route: settingsHref("connections"),
     controls: [
       {
         control: "option-standard",
@@ -376,34 +377,34 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "delete",
         description: "Delete button of a saved API key",
-        prerequisite: "an API key card",
+        prerequisite: "an API key row",
       },
     ],
   },
   {
     scope: "connected-account",
-    route: settingsHref("channels"),
+    route: settingsHref("connections"),
     controls: [
       {
         control: "tab-details",
         description: "Details tab with provider, status, visibility and owner",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
       {
         control: "tab-email",
         description: "Email tab for appearance and signature of an email account you connected",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
       {
         control: "tab-folders",
         description: "Folders tab that picks the synced folders shown in the inbox, for accounts with folders",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
       {
         control: "visibility",
         description:
           "Switch that shares an account you connected with the team; shared accounts need the Business plan in the cloud",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
       {
         control: "signature",
@@ -419,18 +420,18 @@ export const CONTROL_PAGES: ControlPage[] = [
         control: "resync",
         description:
           "Resync button in the connected account dialog for a running or connecting account you connected; needs Manage on Inbox messages",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
       {
         control: "reactivate",
         description:
           "Reactivate button that reconnects a stopped or failed account you connected; needs Manage on Inbox messages",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
       {
         control: "disconnect",
         description: "Disconnect button that removes an account you connected; needs Manage on Inbox messages",
-        prerequisite: "a channel card",
+        prerequisite: "an account row",
       },
     ],
   },
@@ -518,9 +519,8 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
   workspaces:
     "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
-  channels:
-    "Settings link to Channels & calendars, the connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram",
-  "api-keys": "Settings link to API keys & connectors for the REST API, MCP clients and AI connectors",
+  connections:
+    "Settings link to Connections: the connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram, the AI apps signed in to Customermates, and API keys",
   general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",

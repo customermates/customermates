@@ -32,7 +32,8 @@ export class AutomationsStore extends BaseDataViewStore<AutomationListItemDto> {
   get columnsDefinition(): TableColumn[] {
     return [
       { uid: "name", sortable: true },
-      { uid: "sentence", sortable: false, label: this.t("Automations.columns.sentence") },
+      { uid: "starts", sortable: false, label: this.t("Automations.columns.starts") },
+      { uid: "steps", sortable: false, label: this.t("Automations.columns.steps") },
       { uid: "runsOn", sortable: false, label: this.t("Automations.columns.runsOn") },
       { uid: "lastRunAt", sortable: true },
       { uid: "runs30d", sortable: true, label: this.t("Automations.columns.runs30d") },

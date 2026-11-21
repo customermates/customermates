@@ -77,16 +77,6 @@ const BADGES: Badge[] = [
     height: 50,
   },
   {
-    name: "open-source-alternatives",
-    platform: "Open Source Alternatives",
-    kind: "listed",
-    href: "https://www.opensourcealternatives.to",
-    light: "https://www.opensourcealternatives.to/badge-osa.svg",
-    dark: "https://www.opensourcealternatives.to/badge-osa.svg",
-    width: 270,
-    height: 20,
-  },
-  {
     name: "1000-tools",
     platform: "1000 Tools",
     kind: "featured",

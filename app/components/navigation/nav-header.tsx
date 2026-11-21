@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 
-import { ChevronDown, Loader2, Plus, Search, Sparkles } from "lucide-react";
+import { ChevronDown, Plus, Search } from "lucide-react";
 
 import { ActiveShortcutKeys } from "@/app/components/keyboard-shortcuts/active-shortcut-keys";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { AppImage } from "@/components/shared/app-image";
+import { MateOrb } from "@/components/mate/mate-orb";
 import { NavBadge } from "@/app/components/navigation/nav-main";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
@@ -17,6 +18,7 @@ type Props = {
   workspaceMenu: ReactNode | null;
   workspaceMenuLabel: string;
   workspaceMenuBadge?: { count: number; label: string };
+  workspaceAction?: ReactNode;
   workspace: { companyId: string; name: string; logoUrl?: string | null } | null;
   onWorkspaceMenuOpen?: () => void;
   brandName: string;
@@ -37,6 +39,7 @@ export function NavHeader({
   workspaceMenu,
   workspaceMenuLabel,
   workspaceMenuBadge,
+  workspaceAction,
   workspace,
   onWorkspaceMenuOpen,
   brandName,
@@ -73,7 +76,7 @@ export function NavHeader({
   return (
     <SidebarHeader>
       <SidebarMenu>
-        <SidebarMenuItem>
+        <SidebarMenuItem className="flex items-center gap-1">
           {workspaceMenu ? (
             <DropdownMenu
               modal={false}
@@ -86,7 +89,7 @@ export function NavHeader({
                   aria-label={[label, workspaceMenuLabel, workspaceMenuBadge?.count ? workspaceMenuBadge.label : null]
                     .filter(Boolean)
                     .join(", ")}
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="min-w-0 flex-1 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   id="nav-workspace-menu"
                   tooltip={label}
                 >
@@ -109,10 +112,12 @@ export function NavHeader({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="min-w-0 flex-1">
               <div>{brand}</div>
             </SidebarMenuButton>
           )}
+
+          {workspaceAction}
         </SidebarMenuItem>
       </SidebarMenu>
 
@@ -140,6 +145,7 @@ export function NavHeader({
           {assistantLabel && onAssistant && (
             <SidebarMenuItem>
               <SidebarMenuButton
+                data-mate-hover
                 aria-disabled={overlaysDisabled}
                 className="flex-wrap content-start py-0"
                 id="nav-assistant"
@@ -155,7 +161,7 @@ export function NavHeader({
                   if (!overlaysDisabled) onAssistant(event.currentTarget);
                 }}
               >
-                {assistantBusy ? <Loader2 aria-label={assistantBusyLabel} className="animate-spin" /> : <Sparkles />}
+                <MateOrb label={assistantBusy ? assistantBusyLabel : undefined} working={assistantBusy} />
 
                 <span className="h-8 leading-8 whitespace-nowrap">{assistantLabel}</span>
 

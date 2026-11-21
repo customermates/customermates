@@ -1,7 +1,8 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 import { randomUUID } from "node:crypto";
 
+import { openAgentRuntime } from "./agents-page";
 import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { secondUser } from "./second-user";
@@ -17,15 +18,30 @@ const NOTIFY_EFFECT = JSON.stringify([
 ]);
 
 async function openNewAutomation(page: Page) {
-  // On Customermates Cloud the add button opens a menu (automation or routine); self-hosted opens the builder directly.
+  // One add button for every automation; a schedule is chosen in the first step, not in a menu.
   await clickHydrated(page.locator("#automations-add"));
-  const choice = page.getByRole("menuitem", { name: "Automation", exact: true });
-  const menuShown = await choice.waitFor({ state: "visible", timeout: 3000 }).then(
-    () => true,
-    () => false,
-  );
-  if (menuShown) await choice.click();
+  await expect(page.getByRole("menuitem")).toHaveCount(0);
   return page.getByRole("dialog", { name: "New automation" });
+}
+
+const step = (builder: Locator, id: string) => builder.locator(`[data-automation-step="${id}"]`);
+const stepPanel = (builder: Locator, id: string) => builder.locator(`[data-automation-step-panel="${id}"]`);
+const addStepButton = (builder: Locator) => builder.locator("[data-automation-add]").last();
+
+/** The name is on the Settings tab of the side panel; a selected step takes the panel's place until it is closed. */
+async function automationName(builder: Locator) {
+  const closeStep = builder.getByRole("button", { name: "Close step", exact: true });
+  if (await closeStep.isVisible()) await closeStep.click();
+  await builder.getByRole("tab", { name: "Settings", exact: true }).click();
+  return builder.locator("#automation-name");
+}
+
+/** A blank automation starts with a default trigger and offers the common next steps right away. */
+async function chooseTrigger(page: Page, builder: Locator) {
+  await expect(builder.locator("[data-automation-quick-steps]")).toBeVisible();
+  await stepPanel(builder, "trigger").getByRole("combobox", { name: "Event", exact: true }).click();
+  await page.getByRole("option", { name: "A record is created", exact: true }).click();
+  await expect(addStepButton(builder)).toBeVisible();
 }
 
 async function insertRule(
@@ -53,12 +69,13 @@ test("builds an automation from a recipe and switches it on", async ({ page, dat
   await page.goto(companyPath(companyId, "/automations"));
   const builder = await openNewAutomation(page);
 
-  await expect(builder.locator("[data-automation-start]")).toBeVisible();
-  await builder.locator('[data-automation-recipe="welcomeSubmission"]').click();
+  await expect(page.locator("[data-create-palette-input]")).toBeVisible();
+  await page.locator('[data-create-palette-template="welcomeSubmission"]').click();
 
-  await expect(builder.locator("[data-automation-chain]")).toBeVisible();
-  await expect(builder.locator('[data-automation-card="trigger"]')).toContainText("form");
-  await expect(builder.getByLabel("Name")).toHaveValue("Welcome a form submission");
+  await expect(builder.locator("[data-automation-drawer]")).toBeVisible();
+  await expect(step(builder, "trigger")).toContainText("form");
+  await expect(step(builder, "effect-1")).toBeVisible();
+  await expect(await automationName(builder)).toHaveValue("Welcome a form submission");
   await builder.getByRole("button", { name: "Switch on" }).click();
   await expect(builder).not.toBeVisible();
 
@@ -80,11 +97,11 @@ test("asks for the fields a recipe cannot know before it can be switched on", as
   await page.goto(companyPath(companyId, "/automations"));
   const builder = await openNewAutomation(page);
 
-  await builder.locator('[data-automation-recipe="remindBeforeRenewal"]').click();
+  await page.locator('[data-create-palette-template="remindBeforeRenewal"]').click();
   await builder.getByRole("button", { name: "Switch on" }).click();
 
   await expect(page.getByText("This automation is not complete yet.")).toBeVisible();
-  await expect(builder.locator('[data-automation-card="trigger"]')).toBeVisible();
+  await expect(step(builder, "trigger")).toBeVisible();
   await expect(builder).toBeVisible();
 });
 
@@ -95,15 +112,16 @@ test("builds from scratch with an agent card whose runtime is unavailable and sh
   await page.goto(companyPath(companyId, "/automations"));
   const builder = await openNewAutomation(page);
 
-  await builder.locator("[data-automation-scratch]").click();
-  await expect(builder.locator("[data-automation-chain]")).toBeVisible();
+  await page.locator("[data-create-palette-blank]").click();
+  await chooseTrigger(page, builder);
 
-  await builder.getByRole("button", { name: "Add a step" }).last().click();
-  await builder.locator('[data-automation-palette-item="agent"]').click();
+  await addStepButton(builder).click();
+  await page.locator('[data-automation-palette-item="agent"]').click();
 
-  const card = builder.locator('[data-automation-card="effect-0"]');
-  await expect(card).toContainText("ask your agent to");
-  const reason = card.locator("[data-agent-reason]");
+  const card = step(builder, "effect-0");
+  await expect(card).toContainText("Ask the agent");
+  const fields = stepPanel(builder, "effect-0");
+  const reason = fields.locator("[data-agent-reason]");
   if (e2eAppMode() === "self-hosted") {
     // Mate is a Customermates Cloud runtime, so a self-hosted install sees why it is unavailable.
     await expect(reason).toBeVisible();
@@ -113,14 +131,14 @@ test("builds from scratch with an agent card whose runtime is unavailable and sh
   }
 
   // No provider key is stored, so the own-key runtime explains itself on both editions.
-  await card.getByRole("radio", { name: /Your own key/ }).click();
-  await expect(card.locator("[data-agent-reason]")).toBeVisible();
-  await expect(card.locator("[data-agent-reason]").getByRole("link")).toHaveAttribute(
+  await fields.getByRole("radio", { name: /Your own key/ }).click();
+  await expect(fields.locator("[data-agent-reason]")).toBeVisible();
+  await expect(fields.locator("[data-agent-reason]").getByRole("link")).toHaveAttribute(
     "href",
     /\/settings\/agents$/,
   );
-  await card.getByRole("textbox").fill("Summarise {{record.name}} for the owner");
-  await expect(builder.locator('[data-automation-card="effect-0"]')).toContainText("Summarise");
+  await fields.getByRole("textbox").fill("Summarise {{record.name}} for the owner");
+  await expect(card).toContainText("Summarise");
 });
 
 test("pauses and resumes an automation from the list", async ({ page, database, companyId, workspace }) => {
@@ -157,13 +175,46 @@ test("opens an automation, with its runs, from its row", async ({ page, database
   expect(errors).toEqual([]);
   const builder = page.getByRole("dialog", { name: "Edit automation" });
 
-  await expect(builder.getByLabel("Name")).toHaveValue("Open me");
-  await builder.getByRole("tab", { name: "Runs" }).click();
+  // An existing automation opens on its runs; the name is one tab away.
+  await expect(builder.locator("[data-automation-runs]")).toBeVisible();
+  await expect(step(builder, "effect-0")).toBeVisible();
+  await expect(await automationName(builder)).toHaveValue("Open me");
+  await builder.getByRole("tab", { name: "Runs", exact: true }).click();
   await expect(builder.locator("[data-automation-runs]")).toBeVisible();
 });
 
 test.describe("routines in the same list", () => {
   test.skip(e2eAppMode() === "self-hosted", "Routines are cloud-only");
+
+  test("switches a blank automation to a schedule and back to an event, keeping the name and the Mate step", async ({
+    page,
+    companyId,
+  }) => {
+    await page.goto(companyPath(companyId, "/automations"));
+    const builder = await openNewAutomation(page);
+    await page.locator("[data-create-palette-blank]").click();
+    await (await automationName(builder)).fill("Monday review");
+    await step(builder, "trigger").click();
+    await stepPanel(builder, "trigger")
+      .locator("[data-automation-start]")
+      .getByRole("tab", { name: "On a schedule", exact: true })
+      .click();
+
+    // The event builder closes and the scheduled one opens in its place.
+    await expect(page.getByRole("dialog")).toHaveCount(1);
+    const scheduled = page.getByRole("dialog", { name: "New automation", exact: true });
+    await expect(step(scheduled, "agent")).toBeVisible();
+    // A new scheduled automation opens straight on its settings, without the Runs tab.
+    await expect(scheduled.locator("#name")).toHaveValue("Monday review");
+    await step(scheduled, "trigger").first().click();
+    await expect(scheduled.locator('[data-automation-start="schedule"]')).toBeVisible();
+    await scheduled.locator("[data-automation-start]").getByRole("tab", { name: "On an event", exact: true }).click();
+
+    await expect(page.getByRole("dialog")).toHaveCount(1);
+    const onEvent = page.getByRole("dialog", { name: "New automation", exact: true });
+    await expect(step(onEvent, "effect-0")).toContainText("Ask the agent");
+    await expect(await automationName(onEvent)).toHaveValue("Monday review");
+  });
 
   test("opens the routine editor from a routine row", async ({ page, database, companyId, workspace }) => {
     await database.query(
@@ -174,8 +225,10 @@ test.describe("routines in the same list", () => {
 
     await clickHydrated(page.getByRole("button", { name: "Weekly client review", exact: true }));
 
-    const routine = page.getByRole("dialog", { name: "Routine", exact: true });
+    const routine = page.getByRole("dialog", { name: "Edit automation", exact: true });
     await expect(routine).toBeVisible();
+    await expect(step(routine, "agent")).toBeVisible();
+    await routine.getByRole("tab", { name: "Settings", exact: true }).click();
     await expect(routine.locator("#name")).toHaveValue("Weekly client review");
   });
 
@@ -193,8 +246,9 @@ test.describe("routines in the same list", () => {
     );
 
     await expect(page.getByRole("button", { name: "Linked from a chat", exact: true })).toHaveCount(0);
-    const routine = page.getByRole("dialog", { name: "Routine", exact: true });
+    const routine = page.getByRole("dialog", { name: "Edit automation", exact: true });
     await expect(routine).toBeVisible();
+    await routine.getByRole("tab", { name: "Settings", exact: true }).click();
     await expect(routine.locator("#name")).toHaveValue("Linked from a chat");
   });
 });
@@ -211,7 +265,7 @@ test("redirects the old Routines page to the Automations list filtered to routin
   // routine, so the page says that it was not found, and the link is used up like any other focus link.
   await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get("focus")).toBeNull();
-  await expect(page.getByRole("dialog", { name: "Routine", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Edit automation", exact: true })).toHaveCount(0);
 });
 
 test("a member who can only read automations is not handed a prefilled builder that cannot save", async ({
@@ -294,18 +348,19 @@ test("a member with automation access but no API access opens Automations withou
       await clickHydrated(member.page.getByRole("button", { name: "Owned by the admin", exact: true }));
       const existing = member.page.getByRole("dialog", { name: "Edit automation" });
       await expect(existing.locator("[data-automation-read-only]")).toBeVisible();
-      await expect(existing.getByLabel("Name")).toHaveAttribute("readonly", "");
+      await expect(await automationName(existing)).toHaveAttribute("readonly", "");
       await expect(existing.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
-      await expect(existing.getByRole("button", { name: "Add a step" })).toHaveCount(0);
+      await expect(existing.locator("[data-automation-add]")).toHaveCount(0);
       await member.page.keyboard.press("Escape");
       await expect(existing).not.toBeVisible();
     });
 
     await test.step("Call a webhook is switched off in the palette and says that the role cannot see webhooks", async () => {
       const builder = await openNewAutomation(member.page);
-      await builder.locator("[data-automation-scratch]").click();
-      await builder.getByRole("button", { name: "Add a step" }).last().click();
-      const item = builder.locator('[data-automation-palette-item="callWebhook"]');
+      await member.page.locator("[data-create-palette-blank]").click();
+      await chooseTrigger(member.page, builder);
+      await addStepButton(builder).click();
+      const item = member.page.locator('[data-automation-palette-item="callWebhook"]');
       await expect(item).toBeDisabled();
       await expect(item.locator("[data-automation-palette-reason]")).toHaveText(
         "Your role cannot see the webhooks of this workspace.",
@@ -315,8 +370,8 @@ test("a member with automation access but no API access opens Automations withou
     let agentSettingsHref = "";
     await test.step("an agent step that is not set up links to the agent settings", async () => {
       const builder = member.page.getByRole("dialog", { name: "New automation" });
-      await builder.locator('[data-automation-palette-item="agent"]').click();
-      const card = builder.locator('[data-automation-card="effect-0"]');
+      await member.page.locator('[data-automation-palette-item="agent"]').click();
+      const card = stepPanel(builder, "effect-0");
       await card.locator('[data-agent-runtime="runner"]').click();
       // The member has no runner, so this way of running is not set up and the card says what to do about it.
       // Reading the workspace settings is part of every role, so the card links to them: the sentence that names an
@@ -329,9 +384,9 @@ test("a member with automation access but no API access opens Automations withou
 
     await test.step("removing the step moves the focus to the add button, not to nowhere", async () => {
       const builder = member.page.getByRole("dialog", { name: "New automation" });
-      await builder.getByRole("button", { name: "Remove step" }).click();
-      await expect(builder.locator('[data-automation-card="effect-0"]')).toHaveCount(0);
-      await expect(builder.getByRole("button", { name: "Add a step" }).last()).toBeFocused();
+      await builder.getByRole("button", { name: "Remove step", exact: true }).click();
+      await expect(step(builder, "effect-0")).toHaveCount(0);
+      await expect(addStepButton(builder)).toBeFocused();
     });
 
     await test.step("the linked agent settings open for this role and say that it cannot see runners", async () => {
@@ -340,7 +395,8 @@ test("a member with automation access but no API access opens Automations withou
       const settingsErrors = collectPageErrors(settings);
       await settings.goto(agentSettingsHref);
       await expect(settings).toHaveURL(/\/settings\/agents$/);
-      await expect(settings.locator("[data-agent-runners-card] [data-agent-runners-withheld]")).toHaveText(
+      await openAgentRuntime(settings, "runner");
+      await expect(settings.locator("#agent-runners [data-agent-runners-withheld]")).toHaveText(
         "Your role cannot see runners, so none are listed here.",
       );
       expect(settingsErrors).toEqual([]);

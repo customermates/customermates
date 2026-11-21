@@ -4,11 +4,12 @@ import type { NotificationDto } from "@/features/notifications/notification.sche
 
 import {
   appendOlderPage,
-  filterNotificationsByKind,
-  groupNotificationsByDay,
+  filterNotificationsForPage,
+  groupNotificationsByAge,
   markItemsRead,
   mergeNewestPage,
-  resolveNotificationDayLabel,
+  notificationAgeGroup,
+  panelNotifications,
 } from "../notifications-page-model";
 
 function notification(id: string, createdAt: string, overrides: Partial<NotificationDto> = {}): NotificationDto {
@@ -24,67 +25,76 @@ function notification(id: string, createdAt: string, overrides: Partial<Notifica
   };
 }
 
-describe("groupNotificationsByDay", () => {
-  it("returns no groups for no notifications", () => {
-    expect(groupNotificationsByDay([])).toEqual([]);
+describe("notificationAgeGroup", () => {
+  const now = new Date("2026-11-16T12:00:00");
+
+  it("puts anything since midnight under today", () => {
+    expect(notificationAgeGroup(new Date("2026-11-16T00:05:00"), now)).toBe("today");
   });
 
-  it("opens one group per calendar day and keeps the newest-first order", () => {
+  it("puts the six days before today under this week, also across a month boundary", () => {
+    expect(notificationAgeGroup(new Date("2026-11-15T23:55:00"), now)).toBe("thisWeek");
+    expect(notificationAgeGroup(new Date("2026-11-10T00:00:00"), now)).toBe("thisWeek");
+    expect(notificationAgeGroup(new Date("2026-10-30T12:00:00"), new Date("2026-11-02T09:00:00"))).toBe("thisWeek");
+  });
+
+  it("puts everything older under earlier", () => {
+    expect(notificationAgeGroup(new Date("2026-11-09T23:59:00"), now)).toBe("earlier");
+  });
+});
+
+describe("groupNotificationsByAge", () => {
+  const now = new Date("2026-11-16T12:00:00");
+
+  it("returns no sections for no notifications", () => {
+    expect(groupNotificationsByAge([], now)).toEqual([]);
+  });
+
+  it("opens Today, This week and Earlier in that order, skips empty ones and keeps the order inside", () => {
     const items = [
-      notification("a", "2026-11-16T18:00:00"),
+      notification("a", "2026-11-16T10:00:00"),
       notification("b", "2026-11-16T08:00:00"),
-      notification("c", "2026-11-15T23:30:00"),
-      notification("d", "2026-11-12T09:00:00"),
+      notification("c", "2026-11-01T09:00:00"),
     ];
 
-    const groups = groupNotificationsByDay(items);
-
-    expect(groups.map((group) => group.items.map((item) => item.id))).toEqual([["a", "b"], ["c"], ["d"]]);
-    expect(groups.flatMap((group) => group.items)).toEqual(items);
-  });
-
-  it("gives every group a distinct key, also when a day recurs out of order", () => {
-    const groups = groupNotificationsByDay([
-      notification("a", "2026-11-16T10:00:00"),
-      notification("b", "2026-11-15T10:00:00"),
-      notification("c", "2026-11-16T09:00:00"),
+    expect(groupNotificationsByAge(items, now)).toEqual([
+      { group: "today", items: [items[0], items[1]] },
+      { group: "earlier", items: [items[2]] },
     ]);
-
-    expect(new Set(groups.map((group) => group.key)).size).toBe(3);
   });
 });
 
-describe("resolveNotificationDayLabel", () => {
-  const labels = { today: "Today", yesterday: "Yesterday" };
-  const now = new Date("2026-11-16T12:00:00");
-  const format = (date: Date) => `formatted:${date.getDate()}`;
-
-  it("names today and yesterday and formats every other day", () => {
-    expect(resolveNotificationDayLabel(new Date("2026-11-16T00:05:00"), now, labels, format)).toBe("Today");
-    expect(resolveNotificationDayLabel(new Date("2026-11-15T23:55:00"), now, labels, format)).toBe("Yesterday");
-    expect(resolveNotificationDayLabel(new Date("2026-11-14T12:00:00"), now, labels, format)).toBe("formatted:14");
-  });
-
-  it("finds yesterday across a month boundary", () => {
-    expect(
-      resolveNotificationDayLabel(new Date("2026-10-31T12:00:00"), new Date("2026-11-01T09:00:00"), labels, format),
-    ).toBe("Yesterday");
-  });
-});
-
-describe("filterNotificationsByKind", () => {
+describe("filterNotificationsForPage", () => {
   const items = [
-    notification("a", "2026-11-16T10:00:00", { kind: "dueToday" }),
+    notification("a", "2026-11-16T10:00:00", { kind: "dueToday", read: true }),
     notification("b", "2026-11-16T09:00:00", { kind: "ruleAlert" }),
     notification("c", "2026-11-16T08:00:00", { kind: "replyReceived" }),
   ];
 
   it("keeps every notification for all", () => {
-    expect(filterNotificationsByKind(items, "all").map((item) => item.id)).toEqual(["a", "b", "c"]);
+    expect(filterNotificationsForPage(items, "all").map((item) => item.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("keeps only unread notifications for unread", () => {
+    expect(filterNotificationsForPage(items, "unread").map((item) => item.id)).toEqual(["b", "c"]);
   });
 
   it("keeps only the chosen kind", () => {
-    expect(filterNotificationsByKind(items, "ruleAlert").map((item) => item.id)).toEqual(["b"]);
+    expect(filterNotificationsForPage(items, "ruleAlert").map((item) => item.id)).toEqual(["b"]);
+  });
+});
+
+describe("panelNotifications", () => {
+  const items = Array.from({ length: 10 }, (_, index) =>
+    notification(String(index), "2026-11-16T10:00:00", { read: index % 2 === 0 }),
+  );
+
+  it("shows the newest eight of all notifications", () => {
+    expect(panelNotifications(items, "all").map((item) => item.id)).toEqual(["0", "1", "2", "3", "4", "5", "6", "7"]);
+  });
+
+  it("shows only unread notifications for unread", () => {
+    expect(panelNotifications(items, "unread").map((item) => item.id)).toEqual(["1", "3", "5", "7", "9"]);
   });
 });
 

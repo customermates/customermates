@@ -1,13 +1,21 @@
 "use client";
 
+import type { AiClientLogoProvider } from "@/components/ai-connection/ai-client-logo";
+import type { AgentProviderId } from "@/ee/agent-keys/agent-provider-models";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { KeyRound, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
+import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { Alert } from "@/components/shared/alert";
-import { InfoRow } from "@/components/shared/info-row";
+import {
+  SettingsPanel,
+  SettingsPanelLogo,
+  SettingsPanelMessage,
+  SettingsPanelRow,
+} from "@/components/shared/settings-panel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -17,6 +25,12 @@ import { agentProviderLabel } from "./agent-labels";
 
 type Props = { planAllowed: boolean };
 
+const PROVIDER_LOGOS: Record<AgentProviderId, AiClientLogoProvider> = {
+  anthropic: "claude",
+  openai: "openai",
+  google: "gemini",
+};
+
 export const AgentKeysCard = observer(({ planAllowed }: Props) => {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
@@ -25,15 +39,9 @@ export const AgentKeysCard = observer(({ planAllowed }: Props) => {
   const canManage = agentKeysStore.canManage;
 
   return (
-    <Card className="gap-3 py-4" id="agent-keys">
-      <CardHeader className="flex flex-row items-start justify-between gap-3 px-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <CardTitle className="text-sm font-medium">{t("AgentKeys.keysTitle")}</CardTitle>
-
-          <p className="text-xs text-muted-foreground">{t("AgentKeys.keysDescription")}</p>
-        </div>
-
-        {canManage ? (
+    <SettingsPanel
+      action={
+        canManage ? (
           <Button
             disabled={!planAllowed}
             id="agent-key-add"
@@ -45,85 +53,96 @@ export const AgentKeysCard = observer(({ planAllowed }: Props) => {
 
             {t("AgentKeys.add")}
           </Button>
-        ) : null}
-      </CardHeader>
-
-      <CardContent className="flex flex-col gap-3 px-4">
-        {planAllowed ? null : (
+        ) : null
+      }
+      description={t("AgentKeys.keysDescription")}
+      footer={
+        planAllowed ? null : (
           <Alert description={t("AgentKeys.planRequired")} id="agent-keys-plan" role="note" variant="neutral" />
-        )}
-
-        {agentKeysStore.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("AgentKeys.keysEmpty")}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {agentKeysStore.items.map((key) => (
-              <li key={key.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0" data-agent-key={key.provider}>
-                <div className="flex min-w-0 items-center gap-2">
-                  <KeyRound aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-
-                  <span className="truncate text-sm font-medium">{key.label}</span>
-
-                  <span className="shrink-0 text-xs text-muted-foreground">{agentProviderLabel(t, key.provider)}</span>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <InfoRow label={t("AgentKeys.fields.apiKey")}>
-                    <span data-agent-key-last4>{t("AgentKeys.endsIn", { last4: key.last4 })}</span>
-                  </InfoRow>
-
-                  {key.defaultModel ? (
-                    <InfoRow label={t("AgentKeys.fields.defaultModel")}>{key.defaultModel}</InfoRow>
-                  ) : null}
-
-                  <InfoRow label={t("AgentKeys.checkedAt")}>
-                    {key.validatedAt
-                      ? intlStore.formatNumericalShortDateTime(new Date(key.validatedAt))
-                      : t("Common.never")}
-                  </InfoRow>
-
-                  <InfoRow label={t("AgentKeys.lastUsedAt")}>
-                    {key.lastUsedAt
-                      ? intlStore.formatNumericalShortDateTime(new Date(key.lastUsedAt))
-                      : t("Common.never")}
-                  </InfoRow>
-                </div>
-
-                {key.validatedAt ? null : (
-                  <p data-agent-key-unverified className="text-xs text-muted-foreground" role="note">
-                    {t("AgentKeys.unverifiedNote")}
-                  </p>
-                )}
-
-                {canManage ? (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      disabled={agentKeysStore.busyId === key.id}
-                      id={`agent-key-test-${key.provider}`}
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => runUserAction(() => agentKeysStore.test(key.id))}
-                    >
-                      {t("AgentKeys.test")}
-                    </Button>
-
-                    <Button
-                      id={`agent-key-remove-${key.provider}`}
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => showDeleteConfirmation(() => agentKeysStore.remove(key.id), key.label)}
-                    >
-                      <Trash2 aria-hidden className="size-4" />
-
-                      {t("Common.actions.remove")}
-                    </Button>
-                  </div>
-                ) : null}
-              </li>
+        )
+      }
+      id="agent-keys"
+      title={t("AgentKeys.keysTitle")}
+    >
+      {agentKeysStore.items.length === 0 ? (
+        <SettingsPanelMessage>
+          <span className="flex items-center gap-3">
+            {Object.values(PROVIDER_LOGOS).map((provider) => (
+              <SettingsPanelLogo key={provider}>
+                <AiClientLogo provider={provider} />
+              </SettingsPanelLogo>
             ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+
+            <span>{t("AgentKeys.keysEmpty")}</span>
+          </span>
+        </SettingsPanelMessage>
+      ) : (
+        agentKeysStore.items.map((key) => (
+          <SettingsPanelRow key={key.id} className="flex-wrap sm:flex-nowrap" data-agent-key={key.provider}>
+            <SettingsPanelLogo>
+              <AiClientLogo provider={PROVIDER_LOGOS[key.provider]} />
+            </SettingsPanelLogo>
+
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="truncate text-sm font-medium">{key.label}</span>
+
+                <span className="shrink-0 text-xs text-muted-foreground">{agentProviderLabel(t, key.provider)}</span>
+              </span>
+
+              <span className="truncate text-xs text-muted-foreground">
+                {[
+                  t("AgentKeys.endsIn", { last4: key.last4 }),
+                  key.defaultModel,
+                  t("AgentsPage.keyChecked", {
+                    date: key.validatedAt
+                      ? intlStore.formatNumericalShortDateTime(new Date(key.validatedAt))
+                      : t("Common.never"),
+                  }),
+                  t("AgentsPage.keyLastUsed", {
+                    date: key.lastUsedAt
+                      ? intlStore.formatNumericalShortDateTime(new Date(key.lastUsedAt))
+                      : t("Common.never"),
+                  }),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+
+              {key.validatedAt ? null : (
+                <span data-agent-key-unverified className="text-xs text-muted-foreground" role="note">
+                  {t("AgentKeys.unverifiedNote")}
+                </span>
+              )}
+            </span>
+
+            {canManage ? (
+              <span className="flex shrink-0 items-center gap-1">
+                <Button
+                  disabled={agentKeysStore.busyId === key.id}
+                  id={`agent-key-test-${key.provider}`}
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => runUserAction(() => agentKeysStore.test(key.id))}
+                >
+                  {t("AgentKeys.test")}
+                </Button>
+
+                <Button
+                  id={`agent-key-remove-${key.provider}`}
+                  size="sm"
+                  variant="ghostDestructive"
+                  onClick={() => showDeleteConfirmation(() => agentKeysStore.remove(key.id), key.label)}
+                >
+                  <Trash2 aria-hidden className="size-4" />
+
+                  {t("Common.actions.remove")}
+                </Button>
+              </span>
+            ) : null}
+          </SettingsPanelRow>
+        ))
+      )}
+    </SettingsPanel>
   );
 });

@@ -159,7 +159,7 @@ function NodeHandles({ connectable }: { connectable: boolean }) {
   ));
 }
 
-const CONNECTED_ACCOUNTS_HREF = settingsHref("channels");
+const CONNECTED_ACCOUNTS_HREF = settingsHref("connections");
 
 type ListNode = Node<{ list: ConfigureGraphList }, "list">;
 type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;

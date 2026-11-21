@@ -6,7 +6,7 @@ import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 import type { SidebarUser } from "./navigation/sidebar-user";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -15,9 +15,7 @@ import {
   Settings2,
   Settings,
   CreditCard,
-  Bell,
   Inbox,
-  Plus,
   LayoutGrid,
   CalendarDays,
   Workflow,
@@ -36,15 +34,14 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarResizeHandle, useSidebar } from "@/components/ui/sidebar";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { AppLink } from "@/components/shared/app-link";
-import { handOffSheet } from "@/components/ui/overlay-contract";
-import { AppModal } from "@/components/modal";
-import { Icon } from "@/components/shared/icon";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
 import { assistantEntryVisible } from "./navigation/assistant-entry-visibility";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { WorkspaceSwitcherItems } from "@/app/components/workspaces/workspace-switcher-items";
+import { NotificationBell } from "@/app/components/notifications/notification-bell";
 
+import { AddCreatePalette } from "./create-palette/add-create-palette";
 import { NavHeader } from "./navigation/nav-header";
 import { NavBadge } from "./navigation/nav-main";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
@@ -168,7 +165,6 @@ const FullAppSidebar = observer(
     const onInbox = intlPathname === "/inbox";
     const notificationsVisible = !restricted && !isDocsRoute;
     const onNotifications = intlPathname === "/notifications";
-    const currentUnreadNotificationCount = notificationsVisible ? (notificationsStore.unreadCount ?? 0) : 0;
     const inboxUpsellPlanName = t(`Subscription.planNames.${MESSAGING_UPSELL_PLAN}`);
     const inboxPlanTag =
       inboxVisible && subscription !== null && !getEntitlements(effectivePlanId(subscription)).messaging
@@ -260,14 +256,6 @@ const FullAppSidebar = observer(
               planTag: inboxPlanTag,
             },
             {
-              key: "notifications",
-              title: t("NavigationBar.notifications"),
-              href: "/notifications",
-              icon: Bell,
-              visible: notificationsVisible,
-              badge: currentUnreadNotificationCount,
-            },
-            {
               key: "automations",
               title: t("NavigationBar.automations"),
               href: "/automations",
@@ -315,15 +303,7 @@ const FullAppSidebar = observer(
           ],
         },
       ].filter((g) => g.items.length > 0);
-    }, [
-      t,
-      recordWorkspaceStore.navigation,
-      rootStore.appMode,
-      user,
-      currentUnreadThreadCount,
-      notificationsVisible,
-      currentUnreadNotificationCount,
-    ]);
+    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, currentUnreadThreadCount]);
 
     const areaGroups: AreaNavGroup[] = useMemo(() => {
       if (area === "operator") {
@@ -352,7 +332,7 @@ const FullAppSidebar = observer(
             href: settingsHref(subroute.slug),
             icon: subroute.icon,
             badge:
-              subroute.slug === "channels"
+              subroute.slug === "connections"
                 ? channelsNeedingActionCount
                 : subroute.slug === "members"
                   ? pendingMemberCount
@@ -383,21 +363,6 @@ const FullAppSidebar = observer(
 
     function openFeedback(invoker: HTMLElement) {
       closeMobileSidebar(() => sendFeedback(invoker, document.getElementById("sidebar-trigger")));
-    }
-
-    const addItems: AddPickerItem[] = (recordWorkspaceStore.navigation?.types ?? [])
-      .filter((type) => type.canCreate)
-      .map((type) => ({
-        key: `add:${type.id}`,
-        label: t("NavigationBar.addEntity", { entity: type.label }),
-        typeId: type.id,
-      }));
-    if (recordWorkspaceStore.navigation?.canManageSchema) {
-      addItems.push({
-        key: "create-list",
-        label: t("RecordModel.createList"),
-        typeId: null,
-      });
     }
 
     if (isDocsRoute && !restricted) return null;
@@ -593,6 +558,7 @@ const FullAppSidebar = observer(
                   }
                 : null
             }
+            workspaceAction={notificationsVisible ? <NotificationBell /> : undefined}
             workspaceMenu={workspaceMenu}
             workspaceMenuBadge={
               restricted
@@ -725,91 +691,11 @@ const FullAppSidebar = observer(
 
         {!restricted && <SidebarCustomize groups={navGroups} open={customizeOpen} onOpenChange={setCustomizeOpen} />}
 
-        {!restricted ? (
-          <AddPickerDrawer
-            items={addItems}
-            open={addPickerStore.isOpen}
-            returnFocusFallback={addPickerStore.focusReturnFallback}
-            returnFocusTarget={addPickerStore.focusReturnTarget}
-            onOpenChange={(open) => {
-              if (!open) addPickerStore.close();
-            }}
-            onPick={(item) => {
-              const { focusReturnTarget, focusReturnFallback } = addPickerStore;
-              addPickerStore.close();
-              if (item.typeId)
-                recordWorkspaceStore.open({ typeId: item.typeId }, focusReturnTarget, focusReturnFallback);
-              else router.push("/configure?create=true");
-            }}
-          />
-        ) : null}
+        {!restricted ? <AddCreatePalette /> : null}
       </>
     );
   },
 );
-
-type AddPickerItem = {
-  key: string;
-  label: string;
-  typeId: string | null;
-};
-
-function AddPickerDrawer({
-  items,
-  open,
-  returnFocusFallback,
-  returnFocusTarget,
-  onOpenChange,
-  onPick,
-}: {
-  items: AddPickerItem[];
-  open: boolean;
-  returnFocusFallback: HTMLElement | null;
-  returnFocusTarget: HTMLElement | null;
-  onOpenChange: (o: boolean) => void;
-  onPick: (item: AddPickerItem) => void;
-}) {
-  const t = useTranslations();
-  const isHandingOffRef = useRef(false);
-
-  function handleCloseAutoFocus(event: Event) {
-    if (!isHandingOffRef.current) return;
-    isHandingOffRef.current = false;
-    event.preventDefault();
-  }
-
-  return (
-    <AppModal
-      sheet
-      visibleTitle
-      bodyClassName="flex flex-col gap-1 py-4"
-      description={t("NavigationBar.addPickerDescription")}
-      focusReturnFallback={returnFocusFallback}
-      focusReturnTarget={returnFocusTarget}
-      open={open}
-      title={t("NavigationBar.addPickerTitle")}
-      onClose={() => onOpenChange(false)}
-      onCloseAutoFocus={handleCloseAutoFocus}
-    >
-      {items.map((item) => (
-        <button
-          key={item.key}
-          className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-          type="button"
-          onClick={() => {
-            isHandingOffRef.current = true;
-            if (item.typeId) handOffSheet();
-            onPick(item);
-          }}
-        >
-          <span>{item.label}</span>
-
-          <Icon className="size-3.5 opacity-50" icon={Plus} />
-        </button>
-      ))}
-    </AppModal>
-  );
-}
 
 function areaOf(pathname: string, operatorConsoleVisible: boolean): "settings" | "operator" | null {
   const first = pathname.split("/")[1];

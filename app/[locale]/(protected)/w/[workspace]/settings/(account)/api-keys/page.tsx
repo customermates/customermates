@@ -1,23 +1,12 @@
-import { Resource } from "@/generated/prisma/client";
+import { redirect } from "next/navigation";
 
-import { ApiKeysPageView } from "../components/api-keys-page-view";
+import { connectionsRedirectHref } from "../components/connections-section";
 
-import { getGetApiKeysInteractor, getGetConnectedAppsInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
-import { PageContainer } from "@/components/shared/page-container";
-import { unwrapPage } from "@/core/validation/next/unwrap-page";
+import { appRedirectHref } from "@/features/auth/next/app-redirect";
 
-export default async function ProfileApiKeysPage() {
-  await requireAccess({ resource: Resource.api });
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-  const [apiKeys, connectedApps] = await Promise.all([
-    unwrapPage(getGetApiKeysInteractor().invoke()),
-    unwrapPage(getGetConnectedAppsInteractor().invoke()),
-  ]);
-
-  return (
-    <PageContainer>
-      <ApiKeysPageView apiKeys={apiKeys} connectedApps={connectedApps} />
-    </PageContainer>
-  );
+export default async function ApiKeysRedirectPage({ searchParams }: Props) {
+  const params = await searchParams;
+  redirect(await appRedirectHref(connectionsRedirectHref(params, params.connect ? "apps" : "keys")));
 }

@@ -30,6 +30,7 @@ type Props<E extends HasId> = {
   menuItems?: ReactNode;
   addMenu?: ReactNode;
   automateHref?: string;
+  share?: ReactNode;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -45,6 +46,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   menuItems,
   addMenu,
   automateHref,
+  share,
 }: Props<E>) {
   const t = useTranslations();
   const ai = useViewAi(store, { registerPageContext: false });
@@ -120,6 +122,8 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
           {menuItems}
         </TopBarMenuButton>
       )}
+
+      {share}
 
       {onAdd && store.canCreate && !addMenu && (
         <TopBarPrimaryButton

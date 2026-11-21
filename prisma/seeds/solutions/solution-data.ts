@@ -428,7 +428,7 @@ export function buildSolutionRecordData(
         kind: "record.updated",
         at: storyMoment(change.daysAgo, offset),
         actorId: solutionMemberId(workspace, change.by ?? spec.owner),
-        via: eventVia("apiKey", change.via),
+        via: eventVia("oauthApplication", change.via),
         values: new Map(
           Object.entries(change.previous).map(([fieldName, input]) => [
             id(`${list}.${fieldName}`),

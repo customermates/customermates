@@ -8,7 +8,7 @@ import { env } from "@/env";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { absoluteWorkspaceUrl } from "@/core/navigation/workspace-paths";
 
-const PREVIEW_CONNECTED_ACCOUNTS_HREF = absoluteWorkspaceUrl(env.BASE_URL, null, "acme", settingsHref("channels"));
+const PREVIEW_CONNECTED_ACCOUNTS_HREF = absoluteWorkspaceUrl(env.BASE_URL, null, "acme", settingsHref("connections"));
 
 type Props = EmailLayoutSharedProps & {
   greeting: string;

@@ -84,7 +84,7 @@ suite("generic synthetic seed convergence", { timeout: 360000 }, () => {
       expect(platform).toMatchObject({
         brands: 1,
         bookingRules: 1,
-        singlePages: 1,
+        singlePages: 2,
         roundRobinPages: 1,
         furtherHosts: 1,
         cancelledBookings: 1,

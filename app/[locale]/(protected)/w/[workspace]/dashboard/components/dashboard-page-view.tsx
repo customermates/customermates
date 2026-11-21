@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useTouchInput } from "@/hooks/use-touch-input";
-import { useRouter } from "@/i18n/navigation";
+import { useOpenCreateList } from "@/app/components/create-palette/use-open-create-list";
 
 import { DashboardAccentContext, dashboardAccent } from "./dashboard-accent";
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
@@ -76,7 +76,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const canAddWidget = widgetModalStore.availableKinds.length > 0 && !readOnlyView;
   const navigation = recordWorkspaceStore.navigation;
   const needsFirstList = navigation?.canManageSchema === true && !navigation.hasLists;
-  const router = useRouter();
+  const openCreateList = useOpenCreateList();
   const [data, setData] = useState<{ selection: WidgetDataSelection; open: boolean; opening: number } | null>(null);
   const openData = useCallback(
     (selection: WidgetDataSelection) =>
@@ -240,7 +240,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         <PageState
           action={
             needsFirstList ? (
-              <Button size="sm" variant="secondary" onClick={() => router.push("/configure?create=true")}>
+              <Button size="sm" variant="secondary" onClick={(event) => openCreateList(event.currentTarget)}>
                 {t("RecordModel.createList")}
               </Button>
             ) : readOnlyView ? undefined : (

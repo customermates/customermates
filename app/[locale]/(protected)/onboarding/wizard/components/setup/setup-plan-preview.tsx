@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { MateIcon } from "@/components/mate/mate-icon";
 import { useBottomBarClearance } from "@/components/forms/unsaved-changes-bar";
 import { Alert } from "@/components/shared/alert";
 import { IconContainer } from "@/components/shared/icon-container";
@@ -143,7 +144,7 @@ export const SetupPlanPending = observer(function SetupPlanPending() {
   return (
     <section className="flex animate-page-empty-in flex-col gap-6 py-4 motion-reduce:animate-none">
       <div className="flex items-start gap-4">
-        <IconContainer color="muted" icon={Sparkles} size="md" />
+        <IconContainer color="muted" icon={MateIcon} size="md" />
 
         <div className="flex min-w-0 flex-col gap-1">
           <h2 className="text-base font-medium text-foreground">{t("WorkspaceSetup.plan.planningTitle")}</h2>

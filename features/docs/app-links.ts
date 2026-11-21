@@ -21,24 +21,36 @@ const PAGE_ROUTES = new Set([
   ...[...TOOLBAR_PAGES_WITH_ADD, ...TOOLBAR_PAGES_WITHOUT_ADD].map((page) => page.route),
 ]);
 
+const RETIRED_PLACES: Readonly<Record<string, string>> = {
+  "settings/api-keys": "settings/connections",
+  "settings/channels": "settings/connections",
+};
+
 function pageControlPrefix(route: string) {
   return `${route.slice(1).replaceAll("/", "-")}-`;
 }
 
+function pageControlPrefixes(route: string) {
+  const retired = Object.entries(RETIRED_PLACES)
+    .filter(([, survivor]) => `/${survivor}` === route)
+    .map(([place]) => pageControlPrefix(`/${place}`));
+  return [pageControlPrefix(route), ...retired];
+}
+
 function pageFocusTargetId(route: string, focus: string): string | null {
-  const prefix = pageControlPrefix(route);
+  const prefixes = pageControlPrefixes(route);
   const target = AGENT_UI_TARGETS.find(
     (candidate) =>
       candidate.route === route &&
       !candidate.prerequisite &&
       !candidate.id.startsWith("nav-") &&
-      (candidate.id === `${prefix}${focus}` || candidate.id === focus),
+      (prefixes.some((prefix) => candidate.id === `${prefix}${focus}`) || candidate.id === focus),
   );
   return target?.id ?? null;
 }
 
 function appLinkForPlace(place: string, focus: string | null): ParsedAppLink | null {
-  const route = `/${place}`;
+  const route = `/${RETIRED_PLACES[place] ?? place}`;
   if (!PAGE_ROUTES.has(route)) return null;
   if (focus !== null && !pageFocusTargetId(route, focus)) return null;
   return { route, focus };

@@ -26,6 +26,8 @@ const redirectOnlyPages = [
   "open/[area]/[preset]/page.tsx",
   "open/[area]/[preset]/[recordId]/page.tsx",
   "w/[workspace]/settings/(account)/booking/page.tsx",
+  "w/[workspace]/settings/(account)/channels/page.tsx",
+  "w/[workspace]/settings/(account)/api-keys/page.tsx",
 ] as const;
 const protectedLoaders = protectedPages
   .filter((page) => !(redirectOnlyPages as readonly string[]).includes(page))
@@ -60,8 +62,8 @@ const featureSkeletons = [
 
 const exhaustiveResourceOwners = [
   ["app/[locale]/(protected)/w/[workspace]/dashboard/components/dashboard-page-view.tsx", "switch (pageState)"],
-  ["app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-keys-page-view.tsx", "switch (pageState)"],
-  ["app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-keys-section.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-section.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/inbox-list.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
   ["app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-page-view.tsx", "switch (pageState)"],
@@ -146,7 +148,7 @@ describe("page-state ownership", () => {
   });
 
   it("does not start connected-account work behind locked surfaces", () => {
-    expect(read("app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-page-view.tsx")).toContain(
+    expect(read("app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-section.tsx")).toContain(
       "if (locked) return;",
     );
     expect(read("app/[locale]/(protected)/w/[workspace]/inbox/components/inbox-list.tsx")).toContain("if (locked) return;");

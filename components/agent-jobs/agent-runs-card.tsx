@@ -1,105 +1,103 @@
 "use client";
 
-import type { AgentJobPage, AgentJobSummary } from "@/features/agent-jobs/agent-job.schema";
+import type { AgentJobPage, AgentJobStatusValue, AgentJobSummary } from "@/features/agent-jobs/agent-job.schema";
 
 import { observer } from "mobx-react-lite";
 import { useLayoutEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { agentRuntimeName } from "@/components/agent-keys/agent-labels";
 import { AppChip } from "@/components/chip/app-chip";
+import { SettingsPanel, SettingsPanelMessage } from "@/components/shared/settings-panel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { cn } from "@/core/utils/cn";
+import { IntlLink } from "@/i18n/navigation";
 
 import { AgentJobTranscript } from "./agent-job-transcript";
 import { agentJobErrorLabel, agentJobStatusLabel } from "./agent-job-labels";
-import { AGENT_JOB_STATUS_CHIP_COLOR } from "./agent-job-status-color";
 
 type Props = { page: AgentJobPage; sourceKind?: string; sourceId?: string };
+
+const STATUS_DOT: Record<AgentJobStatusValue, string> = {
+  queued: "bg-muted-foreground",
+  claimed: "bg-info",
+  running: "bg-info",
+  succeeded: "bg-success",
+  failed: "bg-destructive",
+  timedOut: "bg-warning",
+  cancelled: "bg-muted-foreground",
+};
 
 const AgentRunRow = observer(({ job }: { job: AgentJobSummary }) => {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { agentRunsStore } = useRootStore();
+  const { agentRunsStore, agentRunnersStore } = useRootStore();
   const open = agentRunsStore.expandedId === job.id;
   const detail = open ? agentRunsStore.expanded : null;
   const panelId = `agent-run-${job.id}`;
+  const failed = job.error !== null;
+  const outcome = job.error ? agentJobErrorLabel(t, job.error) : (job.result?.text ?? null);
+  const runnerName = job.runnerId
+    ? agentRunnersStore.items.find((runner) => runner.id === job.runnerId)?.name
+    : undefined;
 
   return (
-    <li className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0" data-agent-run={job.id} data-status={job.status}>
+    <li className="border-b last:border-b-0" data-agent-run={job.id} data-status={job.status}>
       <button
         aria-controls={panelId}
         aria-expanded={open}
-        className="flex w-full min-w-0 items-start gap-2 rounded-md text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="flex w-full min-w-0 items-center gap-3 px-4 py-2.5 text-left outline-none hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset"
         type="button"
         onClick={() => runUserAction(() => agentRunsStore.toggle(job.id))}
       >
-        {open ? (
-          <ChevronDown aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-        ) : (
-          <ChevronRight aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-        )}
+        <span aria-hidden className={cn("size-2 shrink-0 rounded-full", STATUS_DOT[job.status])} />
 
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="flex min-w-0 flex-wrap items-center gap-2">
-            <AppChip size="sm" variant={AGENT_JOB_STATUS_CHIP_COLOR[job.status]}>
-              {agentJobStatusLabel(t, job.status)}
-            </AppChip>
+        <span className="sr-only">{agentJobStatusLabel(t, job.status)}</span>
 
-            <span className="truncate text-sm font-medium">{agentRuntimeName(t, job.runtime)}</span>
-
-            {job.model ? <span className="truncate text-xs text-muted-foreground">{job.model}</span> : null}
-          </span>
-
+        <span className="flex min-w-0 flex-1 flex-col">
           {job.rule ? (
-            <span className="truncate text-xs" data-agent-run-rule={job.rule.id}>
-              {t("AgentJobs.rule", { name: job.rule.name })}
+            <span className="truncate text-sm" data-agent-run-rule={job.rule.id}>
+              {job.rule.name}
+            </span>
+          ) : (
+            <span className="truncate text-sm">{agentRuntimeName(t, job.runtime)}</span>
+          )}
+
+          {outcome ? (
+            <span
+              className={cn("truncate text-xs", failed ? "text-destructive-soft-foreground" : "text-muted-foreground")}
+            >
+              {outcome}
             </span>
           ) : null}
-
-          <span className="text-xs text-muted-foreground">
-            {intlStore.formatNumericalShortDateTime(new Date(job.createdAt))}
-          </span>
-
-          {job.error ? <span className="text-xs text-destructive">{agentJobErrorLabel(t, job.error)}</span> : null}
-
-          {job.result?.text ? <span className="line-clamp-2 text-xs">{job.result.text}</span> : null}
         </span>
 
-        <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground tabular-nums">
-          {job.inputTokens !== null && job.outputTokens !== null ? (
-            <span>
-              {t("AgentJobs.tokens", {
-                input: intlStore.formatNumber(job.inputTokens),
-                output: intlStore.formatNumber(job.outputTokens),
-              })}
-            </span>
-          ) : null}
+        <AppChip size="sm" variant="secondary">
+          {runnerName ?? agentRuntimeName(t, job.runtime)}
+        </AppChip>
 
-          {job.costMicrocents !== null ? (
-            <span>
-              {t("AgentJobs.credits", {
-                credits: intlStore.formatNumber(agentMicrocentsToCredits(job.costMicrocents), {
-                  maximumFractionDigits: 2,
-                }),
-              })}
-            </span>
-          ) : null}
+        <span className="hidden w-28 shrink-0 text-end text-xs text-muted-foreground sm:block">
+          {intlStore.formatNumericalShortDateTime(new Date(job.createdAt))}
         </span>
       </button>
 
-      <div className="pl-6" id={panelId} role="region">
+      <div id={panelId} role="region">
         {open && agentRunsStore.loadingDetailId === job.id ? (
-          <Spinner aria-label={t("PageState.loading")} size="sm" />
+          <div className="px-4 pb-3">
+            <Spinner aria-label={t("PageState.loading")} size="sm" />
+          </div>
         ) : null}
 
-        {detail ? <AgentJobTranscript job={detail} /> : null}
+        {detail ? (
+          <div className="px-4 pb-3">
+            <AgentJobTranscript job={detail} />
+          </div>
+        ) : null}
       </div>
     </li>
   );
@@ -116,36 +114,28 @@ export const AgentRunsCard = observer(({ page, sourceKind, sourceId }: Props) =>
   );
 
   return (
-    <Card className="gap-3 py-4" id="agent-runs">
-      <CardHeader className="flex flex-col gap-1 px-4">
-        <CardTitle className="text-sm font-medium">{t("AgentJobs.title")}</CardTitle>
+    <SettingsPanel
+      action={
+        <Button asChild size="sm" variant="ghost">
+          <IntlLink data-agent-runs-all="" href="/automations">
+            {t("AgentsPage.allRuns")}
 
-        <p className="text-xs text-muted-foreground">{t("AgentJobs.description")}</p>
-      </CardHeader>
-
-      <CardContent className="flex flex-col gap-3 px-4">
-        {agentRunsStore.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("AgentJobs.empty")}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {agentRunsStore.items.map((job) => (
-              <AgentRunRow key={job.id} job={job} />
-            ))}
-          </ul>
-        )}
-
-        {agentRunsStore.hasMore ? (
-          <Button
-            className="self-start"
-            disabled={agentRunsStore.loadingMore}
-            size="sm"
-            variant="secondary"
-            onClick={() => runUserAction(() => agentRunsStore.loadMore())}
-          >
-            {t("Common.actions.loadMore")}
-          </Button>
-        ) : null}
-      </CardContent>
-    </Card>
+            <ArrowUpRight aria-hidden />
+          </IntlLink>
+        </Button>
+      }
+      id="agent-runs"
+      title={t("AgentJobs.title")}
+    >
+      {agentRunsStore.items.length === 0 ? (
+        <SettingsPanelMessage>{t("AgentJobs.empty")}</SettingsPanelMessage>
+      ) : (
+        <ul>
+          {agentRunsStore.items.map((job) => (
+            <AgentRunRow key={job.id} job={job} />
+          ))}
+        </ul>
+      )}
+    </SettingsPanel>
   );
 });

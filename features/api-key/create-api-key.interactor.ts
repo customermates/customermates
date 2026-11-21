@@ -81,6 +81,7 @@ export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKey
         id: created.id,
         key: created.key,
         name: created.name,
+        start: created.start ?? null,
         createdAt: created.createdAt,
         expiresAt: created.expiresAt,
         lastRequest: created.lastRequest,

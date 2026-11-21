@@ -15,6 +15,7 @@ export class NotificationsStore {
   items: NotificationDto[] = [];
   nextBefore: string | null = null;
   unreadCount: number | null = null;
+  hasLoaded = false;
   isLoadingMore = false;
   isMarking = false;
   private unreadCountGeneration = 0;
@@ -25,6 +26,7 @@ export class NotificationsStore {
       items: observable.ref,
       nextBefore: observable,
       unreadCount: observable,
+      hasLoaded: observable,
       isLoadingMore: observable,
       isMarking: observable,
     });
@@ -36,6 +38,7 @@ export class NotificationsStore {
       this.items = inbox.items;
       this.nextBefore = inbox.nextBefore;
       this.unreadCount = inbox.unreadCount;
+      this.hasLoaded = true;
     });
   }
 
@@ -56,6 +59,7 @@ export class NotificationsStore {
       this.items = merged.items;
       this.nextBefore = merged.nextBefore;
       this.unreadCount = inbox.unreadCount;
+      this.hasLoaded = true;
     });
   };
 

@@ -27,7 +27,7 @@ pricing:
     features:
       - "[[commercial.limit.free.fileStorageBytes]] de stockage de fichiers par espace de travail"
       - "API et MCP avec [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour"
-      - "Sans boîte de réception, Mate, routines, webhooks ni déclencheurs n8n"
+      - "Sans boîte de réception, Mate, automatisations planifiées, webhooks ni déclencheurs n8n"
   - plan: starter
     title: Starter
     description: "Votre CRM et votre propre IA"
@@ -39,7 +39,7 @@ pricing:
       - Contacts, organisations, affaires et tâches
       - "Connectez votre propre IA via MCP : Claude, ChatGPT ou Gemini"
       - API REST, webhooks et votre propre n8n
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur : Mate travaille selon un planning ou quand une fiche change"
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] automatisation planifiée par utilisateur : Mate travaille selon un planning ou quand une fiche change"
       - "Usage Mate : 1x par utilisateur actif, l’allocation de base"
     missingFeatures:
       - Boîte de réception unifiée pour LinkedIn et l’e-mail
@@ -58,7 +58,7 @@ pricing:
       - Mate rédige les réponses à partir de votre playbook, vous relisez et envoyez
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur inclus"
       - Partagez des fils un par un avec l’équipe
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur : Mate travaille selon un planning ou quand une fiche change"
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] automatisations planifiées par utilisateur : Mate travaille selon un planning ou quand une fiche change"
       - Planification de réunions, pages de réservation et LinkedIn Sales Navigator
       - "Usage Mate : 3x Starter par utilisateur actif"
       - Tout Starter
@@ -74,7 +74,7 @@ pricing:
       - Tout Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur inclus"
       - "Partage de compte entier : partagez un compte connecté avec l’équipe"
-      - "Routines par utilisateur : [[commercial.entitlement.business.includedRoutinesPerUser]] (usage raisonnable)"
+      - "Automatisations planifiées par utilisateur : [[commercial.entitlement.business.includedRoutinesPerUser]] (usage raisonnable)"
       - Support prioritaire
       - "Usage Mate : 10x Starter par utilisateur actif, le plus d’usage par euro"
   - plan: max
@@ -185,7 +185,7 @@ comparison:
         enterprise: true
   - title: "CRM de base"
     rows:
-      - label: "Routines par utilisateur"
+      - label: "Automatisations planifiées par utilisateur"
         catalogFact: includedRoutinesPerUser
       - label: "Automatisations actives"
         catalogFact: activeAutomationRules
@@ -320,16 +320,16 @@ faq:
     content: "Oui. Un identifiant peut appartenir à plusieurs espaces de travail entièrement séparés, par exemple un pour la vente et un pour la comptabilité, et passer de l’un à l’autre. Chaque espace de travail a sa propre formule, son propre abonnement et ses propres factures, et les utilisateurs sont comptés par espace de travail : une personne active dans deux espaces de travail compte comme utilisateur payant dans les deux. Le premier espace de travail que vous créez inclut l’essai gratuit de [[commercial.trial.days]] jours ; chaque espace de travail supplémentaire commence par le choix d’une formule. Une instance auto-hébergée gère autant d’espaces de travail que nécessaire, sans facturation."
   - id: pricing-faq-10
     title: "Que comprend l’auto-hébergement ?"
-    content: "Une instance auto-hébergée a toujours les fonctions de Starter : CRM de base, MCP, API REST, webhooks et interfaces n8n, sans facturation. La boîte de réception unifiée, Mate, les routines et la configuration par IA ne fonctionnent que sur Customermates Cloud. MCP avec votre propre client IA fonctionne sur une instance auto-hébergée, et ce client utilise votre propre fournisseur d’IA."
+    content: "Une instance auto-hébergée a toujours les fonctions de Starter : CRM de base, MCP, API REST, webhooks et interfaces n8n, sans facturation. La boîte de réception unifiée, Mate, les automatisations planifiées et la configuration par IA ne fonctionnent que sur Customermates Cloud. MCP avec votre propre client IA fonctionne sur une instance auto-hébergée, et ce client utilise votre propre fournisseur d’IA."
   - id: pricing-faq-11
     title: "Où sont stockées mes données et les identifiants de mes comptes connectés ?"
     content: "La base de données du cloud est hébergée dans la région AWS de Francfort, et les comptes connectés se connectent via le parcours hébergé d’Unipile, de sorte que Customermates ne reçoit ni les mots de passe des fournisseurs ni les jetons OAuth. La réponse complète se trouve dans la documentation : https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
   - id: pricing-faq-12
     title: "Qu’est-ce que la formule Free ?"
-    content: "Votre premier espace de travail Cloud commence par l’essai Pro de [[commercial.trial.days]] jours, sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. Si l’essai se termine sans formule payante, l’espace de travail passe à Free au lieu d’être bloqué, et rien n’est supprimé. Free sert à essayer Customermates seul : [[commercial.limit.free.maxMembers]] personne, jusqu’à [[commercial.limit.free.maxRecords]] enregistrements et [[commercial.limit.free.fileStorageBytes]] de stockage de fichiers par espace de travail. Elle n’inclut ni boîte de réception ni comptes connectés, ni Mate, ni routines, ni webhooks, ni déclencheur n8n. L’API REST et MCP sont inclus, avec jusqu’à [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour et par espace de travail : vous pouvez donc utiliser votre propre Claude ou ChatGPT. Les enregistrements et fichiers au-delà d’une limite sont conservés, seul l’ajout de nouveaux est refusé. Vous pouvez passer à une formule payante à tout moment. Une instance auto-hébergée reste gratuite et sans ces limites."
+    content: "Votre premier espace de travail Cloud commence par l’essai Pro de [[commercial.trial.days]] jours, sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. Si l’essai se termine sans formule payante, l’espace de travail passe à Free au lieu d’être bloqué, et rien n’est supprimé. Free sert à essayer Customermates seul : [[commercial.limit.free.maxMembers]] personne, jusqu’à [[commercial.limit.free.maxRecords]] enregistrements et [[commercial.limit.free.fileStorageBytes]] de stockage de fichiers par espace de travail. Elle n’inclut ni boîte de réception ni comptes connectés, ni Mate, ni automatisations planifiées, ni webhooks, ni déclencheur n8n. L’API REST et MCP sont inclus, avec jusqu’à [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour et par espace de travail : vous pouvez donc utiliser votre propre Claude ou ChatGPT. Les enregistrements et fichiers au-delà d’une limite sont conservés, seul l’ajout de nouveaux est refusé. Vous pouvez passer à une formule payante à tout moment. Une instance auto-hébergée reste gratuite et sans ces limites."
   - id: pricing-faq-13
     title: "Que devient mon équipe quand un espace de travail passe à Free ?"
-    content: "Free garde [[commercial.limit.free.maxMembers]] personne active par espace de travail : la personne qui a créé l’espace de travail, sinon le premier administrateur. Toutes les autres sont mises en pause, pas supprimées. Les personnes en pause ne peuvent pas ouvrir l’espace de travail, et leurs enregistrements, notes et historique sont conservés. Les invitations et demandes d’accès en attente sont annulées, les routines sont mises en pause, les automatisations au-delà de la limite Free de [[commercial.entitlement.free.activeAutomationRules]] sont désactivées, les formulaires publics n’acceptent plus d’envois au-delà de la limite mensuelle de [[commercial.entitlement.free.formSubmissionsPerMonth]] et les webhooks existants n’envoient plus rien. Un administrateur peut transmettre la place active à un autre administrateur. Dès que l’espace de travail choisit une formule payante, toutes les personnes en pause reviennent automatiquement et comptent de nouveau comme des places payantes, et les routines, automatisations, formulaires et webhooks reprennent."
+    content: "Free garde [[commercial.limit.free.maxMembers]] personne active par espace de travail : la personne qui a créé l’espace de travail, sinon le premier administrateur. Toutes les autres sont mises en pause, pas supprimées. Les personnes en pause ne peuvent pas ouvrir l’espace de travail, et leurs enregistrements, notes et historique sont conservés. Les invitations et demandes d’accès en attente sont annulées, les automatisations planifiées sont mises en pause, les autres automatisations au-delà de la limite Free de [[commercial.entitlement.free.activeAutomationRules]] sont désactivées, les formulaires publics n’acceptent plus d’envois au-delà de la limite mensuelle de [[commercial.entitlement.free.formSubmissionsPerMonth]] et les webhooks existants n’envoient plus rien. Un administrateur peut transmettre la place active à un autre administrateur. Dès que l’espace de travail choisit une formule payante, toutes les personnes en pause reviennent automatiquement et comptent de nouveau comme des places payantes, et toutes les automatisations, les formulaires et les webhooks reprennent."
   - id: pricing-faq-14
     title: "Comment surveillez-vous l’usage d’une instance auto-hébergée ?"
     content: "Nous ne le faisons pas. Une Community Edition auto-hébergée n’a pas de clé de licence et ne signale aucun usage à Customermates : l’image publiée n’a pas de ping de licence et désactive la télémétrie de Next.js et de Prisma, et les erreurs de l’application restent dans vos propres journaux. La licence s’applique par ses conditions, pas par la télémétrie : la Sustainable Use License limite l’usage à votre propre entreprise, et les fonctions Enterprise, l’intégration et la marque blanche exigent un accord. Un forfait Cloud ne débloque rien sur une instance auto-hébergée. Plus d’informations : https://customermates.com/docs/licence-faq et https://customermates.com/docs/compare-editions"

@@ -14,6 +14,7 @@ test.skip(
 );
 
 const booking = englishMessages.Booking;
+const live = booking.upcomingCount.replace("{count}", "0");
 
 async function connectCalendar(database: Client, owner: { companyId: string; userId: string }) {
   const accountId = randomUUID();
@@ -127,7 +128,7 @@ test("keeps a booking page whose calendar is gone, shows it as unavailable and l
 
   const { row, url } = await createBookingPage(page, "Intro call");
   await expect(row.locator("[data-booking-calendar-missing]")).toHaveCount(0);
-  await expect(row).toContainText(booking.panelActive);
+  await expect(row.locator("[data-booking-status]")).toHaveText(live);
 
   // The calendar disappears at the provider; the account keeps another calendar.
   const account = await database.query<{ connectedAccountId: string }>(
@@ -154,8 +155,7 @@ test("keeps a booking page whose calendar is gone, shows it as unavailable and l
   await expect(orphan).toHaveCount(1);
   await expect(orphan.getByRole("heading", { name: "Intro call" })).toBeVisible();
   await expect(orphan.locator("[data-booking-calendar-missing]")).toContainText(booking.noCalendar);
-  await expect(orphan).toContainText(booking.panelUnavailable);
-  await expect(orphan).not.toContainText(booking.panelActive);
+  await expect(orphan.locator("[data-booking-status]")).toHaveText(booking.panelUnavailable);
   await expect(orphan.locator("[data-value]")).toHaveAttribute("data-value", url);
 
   // A visitor sees the page as unavailable until a calendar is chosen.
@@ -174,7 +174,7 @@ test("keeps a booking page whose calendar is gone, shows it as unavailable and l
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: booking.saved }).last()).toBeVisible();
 
   await expect(orphan.locator("[data-booking-calendar-missing]")).toHaveCount(0);
-  await expect(orphan).toContainText(booking.panelActive);
+  await expect(orphan.locator("[data-booking-status]")).toHaveText(live);
   await expect.poll(storedCalendar).toEqual([otherCalendarId]);
 
   await visitor.reload();

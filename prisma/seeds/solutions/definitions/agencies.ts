@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { agentApiKeys, agentEdited, agentsPage, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentAppName } from "../agent-native";
 import {
   address,
   at,
@@ -2272,11 +2272,11 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:tidewellIdentity": "Claude Desktop",
-  "task:meridianFollowUp": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:tidewellIdentity": "Claude",
+  "task:meridianFollowUp": "Claude",
   "deal:harlowSpring": "ChatGPT",
-  "organization:wexford": "Codex CLI",
+  "organization:wexford": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -3008,7 +3008,7 @@ export default defineSolution<Strings>({
           ],
         },
       ],
-      apiKeys: agentApiKeys([62, 33, 11]),
+      ...agentConnections([62, 33, 11]),
       messaging: {
         accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,

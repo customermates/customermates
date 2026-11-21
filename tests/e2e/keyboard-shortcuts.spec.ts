@@ -65,11 +65,13 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 
   await page.keyboard.press("c");
   await expect(addPicker(page)).toBeVisible();
+  await page.keyboard.type("gs");
+  await expect(page.locator("[data-create-palette-input]")).toHaveValue("gs");
+  await page.keyboard.press("Escape");
+  await expect(addPicker(page)).toBeHidden();
   await page.keyboard.press("g");
   await page.keyboard.press("s");
   await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
-  await page.keyboard.press("Escape");
-  await expect(addPicker(page)).toBeHidden();
 
   await page.keyboard.press("g");
   await page.keyboard.press("1");

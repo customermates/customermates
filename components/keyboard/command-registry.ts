@@ -62,6 +62,7 @@ type CommandTarget = { href: string } | { control: string } | { action: CommandA
 
 type CommandRequirement = {
   resource?: Resource;
+  anyResource?: readonly { resource: Resource; cloudOnly?: boolean }[];
   action?: Action;
   cloudOnly?: boolean;
   schemaManager?: boolean;
@@ -136,8 +137,8 @@ const CHANNEL_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_CHANNELS.map((channe
   ...CHANNEL_CONNECTION_COMMANDS[channel],
   kind: "setting",
   icon: CHANNEL_COMMAND_ICONS[channel],
-  parentId: "settings.channels",
-  target: { href: connectIntentHref(settingsHref("channels"), channel) },
+  parentId: "settings.connections",
+  target: { href: connectIntentHref(settingsHref("connections"), channel) },
   requires: { resource: Resource.inboxMessages, action: Action.create, cloudOnly: true },
 }));
 
@@ -145,8 +146,8 @@ const AI_CLIENT_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_AI_CLIENTS.map((pr
   ...AI_CLIENT_CONNECTION_COMMANDS[provider],
   kind: "setting",
   icon: AI_CLIENT_COMMAND_ICONS[provider],
-  parentId: "settings.api-keys",
-  target: { href: connectIntentHref(settingsHref("api-keys"), provider) },
+  parentId: "settings.connections",
+  target: { href: connectIntentHref(settingsHref("connections"), provider) },
   requires: { resource: Resource.api, action: Action.create },
 }));
 
@@ -157,7 +158,7 @@ const SETTINGS_PAGES: StaticCommand[] = [...SETTINGS_SECTIONS.account, ...SETTIN
     kind: "page",
     icon: subroute.icon,
     target: { href: settingsHref(subroute.slug) },
-    requires: { resource: subroute.resource, cloudOnly: subroute.cloudOnly },
+    requires: { resource: subroute.resource, anyResource: subroute.anyResource, cloudOnly: subroute.cloudOnly },
   }),
 );
 
@@ -262,7 +263,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     labelKey: "CommandPalette.labels.createApiKey",
     kind: "setting",
     icon: KeyRound,
-    parentId: "settings.api-keys",
+    parentId: "settings.connections",
     target: { control: "settings-api-keys-generate" },
     requires: { resource: Resource.api, action: Action.create },
   },
@@ -289,7 +290,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     labelKey: "CommandPalette.labels.connectChannel",
     kind: "setting",
     icon: Inbox,
-    parentId: "settings.channels",
+    parentId: "settings.connections",
     target: { control: "settings-channels-connect" },
     requires: { resource: Resource.inboxMessages, cloudOnly: true },
   },
@@ -401,6 +402,15 @@ export function commandAvailable(entry: StaticCommand, environment: CommandEnvir
   if (requires.listPage && !environment.onListPage) return false;
   if (requires.otherWorkspaces && !environment.otherWorkspaces) return false;
   if (requires.workspaceCreation && environment.appMode === "demo") return false;
+  if (
+    requires.anyResource &&
+    !requires.anyResource.some(
+      (entry) =>
+        (!entry.cloudOnly || environment.appMode !== "self-hosted") &&
+        (environment.can(entry.resource, Action.readOwn) || environment.can(entry.resource, Action.readAll)),
+    )
+  )
+    return false;
   if (!requires.resource) return true;
   if (requires.action) return environment.can(requires.resource, requires.action);
   return environment.can(requires.resource, Action.readOwn) || environment.can(requires.resource, Action.readAll);

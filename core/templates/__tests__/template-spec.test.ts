@@ -70,6 +70,24 @@ describe("template spec validation", () => {
     expect(messages.filter((message) => message.includes("added automatically"))).toHaveLength(2);
   });
 
+  it("rejects a text or link field for an email address, a phone number or a social profile", () => {
+    const field = (key: string, type: "text" | "url" | "select") => ({
+      key,
+      type,
+      required: false,
+      multiple: false,
+      options: type === "select" ? [{ key: "yes" }] : [],
+    });
+    const messages = specIssuesAfter((spec) => {
+      spec.fields.push(field("contacts.work_email", "text"));
+      spec.fields.push(field("clients.phone", "text"));
+      spec.fields.push(field("contacts.linkedin_profile", "url"));
+      spec.fields.push(field("clients.whatsapp_opt_in", "select"));
+      spec.fields.push(field("clients.homepage", "url"));
+    });
+    expect(messages.filter((message) => message.includes("channels field of the people list"))).toHaveLength(3);
+  });
+
   it("rejects duplicate keys, also after conversion to camelCase", () => {
     const messages = specIssuesAfter((spec) => {
       spec.widgets.push({ ...spec.widgets[2], key: "clients_by_status" });
