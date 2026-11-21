@@ -1,15 +1,17 @@
 import type { ReactNode } from "react";
 import type { Hero } from "@/core/fumadocs/schemas/common";
 
+import { HeroAssurances } from "./hero-assurances";
 import { MarketingHero } from "./marketing-hero";
 
 type Props = {
   eyebrow?: string;
   hero: Hero;
   meta?: ReactNode;
+  sourceBadge?: boolean;
 };
 
-export function LandingHeroView({ eyebrow, hero, meta }: Props) {
+export function LandingHeroView({ eyebrow, hero, meta, sourceBadge }: Props) {
   return (
     <div className="contents" data-landing-hero="">
       <MarketingHero
@@ -17,7 +19,7 @@ export function LandingHeroView({ eyebrow, hero, meta }: Props) {
         eyebrow={hero.eyebrow ?? eyebrow}
         footnotes={
           <>
-            <p className="text-muted-foreground">{hero.hint}</p>
+            <HeroAssurances text={hero.hint} />
 
             {meta ? <div className="mt-1 text-xs text-muted-foreground">{meta}</div> : null}
           </>
@@ -25,6 +27,7 @@ export function LandingHeroView({ eyebrow, hero, meta }: Props) {
         primary={{ href: hero.buttonLeftHref, label: hero.buttonLeftText }}
         secondary={{ href: hero.buttonRightHref, label: hero.buttonRightText }}
         showOpenSourceBadge={hero.showOpenSourceBadge ?? true}
+        sourceBadge={sourceBadge}
         title={hero.title}
         titleAccent={hero.titleAccent}
       />

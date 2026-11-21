@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/core/utils/cn";
 
-import { SourceBadge } from "./source-badge";
+import { AiBadge } from "./ai-badge";
+import { HeroAssurances } from "./hero-assurances";
+import { HeroParticleField } from "./hero-particle-field";
 import { HeadingText } from "./heading-text";
 import { MarketingButton } from "./marketing-button";
 import { MarketingContainer } from "./marketing-container";
@@ -45,6 +47,8 @@ export function PageHero(props: Props) {
     <section className="relative isolate w-full overflow-hidden bg-background" data-page-hero="">
       <div aria-hidden className="mk-hero-light" />
 
+      <HeroParticleField mark={!visual} />
+
       <MarketingContainer className="relative z-10">
         <div
           className={cn(
@@ -59,7 +63,7 @@ export function PageHero(props: Props) {
               visual ? "col-span-12 lg:col-span-6 lg:pr-8" : "flex max-w-[60rem] flex-col items-center",
             )}
           >
-            {showOpenSourceBadge ? <SourceBadge className="mk-hero-chip" /> : null}
+            {showOpenSourceBadge ? <AiBadge className="mk-hero-chip mb-[24px]" /> : null}
 
             <div className={cn("m-0", visual ? "mk-display" : "mk-hero max-w-[60rem]")}>
               <h1 className="inline">
@@ -88,7 +92,9 @@ export function PageHero(props: Props) {
                   </MarketingButton>
                 </div>
 
-                <p className={cn("mk-caption mt-5", !visual && "text-center")}>{actions.hint}</p>
+                <div className="mk-hero-footnotes mt-5">
+                  <HeroAssurances align={visual ? "start" : "center"} text={actions.hint} />
+                </div>
               </>
             ) : null}
           </div>

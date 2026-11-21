@@ -93,8 +93,8 @@
           "manage": "Diese Rollenänderung bestätigen"
         },
         "routines": {
-          "configure": "Bereit, die Routine zu pausieren oder auszuführen",
-          "delete": "Bereit, die Routine samt Verlauf in den Papierkorb zu verschieben"
+          "configure": "Bereit, die geplante Automatisierung zu pausieren oder auszuführen",
+          "delete": "Bereit, die geplante Automatisierung samt Verlauf in den Papierkorb zu verschieben"
         },
         "rules": {
           "create": "Bereit, die Automatisierungsregel anzulegen",
@@ -135,9 +135,9 @@
         "recordsDeletePermanent": "Das kann nicht rückgängig gemacht werden.",
         "roleDelete": "Ausgewählte Rolle löschen",
         "roleSave": "Rolle und Datensatzzugriff speichern",
-        "routineDelete": "Die ausgewählte Routine samt Verlauf in den Papierkorb verschieben, wo du sie 30 Tage lang wiederherstellen kannst",
-        "routinePause": "Die ausgewählte Routine pausieren",
-        "routineRun": "Die ausgewählte Routine jetzt ausführen",
+        "routineDelete": "Die ausgewählte geplante Automatisierung samt Verlauf in den Papierkorb verschieben, wo du sie 30 Tage lang wiederherstellen kannst",
+        "routinePause": "Die ausgewählte geplante Automatisierung pausieren",
+        "routineRun": "Die ausgewählte geplante Automatisierung jetzt ausführen",
         "ruleDelete": "Die ausgewählte Regel und ihren Ausführungsverlauf dauerhaft löschen",
         "ruleDisable": "Die ausgewählte Regel ausschalten",
         "ruleDraft": "Als Entwurf gespeichert, nicht aktiv",
@@ -358,29 +358,29 @@
         },
         "routines": {
           "configure": {
-            "done": "Routinenzeitplan wurde geändert",
-            "error": "Routinenzeitplan konnte nicht geändert werden",
-            "running": "Routinenzeitplan wird geändert"
+            "done": "Zeitplan der Automatisierung wurde geändert",
+            "error": "Zeitplan der Automatisierung konnte nicht geändert werden",
+            "running": "Zeitplan der Automatisierung wird geändert"
           },
           "create": {
-            "done": "Routine wurde angelegt",
-            "error": "Routine konnte nicht angelegt werden",
-            "running": "Routine wird angelegt"
+            "done": "Geplante Automatisierung wurde angelegt",
+            "error": "Geplante Automatisierung konnte nicht angelegt werden",
+            "running": "Geplante Automatisierung wird angelegt"
           },
           "delete": {
-            "done": "Routine wurde entfernt",
-            "error": "Routine konnte nicht entfernt werden",
-            "running": "Routine wird entfernt"
+            "done": "Geplante Automatisierung wurde entfernt",
+            "error": "Geplante Automatisierung konnte nicht entfernt werden",
+            "running": "Geplante Automatisierung wird entfernt"
           },
           "read": {
-            "done": "Routinen wurden gelesen",
-            "error": "Routinen konnten nicht gelesen werden",
-            "running": "Routinen werden gelesen"
+            "done": "Geplante Automatisierungen wurden gelesen",
+            "error": "Geplante Automatisierungen konnten nicht gelesen werden",
+            "running": "Geplante Automatisierungen werden gelesen"
           },
           "update": {
-            "done": "Routine wurde geändert",
-            "error": "Routine konnte nicht geändert werden",
-            "running": "Routine wird geändert"
+            "done": "Geplante Automatisierung wurde geändert",
+            "error": "Geplante Automatisierung konnte nicht geändert werden",
+            "running": "Geplante Automatisierung wird geändert"
           }
         },
         "rules": {
@@ -580,8 +580,8 @@
       "interruptedTurn": "Dieser Durchlauf wurde beendet, bevor ich das Ergebnis bestätigen konnte. Prüfe die Aktivitäten oben und die aktuellen Datensätze, bevor du es erneut versuchst.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
-      "runCreditLimit": "Ich habe einen Teil dieses Routinenlaufs erledigt, dann aber an seiner Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
-      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Routinenlauf seine Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
+      "runCreditLimit": "Ich habe einen Teil dieses Automatisierungslaufs erledigt, dann aber an seiner Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
+      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Automatisierungslauf seine Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
       "sourcesHeading": "Quellen",
       "streamInterrupted": "Ich musste stoppen, weil die Modellantwort unterbrochen wurde. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
@@ -714,30 +714,30 @@
         "routines": {
           "data": {
             "create-routine": {
-              "label": "Routine erstellen",
-              "prompt": "Nutze meine Wissensdatenbank und vorhandene Routinen, um eine sinnvolle Automatisierung zu finden. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
+              "label": "Geplante Automatisierung erstellen",
+              "prompt": "Nutze meine Wissensdatenbank und vorhandene geplante Automatisierungen, um eine sinnvolle neue zu finden. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-health": {
-              "label": "Meine Routinen prüfen",
-              "prompt": "Prüfe meine Routinen und weise auf Überschneidungen, Lücken, pausierte Routinen und kürzlich fehlgeschlagene Ausführungen hin. Nimm keine Änderungen vor."
+              "label": "Meine geplanten Automatisierungen prüfen",
+              "prompt": "Prüfe meine geplanten Automatisierungen und weise auf Überschneidungen, Lücken, pausierte Automatisierungen und kürzlich fehlgeschlagene Ausführungen hin. Nimm keine Änderungen vor."
             },
             "routines-tour-data": {
-              "label": "Meine Routinen erklären",
-              "prompt": "Erkläre, was jede meiner Routinen tut, wann sie ausgeführt wird und welche Datensätze oder Nachrichten sie beeinflussen kann."
+              "label": "Meine geplanten Automatisierungen erklären",
+              "prompt": "Erkläre, was jede meiner geplanten Automatisierungen tut, wann sie ausgeführt wird und welche Datensätze oder Nachrichten sie beeinflussen kann."
             }
           },
           "empty": {
             "first-routine": {
-              "label": "Meine erste Routine erstellen",
-              "prompt": "Nutze meine Wissensdatenbank und meinen Workspace, um eine nützliche erste Routine vorzuschlagen. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
+              "label": "Meine erste geplante Automatisierung erstellen",
+              "prompt": "Nutze meine Wissensdatenbank und meinen Workspace, um eine nützliche erste geplante Automatisierung vorzuschlagen. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-ideas": {
-              "label": "Nützliche Routinen vorschlagen",
-              "prompt": "Prüfe meinen Workspace und schlage drei nützliche Routinen für wiederkehrende Aufgaben vor. Erstelle noch nichts."
+              "label": "Nützliche geplante Automatisierungen vorschlagen",
+              "prompt": "Prüfe meinen Workspace und schlage drei nützliche geplante Automatisierungen für wiederkehrende Aufgaben vor. Erstelle noch nichts."
             },
             "routines-tour": {
-              "label": "Routinen kennenlernen",
-              "prompt": "Führe mich durch die Routinen-Seite und erkläre Zeitpläne, Ereignisauslöser, Tests, Credits und den Ausführungsverlauf. Nimm keine Änderungen vor."
+              "label": "Geplante Automatisierungen kennenlernen",
+              "prompt": "Führe mich durch die Seite Automatisierungen und erkläre Zeitpläne, Ereignisauslöser, Tests, Credits und den Ausführungsverlauf. Nimm keine Änderungen vor."
             }
           }
         },
@@ -767,7 +767,7 @@
             },
             "wiki-tour": {
               "label": "Wissensdatenbank kennenlernen",
-              "prompt": "Erkläre, wie Mate, Routinen und verbundene KI-Tools die Wissensdatenbank verwenden, einschließlich Links und Berechtigungen. Nimm keine Änderungen vor."
+              "prompt": "Erkläre, wie Mate, Automatisierungen und verbundene KI-Tools die Wissensdatenbank verwenden, einschließlich Links und Berechtigungen. Nimm keine Änderungen vor."
             }
           }
         }
@@ -1254,10 +1254,10 @@
       "duplicate": "Schritt duplizieren",
       "duplicateAutomation": "Automatisierung duplizieren",
       "label": "Schritte der Automatisierung",
+      "moreSteps": "Weitere Schritte",
       "moveDown": "Nach unten",
       "moveUp": "Nach oben",
       "noOwner": "Ohne Eigentümerin oder Eigentümer",
-      "placeholder": "Wähl aus, was diese Automatisierung startet",
       "replay": {
         "back": "Zurück zum Bearbeiten",
         "changed": "Die Automatisierung wurde nach diesem Lauf geändert, daher lassen sich nicht alle Schritte zuordnen.",
@@ -1274,17 +1274,19 @@
         "runner": "Eigener Runner · Agent"
       },
       "settingsTab": "Einstellungen",
-      "stepActions": "Aktionen für den Schritt"
+      "stepActions": "Aktionen für den Schritt",
+      "then": "Dann…"
     },
     "columns": {
       "enabled": "Aktiv",
       "runs30d": "Läufe, 30 Tage",
       "runsOn": "Läuft auf",
-      "sentence": "Was sie tut"
+      "starts": "Startet",
+      "steps": "Schritte"
     },
     "filters": {
       "kind": {
-        "routine": "Routine",
+        "routine": "Geplant",
         "rule": "Automatisierung"
       },
       "status": {
@@ -1292,14 +1294,7 @@
         "paused": "Pausiert"
       }
     },
-    "kind": {
-      "routine": "Routine"
-    },
     "neverRun": "Noch nicht ausgeführt",
-    "new": {
-      "automation": "Automatisierung",
-      "routine": "Routine (Mate nach Zeitplan)"
-    },
     "palette": {
       "agent": {
         "hint": "Gib einem Agenten eine Aufgabe in einfachen Worten",
@@ -1455,7 +1450,12 @@
         "unsupported": "Das kann eine Automatisierung noch nicht. Beschreibe es als Auslöser und genaue Schritte."
       }
     },
-    "truncated": "Diese Liste fasst höchstens {rules} Automatisierungen und {routines} Routinen, und dein Arbeitsbereich hat mehr. Die nicht aufgeführten laufen weiter.",
+    "startsOn": {
+      "event": "Bei einem Ereignis",
+      "label": "Wie sie startet",
+      "schedule": "Nach Zeitplan"
+    },
+    "truncated": "Diese Liste fasst höchstens {rules} Automatisierungen und {routines} geplante Automatisierungen, und dein Arbeitsbereich hat mehr. Die nicht aufgeführten laufen weiter.",
     "unavailable": {
       "blockedStep": "„{step}“ verwendet etwas, das nicht mehr verfügbar ist. Wähle einen Ersatz oder entferne den Schritt.",
       "blockedTrigger": "Der Auslöser verwendet etwas, das nicht mehr verfügbar ist. Wähle einen Ersatz.",
@@ -2048,24 +2048,24 @@
       "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
       "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",
       "roleSystemRequired": "Mindestens ein Nutzer muss Systemadministrator sein.",
-      "routineAdminRequired": "Nur ein Unternehmensadmin kann Routinen pausieren oder löschen.",
+      "routineAdminRequired": "Nur ein Unternehmensadmin kann geplante Automatisierungen pausieren oder löschen.",
       "routineAiWorkPaused": "Customermates hat die KI-Arbeit pausiert. Workspace-Administratoren können sie nicht fortsetzen. Versuche es erneut, sobald Customermates den Dienst freigibt.",
-      "routineDeleteHasRunningRun": "Warte, bis der aktive Lauf beendet ist, bevor du diese Routine löschst.",
-      "routineEditNotOwner": "Nur die Eigentümerin oder der Eigentümer kann Einrichtung und Aktivierung dieser Routine ändern.",
-      "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
-      "routineNotFound": "Routine-ID nicht gefunden oder nicht zugänglich.",
-      "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Routine muss ein aktives Mitglied dieses Unternehmens sein.",
+      "routineDeleteHasRunningRun": "Warte, bis der aktive Lauf beendet ist, bevor du diese Automatisierung löschst.",
+      "routineEditNotOwner": "Nur die Eigentümerin oder der Eigentümer kann Einrichtung und Aktivierung dieser Automatisierung ändern.",
+      "routineLimitReached": "Dein Tarif enthält {limit} geplante Automatisierungen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
+      "routineNotFound": "Automatisierungs-ID nicht gefunden oder nicht zugänglich.",
+      "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Automatisierung muss ein aktives Mitglied dieses Unternehmens sein.",
       "routineRunCursorInvalid": "Dieser Link zur Seite des Ausführungsverlaufs ist nicht mehr gültig. Lade den Verlauf neu und versuche es noch einmal.",
-      "routineRunNotOwner": "Nur wer diese Routine besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
-      "routineRunNowRequiresSchedule": "Nur geplante Routinen können manuell getestet werden.",
+      "routineRunNotOwner": "Nur wer diese Automatisierung besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
+      "routineRunNowRequiresSchedule": "Nur Automatisierungen mit Zeitplan können manuell getestet werden.",
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
-      "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Routine.",
-      "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Routinen können höchstens alle 15 Minuten laufen.",
-      "routinesRequireCloud": "Routinen laufen in Customermates Cloud. Eine selbst gehostete Instanz kann sie nicht ausführen.",
-      "routinesRequirePlan": "Routinen sind im Free-Tarif nicht enthalten. Wechsle zu Starter ({price} pro Nutzer und Monat), um sie zu nutzen.",
-      "routineTestRequiresEnabled": "Aktiviere die Routine, bevor du sie testest.",
+      "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Automatisierung.",
+      "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Geplante Automatisierungen können höchstens alle 15 Minuten laufen.",
+      "routinesRequireCloud": "Geplante Automatisierungen laufen in Customermates Cloud. Eine selbst gehostete Instanz kann sie nicht ausführen.",
+      "routinesRequirePlan": "Geplante Automatisierungen sind im Free-Tarif nicht enthalten. Wechsle zu Starter ({price} pro Nutzer und Monat), um sie zu nutzen.",
+      "routineTestRequiresEnabled": "Aktiviere die Automatisierung, bevor du sie testest.",
       "routineTimeZoneInvalid": "Diese Zeitzone wird nicht unterstützt.",
-      "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Routine aus.",
+      "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Automatisierung aus.",
       "salesNavigatorNotAvailable": "Dieses LinkedIn-Konto hat Sales Navigator nicht verbunden.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator braucht ein verbundenes LinkedIn-Konto, dieses Konto ist aber {provider}.",
       "sendEmailTargetRequired": "Wähle eine Konversation oder ein Konto zum Senden aus.",
@@ -2239,11 +2239,11 @@
         "updated": "Rolle aktualisiert"
       },
       "routine": {
-        "created": "Routine erstellt",
-        "deleted": "Routine in den Papierkorb verschoben",
-        "deletedPermanently": "Routine endgültig gelöscht",
-        "restored": "Routine wiederhergestellt",
-        "updated": "Routine aktualisiert"
+        "created": "Geplante Automatisierung erstellt",
+        "deleted": "Geplante Automatisierung in den Papierkorb verschoben",
+        "deletedPermanently": "Geplante Automatisierung endgültig gelöscht",
+        "restored": "Geplante Automatisierung wiederhergestellt",
+        "updated": "Geplante Automatisierung aktualisiert"
       },
       "user": {
         "registered": "Benutzer registriert",
@@ -2765,7 +2765,6 @@
   },
   "Connections": {
     "apps": {
-      "alsoWorksWith": "Funktioniert auch mit",
       "clients": {
         "claude": "Claude",
         "cursor": "Cursor",
@@ -2774,9 +2773,9 @@
       },
       "connect": "App verbinden",
       "connected": "Verbunden",
+      "connectHint": "Claude, ChatGPT, Cursor oder jeder MCP-Client",
       "description": "KI-Apps, bei denen du dich mit deinem Customermates-Konto angemeldet hast. Sie handeln mit deinen Berechtigungen.",
       "detail": "seit {since} · aktiv {active}",
-      "otherApp": "Andere App",
       "title": "KI-Apps"
     },
     "filterLabel": "Verbindungen anzeigen",
@@ -2795,6 +2794,7 @@
         "posts": "Beiträge"
       },
       "connect": "Konto verbinden",
+      "connectHint": "E-Mail, Kalender, WhatsApp, LinkedIn, Telegram und mehr",
       "description": "Postfächer, Messenger und Kalender, aus denen dein Posteingang und Kalender lesen. Privat, bis du sie teilst.",
       "empty": "Noch kein Konto verbunden. Verbinde deine E-Mail, deinen Kalender oder einen Messenger, um deinen Posteingang zu füllen.",
       "privacyNote": "Mit dem Verbinden eines Kontos beauftragst du uns, seine Nachrichten, Kontakte und seinen Kalender für dich zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
@@ -2812,6 +2812,7 @@
       },
       "create": "Schlüssel erstellen",
       "created": "Erstellt am {date}",
+      "createHint": "Für Zapier, n8n, Make oder eigene Skripte",
       "description": "Für deine eigenen Skripte und Tools wie Zapier.",
       "empty": "Noch kein API-Schlüssel.",
       "title": "API-Schlüssel"
@@ -5039,7 +5040,7 @@
   "PlanUsage": {
     "apiPerMinute": "Bis zu {perMinute} pro Minute",
     "apiToday": "API-Aufrufe heute",
-    "description": "Dieser Workspace nutzt Free. Posteingang, Mate, Routinen, Webhooks und n8n sind nicht enthalten.",
+    "description": "Dieser Workspace nutzt Free. Posteingang, Mate, geplante Automatisierungen, Webhooks und n8n sind nicht enthalten.",
     "members": "Personen",
     "membersReached": "Der Free-Tarif umfasst {limit, plural, one {eine Person} other {# Personen}}. Teams starten mit Starter.",
     "of": "{used} von {limit}",
@@ -5571,7 +5572,7 @@
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
-        "routine": "Die Routine {source} reagiert auf {target}.",
+        "routine": "Die Automatisierung {source} reagiert auf {target}.",
         "rule": "Die Automatisierungsregel {source} reagiert auf {target}.",
         "snapshotTrigger": "{source} speichert seinen Wert, wenn sich {target} ändert.",
         "webhook": "Der Webhook {source} sendet Änderungen an {target}.",
@@ -6166,7 +6167,7 @@
       "dataModel": "Datenmodell",
       "inboxMessages": "Inbox-Nachrichten",
       "publicLinks": "Öffentliche Links",
-      "routines": "Routinen und Automatisierungen",
+      "routines": "Automatisierungen",
       "users": "Benutzer & Rollen",
       "wiki": "Wissensdatenbank"
     },
@@ -6181,10 +6182,10 @@
     "system": "System"
   },
   "RoutineAdministration": {
-    "help": "Als Unternehmensadmin kannst du diese Routine pausieren oder löschen, aber nicht bearbeiten, testen oder ausführen.",
-    "pause": "Routine pausieren",
+    "help": "Als Unternehmensadmin kannst du diese Automatisierung pausieren oder löschen, aber nicht bearbeiten, testen oder ausführen.",
+    "pause": "Automatisierung pausieren",
     "pauseConfirmation": "„{name}“ pausieren? Wartende Läufe werden übersprungen.",
-    "pauseTitle": "Routine pausieren",
+    "pauseTitle": "Automatisierung pausieren",
     "title": "Admin-Steuerung"
   },
   "RoutineDetail": {
@@ -6208,19 +6209,19 @@
         "conditions": {
           "filters": "Der Datensatz muss außerdem alle konfigurierten Filter erfüllen.",
           "filtersWithDeletion": "Konfigurierte Filter gelten für erstellte und aktualisierte Datensätze. Gelöschte Datensätze verwenden ihren Lösch-Schnappschuss und umgehen diese Filter.",
-          "ownerAccess": "Die Eigentümerin oder der Eigentümer der Routine muss weiterhin aktiv sein und auf das verbundene Konto oder den Datensatz zugreifen können.",
-          "paused": "Aktiviere und speichere diese Routine, bevor du ein Ereignis auslöst.",
-          "suppression": "Ereignisse, die von einer Routine verursacht werden, lösen keine Routinen aus.",
+          "ownerAccess": "Die Eigentümerin oder der Eigentümer der Automatisierung muss weiterhin aktiv sein und auf das verbundene Konto oder den Datensatz zugreifen können.",
+          "paused": "Aktiviere und speichere diese Automatisierung, bevor du ein Ereignis auslöst.",
+          "suppression": "Ereignisse, die eine solche Automatisierung verursacht, lösen sie nicht erneut aus.",
           "unsaved": "Speichere diese Änderungen zuerst. Bis dahin verwenden Ereignisse die zuletzt gespeicherte Konfiguration.",
           "watchedFields": "Bei Aktualisierungsereignissen muss sich mindestens eines der beobachteten Felder wirklich ändern: {fields}."
         },
-        "description": "Ereignis-Routinen können nicht manuell gestartet werden. Führe eine der folgenden echten Aktionen aus, um die benötigten Ereignisdaten zu erzeugen.",
-        "instructionsLabel": "Möglichkeiten, diese Routine auszulösen"
+        "description": "Automatisierungen, die bei einem Ereignis starten, können nicht manuell gestartet werden. Führe eine der folgenden echten Aktionen aus, um die benötigten Ereignisdaten zu erzeugen.",
+        "instructionsLabel": "Möglichkeiten, diese Automatisierung auszulösen"
       },
       "schedule": {
-        "activateFirst": "Aktiviere und speichere die Routine, bevor du „Auslöser testen“ verwendest.",
+        "activateFirst": "Aktiviere und speichere die Automatisierung, bevor du „Auslöser testen“ verwendest.",
         "description": "Sie wird nach diesem Zeitplan ausgeführt:",
-        "ownerOnly": "Nur die Eigentümerin oder der Eigentümer kann „Auslöser testen“ verwenden. Der Zeitplan läuft automatisch, solange die Routine aktiv ist.",
+        "ownerOnly": "Nur die Eigentümerin oder der Eigentümer kann „Auslöser testen“ verwenden. Der Zeitplan läuft automatisch, solange die Automatisierung aktiv ist.",
         "saveFirst": "Speichere diese Änderungen, bevor du „Auslöser testen“ verwendest.",
         "testNow": "Starte mit „Auslöser testen“ jetzt einen Lauf oder warte auf den nächsten geplanten Zeitpunkt."
       },
@@ -6228,10 +6229,10 @@
     },
     "never": "Nie",
     "owner": "Eigentümer",
-    "ownerOnlyEdit": "Diese Routine ist für dich schreibgeschützt. Sie wird nur als {owner} ausgeführt und kann von dieser Person bearbeitet oder pausiert werden. Unternehmensadmins können sie nur pausieren oder löschen.",
-    "ownerPermissionReadOnly": "Deine Rolle erlaubt dir, diese Routine und ihre Ausführungen anzusehen, aber nicht, sie zu ändern oder zu testen.",
+    "ownerOnlyEdit": "Diese Automatisierung ist für dich schreibgeschützt. Sie wird nur als {owner} ausgeführt und kann von dieser Person bearbeitet oder pausiert werden. Unternehmensadmins können sie nur pausieren oder löschen.",
+    "ownerPermissionReadOnly": "Deine Rolle erlaubt dir, diese Automatisierung und ihre Ausführungen anzusehen, aber nicht, sie zu ändern oder zu testen.",
     "ownerUnavailable": "Eigentümer nicht verfügbar",
-    "ownerUnavailableReadOnly": "Für diese Routine ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
+    "ownerUnavailableReadOnly": "Für diese Automatisierung ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
     "ranAs": "Ausgeführt als {owner}",
     "readOnlyTitle": "Schreibgeschützter Zugriff",
     "reviewWikiProposals": "Prüfen",
@@ -6243,12 +6244,12 @@
     "runsLoadErrorTitle": "Läufe konnten nicht geladen werden",
     "runStarting": "Dieser Lauf wird gestartet. Das Protokoll erscheint in Kürze.",
     "testTrigger": "Auslöser testen",
-    "testTriggerEnableFirst": "Aktiviere diese Routine, bevor du sie testest.",
-    "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Routine ein passendes Ereignis im Workspace aus.",
-    "testTriggerSaveFirst": "Speichere deine Änderungen, bevor du diese Routine testest.",
+    "testTriggerEnableFirst": "Aktiviere diese Automatisierung, bevor du sie testest.",
+    "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Automatisierung ein passendes Ereignis im Workspace aus.",
+    "testTriggerSaveFirst": "Speichere deine Änderungen, bevor du diese Automatisierung testest.",
     "testTriggerStarted": "Testlauf gestartet.",
-    "testTriggerWarning": "Führe diese Routine jetzt aus. Das verbraucht deine KI-Guthaben und kann die in den Anweisungen genannten Aktionen ausführen.",
-    "transcriptOwnerOnly": "Nur {owner}, unter dessen Identität die Routine lief, kann das vollständige Protokoll öffnen.",
+    "testTriggerWarning": "Führe diese Automatisierung jetzt aus. Das verbraucht deine KI-Guthaben und kann die in den Anweisungen genannten Aktionen ausführen.",
+    "transcriptOwnerOnly": "Nur {owner}, unter dessen Identität die Automatisierung lief, kann das vollständige Protokoll öffnen.",
     "trigger": "Auslöser",
     "triggerChangedFields": "Geänderte Felder",
     "triggerChangedFieldsMore": "und weitere",
@@ -6260,22 +6261,21 @@
   "RoutineModal": {
     "at": "um",
     "configurationHeading": "Konfiguration",
-    "customSchedule": "Diese Routine nutzt einen eigenen Zeitplan: {expression}",
+    "customSchedule": "Diese Automatisierung nutzt einen eigenen Zeitplan: {expression}",
     "enabled": "Aktiv",
-    "enabledHelp": "Diese Routine kann derzeit ausgeführt werden.",
-    "eventSuppressionNote": "Von Routinen verursachte Ereignisse lösen keine Routinen aus.",
+    "enabledHelp": "Diese Automatisierung kann derzeit ausgeführt werden.",
+    "eventSuppressionNote": "Ereignisse, die eine solche Automatisierung verursacht, lösen sie nicht erneut aus.",
     "onMinute": "zur Minute",
-    "pausedHelp": "Diese Routine ist derzeit pausiert und wird nicht ausgeführt.",
+    "pausedHelp": "Diese Automatisierung ist derzeit pausiert und wird nicht ausgeführt.",
     "planPaused": "Pausiert, Free-Tarif",
     "promptExampleEvent": "Lies den geänderten Datensatz und antworte mit einem Satz dazu, was das bedeutet.",
     "promptExampleSchedule": "Fasse zusammen, was sich seit gestern bewegt hat, und antworte mit einer kurzen Liste.",
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
-    "tabsLabel": "Bereiche der Routine",
-    "title": "Routine",
+    "tabsLabel": "Bereiche der Automatisierung",
     "useSchedulePreset": "Zu einem Muster wechseln"
   },
   "RoutineRunReason": {
-    "adminPaused": "Ein Workspace-Administrator hat diese Routine pausiert",
+    "adminPaused": "Ein Workspace-Administrator hat diese Automatisierung pausiert",
     "agentAlreadyCompleted": "Dieser Lauf war bereits abgeschlossen",
     "agentAlreadyRunning": "Der Assistent war bereits mit einem anderen Lauf beschäftigt",
     "agentTurnConflict": "Ein anderer Lauf hat den Assistenten zuerst belegt",
@@ -6283,12 +6283,12 @@
     "agentTurnUncertain": "Der Assistent konnte den Start des Laufs nicht bestätigen",
     "filtersNotMatched": "Der Datensatz passte nicht zu den Filtern",
     "hourlyRunLimit": "Das Stundenlimit für Läufe war erreicht",
-    "ownerInactive": "Das Konto der Routine-Eigentümerin oder des Eigentümers ist nicht mehr aktiv",
-    "ownerPaused": "Die Eigentümerin oder der Eigentümer hat die Routine pausiert",
-    "ownerUnavailable": "Die Eigentümerin oder der Eigentümer der Routine ist nicht mehr verfügbar",
+    "ownerInactive": "Das Konto der Eigentümerin oder des Eigentümers der Automatisierung ist nicht mehr aktiv",
+    "ownerPaused": "Die Eigentümerin oder der Eigentümer hat die Automatisierung pausiert",
+    "ownerUnavailable": "Die Eigentümerin oder der Eigentümer der Automatisierung ist nicht mehr verfügbar",
     "planPaused": "Der Workspace nutzt jetzt den Free-Tarif",
     "platformPaused": "Customermates hat die KI-Arbeit pausiert; Workspace-Administratoren können sie nicht fortsetzen",
-    "routineDisabled": "Die Routine war pausiert",
+    "routineDisabled": "Die Automatisierung war pausiert",
     "startAbandoned": "Der Lauf wurde vor dem Start unterbrochen",
     "startFailed": "Der Lauf konnte nicht gestartet werden",
     "unknownFailure": "Der Lauf konnte nicht abgeschlossen werden"
@@ -6315,7 +6315,7 @@
   },
   "RoutinesCard": {
     "emptyBody": "Mate kann arbeiten, während du weg bist. Zum Beispiel: jeden Werktagmorgen zusammenfassen, was sich bewegt hat, oder eine Dankesmail entwerfen, sobald etwas gewonnen ist.",
-    "emptyTitle": "Noch keine Routinen"
+    "emptyTitle": "Noch keine geplanten Automatisierungen"
   },
   "RoutineSchedule": {
     "daily": "Täglich um {time}",
@@ -6526,6 +6526,7 @@
     }
   },
   "SourceBadge": {
+    "aiLabel": "Rund um Ihre KI gebaut",
     "label": "Quellcode einsehbar"
   },
   "StructuredData": {
@@ -6587,7 +6588,7 @@
       "keepsAccounts": "Du hast bis zu {connected} verbundene Konten pro Nutzer. Dieser Tarif behält {kept}; die neuesten werden bei der Zahlung getrennt.",
       "perUserMonth": "pro Nutzer / Monat",
       "recommendedForYou": "Für dich empfohlen",
-      "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
+      "routinesPerUser": "{routines, plural, one {# geplante Automatisierung pro Nutzer} other {# geplante Automatisierungen pro Nutzer}}",
       "seatsIncludePaused": "Ein bezahlter Tarif holt {paused, plural, one {die pausierte Person} other {alle # pausierten Personen}} zurück, deshalb umfasst der Checkout {count, plural, one {# Person} other {# Personen}}.",
       "seatTotal": "{count, plural, one {# Person} other {# Personen}}, {total} pro Monat",
       "taglines": {
@@ -6596,7 +6597,7 @@
         "pro": "Nachfassen über LinkedIn und E-Mail",
         "starter": "Dein Workspace und deine eigene KI"
       },
-      "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
+      "unlimitedRoutinesPerUser": "Unbegrenzte geplante Automatisierungen pro Nutzer"
     },
     "plan": "Tarif",
     "planNames": {
@@ -6708,7 +6709,7 @@
     "proofSetsUp": "Legt an",
     "proofTitle": "Mit einer fertigen Vorlage starten",
     "relatedTitle": "Weitere Vorlagen in diesem Bereich",
-    "routineLead": "Die Vorlage baut die Routine nach, die diese Arbeit ohnehin hat, damit sie nach dem Aufbau weiterläuft.",
+    "routineLead": "Die Vorlage baut die Automatisierung nach, die diese Arbeit ohnehin hat, damit sie nach dem Aufbau weiterläuft.",
     "ruleAgent": "Läuft über Ihren Agenten",
     "ruleDueAfter": "{days, plural, one {Fällig nach # Tag} other {Fällig nach # Tagen}}",
     "ruleDueSame": "Am selben Tag fällig",
@@ -6819,7 +6820,7 @@
       "list": "Liste",
       "record": "Datensatz",
       "relationship": "Beziehung",
-      "routine": "Routine",
+      "routine": "Geplante Automatisierung",
       "view": "Ansicht",
       "widget": "Widget",
       "wikiPage": "Wissensdatenbank-Seite"
@@ -6840,7 +6841,7 @@
       "operationPending": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, bis die Wiederherstellung im Hintergrund fertig ist. Stelle sie danach erneut wieder her.",
       "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
-      "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
+      "routineLimitReached": "{count, plural, one {# geplante Automatisierung bleibt} other {# geplante Automatisierungen bleiben}} im Papierkorb, weil die Person bereits alle geplanten Automatisierungen ihres Tarifs nutzt."
     },
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredInBackground": "Wiederhergestellt",
@@ -6880,9 +6881,9 @@
       "title": "Schreib direkt aus diesem Datensatz mit dem {plan}-Tarif"
     },
     "free": {
-      "description": "Für {members, plural, one {eine Person} other {# Personen}} und bis zu {records} Datensätze. Teams, Mate, Routinen und Webhooks gibt es ab {plan}, den Posteingang ab {inboxPlan}.",
+      "description": "Für {members, plural, one {eine Person} other {# Personen}} und bis zu {records} Datensätze. Teams, Mate, geplante Automatisierungen und Webhooks gibt es ab {plan}, den Posteingang ab {inboxPlan}.",
       "title": "Dieser Workspace nutzt Free",
-      "upgradeDescription": "{plan} bringt Teams, Mate, Routinen und Webhooks, {inboxPlan} den Posteingang."
+      "upgradeDescription": "{plan} bringt Teams, Mate, geplante Automatisierungen und Webhooks, {inboxPlan} den Posteingang."
     },
     "locked": {
       "mate": {
@@ -6890,8 +6891,8 @@
         "title": "Mate gehört zu den bezahlten Tarifen"
       },
       "routines": {
-        "description": "Deine Routinen bleiben erhalten und sind pausiert, solange dieser Workspace Free nutzt. Wähle {plan}, dann laufen sie von selbst weiter.",
-        "title": "Routinen sind im Free-Tarif pausiert"
+        "description": "Deine geplanten Automatisierungen bleiben erhalten und sind pausiert, solange dieser Workspace Free nutzt. Wähle {plan}, dann laufen sie von selbst weiter.",
+        "title": "Geplante Automatisierungen sind im Free-Tarif pausiert"
       },
       "webhooks": {
         "description": "Webhooks und der n8n-Trigger sind im Free-Tarif nicht enthalten. Bestehende Webhooks bleiben erhalten, senden aber nicht, solange dieser Workspace Free nutzt. Wähle {plan}, dann liefern sie wieder.",
@@ -6915,7 +6916,7 @@
       "routines": {
         "firstName": "Wöchentlicher Pipeline-Check",
         "firstTrigger": "Jeden Montag um 08:00",
-        "label": "Beispiel-Routinenliste mit Demodaten: eine wöchentliche Routine und eine, die läuft, wenn sich etwas ändert",
+        "label": "Beispielliste von Automatisierungen mit Demodaten: eine wöchentliche Automatisierung und eine, die läuft, wenn sich etwas ändert",
         "secondName": "Nachfassen nach einer Antwort"
       },
       "secondMessage": "Workshop-Termine im Frühjahr",
@@ -6931,7 +6932,7 @@
       "nextSteps": "Einzelne Unterhaltungen mit deinem Team teilen"
     },
     "routines": {
-      "reachedTitle": "Du nutzt alle Routinen, die dein {plan}-Tarif enthält"
+      "reachedTitle": "Du nutzt alle geplanten Automatisierungen, die dein {plan}-Tarif enthält"
     },
     "starter": {
       "noLimits": "Dein ganzes Team, keine Datensatzgrenze, Webhooks und n8n"
@@ -6943,7 +6944,7 @@
     },
     "trial": {
       "cta": "Tarif wählen",
-      "description": "Wähle einen Tarif, um dein Team, den Posteingang, Mate und Routinen nach der Testphase zu behalten. Ohne Tarif wechselt dieser Workspace zu Free, zum Ausprobieren allein.",
+      "description": "Wähle einen Tarif, um dein Team, den Posteingang, Mate und geplante Automatisierungen nach der Testphase zu behalten. Ohne Tarif wechselt dieser Workspace zu Free, zum Ausprobieren allein.",
       "dismiss": "Vorerst ausblenden",
       "title": "{days, plural, =0 {Deine {plan}-Testphase endet heute} one {Noch # Tag in deiner {plan}-Testphase} other {Noch # Tage in deiner {plan}-Testphase}}"
     },
@@ -6955,7 +6956,7 @@
         "forms": "{count, plural, one {# Formular-Einsendung über dem Monatslimit} other {# Formular-Einsendungen über dem Monatslimit}}",
         "mate": "Mate ({count, plural, one {# Anfrage} other {# Anfragen}})",
         "members": "{count, plural, one {# weitere Person} other {# weitere Personen}}",
-        "routines": "{count, plural, one {# aktive Routine} other {# aktive Routinen}}",
+        "routines": "{count, plural, one {# aktive geplante Automatisierung} other {# aktive geplante Automatisierungen}}",
         "rules": "{count, plural, one {# Automatisierung über dem Limit} other {# Automatisierungen über dem Limit}}",
         "webhooks": "{count, plural, one {# aktiver Webhook} other {# aktive Webhooks}}"
       },
@@ -7121,11 +7122,11 @@
       "back": "Alle Vorschläge",
       "current": "Aktuell",
       "deleteNotice": "Wenn du annimmst, wird diese Seite endgültig gelöscht.",
-      "description": "Änderungen, die Mate in Routinen vorgeschlagen hat. Die Wissensdatenbank ändert sich erst, wenn du einen Vorschlag annimmst.",
+      "description": "Änderungen, die Mate in Automatisierungen vorgeschlagen hat. Die Wissensdatenbank ändert sich erst, wenn du einen Vorschlag annimmst.",
       "empty": "Keine Vorschläge warten auf Prüfung.",
       "entry": "Vorschläge",
       "fromRoutine": "Aus {routine}",
-      "fromRoutineDeleted": "Aus einer gelöschten Routine",
+      "fromRoutineDeleted": "Aus einer gelöschten Automatisierung",
       "loadFailed": "Die Vorschläge konnten nicht geladen werden.",
       "needsPermission": "Deine Rolle kann diese Änderung nicht übernehmen.",
       "notYetCreated": "Diese Seite gibt es noch nicht.",
@@ -7321,7 +7322,7 @@
       "notCreator": "Nur der Admin, der diesen Workspace erstellt hat, kann ihn löschen.",
       "platformOperator": "Nach dem Löschen dieses Workspace hätte kein Customermates-Plattform-Operator mehr ein aktives Konto, deshalb kann er hier nicht gelöscht werden. Wende dich an den Customermates-Support."
     },
-    "deleteConfirmDescription": "Damit werden seine Datensätze, die Wissensdatenbank, Routinen, Webhooks und verbundenen Konten endgültig gelöscht. Alle Mitglieder verlieren den Zugriff, und ihre API-Schlüssel und MCP-Verbindungen dafür funktionieren nicht mehr. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirmDescription": "Damit werden seine Datensätze, die Wissensdatenbank, Automatisierungen, Webhooks und verbundenen Konten endgültig gelöscht. Alle Mitglieder verlieren den Zugriff, und ihre API-Schlüssel und MCP-Verbindungen dafür funktionieren nicht mehr. Das lässt sich nicht rückgängig machen.",
     "deleteConfirmTitle": "{name} löschen?",
     "deleteDescription": "Lösche diesen Workspace und alles darin endgültig, für alle Mitglieder.",
     "fallbackName": "Workspace",

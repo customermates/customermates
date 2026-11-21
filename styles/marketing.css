@@ -489,8 +489,6 @@ button.mk-chip:hover,
 
 .mk-hero-chip {
   margin-bottom: 1.25rem;
-  background: color-mix(in oklab, var(--card) 85%, transparent);
-  box-shadow: 0 8px 24px -16px rgb(0 0 0 / 0.35);
 }
 
 .mk-play {

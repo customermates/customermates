@@ -241,7 +241,8 @@ describe("ConnectionsPageView", () => {
     const offered = [...container.querySelectorAll<HTMLElement>("[data-connect-ai-app]")].map(
       (button) => button.dataset.connectAiApp,
     );
-    expect(offered).toEqual(["openai", "cursor", "gemini", "other"]);
+    expect(offered).toEqual(["openai", "cursor", "gemini"]);
+    expect(container.querySelector("#connections-ai-apps-connect")?.textContent).toContain("Connections.apps.connect");
 
     await click(container.querySelector<HTMLElement>('[data-connect-ai-app="gemini"]'));
     expect(harness.addKey).toHaveBeenCalledTimes(1);

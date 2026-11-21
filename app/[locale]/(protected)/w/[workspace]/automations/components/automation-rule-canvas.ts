@@ -28,7 +28,6 @@ export function ruleCanvasView(store: AutomationBuilderStore, t: Translate): Rul
   const steps = ruleCanvasSteps({
     draft: form,
     model,
-    placeholder: store.placeholder,
     canAddCondition: store.canAddCondition,
     canAddEffect: store.canAddEffect,
     invalid: (card) => store.isFlagged(card) || store.unavailableAt(card) !== undefined,

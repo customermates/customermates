@@ -266,7 +266,7 @@ export function PublicNavbar({
           onNavigate={closeMenu}
         />
 
-        <div className="hidden items-center gap-2 justify-self-end xl:flex">
+        <div className="hidden items-center gap-1 justify-self-end xl:flex">
           {renderPreferenceButtons()}
 
           {showAccountMenu ? (
@@ -279,7 +279,7 @@ export function PublicNavbar({
               />
 
               {hasDesktopActions ? (
-                <div className="ml-2 flex items-center gap-2 [[data-session-hint]_&]:hidden" data-public-nav-actions="">
+                <div className="flex items-center gap-1 [[data-session-hint]_&]:hidden" data-public-nav-actions="">
                   {desktopCta}
 
                   {desktopTrial}

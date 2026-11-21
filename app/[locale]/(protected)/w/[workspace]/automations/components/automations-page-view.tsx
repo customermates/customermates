@@ -10,7 +10,7 @@ import type { WebhookOption } from "./automation-webhook-options";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { FocusKind } from "@/components/focus/focus-href";
 
-import { History, Pause, Play, Plus, Repeat } from "lucide-react";
+import { History, Pause, Play, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -27,7 +27,6 @@ import { useFocusTarget } from "@/components/focus/focus-target";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Action, Resource } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -40,6 +39,7 @@ import { AutomationBuilderModal } from "./automation-builder-modal";
 import { AutomationCreatePalette } from "./automation-create-palette";
 import { AutomationCreatePaletteStore } from "./automation-create-palette.store";
 import { openFocusedRoutine } from "./automation-focus";
+import { agentPromptOf, draftWithAgentStep } from "./automation-start-handoff";
 import { showsRoutinesOnly } from "./automation-kind-filter";
 import { type AutomationsPrefill, prefillOpening } from "./automation-prefill";
 import {
@@ -68,7 +68,7 @@ type Props = {
 const FOCUS_KINDS: FocusKind[] = ["routine"];
 
 const columnStyle = (columnId: string) =>
-  columnId === "name" ? { emphasis: true, flexible: true } : columnId === "sentence" ? { flexible: true } : undefined;
+  columnId === "name" ? { emphasis: true, flexible: true } : columnId === "starts" ? { flexible: true } : undefined;
 
 const AutomationsPageViewContent = observer(function AutomationsPageView({
   initial,
@@ -109,6 +109,29 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   );
 
   const canCreate = automationsStore.canCreate;
+
+  useEffect(() => {
+    automationBuilderStore.setScheduleHandoff(
+      canCreateRoutine
+        ? (draft) =>
+            runUserAction(() =>
+              routineModalStore.openForCreate({ name: draft.name.trim() || undefined, prompt: agentPromptOf(draft) }),
+            )
+        : null,
+    );
+    routineModalStore.setEventHandoff(
+      canCreate
+        ? (seed) =>
+            automationBuilderStore.openForCreate(context(), refreshAfterSave, {
+              draft: draftWithAgentStep(context(), seed),
+            })
+        : null,
+    );
+    return () => {
+      automationBuilderStore.setScheduleHandoff(null);
+      routineModalStore.setEventHandoff(null);
+    };
+  }, [automationBuilderStore, canCreate, canCreateRoutine, context, refreshAfterSave, routineModalStore]);
 
   useEffect(() => {
     if (!prefill || prefillApplied.current) return;
@@ -256,38 +279,17 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
     [routineModalStore],
   );
 
-  const addMenu = useMemo(
-    () =>
-      canCreateRoutine ? (
-        <>
-          <DropdownMenuItem onSelect={() => openNew()}>
-            <Plus className="size-4" />
-
-            {t("Automations.new.automation")}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onSelect={() => runUserAction(() => routineModalStore.openForCreate())}>
-            <Repeat className="size-4" />
-
-            {t("Automations.new.routine")}
-          </DropdownMenuItem>
-        </>
-      ) : undefined,
-    [canCreateRoutine, openNew, routineModalStore, t],
-  );
-
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
         addLabel={t("AutomationRules.new")}
-        addMenu={addMenu}
         anchorScope="automations"
         searchLabel={t("Common.filters.searchFields.routines")}
         store={automationsStore}
         onAdd={() => openNew()}
       />
     ),
-    [addMenu, automationsStore, openNew, t],
+    [automationsStore, openNew, t],
   );
   useSetTopBarActions(topBarNode);
 

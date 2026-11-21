@@ -27,7 +27,7 @@ pricing:
     features:
       - "[[commercial.limit.free.fileStorageBytes]] de armazenamento de arquivos por espaço de trabalho"
       - "API e MCP com [[commercial.limit.free.apiRequestsPerMinute]] requisições por minuto e [[commercial.limit.free.apiRequestsPerDay]] por dia"
-      - "Sem caixa de entrada, Mate, rotinas, webhooks nem gatilhos do n8n"
+      - "Sem caixa de entrada, Mate, automações agendadas, webhooks nem gatilhos do n8n"
   - plan: starter
     title: Starter
     description: "Seu CRM e a sua própria IA"
@@ -39,7 +39,7 @@ pricing:
       - Contatos, empresas, negócios e tarefas
       - "Conecte a sua própria IA pelo MCP: Claude, ChatGPT ou Gemini"
       - API REST, webhooks e o seu próprio n8n
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário: o Mate trabalha em um horário definido ou quando um registro muda"
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] automação agendada por usuário: o Mate trabalha em um horário definido ou quando um registro muda"
       - "Uso do Mate: 1x por usuário ativo, a cota básica"
     missingFeatures:
       - Caixa de entrada unificada para LinkedIn e e-mail
@@ -58,7 +58,7 @@ pricing:
       - O Mate prepara respostas a partir do seu playbook para você revisar e enviar
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário incluída"
       - Compartilhe threads individuais com colegas
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário: o Mate trabalha em um horário definido ou quando um registro muda"
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] automações agendadas por usuário: o Mate trabalha em um horário definido ou quando um registro muda"
       - Marcação de reuniões, páginas de agendamento e LinkedIn Sales Navigator
       - "Uso do Mate: 3x o Starter por usuário ativo"
       - Tudo o que há no Starter
@@ -74,7 +74,7 @@ pricing:
       - Tudo o que há no Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] contas conectadas por usuário incluídas"
       - "Compartilhamento de conta inteira: compartilhe uma conta conectada com a equipe"
-      - "Rotinas por usuário: [[commercial.entitlement.business.includedRoutinesPerUser]] (uso justo)"
+      - "Automações agendadas por usuário: [[commercial.entitlement.business.includedRoutinesPerUser]] (uso justo)"
       - Suporte prioritário
       - "Uso do Mate: 10x o Starter por usuário ativo, o maior uso por euro"
   - plan: max
@@ -185,7 +185,7 @@ comparison:
         enterprise: true
   - title: CRM essencial
     rows:
-      - label: Rotinas por usuário
+      - label: Automações agendadas por usuário
         catalogFact: includedRoutinesPerUser
       - label: Automações ativas
         catalogFact: activeAutomationRules
@@ -320,16 +320,16 @@ faq:
     content: "Sim. Um login pode pertencer a vários espaços de trabalho totalmente separados, por exemplo um para vendas e outro para a contabilidade, e alternar entre eles. Cada espaço de trabalho tem o seu próprio plano, a sua própria assinatura e as suas próprias faturas, e as licenças são contadas por espaço de trabalho: uma pessoa ativa em dois espaços de trabalho é uma licença paga nos dois. O primeiro espaço de trabalho que você cria inclui o teste grátis de [[commercial.trial.days]] dias; todo espaço de trabalho adicional começa com a escolha de um plano. Uma instância com hospedagem própria roda qualquer número de espaços de trabalho sem cobrança."
   - id: pricing-faq-10
     title: O que recebo ao hospedar por conta própria?
-    content: "Uma instância com hospedagem própria sempre tem o conjunto de recursos do Starter: CRM essencial, MCP, API REST, webhooks e as interfaces do n8n, sem cobrança. A caixa de entrada unificada, o Mate, as rotinas e a configuração com IA rodam só no Customermates Cloud. O MCP com o seu próprio cliente de IA funciona em uma instância com hospedagem própria, e esse cliente usa o seu próprio provedor de IA."
+    content: "Uma instância com hospedagem própria sempre tem o conjunto de recursos do Starter: CRM essencial, MCP, API REST, webhooks e as interfaces do n8n, sem cobrança. A caixa de entrada unificada, o Mate, as automações agendadas e a configuração com IA rodam só no Customermates Cloud. O MCP com o seu próprio cliente de IA funciona em uma instância com hospedagem própria, e esse cliente usa o seu próprio provedor de IA."
   - id: pricing-faq-11
     title: Onde ficam armazenados os meus dados e as credenciais das contas conectadas?
     content: "O banco de dados da nuvem roda na AWS Frankfurt, e as contas conectadas fazem login pelo fluxo hospedado da Unipile, então o Customermates nunca recebe senhas de provedores nem tokens OAuth. A resposta completa está na documentação: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
   - id: pricing-faq-12
     title: "O que é o plano Free?"
-    content: "Seu primeiro espaço de trabalho no Cloud começa com o teste de [[commercial.trial.days]] dias do Pro, sem cartão de crédito; todo espaço de trabalho seguinte começa com a escolha de um plano. Se o teste termina sem um plano pago, o espaço de trabalho passa para o Free em vez de ser bloqueado, e nada é excluído. O Free serve para testar o Customermates sozinho: [[commercial.limit.free.maxMembers]] pessoa, até [[commercial.limit.free.maxRecords]] registros e [[commercial.limit.free.fileStorageBytes]] de armazenamento de arquivos por espaço de trabalho. Ele não tem caixa de entrada nem contas conectadas, nem Mate, nem rotinas, nem webhooks, nem gatilho do n8n. A API REST e o MCP estão incluídos, com até [[commercial.limit.free.apiRequestsPerMinute]] requisições por minuto e [[commercial.limit.free.apiRequestsPerDay]] por dia por espaço de trabalho, para que você possa trazer o seu próprio Claude ou ChatGPT. Registros e arquivos acima de um limite permanecem; só adicionar mais é recusado. Você pode passar para um plano pago a qualquer momento. Uma instância com hospedagem própria continua gratuita, sem esses limites."
+    content: "Seu primeiro espaço de trabalho no Cloud começa com o teste de [[commercial.trial.days]] dias do Pro, sem cartão de crédito; todo espaço de trabalho seguinte começa com a escolha de um plano. Se o teste termina sem um plano pago, o espaço de trabalho passa para o Free em vez de ser bloqueado, e nada é excluído. O Free serve para testar o Customermates sozinho: [[commercial.limit.free.maxMembers]] pessoa, até [[commercial.limit.free.maxRecords]] registros e [[commercial.limit.free.fileStorageBytes]] de armazenamento de arquivos por espaço de trabalho. Ele não tem caixa de entrada nem contas conectadas, nem Mate, nem automações agendadas, nem webhooks, nem gatilho do n8n. A API REST e o MCP estão incluídos, com até [[commercial.limit.free.apiRequestsPerMinute]] requisições por minuto e [[commercial.limit.free.apiRequestsPerDay]] por dia por espaço de trabalho, para que você possa trazer o seu próprio Claude ou ChatGPT. Registros e arquivos acima de um limite permanecem; só adicionar mais é recusado. Você pode passar para um plano pago a qualquer momento. Uma instância com hospedagem própria continua gratuita, sem esses limites."
   - id: pricing-faq-13
     title: "O que acontece com a minha equipe quando um espaço de trabalho passa para o Free?"
-    content: "O Free mantém [[commercial.limit.free.maxMembers]] pessoa ativa por espaço de trabalho: a pessoa que criou o espaço de trabalho ou, na falta dela, o administrador mais antigo. Todos os outros ficam em pausa, não são removidos. As pessoas em pausa não conseguem abrir o espaço de trabalho, e os registros, as notas e o histórico delas permanecem. Os convites em aberto e os pedidos de entrada são cancelados, as rotinas são pausadas, as automações acima do limite do Free de [[commercial.entitlement.free.activeAutomationRules]] são desativadas, os formulários públicos deixam de aceitar envios acima do limite mensal de [[commercial.entitlement.free.formSubmissionsPerMonth]] e os webhooks existentes deixam de enviar. Um administrador pode passar a licença ativa para outro administrador. Assim que o espaço de trabalho escolhe qualquer plano pago, todas as pessoas em pausa voltam automaticamente e voltam a contar como licença paga, e as rotinas, as automações, os formulários e os webhooks são retomados."
+    content: "O Free mantém [[commercial.limit.free.maxMembers]] pessoa ativa por espaço de trabalho: a pessoa que criou o espaço de trabalho ou, na falta dela, o administrador mais antigo. Todos os outros ficam em pausa, não são removidos. As pessoas em pausa não conseguem abrir o espaço de trabalho, e os registros, as notas e o histórico delas permanecem. Os convites em aberto e os pedidos de entrada são cancelados, as automações agendadas são pausadas, as demais automações acima do limite do Free de [[commercial.entitlement.free.activeAutomationRules]] são desativadas, os formulários públicos deixam de aceitar envios acima do limite mensal de [[commercial.entitlement.free.formSubmissionsPerMonth]] e os webhooks existentes deixam de enviar. Um administrador pode passar a licença ativa para outro administrador. Assim que o espaço de trabalho escolhe qualquer plano pago, todas as pessoas em pausa voltam automaticamente e voltam a contar como licença paga, e todas as automações, os formulários e os webhooks são retomados."
   - id: pricing-faq-14
     title: "Como vocês monitoram o uso em uma instância com hospedagem própria?"
     content: "Não monitoramos. Uma Community Edition com hospedagem própria não tem chave de licença e não informa o uso ao Customermates: a imagem publicada não tem ping de licença e desativa a telemetria do Next.js e do Prisma, e os erros do app ficam nos seus próprios logs. A licença vale pelos seus termos, não por telemetria: a Sustainable Use License limita o uso à sua própria empresa, e os recursos Enterprise, a incorporação e o white-label exigem um acordo. Um plano Cloud não desbloqueia nada em uma instância com hospedagem própria. Mais: https://customermates.com/docs/licence-faq e https://customermates.com/docs/compare-editions"

@@ -132,7 +132,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   context: AutomationBuilderContext | null = null;
   pane: AutomationBuilderPane = "runs";
   expanded: string | null = null;
-  placeholder = false;
   replay: AutomationRuleRunDto | null = null;
   palette: AutomationPaletteSlot | null = null;
   invalid: string[] = [];
@@ -141,6 +140,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   rule: AutomationRuleDto | null = null;
   composedByMate = false;
   onSaved: ((rule: AutomationRuleDto) => void) | null = null;
+  onSwitchToSchedule: ((draft: AutomationDraft) => void) | null = null;
 
   private previewTimer: ReturnType<typeof setTimeout> | undefined;
   private previewGeneration = 0;
@@ -153,7 +153,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       context: observable.ref,
       pane: observable,
       expanded: observable,
-      placeholder: observable,
+      onSwitchToSchedule: observable.ref,
       replay: observable.ref,
       palette: observable.ref,
       invalid: observable.ref,
@@ -183,6 +183,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       setName: action,
       setEnabled: action,
       patchTrigger: action,
+      setScheduleHandoff: action,
+      canSwitchToSchedule: computed,
       patchCondition: action,
       removeCondition: action,
       setEffect: action,
@@ -277,7 +279,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.rule = rule;
     this.pane = pane;
     this.expanded = null;
-    this.placeholder = false;
     this.replay = null;
     this.palette = null;
     this.invalid = [];
@@ -319,15 +320,29 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.composedByMate = composed;
     this.invalid = [];
     this.expanded = null;
-    this.placeholder = false;
     this.replay = null;
     this.schedulePreview(0);
   };
 
   private markBlank() {
-    this.placeholder = true;
     this.expanded = "trigger";
   }
+
+  setScheduleHandoff = (handoff: ((draft: AutomationDraft) => void) | null) => {
+    this.onSwitchToSchedule = handoff;
+  };
+
+  get canSwitchToSchedule(): boolean {
+    return this.onSwitchToSchedule !== null && this.rule === null && !this.isReadOnly;
+  }
+
+  switchToSchedule = () => {
+    const handoff = this.onSwitchToSchedule;
+    if (!handoff || !this.canSwitchToSchedule) return;
+    const draft = this.form;
+    this.close();
+    handoff(draft);
+  };
 
   setPane = (pane: AutomationBuilderPane) => {
     this.pane = pane;
@@ -367,7 +382,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   };
 
   patchTrigger = (patch: Partial<DraftTrigger>) => {
-    this.placeholder = false;
     this.form.trigger = { ...this.form.trigger, ...patch };
     if (this.model) this.form.effects = effectsForTrigger(this.form.effects, this.form.trigger, this.model);
     this.schedulePreview();
@@ -387,7 +401,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const field = list.fields[0];
     next.splice(at, 0, blankCondition(field?.id ?? "", conditionOperatorsFor(field)[0]));
     this.form.conditions = next;
-    this.placeholder = false;
     this.invalid = reindexIssues(this.invalid, "conditions", at, 1);
     this.expanded = `condition-${at}`;
     this.palette = null;
@@ -410,7 +423,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const next = [...this.form.effects];
     next.splice(at, 0, blankEffect(kind, this.model, this.form.trigger.typeId));
     this.form.effects = next;
-    this.placeholder = false;
     this.invalid = reindexIssues(this.invalid, "effects", at, 1).filter((issue) => issue !== "effects");
     this.expanded = `effect-${at}`;
     this.palette = null;
@@ -578,9 +590,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const unavailable = this.unavailable;
     const converted = draftToUpsert(this.form, model);
     const unchosen = this.context ? draftModelIssues(this.form, this.context.runtimes) : [];
-    if (unavailable.length > 0 || !converted.ok || unchosen.length > 0 || this.placeholder) {
+    if (unavailable.length > 0 || !converted.ok || unchosen.length > 0) {
       const issues = [
-        ...(this.placeholder ? ["trigger"] : []),
         ...unavailable.map((entry) => entry.card),
         ...(converted.ok ? [] : converted.issues),
         ...unchosen,

@@ -57,7 +57,6 @@ function agentBadge(effect: DraftEffect, t: Translate): string | undefined {
 export type RuleCanvasInput = {
   draft: AutomationDraft;
   model: AutomationBuilderModel;
-  placeholder: boolean;
   canAddCondition: boolean;
   canAddEffect: boolean;
   invalid: (card: string) => boolean;
@@ -68,34 +67,22 @@ export type RuleCanvasInput = {
 export function ruleCanvasSteps({
   draft,
   model,
-  placeholder,
   canAddCondition,
   canAddEffect,
   invalid,
   marks,
   t,
 }: RuleCanvasInput): AutomationCanvasStep[] {
-  const trigger: AutomationCanvasStep = placeholder
-    ? {
-        id: "trigger",
-        tone: "empty",
-        icon: Zap,
-        label: t("Automations.builder.when"),
-        sentence: t("Automations.canvas.placeholder"),
-        fixed: true,
-        invalid: invalid("trigger"),
-      }
-    : {
-        id: "trigger",
-        tone: "trigger",
-        icon: Zap,
-        label: t("Automations.builder.when"),
-        sentence: triggerSentence(draft.trigger, model, t),
-        fixed: true,
-        invalid: invalid("trigger"),
-        mark: marks?.trigger ?? null,
-      };
-  if (placeholder) return [trigger];
+  const trigger: AutomationCanvasStep = {
+    id: "trigger",
+    tone: "trigger",
+    icon: Zap,
+    label: t("Automations.builder.when"),
+    sentence: triggerSentence(draft.trigger, model, t),
+    fixed: true,
+    invalid: invalid("trigger"),
+    mark: marks?.trigger ?? null,
+  };
 
   const conditionCount = draft.conditions.length;
   const conditions = draft.conditions.map(

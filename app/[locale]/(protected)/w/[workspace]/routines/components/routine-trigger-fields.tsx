@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
+import { AutomationStartSwitch } from "@/components/automations/automation-start-switch";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormSelect } from "@/components/forms/form-select";
@@ -44,19 +45,10 @@ export const RoutineTriggerFields = observer(({ store }: { store: RoutineModalSt
   const hasClockTime = scheduleHasClockTime(store.compiledCron);
   return (
     <div className="min-w-0 space-y-4" data-routine-trigger-fields="">
-      <FormSelect
-        required
-        id="triggerKind"
-        items={[
-          {
-            value: RoutineTriggerKind.schedule,
-            label: t("RoutineTriggerKind.schedule"),
-          },
-          {
-            value: RoutineTriggerKind.event,
-            label: t("RoutineTriggerKind.event"),
-          },
-        ]}
+      <AutomationStartSwitch
+        disabled={{ event: !store.canManage, schedule: !store.canManage }}
+        value={scheduled ? "schedule" : "event"}
+        onChange={store.switchStart}
       />
 
       {scheduled && preset === "custom" ? (

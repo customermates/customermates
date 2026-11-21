@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { AutomationListItemDto } from "@/features/automation-rules/automations-list.schema";
 import type { AutomationBuilderModel } from "./automation-builder-model";
 
+import { ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
@@ -11,11 +12,13 @@ import { AppChip } from "@/components/chip/app-chip";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 
 import { automationItemSentence } from "./automation-item-sentence";
+import { automationItemShape } from "./automation-item-shape";
 
 type Options = {
   model: AutomationBuilderModel;
@@ -39,24 +42,58 @@ export function useAutomationColumns({
         accessorKey: "name",
         id: "name",
         header: t("Common.table.columns.name"),
-        cell: ({ row }) => <span className="truncate text-sm font-medium">{row.original.name}</span>,
+        cell: ({ row }) => <span className="block truncate text-sm font-medium">{row.original.name}</span>,
       },
       {
-        id: "sentence",
-        header: t("Automations.columns.sentence"),
-        cell: ({ row }) => (
-          <span className="flex min-w-0 items-center gap-2">
-            {row.original.kind === "routine" && (
-              <AppChip size="sm" variant="secondary">
-                {t("Automations.kind.routine")}
-              </AppChip>
-            )}
+        id: "starts",
+        header: t("Automations.columns.starts"),
+        cell: ({ row }) => {
+          const shape = automationItemShape(row.original, model, t, intlStore);
+          if (!shape) return <EmptyValue />;
+          const Icon = shape.start.icon;
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="flex min-w-0 items-center gap-2"
+                  data-automation-starts={shape.start.schedule ? "schedule" : "event"}
+                >
+                  <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
 
-            <span className="truncate text-sm text-muted-foreground">
-              {automationItemSentence(row.original, model, t, intlStore)}
+                  <span className="truncate text-sm">{shape.start.text}</span>
+                </span>
+              </TooltipTrigger>
+
+              <TooltipContent className="max-w-80">
+                {automationItemSentence(row.original, model, t, intlStore)}
+              </TooltipContent>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        id: "steps",
+        header: t("Automations.columns.steps"),
+        cell: ({ row }) => {
+          const shape = automationItemShape(row.original, model, t, intlStore);
+          if (!shape || shape.steps.length === 0) return <EmptyValue />;
+          return (
+            <span className="flex items-center gap-1" data-automation-steps={shape.steps.length}>
+              {shape.steps.map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <span key={step.key} className="flex items-center gap-1">
+                    {index > 0 && <ChevronRight aria-hidden className="size-3 text-muted-foreground/60" />}
+
+                    <span className="flex size-6 items-center justify-center rounded-md border bg-card">
+                      <Icon aria-hidden className={step.agent ? "size-3.5" : "size-3.5 text-muted-foreground"} />
+                    </span>
+                  </span>
+                );
+              })}
             </span>
-          </span>
-        ),
+          );
+        },
       },
       {
         id: "runsOn",

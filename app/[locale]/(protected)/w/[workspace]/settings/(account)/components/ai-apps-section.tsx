@@ -5,10 +5,11 @@ import type { ConnectedApp } from "@/features/connected-apps/connected-app.schem
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Plug, Plus } from "lucide-react";
+import { Plug } from "lucide-react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -16,6 +17,8 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { aiAppLogoProvider, aiAppsNotYetConnected } from "./ai-app-client";
 import {
   SettingsPanel,
+  SettingsPanelAddButton,
+  SettingsPanelAddRow,
   SettingsPanelLogo,
   SettingsPanelMessage,
   SettingsPanelRow,
@@ -56,15 +59,6 @@ export const AiAppsSection = observer(() => {
 
   return (
     <SettingsPanel
-      action={
-        canManage ? (
-          <Button id="connections-ai-apps-connect" size="sm" variant="secondary" onClick={() => connect()}>
-            <Plus aria-hidden />
-
-            {t("Connections.apps.connect")}
-          </Button>
-        ) : null
-      }
       description={t("Connections.apps.description")}
       id="connections-apps"
       title={t("Connections.apps.title")}
@@ -109,32 +103,42 @@ export const AiAppsSection = observer(() => {
       )}
 
       {canManage ? (
-        <div
-          className="-mt-px flex flex-wrap items-center gap-2 border-t bg-muted/30 px-4 py-3"
-          data-connections-also-works=""
+        <SettingsPanelAddRow
+          trailing={
+            available.length > 0 ? (
+              <span className="flex items-center gap-1.5" data-connections-also-works="">
+                {available.map((provider) => {
+                  const label = t(`Connections.apps.clients.${provider}`);
+                  return (
+                    <Tooltip key={provider}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={label}
+                          className="rounded-full"
+                          data-connect-ai-app={provider}
+                          size="icon-sm"
+                          variant="secondary"
+                          onClick={() => connect(provider)}
+                        >
+                          <AiClientLogo className="size-4" provider={provider === "openai" ? "chatgpt" : provider} />
+                        </Button>
+                      </TooltipTrigger>
+
+                      <TooltipContent>{label}</TooltipContent>
+                    </Tooltip>
+                  );
+                })}
+              </span>
+            ) : null
+          }
         >
-          <span className="me-1 text-xs text-muted-foreground">{t("Connections.apps.alsoWorksWith")}</span>
-
-          {available.map((provider) => (
-            <Button
-              key={provider}
-              data-connect-ai-app={provider}
-              size="sm"
-              variant="secondary"
-              onClick={() => connect(provider)}
-            >
-              <AiClientLogo className="size-4" provider={provider === "openai" ? "chatgpt" : provider} />
-
-              {t(`Connections.apps.clients.${provider}`)}
-            </Button>
-          ))}
-
-          <Button data-connect-ai-app="other" size="sm" variant="secondary" onClick={() => connect()}>
-            <Plus aria-hidden />
-
-            {t("Connections.apps.otherApp")}
-          </Button>
-        </div>
+          <SettingsPanelAddButton
+            hint={t("Connections.apps.connectHint")}
+            id="connections-ai-apps-connect"
+            label={t("Connections.apps.connect")}
+            onClick={() => connect()}
+          />
+        </SettingsPanelAddRow>
       ) : null}
     </SettingsPanel>
   );

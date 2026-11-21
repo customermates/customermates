@@ -22,7 +22,7 @@ export type AutomationPaletteKind = (typeof AUTOMATION_PALETTE_KINDS)[number];
 
 type Group = "condition" | "record" | "people" | "integrations" | "agent";
 
-const ITEMS: Record<AutomationPaletteKind, { group: Group; icon: LucideIcon }> = {
+export const AUTOMATION_PALETTE_ITEMS: Record<AutomationPaletteKind, { group: Group; icon: LucideIcon }> = {
   condition: { group: "condition", icon: Filter },
   setField: { group: "record", icon: Pencil },
   createRecord: { group: "record", icon: ListPlus },
@@ -35,7 +35,7 @@ const GROUP_ORDER: Group[] = ["condition", "record", "people", "integrations", "
 
 type Translate = ReturnType<typeof useTranslations>;
 
-function itemText(t: Translate, kind: AutomationPaletteKind): { title: string; hint: string } {
+export function automationPaletteItemText(t: Translate, kind: AutomationPaletteKind): { title: string; hint: string } {
   switch (kind) {
     case "condition":
       return { title: t("Automations.palette.condition.title"), hint: t("Automations.palette.condition.hint") };
@@ -99,9 +99,9 @@ export function AutomationPalette({ disabled, reasons, onPick, onClose }: Props)
     return GROUP_ORDER.map((group) => ({
       group,
       kinds: AUTOMATION_PALETTE_KINDS.filter((kind) => {
-        if (ITEMS[kind].group !== group) return false;
+        if (AUTOMATION_PALETTE_ITEMS[kind].group !== group) return false;
         if (!term) return true;
-        const text = itemText(t, kind);
+        const text = automationPaletteItemText(t, kind);
         return `${text.title} ${text.hint}`.toLowerCase().includes(term);
       }),
     })).filter((entry) => entry.kinds.length > 0);
@@ -140,8 +140,8 @@ export function AutomationPalette({ disabled, reasons, onPick, onClose }: Props)
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{groupLabel(t, group)}</p>
 
             {kinds.map((kind) => {
-              const Icon = ITEMS[kind].icon;
-              const text = itemText(t, kind);
+              const Icon = AUTOMATION_PALETTE_ITEMS[kind].icon;
+              const text = automationPaletteItemText(t, kind);
               const reason = disabled.has(kind) ? reasons?.[kind] : undefined;
               return (
                 <button

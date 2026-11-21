@@ -250,7 +250,7 @@ describe("the automation canvas", () => {
     expect(container.querySelector("[data-automation-step-toolbar]")).toBeNull();
   });
 
-  it("starts a blank automation as one dashed When placeholder with its fields open", () => {
+  it("starts a blank automation with the default trigger counted and the common next steps offered", () => {
     const store = new AutomationBuilderStore({
       registerModalStore: vi.fn(),
       userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
@@ -266,13 +266,18 @@ describe("the automation canvas", () => {
     mount(store);
 
     expect(stepIds()).toEqual(["trigger"]);
-    expect(step("trigger")?.textContent).toContain("Automations.canvas.placeholder");
     expect(store.expanded).toBe("trigger");
-    expect(container.querySelector("[data-automation-add]")).toBeNull();
-
-    act(() => store.patchTrigger({ kind: "recordCreated", typeId: DEALS }));
-    expect(step("trigger")?.textContent).not.toContain("Automations.canvas.placeholder");
     expect(add(1)).not.toBeNull();
+    const quick = [...container.querySelectorAll<HTMLElement>("[data-automation-quick-step]")].map(
+      (item) => item.dataset.automationQuickStep,
+    );
+    expect(quick).toEqual(["agent", "condition", "setField", "createRecord", "notify"]);
+
+    act(() => container.querySelector<HTMLElement>('[data-automation-quick-step="notify"]')?.click());
+    expect(stepIds()).toEqual(["trigger", "effect-0"]);
+    expect(store.expanded).toBe("effect-0");
+    expect(container.querySelector("[data-automation-quick-steps]")).toBeNull();
+    expect(add(2)).not.toBeNull();
   });
 
   it("marks each step of a replayed run and locks editing until Back to editing", () => {

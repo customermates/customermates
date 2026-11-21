@@ -47,6 +47,7 @@ vi.mock("@/components/chip/app-chip", () => ({
   AppChip: ({ children }: { children: ReactNode }) => <span data-chip="">{children}</span>,
 }));
 vi.mock("@/components/marketing/page-updated-at", () => ({ PageUpdatedAt: () => null }));
+vi.mock("@/components/marketing/hero-particle-field", () => ({ HeroParticleField: () => null }));
 vi.mock("@/components/marketing/product-demo", () => ({ buildProductDemoUrl: () => "https://demo.example/dashboard" }));
 vi.mock("@/core/fumadocs/source", () => ({
   featurePagesSource: {

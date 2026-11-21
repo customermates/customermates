@@ -16,18 +16,18 @@ export async function SourceBadge({ className }: Props) {
   const formattingTag = formattingTagFor(contentLocaleOrDefault(locale));
 
   return (
-    <div
-      className={`mb-[24px] inline-flex items-center gap-2 rounded-full border border-border bg-card px-[11px] py-[5px] text-xs text-foreground ${className ?? ""}`}
-    >
+    <div className={`homepage-hero-badge mb-[24px] ${className ?? ""}`} data-source-badge="">
       <AppLink
         external
         appearance="unstyled"
-        className="inline-flex items-center gap-2 text-foreground no-underline transition-colors hover:text-muted-foreground focus-visible:text-muted-foreground"
+        className="inline-flex items-center gap-2 transition-colors hover:text-foreground focus-visible:text-foreground"
         href={GITHUB_REPOSITORY_URL}
       >
-        <Github aria-hidden className="size-3.5" />
+        <span aria-hidden className="homepage-hero-badge-icon">
+          <Github className="size-3" />
+        </span>
 
-        <span className="font-semibold">{t("SourceBadge.label")}</span>
+        <span>{t("SourceBadge.label")}</span>
       </AppLink>
 
       {starCount !== null && (

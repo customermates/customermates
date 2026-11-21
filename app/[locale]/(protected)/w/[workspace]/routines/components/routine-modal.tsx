@@ -246,12 +246,12 @@ export const RoutineModal = observer(() => {
             ? t("AutomationRules.lastRun", { time: intlStore.formatRelativeTime(latestRunAt) })
             : t("AutomationRules.neverRun"),
         }}
-        name={(form.name ?? "").trim() || t("RoutineModal.title")}
+        name={(form.name ?? "").trim() || t("AutomationRules.builder.titleNew")}
         panel={<AppForm store={routineModalStore}>{panel}</AppForm>}
         panelLabel={t("RoutineModal.tabsLabel")}
         sheetOpen={selected !== null}
         store={routineModalStore}
-        title={t("RoutineModal.title")}
+        title={isExistingRoutine ? t("AutomationRules.builder.titleEdit") : t("AutomationRules.builder.titleNew")}
       />
     </AgentChatStoreProvider>
   );

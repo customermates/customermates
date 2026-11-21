@@ -256,7 +256,7 @@ test.describe("plans on Customermates Cloud", () => {
     await expect(page.locator('[data-upsell-notice="mate-usage"]')).toContainText("Upgrade to Pro");
     await page.goto(appPath(slug, "/routines"));
     const allowance = page.locator('[data-upsell-notice="routines"]');
-    await expect(allowance).toContainText("You are using every routine your Starter plan includes");
+    await expect(allowance).toContainText("You are using every scheduled automation your Starter plan includes");
     await expect(allowance.getByRole("link", { name: "Upgrade to Pro" })).toBeVisible();
     await expect(page.getByText("Morning digest", { exact: true })).toBeVisible();
     // Connections also holds the AI apps and API keys, so only its inbox section carries the plan notice.

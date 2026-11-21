@@ -16,7 +16,7 @@ function whenIdle(callback: () => void): () => void {
   return () => window.clearTimeout(handle);
 }
 
-export function HomepageHeroParticles({ className }: { className?: string }) {
+export function HomepageHeroParticles({ className, mark = true }: { className?: string; mark?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -48,5 +48,13 @@ export function HomepageHeroParticles({ className }: { className?: string }) {
     };
   }, []);
 
-  return <canvas ref={canvasRef} aria-hidden className={className} data-homepage-hero-particles="" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden
+      className={className}
+      data-homepage-hero-particles=""
+      data-particle-mark={mark ? undefined : "off"}
+    />
+  );
 }

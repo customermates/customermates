@@ -93,8 +93,8 @@
           "manage": "Approve this role change"
         },
         "routines": {
-          "configure": "Ready to pause or run the routine",
-          "delete": "Ready to move the routine and its history to Trash"
+          "configure": "Ready to pause or run the scheduled automation",
+          "delete": "Ready to move the scheduled automation and its history to Trash"
         },
         "rules": {
           "create": "Ready to create the automation rule",
@@ -135,9 +135,9 @@
         "recordsDeletePermanent": "This cannot be undone.",
         "roleDelete": "Delete the selected role",
         "roleSave": "Save the role and its record access",
-        "routineDelete": "Move the selected routine and its run history to Trash, where you can restore it for 30 days",
-        "routinePause": "Pause the selected routine",
-        "routineRun": "Run the selected routine now",
+        "routineDelete": "Move the selected scheduled automation and its run history to Trash, where you can restore it for 30 days",
+        "routinePause": "Pause the selected scheduled automation",
+        "routineRun": "Run the selected scheduled automation now",
         "ruleDelete": "Permanently delete the selected rule and its run history",
         "ruleDisable": "Switch off the selected rule",
         "ruleDraft": "Saved as a draft, not live",
@@ -358,29 +358,29 @@
         },
         "routines": {
           "configure": {
-            "done": "Changed the routine schedule",
-            "error": "Couldn’t change the routine schedule",
-            "running": "Changing the routine schedule"
+            "done": "Changed the automation schedule",
+            "error": "Couldn’t change the automation schedule",
+            "running": "Changing the automation schedule"
           },
           "create": {
-            "done": "Created a routine",
-            "error": "Couldn’t create the routine",
-            "running": "Creating a routine"
+            "done": "Created a scheduled automation",
+            "error": "Couldn’t create the scheduled automation",
+            "running": "Creating a scheduled automation"
           },
           "delete": {
-            "done": "Removed the routine",
-            "error": "Couldn’t remove the routine",
-            "running": "Removing the routine"
+            "done": "Removed the scheduled automation",
+            "error": "Couldn’t remove the scheduled automation",
+            "running": "Removing the scheduled automation"
           },
           "read": {
-            "done": "Read routines",
-            "error": "Couldn’t read routines",
-            "running": "Reading routines"
+            "done": "Read scheduled automations",
+            "error": "Couldn’t read scheduled automations",
+            "running": "Reading scheduled automations"
           },
           "update": {
-            "done": "Updated the routine",
-            "error": "Couldn’t update the routine",
-            "running": "Updating the routine"
+            "done": "Updated the scheduled automation",
+            "error": "Couldn’t update the scheduled automation",
+            "running": "Updating the scheduled automation"
           }
         },
         "rules": {
@@ -580,8 +580,8 @@
       "interruptedTurn": "This turn stopped before I could confirm its outcome. Check the activity above and the current records before trying again.",
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
-      "runCreditLimit": "I completed part of this routine run, but stopped at its per-run limit of {share, number, percent} of a Starter allowance. Completed work remains in place.",
-      "runCreditLimitNoWrite": "I stopped before making any changes because this routine run reached its per-run limit of {share, number, percent} of a Starter allowance. Nothing was created, updated, or sent.",
+      "runCreditLimit": "I completed part of this automation run, but stopped at its per-run limit of {share, number, percent} of a Starter allowance. Completed work remains in place.",
+      "runCreditLimitNoWrite": "I stopped before making any changes because this automation run reached its per-run limit of {share, number, percent} of a Starter allowance. Nothing was created, updated, or sent.",
       "sourcesHeading": "Sources",
       "streamInterrupted": "I had to stop because the model stream was interrupted. No further action was taken; check the activity above before trying again.",
       "turnError": "I couldn't complete that request. Please try again.",
@@ -714,30 +714,30 @@
         "routines": {
           "data": {
             "create-routine": {
-              "label": "Create a routine",
-              "prompt": "Use my Knowledge Base and existing routines to identify what to automate. Ask only if its trigger or action is unclear, then create it."
+              "label": "Create a scheduled automation",
+              "prompt": "Use my Knowledge Base and existing scheduled automations to identify what to automate. Ask only if its trigger or action is unclear, then create it."
             },
             "routine-health": {
-              "label": "Review my routines",
-              "prompt": "Review my routines and point out overlaps, gaps, paused routines, and recent failed runs. Do not make any changes."
+              "label": "Review my scheduled automations",
+              "prompt": "Review my scheduled automations and point out overlaps, gaps, paused ones, and recent failed runs. Do not make any changes."
             },
             "routines-tour-data": {
-              "label": "Explain my routines",
-              "prompt": "Explain what each of my routines does, when it runs, and which records or messages it can affect."
+              "label": "Explain my scheduled automations",
+              "prompt": "Explain what each of my scheduled automations does, when it runs, and which records or messages it can affect."
             }
           },
           "empty": {
             "first-routine": {
-              "label": "Create my first routine",
-              "prompt": "Use my Knowledge Base and workspace to suggest a useful first routine. Ask only if its trigger or action is unclear, then create it."
+              "label": "Create my first scheduled automation",
+              "prompt": "Use my Knowledge Base and workspace to suggest a useful first scheduled automation. Ask only if its trigger or action is unclear, then create it."
             },
             "routine-ideas": {
-              "label": "Suggest useful routines",
-              "prompt": "Review my workspace and suggest three useful routines for recurring work. Do not create anything yet."
+              "label": "Suggest useful scheduled automations",
+              "prompt": "Review my workspace and suggest three useful scheduled automations for recurring work. Do not create anything yet."
             },
             "routines-tour": {
-              "label": "Learn how routines work",
-              "prompt": "Show me around the Routines page and explain schedules, event triggers, testing, credits, and run history. Do not make any changes."
+              "label": "Learn how scheduled automations work",
+              "prompt": "Show me around the Automations page and explain schedules, event triggers, testing, credits, and run history. Do not make any changes."
             }
           }
         },
@@ -767,7 +767,7 @@
             },
             "wiki-tour": {
               "label": "Learn how the Knowledge Base works",
-              "prompt": "Explain how the Knowledge Base is used by Mate, routines, and connected AI tools, including links and permissions. Do not make changes."
+              "prompt": "Explain how the Knowledge Base is used by Mate, automations, and connected AI tools, including links and permissions. Do not make changes."
             }
           }
         }
@@ -1254,10 +1254,10 @@
       "duplicate": "Duplicate step",
       "duplicateAutomation": "Duplicate automation",
       "label": "Automation steps",
+      "moreSteps": "More steps",
       "moveDown": "Move down",
       "moveUp": "Move up",
       "noOwner": "No owner",
-      "placeholder": "Choose what starts this automation",
       "replay": {
         "back": "Back to editing",
         "changed": "The automation changed after this run, so some steps could not be matched.",
@@ -1274,17 +1274,19 @@
         "runner": "Own runner · agent"
       },
       "settingsTab": "Settings",
-      "stepActions": "Step actions"
+      "stepActions": "Step actions",
+      "then": "Then…"
     },
     "columns": {
       "enabled": "Active",
       "runs30d": "Runs, 30 days",
       "runsOn": "Runs on",
-      "sentence": "What it does"
+      "starts": "Starts",
+      "steps": "Steps"
     },
     "filters": {
       "kind": {
-        "routine": "Routine",
+        "routine": "Scheduled",
         "rule": "Automation"
       },
       "status": {
@@ -1292,14 +1294,7 @@
         "paused": "Paused"
       }
     },
-    "kind": {
-      "routine": "Routine"
-    },
     "neverRun": "Not run yet",
-    "new": {
-      "automation": "Automation",
-      "routine": "Routine (Mate on a schedule)"
-    },
     "palette": {
       "agent": {
         "hint": "Give an agent a task in plain words",
@@ -1455,7 +1450,12 @@
         "unsupported": "An automation cannot do that yet. Describe it as a trigger and exact steps."
       }
     },
-    "truncated": "This list holds at most {rules} automations and {routines} routines, and your workspace has more. The ones not listed still run.",
+    "startsOn": {
+      "event": "On an event",
+      "label": "How it starts",
+      "schedule": "On a schedule"
+    },
+    "truncated": "This list holds at most {rules} automations and {routines} scheduled automations, and your workspace has more. The ones not listed still run.",
     "unavailable": {
       "blockedStep": "“{step}” uses something that is no longer available. Choose a replacement or remove the step.",
       "blockedTrigger": "The trigger uses something that is no longer available. Choose a replacement.",
@@ -2048,24 +2048,24 @@
       "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
       "roleSystemImmutable": "System roles cannot be edited.",
       "roleSystemRequired": "At least one user must be a system administrator.",
-      "routineAdminRequired": "Only a company administrator can pause or delete routines.",
+      "routineAdminRequired": "Only a company administrator can pause or delete scheduled automations.",
       "routineAiWorkPaused": "AI work is paused by Customermates. Workspace administrators cannot resume it; try again after Customermates resumes service.",
-      "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
-      "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
-      "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
-      "routineNotFound": "Routine ID not found or not accessible.",
-      "routineOwnerIneligible": "The routine owner must be an active member of this company.",
+      "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this automation.",
+      "routineEditNotOwner": "Only the automation owner can change its setup or activation.",
+      "routineLimitReached": "Your plan includes {limit} scheduled automations per user. Upgrade your plan for a higher allowance.",
+      "routineNotFound": "Automation ID not found or not accessible.",
+      "routineOwnerIneligible": "The automation owner must be an active member of this company.",
       "routineRunCursorInvalid": "That page link for the run history is no longer valid. Reload the history and try again.",
-      "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",
-      "routineRunNowRequiresSchedule": "Only scheduled routines can be tested manually.",
+      "routineRunNotOwner": "Only the person who owns this automation can run it, because it spends their AI credits.",
+      "routineRunNowRequiresSchedule": "Only automations on a schedule can be tested manually.",
       "routineScheduleInvalid": "That schedule is not a valid cron expression.",
-      "routineScheduleRequired": "Choose a schedule or a one-off date for this routine.",
-      "routineScheduleTooFrequent": "This schedule runs too often. Routines can run at most once every 15 minutes.",
-      "routinesRequireCloud": "Routines run on Customermates Cloud. A self-hosted instance cannot run them.",
-      "routinesRequirePlan": "Routines are not included in the Free plan. Upgrade to Starter ({price} per user per month) to use them.",
-      "routineTestRequiresEnabled": "Activate the routine before testing it.",
+      "routineScheduleRequired": "Choose a schedule or a one-off date for this automation.",
+      "routineScheduleTooFrequent": "This schedule runs too often. Scheduled automations can run at most once every 15 minutes.",
+      "routinesRequireCloud": "Scheduled automations run on Customermates Cloud. A self-hosted instance cannot run them.",
+      "routinesRequirePlan": "Scheduled automations are not included in the Free plan. Upgrade to Starter ({price} per user per month) to use them.",
+      "routineTestRequiresEnabled": "Activate the automation before testing it.",
       "routineTimeZoneInvalid": "That time zone is not supported.",
-      "routineTriggerEventsRequired": "Select at least one event for this routine.",
+      "routineTriggerEventsRequired": "Select at least one event for this automation.",
       "salesNavigatorNotAvailable": "This LinkedIn account doesn't have Sales Navigator connected.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requires a connected LinkedIn account, but this account is {provider}.",
       "sendEmailTargetRequired": "Select a thread or an account to send from.",
@@ -2239,11 +2239,11 @@
         "updated": "Role Updated"
       },
       "routine": {
-        "created": "Routine Created",
-        "deleted": "Routine Moved to Trash",
-        "deletedPermanently": "Routine Deleted Permanently",
-        "restored": "Routine Restored",
-        "updated": "Routine Updated"
+        "created": "Scheduled Automation Created",
+        "deleted": "Scheduled Automation Moved to Trash",
+        "deletedPermanently": "Scheduled Automation Deleted Permanently",
+        "restored": "Scheduled Automation Restored",
+        "updated": "Scheduled Automation Updated"
       },
       "user": {
         "registered": "User Registered",
@@ -2765,7 +2765,6 @@
   },
   "Connections": {
     "apps": {
-      "alsoWorksWith": "Also works with",
       "clients": {
         "claude": "Claude",
         "cursor": "Cursor",
@@ -2774,9 +2773,9 @@
       },
       "connect": "Connect an app",
       "connected": "Connected",
+      "connectHint": "Claude, ChatGPT, Cursor or any MCP client",
       "description": "AI apps you signed in to with your Customermates account. They act with your permissions.",
       "detail": "since {since} · active {active}",
-      "otherApp": "Other app",
       "title": "AI apps"
     },
     "filterLabel": "Show connections",
@@ -2795,6 +2794,7 @@
         "posts": "Posts"
       },
       "connect": "Connect account",
+      "connectHint": "Email, calendar, WhatsApp, LinkedIn, Telegram and more",
       "description": "Mail, messengers and calendars your inbox and calendar read from. Private unless you share them.",
       "empty": "No account connected yet. Connect your email, calendar or a messenger to fill your inbox.",
       "privacyNote": "By connecting an account, you let us process its messages, contacts and calendar for you. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink> and <termsOfServiceLink>Terms</termsOfServiceLink>.",
@@ -2812,6 +2812,7 @@
       },
       "create": "Create key",
       "created": "Created {date}",
+      "createHint": "For Zapier, n8n, Make or your own scripts",
       "description": "For your own scripts and tools like Zapier.",
       "empty": "No API key yet.",
       "title": "API keys"
@@ -5039,7 +5040,7 @@
   "PlanUsage": {
     "apiPerMinute": "Up to {perMinute} per minute",
     "apiToday": "API calls today",
-    "description": "This workspace is on Free. Inbox, Mate, routines, webhooks and n8n are not included.",
+    "description": "This workspace is on Free. Inbox, Mate, scheduled automations, webhooks and n8n are not included.",
     "members": "People",
     "membersReached": "The Free plan includes {limit, plural, one {one person} other {# people}}. Teams start on Starter.",
     "of": "{used} of {limit}",
@@ -5571,7 +5572,7 @@
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
         "requiresRestore": "Restore {target} first, {source} belongs to it.",
-        "routine": "The routine {source} reacts to {target}.",
+        "routine": "The automation {source} reacts to {target}.",
         "rule": "The automation rule {source} reacts to {target}.",
         "snapshotTrigger": "{source} saves its value when {target} changes.",
         "webhook": "The webhook {source} sends changes of {target}.",
@@ -6166,7 +6167,7 @@
       "dataModel": "Data model",
       "inboxMessages": "Inbox messages",
       "publicLinks": "Public links",
-      "routines": "Routines and automations",
+      "routines": "Automations",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
     },
@@ -6181,10 +6182,10 @@
     "system": "System"
   },
   "RoutineAdministration": {
-    "help": "As a company administrator, you can pause or delete this routine, but you cannot edit, test, or run it.",
-    "pause": "Pause routine",
+    "help": "As a company administrator, you can pause or delete this automation, but you cannot edit, test, or run it.",
+    "pause": "Pause automation",
     "pauseConfirmation": "Pause “{name}”? Any queued runs will be skipped.",
-    "pauseTitle": "Pause routine",
+    "pauseTitle": "Pause automation",
     "title": "Administrator controls"
   },
   "RoutineDetail": {
@@ -6208,19 +6209,19 @@
         "conditions": {
           "filters": "The record must also match every configured filter.",
           "filtersWithDeletion": "Configured filters apply to created and updated records. Deleted records use their deletion snapshot and bypass these filters.",
-          "ownerAccess": "The routine owner must still be active and able to access the connected account or record.",
-          "paused": "Activate and save this routine before triggering an event.",
-          "suppression": "Events caused by a routine do not trigger routines.",
+          "ownerAccess": "The automation owner must still be active and able to access the connected account or record.",
+          "paused": "Activate and save this automation before triggering an event.",
+          "suppression": "Events caused by this kind of automation do not trigger it again.",
           "unsaved": "Save these changes first. Until then, events use the last saved configuration.",
           "watchedFields": "For update events, at least one watched field must really change: {fields}."
         },
-        "description": "Event routines cannot be started manually. Perform one of the real actions below to create the event data this routine needs.",
-        "instructionsLabel": "Ways to trigger this routine"
+        "description": "Automations that start on an event cannot be started manually. Perform one of the real actions below to create the event data this automation needs.",
+        "instructionsLabel": "Ways to trigger this automation"
       },
       "schedule": {
-        "activateFirst": "Activate and save the routine before using Test trigger.",
+        "activateFirst": "Activate and save the automation before using Test trigger.",
         "description": "It will run on this schedule:",
-        "ownerOnly": "Only the routine owner can use Test trigger. The schedule still runs automatically while the routine is active.",
+        "ownerOnly": "Only the automation owner can use Test trigger. The schedule still runs automatically while the automation is active.",
         "saveFirst": "Save these changes before using Test trigger.",
         "testNow": "Use Test trigger to start a run now, or wait for the next scheduled time."
       },
@@ -6228,10 +6229,10 @@
     },
     "never": "Never",
     "owner": "Owner",
-    "ownerOnlyEdit": "This routine is read-only for you. It runs only as {owner}, who can edit or pause it. Company administrators can only pause or delete it.",
-    "ownerPermissionReadOnly": "Your role lets you view this routine and its runs, but not change or test it.",
+    "ownerOnlyEdit": "This automation is read-only for you. It runs only as {owner}, who can edit or pause it. Company administrators can only pause or delete it.",
+    "ownerPermissionReadOnly": "Your role lets you view this automation and its runs, but not change or test it.",
     "ownerUnavailable": "Owner unavailable",
-    "ownerUnavailableReadOnly": "This routine has no available owner, so it stays paused and read-only. A company administrator can delete it.",
+    "ownerUnavailableReadOnly": "This automation has no available owner, so it stays paused and read-only. A company administrator can delete it.",
     "ranAs": "Ran as {owner}",
     "readOnlyTitle": "Read-only access",
     "reviewWikiProposals": "Review",
@@ -6243,12 +6244,12 @@
     "runsLoadErrorTitle": "Could not load runs",
     "runStarting": "This run is starting. Its transcript will appear shortly.",
     "testTrigger": "Test trigger",
-    "testTriggerEnableFirst": "Activate this routine before testing it.",
-    "testTriggerEventUnavailable": "Event triggers need real event data. Trigger a matching event in your workspace to test this routine.",
-    "testTriggerSaveFirst": "Save your changes before testing this routine.",
+    "testTriggerEnableFirst": "Activate this automation before testing it.",
+    "testTriggerEventUnavailable": "Event triggers need real event data. Trigger a matching event in your workspace to test this automation.",
+    "testTriggerSaveFirst": "Save your changes before testing this automation.",
     "testTriggerStarted": "Test run started.",
-    "testTriggerWarning": "Run this routine now. This uses your AI credits and can perform the actions in its instructions.",
-    "transcriptOwnerOnly": "Only {owner}, who ran this routine, can open the full transcript.",
+    "testTriggerWarning": "Run this automation now. This uses your AI credits and can perform the actions in its instructions.",
+    "transcriptOwnerOnly": "Only {owner}, who ran this automation, can open the full transcript.",
     "trigger": "Trigger",
     "triggerChangedFields": "Changed fields",
     "triggerChangedFieldsMore": "and more",
@@ -6260,22 +6261,21 @@
   "RoutineModal": {
     "at": "at",
     "configurationHeading": "Configuration",
-    "customSchedule": "This routine uses a custom schedule: {expression}",
+    "customSchedule": "This automation uses a custom schedule: {expression}",
     "enabled": "Active",
-    "enabledHelp": "This routine can currently be executed.",
-    "eventSuppressionNote": "Events caused by routines do not trigger routines.",
+    "enabledHelp": "This automation can currently be executed.",
+    "eventSuppressionNote": "Events caused by this kind of automation do not trigger it again.",
     "onMinute": "at minute",
-    "pausedHelp": "This routine is currently paused and will not be executed.",
+    "pausedHelp": "This automation is currently paused and will not be executed.",
     "planPaused": "Paused, Free plan",
     "promptExampleEvent": "Read the record that changed and reply with one sentence on what it means.",
     "promptExampleSchedule": "Summarise the deals that moved since yesterday and reply with a short list.",
     "scheduleTimeZone": "Times are shown in {timezone}.",
-    "tabsLabel": "Routine sections",
-    "title": "Routine",
+    "tabsLabel": "Automation sections",
     "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunReason": {
-    "adminPaused": "A workspace administrator paused this routine",
+    "adminPaused": "A workspace administrator paused this automation",
     "agentAlreadyCompleted": "This run had already finished",
     "agentAlreadyRunning": "The assistant was already busy with another run",
     "agentTurnConflict": "Another run claimed the assistant first",
@@ -6283,12 +6283,12 @@
     "agentTurnUncertain": "The assistant could not confirm the run had started",
     "filtersNotMatched": "The record did not match the filters",
     "hourlyRunLimit": "The hourly run limit was reached",
-    "ownerInactive": "The routine owner's account is no longer active",
-    "ownerPaused": "The owner paused the routine",
-    "ownerUnavailable": "The routine owner is no longer available",
+    "ownerInactive": "The automation owner's account is no longer active",
+    "ownerPaused": "The owner paused the automation",
+    "ownerUnavailable": "The automation owner is no longer available",
     "planPaused": "The workspace moved to the Free plan",
     "platformPaused": "Customermates paused AI work; workspace administrators cannot resume it",
-    "routineDisabled": "The routine was paused",
+    "routineDisabled": "The automation was paused",
     "startAbandoned": "The run was interrupted before it started",
     "startFailed": "The run could not be started",
     "unknownFailure": "The run could not be completed"
@@ -6315,7 +6315,7 @@
   },
   "RoutinesCard": {
     "emptyBody": "Mate can work while you are away. For example: summarise the deals that moved every weekday morning, or draft a thank-you email when one is won.",
-    "emptyTitle": "No routines yet"
+    "emptyTitle": "No scheduled automations yet"
   },
   "RoutineSchedule": {
     "daily": "Every day at {time}",
@@ -6526,6 +6526,7 @@
     }
   },
   "SourceBadge": {
+    "aiLabel": "Built around your AI",
     "label": "Source available"
   },
   "StructuredData": {
@@ -6587,7 +6588,7 @@
       "keepsAccounts": "You have up to {connected} connected accounts per user. This plan keeps {kept}; the newest are disconnected when you pay.",
       "perUserMonth": "per user / month",
       "recommendedForYou": "Recommended for you",
-      "routinesPerUser": "{routines, plural, one {# routine per user} other {# routines per user}}",
+      "routinesPerUser": "{routines, plural, one {# scheduled automation per user} other {# scheduled automations per user}}",
       "seatsIncludePaused": "A paid plan brings back {paused, plural, one {the paused person} other {all # paused people}}, so checkout covers {count, plural, one {# person} other {# people}}.",
       "seatTotal": "{count, plural, one {# person} other {# people}}, {total} per month",
       "taglines": {
@@ -6596,7 +6597,7 @@
         "pro": "Follow up from LinkedIn and email",
         "starter": "Your workspace and your own AI"
       },
-      "unlimitedRoutinesPerUser": "Unlimited routines per user"
+      "unlimitedRoutinesPerUser": "Unlimited scheduled automations per user"
     },
     "plan": "Plan",
     "planNames": {
@@ -6708,7 +6709,7 @@
     "proofSetsUp": "Sets up",
     "proofTitle": "Start from a ready-made template",
     "relatedTitle": "More templates in this area",
-    "routineLead": "The template builds the routine this work already has, so it keeps running after the setup.",
+    "routineLead": "The template builds the automation this work already has, so it keeps running after the setup.",
     "ruleAgent": "Runs through your agent",
     "ruleDueAfter": "{days, plural, one {Due after # day} other {Due after # days}}",
     "ruleDueSame": "Due the same day",
@@ -6819,7 +6820,7 @@
       "list": "List",
       "record": "Record",
       "relationship": "Relationship",
-      "routine": "Routine",
+      "routine": "Scheduled automation",
       "view": "View",
       "widget": "Widget",
       "wikiPage": "Knowledge Base page"
@@ -6840,7 +6841,7 @@
       "operationPending": "{count, plural, one {# item stays} other {# items stay}} in Trash while the restore finishes in the background. Restore them again when it is done.",
       "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
       "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first.",
-      "routineLimitReached": "{count, plural, one {# routine stays} other {# routines stay}} in Trash because the owner already has all the routines their plan includes."
+      "routineLimitReached": "{count, plural, one {# scheduled automation stays} other {# scheduled automations stay}} in Trash because the owner already has all the scheduled automations their plan includes."
     },
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",
@@ -6880,9 +6881,9 @@
       "title": "Write from this record on {plan}"
     },
     "free": {
-      "description": "For {members, plural, one {one person} other {# people}} and up to {records} records. Teams, Mate, routines and webhooks start on {plan}, the inbox on {inboxPlan}.",
+      "description": "For {members, plural, one {one person} other {# people}} and up to {records} records. Teams, Mate, scheduled automations and webhooks start on {plan}, the inbox on {inboxPlan}.",
       "title": "This workspace is on Free",
-      "upgradeDescription": "{plan} adds teams, Mate, routines and webhooks. {inboxPlan} adds the inbox."
+      "upgradeDescription": "{plan} adds teams, Mate, scheduled automations and webhooks. {inboxPlan} adds the inbox."
     },
     "locked": {
       "mate": {
@@ -6890,8 +6891,8 @@
         "title": "Mate is part of the paid plans"
       },
       "routines": {
-        "description": "Your routines are kept and paused while this workspace is on Free. Choose {plan} and they resume on their own.",
-        "title": "Routines are paused on Free"
+        "description": "Your scheduled automations are kept and paused while this workspace is on Free. Choose {plan} and they resume on their own.",
+        "title": "Scheduled automations are paused on Free"
       },
       "webhooks": {
         "description": "Webhooks and the n8n trigger are not included on Free. Existing webhooks are kept but do not send while this workspace is on Free. Choose {plan} and they deliver again.",
@@ -6915,7 +6916,7 @@
       "routines": {
         "firstName": "Weekly pipeline review",
         "firstTrigger": "Every Monday at 08:00",
-        "label": "Example routines list with demo data: a weekly routine and one that runs when something changes",
+        "label": "Example automations list with demo data: a weekly automation and one that runs when something changes",
         "secondName": "Follow up after a reply"
       },
       "secondMessage": "Workshop dates for spring",
@@ -6931,7 +6932,7 @@
       "nextSteps": "Share single conversations with your team"
     },
     "routines": {
-      "reachedTitle": "You are using every routine your {plan} plan includes"
+      "reachedTitle": "You are using every scheduled automation your {plan} plan includes"
     },
     "starter": {
       "noLimits": "Your whole team, no record limit, webhooks and n8n"
@@ -6943,7 +6944,7 @@
     },
     "trial": {
       "cta": "Choose a plan",
-      "description": "Pick a plan to keep your team, inbox, Mate and routines after the trial. Without one, this workspace moves to Free, which is for trying it on your own.",
+      "description": "Pick a plan to keep your team, inbox, Mate and scheduled automations after the trial. Without one, this workspace moves to Free, which is for trying it on your own.",
       "dismiss": "Hide for now",
       "title": "{days, plural, =0 {Your {plan} trial ends today} one {# day left in your {plan} trial} other {# days left in your {plan} trial}}"
     },
@@ -6955,7 +6956,7 @@
         "forms": "{count, plural, one {# form submission over the monthly limit} other {# form submissions over the monthly limit}}",
         "mate": "Mate ({count, plural, one {# request} other {# requests}})",
         "members": "{count, plural, one {# more person} other {# more people}}",
-        "routines": "{count, plural, one {# active routine} other {# active routines}}",
+        "routines": "{count, plural, one {# active scheduled automation} other {# active scheduled automations}}",
         "rules": "{count, plural, one {# automation over the limit} other {# automations over the limit}}",
         "webhooks": "{count, plural, one {# active webhook} other {# active webhooks}}"
       },
@@ -7121,11 +7122,11 @@
       "back": "All proposals",
       "current": "Current",
       "deleteNotice": "Approving permanently deletes this page.",
-      "description": "Changes Mate suggested while running routines. The Knowledge Base changes only when you approve one.",
+      "description": "Changes Mate suggested while running automations. The Knowledge Base changes only when you approve one.",
       "empty": "No proposals are waiting for review.",
       "entry": "Proposals",
       "fromRoutine": "From {routine}",
-      "fromRoutineDeleted": "From a deleted routine",
+      "fromRoutineDeleted": "From a deleted automation",
       "loadFailed": "Proposals could not be loaded.",
       "needsPermission": "Your role cannot apply this change.",
       "notYetCreated": "This page does not exist yet.",
@@ -7321,7 +7322,7 @@
       "notCreator": "Only the admin who created this workspace can delete it.",
       "platformOperator": "Deleting this workspace would leave no Customermates platform operator with an active account, so it cannot be deleted here. Contact Customermates support."
     },
-    "deleteConfirmDescription": "This permanently deletes its records, Knowledge Base, routines, webhooks and connected accounts. Every member loses access, and their API keys and MCP connections for it stop working. This can't be undone.",
+    "deleteConfirmDescription": "This permanently deletes its records, Knowledge Base, automations, webhooks and connected accounts. Every member loses access, and their API keys and MCP connections for it stop working. This can't be undone.",
     "deleteConfirmTitle": "Delete {name}?",
     "deleteDescription": "Permanently delete this workspace and everything in it for every member.",
     "fallbackName": "Workspace",

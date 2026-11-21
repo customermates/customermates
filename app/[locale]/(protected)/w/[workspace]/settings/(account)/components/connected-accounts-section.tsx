@@ -34,6 +34,8 @@ import { accountStatusChipColor, getProviderDisplayLabel } from "./account-statu
 import { connectedAccountActions, connectedAccountCapabilities } from "./connected-account-actions";
 import {
   SettingsPanel,
+  SettingsPanelAddButton,
+  SettingsPanelAddRow,
   SettingsPanelLogo,
   SettingsPanelMessage,
   SettingsPanelRow,
@@ -47,19 +49,21 @@ const ConnectAccountMenu = () => {
   const t = useTranslations();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button id="settings-channels-connect" size="sm">
-          <ConnectProviderStack onPrimary />
+    <SettingsPanelAddRow trailing={<ConnectProviderStack onPrimary={false} />}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <SettingsPanelAddButton
+            hint={t("Connections.inbox.connectHint")}
+            id="settings-channels-connect"
+            label={t("Connections.inbox.connect")}
+          />
+        </DropdownMenuTrigger>
 
-          {t("Connections.inbox.connect")}
-        </Button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="end" aria-labelledby="settings-channels-connect">
-        <ConnectMenuItems />
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuContent align="start" aria-labelledby="settings-channels-connect">
+          <ConnectMenuItems />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </SettingsPanelAddRow>
   );
 };
 
@@ -274,13 +278,14 @@ export const ConnectedAccountsSection = observer(({ locked = false }: Props) => 
 
   return (
     <SettingsPanel
-      action={canConnect && !locked && pageState !== "loading" && pageState !== "error" ? <ConnectAccountMenu /> : null}
       description={t("Connections.inbox.description")}
       footer={locked ? null : <PrivacyNote />}
       id="connections-inbox"
       title={t("Connections.inbox.title")}
     >
       {body}
+
+      {canConnect && !locked && pageState !== "loading" && pageState !== "error" ? <ConnectAccountMenu /> : null}
     </SettingsPanel>
   );
 });

@@ -33,6 +33,7 @@ import { AutomationStepCard } from "./automation-step-card";
 import { AutomationStepToolbar } from "./automation-step-toolbar";
 
 const NODE_WIDTH = 288;
+const QUICK_WIDTH = 384;
 const ROW_GAP = 150;
 const FIT_VIEW = { padding: 0.2, maxZoom: 1, minZoom: 0.6 };
 const HANDLE_CLASS = "!size-1.5 !min-h-0 !min-w-0 !border-0 !bg-border-strong";
@@ -43,7 +44,7 @@ type StepData = {
   markLabel?: string;
   first: boolean;
 };
-type AddData = { index: number; actions: AutomationCanvasActions };
+type AddData = { index: number; actions: AutomationCanvasActions; quick: boolean };
 type PlusData = {
   index: number;
   actions: AutomationCanvasActions;
@@ -76,7 +77,7 @@ function AddNode({ data }: NodeProps<Node<AddData>>) {
       <Handle className="!opacity-0" isConnectable={false} position={Position.Top} type="target" />
 
       <div className="pointer-events-auto">
-        <AutomationAddStep actions={data.actions} index={data.index} variant="node" />
+        <AutomationAddStep actions={data.actions} index={data.index} quick={data.quick} variant="node" />
       </div>
     </>
   );
@@ -220,11 +221,12 @@ function FlowCanvas({
     }));
     const last = steps[steps.length - 1];
     if (showAdd && last) {
+      const quick = steps.length === 1;
       builtNodes.push({
         id: "add-step",
         type: "add",
-        position: { x: -NODE_WIDTH / 2, y: steps.length * ROW_GAP - 30 },
-        data: { index: steps.length, actions } satisfies AddData,
+        position: { x: -(quick ? QUICK_WIDTH : NODE_WIDTH) / 2, y: steps.length * ROW_GAP - 30 },
+        data: { index: steps.length, actions, quick } satisfies AddData,
         selectable: false,
       });
       builtEdges.push({

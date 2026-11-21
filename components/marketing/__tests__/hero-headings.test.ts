@@ -10,6 +10,7 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/",
 }));
 vi.mock("@/components/marketing/source-badge", () => ({ SourceBadge: () => null }));
+vi.mock("@/components/marketing/ai-badge", () => ({ AiBadge: () => null }));
 
 import { HomepageHero } from "@/app/[locale]/(static)/components/homepage-hero";
 import { PageHero } from "../page-hero";

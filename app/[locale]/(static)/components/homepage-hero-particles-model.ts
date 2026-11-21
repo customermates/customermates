@@ -5,8 +5,15 @@ export type ParticleTarget = {
 
 export type Particle = {
   accent: number;
+  alpha: number;
+  delay: number;
+  drift: number;
+  ox: number;
+  oy: number;
   phase: number;
+  sea: boolean;
   size: number;
+  speed: number;
   tx: number;
   ty: number;
   vx: number;
@@ -15,22 +22,42 @@ export type Particle = {
   y: number;
 };
 
+export type ParticleClearing = {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+};
+
 export type ParticlePointer = {
   x: number;
   y: number;
 };
 
-export const PARTICLE_SAMPLE_DIVISOR = 160;
+export const PARTICLE_SAMPLE_DIVISOR = 220;
 export const PARTICLE_MIN_STEP = 4;
 export const PARTICLE_SIZE = 1.5;
 export const PARTICLE_LARGE_SIZE = 2.3;
 export const PARTICLE_LARGE_SHARE = 0.12;
-export const PARTICLE_ACCENT_SHARE = 0.3;
+export const PARTICLE_ACCENT_SHARE = 0.22;
 export const PARTICLE_ACCENT_COUNT = 4;
 export const PARTICLE_REPEL_RADIUS = 120;
 export const PARTICLE_REPEL_FORCE = 3;
 export const PARTICLE_SPRING = 0.018;
 export const PARTICLE_DAMPING = 0.86;
+export const PARTICLE_MARK_DRIFT = 1.1;
+export const SEA_AREA_PER_PARTICLE = 900;
+export const SEA_MAX_PARTICLES = 2200;
+export const SEA_ACCENT_SHARE = 0.4;
+export const SEA_DRIFT_MIN = 10;
+export const SEA_DRIFT_MAX = 28;
+export const SEA_SPEED = 3.2;
+export const CLEARING_INNER = 0.45;
+export const MARK_CLEARING_FLOOR = 0.55;
+export const INTRO_DURATION_MS = 1600;
+export const INTRO_MAX_DELAY_MS = 700;
+export const INTRO_SCATTER_MIN = 80;
+export const INTRO_SCATTER_MAX = 260;
 export const NO_ACCENT = -1;
 export const OFFSCREEN_POINTER: ParticlePointer = { x: -1e4, y: -1e4 };
 
@@ -73,18 +100,36 @@ export function offsetTargets(points: readonly ParticleTarget[], dx: number, dy:
   return points.map((point) => ({ x: point.x + dx, y: point.y + dy }));
 }
 
-export function createParticles(count: number, width: number, height: number, random: () => number): Particle[] {
-  return Array.from({ length: count }, (_, index) => ({
-    accent: random() < PARTICLE_ACCENT_SHARE ? index % PARTICLE_ACCENT_COUNT : NO_ACCENT,
-    phase: random() * Math.PI * 2,
-    size: random() < PARTICLE_LARGE_SHARE ? PARTICLE_LARGE_SIZE : PARTICLE_SIZE,
-    tx: 0,
-    ty: 0,
-    vx: 0,
-    vy: 0,
-    x: random() * width,
-    y: random() * height,
-  }));
+export function createParticles(
+  count: number,
+  width: number,
+  height: number,
+  random: () => number,
+  sea = false,
+): Particle[] {
+  const accentShare = sea ? SEA_ACCENT_SHARE : PARTICLE_ACCENT_SHARE;
+  return Array.from({ length: count }, (_, index) => {
+    const x = random() * width;
+    const y = random() * height;
+    return {
+      accent: random() < accentShare ? index % PARTICLE_ACCENT_COUNT : NO_ACCENT,
+      alpha: 1,
+      delay: 0,
+      drift: sea ? SEA_DRIFT_MIN + random() * (SEA_DRIFT_MAX - SEA_DRIFT_MIN) : PARTICLE_MARK_DRIFT,
+      ox: x,
+      oy: y,
+      phase: random() * Math.PI * 2,
+      sea,
+      size: random() < PARTICLE_LARGE_SHARE ? PARTICLE_LARGE_SIZE : PARTICLE_SIZE,
+      speed: sea ? SEA_SPEED : 1,
+      tx: 0,
+      ty: 0,
+      vx: 0,
+      vy: 0,
+      x,
+      y,
+    };
+  });
 }
 
 export function assignTargets(particles: Particle[], targets: readonly ParticleTarget[]): void {
@@ -103,7 +148,73 @@ export function settleParticles(particles: Particle[]): void {
     particle.y = particle.ty;
     particle.vx = 0;
     particle.vy = 0;
+    particle.alpha = 1;
   }
+}
+
+export function clearingWeight(clearing: ParticleClearing | null, x: number, y: number): number {
+  if (!clearing || clearing.rx <= 0 || clearing.ry <= 0) return 1;
+  const distance = Math.hypot((x - clearing.cx) / clearing.rx, (y - clearing.cy) / clearing.ry);
+  if (distance >= 1) return 1;
+  return Math.max(0, (distance - CLEARING_INNER) / (1 - CLEARING_INNER));
+}
+
+export function thinMarkTargets(
+  targets: readonly ParticleTarget[],
+  clearing: ParticleClearing | null,
+  random: () => number,
+): ParticleTarget[] {
+  return targets.filter(
+    (target) =>
+      random() < MARK_CLEARING_FLOOR + (1 - MARK_CLEARING_FLOOR) * clearingWeight(clearing, target.x, target.y),
+  );
+}
+
+export function seaCount(width: number, height: number): number {
+  return Math.min(SEA_MAX_PARTICLES, Math.round((width * height) / SEA_AREA_PER_PARTICLE));
+}
+
+export function seaTargets(
+  width: number,
+  height: number,
+  count: number,
+  clearing: ParticleClearing | null,
+  random: () => number,
+): ParticleTarget[] {
+  const targets: ParticleTarget[] = [];
+  for (let attempt = 0; targets.length < count && attempt < count * 20; attempt += 1) {
+    const x = random() * width;
+    const y = random() * height;
+    if (random() < clearingWeight(clearing, x, y)) targets.push({ x, y });
+  }
+  return targets;
+}
+
+export function scatterForIntro(particles: Particle[], random: () => number): void {
+  for (const particle of particles) {
+    const angle = random() * Math.PI * 2;
+    const radius = INTRO_SCATTER_MIN + random() * (INTRO_SCATTER_MAX - INTRO_SCATTER_MIN);
+    particle.ox = particle.tx + Math.cos(angle) * radius;
+    particle.oy = particle.ty + Math.sin(angle) * radius;
+    particle.delay = random() * INTRO_MAX_DELAY_MS;
+    particle.x = particle.ox;
+    particle.y = particle.oy;
+    particle.vx = 0;
+    particle.vy = 0;
+    particle.alpha = 0;
+  }
+}
+
+export function introProgress(elapsed: number, delay: number): number {
+  const linear = Math.min(1, Math.max(0, (elapsed - delay) / INTRO_DURATION_MS));
+  return 1 - (1 - linear) ** 3;
+}
+
+export function placeForIntro(particle: Particle, elapsed: number): void {
+  const progress = introProgress(elapsed, particle.delay);
+  particle.x = particle.ox + (particle.tx - particle.ox) * progress;
+  particle.y = particle.oy + (particle.ty - particle.oy) * progress;
+  particle.alpha = progress;
 }
 
 export function stepParticle(particle: Particle, pointer: ParticlePointer, time: number): void {
@@ -118,8 +229,9 @@ export function stepParticle(particle: Particle, pointer: ParticlePointer, time:
     particle.vy += (dy / distance) * force;
   }
 
-  particle.vx += (particle.tx + Math.sin(time / 900 + particle.phase) * 1.1 - particle.x) * PARTICLE_SPRING;
-  particle.vy += (particle.ty + Math.cos(time / 1100 + particle.phase) * 1.1 - particle.y) * PARTICLE_SPRING;
+  const wave = time / particle.speed;
+  particle.vx += (particle.tx + Math.sin(wave / 900 + particle.phase) * particle.drift - particle.x) * PARTICLE_SPRING;
+  particle.vy += (particle.ty + Math.cos(wave / 1100 + particle.phase) * particle.drift - particle.y) * PARTICLE_SPRING;
   particle.vx *= PARTICLE_DAMPING;
   particle.vy *= PARTICLE_DAMPING;
   particle.x += particle.vx;

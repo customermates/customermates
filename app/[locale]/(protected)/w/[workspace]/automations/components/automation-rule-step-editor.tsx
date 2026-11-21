@@ -4,6 +4,8 @@ import type { AutomationBuilderStore } from "./automation-builder.store";
 
 import { observer } from "mobx-react-lite";
 
+import { AutomationStartSwitch } from "@/components/automations/automation-start-switch";
+
 import { AutomationConditionFields } from "./automation-condition-fields";
 import { AutomationEffectFields } from "./automation-effect-fields";
 import { AutomationPreviewPane } from "./automation-preview-pane";
@@ -22,6 +24,12 @@ export const AutomationRuleStepEditor = observer(function AutomationRuleStepEdit
   if (stepId === "trigger") {
     return (
       <>
+        <AutomationStartSwitch
+          disabled={{ schedule: !store.canSwitchToSchedule }}
+          value="event"
+          onChange={store.switchToSchedule}
+        />
+
         <AutomationTriggerEditor
           flagged={store.isFlagged}
           model={model}
@@ -30,11 +38,9 @@ export const AutomationRuleStepEditor = observer(function AutomationRuleStepEdit
           onChange={store.patchTrigger}
         />
 
-        {!store.placeholder && (
-          <div className="rounded-lg border bg-muted/30 p-3">
-            <AutomationPreviewPane store={store} />
-          </div>
-        )}
+        <div className="rounded-lg border bg-muted/30 p-3">
+          <AutomationPreviewPane store={store} />
+        </div>
       </>
     );
   }

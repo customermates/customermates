@@ -26,6 +26,21 @@ vi.mock("@/components/chip/app-chip", () => ({
 vi.mock("../components/automation-item-sentence", () => ({
   automationItemSentence: (item: { name: string }) => `sentence of ${item.name}`,
 }));
+vi.mock("../components/automation-item-shape", () => ({
+  automationItemShape: (item: { kind: string }) =>
+    item.kind === "routine"
+      ? {
+          start: { icon: () => null, text: "Weekdays at 08:30", schedule: true },
+          steps: [{ key: "agent", icon: () => null, agent: true }],
+        }
+      : {
+          start: { icon: () => null, text: "A deal is updated", schedule: false },
+          steps: [
+            { key: "condition", icon: () => null, agent: false },
+            { key: "effect-0", icon: () => null, agent: false },
+          ],
+        },
+}));
 
 import { AutomationsTruncatedNotice } from "../components/automations-truncated-notice";
 import { useAutomationColumns } from "../components/use-automation-columns";
@@ -105,11 +120,15 @@ afterEach(() => {
 });
 
 describe("automation list columns", () => {
-  it("shows the sentence, what it runs on, the last run, the runs of 30 days and the owner", () => {
+  it("shows how it starts, its steps, what it runs on, the last run, the runs of 30 days and the owner", () => {
     render({ entry: item(), onToggle: vi.fn() });
 
     expect(cell("name")?.textContent).toBe("Follow up");
-    expect(cell("sentence")?.textContent).toBe("sentence of Follow up");
+    expect(cell("starts")?.textContent).toBe("A deal is updated");
+    expect(cell("starts")?.querySelector("[data-automation-starts]")?.getAttribute("data-automation-starts")).toBe(
+      "event",
+    );
+    expect(cell("steps")?.querySelector("[data-automation-steps]")?.getAttribute("data-automation-steps")).toBe("2");
     expect(cell("runsOn")?.textContent).toBe("Automations.runsOn.free");
     expect(cell("runsOn")?.querySelector("[data-chip]")?.getAttribute("data-chip")).toBe("secondary");
     expect(cell("lastRunAt")?.textContent).toContain("RoutineRunStatus.succeeded");
@@ -118,14 +137,18 @@ describe("automation list columns", () => {
     expect(cell("owner")?.textContent).toContain("Ben Fischer");
   });
 
-  it("marks a routine and names the agent runtime of a rule that asks one", () => {
+  it("shows a scheduled Mate automation like any other, starting on a schedule", () => {
     render({
       entry: item({ kind: "routine", runsOn: "mate", lastRunAt: null, lastRunStatus: null }),
       onToggle: vi.fn(),
     });
 
-    expect(cell("name")?.textContent).not.toContain("Automations.kind.routine");
-    expect(cell("sentence")?.textContent).toContain("Automations.kind.routine");
+    expect(container.textContent).not.toContain("Automations.kind.routine");
+    expect(cell("starts")?.textContent).toBe("Weekdays at 08:30");
+    expect(cell("starts")?.querySelector("[data-automation-starts]")?.getAttribute("data-automation-starts")).toBe(
+      "schedule",
+    );
+    expect(cell("steps")?.querySelector("[data-automation-steps]")?.getAttribute("data-automation-steps")).toBe("1");
     expect(cell("runsOn")?.textContent).toBe("Automations.runsOn.mate");
     expect(cell("runsOn")?.querySelector("[data-chip]")?.getAttribute("data-chip")).toBe("info");
     expect(cell("lastRunAt")?.textContent).toBe("RoutineDetail.never");

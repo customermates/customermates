@@ -71,7 +71,7 @@ export function AutomationStepColumn({
         <li className="flex w-full flex-col items-center">
           <span aria-hidden="true" className="h-6 border-l-[1.5px] border-dashed border-border-strong" />
 
-          <AutomationAddStep actions={actions} index={steps.length} variant="node" />
+          <AutomationAddStep actions={actions} index={steps.length} quick={steps.length === 1} variant="node" />
         </li>
       )}
     </ol>

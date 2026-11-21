@@ -93,8 +93,8 @@
           "manage": "Keur deze rolwijziging goed"
         },
         "routines": {
-          "configure": "Klaar om de routine te pauzeren of uit te voeren",
-          "delete": "Klaar om de routine en de bijbehorende geschiedenis naar de prullenbak te verplaatsen"
+          "configure": "Klaar om de automatisering te pauzeren of uit te voeren",
+          "delete": "Klaar om de automatisering en de bijbehorende geschiedenis naar de prullenbak te verplaatsen"
         },
         "rules": {
           "create": "Klaar om de automatiseringsregel aan te maken",
@@ -135,9 +135,9 @@
         "recordsDeletePermanent": "Dit kan niet ongedaan worden gemaakt.",
         "roleDelete": "De geselecteerde rol verwijderen",
         "roleSave": "De rol en de bijbehorende toegang tot records opslaan",
-        "routineDelete": "De geselecteerde routine en de bijbehorende uitvoeringsgeschiedenis naar de prullenbak verplaatsen, waar je deze 30 dagen kunt herstellen",
-        "routinePause": "De geselecteerde routine pauzeren",
-        "routineRun": "De geselecteerde routine nu uitvoeren",
+        "routineDelete": "De geselecteerde automatisering en de bijbehorende uitvoeringsgeschiedenis naar de prullenbak verplaatsen, waar je deze 30 dagen kunt herstellen",
+        "routinePause": "De geselecteerde automatisering pauzeren",
+        "routineRun": "De geselecteerde automatisering nu uitvoeren",
         "ruleDelete": "De geselecteerde regel en de uitvoeringsgeschiedenis definitief verwijderen",
         "ruleDisable": "De geselecteerde regel uitschakelen",
         "ruleDraft": "Opgeslagen als concept, niet actief",
@@ -358,29 +358,29 @@
         },
         "routines": {
           "configure": {
-            "done": "Het schema van de routine gewijzigd",
-            "error": "Kon het schema van de routine niet wijzigen",
-            "running": "Het schema van de routine wijzigen"
+            "done": "Het schema van de automatisering gewijzigd",
+            "error": "Kon het schema van de automatisering niet wijzigen",
+            "running": "Het schema van de automatisering wijzigen"
           },
           "create": {
-            "done": "Een routine aangemaakt",
-            "error": "Kon de routine niet aanmaken",
-            "running": "Een routine aanmaken"
+            "done": "Een automatisering aangemaakt",
+            "error": "Kon de automatisering niet aanmaken",
+            "running": "Een automatisering aanmaken"
           },
           "delete": {
-            "done": "De routine verwijderd",
-            "error": "Kon de routine niet verwijderen",
-            "running": "De routine verwijderen"
+            "done": "De automatisering verwijderd",
+            "error": "Kon de automatisering niet verwijderen",
+            "running": "De automatisering verwijderen"
           },
           "read": {
-            "done": "Routines gelezen",
-            "error": "Kon routines niet lezen",
-            "running": "Routines lezen"
+            "done": "Automatiseringen gelezen",
+            "error": "Kon automatiseringen niet lezen",
+            "running": "Automatiseringen lezen"
           },
           "update": {
-            "done": "De routine bijgewerkt",
-            "error": "Kon de routine niet bijwerken",
-            "running": "De routine bijwerken"
+            "done": "De automatisering bijgewerkt",
+            "error": "Kon de automatisering niet bijwerken",
+            "running": "De automatisering bijwerken"
           }
         },
         "rules": {
@@ -580,8 +580,8 @@
       "interruptedTurn": "Deze beurt is gestopt voordat ik de uitkomst kon bevestigen. Bekijk de activiteit hierboven en de huidige records voordat je het opnieuw probeert.",
       "policyBreach": "De AI-provider heeft het gereserveerde creditbudget overschreden, daarom is de uitvoering gestopt. Er is geen verder werk bij de provider gestart.",
       "providerError": "De AI-provider gaf een fout terug voordat ik klaar was. Er is verder niets gewijzigd. Probeer het opnieuw.",
-      "runCreditLimit": "Ik heb een deel van deze routine-uitvoering afgerond, maar ben gestopt bij de limiet per uitvoering van {share, number, percent} van een Starter-tegoed. Afgerond werk blijft staan.",
-      "runCreditLimitNoWrite": "Ik ben gestopt voordat ik wijzigingen aanbracht, omdat deze routine-uitvoering de limiet per uitvoering van {share, number, percent} van een Starter-tegoed bereikte. Er is niets aangemaakt, bijgewerkt of verstuurd.",
+      "runCreditLimit": "Ik heb een deel van deze uitvoering van de automatisering afgerond, maar ben gestopt bij de limiet per uitvoering van {share, number, percent} van een Starter-tegoed. Afgerond werk blijft staan.",
+      "runCreditLimitNoWrite": "Ik ben gestopt voordat ik wijzigingen aanbracht, omdat deze uitvoering van de automatisering de limiet per uitvoering van {share, number, percent} van een Starter-tegoed bereikte. Er is niets aangemaakt, bijgewerkt of verstuurd.",
       "sourcesHeading": "Bronnen",
       "streamInterrupted": "Ik moest stoppen omdat de modelstream werd onderbroken. Er is verder geen actie ondernomen; bekijk de activiteit hierboven voordat je het opnieuw probeert.",
       "turnError": "Ik kon dat verzoek niet afronden. Probeer het opnieuw.",
@@ -714,30 +714,30 @@
         "routines": {
           "data": {
             "create-routine": {
-              "label": "Een routine aanmaken",
-              "prompt": "Gebruik mijn Kennisbank en bestaande routines om te bepalen wat er geautomatiseerd kan worden. Vraag alleen iets als de trigger of actie onduidelijk is en maak de routine dan aan."
+              "label": "Een automatisering aanmaken",
+              "prompt": "Gebruik mijn Kennisbank en bestaande automatiseringen om te bepalen wat er geautomatiseerd kan worden. Vraag alleen iets als de trigger of actie onduidelijk is en maak de automatisering dan aan."
             },
             "routine-health": {
-              "label": "Mijn routines bekijken",
-              "prompt": "Bekijk mijn routines en wijs op overlappingen, hiaten, gepauzeerde routines en recente mislukte uitvoeringen. Breng geen wijzigingen aan."
+              "label": "Mijn automatiseringen bekijken",
+              "prompt": "Bekijk mijn automatiseringen en wijs op overlappingen, hiaten, gepauzeerde automatiseringen en recente mislukte uitvoeringen. Breng geen wijzigingen aan."
             },
             "routines-tour-data": {
-              "label": "Mijn routines uitleggen",
-              "prompt": "Leg uit wat elk van mijn routines doet, wanneer die wordt uitgevoerd en welke records of berichten erdoor kunnen worden beïnvloed."
+              "label": "Mijn automatiseringen uitleggen",
+              "prompt": "Leg uit wat elk van mijn automatiseringen doet, wanneer die wordt uitgevoerd en welke records of berichten erdoor kunnen worden beïnvloed."
             }
           },
           "empty": {
             "first-routine": {
-              "label": "Mijn eerste routine aanmaken",
-              "prompt": "Gebruik mijn Kennisbank en werkruimte om een nuttige eerste routine voor te stellen. Vraag alleen iets als de trigger of actie onduidelijk is en maak de routine dan aan."
+              "label": "Mijn eerste automatisering aanmaken",
+              "prompt": "Gebruik mijn Kennisbank en werkruimte om een nuttige eerste automatisering voor te stellen. Vraag alleen iets als de trigger of actie onduidelijk is en maak de automatisering dan aan."
             },
             "routine-ideas": {
-              "label": "Nuttige routines voorstellen",
-              "prompt": "Bekijk mijn werkruimte en stel drie nuttige routines voor terugkerend werk voor. Maak nog niets aan."
+              "label": "Nuttige automatiseringen voorstellen",
+              "prompt": "Bekijk mijn werkruimte en stel drie nuttige automatiseringen voor terugkerend werk voor. Maak nog niets aan."
             },
             "routines-tour": {
-              "label": "Leren hoe routines werken",
-              "prompt": "Laat me de pagina Routines zien en leg schema’s, gebeurtenistriggers, testen, credits en uitvoeringsgeschiedenis uit. Breng geen wijzigingen aan."
+              "label": "Leren hoe automatiseringen werken",
+              "prompt": "Laat me de pagina Automatiseringen zien en leg schema’s, gebeurtenistriggers, testen, credits en uitvoeringsgeschiedenis uit. Breng geen wijzigingen aan."
             }
           }
         },
@@ -767,7 +767,7 @@
             },
             "wiki-tour": {
               "label": "Leren hoe de Kennisbank werkt",
-              "prompt": "Leg uit hoe de Kennisbank wordt gebruikt door Mate, routines en gekoppelde AI-tools, inclusief links en rechten. Breng geen wijzigingen aan."
+              "prompt": "Leg uit hoe de Kennisbank wordt gebruikt door Mate, automatiseringen en gekoppelde AI-tools, inclusief links en rechten. Breng geen wijzigingen aan."
             }
           }
         }
@@ -1254,10 +1254,10 @@
       "duplicate": "Stap dupliceren",
       "duplicateAutomation": "Automatisering dupliceren",
       "label": "Stappen van de automatisering",
+      "moreSteps": "Meer stappen",
       "moveDown": "Omlaag",
       "moveUp": "Omhoog",
       "noOwner": "Geen eigenaar",
-      "placeholder": "Kies wat deze automatisering start",
       "replay": {
         "back": "Terug naar bewerken",
         "changed": "De automatisering is na deze uitvoering gewijzigd, dus sommige stappen konden niet worden gekoppeld.",
@@ -1274,17 +1274,19 @@
         "runner": "Eigen runner · agent"
       },
       "settingsTab": "Instellingen",
-      "stepActions": "Acties voor de stap"
+      "stepActions": "Acties voor de stap",
+      "then": "Daarna…"
     },
     "columns": {
       "enabled": "Actief",
       "runs30d": "Uitvoeringen, 30 dagen",
       "runsOn": "Draait op",
-      "sentence": "Wat het doet"
+      "starts": "Start",
+      "steps": "Stappen"
     },
     "filters": {
       "kind": {
-        "routine": "Routine",
+        "routine": "Gepland",
         "rule": "Automatisering"
       },
       "status": {
@@ -1292,14 +1294,7 @@
         "paused": "Gepauzeerd"
       }
     },
-    "kind": {
-      "routine": "Routine"
-    },
     "neverRun": "Nog niet uitgevoerd",
-    "new": {
-      "automation": "Automatisering",
-      "routine": "Routine (Mate volgens een schema)"
-    },
     "palette": {
       "agent": {
         "hint": "Geef een agent een taak in gewone woorden",
@@ -1455,7 +1450,12 @@
         "unsupported": "Dat kan een automatisering nog niet. Beschrijf het als een trigger en exacte stappen."
       }
     },
-    "truncated": "Deze lijst bevat hoogstens {rules} automatiseringen en {routines} routines, en je werkruimte heeft er meer. De niet getoonde blijven gewoon lopen.",
+    "startsOn": {
+      "event": "Bij een gebeurtenis",
+      "label": "Hoe het start",
+      "schedule": "Volgens schema"
+    },
+    "truncated": "Deze lijst bevat hoogstens {rules} automatiseringen en {routines} geplande automatiseringen, en je werkruimte heeft er meer. De niet getoonde blijven gewoon lopen.",
     "unavailable": {
       "blockedStep": "“{step}” gebruikt iets dat niet meer beschikbaar is. Kies een vervanging of verwijder de stap.",
       "blockedTrigger": "De trigger gebruikt iets dat niet meer beschikbaar is. Kies een vervanging.",
@@ -2048,24 +2048,24 @@
       "roleSelfEditForbidden": "Je kunt de rechten van de rol die aan jou is toegewezen niet wijzigen.",
       "roleSystemImmutable": "Systeemrollen kunnen niet worden bewerkt.",
       "roleSystemRequired": "Minstens één gebruiker moet systeembeheerder zijn.",
-      "routineAdminRequired": "Alleen een bedrijfsbeheerder kan routines pauzeren of verwijderen.",
+      "routineAdminRequired": "Alleen een bedrijfsbeheerder kan geplande automatiseringen pauzeren of verwijderen.",
       "routineAiWorkPaused": "AI-werk is gepauzeerd door Customermates. Werkruimtebeheerders kunnen het niet hervatten; probeer het opnieuw nadat Customermates de dienst hervat.",
-      "routineDeleteHasRunningRun": "Wacht tot de actieve uitvoering klaar is voordat je deze routine verwijdert.",
-      "routineEditNotOwner": "Alleen de eigenaar van de routine kan de instelling of activering wijzigen.",
-      "routineLimitReached": "Je pakket bevat {limit} routines per gebruiker. Upgrade je pakket voor een hoger contingent.",
-      "routineNotFound": "Routine-ID niet gevonden of niet toegankelijk.",
-      "routineOwnerIneligible": "De eigenaar van de routine moet een actief lid van dit bedrijf zijn.",
+      "routineDeleteHasRunningRun": "Wacht tot de actieve uitvoering klaar is voordat je deze automatisering verwijdert.",
+      "routineEditNotOwner": "Alleen de eigenaar van de automatisering kan de instelling of activering wijzigen.",
+      "routineLimitReached": "Je pakket bevat {limit} geplande automatiseringen per gebruiker. Upgrade je pakket voor een hoger contingent.",
+      "routineNotFound": "ID van de automatisering niet gevonden of niet toegankelijk.",
+      "routineOwnerIneligible": "De eigenaar van de automatisering moet een actief lid van dit bedrijf zijn.",
       "routineRunCursorInvalid": "Die paginalink voor de uitvoeringsgeschiedenis is niet meer geldig. Laad de geschiedenis opnieuw en probeer het nogmaals.",
-      "routineRunNotOwner": "Alleen de persoon die eigenaar van deze routine is, kan deze uitvoeren, omdat daarvoor de AI-credits van die persoon worden gebruikt.",
-      "routineRunNowRequiresSchedule": "Alleen geplande routines kunnen handmatig worden getest.",
+      "routineRunNotOwner": "Alleen de persoon die eigenaar van deze automatisering is, kan deze uitvoeren, omdat daarvoor de AI-credits van die persoon worden gebruikt.",
+      "routineRunNowRequiresSchedule": "Alleen geplande automatiseringen kunnen handmatig worden getest.",
       "routineScheduleInvalid": "Dat schema is geen geldige cron-expressie.",
-      "routineScheduleRequired": "Kies een schema of een eenmalige datum voor deze routine.",
-      "routineScheduleTooFrequent": "Dit schema wordt te vaak uitgevoerd. Routines kunnen maximaal eenmaal per 15 minuten draaien.",
-      "routinesRequireCloud": "Routines draaien op Customermates Cloud. Een zelf gehoste instantie kan ze niet uitvoeren.",
-      "routinesRequirePlan": "Routines zijn niet inbegrepen in het Free-pakket. Upgrade naar Starter ({price} per gebruiker per maand) om ze te gebruiken.",
-      "routineTestRequiresEnabled": "Activeer de routine voordat je deze test.",
+      "routineScheduleRequired": "Kies een schema of een eenmalige datum voor deze automatisering.",
+      "routineScheduleTooFrequent": "Dit schema wordt te vaak uitgevoerd. Geplande automatiseringen kunnen maximaal eenmaal per 15 minuten draaien.",
+      "routinesRequireCloud": "Geplande automatiseringen draaien op Customermates Cloud. Een zelf gehoste instantie kan ze niet uitvoeren.",
+      "routinesRequirePlan": "Geplande automatiseringen zijn niet inbegrepen in het Free-pakket. Upgrade naar Starter ({price} per gebruiker per maand) om ze te gebruiken.",
+      "routineTestRequiresEnabled": "Activeer de automatisering voordat je deze test.",
       "routineTimeZoneInvalid": "Die tijdzone wordt niet ondersteund.",
-      "routineTriggerEventsRequired": "Selecteer minstens één gebeurtenis voor deze routine.",
+      "routineTriggerEventsRequired": "Selecteer minstens één gebeurtenis voor deze automatisering.",
       "salesNavigatorNotAvailable": "Bij dit LinkedIn-account is Sales Navigator niet verbonden.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator vereist een verbonden LinkedIn-account, maar dit account is {provider}.",
       "sendEmailTargetRequired": "Selecteer een gesprek of een account om vanuit te verzenden.",
@@ -2239,11 +2239,11 @@
         "updated": "Rol bijgewerkt"
       },
       "routine": {
-        "created": "Routine aangemaakt",
-        "deleted": "Routine naar prullenbak verplaatst",
-        "deletedPermanently": "Routine definitief verwijderd",
-        "restored": "Routine hersteld",
-        "updated": "Routine bijgewerkt"
+        "created": "Geplande automatisering aangemaakt",
+        "deleted": "Geplande automatisering naar prullenbak verplaatst",
+        "deletedPermanently": "Geplande automatisering definitief verwijderd",
+        "restored": "Geplande automatisering hersteld",
+        "updated": "Geplande automatisering bijgewerkt"
       },
       "user": {
         "registered": "Gebruiker geregistreerd",
@@ -2765,7 +2765,6 @@
   },
   "Connections": {
     "apps": {
-      "alsoWorksWith": "Werkt ook met",
       "clients": {
         "claude": "Claude",
         "cursor": "Cursor",
@@ -2774,9 +2773,9 @@
       },
       "connect": "App koppelen",
       "connected": "Gekoppeld",
+      "connectHint": "Claude, ChatGPT, Cursor of elke MCP-client",
       "description": "AI-apps waarin je bent ingelogd met je Customermates-account. Ze handelen met jouw rechten.",
       "detail": "sinds {since} · actief {active}",
-      "otherApp": "Andere app",
       "title": "AI-apps"
     },
     "filterLabel": "Koppelingen tonen",
@@ -2795,6 +2794,7 @@
         "posts": "Posts"
       },
       "connect": "Account koppelen",
+      "connectHint": "E-mail, agenda, WhatsApp, LinkedIn, Telegram en meer",
       "description": "Mailboxen, messengers en agenda's waaruit je inbox en agenda lezen. Privé tot je ze deelt.",
       "empty": "Nog geen account gekoppeld. Koppel je e-mail, agenda of een messenger om je inbox te vullen.",
       "privacyNote": "Door een account te koppelen, machtig je ons om de berichten, contacten en agenda ervan voor jou te verwerken. Zie onze <dataPrivacyLink>Privacyverklaring</dataPrivacyLink>, <subprocessorsLink>Subverwerkers</subprocessorsLink> en <termsOfServiceLink>Voorwaarden</termsOfServiceLink>.",
@@ -2812,6 +2812,7 @@
       },
       "create": "Sleutel maken",
       "created": "Gemaakt op {date}",
+      "createHint": "Voor Zapier, n8n, Make of je eigen scripts",
       "description": "Voor je eigen scripts en tools zoals Zapier.",
       "empty": "Nog geen API-sleutel.",
       "title": "API-sleutels"
@@ -5039,7 +5040,7 @@
   "PlanUsage": {
     "apiPerMinute": "Tot {perMinute} per minuut",
     "apiToday": "API-aanroepen vandaag",
-    "description": "Deze werkruimte zit op Free. Inbox, Mate, routines, webhooks en n8n zijn niet inbegrepen.",
+    "description": "Deze werkruimte zit op Free. Inbox, Mate, geplande automatiseringen, webhooks en n8n zijn niet inbegrepen.",
     "members": "Personen",
     "membersReached": "Het Free-abonnement bevat {limit, plural, one {één persoon} other {# personen}}. Teams beginnen bij Starter.",
     "of": "{used} van {limit}",
@@ -5571,7 +5572,7 @@
         "calculation": "{source} wordt berekend op basis van {target}.",
         "parentAccess": "{source} krijgt toegang via {target}.",
         "requiresRestore": "Herstel eerst {target}, {source} hoort erbij.",
-        "routine": "De routine {source} reageert op {target}.",
+        "routine": "De automatisering {source} reageert op {target}.",
         "rule": "De automatiseringsregel {source} reageert op {target}.",
         "snapshotTrigger": "{source} slaat zijn waarde op wanneer {target} verandert.",
         "webhook": "De webhook {source} verstuurt wijzigingen van {target}.",
@@ -6166,7 +6167,7 @@
       "dataModel": "Gegevensmodel",
       "inboxMessages": "Inboxberichten",
       "publicLinks": "Openbare links",
-      "routines": "Routines en automatiseringen",
+      "routines": "Automatiseringen",
       "users": "Gebruikers & rollen",
       "wiki": "Kennisbank"
     },
@@ -6181,10 +6182,10 @@
     "system": "Systeem"
   },
   "RoutineAdministration": {
-    "help": "Als bedrijfsbeheerder kun je deze routine pauzeren of verwijderen, maar niet bewerken, testen of uitvoeren.",
-    "pause": "Routine pauzeren",
+    "help": "Als bedrijfsbeheerder kun je deze automatisering pauzeren of verwijderen, maar niet bewerken, testen of uitvoeren.",
+    "pause": "Automatisering pauzeren",
     "pauseConfirmation": "“{name}” pauzeren? Uitvoeringen in de wachtrij worden overgeslagen.",
-    "pauseTitle": "Routine pauzeren",
+    "pauseTitle": "Automatisering pauzeren",
     "title": "Beheerdersopties"
   },
   "RoutineDetail": {
@@ -6208,19 +6209,19 @@
         "conditions": {
           "filters": "Het record moet ook aan elk ingesteld filter voldoen.",
           "filtersWithDeletion": "Ingestelde filters gelden voor aangemaakte en bijgewerkte records. Verwijderde records gebruiken hun momentopname van de verwijdering en omzeilen deze filters.",
-          "ownerAccess": "De eigenaar van de routine moet nog actief zijn en toegang hebben tot het verbonden account of record.",
-          "paused": "Activeer en sla deze routine op voordat je een gebeurtenis uitlokt.",
-          "suppression": "Gebeurtenissen die door een routine worden veroorzaakt, activeren geen routines.",
+          "ownerAccess": "De eigenaar van de automatisering moet nog actief zijn en toegang hebben tot het verbonden account of record.",
+          "paused": "Activeer en sla deze automatisering op voordat je een gebeurtenis uitlokt.",
+          "suppression": "Gebeurtenissen die door een geplande automatisering worden veroorzaakt, activeren geen geplande automatiseringen.",
           "unsaved": "Sla deze wijzigingen eerst op. Tot die tijd gebruiken gebeurtenissen de laatst opgeslagen configuratie.",
           "watchedFields": "Bij update-gebeurtenissen moet minstens één gevolgd veld echt wijzigen: {fields}."
         },
-        "description": "Gebeurtenisroutines kunnen niet handmatig worden gestart. Voer een van de onderstaande echte acties uit om de gebeurtenisgegevens te maken die deze routine nodig heeft.",
-        "instructionsLabel": "Manieren om deze routine te activeren"
+        "description": "Automatiseringen met een gebeurtenis kunnen niet handmatig worden gestart. Voer een van de onderstaande echte acties uit om de gebeurtenisgegevens te maken die deze automatisering nodig heeft.",
+        "instructionsLabel": "Manieren om deze automatisering te activeren"
       },
       "schedule": {
-        "activateFirst": "Activeer en sla de routine op voordat je Trigger testen gebruikt.",
-        "description": "De routine wordt volgens dit schema uitgevoerd:",
-        "ownerOnly": "Alleen de eigenaar van de routine kan Trigger testen gebruiken. Het schema wordt nog steeds automatisch uitgevoerd zolang de routine actief is.",
+        "activateFirst": "Activeer en sla de automatisering op voordat je Trigger testen gebruikt.",
+        "description": "De automatisering wordt volgens dit schema uitgevoerd:",
+        "ownerOnly": "Alleen de eigenaar van de automatisering kan Trigger testen gebruiken. Het schema wordt nog steeds automatisch uitgevoerd zolang de automatisering actief is.",
         "saveFirst": "Sla deze wijzigingen op voordat je Trigger testen gebruikt.",
         "testNow": "Gebruik Trigger testen om nu een uitvoering te starten, of wacht op het volgende geplande tijdstip."
       },
@@ -6228,10 +6229,10 @@
     },
     "never": "Nooit",
     "owner": "Eigenaar",
-    "ownerOnlyEdit": "Deze routine is voor jou alleen-lezen. Ze wordt alleen uitgevoerd als {owner}, die de routine kan bewerken of pauzeren. Bedrijfsbeheerders kunnen de routine alleen pauzeren of verwijderen.",
-    "ownerPermissionReadOnly": "Met je rol kun je deze routine en de uitvoeringen bekijken, maar niet wijzigen of testen.",
+    "ownerOnlyEdit": "Deze automatisering is voor jou alleen-lezen. Ze wordt alleen uitgevoerd als {owner}, die de automatisering kan bewerken of pauzeren. Bedrijfsbeheerders kunnen de automatisering alleen pauzeren of verwijderen.",
+    "ownerPermissionReadOnly": "Met je rol kun je deze automatisering en de uitvoeringen bekijken, maar niet wijzigen of testen.",
     "ownerUnavailable": "Eigenaar niet beschikbaar",
-    "ownerUnavailableReadOnly": "Deze routine heeft geen beschikbare eigenaar en blijft daarom gepauzeerd en alleen-lezen. Een bedrijfsbeheerder kan de routine verwijderen.",
+    "ownerUnavailableReadOnly": "Deze automatisering heeft geen beschikbare eigenaar en blijft daarom gepauzeerd en alleen-lezen. Een bedrijfsbeheerder kan de automatisering verwijderen.",
     "ranAs": "Uitgevoerd als {owner}",
     "readOnlyTitle": "Alleen-lezentoegang",
     "reviewWikiProposals": "Beoordelen",
@@ -6243,12 +6244,12 @@
     "runsLoadErrorTitle": "Uitvoeringen konden niet worden geladen",
     "runStarting": "Deze uitvoering wordt gestart. Het transcript verschijnt zo meteen.",
     "testTrigger": "Trigger testen",
-    "testTriggerEnableFirst": "Activeer deze routine voordat je deze test.",
-    "testTriggerEventUnavailable": "Gebeurtenistriggers hebben echte gebeurtenisgegevens nodig. Laat in je werkruimte een passende gebeurtenis plaatsvinden om deze routine te testen.",
-    "testTriggerSaveFirst": "Sla je wijzigingen op voordat je deze routine test.",
+    "testTriggerEnableFirst": "Activeer deze automatisering voordat je deze test.",
+    "testTriggerEventUnavailable": "Gebeurtenistriggers hebben echte gebeurtenisgegevens nodig. Laat in je werkruimte een passende gebeurtenis plaatsvinden om deze automatisering te testen.",
+    "testTriggerSaveFirst": "Sla je wijzigingen op voordat je deze automatisering test.",
     "testTriggerStarted": "Testuitvoering gestart.",
-    "testTriggerWarning": "Voer deze routine nu uit. Dit gebruikt je AI-tegoed en kan de acties uit de instructies uitvoeren.",
-    "transcriptOwnerOnly": "Alleen {owner}, die deze routine heeft uitgevoerd, kan het volledige transcript openen.",
+    "testTriggerWarning": "Voer deze automatisering nu uit. Dit gebruikt je AI-tegoed en kan de acties uit de instructies uitvoeren.",
+    "transcriptOwnerOnly": "Alleen {owner}, die deze automatisering heeft uitgevoerd, kan het volledige transcript openen.",
     "trigger": "Trigger",
     "triggerChangedFields": "Gewijzigde velden",
     "triggerChangedFieldsMore": "en meer",
@@ -6260,22 +6261,21 @@
   "RoutineModal": {
     "at": "om",
     "configurationHeading": "Configuratie",
-    "customSchedule": "Deze routine gebruikt een aangepast schema: {expression}",
+    "customSchedule": "Deze automatisering gebruikt een aangepast schema: {expression}",
     "enabled": "Actief",
-    "enabledHelp": "Deze routine kan momenteel worden uitgevoerd.",
-    "eventSuppressionNote": "Gebeurtenissen die door routines worden veroorzaakt, activeren geen routines.",
+    "enabledHelp": "Deze automatisering kan momenteel worden uitgevoerd.",
+    "eventSuppressionNote": "Gebeurtenissen die door geplande automatiseringen worden veroorzaakt, activeren geen geplande automatiseringen.",
     "onMinute": "op minuut",
-    "pausedHelp": "Deze routine is momenteel gepauzeerd en wordt niet uitgevoerd.",
+    "pausedHelp": "Deze automatisering is momenteel gepauzeerd en wordt niet uitgevoerd.",
     "planPaused": "Gepauzeerd, Free-abonnement",
     "promptExampleEvent": "Lees het record dat is gewijzigd en antwoord in één zin wat dat betekent.",
     "promptExampleSchedule": "Vat de deals samen die sinds gisteren zijn verschoven en antwoord met een korte lijst.",
     "scheduleTimeZone": "Tijden worden getoond in {timezone}.",
-    "tabsLabel": "Routinesecties",
-    "title": "Routine",
+    "tabsLabel": "Secties van de automatisering",
     "useSchedulePreset": "Overschakelen naar een voorinstelling"
   },
   "RoutineRunReason": {
-    "adminPaused": "Een werkruimtebeheerder heeft deze routine gepauzeerd",
+    "adminPaused": "Een werkruimtebeheerder heeft deze automatisering gepauzeerd",
     "agentAlreadyCompleted": "Deze uitvoering was al afgerond",
     "agentAlreadyRunning": "De assistent was al bezig met een andere uitvoering",
     "agentTurnConflict": "Een andere uitvoering had de assistent als eerste in beslag genomen",
@@ -6283,12 +6283,12 @@
     "agentTurnUncertain": "De assistent kon niet bevestigen dat de uitvoering was gestart",
     "filtersNotMatched": "Het record voldeed niet aan de filters",
     "hourlyRunLimit": "De uurlimiet voor uitvoeringen is bereikt",
-    "ownerInactive": "Het account van de routine-eigenaar is niet meer actief",
-    "ownerPaused": "De eigenaar heeft de routine gepauzeerd",
-    "ownerUnavailable": "De routine-eigenaar is niet meer beschikbaar",
+    "ownerInactive": "Het account van de eigenaar van de automatisering is niet meer actief",
+    "ownerPaused": "De eigenaar heeft de automatisering gepauzeerd",
+    "ownerUnavailable": "De eigenaar van de automatisering is niet meer beschikbaar",
     "planPaused": "De werkruimte is overgezet naar het Free-abonnement",
     "platformPaused": "Customermates heeft AI-werk gepauzeerd; werkruimtebeheerders kunnen dit niet hervatten",
-    "routineDisabled": "De routine was gepauzeerd",
+    "routineDisabled": "De automatisering was gepauzeerd",
     "startAbandoned": "De uitvoering is onderbroken voordat die startte",
     "startFailed": "De uitvoering kon niet worden gestart",
     "unknownFailure": "De uitvoering kon niet worden voltooid"
@@ -6315,7 +6315,7 @@
   },
   "RoutinesCard": {
     "emptyBody": "Mate kan werken terwijl jij weg bent. Bijvoorbeeld: elke werkdagochtend de deals samenvatten die zijn verschoven, of een bedankmail opstellen wanneer er een is gewonnen.",
-    "emptyTitle": "Nog geen routines"
+    "emptyTitle": "Nog geen geplande automatiseringen"
   },
   "RoutineSchedule": {
     "daily": "Elke dag om {time}",
@@ -6526,6 +6526,7 @@
     }
   },
   "SourceBadge": {
+    "aiLabel": "Gebouwd rond jouw AI",
     "label": "Source available"
   },
   "StructuredData": {
@@ -6587,7 +6588,7 @@
       "keepsAccounts": "Je hebt maximaal {connected} verbonden accounts per gebruiker. Dit abonnement behoudt er {kept}; de nieuwste worden bij betaling losgekoppeld.",
       "perUserMonth": "per gebruiker / maand",
       "recommendedForYou": "Aanbevolen voor jou",
-      "routinesPerUser": "{routines, plural, one {# routine per gebruiker} other {# routines per gebruiker}}",
+      "routinesPerUser": "{routines, plural, one {# geplande automatisering per gebruiker} other {# geplande automatiseringen per gebruiker}}",
       "seatsIncludePaused": "Een betaald abonnement haalt {paused, plural, one {de gepauzeerde persoon} other {alle # gepauzeerde personen}} terug, dus bij het afrekenen worden {count, plural, one {# persoon} other {# personen}} meegerekend.",
       "seatTotal": "{count, plural, one {# persoon} other {# personen}}, {total} per maand",
       "taglines": {
@@ -6596,7 +6597,7 @@
         "pro": "Opvolgen vanuit LinkedIn en e-mail",
         "starter": "Jouw werkruimte en je eigen AI"
       },
-      "unlimitedRoutinesPerUser": "Onbeperkt aantal routines per gebruiker"
+      "unlimitedRoutinesPerUser": "Onbeperkt aantal geplande automatiseringen per gebruiker"
     },
     "plan": "Abonnement",
     "planNames": {
@@ -6708,7 +6709,7 @@
     "proofSetsUp": "Maakt aan",
     "proofTitle": "Begin met een kant-en-klaar sjabloon",
     "relatedTitle": "Meer sjablonen op dit gebied",
-    "routineLead": "Het sjabloon bouwt de routine na die dit werk al heeft, zodat die na de opzet blijft draaien.",
+    "routineLead": "Het sjabloon bouwt de geplande automatisering na die dit werk al heeft, zodat die na de opzet blijft draaien.",
     "ruleAgent": "Draait via je agent",
     "ruleDueAfter": "{days, plural, one {Vervalt na # dag} other {Vervalt na # dagen}}",
     "ruleDueSame": "Vervalt dezelfde dag",
@@ -6819,7 +6820,7 @@
       "list": "Lijst",
       "record": "Record",
       "relationship": "Relatie",
-      "routine": "Routine",
+      "routine": "Geplande automatisering",
       "view": "Weergave",
       "widget": "Widget",
       "wikiPage": "Kennisbankpagina"
@@ -6840,7 +6841,7 @@
       "operationPending": "{count, plural, one {# item blijft} other {# items blijven}} in de prullenbak terwijl het herstel op de achtergrond wordt afgerond. Herstel ze opnieuw wanneer het klaar is.",
       "parentDeleted": "{count, plural, one {# item blijft} other {# items blijven}} in de prullenbak omdat het item waar ze bij horen in de prullenbak staat. Herstel dat eerst.",
       "requiresRestore": "{count, plural, one {# item blijft} other {# items blijven}} in de prullenbak omdat iets wat ze nodig hebben in de prullenbak staat. Herstel dat eerst.",
-      "routineLimitReached": "{count, plural, one {# routine blijft} other {# routines blijven}} in de prullenbak omdat de eigenaar al alle routines heeft die het abonnement bevat."
+      "routineLimitReached": "{count, plural, one {# geplande automatisering blijft} other {# geplande automatiseringen blijven}} in de prullenbak omdat de eigenaar al alle geplande automatiseringen heeft die het abonnement bevat."
     },
     "restored": "{count, plural, one {# item hersteld} other {# items hersteld}}",
     "restoredInBackground": "Hersteld",
@@ -6880,9 +6881,9 @@
       "title": "Schrijf vanuit dit record met {plan}"
     },
     "free": {
-      "description": "Voor {members, plural, one {één persoon} other {# personen}} en maximaal {records} records. Teams, Mate, routines en webhooks starten bij {plan}, de inbox bij {inboxPlan}.",
+      "description": "Voor {members, plural, one {één persoon} other {# personen}} en maximaal {records} records. Teams, Mate, geplande automatiseringen en webhooks starten bij {plan}, de inbox bij {inboxPlan}.",
       "title": "Deze werkruimte gebruikt Free",
-      "upgradeDescription": "{plan} voegt teams, Mate, routines en webhooks toe. {inboxPlan} voegt de inbox toe."
+      "upgradeDescription": "{plan} voegt teams, Mate, geplande automatiseringen en webhooks toe. {inboxPlan} voegt de inbox toe."
     },
     "locked": {
       "mate": {
@@ -6890,8 +6891,8 @@
         "title": "Mate hoort bij de betaalde abonnementen"
       },
       "routines": {
-        "description": "Je routines blijven bewaard en staan op pauze zolang deze werkruimte op Free zit. Kies {plan} en ze gaan vanzelf weer verder.",
-        "title": "Routines staan op pauze in Free"
+        "description": "Je geplande automatiseringen blijven bewaard en staan op pauze zolang deze werkruimte op Free zit. Kies {plan} en ze gaan vanzelf weer verder.",
+        "title": "Geplande automatiseringen staan op pauze in Free"
       },
       "webhooks": {
         "description": "Webhooks en de n8n-trigger zitten niet in Free. Bestaande webhooks blijven bewaard, maar versturen niets zolang deze werkruimte op Free zit. Kies {plan} en ze leveren weer.",
@@ -6915,7 +6916,7 @@
       "routines": {
         "firstName": "Wekelijkse pipeline-review",
         "firstTrigger": "Elke maandag om 08:00",
-        "label": "Voorbeeldlijst met routines en demogegevens: een wekelijkse routine en een routine die draait zodra er iets verandert",
+        "label": "Voorbeeldlijst met automatiseringen en demogegevens: een wekelijkse automatisering en een die draait zodra er iets verandert",
         "secondName": "Opvolgen na een reactie"
       },
       "secondMessage": "Workshopdata voor het voorjaar",
@@ -6931,7 +6932,7 @@
       "nextSteps": "Deel losse gesprekken met je team"
     },
     "routines": {
-      "reachedTitle": "Je gebruikt alle routines die je {plan}-abonnement bevat"
+      "reachedTitle": "Je gebruikt alle geplande automatiseringen die je {plan}-abonnement bevat"
     },
     "starter": {
       "noLimits": "Je hele team, geen limiet op records, webhooks en n8n"
@@ -6943,7 +6944,7 @@
     },
     "trial": {
       "cta": "Kies een abonnement",
-      "description": "Kies een abonnement om je team, inbox, Mate en routines na de proefperiode te houden. Zonder abonnement gaat deze werkruimte over naar Free, bedoeld om alleen te proberen.",
+      "description": "Kies een abonnement om je team, inbox, Mate en geplande automatiseringen na de proefperiode te houden. Zonder abonnement gaat deze werkruimte over naar Free, bedoeld om alleen te proberen.",
       "dismiss": "Nu verbergen",
       "title": "{days, plural, =0 {Je {plan}-proefperiode eindigt vandaag} one {Nog # dag in je {plan}-proefperiode} other {Nog # dagen in je {plan}-proefperiode}}"
     },
@@ -6955,7 +6956,7 @@
         "forms": "{count, plural, one {# formulierinzending boven de maandlimiet} other {# formulierinzendingen boven de maandlimiet}}",
         "mate": "Mate ({count, plural, one {# verzoek} other {# verzoeken}})",
         "members": "{count, plural, one {# extra persoon} other {# extra personen}}",
-        "routines": "{count, plural, one {# actieve routine} other {# actieve routines}}",
+        "routines": "{count, plural, one {# actieve geplande automatisering} other {# actieve geplande automatiseringen}}",
         "rules": "{count, plural, one {# automatisering boven de limiet} other {# automatiseringen boven de limiet}}",
         "webhooks": "{count, plural, one {# actieve webhook} other {# actieve webhooks}}"
       },
@@ -7121,11 +7122,11 @@
       "back": "Alle voorstellen",
       "current": "Huidig",
       "deleteNotice": "Bij goedkeuring wordt deze pagina definitief verwijderd.",
-      "description": "Wijzigingen die Mate heeft voorgesteld tijdens het uitvoeren van routines. De Kennisbank verandert pas wanneer je er een goedkeurt.",
+      "description": "Wijzigingen die Mate heeft voorgesteld tijdens het uitvoeren van automatiseringen. De Kennisbank verandert pas wanneer je er een goedkeurt.",
       "empty": "Er wachten geen voorstellen op controle.",
       "entry": "Voorstellen",
       "fromRoutine": "Van {routine}",
-      "fromRoutineDeleted": "Van een verwijderde routine",
+      "fromRoutineDeleted": "Van een verwijderde automatisering",
       "loadFailed": "Voorstellen konden niet worden geladen.",
       "needsPermission": "Je rol kan deze wijziging niet doorvoeren.",
       "notYetCreated": "Deze pagina bestaat nog niet.",
@@ -7321,7 +7322,7 @@
       "notCreator": "Alleen de beheerder die deze werkruimte heeft aangemaakt, kan die verwijderen.",
       "platformOperator": "Als deze werkruimte wordt verwijderd, blijft er geen Customermates-platformoperator met een actief account over. Verwijderen is hier dus niet mogelijk. Neem contact op met Customermates-support."
     },
-    "deleteConfirmDescription": "Hiermee worden de records, Kennisbank, routines, webhooks en gekoppelde accounts definitief verwijderd. Elk lid verliest de toegang, en hun API-sleutels en MCP-verbindingen ervoor werken niet meer. Dit kan niet ongedaan worden gemaakt.",
+    "deleteConfirmDescription": "Hiermee worden de records, Kennisbank, automatiseringen, webhooks en gekoppelde accounts definitief verwijderd. Elk lid verliest de toegang, en hun API-sleutels en MCP-verbindingen ervoor werken niet meer. Dit kan niet ongedaan worden gemaakt.",
     "deleteConfirmTitle": "{name} verwijderen?",
     "deleteDescription": "Verwijder deze werkruimte en alles erin definitief, voor elk lid.",
     "fallbackName": "Werkruimte",

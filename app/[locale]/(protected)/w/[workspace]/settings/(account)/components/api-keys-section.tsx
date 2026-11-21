@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ExternalLink, KeyRound, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, KeyRound, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -18,7 +18,13 @@ import { resolveResourcePageState } from "@/components/page-state/resource-page-
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 
-import { SettingsPanel, SettingsPanelMessage, SettingsPanelRow } from "@/components/shared/settings-panel";
+import {
+  SettingsPanel,
+  SettingsPanelAddButton,
+  SettingsPanelAddRow,
+  SettingsPanelMessage,
+  SettingsPanelRow,
+} from "@/components/shared/settings-panel";
 
 const API_KEY_GRID = "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_10rem_8rem_8rem_2rem]";
 
@@ -170,20 +176,22 @@ export const ApiKeysSection = observer(() => {
 
   return (
     <SettingsPanel
-      action={
-        canManage && pageState !== "loading" && pageState !== "error" ? (
-          <Button id="settings-api-keys-generate" size="sm" variant="secondary" onClick={() => apiKeyModalStore.add()}>
-            <Plus aria-hidden />
-
-            {t("Connections.keys.create")}
-          </Button>
-        ) : null
-      }
       description={`${t("Connections.keys.description")} ${workspaceScope}`}
       id="connections-keys"
       title={t("Connections.keys.title")}
     >
       {body}
+
+      {canManage && pageState !== "loading" && pageState !== "error" ? (
+        <SettingsPanelAddRow>
+          <SettingsPanelAddButton
+            hint={t("Connections.keys.createHint")}
+            id="settings-api-keys-generate"
+            label={t("Connections.keys.create")}
+            onClick={() => apiKeyModalStore.add()}
+          />
+        </SettingsPanelAddRow>
+      ) : null}
     </SettingsPanel>
   );
 });

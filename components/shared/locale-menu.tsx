@@ -4,6 +4,7 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 import type { AppMode } from "@/core/config/environment";
 import type { MarketingLocale } from "@/i18n/locale-registry";
 
+import { Globe } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -129,7 +130,7 @@ export function LocaleMenu({ align = "start", appMode, className, side = "bottom
           className="list-none"
           title={currentLocaleLabel}
         >
-          <span aria-hidden>{currentLocale.toUpperCase()}</span>
+          <Globe aria-hidden className="size-4" data-locale-menu-icon={currentLocale} />
         </summary>
       </Button>
 

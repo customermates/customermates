@@ -109,6 +109,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   isLoadingMoreRuns = false;
   isStartingRun = false;
   recordModel: RecordModelView | null = null;
+  onSwitchToEvent: ((seed: { name: string; prompt: string }) => void) | null = null;
   private filterFieldsLoadPromise: Promise<void> | null = null;
   private runsSessionGeneration = 0;
   private runsRoutineId: string | null = null;
@@ -139,6 +140,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       isLoadingMoreRuns: observable,
       isStartingRun: observable,
       recordModel: observable.ref,
+      onSwitchToEvent: observable.ref,
 
       openRun_: computed,
       latestRunAt: computed,
@@ -167,8 +169,29 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       loadMoreRuns: action,
       runNow: action,
       pause: action,
+      setEventHandoff: action,
+      switchStart: action,
     });
   }
+
+  setEventHandoff = (handoff: ((seed: { name: string; prompt: string }) => void) | null) => {
+    this.onSwitchToEvent = handoff;
+  };
+
+  switchStart = (start: "event" | "schedule") => {
+    if (start === "schedule") {
+      this.onChange("triggerKind", RoutineTriggerKind.schedule);
+      return;
+    }
+    const handoff = this.onSwitchToEvent;
+    if (!this.form.id && handoff) {
+      const seed = { name: this.form.name ?? "", prompt: this.form.prompt ?? "" };
+      this.close();
+      handoff(seed);
+      return;
+    }
+    this.onChange("triggerKind", RoutineTriggerKind.event);
+  };
 
   protected override afterChange(id: string, _value: unknown, previousValue: unknown): void {
     if (id === "recordTrigger.query.typeId" && this.form.recordTrigger && _value !== previousValue) {
