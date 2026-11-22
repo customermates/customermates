@@ -30,7 +30,11 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
+
+import * as ErrorReporter from "@/core/observability/server";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { UnipileRequestError } from "../../unipile-request-error";
 import { ReconnectConnectedAccountInteractor } from "../reconnect-connected-account.interactor";
 
 describe("ReconnectConnectedAccountInteractor", () => {
@@ -67,6 +71,34 @@ describe("ReconnectConnectedAccountInteractor", () => {
         redirectUri: "https://feat-inbox.customermates.com/w/acme/settings/connections",
       }),
     );
+  });
+
+  it("reports a provider timeout as a warning and a provider refusal as an error", async () => {
+    const repo = {
+      findOwnedAccountById: vi
+        .fn()
+        .mockResolvedValue({ id: "10000000-0000-4000-8000-000000000001", unipileAccountId: "provider-account-1" }),
+    };
+    const timeout = new UnipileRequestError(0, null, "");
+    const refusal = new UnipileRequestError(403, "api/account_restricted", "");
+    const messagingService = {
+      createReconnectAuthLink: vi.fn().mockRejectedValueOnce(timeout).mockRejectedValueOnce(refusal),
+    };
+    const entitlements = { require: vi.fn().mockResolvedValue(null) };
+    const interactor = new ReconnectConnectedAccountInteractor(
+      repo as never,
+      messagingService as never,
+      entitlements as never,
+    );
+
+    expect(await interactor.invoke({ id: "10000000-0000-4000-8000-000000000001" })).toMatchObject({ ok: false });
+    expect(await interactor.invoke({ id: "10000000-0000-4000-8000-000000000001" })).toMatchObject({ ok: false });
+
+    expect(ErrorReporter.captureException).toHaveBeenNthCalledWith(1, timeout, {
+      level: "warning",
+      tags: { kind: "unipile-auth-link" },
+    });
+    expect(ErrorReporter.captureException).toHaveBeenNthCalledWith(2, refusal, { tags: { kind: "unipile-auth-link" } });
   });
 
   it("answers a missing or foreign account and a malformed id as failures instead of throwing", async () => {
