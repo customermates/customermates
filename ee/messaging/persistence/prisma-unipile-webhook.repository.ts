@@ -23,6 +23,17 @@ export class PrismaUnipileWebhookRepo extends TenantRepository implements Webhoo
   }
 
   @BypassTenantGuard
+  async listConnectedAccountIdsUnscoped(unipileAccountId: string) {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: { unipileAccountId },
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
+  @BypassTenantGuard
   async findWebhookEventByIdOrThrowUnscoped(id: string) {
     return this.prisma.messagingInboundEvent.findUniqueOrThrow({
       where: { id },

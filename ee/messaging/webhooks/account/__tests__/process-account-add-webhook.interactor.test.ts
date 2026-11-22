@@ -11,7 +11,8 @@ const SNAPSHOT = { id: "acc_new", provider: "linkedin", status: "running", name:
 
 function makeAccountRepo(overrides: Partial<Record<string, unknown>> = {}) {
   return {
-    findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue(null),
+    findAccountForCompanyByUnipileIdUnscoped: vi.fn().mockResolvedValue(null),
+    reviveDeletedAccountUnscoped: vi.fn().mockResolvedValue({ id: "existing-id" }),
     createAccountUnscoped: vi.fn().mockResolvedValue({ id: "new-row-id" }),
     updateAccountUnscoped: vi.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -78,9 +79,9 @@ describe("ProcessAccountAddWebhookInteractor", () => {
     });
   });
 
-  it("short-circuits without side effects when the existing row's status is deleted", async () => {
-    const { interactor, accountRepo, messagingService, backgroundTaskService, eventService } = build({
-      findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue({
+  it("reconnects a row this workspace removed earlier instead of creating a second one", async () => {
+    const { interactor, accountRepo, backgroundTaskService, eventService } = build({
+      findAccountForCompanyByUnipileIdUnscoped: vi.fn().mockResolvedValue({
         id: "existing-id",
         companyId: USER.companyId,
         status: "deleted",
@@ -90,15 +91,43 @@ describe("ProcessAccountAddWebhookInteractor", () => {
 
     await interactor.invoke({ type: "account.add", account_id: "acc_new", state, payload: null });
 
-    expect(messagingService.getAccount).not.toHaveBeenCalled();
-    expect(accountRepo.updateAccountUnscoped).not.toHaveBeenCalled();
-    expect(eventService.publish).not.toHaveBeenCalled();
-    expect(backgroundTaskService.dispatch).not.toHaveBeenCalled();
+    expect(accountRepo.reviveDeletedAccountUnscoped).toHaveBeenCalledWith("existing-id", USER.id);
+    expect(accountRepo.createAccountUnscoped).not.toHaveBeenCalled();
+    expect(accountRepo.updateAccountUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unipileAccountId: "acc_new",
+        connectedAccountId: "existing-id",
+      }),
+    );
+    expect(eventService.publish).toHaveBeenCalledTimes(1);
+    expect(backgroundTaskService.dispatch).toHaveBeenCalledWith("backfill-connected-account", {
+      connectedAccountId: "existing-id",
+    });
+  });
+
+  it("connects a provider account another workspace already holds as a new connection of this workspace", async () => {
+    const { interactor, accountRepo } = build();
+    const state = signHostedAuthState(USER.id);
+
+    await interactor.invoke({
+      type: "account.add",
+      account_id: "acc_shared",
+      state,
+      payload: null,
+    });
+
+    expect(accountRepo.findAccountForCompanyByUnipileIdUnscoped).toHaveBeenCalledWith(USER.companyId, "acc_shared");
+    expect(accountRepo.createAccountUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        companyId: USER.companyId,
+        unipileAccountId: "acc_shared",
+      }),
+    );
   });
 
   it("reuses the existing row when an active row already matches the unipile id", async () => {
     const { interactor, accountRepo, eventService } = build({
-      findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue({
+      findAccountForCompanyByUnipileIdUnscoped: vi.fn().mockResolvedValue({
         id: "existing-id",
         companyId: USER.companyId,
         status: "ok",

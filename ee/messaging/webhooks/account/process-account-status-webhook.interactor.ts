@@ -18,6 +18,7 @@ const Schema = z.object({
     "account.status.running",
   ]),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   product: z.string().nullish(),
   reason: z.unknown().optional(),
   error: z.unknown().optional(),
@@ -36,7 +37,10 @@ export class ProcessAccountStatusWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const checkedAt = new Date();
@@ -62,6 +66,7 @@ export class ProcessAccountStatusWebhookInteractor {
 
     await this.accountRepo.updateAccountUnscoped({
       unipileAccountId: account.unipileAccountId,
+      connectedAccountId: account.id,
       ...connection,
       ...(stalled && { syncing: false }),
     });

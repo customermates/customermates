@@ -48,6 +48,9 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<
       },
     });
 
+    if (await this.repo.countOtherLiveAccountsForUnipileIdUnscoped(existing.unipileAccountId, existing.id))
+      return { ok: true as const, data: { id: existing.id, disconnected: true as const } };
+
     await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId }).catch((error: unknown) => {
       ErrorReporter.captureException(error, { tags: { kind: "unipile-account-removal-deferred" } });
     });

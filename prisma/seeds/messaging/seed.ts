@@ -311,7 +311,7 @@ export async function seedWorkspaceMessaging(
     };
     const unipileAccountId = messagingUnipileAccountId(tag, provider);
     const account = await prisma.connectedAccount.upsert({
-      where: { unipileAccountId },
+      where: { companyId_unipileAccountId: { companyId, unipileAccountId } },
       update: { ...data, ...accountTimeline },
       create: { ...data, id: messagingAccountId(tag, provider), unipileAccountId, ...accountTimeline },
     });

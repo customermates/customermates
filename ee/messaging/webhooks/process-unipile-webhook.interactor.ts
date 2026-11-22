@@ -17,9 +17,11 @@ import {
 } from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 
-export type UnipileWebhookHandlerMap = Partial<
-  Record<string, { invoke(envelope: UnipileWebhookEnvelope & { receivedAt?: Date }): Promise<void> }>
->;
+type DispatchedEnvelope = UnipileWebhookEnvelope & { receivedAt?: Date; connectedAccountId?: string };
+
+export type UnipileWebhookHandlerMap = Partial<Record<string, { invoke(envelope: DispatchedEnvelope): Promise<void> }>>;
+
+const ACCOUNT_CREATING_EVENTS = new Set(["account.add"]);
 
 const Schema = z.object({ id: z.uuid() });
 type ProcessUnipileWebhookPayload = z.infer<typeof Schema>;
@@ -69,7 +71,8 @@ export class ProcessUnipileWebhookInteractor {
     }
 
     try {
-      await handler.invoke({ ...envelope, receivedAt: row.receivedAt });
+      for (const target of await this.targets(envelope))
+        await handler.invoke({ ...envelope, receivedAt: row.receivedAt, ...target });
       await this.events.markWebhookEventProcessedUnscoped(id);
       return { rateLimited: false };
     } catch (err) {
@@ -111,6 +114,13 @@ export class ProcessUnipileWebhookInteractor {
 
       return { rateLimited: false };
     }
+  }
+
+  private async targets(envelope: UnipileWebhookEnvelope): Promise<Array<{ connectedAccountId?: string }>> {
+    if (!envelope.account_id || ACCOUNT_CREATING_EVENTS.has(envelope.type)) return [{}];
+    const ids = await this.events.listConnectedAccountIdsUnscoped(envelope.account_id);
+
+    return ids.length === 0 ? [{}] : ids.map((connectedAccountId) => ({ connectedAccountId }));
   }
 
   private async markRetryableFailure(args: { id: string; eventType: string; err: unknown }): Promise<void> {

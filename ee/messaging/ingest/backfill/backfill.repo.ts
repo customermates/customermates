@@ -14,6 +14,7 @@ export abstract class BackfillConnectedAccountRepo {
   abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
+    connectedAccountId?: string;
     status?: ConnectedAccountStatus;
     connectionDetails?: AccountConnectionDetails;
     statusCheckedAt?: Date;

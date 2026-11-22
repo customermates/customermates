@@ -30,6 +30,7 @@ function build(row: unknown, handlers: Record<string, { invoke: ReturnType<typeo
     findWebhookEventByIdOrThrowUnscoped: vi.fn().mockResolvedValue(row),
     markWebhookEventProcessedUnscoped: vi.fn().mockResolvedValue(undefined),
     markWebhookEventFailedUnscoped: vi.fn().mockResolvedValue({ attemptCount: 1 }),
+    listConnectedAccountIdsUnscoped: vi.fn().mockResolvedValue([]),
   };
   const interactor = new ProcessUnipileWebhookInteractor(events as any, handlers as any);
 
@@ -61,6 +62,34 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventProcessedUnscoped).toHaveBeenCalledWith(EVENT_ID);
     expect(events.markWebhookEventFailedUnscoped).not.toHaveBeenCalled();
     expect(ErrorReporter.captureException).not.toHaveBeenCalled();
+  });
+
+  it("hands an event of a provider account connected in two workspaces to the handler once per workspace", async () => {
+    const handler = { invoke: vi.fn().mockResolvedValue(undefined) };
+    const { interactor, events } = build(row({ type: "email.new", account_id: "acc_shared", payload: {} }), {
+      "email.new": handler,
+    });
+    events.listConnectedAccountIdsUnscoped.mockResolvedValue(["row-a", "row-b"]);
+
+    await invoke(interactor);
+
+    expect(events.listConnectedAccountIdsUnscoped).toHaveBeenCalledWith("acc_shared");
+    expect(handler.invoke.mock.calls.map(([envelope]) => envelope.connectedAccountId)).toEqual(["row-a", "row-b"]);
+    expect(events.markWebhookEventProcessedUnscoped).toHaveBeenCalledTimes(1);
+  });
+
+  it("hands account.add to its handler once, without a workspace target", async () => {
+    const handler = { invoke: vi.fn().mockResolvedValue(undefined) };
+    const { interactor, events } = build(row({ type: "account.add", account_id: "acc_shared", state: "s" }), {
+      "account.add": handler,
+    });
+    events.listConnectedAccountIdsUnscoped.mockResolvedValue(["row-a"]);
+
+    await invoke(interactor);
+
+    expect(events.listConnectedAccountIdsUnscoped).not.toHaveBeenCalled();
+    expect(handler.invoke).toHaveBeenCalledTimes(1);
+    expect(handler.invoke.mock.calls[0]?.[0]).not.toHaveProperty("connectedAccountId");
   });
 
   it("retires a disconnected-account rejection without reporting it", async () => {

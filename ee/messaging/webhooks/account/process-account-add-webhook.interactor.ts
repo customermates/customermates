@@ -44,18 +44,17 @@ export class ProcessAccountAddWebhookInteractor {
 
     const user = await this.userRepo.findUserByIdOrThrowUnscoped(userId);
 
-    const existing = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
-
-    if (existing && existing.companyId !== user.companyId) {
-      throw new Error(
-        `cross-company connect blocked for unipile account ${envelope.account_id}: owned by company ${existing.companyId}, attempted by user ${user.id} of company ${user.companyId}`,
-      );
-    }
-
-    if (existing && existing.status === ConnectedAccountStatus.deleted) return;
+    const found = await this.accountRepo.findAccountForCompanyByUnipileIdUnscoped(user.companyId, envelope.account_id);
 
     const checkedAt = new Date();
     const snapshot = await this.messagingService.getAccount(envelope.account_id);
+
+    const revived =
+      found?.status === ConnectedAccountStatus.deleted
+        ? await this.accountRepo.reviveDeletedAccountUnscoped(found.id, user.id)
+        : null;
+    if (found?.status === ConnectedAccountStatus.deleted && !revived) return;
+    const existing = revived ? null : found;
 
     const provider = mapUnipileProvider(snapshot.provider);
     const connection = deriveAccountConnection(snapshot, undefined, existing?.connectionDetails, checkedAt);
@@ -63,24 +62,25 @@ export class ProcessAccountAddWebhookInteractor {
     const displayName = snapshot.name ?? null;
     const emailAddress = isEmailProvider(provider) ? (snapshot.name ?? null) : null;
 
-    const connectedAccountId = existing
-      ? existing.id
-      : (
-          await this.accountRepo.createAccountUnscoped({
-            companyId: user.companyId,
-            userId: user.id,
-            unipileAccountId: envelope.account_id,
-            provider,
-            status,
-            displayName,
-            emailAddress,
-            hasMessaging,
-            hasCalendar,
-          })
-        ).id;
+    const connectedAccountId =
+      (existing ?? revived)?.id ??
+      (
+        await this.accountRepo.createAccountUnscoped({
+          companyId: user.companyId,
+          userId: user.id,
+          unipileAccountId: envelope.account_id,
+          provider,
+          status,
+          displayName,
+          emailAddress,
+          hasMessaging,
+          hasCalendar,
+        })
+      ).id;
 
     await this.accountRepo.updateAccountUnscoped({
       unipileAccountId: envelope.account_id,
+      connectedAccountId,
       ...connection,
       displayName,
       emailAddress,

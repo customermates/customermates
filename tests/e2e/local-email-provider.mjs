@@ -79,7 +79,7 @@ export function localEmailRequest(input, init) {
     if (request.method === "GET" && request.headers.get("X-API-KEY") === localProviderKey)
       return hostedAccount(hosted[1]);
   }
-  const removal = url.pathname.match(/^\/v2\/accounts\/(e2e_local_[a-f0-9-]{36})$/);
+  const removal = url.pathname.match(/^\/v2\/accounts\/(e2e_local_(?:imap_)?[a-f0-9-]{36})$/);
   if (removal && !url.search && !url.username && !url.password) {
     const request = new Request(input, init);
     if (request.method === "DELETE" && request.headers.get("X-API-KEY") === localProviderKey)

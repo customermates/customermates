@@ -7,7 +7,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 
 export abstract class ReleaseBackfillClaimRepo {
   abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
-  abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean): Promise<void>;
+  abstract releaseBackfillClaimUnscoped(connectedAccountId: string, token: string, complete: boolean): Promise<void>;
 }
 
 const Schema = z.object({
@@ -26,6 +26,6 @@ export class ReleaseBackfillClaimInteractor {
     const account = await this.repo.findAccountByIdUnscoped(payload.connectedAccountId);
     if (!account) return;
 
-    await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, payload.token, payload.complete);
+    await this.repo.releaseBackfillClaimUnscoped(account.id, payload.token, payload.complete);
   }
 }

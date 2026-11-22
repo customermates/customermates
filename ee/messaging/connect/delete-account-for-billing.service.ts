@@ -10,6 +10,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 export abstract class DeleteAccountForBillingRepo {
   abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
   abstract markAccountDeletedUnscoped(id: string): Promise<void>;
+  abstract countOtherLiveAccountsForUnipileIdUnscoped(unipileAccountId: string, exceptId: string): Promise<number>;
 }
 
 export class DeleteAccountForBillingService {
@@ -23,7 +24,8 @@ export class DeleteAccountForBillingService {
     const account = await this.repo.findAccountByIdOrThrowUnscoped(connectedAccountId);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    await this.messagingService.deleteAccount({ accountId: account.unipileAccountId });
+    if (!(await this.repo.countOtherLiveAccountsForUnipileIdUnscoped(account.unipileAccountId, account.id)))
+      await this.messagingService.deleteAccount({ accountId: account.unipileAccountId });
 
     await this.repo.markAccountDeletedUnscoped(connectedAccountId);
 

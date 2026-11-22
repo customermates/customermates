@@ -10,6 +10,11 @@ import type { AccountConnectionDetails } from "../../account-connection.schema";
 import { FindAccountByUnipileIdUnscopedRepo } from "../../persistence/find-account-by-unipile-id-unscoped.repo";
 
 export abstract class AccountWebhookRepo extends FindAccountByUnipileIdUnscopedRepo {
+  abstract findAccountForCompanyByUnipileIdUnscoped(
+    companyId: string,
+    unipileAccountId: string,
+  ): Promise<ConnectedAccount | null>;
+  abstract reviveDeletedAccountUnscoped(id: string, userId: string): Promise<ConnectedAccount | null>;
   abstract createAccountUnscoped(args: {
     companyId: string;
     userId: string;
@@ -23,6 +28,7 @@ export abstract class AccountWebhookRepo extends FindAccountByUnipileIdUnscopedR
   }): Promise<ConnectedAccount>;
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
+    connectedAccountId?: string;
     status?: ConnectedAccountStatusType;
     connectionDetails?: AccountConnectionDetails;
     statusCheckedAt?: Date;

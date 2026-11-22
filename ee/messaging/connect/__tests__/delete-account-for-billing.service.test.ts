@@ -7,6 +7,7 @@ function makeRepo(overrides: Partial<Record<string, unknown>> = {}) {
   return {
     findAccountByIdOrThrowUnscoped: vi.fn(),
     markAccountDeletedUnscoped: vi.fn().mockResolvedValue(undefined),
+    countOtherLiveAccountsForUnipileIdUnscoped: vi.fn().mockResolvedValue(0),
     ...overrides,
   };
 }
@@ -50,6 +51,24 @@ describe("DeleteAccountForBillingService.deleteForBillingOrThrow", () => {
     expect(messagingService.deleteAccount.mock.invocationCallOrder[0]).toBeLessThan(
       repo.markAccountDeletedUnscoped.mock.invocationCallOrder[0],
     );
+  });
+
+  it("keeps the provider account while another workspace still uses it, and still marks this one deleted", async () => {
+    const repo = makeRepo({
+      findAccountByIdOrThrowUnscoped: vi.fn().mockResolvedValue(ACCOUNT),
+      countOtherLiveAccountsForUnipileIdUnscoped: vi.fn().mockResolvedValue(1),
+    });
+    const messagingService = makeMessagingService();
+    const service = new DeleteAccountForBillingService(
+      repo as never,
+      messagingService as never,
+      makeEventService() as never,
+    );
+
+    await service.deleteForBillingOrThrow("acc-1", "planDowngrade");
+
+    expect(messagingService.deleteAccount).not.toHaveBeenCalled();
+    expect(repo.markAccountDeletedUnscoped).toHaveBeenCalledWith("acc-1");
   });
 
   it("skips silently when the account is already deleted", async () => {

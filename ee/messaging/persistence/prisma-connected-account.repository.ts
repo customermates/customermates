@@ -1,5 +1,6 @@
 import type { PermissionService } from "@/core/base/permission.service";
-import type { MessagingProvider, Prisma } from "@/generated/prisma";
+import type { ConnectedAccount, Prisma } from "@/generated/prisma";
+import { accountUpdateData, sharedAccountUpdateData, type AccountUpdate } from "./account-update";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.repo";
 import type { RefreshConnectedAccountStatusesRepo } from "../connect/refresh-connected-account-statuses.repo";
@@ -15,11 +16,11 @@ import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountRecord } from "../messaging.schema";
-import { parseAccountConnectionDetails, type AccountConnectionDetails } from "../account-connection.schema";
+import { parseAccountConnectionDetails } from "../account-connection.schema";
 import type { EmailSettings } from "../email-settings";
 import { resolveStoredEmailSettings } from "../email-settings";
 
-import { type EmailFolder, EmailFolderSchema } from "../email-folders";
+import { EmailFolderSchema } from "../email-folders";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
 import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
@@ -99,12 +100,16 @@ export class PrismaConnectedAccountRepo
   }
 
   private async createAccountWithUsage(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
+    const key = {
+      companyId: args.companyId,
+      unipileAccountId: args.unipileAccountId,
+    };
     const existing = await this.prisma.connectedAccount.findUnique({
-      where: { unipileAccountId: args.unipileAccountId },
+      where: { companyId_unipileAccountId: key },
       select: { id: true },
     });
     const row = await this.prisma.connectedAccount.upsert({
-      where: { unipileAccountId: args.unipileAccountId },
+      where: { companyId_unipileAccountId: key },
       update: {},
       create: {
         companyId: args.companyId,
@@ -122,6 +127,37 @@ export class PrismaConnectedAccountRepo
     await this.billingUsage.recordChannels(row.companyId, existing ? [] : channelChange(row.id, null, row.status));
 
     return row;
+  }
+
+  @BypassTenantGuard
+  async reviveDeletedAccountUnscoped(id: string, userId: string) {
+    const owner = await this.prisma.connectedAccount.findUnique({
+      where: { id },
+      select: { companyId: true },
+    });
+    if (!owner) return null;
+
+    return this.withCompanyTransaction(owner.companyId, async () => {
+      const result = await this.prisma.connectedAccount.updateMany({
+        where: {
+          id,
+          companyId: owner.companyId,
+          status: ConnectedAccountStatus.deleted,
+        },
+        data: {
+          userId,
+          status: ConnectedAccountStatus.connecting,
+          syncing: true,
+          statusCheckedAt: null,
+        },
+      });
+      if (result.count === 0) return null;
+      await this.billingUsage.recordChannels(
+        owner.companyId,
+        channelChange(id, ConnectedAccountStatus.deleted, ConnectedAccountStatus.connecting),
+      );
+      return this.prisma.connectedAccount.findUnique({ where: { id } });
+    });
   }
 
   @BypassTenantGuard
@@ -159,89 +195,66 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async updateAccountUnscoped(args: {
-    unipileAccountId: string;
-    status?: ConnectedAccountStatus;
-    connectionDetails?: AccountConnectionDetails;
-    statusCheckedAt?: Date;
-    displayName?: string | null;
-    emailAddress?: string | null;
-    lastSyncedAt?: Date;
-    provider?: MessagingProvider;
-    syncing?: boolean;
-    ownerAvatarUrl?: string | null;
-    hasMessaging?: boolean;
-    hasCalendar?: boolean;
-    sentFolderIds?: string[];
-    folders?: EmailFolder[];
-    foldersSyncedAt?: Date;
-    selectedFolderIds?: string[];
-    linkedinProducts?: string[];
-  }) {
-    const changesUsage = [args.status, args.displayName, args.emailAddress, args.provider].some(
-      (value) => value !== undefined,
-    );
-    if (!changesUsage) return this.writeAccountUpdate(args);
-
-    const owner = await this.prisma.connectedAccount.findUnique({
+  async updateAccountUnscoped(args: AccountUpdate) {
+    const rows = await this.prisma.connectedAccount.findMany({
       where: { unipileAccountId: args.unipileAccountId },
-      select: { companyId: true },
+      select: { id: true, companyId: true },
+      orderBy: { createdAt: "asc" },
     });
-    if (!owner) return this.writeAccountUpdate(args);
+    const targetId = args.connectedAccountId ?? rows[0]?.id;
+    let target: ConnectedAccount | null = null;
 
-    return this.withCompanyTransaction(owner.companyId, async () => {
-      const [before] = await this.prisma.$queryRaw<
-        Array<{ status: ConnectedAccountStatus; statusCheckedAt: Date | null }>
-      >`SELECT "status", "statusCheckedAt" FROM "ConnectedAccount" WHERE "unipileAccountId" = ${args.unipileAccountId} AND "companyId" = ${owner.companyId} FOR UPDATE`;
-      if (before?.status === ConnectedAccountStatus.deleted) return null;
-      if (args.statusCheckedAt && before?.statusCheckedAt && before.statusCheckedAt > args.statusCheckedAt) return null;
-      const row = await this.writeAccountUpdate(args);
-      await this.billingUsage.recordChannels(row.companyId, channelChange(row.id, before?.status, row.status));
-      return row;
-    });
+    for (const row of rows) {
+      const isTarget = args.connectedAccountId === undefined || row.id === args.connectedAccountId;
+      const data = isTarget ? accountUpdateData(args) : sharedAccountUpdateData(args);
+      if (Object.values(data).every((value) => value === undefined)) continue;
+      const updated = await this.updateAccountRow(row, data, args.statusCheckedAt);
+      if (row.id === targetId) target = updated;
+    }
+
+    return target;
   }
 
-  private writeAccountUpdate(args: Parameters<PrismaConnectedAccountRepo["updateAccountUnscoped"]>[0]) {
-    const { unipileAccountId } = args;
+  private async updateAccountRow(
+    row: { id: string; companyId: string },
+    data: Prisma.ConnectedAccountUpdateInput,
+    statusCheckedAt: Date | undefined,
+  ) {
+    const changesUsage = [data.status, data.displayName, data.emailAddress, data.provider].some(
+      (value) => value !== undefined,
+    );
+    if (!changesUsage) return this.prisma.connectedAccount.update({ where: { id: row.id }, data });
 
-    return this.prisma.connectedAccount.update({
-      where: { unipileAccountId },
-      data: {
-        status: args.status,
-        connectionDetails: args.connectionDetails,
-        statusCheckedAt: args.statusCheckedAt,
-        displayName: args.displayName,
-        emailAddress: args.emailAddress,
-        lastSyncedAt: args.lastSyncedAt,
-        provider: args.provider,
-        syncing: args.syncing,
-        ownerAvatarUrl: args.ownerAvatarUrl,
-        hasMessaging: args.hasMessaging,
-        hasCalendar: args.hasCalendar,
-        sentFolderIds: args.sentFolderIds,
-        folders: args.folders as Prisma.InputJsonValue | undefined,
-        foldersSyncedAt: args.foldersSyncedAt,
-        selectedFolderIds: args.selectedFolderIds,
-        linkedinProducts: args.linkedinProducts,
-      },
+    return this.withCompanyTransaction(row.companyId, async () => {
+      const [before] = await this.prisma.$queryRaw<
+        Array<{ status: ConnectedAccountStatus; statusCheckedAt: Date | null }>
+      >`SELECT "status", "statusCheckedAt" FROM "ConnectedAccount" WHERE "id" = ${row.id} AND "companyId" = ${row.companyId} FOR UPDATE`;
+      if (before?.status === ConnectedAccountStatus.deleted) return null;
+      if (statusCheckedAt && before?.statusCheckedAt && before.statusCheckedAt > statusCheckedAt) return null;
+      const updated = await this.prisma.connectedAccount.update({
+        where: { id: row.id },
+        data,
+      });
+      await this.billingUsage.recordChannels(row.companyId, channelChange(row.id, before?.status, updated.status));
+      return updated;
     });
   }
 
   @BypassTenantGuard
   async markAccountSyncingUnscoped(args: RepoArgs<ClaimBackfillRepo, "markAccountSyncingUnscoped">) {
     await this.prisma.connectedAccount.updateMany({
-      where: { unipileAccountId: args.unipileAccountId },
+      where: { id: args.connectedAccountId },
       data: { syncing: args.syncing },
     });
   }
 
   @BypassTenantGuard
-  async claimBackfillUnscoped(unipileAccountId: string) {
+  async claimBackfillUnscoped(connectedAccountId: string) {
     const token = randomUUID();
     const staleBefore = new Date(Date.now() - BACKFILL_CLAIM_STALE_MS);
     const result = await this.prisma.connectedAccount.updateMany({
       where: {
-        unipileAccountId,
+        id: connectedAccountId,
         OR: [{ backfillClaimedAt: null }, { backfillClaimedAt: { lt: staleBefore } }],
       },
       data: { backfillClaimedAt: new Date(), backfillClaimToken: token },
@@ -251,9 +264,9 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean) {
+  async releaseBackfillClaimUnscoped(connectedAccountId: string, token: string, complete: boolean) {
     await this.prisma.connectedAccount.updateMany({
-      where: { unipileAccountId, backfillClaimToken: token },
+      where: { id: connectedAccountId, backfillClaimToken: token },
       data: {
         backfillClaimedAt: null,
         backfillClaimToken: null,
@@ -308,18 +321,42 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async findAccountByUnipileIdUnscoped(unipileAccountId: string) {
-    const row = await this.prisma.connectedAccount.findUnique({
-      where: { unipileAccountId },
+  async findAccountByUnipileIdUnscoped(unipileAccountId: string, connectedAccountId?: string) {
+    return this.prisma.connectedAccount.findFirst({
+      where: {
+        unipileAccountId,
+        ...(connectedAccountId ? { id: connectedAccountId } : {}),
+      },
+      orderBy: { createdAt: "asc" },
     });
-
-    return row;
   }
 
   @BypassTenantGuard
-  async findAccountByUnipileIdOrThrowUnscoped(unipileAccountId: string) {
-    return this.prisma.connectedAccount.findUniqueOrThrow({
+  async findAccountForCompanyByUnipileIdUnscoped(companyId: string, unipileAccountId: string) {
+    return this.prisma.connectedAccount.findUnique({
+      where: { companyId_unipileAccountId: { companyId, unipileAccountId } },
+    });
+  }
+
+  @BypassTenantGuard
+  async listAccountIdsByUnipileIdUnscoped(unipileAccountId: string) {
+    const rows = await this.prisma.connectedAccount.findMany({
       where: { unipileAccountId },
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
+  @BypassTenantGuard
+  async countOtherLiveAccountsForUnipileIdUnscoped(unipileAccountId: string, exceptId: string) {
+    return this.prisma.connectedAccount.count({
+      where: {
+        unipileAccountId,
+        id: { not: exceptId },
+        status: { not: ConnectedAccountStatus.deleted },
+      },
     });
   }
 

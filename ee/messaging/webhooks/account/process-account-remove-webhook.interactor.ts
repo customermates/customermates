@@ -10,6 +10,7 @@ import type { AccountWebhookRepo } from "./account-webhook.repo";
 const Schema = z.object({
   type: z.literal("account.remove"),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
 });
 type Payload = z.infer<typeof Schema>;
 
@@ -19,11 +20,15 @@ export class ProcessAccountRemoveWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     await this.accountRepo.updateAccountUnscoped({
       unipileAccountId: account.unipileAccountId,
+      connectedAccountId: account.id,
       status: ConnectedAccountStatus.deleted,
       syncing: false,
     });

@@ -19,6 +19,7 @@ import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 const Schema = z.object({
   type: z.enum(["email.new", "email.new.bounce"]),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: z.looseObject({ email: z.unknown().optional() }),
   receivedAt: z.date().optional(),
 });
@@ -42,7 +43,10 @@ export class ProcessEmailNewWebhookInteractor {
     }
     const email = parsedEmail.data;
 
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const message = buildEmailMessage(email, {

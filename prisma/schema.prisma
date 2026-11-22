@@ -1472,7 +1472,7 @@ model ConnectedAccount {
   company            Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId             String
   user               User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unipileAccountId   String                       @unique
+  unipileAccountId   String
   provider           MessagingProvider
   status             ConnectedAccountStatus       @default(connecting)
   connectionDetails  Json?
@@ -1506,6 +1506,8 @@ model ConnectedAccount {
   accountActivities  AccountActivity[]
   draftSends         MessagingDraftSend[]
 
+  @@unique([companyId, unipileAccountId])
+  @@index([unipileAccountId])
   @@index([companyId])
   @@index([userId])
   @@index([companyId, provider])

@@ -13,6 +13,7 @@ import { deriveAccountConnection } from "../../account-connection";
 const Schema = z.object({
   type: z.literal("account.initial_sync.completed"),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
 });
 type Payload = z.infer<typeof Schema>;
 
@@ -32,7 +33,10 @@ export class ProcessAccountReadyWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const checkedAt = new Date();
@@ -40,12 +44,13 @@ export class ProcessAccountReadyWebhookInteractor {
     const connection = deriveAccountConnection(snapshot, undefined, account.connectionDetails, checkedAt);
     const updated = await this.accountRepo.updateAccountUnscoped({
       unipileAccountId: account.unipileAccountId,
+      connectedAccountId: account.id,
       ...connection,
       syncing: !ACCOUNT_WIDE_FAILURES.has(connection.status),
     });
     const status =
       updated === null
-        ? (await this.accountRepo.findAccountByUnipileIdUnscoped(account.unipileAccountId))?.status
+        ? (await this.accountRepo.findAccountByUnipileIdUnscoped(account.unipileAccountId, account.id))?.status
         : connection.status;
     if (!status || status === ConnectedAccountStatus.deleted) return;
 
