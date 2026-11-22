@@ -97,7 +97,6 @@ async function failedSteps(steps: LifecycleStep[]): Promise<StepFailure[]> {
   });
 }
 
-// A Unipile timeout, outage or rate limit is retried by tomorrow's lifecycle run, so it is a warning, not an error.
 function isRetryableUpstreamFailure(error: unknown): boolean {
   return isUnipileTransientError(error) || isUnipileRateLimit(error);
 }
