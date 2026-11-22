@@ -4521,7 +4521,6 @@
       "setup": "Workspace",
       "template": "Vorlage"
     },
-    "next": "Weiter",
     "playbook": {
       "continue": "Dieses Playbook nutzen",
       "optionsLabel": "Playbooks",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Deine Antworten sind gespeichert. Mate macht daraus einen Plan für deinen Workspace, den du prüfst, bevor etwas angelegt wird.",
         "startSubtitle": "Wir legen deine Listen, Schritte, das Dashboard und ein paar Seiten der Wissensdatenbank an. Du kannst später alles ändern.",
-        "startTitle": "Wie möchtest du deinen Workspace einrichten?",
+        "startTitle": "Woraus soll Mate deinen Workspace aufbauen?",
         "subtitle": "Was wir auf deiner Website gelesen haben, ist schon ausgefüllt. Prüfe es und ändere, was nicht passt.",
         "title": "Richte deinen Workspace ein",
         "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, was du festhalten möchtest. Die meisten beantwortest du mit einem Klick."
@@ -4639,7 +4638,7 @@
       "browseAll": "Alle {count} Vorlagen ansehen",
       "connected": "{agent} verbunden",
       "connectedGeneric": "Agent verbunden",
-      "counts": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}} · {rules, plural, one {# Nachfass-Regel} other {# Nachfass-Regeln}}",
+      "counts": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}} · {rules, plural, one {# Automatisierung} other {# Automatisierungen}}",
       "countsNoRules": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}}",
       "empty": "Keine Vorlage passt zu deiner Suche.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Prompt kopieren",
     "countFields": "{count, plural, one {# Feld} other {# Felder}}",
     "countLists": "{count, plural, one {# Liste} other {# Listen}}",
-    "countRules": "{count, plural, one {# Folgeregel} other {# Folgeregeln}}",
+    "countRules": "{count, plural, one {# Automatisierung} other {# Automatisierungen}}",
     "countViews": "{count, plural, one {# Ansicht} other {# Ansichten}}",
     "countWidgets": "{count, plural, one {# Dashboard-Widget} other {# Dashboard-Widgets}}",
     "createsLead": "Listen, Felder, Phasen, Ansichten und Dashboard-Widgets, als Plan, den Ihr Agent vorschlägt. Sie können jeden Teil umbenennen oder weglassen.",

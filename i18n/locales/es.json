@@ -4521,7 +4521,6 @@
       "setup": "Espacio",
       "template": "Plantilla"
     },
-    "next": "Siguiente",
     "playbook": {
       "continue": "Usar este playbook",
       "optionsLabel": "Playbooks",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Tus respuestas están guardadas. Mate las convierte en un plan para tu espacio de trabajo que revisas antes de crear nada.",
         "startSubtitle": "Creamos tus listas, pasos, panel y algunas páginas de la base de conocimiento. Podrás cambiarlo todo más adelante.",
-        "startTitle": "¿Cómo quieres configurar tu espacio de trabajo?",
+        "startTitle": "¿A partir de qué debe crear Mate tu espacio de trabajo?",
         "subtitle": "Lo que leímos en tu sitio web ya está rellenado. Revísalo y cambia lo que no encaje.",
         "title": "Configura tu espacio de trabajo",
         "withoutWebsiteSubtitle": "Unas preguntas rápidas sobre lo que quieres seguir. La mayoría se responden con un clic."
@@ -4639,7 +4638,7 @@
       "browseAll": "Ver las {count} plantillas",
       "connected": "{agent} conectado",
       "connectedGeneric": "Agente conectado",
-      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}} · {rules, plural, one {# regla de seguimiento} other {# reglas de seguimiento}}",
+      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}} · {rules, plural, one {# automatización} other {# automatizaciones}}",
       "countsNoRules": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}}",
       "empty": "Ninguna plantilla coincide con tu búsqueda.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Copiar prompt",
     "countFields": "{count, plural, one {# campo} other {# campos}}",
     "countLists": "{count, plural, one {# lista} other {# listas}}",
-    "countRules": "{count, plural, one {# regla de seguimiento} other {# reglas de seguimiento}}",
+    "countRules": "{count, plural, one {# automatización} other {# automatizaciones}}",
     "countViews": "{count, plural, one {# vista} other {# vistas}}",
     "countWidgets": "{count, plural, one {# widget del panel} other {# widgets del panel}}",
     "createsLead": "Listas, campos, etapas, vistas y widgets del panel, como el plan que propone tu agente. Puedes renombrar o quitar cualquier parte.",

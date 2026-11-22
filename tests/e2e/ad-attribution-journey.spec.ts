@@ -97,13 +97,13 @@ async function signUp(database: Client, visitor: Visitor, workspaceName: string)
   await page.locator("#lastName").fill("Visitor");
   await page.locator("#workspaceName").fill(workspaceName);
   await page.locator("#agreeToTerms").click();
-  await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }));
+  await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }));
   await expect(page.locator("#onboarding-team-size-error")).toHaveText(
     englishMessages.OnboardingWizard.profile.teamSize.required,
   );
   await page.locator("#onboarding-team-size-small").click();
   await expect(page.locator("#onboarding-team-size-error")).toHaveCount(0);
-  await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }));
+  await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }));
   await expect
     .poll(async () => {
       const { rows } = await database.query<{ teamSize: string | null; signupCampaign: unknown }>(

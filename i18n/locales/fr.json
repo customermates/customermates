@@ -4521,7 +4521,6 @@
       "setup": "Espace",
       "template": "Modèle"
     },
-    "next": "Suivant",
     "playbook": {
       "continue": "Utiliser ce playbook",
       "optionsLabel": "Playbooks",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Vos réponses sont enregistrées. Mate en fait un plan pour votre espace de travail, que vous vérifiez avant que quoi que ce soit ne soit créé.",
         "startSubtitle": "Nous créons vos listes, vos étapes, votre tableau de bord et quelques pages de base de connaissances. Vous pourrez tout modifier plus tard.",
-        "startTitle": "Comment voulez-vous configurer votre espace de travail ?",
+        "startTitle": "À partir de quoi Mate doit-il créer votre espace de travail ?",
         "subtitle": "Ce que nous avons lu sur votre site est déjà rempli. Vérifiez-le et corrigez ce qui ne convient pas.",
         "title": "Configurez votre espace de travail",
         "withoutWebsiteSubtitle": "Quelques questions rapides sur ce que vous voulez suivre. La plupart se règlent en un clic."
@@ -4639,7 +4638,7 @@
       "browseAll": "Voir les {count} modèles",
       "connected": "{agent} connecté",
       "connectedGeneric": "Agent connecté",
-      "counts": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}} · {rules, plural, one {# règle de relance} other {# règles de relance}}",
+      "counts": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}} · {rules, plural, one {# automatisation} other {# automatisations}}",
       "countsNoRules": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}}",
       "empty": "Aucun modèle ne correspond à votre recherche.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Copier le prompt",
     "countFields": "{count, plural, one {# champ} other {# champs}}",
     "countLists": "{count, plural, one {# liste} other {# listes}}",
-    "countRules": "{count, plural, one {# règle de relance} other {# règles de relance}}",
+    "countRules": "{count, plural, one {# automatisation} other {# automatisations}}",
     "countViews": "{count, plural, one {# vue} other {# vues}}",
     "countWidgets": "{count, plural, one {# widget de tableau de bord} other {# widgets de tableau de bord}}",
     "createsLead": "Listes, champs, étapes, vues et widgets de tableau de bord, sous la forme du plan que votre agent propose. Vous pouvez renommer ou retirer chaque élément.",

@@ -404,7 +404,7 @@ const OnboardingWizardContent = observer(
               type="button"
               onClick={() => runUserAction(next)}
             >
-              {t("OnboardingWizard.next")}
+              {t("OnboardingWizard.continue")}
 
               <ArrowRight aria-hidden="true" className="size-4" />
             </Button>

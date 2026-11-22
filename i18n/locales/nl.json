@@ -4521,7 +4521,6 @@
       "setup": "Werkruimte",
       "template": "Sjabloon"
     },
-    "next": "Volgende",
     "playbook": {
       "continue": "Dit playbook gebruiken",
       "optionsLabel": "Playbooks",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Je antwoorden zijn opgeslagen. Mate maakt er een plan voor je werkruimte van dat je controleert voordat er iets wordt gebouwd.",
         "startSubtitle": "Wij bouwen je lijsten, stappen, dashboard en een paar kennisbankpagina's. Je kunt alles later wijzigen.",
-        "startTitle": "Hoe wil je je werkruimte inrichten?",
+        "startTitle": "Waarmee moet Mate je werkruimte opbouwen?",
         "subtitle": "Wat we op je website hebben gelezen is al ingevuld. Controleer het en pas aan wat niet klopt.",
         "title": "Je werkruimte inrichten",
         "withoutWebsiteSubtitle": "Een paar korte vragen over wat je wilt bijhouden. De meeste beantwoord je met één klik."
@@ -4639,7 +4638,7 @@
       "browseAll": "Alle {count} sjablonen bekijken",
       "connected": "{agent} verbonden",
       "connectedGeneric": "Agent verbonden",
-      "counts": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}} · {rules, plural, one {# opvolgregel} other {# opvolgregels}}",
+      "counts": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}} · {rules, plural, one {# automatisering} other {# automatiseringen}}",
       "countsNoRules": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}}",
       "empty": "Geen sjabloon past bij je zoekopdracht.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Prompt kopiëren",
     "countFields": "{count, plural, one {# veld} other {# velden}}",
     "countLists": "{count, plural, one {# lijst} other {# lijsten}}",
-    "countRules": "{count, plural, one {# opvolgregel} other {# opvolgregels}}",
+    "countRules": "{count, plural, one {# automatisering} other {# automatiseringen}}",
     "countViews": "{count, plural, one {# weergave} other {# weergaven}}",
     "countWidgets": "{count, plural, one {# dashboardwidget} other {# dashboardwidgets}}",
     "createsLead": "Lijsten, velden, fasen, weergaven en dashboardwidgets, als het plan dat je agent voorstelt. Je kunt elk onderdeel hernoemen of weglaten.",

@@ -202,7 +202,7 @@ test("starting with an empty workspace skips only the guided setup and continues
     [companyId],
   );
   expect(afterSetup).toEqual([{ wizard: null, setup: expect.any(Date) }]);
-  await page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }).click();
+  await page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }).click();
   await skipChannelStepInCloud(page);
   await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
   await page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }).click();
@@ -386,7 +386,7 @@ test("the quiet footer link starts an empty workspace without a template and ski
   await expect(page.getByRole("heading", { level: 1, name: steps.invite.title, exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: steps.invite.title, exact: true })).toBeVisible();
-  await page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }).click();
+  await page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }).click();
   await skipChannelStepInCloud(page);
   await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
   await page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }).click();

@@ -4521,7 +4521,6 @@
       "setup": "Espaço",
       "template": "Modelo"
     },
-    "next": "Próximo",
     "playbook": {
       "continue": "Usar este playbook",
       "optionsLabel": "Playbooks",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Suas respostas foram salvas. O Mate as transforma em um plano para o seu espaço de trabalho, que você revisa antes de qualquer coisa ser criada.",
         "startSubtitle": "Criamos suas listas, etapas, painel e algumas páginas da base de conhecimento. Você pode mudar tudo depois.",
-        "startTitle": "Como você quer configurar seu espaço de trabalho?",
+        "startTitle": "A partir do que o Mate deve criar seu espaço de trabalho?",
         "subtitle": "O que lemos no seu site já está preenchido. Confira e corrija o que estiver errado.",
         "title": "Configure seu espaço de trabalho",
         "withoutWebsiteSubtitle": "Algumas perguntas rápidas sobre o que você quer acompanhar. A maioria leva só um clique."
@@ -4639,7 +4638,7 @@
       "browseAll": "Ver todos os {count} modelos",
       "connected": "{agent} conectado",
       "connectedGeneric": "Agente conectado",
-      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# visualização} other {# visualizações}} · {rules, plural, one {# regra de acompanhamento} other {# regras de acompanhamento}}",
+      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# visualização} other {# visualizações}} · {rules, plural, one {# automação} other {# automações}}",
       "countsNoRules": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# visualização} other {# visualizações}}",
       "empty": "Nenhum modelo corresponde à sua busca.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Copiar prompt",
     "countFields": "{count, plural, one {# campo} other {# campos}}",
     "countLists": "{count, plural, one {# lista} other {# listas}}",
-    "countRules": "{count, plural, one {# regra de acompanhamento} other {# regras de acompanhamento}}",
+    "countRules": "{count, plural, one {# automação} other {# automações}}",
     "countViews": "{count, plural, one {# visualização} other {# visualizações}}",
     "countWidgets": "{count, plural, one {# widget do painel} other {# widgets do painel}}",
     "createsLead": "Listas, campos, etapas, visualizações e widgets do painel, como o plano que o seu agente propõe. Você pode renomear ou tirar qualquer parte.",

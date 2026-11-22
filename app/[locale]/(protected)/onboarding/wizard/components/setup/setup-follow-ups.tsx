@@ -57,7 +57,7 @@ export const SetupFollowUps = observer(function SetupFollowUps() {
         >
           {store.pending === "followUps" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
 
-          {t("OnboardingWizard.next")}
+          {t("OnboardingWizard.continue")}
         </Button>
       </div>
     </section>

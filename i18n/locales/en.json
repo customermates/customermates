@@ -4521,7 +4521,6 @@
       "setup": "Workspace",
       "template": "Template"
     },
-    "next": "Next",
     "playbook": {
       "continue": "Use this playbook",
       "optionsLabel": "Playbooks",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
         "startSubtitle": "We build your lists, steps, dashboard and a few Knowledge Base pages. You can change everything later.",
-        "startTitle": "How do you want to set up your workspace?",
+        "startTitle": "What should Mate build your workspace from?",
         "subtitle": "What we read on your website is already filled in. Check it and change anything that is off.",
         "title": "Set up your workspace",
         "withoutWebsiteSubtitle": "A few quick questions about what you want to keep track of. Most take one click."
@@ -4639,7 +4638,7 @@
       "browseAll": "Browse all {count} templates",
       "connected": "{agent} connected",
       "connectedGeneric": "Agent connected",
-      "counts": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}} · {rules, plural, one {# follow-up rule} other {# follow-up rules}}",
+      "counts": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}} · {rules, plural, one {# automation} other {# automations}}",
       "countsNoRules": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}}",
       "empty": "No template matches your search.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Copy prompt",
     "countFields": "{count, plural, one {# field} other {# fields}}",
     "countLists": "{count, plural, one {# list} other {# lists}}",
-    "countRules": "{count, plural, one {# follow-up rule} other {# follow-up rules}}",
+    "countRules": "{count, plural, one {# automation} other {# automations}}",
     "countViews": "{count, plural, one {# view} other {# views}}",
     "countWidgets": "{count, plural, one {# dashboard widget} other {# dashboard widgets}}",
     "createsLead": "Lists, fields, stages, views and dashboard widgets, as the plan your agent proposes. You can rename or drop any part.",

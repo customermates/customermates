@@ -4521,7 +4521,6 @@
       "setup": "Przestrzeń robocza",
       "template": "Szablon"
     },
-    "next": "Dalej",
     "playbook": {
       "continue": "Użyj tego playbooka",
       "optionsLabel": "Playbooki",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Twoje odpowiedzi są zapisane. Mate zamienia je w plan dla Twojej przestrzeni roboczej, który sprawdzasz, zanim cokolwiek zostanie zbudowane.",
         "startSubtitle": "Budujemy Twoje listy, kroki, pulpit i kilka stron bazy wiedzy. Wszystko możesz później zmienić.",
-        "startTitle": "Jak chcesz skonfigurować swoją przestrzeń roboczą?",
+        "startTitle": "Na podstawie czego Mate ma zbudować Twoją przestrzeń roboczą?",
         "subtitle": "To, co odczytaliśmy z Twojej strony, jest już wypełnione. Sprawdź to i popraw, co się nie zgadza.",
         "title": "Skonfiguruj swoją przestrzeń roboczą",
         "withoutWebsiteSubtitle": "Kilka szybkich pytań o to, czego chcesz pilnować. Większość wymaga jednego kliknięcia."
@@ -4639,7 +4638,7 @@
       "browseAll": "Pokaż wszystkie szablony ({count})",
       "connected": "{agent}: połączono",
       "connectedGeneric": "Agent połączony",
-      "counts": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}} · {rules, plural, one {# reguła follow-upu} few {# reguły follow-upu} many {# reguł follow-upu} other {# reguły follow-upu}}",
+      "counts": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}} · {rules, plural, one {# automatyzacja} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}",
       "countsNoRules": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}}",
       "empty": "Żaden szablon nie pasuje do wyszukiwania.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Kopiuj prompt",
     "countFields": "{count, plural, one {# pole} few {# pola} many {# pól} other {# pola}}",
     "countLists": "{count, plural, one {# lista} few {# listy} many {# list} other {# listy}}",
-    "countRules": "{count, plural, one {# reguła kontaktu} few {# reguły kontaktu} many {# reguł kontaktu} other {# reguły kontaktu}}",
+    "countRules": "{count, plural, one {# automatyzacja} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}",
     "countViews": "{count, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}}",
     "countWidgets": "{count, plural, one {# widżet pulpitu} few {# widżety pulpitu} many {# widżetów pulpitu} other {# widżetu pulpitu}}",
     "createsLead": "Listy, pola, etapy, widoki i widżety pulpitu, jako plan, który proponuje Twój agent. Każdą część możesz zmienić lub pominąć.",

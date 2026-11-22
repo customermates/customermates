@@ -4521,7 +4521,6 @@
       "setup": "Spazio di lavoro",
       "template": "Modello"
     },
-    "next": "Avanti",
     "playbook": {
       "continue": "Usa questo playbook",
       "optionsLabel": "Playbook",
@@ -4620,7 +4619,7 @@
       "setup": {
         "planningSubtitle": "Le tue risposte sono salvate. Mate le trasforma in un piano per il tuo spazio di lavoro, che controlli prima che venga creato qualcosa.",
         "startSubtitle": "Creiamo le tue liste, i passaggi, la dashboard e alcune pagine della knowledge base. Potrai cambiare tutto in seguito.",
-        "startTitle": "Come vuoi configurare il tuo spazio di lavoro?",
+        "startTitle": "Da cosa deve partire Mate per creare il tuo spazio di lavoro?",
         "subtitle": "Quello che abbiamo letto sul tuo sito è già compilato. Controllalo e cambia ciò che non va.",
         "title": "Configura il tuo spazio di lavoro",
         "withoutWebsiteSubtitle": "Alcune domande rapide su cosa vuoi tenere sotto controllo. Quasi tutte richiedono un solo clic."
@@ -4639,7 +4638,7 @@
       "browseAll": "Mostra tutti i {count} modelli",
       "connected": "{agent} connesso",
       "connectedGeneric": "Agente connesso",
-      "counts": "{lists, plural, one {# lista} other {# liste}} · {views, plural, one {# vista} other {# viste}} · {rules, plural, one {# regola di sollecito} other {# regole di sollecito}}",
+      "counts": "{lists, plural, one {# lista} other {# liste}} · {views, plural, one {# vista} other {# viste}} · {rules, plural, one {# automazione} other {# automazioni}}",
       "countsNoRules": "{lists, plural, one {# lista} other {# liste}} · {views, plural, one {# vista} other {# viste}}",
       "empty": "Nessun modello corrisponde alla ricerca.",
       "families": {
@@ -6655,7 +6654,7 @@
     "copyPrompt": "Copia il prompt",
     "countFields": "{count, plural, one {# campo} other {# campi}}",
     "countLists": "{count, plural, one {# elenco} other {# elenchi}}",
-    "countRules": "{count, plural, one {# regola di follow-up} other {# regole di follow-up}}",
+    "countRules": "{count, plural, one {# automazione} other {# automazioni}}",
     "countViews": "{count, plural, one {# vista} other {# viste}}",
     "countWidgets": "{count, plural, one {# widget della dashboard} other {# widget della dashboard}}",
     "createsLead": "Elenchi, campi, fasi, viste e widget della dashboard, nella forma del piano che il tuo agente propone. Puoi rinominare o togliere ogni parte.",
