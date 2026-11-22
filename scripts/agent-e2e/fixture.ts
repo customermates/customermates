@@ -56,7 +56,6 @@ export type Fixture = {
   userId: string;
   cookie: string;
   stageColumnId: string;
-  phoneColumnId: string;
   stageOptionIds: Record<Stage, string>;
   contactIds: Record<string, string>;
   dealIds: Record<string, string>;
@@ -81,7 +80,6 @@ export async function seedAgentE2eFixture(
   const userId = randomUUID();
   const roleId = randomUUID();
   const stageColumnId = randomUUID();
-  const phoneColumnId = randomUUID();
   const stageOptionIds = Object.fromEntries(STAGES.map((stage) => [stage, randomUUID()])) as Record<Stage, string>;
   const organizationIds = SEEDED_ORGANIZATIONS.map(() => randomUUID());
   const contactIds = Object.fromEntries(SEEDED_CONTACTS.map((contact) => [contact.key, randomUUID()]));
@@ -149,14 +147,6 @@ export async function seedAgentE2eFixture(
             })),
           },
         },
-        {
-          id: phoneColumnId,
-          companyId,
-          entityType: "contact",
-          label: "Phone",
-          type: "phone",
-          options: { allowMultiple: false, color: "secondary" },
-        },
       ],
     });
     await writer.organization.createMany({
@@ -221,7 +211,6 @@ export async function seedAgentE2eFixture(
     userId,
     cookie: sessionCookie(token, args.authSecret),
     stageColumnId,
-    phoneColumnId,
     stageOptionIds,
     contactIds,
     dealIds,
