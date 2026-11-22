@@ -21,7 +21,7 @@ import { env } from "@/env";
 
 import { fail } from "@/core/validation/interactor-failure-server";
 import { retryAfterPhrase } from "../retry-after.server";
-import { unipileErrorCode } from "../messaging.service";
+import { isUnipileTransientError, unipileErrorCode } from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 import { signHostedAuthState } from "../webhook-signature";
 import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS, ONBOARDING_CHANNEL_RETURN_PARAM } from "./connect-channels";
@@ -89,7 +89,10 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     } catch (err) {
       if (!(err instanceof UnipileRequestError)) throw err;
 
-      ErrorReporter.captureException(err, { tags: { kind: "unipile-auth-link" } });
+      ErrorReporter.captureException(err, {
+        ...(isUnipileTransientError(err) && { level: "warning" as const }),
+        tags: { kind: "unipile-auth-link" },
+      });
       return fail(unipileErrorCode(err), [], { retryAfter: await retryAfterPhrase(err.retryAfterSeconds) });
     }
 

@@ -93,6 +93,27 @@ describe("CreateAuthLinkInteractor", () => {
     expect(result.ok).toBe(false);
     expect(result.error.issues[0].message).toBe("unipileAccountRestricted");
     expect(ErrorReporter.captureException).toHaveBeenCalledWith(refusal, expect.anything());
+    expect(ErrorReporter.captureException).not.toHaveBeenCalledWith(
+      refusal,
+      expect.objectContaining({ level: "warning" }),
+    );
+  });
+
+  it.each([
+    ["a timeout without an answer", new UnipileRequestError(0, null, "")],
+    ["a 503", new UnipileRequestError(503, null, "")],
+  ])("reports %s from the provider as a warning and asks the user to retry", async (_label, transient) => {
+    const repo = makeRepo({ status: "active", trialEndDate: null, plan: "pro", activeAccountsForUser: 0 });
+    const { interactor, messagingService } = makeInteractor(repo);
+    messagingService.createAuthLink.mockRejectedValueOnce(transient);
+
+    const result: any = await interactor.invoke({ channel: "google", returnTo: "onboarding" });
+
+    expect(result.ok).toBe(false);
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(
+      transient,
+      expect.objectContaining({ level: "warning", tags: { kind: "unipile-auth-link" } }),
+    );
   });
 
   it("lets a pro plan under its included cap proceed", async () => {
