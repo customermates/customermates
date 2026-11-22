@@ -27,7 +27,7 @@ pricing:
     features:
       - "[[commercial.limit.free.fileStorageBytes]] bestandsopslag per werkruimte"
       - "API en MCP met [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag"
-      - "Geen inbox, Mate, routines, webhooks of n8n-triggers"
+      - "Geen inbox, Mate, geplande automatiseringen, webhooks of n8n-triggers"
   - plan: starter
     title: Starter
     description: "Je CRM en je eigen AI"
@@ -39,7 +39,7 @@ pricing:
       - Contactpersonen, organisaties, deals en taken
       - "Koppel je eigen AI via MCP: Claude, ChatGPT of Gemini"
       - REST API, webhooks en je eigen n8n
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker: Mate werkt op een schema of wanneer een record verandert"
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] geplande automatisering per gebruiker: Mate werkt op een schema of wanneer een record verandert"
       - "Mate-gebruik: 1x per actieve gebruiker, het basistegoed"
     missingFeatures:
       - Gecombineerde inbox voor LinkedIn en e-mail
@@ -58,7 +58,7 @@ pricing:
       - Mate schrijft antwoorden op basis van je playbook, die jij nakijkt en verstuurt
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker inbegrepen"
       - Deel losse threads met teamgenoten
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker: Mate werkt op een schema of wanneer een record verandert"
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] geplande automatiseringen per gebruiker: Mate werkt op een schema of wanneer een record verandert"
       - Afspraken plannen, boekingspagina's en LinkedIn Sales Navigator
       - "Mate-gebruik: 3x Starter per actieve gebruiker"
       - Alles uit Starter
@@ -74,7 +74,7 @@ pricing:
       - Alles uit Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] gekoppelde accounts per gebruiker inbegrepen"
       - "Delen van hele accounts: deel een gekoppeld account met het team"
-      - "Routines per gebruiker: [[commercial.entitlement.business.includedRoutinesPerUser]] (redelijk gebruik)"
+      - "Geplande automatiseringen per gebruiker: [[commercial.entitlement.business.includedRoutinesPerUser]] (redelijk gebruik)"
       - Prioritaire support
       - "Mate-gebruik: 10x Starter per actieve gebruiker, het meeste gebruik per euro"
   - plan: max
@@ -185,7 +185,7 @@ comparison:
         enterprise: true
   - title: CRM-kern
     rows:
-      - label: Routines per gebruiker
+      - label: Geplande automatiseringen per gebruiker
         catalogFact: includedRoutinesPerUser
       - label: Actieve automatiseringen
         catalogFact: activeAutomationRules
@@ -320,16 +320,16 @@ faq:
     content: "Ja. Eén login kan bij meerdere volledig gescheiden werkruimtes horen, bijvoorbeeld een voor sales en een voor de boekhouding, en daartussen wisselen. Elke werkruimte heeft een eigen abonnement en eigen facturen, en plekken tellen per werkruimte: iemand die in twee werkruimtes actief is, is in beide een betaalde plek. De eerste werkruimte die je aanmaakt bevat de gratis proefperiode van [[commercial.trial.days]] dagen; elke extra werkruimte begint met het kiezen van een abonnement. Een zelf gehoste instantie draait een willekeurig aantal werkruimtes zonder facturatie."
   - id: pricing-faq-10
     title: Wat krijg ik als ik zelf host?
-    content: "Een zelf gehoste instantie heeft altijd de functies van Starter: CRM-kern, MCP, REST API, webhooks en de n8n-interfaces, zonder facturatie. De gecombineerde inbox, Mate, routines en AI-setup draaien alleen op Customermates Cloud. MCP met je eigen AI-client werkt op een zelf gehoste instantie, en die client gebruikt je eigen AI-aanbieder."
+    content: "Een zelf gehoste instantie heeft altijd de functies van Starter: CRM-kern, MCP, REST API, webhooks en de n8n-interfaces, zonder facturatie. De gecombineerde inbox, Mate, geplande automatiseringen en AI-setup draaien alleen op Customermates Cloud. MCP met je eigen AI-client werkt op een zelf gehoste instantie, en die client gebruikt je eigen AI-aanbieder."
   - id: pricing-faq-11
     title: Waar staan mijn gegevens en de inloggegevens van gekoppelde accounts?
     content: "De clouddatabase draait in AWS Frankfurt, en gekoppelde accounts loggen in via de gehoste flow van Unipile, dus Customermates ontvangt nooit wachtwoorden of OAuth-tokens van aanbieders. Het volledige antwoord staat in de documentatie: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
   - id: pricing-faq-12
     title: "Wat is het Free-abonnement?"
-    content: "Je eerste Cloud-werkruimte begint met de Pro-proefperiode van [[commercial.trial.days]] dagen, zonder creditcard; elke volgende werkruimte begint met het kiezen van een abonnement. Als de proefperiode eindigt zonder betaald abonnement, gaat de werkruimte over naar Free in plaats van te worden vergrendeld, en er wordt niets verwijderd. Free is om Customermates alleen uit te proberen: [[commercial.limit.free.maxMembers]] persoon, maximaal [[commercial.limit.free.maxRecords]] records en [[commercial.limit.free.fileStorageBytes]] bestandsopslag per werkruimte. Het heeft geen inbox of gekoppelde accounts, geen Mate, geen routines, geen webhooks en geen n8n-trigger. De REST API en MCP zijn inbegrepen met maximaal [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag per werkruimte, zodat je je eigen Claude of ChatGPT kunt meenemen. Records en bestanden boven een limiet blijven staan; alleen meer toevoegen wordt geweigerd. Je kunt op elk moment overstappen op een betaald abonnement. Een zelf gehoste instantie blijft gratis zonder deze limieten."
+    content: "Je eerste Cloud-werkruimte begint met de Pro-proefperiode van [[commercial.trial.days]] dagen, zonder creditcard; elke volgende werkruimte begint met het kiezen van een abonnement. Als de proefperiode eindigt zonder betaald abonnement, gaat de werkruimte over naar Free in plaats van te worden vergrendeld, en er wordt niets verwijderd. Free is om Customermates alleen uit te proberen: [[commercial.limit.free.maxMembers]] persoon, maximaal [[commercial.limit.free.maxRecords]] records en [[commercial.limit.free.fileStorageBytes]] bestandsopslag per werkruimte. Het heeft geen inbox of gekoppelde accounts, geen Mate, geen geplande automatiseringen, geen webhooks en geen n8n-trigger. De REST API en MCP zijn inbegrepen met maximaal [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag per werkruimte, zodat je je eigen Claude of ChatGPT kunt meenemen. Records en bestanden boven een limiet blijven staan; alleen meer toevoegen wordt geweigerd. Je kunt op elk moment overstappen op een betaald abonnement. Een zelf gehoste instantie blijft gratis zonder deze limieten."
   - id: pricing-faq-13
     title: "Wat gebeurt er met mijn team als een werkruimte overgaat naar Free?"
-    content: "Free houdt [[commercial.limit.free.maxMembers]] actieve persoon per werkruimte: degene die de werkruimte heeft aangemaakt, of anders de eerste beheerder. Alle anderen worden gepauzeerd, niet verwijderd. Gepauzeerde mensen kunnen de werkruimte niet openen, en hun records, notities en geschiedenis blijven bestaan. Openstaande uitnodigingen en verzoeken om lid te worden worden geannuleerd, routines worden gepauzeerd, automatiseringen boven de Free-limiet van [[commercial.entitlement.free.activeAutomationRules]] worden uitgezet, openbare formulieren nemen boven de maandlimiet van [[commercial.entitlement.free.formSubmissionsPerMonth]] geen inzendingen meer aan en bestaande webhooks stoppen met verzenden. Een beheerder kan de actieve plek aan een andere beheerder overdragen. Zodra de werkruimte een betaald abonnement kiest, komt iedere gepauzeerde persoon automatisch terug en telt weer als betaalde plek, en routines, automatiseringen, formulieren en webhooks hervatten."
+    content: "Free houdt [[commercial.limit.free.maxMembers]] actieve persoon per werkruimte: degene die de werkruimte heeft aangemaakt, of anders de eerste beheerder. Alle anderen worden gepauzeerd, niet verwijderd. Gepauzeerde mensen kunnen de werkruimte niet openen, en hun records, notities en geschiedenis blijven bestaan. Openstaande uitnodigingen en verzoeken om lid te worden worden geannuleerd, geplande automatiseringen worden gepauzeerd, andere automatiseringen boven de Free-limiet van [[commercial.entitlement.free.activeAutomationRules]] worden uitgezet, openbare formulieren nemen boven de maandlimiet van [[commercial.entitlement.free.formSubmissionsPerMonth]] geen inzendingen meer aan en bestaande webhooks stoppen met verzenden. Een beheerder kan de actieve plek aan een andere beheerder overdragen. Zodra de werkruimte een betaald abonnement kiest, komt iedere gepauzeerde persoon automatisch terug en telt weer als betaalde plek, en alle automatiseringen, formulieren en webhooks hervatten."
   - id: pricing-faq-14
     title: "Hoe controleren jullie het gebruik van een zelf gehoste instantie?"
     content: "Dat doen we niet. Een zelf gehoste Community Edition heeft geen licentiesleutel en meldt geen gebruik aan Customermates: het gepubliceerde image heeft geen licentie-ping en zet de telemetrie van Next.js en Prisma uit, en fouten van de app blijven in je eigen logs. De licentie geldt door haar voorwaarden, niet door telemetrie: de Sustainable Use License beperkt het gebruik tot je eigen bedrijf, en Enterprise-functies, insluiten en white-label vragen een overeenkomst. Een Cloud-abonnement ontgrendelt niets op een zelf gehoste instantie. Meer: https://customermates.com/docs/licence-faq en https://customermates.com/docs/compare-editions"

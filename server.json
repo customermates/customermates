@@ -7,13 +7,13 @@
         "documentation": "https://customermates.com/en/docs/mcp",
         "methods": ["OAuth", "API key"]
       },
-      "licensing": "First-party files outside ee/ are AGPL-3.0-only; files under ee/ use the Customermates Commercial License (see LICENSING.md in the repository).",
+      "licensing": "First-party files outside ee/ are source-available under the Sustainable Use License 1.0; files under ee/ use the Customermates Enterprise License 1.1 (see LICENSING.md in the repository).",
       "selfHosting": "https://customermates.com/en/docs/self-hosting",
       "serverCard": "https://customermates.com/.well-known/mcp/server-card.json",
-      "versionBasis": "Registry entry 1.1.1 adds the icon to entry 1.1.0; the managed remote endpoint reports MCP Implementation.version from package.json and is updated independently."
+      "versionBasis": "Registry entry 1.1.2 follows entry 1.1.0 with the icon and the current description and licensing texts; the managed remote endpoint reports MCP Implementation.version from package.json and is updated independently."
     }
   },
-  "description": "Open-source CRM: Claude, ChatGPT or any MCP client works with records, inbox and company knowledge.",
+  "description": "CRM: Claude, ChatGPT or any MCP client works with records, inbox and company knowledge.",
   "icons": [
     {
       "mimeType": "image/png",
@@ -40,6 +40,6 @@
     "url": "https://github.com/customermates/customermates"
   },
   "title": "Customermates",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "websiteUrl": "https://customermates.com/en/docs/mcp"
 }

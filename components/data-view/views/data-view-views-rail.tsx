@@ -5,7 +5,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
-import { ChevronDownIcon, Globe, Sparkles, Users } from "lucide-react";
+import { ChevronDownIcon, Globe, Users } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -25,9 +25,10 @@ import {
 import { FormSaveMenuItem } from "@/components/forms/form-footer-actions";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ALL_VIEW_KEY, SURFACE, recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
+import { MateOrb } from "@/components/mate/mate-orb";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -459,7 +460,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                   pendingOverlay.current = ai.openCurrent;
                 }}
               >
-                <Sparkles aria-hidden />
+                <MateOrb />
 
                 {t("DataView.views.askAi")}
               </DropdownMenuItem>
@@ -499,7 +500,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
       {shareTarget && (
         <ShareViewDialog
-          formTypeId={surfaceKind === "list" && store.p13nId ? recordSurfaceTypeId(store.p13nId) : null}
           kind={surfaceKind}
           link={shareTarget.link}
           view={store.views.find((view) => view.id === shareTarget.viewId) ?? null}

@@ -105,6 +105,7 @@ function structure(content: SolutionContent) {
     })),
     webhooks: (content.webhooks ?? []).map((hook) => ({ ...hook, description: null, url: null })),
     apiKeys: (content.apiKeys ?? []).map((key) => key.createdDaysAgo),
+    agentApps: (content.agentApps ?? []).map((app) => [app.slug, app.connectedDaysAgo]),
     files: (content.files ?? []).map((file) => [
       file.key,
       file.record,

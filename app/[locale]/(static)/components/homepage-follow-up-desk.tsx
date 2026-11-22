@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { MateOrb } from "@/components/mate/mate-orb";
 import type { HomepageDesk } from "@/core/fumadocs/schemas/homepage";
 
 import { CheckCircle2, CornerDownRight } from "lucide-react";
@@ -6,8 +7,6 @@ import { CheckCircle2, CornerDownRight } from "lucide-react";
 import { Linkedin } from "@/components/icons/channel-icon";
 
 import { InView } from "@/components/marketing/in-view";
-
-import { HomepageMateLogo } from "./homepage-mate-logo";
 
 type Props = {
   desk: HomepageDesk;
@@ -54,7 +53,7 @@ export function HomepageFollowUpDesk({ desk }: Props) {
 
             <div className="homepage-desk-draft desk-reveal" style={delay(1)}>
               <p className="homepage-desk-draft-badge">
-                <HomepageMateLogo className="size-4 rounded-[4px]" />
+                <MateOrb className="size-4" />
 
                 <span className="relative">
                   <span className="desk-intent-working inline-flex items-center gap-1.5">
@@ -102,7 +101,7 @@ export function HomepageFollowUpDesk({ desk }: Props) {
               </span>
 
               <span className="homepage-desk-added-tag">
-                <HomepageMateLogo className="size-3 rounded-[3px]" />
+                <MateOrb className="size-3" />
 
                 {today.addedBy}
               </span>

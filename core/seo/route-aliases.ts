@@ -179,8 +179,8 @@ const RETIRED_APP_ROUTE_ALIASES = {
   "/company/subscription": "/settings/billing",
   "/company/webhook-deliveries": "/settings/webhook-deliveries",
   "/company/webhooks": "/settings/webhooks",
-  "/profile/api-keys": "/settings/api-keys",
-  "/profile/connected-accounts": "/settings/channels",
+  "/profile/api-keys": "/settings/connections",
+  "/profile/connected-accounts": "/settings/connections",
   "/profile/settings": "/settings/profile",
 } as const satisfies Record<string, string>;
 

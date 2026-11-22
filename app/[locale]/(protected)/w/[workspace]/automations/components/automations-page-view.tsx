@@ -10,7 +10,7 @@ import type { WebhookOption } from "./automation-webhook-options";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
 import type { FocusKind } from "@/components/focus/focus-href";
 
-import { History, Pause, Play, Plus, Repeat } from "lucide-react";
+import { History, Pause, Play, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -27,7 +27,6 @@ import { useFocusTarget } from "@/components/focus/focus-target";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Action, Resource } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -37,7 +36,10 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { deleteAutomationRuleAction, getAutomationRoutineAction } from "../actions";
 import { AutomationBuilderModal } from "./automation-builder-modal";
+import { AutomationCreatePalette } from "./automation-create-palette";
+import { AutomationCreatePaletteStore } from "./automation-create-palette.store";
 import { openFocusedRoutine } from "./automation-focus";
+import { agentPromptOf, draftWithAgentStep } from "./automation-start-handoff";
 import { showsRoutinesOnly } from "./automation-kind-filter";
 import { type AutomationsPrefill, prefillOpening } from "./automation-prefill";
 import {
@@ -66,7 +68,7 @@ type Props = {
 const FOCUS_KINDS: FocusKind[] = ["routine"];
 
 const columnStyle = (columnId: string) =>
-  columnId === "name" ? { emphasis: true, flexible: true } : columnId === "sentence" ? { flexible: true } : undefined;
+  columnId === "name" ? { emphasis: true, flexible: true } : columnId === "starts" ? { flexible: true } : undefined;
 
 const AutomationsPageViewContent = observer(function AutomationsPageView({
   initial,
@@ -83,6 +85,7 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   const { showConfirmation, showTrashConfirmation } = useDeleteConfirmation();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const prefillApplied = useRef(false);
+  const [createPalette] = useState(() => new AutomationCreatePaletteStore(automationBuilderStore));
 
   useDataViewSync(automationsStore, initial);
 
@@ -101,22 +104,46 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   const refreshAfterSave = useCallback(() => runUserAction(refresh), [refresh]);
 
   const openNew = useCallback(
-    (typeId?: string) => automationBuilderStore.openForCreate(context(), refreshAfterSave, { typeId }),
-    [automationBuilderStore, context, refreshAfterSave],
+    (typeId?: string) => createPalette.open({ context: context(), onSaved: refreshAfterSave, typeId }),
+    [context, createPalette, refreshAfterSave],
   );
 
   const canCreate = automationsStore.canCreate;
+
+  useEffect(() => {
+    automationBuilderStore.setScheduleHandoff(
+      canCreateRoutine
+        ? (draft) =>
+            runUserAction(() =>
+              routineModalStore.openForCreate({ name: draft.name.trim() || undefined, prompt: agentPromptOf(draft) }),
+            )
+        : null,
+    );
+    routineModalStore.setEventHandoff(
+      canCreate
+        ? (seed) =>
+            automationBuilderStore.openForCreate(context(), refreshAfterSave, {
+              draft: draftWithAgentStep(context(), seed),
+            })
+        : null,
+    );
+    return () => {
+      automationBuilderStore.setScheduleHandoff(null);
+      routineModalStore.setEventHandoff(null);
+    };
+  }, [automationBuilderStore, canCreate, canCreateRoutine, context, refreshAfterSave, routineModalStore]);
 
   useEffect(() => {
     if (!prefill || prefillApplied.current) return;
     prefillApplied.current = true;
     const ctx = context();
     const opening = prefillOpening(prefill, { canCreate, model: ctx.model, timezone: ctx.timezone });
-    if (opening) automationBuilderStore.openForCreate(ctx, refreshAfterSave, opening);
-  }, [automationBuilderStore, canCreate, context, prefill, refreshAfterSave]);
+    if (opening?.draft) automationBuilderStore.openForCreate(ctx, refreshAfterSave, opening);
+    else if (opening) createPalette.open({ context: ctx, onSaved: refreshAfterSave, typeId: opening.typeId });
+  }, [automationBuilderStore, canCreate, context, createPalette, prefill, refreshAfterSave]);
 
   const openItem = useCallback(
-    (item: AutomationListItemDto, pane: "preview" | "runs" = "preview") => {
+    (item: AutomationListItemDto, pane?: "runs") => {
       if (item.rule) {
         automationBuilderStore.openForRule(context(), item.rule, refreshAfterSave, { pane });
         return;
@@ -241,7 +268,6 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
 
   const onRoutineRecipe = useCallback(
     (recipe: AutomationRecipe, text: { title: string; prompt: string }) => {
-      automationBuilderStore.close();
       runUserAction(() =>
         routineModalStore.openForCreate({
           name: text.title,
@@ -250,41 +276,20 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
         }),
       );
     },
-    [automationBuilderStore, routineModalStore],
-  );
-
-  const addMenu = useMemo(
-    () =>
-      canCreateRoutine ? (
-        <>
-          <DropdownMenuItem onSelect={() => openNew()}>
-            <Plus className="size-4" />
-
-            {t("Automations.new.automation")}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onSelect={() => runUserAction(() => routineModalStore.openForCreate())}>
-            <Repeat className="size-4" />
-
-            {t("Automations.new.routine")}
-          </DropdownMenuItem>
-        </>
-      ) : undefined,
-    [canCreateRoutine, openNew, routineModalStore, t],
+    [routineModalStore],
   );
 
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
         addLabel={t("AutomationRules.new")}
-        addMenu={addMenu}
         anchorScope="automations"
         searchLabel={t("Common.filters.searchFields.routines")}
         store={automationsStore}
         onAdd={() => openNew()}
       />
     ),
-    [addMenu, automationsStore, openNew, t],
+    [automationsStore, openNew, t],
   );
   useSetTopBarActions(topBarNode);
 
@@ -389,7 +394,9 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
         {body}
       </DataViewLayout>
 
-      <AutomationBuilderModal store={automationBuilderStore} onRoutineRecipe={onRoutineRecipe} />
+      <AutomationCreatePalette store={createPalette} onRoutineRecipe={onRoutineRecipe} />
+
+      <AutomationBuilderModal store={automationBuilderStore} />
     </>
   );
 });

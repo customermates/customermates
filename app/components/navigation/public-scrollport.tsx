@@ -13,6 +13,7 @@ type Props = {
   accountState: AccountState;
   appMode: AppMode;
   children: React.ReactNode;
+  githubStars?: number | null;
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
@@ -24,6 +25,7 @@ export function PublicScrollport({
   accountState,
   appMode,
   children,
+  githubStars,
   hasValidSession,
   onboardingIntent,
   onSignedOut,
@@ -47,6 +49,7 @@ export function PublicScrollport({
         <PublicNavbar
           accountState={accountState}
           appMode={appMode}
+          githubStars={githubStars}
           hasValidSession={hasValidSession}
           onboardingIntent={onboardingIntent}
           profile={profile}

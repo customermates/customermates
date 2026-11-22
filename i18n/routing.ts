@@ -119,6 +119,7 @@ export const PROTECTED_ROUTES = [
   "/w/:workspace/settings/billing",
   "/w/:workspace/settings/booking",
   "/w/:workspace/settings/channels",
+  "/w/:workspace/settings/connections",
   "/w/:workspace/settings/general",
   "/w/:workspace/settings/incoming-webhooks",
   "/w/:workspace/settings/members",

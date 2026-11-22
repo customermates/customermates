@@ -6,7 +6,7 @@ import type { ListGroup } from "./command-palette/command-palette-search";
 import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./command-palette/palette-entries";
 import type { ReactNode } from "react";
 
-import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles, WandSparkles } from "lucide-react";
+import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, WandSparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -32,6 +32,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { connectedChannels } from "@/components/keyboard/connect-intent";
 import { workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { cn } from "@/core/utils/cn";
+import { MateOrb } from "@/components/mate/mate-orb";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/use-record-deletion";
 import {
@@ -580,7 +581,7 @@ export const GlobalSearchModal = observer(() => {
         {showAskMate && (
           <CommandGroup>
             <CommandItem value="palette-ask-mate" onSelect={askMate}>
-              <Sparkles className="size-4 shrink-0 text-muted-foreground" />
+              <MateOrb />
 
               <span className="min-w-0 flex-1 truncate">
                 {query ? t("GlobalSearch.askMateWith", { question: query }) : t("AgentChat.askAi")}

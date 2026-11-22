@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 
 import { Play } from "lucide-react";
 
+import { AiBadge } from "./ai-badge";
+import { HeroParticleField } from "./hero-particle-field";
 import { SourceBadge } from "./source-badge";
 import { MarketingButton } from "./marketing-button";
 import { MarketingContainer } from "./marketing-container";
@@ -20,6 +22,7 @@ type Props = {
   primary?: Action;
   secondary?: Action & { play?: boolean };
   showOpenSourceBadge?: boolean;
+  sourceBadge?: boolean;
   title: string;
   titleAccent?: string;
 };
@@ -32,6 +35,7 @@ export function MarketingHero({
   primary,
   secondary,
   showOpenSourceBadge = true,
+  sourceBadge = false,
   title,
   titleAccent,
 }: Props) {
@@ -39,15 +43,21 @@ export function MarketingHero({
     <section className="mk-hero-section relative isolate w-full" data-marketing-hero="">
       <div aria-hidden className="mk-hero-light" data-extend={children ? "" : undefined} />
 
+      <HeroParticleField />
+
       <MarketingContainer className="relative pt-14 pb-10 sm:pt-20 sm:pb-12 lg:pt-24">
         <div className="mk-enter mx-auto flex max-w-[60rem] flex-col items-center text-center">
-          {eyebrow ? (
-            <p className="mk-eyebrow">{eyebrow}</p>
-          ) : showOpenSourceBadge ? (
+          {sourceBadge ? (
             <SourceBadge className="mk-hero-chip" />
+          ) : eyebrow ? (
+            <p className="homepage-hero-badge" data-plain="">
+              {eyebrow}
+            </p>
+          ) : showOpenSourceBadge ? (
+            <AiBadge className="mk-hero-chip mb-[24px]" />
           ) : null}
 
-          <h1 className="mk-hero mt-4">
+          <h1 className={eyebrow && !sourceBadge ? "mk-hero mt-6" : "mk-hero mt-4"}>
             {titleAccent ? (
               <>
                 {`${title} `}
@@ -87,7 +97,7 @@ export function MarketingHero({
             </div>
           ) : null}
 
-          {footnotes ? <div className="mt-7 grid gap-1 text-sm">{footnotes}</div> : null}
+          {footnotes ? <div className="mk-hero-footnotes mt-5 grid gap-1">{footnotes}</div> : null}
         </div>
 
         {children}

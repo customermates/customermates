@@ -79,7 +79,9 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<LocaleMenu/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
-    expect(navbar).toContain('className="hidden items-center gap-2 justify-self-end xl:flex"');
+    // Language, theme, GitHub, Login and the trial button sit in one evenly spaced row.
+    expect(navbar).toContain('className="hidden items-center gap-1 justify-self-end xl:flex"');
+    expect(navbar).toContain('className="flex items-center gap-1 [[data-session-hint]_&]:hidden"');
     expect(navbar).toContain('className="col-span-3 flex w-full items-center justify-between xl:hidden"');
     expect(navbar).toContain('<MarketingContainer className="flex flex-col gap-3 py-4">');
     expect(navbar).not.toContain("border-y");
@@ -359,7 +361,8 @@ describe("public navigation preferences", () => {
     );
     expect(menu, "a modified click must still open a new tab").toContain("event.metaKey");
     expect(menu, "the unsaved-changes guard still owns same-tab navigation").toContain("navigationGuard.tryNavigate");
-    expect(menu, "the trigger shows the locale it is currently on").toContain("currentLocale.toUpperCase()");
+    expect(menu, "the trigger is a globe like the other icon buttons").toContain("<Globe");
+    expect(menu, "the trigger still names the locale it is on").toContain("`${t(\"Common.language\")}: ${currentLocaleLabel}`");
     // Radix Avatar resolves its source with `new Image()` to decide a loading state, so the flags
     // were fetched from flagcdn.com on every marketing page even though the disclosure is closed.
     // A lazy <img> inside a closed <details> is never requested.

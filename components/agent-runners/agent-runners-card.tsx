@@ -1,28 +1,61 @@
 "use client";
 
+import type { AiClientLogoProvider } from "@/components/ai-connection/ai-client-logo";
 import type { AgentRunnerClientName } from "@/features/agent-runners/agent-runner.schema";
 import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 import type { AgentRunnerStatus } from "./agent-runner-status";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Copy, Plus, Server, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect } from "react";
+import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
+import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import {
+  SettingsPanel,
+  SettingsPanelLogo,
+  SettingsPanelMessage,
+  SettingsPanelRow,
+} from "@/components/shared/settings-panel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { InfoRow } from "@/components/shared/info-row";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { copyToClipboard } from "@/core/utils/clipboard";
+import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
+import { runnerStartCommand } from "./agent-runner-commands";
 import { startAgentRunnerRefresh } from "./agent-runner-refresh";
-import { AGENT_RUNNER_BADGE_VARIANTS, agentRunnerStatus } from "./agent-runner-status";
+import { agentRunnerStatus } from "./agent-runner-status";
 import { AgentRunnerModal } from "./agent-runner-modal";
 
 type Props = { runners: ListedAgentRunner[] | null };
 
 const NO_RUNNERS: ListedAgentRunner[] = [];
+
+const CLIENT_LOGOS: Record<AgentRunnerClientName, AiClientLogoProvider> = {
+  claude: "claude",
+  codex: "codex",
+  gemini: "gemini",
+};
+
+const STATUS_DOT: Record<AgentRunnerStatus, string> = {
+  online: "bg-success",
+  offline: "bg-warning",
+  neverSeen: "bg-muted-foreground",
+  revoked: "bg-destructive",
+};
+
+const STATUS_TEXT: Record<AgentRunnerStatus, string> = {
+  online: "text-success-soft-foreground",
+  offline: "text-warning-soft-foreground",
+  neverSeen: "text-muted-foreground",
+  revoked: "text-destructive-soft-foreground",
+};
 
 export const AgentRunnersCard = observer(({ runners }: Props) => {
   const t = useTranslations();
@@ -31,12 +64,6 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
   const { showConfirmation } = useDeleteConfirmation();
   const { canManage, canRevoke, hasLiveRunner } = store;
 
-  const statusLabels: Record<AgentRunnerStatus, string> = {
-    online: t("Runners.status.online"),
-    offline: t("Runners.status.offline"),
-    neverSeen: t("Runners.status.neverSeen"),
-    revoked: t("Runners.status.revoked"),
-  };
   const clientLabels: Record<AgentRunnerClientName, string> = {
     claude: t("Runners.clientNames.claude"),
     codex: t("Runners.clientNames.codex"),
@@ -53,6 +80,19 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
     );
   }, [hasLiveRunner, store]);
 
+  const statusLabels: Record<AgentRunnerStatus, string> = {
+    online: t("Runners.status.online"),
+    offline: t("Runners.status.offline"),
+    neverSeen: t("Runners.status.neverSeen"),
+    revoked: t("Runners.status.revoked"),
+  };
+
+  function statusLabel(runner: ListedAgentRunner, status: AgentRunnerStatus) {
+    if (status === "offline" && runner.lastSeenAt)
+      return t("Runners.offlineSince", { date: intlStore.formatNumericalShortDateTime(new Date(runner.lastSeenAt)) });
+    return statusLabels[status];
+  }
+
   function revoke(runner: ListedAgentRunner) {
     showConfirmation({
       title: t("Runners.revokeTitle"),
@@ -64,81 +104,99 @@ export const AgentRunnersCard = observer(({ runners }: Props) => {
     });
   }
 
+  async function copyStartCommand() {
+    const copied = await copyToClipboard(runnerStartCommand(window.location.origin)).catch(() => false);
+    if (copied) toast.success(t("Runners.startCommandCopied"));
+  }
+
   return (
-    <section
-      data-agent-runners-card
-      className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h2 className="text-x-lg">{t("Runners.title")}</h2>
-
-          <p className="text-sm text-muted-foreground">{t("Runners.description")}</p>
-        </div>
-
-        {canManage ? (
+    <SettingsPanel
+      action={
+        canManage ? (
           <Button id="agent-runners-add" size="sm" variant="secondary" onClick={() => modal.add()}>
+            <Plus aria-hidden />
+
             {t("Runners.add")}
           </Button>
-        ) : null}
-      </div>
-
+        ) : null
+      }
+      description={t("Runners.description")}
+      footer={<AgentRunnerModal />}
+      id="agent-runners"
+      title={t("Runners.computersTitle")}
+    >
       {store.items.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {store.items.map((runner) => {
-            const status = agentRunnerStatus(runner);
-            return (
-              <Card key={runner.id} className="gap-3 py-4" data-agent-runner={runner.id} data-status={status}>
-                <CardContent className="flex flex-col gap-2 px-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-sm font-medium">{runner.name}</p>
+        store.items.map((runner) => {
+          const status = agentRunnerStatus(runner);
+          const menu =
+            canRevoke && status !== "revoked" ? (
+              <DropdownMenuItem variant="destructive" onSelect={() => revoke(runner)}>
+                <Trash2 aria-hidden />
 
-                    <Badge variant={AGENT_RUNNER_BADGE_VARIANTS[status]}>{statusLabels[status]}</Badge>
-                  </div>
+                {t("Runners.revoke")}
+              </DropdownMenuItem>
+            ) : undefined;
+          return (
+            <ItemActions key={runner.id} label={t("Runners.actions", { name: runner.name })} menu={menu}>
+              <SettingsPanelRow className="flex-wrap sm:flex-nowrap" data-agent-runner={runner.id} data-status={status}>
+                <SettingsPanelLogo>
+                  <Server aria-hidden className="size-5 text-muted-foreground" />
+                </SettingsPanelLogo>
 
-                  {runner.createdByName ? (
-                    <InfoRow label={t("Runners.owner")}>
-                      <span data-agent-runner-owner="">{runner.createdByName}</span>
-                    </InfoRow>
-                  ) : null}
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="flex min-w-0 flex-wrap items-center gap-x-2">
+                    <span className="truncate text-sm font-medium">{runner.name}</span>
 
-                  <InfoRow label={t("Runners.machine")}>{runner.machine ?? t("Common.never")}</InfoRow>
+                    <span className={cn("flex items-center gap-1 text-xs", STATUS_TEXT[status])}>
+                      <span aria-hidden className={cn("size-1.5 rounded-full", STATUS_DOT[status])} />
 
-                  <InfoRow label={t("Runners.clients")}>
-                    {runner.clients.length > 0
-                      ? runner.clients.map((client) => `${clientLabels[client.name]} ${client.version}`).join(", ")
-                      : t("Runners.noClients")}
-                  </InfoRow>
+                      {statusLabel(runner, status)}
+                    </span>
+                  </span>
 
-                  <InfoRow label={t("Runners.lastSeen")}>
-                    {runner.lastSeenAt
-                      ? intlStore.formatNumericalShortDateTime(new Date(runner.lastSeenAt))
-                      : t("Common.never")}
-                  </InfoRow>
+                  <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+                    {runner.clients.length > 0 ? (
+                      runner.clients.map((client) => (
+                        <span key={client.name} className="flex items-center gap-1" data-agent-runner-client="">
+                          <AiClientLogo className="size-3" provider={CLIENT_LOGOS[client.name]} />
 
-                  {canRevoke && status !== "revoked" ? (
-                    <div className="flex justify-end pt-1">
-                      <Button size="sm" variant="ghost" onClick={() => revoke(runner)}>
-                        {t("Runners.revoke")}
-                      </Button>
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                          {`${clientLabels[client.name]} ${client.version}`}
+                        </span>
+                      ))
+                    ) : (
+                      <span>{t("Runners.noClients")}</span>
+                    )}
+
+                    {runner.machine ? <span>· {runner.machine}</span> : null}
+
+                    {runner.createdByName ? (
+                      <span data-agent-runner-owner="">{`· ${t("Runners.owner")} ${runner.createdByName}`}</span>
+                    ) : null}
+                  </span>
+                </span>
+
+                {status === "revoked" ? null : (
+                  <Button size="sm" variant="secondary" onClick={() => runUserAction(copyStartCommand)}>
+                    <Copy aria-hidden />
+
+                    {t("Runners.startCommand")}
+                  </Button>
+                )}
+
+                {menu ? <ItemActionsTrigger /> : null}
+              </SettingsPanelRow>
+            </ItemActions>
+          );
+        })
       ) : runners === null ? (
-        <p className="text-sm text-muted-foreground" data-agent-runners-withheld="">
-          {t("Runners.withheld")}
-        </p>
+        <SettingsPanelMessage>
+          <span data-agent-runners-withheld="">{t("Runners.withheld")}</span>
+        </SettingsPanelMessage>
       ) : (
-        <p className="text-sm text-muted-foreground" data-agent-runners-empty="">
-          {t("Runners.empty")}
-        </p>
+        <SettingsPanelMessage>
+          <span data-agent-runners-empty="">{t("Runners.empty")}</span>
+        </SettingsPanelMessage>
       )}
-
-      <AgentRunnerModal />
-    </section>
+    </SettingsPanel>
   );
 });

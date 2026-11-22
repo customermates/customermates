@@ -844,7 +844,7 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-connect-a-channel",
       query: "Fehler beim Verbinden des Gmail-Kanals",
       facts: [
-        "Klicken Sie auf [Kanal verbinden](http://localhost:4000/dashboard?open=%2Fsettings%2Fchannels%3Ffocus%3Dcontrol%253Asettings-channels-connect)",
+        "Klicken Sie auf [Kanal verbinden](http://localhost:4000/dashboard?open=%2Fsettings%2Fconnections%3Ffocus%3Dcontrol%253Asettings-channels-connect)",
         "**Konto bereits verbunden** heißt, ein Mitglied des Workspace hat es schon verbunden",
         "Bei jedem anderen Fehler beginnen Sie erneut mit **Kanal verbinden**",
       ],
@@ -858,7 +858,7 @@ describe("authoritative action and condition excerpts", () => {
         "Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät",
         "erneuert sich im Hintergrund",
         "ohne diese Berechtigung fügen Sie die URL wie oben ein",
-        "[API-Schlüssel & Konnektoren](http://localhost:4000/dashboard?open=%2Fsettings%2Fapi-keys)",
+        "[API-Schlüssel & Konnektoren](http://localhost:4000/dashboard?open=%2Fsettings%2Fconnections)",
       ],
     },
     {

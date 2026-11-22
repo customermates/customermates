@@ -80,7 +80,7 @@ test("a workspace whose trial ended continues on Free with usage, upgrade prompt
   await expect(page.locator("#settings-billing-plan-picker [data-plan='free']")).toContainText("Free · current plan");
 
   await page.goto(pagePath(page, "/routines"));
-  await expect(page.locator("[data-locked-feature]")).toContainText("Routines are paused on Free");
+  await expect(page.locator("[data-locked-feature]")).toContainText("Scheduled automations are paused on Free");
   await expect(page.locator("[data-locked-feature]").getByRole("link", { name: "Upgrade to Starter" })).toBeVisible();
 
   await page.goto(pagePath(page, "/inbox"));

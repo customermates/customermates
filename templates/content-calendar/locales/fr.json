@@ -22,7 +22,6 @@
       "label": "Rôle",
       "options": { "author": "Auteur", "editor": "Rédacteur en chef", "reviewer": "Relecteur", "approver": "Validateur", "client_contact": "Contact client", "guest": "Invité ou interviewé" }
     },
-    "people.profile_url": { "label": "Lien du profil" },
     "pieces.owner": { "label": "Responsable" },
     "pieces.reviewer": { "label": "Relecteur" },
     "pieces.format": {

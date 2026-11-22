@@ -18,6 +18,7 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
+import { ListShareMenu } from "@/components/data-view/views/list-share-menu";
 import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
@@ -188,6 +189,13 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           </>
         }
         searchLabel={t("Common.filters.searchFields.records")}
+        share={
+          <ListShareMenu
+            listLabel={store.type?.pluralLabel ?? t("RecordModel.records")}
+            store={store}
+            typeId={presentation.typeId}
+          />
+        }
         store={store}
         onAdd={handleAdd}
         onExport={handleExport}

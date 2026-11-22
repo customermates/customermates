@@ -32,7 +32,7 @@ vi.mock("@/components/forms/form-textarea", () => ({ FormTextarea: () => null })
 vi.mock("@/components/forms/form-switch", () => ({ FormSwitch: () => null }));
 vi.mock("@/components/forms/form-autocomplete", () => ({ FormAutocomplete: () => null }));
 
-import { RoutineConfigurationPane } from "../routine-configuration-pane";
+import { RoutineTriggerFields } from "../routine-trigger-fields";
 
 function scheduleSelects(schedulePreset: string) {
   harness.selects = [];
@@ -47,7 +47,7 @@ function scheduleSelects(schedulePreset: string) {
     isReadOnly: false,
   } as unknown as RoutineModalStore;
 
-  renderToStaticMarkup(createElement(RoutineConfigurationPane, { store, onPause: vi.fn() }));
+  renderToStaticMarkup(createElement(RoutineTriggerFields, { store }));
 
   return Object.fromEntries(
     harness.selects.filter((select) => select.label === null).map((select) => [select.id, select.ariaLabel]),

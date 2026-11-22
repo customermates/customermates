@@ -2934,6 +2934,7 @@ export const getWorkspaceSetupBuildService = () =>
     getCreateWikiPagesInteractor(),
     getSavePlannerInteractor(),
     getPostalCodeService(),
+    getShareDataViewInteractor(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(

@@ -156,8 +156,9 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...navTargets(),
   {
     id: "settings-channels-connect",
-    route: settingsHref("channels"),
-    description: "Connected accounts page button for email, LinkedIn, WhatsApp, Instagram, and Telegram",
+    route: settingsHref("connections"),
+    description:
+      "Connected accounts: Connect account button on Connections for email, LinkedIn, WhatsApp, Instagram, and Telegram",
   },
   {
     id: "dashboard-add-widget",

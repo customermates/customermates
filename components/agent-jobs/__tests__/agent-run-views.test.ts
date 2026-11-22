@@ -15,6 +15,9 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
     formatNumber: (value: number) => String(value),
   }),
 }));
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: (props: Record<string, unknown>) => createElement("a", props),
+}));
 vi.mock("@/components/agent-keys/agent-key-actions", () => ({
   getAgentJobAction: vi.fn(),
   getAgentJobsAction: vi.fn(),
@@ -78,7 +81,7 @@ const TRANSCRIPT: AgentJobDetail["transcript"] = [
 
 function renderRuns(items: AgentJobSummary[], nextCursor: string | null = null) {
   const store = new AgentRunsStore({ localeStore: { getTranslation: (key: string) => key } } as unknown as RootStore);
-  testContext.rootStore = { agentRunsStore: store } as unknown as RootStore;
+  testContext.rootStore = { agentRunsStore: store, agentRunnersStore: { items: [] } } as unknown as RootStore;
   return {
     store,
     markup: renderToStaticMarkup(createElement(AgentRunsCard, { page: { jobs: items, nextCursor } })),
@@ -195,7 +198,7 @@ describe("the reason a run ended", () => {
 });
 
 describe("AgentRunsCard", () => {
-  it("shows a run with its status, runtime, model, result, tokens and a toggle for the transcript", () => {
+  it("shows a run on one line with its status, runtime, result and a toggle for the transcript", () => {
     const { markup } = renderRuns([summary()]);
 
     expect(markup).toContain('id="agent-runs"');
@@ -203,12 +206,9 @@ describe("AgentRunsCard", () => {
     expect(markup).toContain('data-status="succeeded"');
     expect(markup).toContain("AgentJobs.status.succeeded");
     expect(markup).toContain("AgentRuntime.names.ownKey");
-    expect(markup).toContain("claude-sonnet-5-5");
     expect(markup).toContain("Created one action.");
-    expect(markup).toContain("AgentJobs.tokens(input=1200,output=80)");
     expect(markup).toContain('aria-expanded="false"');
-    expect(markup).not.toContain("AgentJobs.credits");
-    expect(markup).not.toContain("AgentJobs.rule");
+    expect(markup).not.toContain("data-agent-run-rule");
   });
 
   it("names the automation a run belongs to when the reader may see it", () => {
@@ -221,12 +221,11 @@ describe("AgentRunsCard", () => {
       }),
     ]);
 
-    expect(markup.split("AgentJobs.rule(")).toHaveLength(2);
-    expect(markup).toContain("AgentJobs.rule(name=Offer follow-up)");
-    expect(markup).toContain(`data-agent-run-rule="${rule.id}"`);
+    expect(markup.split("data-agent-run-rule=")).toHaveLength(2);
+    expect(markup).toContain(`data-agent-run-rule="${rule.id}">Offer follow-up<`);
   });
 
-  it("shows the credits a Mate run used and the reason a run failed", () => {
+  it("shows the reason a run failed instead of its result", () => {
     const { markup } = renderRuns([
       summary({
         runtime: "mate",
@@ -241,17 +240,15 @@ describe("AgentRunsCard", () => {
 
     expect(markup).toContain("AgentRuntime.names.mate");
     expect(markup).toContain("AgentJobs.errors.creditsExhausted");
-    expect(markup).toContain("AgentJobs.credits(credits=");
     expect(markup).toContain("AgentJobs.errors.provider(code=APICallError:401)");
   });
 
-  it("offers more runs only while there is another page, and says when there are none", () => {
-    const more = renderRuns([summary()], "cursor-1").markup;
-    const last = renderRuns([summary()], null).markup;
+  it("links to all runs in Automations and says when there are none", () => {
+    const some = renderRuns([summary()], "cursor-1").markup;
     const none = renderRuns([]).markup;
 
-    expect(more).toContain("Common.actions.loadMore");
-    expect(last).not.toContain("Common.actions.loadMore");
+    expect(some).toMatch(/<a[^>]*data-agent-runs-all=""[^>]*href="\/automations"/);
+    expect(some).toContain("AgentsPage.allRuns");
     expect(none).toContain("AgentJobs.empty");
     expect(none).not.toContain("<ul");
   });

@@ -8,11 +8,17 @@ import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
 import { companyPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
-import { createView, openShareDialog } from "./view-sharing-helpers";
 
-const share = englishMessages.DataView.share;
 const builder = englishMessages.PublicForm.builder;
 const afterSubmit = englishMessages.PublicForm.afterSubmit;
+
+async function openPublicForm(page: Page) {
+  await page.locator("#records-share").click();
+  await page.locator("[data-share-public-form]").click();
+  const dialog = page.locator("#public-form-dialog");
+  await expect(dialog.locator("#public-form-tab #public-form-title-input")).toBeVisible();
+  return dialog;
+}
 
 // A list can require a field only while every one of its records has a value for it, and the workspace of a browser
 // test holds one organization. So the field arrives the way it does in a workspace with data: as an optional field,
@@ -75,10 +81,7 @@ test("edits the form in two panes, sees the preview follow every change and is a
   const typeId = presetId(companyId, "organization");
 
   await page.goto(companyPath(companyId, `/records/${typeId}`));
-  await createView(page, "Intake");
-  const dialog = await openShareDialog(page);
-  await expect(dialog.locator("#share-view-tab-form")).toHaveText(share.tabForm);
-  await dialog.locator("#share-view-tab-form").click();
+  const dialog = await openPublicForm(page);
 
   const tab = dialog.locator("#public-form-tab");
   await expect(tab.locator("[data-form-layout]")).toHaveAttribute("data-form-layout", "wide");
@@ -115,7 +118,7 @@ test("edits the form in two panes, sees the preview follow every change and is a
     new RegExp(`/automations\\?new=formSubmitted&typeId=${typeId}$`, "u"),
   );
 
-  await dialog.locator("#share-view-tab-share").click();
+  await page.keyboard.press("Escape");
   const discard = page.getByRole("alertdialog");
   await expect(discard).toBeVisible();
   await expect(discard).toContainText(englishMessages.Common.navigationGuard.message);
@@ -133,9 +136,9 @@ test("edits the form in two panes, sees the preview follow every change and is a
     new RegExp(`sourceId=[0-9a-f-]{36}$`, "u"),
   );
 
-  await dialog.locator("#share-view-tab-share").click();
+  await page.keyboard.press("Escape");
   await expect(page.locator("[role='alertdialog']")).toHaveCount(0);
-  await expect(dialog.locator("#share-view-link")).toBeVisible();
+  await expect(dialog).toHaveCount(0);
 
   expect(errors).toEqual([]);
 });
@@ -158,13 +161,7 @@ test("says that the list gained a required field, asks before that change or an 
     ).rows[0]?.config.fields.map((field) => field.fieldId);
 
   await page.goto(companyPath(companyId, `/records/${typeId}`));
-  await createView(page, "Intake");
-  const openFormTab = async () => {
-    const dialog = await openShareDialog(page);
-    await dialog.locator("#share-view-tab-form").click();
-    await expect(dialog.locator("#public-form-tab #public-form-title-input")).toBeVisible();
-    return dialog;
-  };
+  const openFormTab = () => openPublicForm(page);
 
   // A saved form that fits its list shows no notice.
   let dialog = await openFormTab();
@@ -175,20 +172,21 @@ test("says that the list gained a required field, asks before that change or an 
   await expect(dialog.locator("#public-form-link")).toHaveAttribute("data-value", /\/f\/[0-9a-f]{64}$/u);
   await expect(tab.locator("#public-form-repairs")).toHaveCount(0);
 
-  // An incomplete edit cannot be saved, but leaving the tab still asks first.
+  // An incomplete edit cannot be saved, but closing the form still asks first.
   await tab.locator("#public-form-title-input").fill("");
   await dialog.locator("#public-form-save").click();
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: builder.incomplete })).toBeVisible();
-  await dialog.locator("#share-view-tab-share").click();
+  await page.keyboard.press("Escape");
   const discard = page.getByRole("alertdialog");
   await expect(discard).toContainText(englishMessages.Common.navigationGuard.message);
   await discard.locator("#discard-changes-cancel").click();
   await expect(discard).toHaveCount(0);
   await expect(tab.locator("#public-form-title-input")).toHaveValue("");
-  await dialog.locator("#share-view-tab-share").click();
+  await page.keyboard.press("Escape");
   await page.getByRole("alertdialog").locator("#discard-changes").click();
-  await expect(dialog.locator("#share-view-link")).toBeVisible();
-  await dialog.locator("#share-view-tab-form").click();
+  await expect(dialog).toHaveCount(0);
+  dialog = await openFormTab();
+  tab = dialog.locator("#public-form-tab");
   await expect(tab.locator("#public-form-title-input")).toHaveValue("Talk to us");
 
   // The list gains a required field without a default value after the form was saved.
@@ -211,7 +209,7 @@ test("says that the list gained a required field, asks before that change or an 
   await expect(dialog.locator(`#public-form-preview [data-field-id="${budgetCode}"]`)).toBeVisible();
 
   // The added question is an unsaved change: leaving asks first, and Cancel keeps it.
-  await dialog.locator("#share-view-tab-share").click();
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("alertdialog")).toContainText(englishMessages.Common.navigationGuard.message);
   await page.getByRole("alertdialog").locator("#discard-changes-cancel").click();
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
@@ -223,9 +221,9 @@ test("says that the list gained a required field, asks before that change or an 
   await expect(notice).toHaveCount(0);
   await expect.poll(storedFieldIds).toContain(budgetCode);
 
-  await dialog.locator("#share-view-tab-share").click();
+  await page.keyboard.press("Escape");
   await expect(page.locator("[role='alertdialog']")).toHaveCount(0);
-  await expect(dialog.locator("#share-view-link")).toBeVisible();
+  await expect(dialog).toHaveCount(0);
 
   expect(errors).toEqual([]);
 });
@@ -248,13 +246,7 @@ test("switches a form off although its list now requires a field no form can ask
     ).rows[0];
 
   await page.goto(companyPath(companyId, `/records/${typeId}`));
-  await createView(page, "Intake");
-  const openFormTab = async () => {
-    const dialog = await openShareDialog(page);
-    await dialog.locator("#share-view-tab-form").click();
-    await expect(dialog.locator("#public-form-tab #public-form-title-input")).toBeVisible();
-    return dialog;
-  };
+  const openFormTab = () => openPublicForm(page);
 
   let dialog = await openFormTab();
   await dialog.locator("#public-form-tab #public-form-title-input").fill("Talk to us");

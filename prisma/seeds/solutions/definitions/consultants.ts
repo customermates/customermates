@@ -9,7 +9,7 @@ import {
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
-import { agentApiKeys, agentEdited, agentsPage, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentAppName } from "../agent-native";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 import { es } from "./locales/consultants.es";
 import { pt } from "./locales/consultants.pt";
@@ -2105,12 +2105,12 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:fairhavenReview": "Claude Desktop",
-  "deal:kestrelInterim": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:fairhavenReview": "Claude",
+  "deal:kestrelInterim": "Claude",
   "deal:brightwaterScaling": "ChatGPT",
   "deal:rivertonExport": "ChatGPT",
-  "deal:ellisonPricing": "Codex CLI",
+  "deal:ellisonPricing": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2577,7 +2577,7 @@ export default defineSolution<Strings>({
           related: ["guide"],
         },
       ],
-      apiKeys: agentApiKeys([74, 36, 11]),
+      ...agentConnections([74, 36, 11]),
       messaging: {
         accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,

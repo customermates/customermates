@@ -1,8 +1,6 @@
-import type { TemplateDeployment } from "./template-publication";
 import type { TemplateLocale, TemplateRule, TemplateSpec } from "./template-spec.schema";
 import type { TemplatePromptText } from "./template-prompt-text";
 
-import { SIGNUP_TEMPLATE_QUERY_PARAM } from "@/features/acquisition/signup-link";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 
 import { ruleEngineGap } from "./compile-template-automation";
@@ -11,8 +9,6 @@ import { fillPrompt, pluralPrompt, promptLocale, templatePromptText } from "./te
 import { resolveTemplateRule, templateCountry, templateRuleText } from "./template-rule-variants";
 
 type PromptOptions = {
-  deployment: TemplateDeployment;
-  signupUrl: string;
   connected?: boolean;
   mcpUrl?: string;
   country?: string | null;
@@ -29,13 +25,7 @@ function heading(copy: string, index?: number): string {
   return index === undefined ? `## ${copy}` : `## ${index}. ${copy}`;
 }
 
-export function templateSignupUrl(signupUrl: string, slug: string): string {
-  const url = new URL(signupUrl);
-  url.searchParams.set(SIGNUP_TEMPLATE_QUERY_PARAM, slug);
-  return url.toString();
-}
-
-function workspaceSection(spec: TemplateSpec, options: PromptOptions, copy: TemplatePromptText): string[] {
+function workspaceSection(options: PromptOptions, copy: TemplatePromptText): string[] {
   if (options.connected && options.mcpUrl) {
     return [
       heading(copy.headings.yourWorkspace, 1),
@@ -47,19 +37,14 @@ function workspaceSection(spec: TemplateSpec, options: PromptOptions, copy: Temp
     const pending = fillPrompt(copy.workspace.existsAt, { mcpUrl: options.mcpUrl });
     return [heading(copy.headings.yourWorkspace, 1), pending];
   }
-  if (options.deployment === "cloud") {
-    return [
-      heading(copy.headings.getWorkspace, 1),
-      fillPrompt(copy.workspace.cloud, { url: templateSignupUrl(options.signupUrl, spec.slug) }),
-    ];
-  }
-  return [heading(copy.headings.getWorkspace, 1), copy.workspace.selfHosted];
+  return [heading(copy.headings.yourWorkspace, 1), copy.workspace.unconnected];
 }
 
 function procedureSection(copy: TemplatePromptText): string[] {
   return [
     heading(copy.headings.beforeYouWrite, 2),
     bullet(copy.procedure.readContext),
+    bullet(copy.procedure.checkAccounts),
     bullet(copy.procedure.reuse),
     bullet(copy.procedure.describePlan),
     bullet(copy.procedure.askQuestions),
@@ -111,7 +96,7 @@ function listSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
       `${label.pluralLabel}${label.description ? ` (${label.description})` : ""}: ${all.join("; ") || copy.nameOnly}`,
     );
   });
-  return [heading(copy.headings.listsAndFields, 3), ...lines];
+  return [heading(copy.headings.listsAndFields, 3), bullet(copy.contactDetails), ...lines];
 }
 
 function relationshipSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePromptText): string[] {
@@ -142,7 +127,19 @@ function viewSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
   });
   const rule = spec.views.some((view) => view.default) ? [bullet(copy.defaultView.rule)] : [];
   const widgets = spec.widgets.map((widget) => bullet(needText(text.widgets, widget.key, "widgets").title));
-  return [heading(copy.headings.views, 5), ...views, ...rule, heading(copy.headings.dashboardWidgets, 6), ...widgets];
+  return [
+    heading(copy.headings.views, 5),
+    bullet(copy.sharing.views),
+    ...views,
+    ...rule,
+    heading(copy.headings.dashboardWidgets, 6),
+    bullet(copy.sharing.widgets),
+    ...widgets,
+  ];
+}
+
+function recordDetailSection(copy: TemplatePromptText): string[] {
+  return [heading(copy.headings.recordDetails, 7), bullet(copy.recordDetails.order), bullet(copy.recordDetails.pins)];
 }
 
 function pageSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePromptText): string[] {
@@ -150,7 +147,7 @@ function pageSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
     const label = needText(text.knowledgePages, page.key, "knowledgePages");
     return bullet(`${label.title}: ${label.sections.join("; ")}`);
   });
-  return [heading(copy.headings.knowledgePages, 7), ...pages];
+  return [heading(copy.headings.knowledgePages, 8), ...pages];
 }
 
 function ruleKind(rule: TemplateRule): RuleKind {
@@ -186,13 +183,13 @@ function ruleSection(
   const routines = entries.filter((entry) => entry.kind === "routine");
   if (typeof allowance !== "number" || routines.length <= allowance) {
     const lines = entries.map((entry) => bullet(`${entry.sentence} [${copy.availability[entry.kind]}]`));
-    return [heading(copy.headings.followUpRoutines, 8), copy.routinesIntro, ...lines];
+    return [heading(copy.headings.followUpRoutines, 9), copy.routinesIntro, ...lines];
   }
   const others = entries.filter((entry) => entry.kind !== "routine");
   const ranked = [...routines].sort((first, second) => first.priority - second.priority);
   const optional = `${copy.availability.routine}, ${copy.routineAllowance.optional}`;
   return [
-    heading(copy.headings.followUpRoutines, 8),
+    heading(copy.headings.followUpRoutines, 9),
     copy.routinesIntro,
     ...others.map((entry) => bullet(`${entry.sentence} [${copy.availability[entry.kind]}]`)),
     allowance === 0 ? copy.routineAllowance.none : fillPrompt(copy.routineAllowance.limited, { count: allowance }),
@@ -203,9 +200,20 @@ function ruleSection(
   ];
 }
 
+function accountSection(copy: TemplatePromptText): string[] {
+  return [
+    heading(copy.headings.connectedAccounts, 10),
+    bullet(copy.accounts.none),
+    bullet(copy.accounts.read),
+    bullet(copy.accounts.propose),
+    bullet(copy.accounts.approve),
+    bullet(copy.accounts.write),
+  ];
+}
+
 function questionSection(text: TemplateLocale, copy: TemplatePromptText): string[] {
   return [
-    heading(copy.headings.questions, 9),
+    heading(copy.headings.questions, 11),
     ...text.prompt.questions.map((question, index) => `${index + 1}. ${question}`),
   ];
 }
@@ -225,13 +233,15 @@ export function renderTemplatePrompt(spec: TemplateSpec, text: TemplateLocale, o
   const copy = templatePromptText(text.locale);
   const sections = [
     [`# ${text.name}`, text.prompt.intro],
-    workspaceSection(spec, options, copy),
+    workspaceSection(options, copy),
     procedureSection(copy),
     listSection(spec, text, copy),
     relationshipSection(spec, text, copy),
     viewSection(spec, text, copy),
+    recordDetailSection(copy),
     pageSection(spec, text, copy),
     ruleSection(spec, text, copy, templateCountry(text.locale, options.country), options.routineAllowance),
+    accountSection(copy),
     questionSection(text, copy),
     ruleOfTheRoad(copy),
   ];

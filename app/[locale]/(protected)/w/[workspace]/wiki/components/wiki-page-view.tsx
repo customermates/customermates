@@ -10,12 +10,13 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, use
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
-import { BookOpen, Loader2, Plus, Sparkles } from "lucide-react";
+import { BookOpen, Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { upsertP13nAction } from "@/app/actions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
+import { MateIcon } from "@/components/mate/mate-icon";
 import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
@@ -255,7 +256,7 @@ const WikiPageViewContent = observer(function WikiPageView({
               ? t("WikiSetup.status.workingBodyWiki", { domain: setupState.domain })
               : t("WikiSetup.status.workingBodyAnswers")
           }
-          icon={Sparkles}
+          icon={MateIcon}
           state="empty"
           title={t("WikiSetup.status.workingTitle")}
         />

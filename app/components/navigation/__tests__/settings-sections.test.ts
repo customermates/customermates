@@ -6,12 +6,7 @@ import { SETTINGS_SECTIONS, settingsSectionOf, visibleSubroutes } from "../setti
 
 describe("settings sections", () => {
   it("groups account and workspace settings in their documented order", () => {
-    expect(SETTINGS_SECTIONS.account.map(({ slug }) => slug)).toEqual([
-      "profile",
-      "workspaces",
-      "channels",
-      "api-keys",
-    ]);
+    expect(SETTINGS_SECTIONS.account.map(({ slug }) => slug)).toEqual(["profile", "workspaces", "connections"]);
     expect(SETTINGS_SECTIONS.workspace.map(({ slug }) => slug)).toEqual([
       "general",
       "members",
@@ -42,8 +37,8 @@ describe("settings sections", () => {
     expect(workspace([Resource.company])).toEqual(["general", "billing", "agents"]);
     expect(workspace([Resource.api])).toEqual(["general", "webhooks", "incoming-webhooks", "webhook-deliveries"]);
     expect(account([])).toEqual(["profile", "workspaces"]);
-    expect(account([Resource.inboxMessages])).toEqual(["profile", "workspaces", "channels"]);
-    expect(account([Resource.api])).toEqual(["profile", "workspaces", "api-keys"]);
+    expect(account([Resource.inboxMessages])).toEqual(["profile", "workspaces", "connections"]);
+    expect(account([Resource.api])).toEqual(["profile", "workspaces", "connections"]);
   });
 
   it("keeps permissions and cloud-only pages exactly as before", () => {
@@ -55,8 +50,13 @@ describe("settings sections", () => {
     expect(visibleSubroutes("account", "self-hosted", () => true).map(({ slug }) => slug)).toEqual([
       "profile",
       "workspaces",
-      "api-keys",
+      "connections",
     ]);
+    expect(
+      visibleSubroutes("account", "self-hosted", (resource) => resource === Resource.inboxMessages).map(
+        ({ slug }) => slug,
+      ),
+    ).toEqual(["profile", "workspaces"]);
     expect(visibleSubroutes("workspace", "self-hosted", () => true).map(({ slug }) => slug)).toEqual([
       "general",
       "members",
@@ -70,8 +70,7 @@ describe("settings sections", () => {
     expect(visibleSubroutes("account", "cloud", () => true).map(({ slug }) => slug)).toEqual([
       "profile",
       "workspaces",
-      "channels",
-      "api-keys",
+      "connections",
     ]);
   });
 

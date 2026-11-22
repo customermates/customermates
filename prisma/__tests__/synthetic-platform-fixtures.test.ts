@@ -189,9 +189,18 @@ describe("platform fixtures of the team workspace", () => {
     expect(confirmed.filter((booking) => booking.rescheduledAt)).toHaveLength(1);
     for (const link of fixtures.bookingLinks) {
       const own = confirmed.filter((booking) => booking.bookingLinkId === link.id);
-      expect(own.filter((booking) => booking.startsAt.getTime() > now).length, link.title).toBeGreaterThan(0);
+      const upcoming = own.filter((booking) => booking.startsAt.getTime() > now).length;
+      if (link.enabled) expect(upcoming, link.title).toBeGreaterThan(0);
+      else expect(upcoming, link.title).toBe(0);
       expect(own.filter((booking) => booking.endsAt.getTime() < now).length, link.title).toBeGreaterThan(0);
     }
+  });
+
+  it("keeps a third, paused page so the panel shows an inactive page", () => {
+    expect(fixtures.bookingLinks).toHaveLength(3);
+    expect(fixtures.bookingLinks.filter((link) => !link.enabled).map((link) => link.title)).toEqual([
+      "Support check-in",
+    ]);
   });
 
   it("keeps a website enquiry form whose submissions are the website deals", () => {
@@ -307,7 +316,7 @@ describe("seedSolutionPlatform", () => {
       automationRuleRun: fixtures.runs.length,
       notification: fixtures.notifications.length,
       notificationPreference: fixtures.preferences.length,
-      bookingLink: 2,
+      bookingLink: fixtures.bookingLinks.length,
       bookingLinkHost: 1,
       booking: fixtures.bookings.length,
       publicForm: 1,

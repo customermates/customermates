@@ -43,7 +43,7 @@ import { AgentKeysStore } from "../agent-keys.store";
 import { AgentKeysCard } from "../agent-keys-card";
 import { agentRunFailureLabel } from "../agent-labels";
 import { agentRuntimeWithKeys } from "../agent-runtime-with-keys";
-import { AgentRuntimesCard } from "../agent-runtimes-card";
+import { agentRuntimeStatus, agentRuntimeStatusVariant, initialAgentRuntime } from "../agent-runtime-status";
 
 const KEY: AgentProviderKeyDto = {
   id: "00000000-0000-4000-8000-0000000000a1",
@@ -161,30 +161,54 @@ describe("agentRuntimeWithKeys", () => {
   });
 });
 
-describe("AgentRuntimesCard", () => {
-  it("shows each way of running an agent as available or with the reason it is not", () => {
-    const markup = renderToStaticMarkup(createElement(AgentRuntimesCard, { availability: availability() }));
+describe("agentRuntimeStatus", () => {
+  const online = { online: true, revokedAt: null };
+  const offline = { online: false, revokedAt: null };
+  const revoked = { online: false, revokedAt: "2026-11-17T09:30:00.000Z" };
 
-    expect(markup).toMatch(/data-agent-runtime="mate" data-available="true"/);
-    expect(markup).toMatch(/data-agent-runtime="ownKey" data-available="false"/);
-    expect(markup).toMatch(/data-agent-runtime="runner" data-available="false"/);
-    expect(markup).toContain("AgentRuntime.available");
-    expect(markup).toContain("AgentRuntime.reasons.noKey");
-    expect(markup).toContain("AgentRuntime.reasons.noRunner");
-    expect(markup).toContain("AgentRuntime.summary.runner");
+  it("counts the keys and the online computers and marks a computer that went away", () => {
+    const keyed = availability({ ownKey: { available: true, reason: null, models: [], runners: [] } });
+
+    expect(agentRuntimeStatus("mate", keyed, { keyCount: 0, runners: [] })).toEqual({ kind: "available" });
+    expect(agentRuntimeStatus("ownKey", keyed, { keyCount: 2, runners: [] })).toEqual({ kind: "keys", count: 2 });
+    expect(agentRuntimeStatus("runner", keyed, { keyCount: 0, runners: [online, offline] })).toEqual({
+      kind: "online",
+      count: 1,
+    });
+    expect(agentRuntimeStatus("runner", keyed, { keyCount: 0, runners: [offline, revoked] })).toEqual({
+      kind: "offline",
+    });
+    expect(agentRuntimeStatus("runner", keyed, { keyCount: 0, runners: [revoked] })).toEqual({
+      kind: "unavailable",
+      reason: "noRunner",
+    });
   });
 
-  it("names the plan and the cloud as reasons", () => {
-    const markup = renderToStaticMarkup(
-      createElement(AgentRuntimesCard, {
-        availability: availability({
-          mate: { available: false, reason: "selfHosted", models: [], runners: [] },
-          ownKey: { available: false, reason: "plan", models: [], runners: [] },
-        }),
-      }),
-    );
+  it("keeps the plan and the cloud as reasons even when computers exist", () => {
+    const blocked = availability({
+      mate: { available: false, reason: "selfHosted", models: [], runners: [] },
+      runner: { available: false, reason: "plan", models: [], runners: [] },
+    });
 
-    expect(markup).toContain("AgentRuntime.reasons.selfHosted");
-    expect(markup).toContain("AgentRuntime.reasons.plan");
+    expect(agentRuntimeStatus("mate", blocked, { keyCount: 0, runners: [] })).toEqual({
+      kind: "unavailable",
+      reason: "selfHosted",
+    });
+    expect(agentRuntimeStatus("runner", blocked, { keyCount: 0, runners: [online] })).toEqual({
+      kind: "unavailable",
+      reason: "plan",
+    });
+    expect(agentRuntimeStatusVariant({ kind: "offline" })).toBe("warning");
+    expect(agentRuntimeStatusVariant({ kind: "keys", count: 1 })).toBe("success");
+    expect(agentRuntimeStatusVariant({ kind: "unavailable", reason: "plan" })).toBe("secondary");
+  });
+
+  it("opens the runtime that works, else the one already set up, else Mate", () => {
+    const none = availability({ mate: { available: false, reason: "plan", models: [], runners: [] } });
+
+    expect(initialAgentRuntime(availability(), { keyCount: 0, runners: [] })).toBe("mate");
+    expect(initialAgentRuntime(none, { keyCount: 0, runners: [offline] })).toBe("runner");
+    expect(initialAgentRuntime(none, { keyCount: 1, runners: [] })).toBe("ownKey");
+    expect(initialAgentRuntime(none, { keyCount: 0, runners: [] })).toBe("mate");
   });
 });

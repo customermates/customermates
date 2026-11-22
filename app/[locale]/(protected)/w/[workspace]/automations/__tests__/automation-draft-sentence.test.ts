@@ -4,7 +4,7 @@ import type { AutomationBuilderField, AutomationBuilderModel } from "../componen
 import { describe, expect, it } from "vitest";
 
 import { blankCondition, emptyDraft } from "../components/automation-draft";
-import { conditionSentence } from "../components/automation-draft-sentence";
+import { conditionSentence, effectSentence } from "../components/automation-draft-sentence";
 
 const DEALS = "11111111-1111-4111-8111-111111111111";
 const DONE = "22222222-2222-4222-8222-111111111111";
@@ -62,5 +62,32 @@ describe("the sentence of a condition card", () => {
       "if Stage is Won",
     );
     expect(conditionSentence(blankCondition(DONE, "equals"), TRIGGER, MODEL, t)).toBe("if Done is");
+  });
+});
+
+describe("the sentence of a step kept as it is", () => {
+  const keyed = ((key: string, values?: Record<string, string>) =>
+    values ? `${key}:${Object.values(values).join("|")}` : key) as unknown as ReturnType<typeof useTranslations>;
+
+  it("names what the step does instead of saying it is kept", () => {
+    const setStage = {
+      kind: "kept" as const,
+      effect: {
+        kind: "setField" as const,
+        fields: [{ fieldId: STAGE, value: { kind: "select" as const, value: "won" } }],
+      },
+    };
+    expect(effectSentence(setStage, MODEL, TRIGGER, keyed)).toBe("Automations.sentence.effect.setField:Stage");
+
+    const notifyMembers = {
+      kind: "kept" as const,
+      effect: {
+        kind: "notify" as const,
+        recipients: { ruleOwner: false, assignees: false, userIds: ["33333333-3333-4333-8333-333333333333"] },
+        notificationKind: "ruleAlert" as const,
+        title: "Check {{record.name}}",
+      },
+    };
+    expect(effectSentence(notifyMembers, MODEL, TRIGGER, keyed)).toBe("Automations.sentence.effect.notifyMembers");
   });
 });

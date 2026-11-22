@@ -17,7 +17,7 @@ import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { findSolutionByLandingPath } from "@/core/solutions/solution-catalog";
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { pagePublicationOptions } from "@/core/templates/template-deployment";
-import { templatePrompts, templateSignupPath } from "@/core/templates/template-page-model";
+import { templatePagePrompt, templateSignupPath } from "@/core/templates/template-page-model";
 import { pageTemplates } from "@/core/templates/template-publication";
 import { templatePagePath } from "@/core/templates/templates-source";
 import { isMarketingPathPublished } from "@/i18n/locale-registry";
@@ -132,7 +132,7 @@ export async function TemplateDetail({ locale, slug, visibility }: Props) {
 
       <TemplateStepsSection signupHref={signupHref} />
 
-      <TemplatePromptSection prompts={templatePrompts(spec, text, locale)} slug={slug} />
+      <TemplatePromptSection prompt={templatePagePrompt(spec, text)} />
 
       <TemplateCreatesSection spec={spec} text={text} />
 

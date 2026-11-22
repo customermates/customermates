@@ -2,6 +2,20 @@ import type { ConnectedAppGrant, ConnectedAppRepo } from "./connected-app.repo";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 
+const DEVICE_MAX_LENGTH = 80;
+
+function deviceOf(metadata: string | null): string | null {
+  if (!metadata) return null;
+  try {
+    const parsed: unknown = JSON.parse(metadata);
+    if (!parsed || typeof parsed !== "object" || !("device" in parsed)) return null;
+    const device = parsed.device;
+    return typeof device === "string" && device.trim() ? device.trim().slice(0, DEVICE_MAX_LENGTH) : null;
+  } catch {
+    return null;
+  }
+}
+
 export class PrismaConnectedAppRepo extends TenantRepository implements ConnectedAppRepo {
   async findGrantsOfLogin(authUserId: string): Promise<ConnectedAppGrant[]> {
     const groups = await this.prisma.oauthAccessToken.groupBy({
@@ -14,9 +28,10 @@ export class PrismaConnectedAppRepo extends TenantRepository implements Connecte
 
     const applications = await this.prisma.oauthApplication.findMany({
       where: { clientId: { in: groups.map((group) => group.clientId) } },
-      select: { clientId: true, name: true },
+      select: { clientId: true, name: true, metadata: true },
     });
     const names = new Map(applications.map((application) => [application.clientId, application.name]));
+    const devices = new Map(applications.map((application) => [application.clientId, deviceOf(application.metadata)]));
 
     return groups.flatMap((group) => {
       const name = names.get(group.clientId);
@@ -25,7 +40,9 @@ export class PrismaConnectedAppRepo extends TenantRepository implements Connecte
       const refreshableUntil = group._max.refreshTokenExpiresAt;
       if (name === undefined || !connectedAt || !lastActiveAt || !refreshableUntil) return [];
 
-      return [{ clientId: group.clientId, name, connectedAt, lastActiveAt, refreshableUntil }];
+      const device = devices.get(group.clientId) ?? null;
+
+      return [{ clientId: group.clientId, name, device, connectedAt, lastActiveAt, refreshableUntil }];
     });
   }
 }

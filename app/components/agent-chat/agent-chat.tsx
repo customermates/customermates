@@ -3,14 +3,14 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, type FocusEvent } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, History, Maximize2, Minimize2, Plus, Sparkles, X } from "lucide-react";
+import { ChevronLeft, History, Maximize2, Minimize2, Plus, X } from "lucide-react";
 
 import { AgentTourOverlay } from "./agent-tour-overlay";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
-import { IconContainer } from "@/components/shared/icon-container";
+import { MateOrb } from "@/components/mate/mate-orb";
 import { useFileDrop } from "@/components/shared/use-file-drop";
 import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/modal/assistant-surface";
 import { OVERLAY_RAISED_PANEL_LAYER_CLASS, OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
@@ -217,6 +217,8 @@ const AgentChatPanel = observer(function AgentChatPanel({
           </ActionTooltip>
         )}
 
+        {!store.isHistoryOpen && <MateOrb className="mx-1 size-5" working={store.isWorking} />}
+
         <span className="mr-auto truncate text-sm font-medium">
           {store.isHistoryOpen ? copy.chats : (store.conversationTitle ?? copy.newChat)}
         </span>
@@ -287,7 +289,7 @@ const AgentChatPanel = observer(function AgentChatPanel({
             aria-label={t("AgentChat.title")}
             className="animate-page-empty-in flex flex-col items-center gap-5 motion-reduce:animate-none"
           >
-            <IconContainer color="muted" icon={Sparkles} size="md" />
+            <MateOrb className="size-10" />
 
             <div className="flex max-w-sm flex-col gap-2">
               <p className="text-base font-medium text-foreground">{t("AgentChat.greeting.headline")}</p>

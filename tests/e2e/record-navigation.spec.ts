@@ -2,6 +2,7 @@ import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
+import { addRecordFromPalette, createBlankListFromPalette } from "./add-palette";
 import { companyPath, companyUrlPattern } from "./app-paths";
 import { followConfigureLink, saveGeneral } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
@@ -52,8 +53,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
     await expect(link).toHaveText(label);
     await expect(link).toHaveAttribute("href", companyPath(companyId, `/records/${presetId(companyId, key)}`));
   }
-  await page.locator("#nav-add").click();
-  await page.getByRole("dialog").getByRole("button", { name: "Add Service", exact: true }).click();
+  await addRecordFromPalette(page, serviceId);
   const editor = page.getByRole("dialog");
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Quick catalog entry");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
@@ -65,8 +65,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   );
   expect(saved.rows).toEqual([{ count: 1 }]);
   await openSidebar();
-  await page.locator("#nav-add").click();
-  await page.getByRole("dialog").getByRole("button", { name: "Create list", exact: true }).click();
+  await createBlankListFromPalette(page);
   await editor.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
   await editor.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));

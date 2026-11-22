@@ -181,7 +181,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     const headers = request.headers();
     return (
       new URL(response.url()).origin === applicationOrigin &&
-      new URL(response.url()).pathname === companyPath(companyId, "/settings/channels") &&
+      new URL(response.url()).pathname === companyPath(companyId, "/settings/connections") &&
       request.method() === "GET" &&
       headers["next-router-prefetch"] === "1" &&
       headers["next-router-state-tree"] !== undefined &&

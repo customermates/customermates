@@ -92,7 +92,7 @@ export class DeleteAccountsForPlanInteractor {
     const admins = await this.userRepo.findCompanyAdminsUnscoped(companyId);
     if (admins.length === 0) return;
     const slug = await this.slugs.slugFor(companyId);
-    const href = workspaceReturnUrl(env.BASE_URL, slug, settingsHref("channels"));
+    const href = workspaceReturnUrl(env.BASE_URL, slug, settingsHref("connections"));
 
     for (const admin of admins) {
       const locale = resolveUserLocale(admin);

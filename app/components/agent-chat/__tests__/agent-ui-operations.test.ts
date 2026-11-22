@@ -122,7 +122,6 @@ describe("AgentUiControlStore.navigate", () => {
 
     for (const [targetId, route] of [
       ["nav-settings-webhooks", "/settings/webhooks"],
-      ["nav-settings-api-keys", "/settings/api-keys"],
       ["nav-settings-activity", "/settings/activity"],
     ]) {
       await expect(store.navigate({ targetId })).resolves.toEqual({
@@ -147,7 +146,7 @@ describe("AgentUiControlStore.navigate", () => {
 
     const selfHosted = controlStore({ appMode: "self-hosted" });
     selfHosted.registerNavigate(navigate);
-    for (const targetId of ["nav-inbox", "nav-settings-channels", "nav-settings-billing"])
+    for (const targetId of ["nav-inbox", "nav-settings-billing"])
       await expect(selfHosted.navigate({ targetId }), targetId).resolves.toMatchObject({ ok: false });
     expect(navigate).not.toHaveBeenCalled();
 
@@ -235,7 +234,7 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("treats a mounted target without layout as not rendered instead of spotlighting nothing", async () => {
     const hidden = element(0);
-    onPage("/settings/channels", (id) => (id === "connected-account-signature" ? hidden : null));
+    onPage("/settings/connections", (id) => (id === "connected-account-signature" ? hidden : null));
     const store = controlStore();
 
     await expect(settled(store.highlight("connected-account-signature"))).resolves.toEqual({
@@ -519,7 +518,7 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("ends the tour when the control of its stop disappears and no later stop is on screen", async () => {
     const rendered = new Map([["connected-account-signature", laidOut()]]);
-    const navigate = onApp("/settings/channels", rendered);
+    const navigate = onApp("/settings/connections", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 

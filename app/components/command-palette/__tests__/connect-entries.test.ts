@@ -44,14 +44,14 @@ describe("connection entries in the search", () => {
     const claude = entries.find((entry) => entry.key === "cmd:setting.apiKeys.claude");
     expect(claude).toMatchObject({
       label: "Connect Claude",
-      subtitle: "API keys & connectors",
-      run: { kind: "href", href: "/settings/api-keys?connect=claude" },
+      subtitle: "Connections",
+      run: { kind: "href", href: "/settings/connections?connect=claude" },
     });
     expect(entries.find((entry) => entry.key === "cmd:setting.channels.google")?.run).toEqual({
       kind: "href",
-      href: "/settings/channels?connect=google",
+      href: "/settings/connections?connect=google",
     });
-    expect(top("connectors")?.key).toMatch(/^cmd:(settings\.api-keys|setting\.apiKeys\.)/);
+    expect(top("connectors")?.key).toMatch(/^cmd:(settings\.connections|setting\.apiKeys\.)/);
   });
 
   it("offers connections only to people who may create them", () => {
@@ -91,7 +91,7 @@ describe("forgiving search", () => {
     };
     const ranked = rankCandidates("Kalenderverbindung", staticEntries(de, everything), null);
     expect(ranked.map((entry) => entry.key)).toEqual(
-      expect.arrayContaining(["cmd:page.calendar", "cmd:settings.channels"]),
+      expect.arrayContaining(["cmd:page.calendar", "cmd:settings.connections"]),
     );
   });
 
@@ -114,8 +114,8 @@ describe("connected channels", () => {
     expect([...connected].sort()).toEqual(["google", "linkedin", "linkedin_sales_navigator"]);
     const entries = markConnectedEntries(staticEntries(t, everything), connected, "Connected");
     const subtitle = (key: string) => entries.find((entry) => entry.key === key)?.subtitle;
-    expect(subtitle("cmd:setting.channels.google")).toBe("Channels & calendars · Connected");
-    expect(subtitle("cmd:setting.channels.linkedinRecruiter")).toBe("Channels & calendars");
-    expect(subtitle("cmd:setting.channels.telegram")).toBe("Channels & calendars");
+    expect(subtitle("cmd:setting.channels.google")).toBe("Connections · Connected");
+    expect(subtitle("cmd:setting.channels.linkedinRecruiter")).toBe("Connections");
+    expect(subtitle("cmd:setting.channels.telegram")).toBe("Connections");
   });
 });

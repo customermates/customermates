@@ -2,7 +2,9 @@ import { createHash, randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
+import { openAgentRuntime } from "./agents-page";
 import { appPath } from "./app-paths";
+import { runItemAction } from "./item-actions";
 import { addBrowserWorkspace } from "./workspace";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
@@ -18,7 +20,8 @@ test("an administrator adds a runner, sees its token once, connects it and revok
 }) => {
   const errors = collectPageErrors(page);
   await page.goto(appPath(workspace.slug, "/settings/agents"));
-  await expect(page.getByRole("heading", { name: messages.title, level: 2 })).toBeVisible();
+  await openAgentRuntime(page, "runner");
+  await expect(page.getByRole("heading", { name: messages.computersTitle, level: 2 })).toBeVisible();
   await expect(page.getByText(messages.description, { exact: true })).toBeVisible();
 
   await clickHydrated(page.locator("#agent-runners-add"));
@@ -78,7 +81,7 @@ test("an administrator adds a runner, sees its token once, connects it and revok
   await expect(online).toContainText("e2e-host");
   await expect(online).toContainText(`${messages.clientNames.claude} 2.1.318`);
 
-  await online.getByRole("button", { name: messages.revoke, exact: true }).click();
+  await runItemAction(page, online.locator("[data-item-actions-trigger]"), messages.revoke);
   const confirm = page.getByRole("alertdialog");
   await expect(confirm).toContainText(messages.revokeTitle);
   await expect(confirm).toContainText("Office laptop");
@@ -86,7 +89,8 @@ test("an administrator adds a runner, sees its token once, connects it and revok
 
   const revoked = page.locator("[data-agent-runner]", { hasText: "Office laptop" });
   await expect(revoked).toHaveAttribute("data-status", "revoked");
-  await expect(revoked.getByRole("button", { name: messages.revoke, exact: true })).toHaveCount(0);
+  // A revoked runner has nothing left to do, so its row offers no menu.
+  await expect(revoked.locator("[data-item-actions-trigger]")).toHaveCount(0);
   const afterRevoke = await request.post("/api/v1/runner/heartbeat", { headers, data: { clients: [] } });
   expect(afterRevoke.status()).toBe(401);
   expect(errors).toEqual([]);
@@ -184,8 +188,9 @@ test("a runner takes its member's job only after confirming it, and revoking it 
   const waitingId = randomUUID();
   await insertJob(waitingId, runnerId);
   await page.goto(appPath(workspace.slug, "/settings/agents"));
+  await openAgentRuntime(page, "runner");
   const card = page.locator("[data-agent-runner]", { hasText: "Job runner" });
-  await card.getByRole("button", { name: messages.revoke, exact: true }).click();
+  await runItemAction(page, card.locator("[data-item-actions-trigger]"), messages.revoke);
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(card).toHaveAttribute("data-status", "revoked");
   expect(await jobOf(waitingId)).toMatchObject({ status: "cancelled", error: "runnerRevoked" });
@@ -219,7 +224,7 @@ test("the agent runs card names the automation a run belongs to", async ({ page,
   await page.goto(appPath(workspace.slug, "/settings/agents"));
   const run = page.locator(`#agent-runs [data-agent-run="${jobId}"]`);
   await expect(run).toHaveAttribute("data-status", "succeeded");
-  await expect(run.locator(`[data-agent-run-rule="${ruleId}"]`)).toHaveText("Automation: Follow up on offers");
+  await expect(run.locator(`[data-agent-run-rule="${ruleId}"]`)).toHaveText("Follow up on offers");
   expect(errors).toEqual([]);
 });
 
@@ -235,6 +240,7 @@ test("the page lists only the runners of its own workspace", async ({ page, data
   await insertRunner(second.companyId, second.userId, "Bergmann runner", false);
 
   await page.goto(appPath(workspace.slug, "/settings/agents"));
+  await openAgentRuntime(page, "runner");
   await expect(page.locator("[data-agent-runner]", { hasText: "Browser runner" })).toHaveAttribute(
     "data-status",
     "online",
@@ -242,6 +248,7 @@ test("the page lists only the runners of its own workspace", async ({ page, data
   await expect(page.getByText("Bergmann runner", { exact: true })).toHaveCount(0);
 
   await page.goto(appPath(second.slug, "/settings/agents"));
+  await openAgentRuntime(page, "runner");
   await expect(page.locator("[data-agent-runner]", { hasText: "Bergmann runner" })).toHaveAttribute(
     "data-status",
     "neverSeen",

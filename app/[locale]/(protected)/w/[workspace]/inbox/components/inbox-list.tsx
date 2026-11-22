@@ -120,7 +120,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
           {canConnect && (
             <TopBarPrimaryButton
               count={channelsNeedingAction}
-              href={settingsHref("channels")}
+              href={settingsHref("connections")}
               icon={Cable}
               label={t("ConnectedAccountsCard.title")}
             />

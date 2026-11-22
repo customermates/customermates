@@ -187,14 +187,15 @@ test("the API keys page lists the member's connected AI app once and disconnecti
       [randomUUID(), ownClient, workspace.authUserId],
     );
 
-    await page.goto(appPath(workspace.slug, "/settings/api-keys"));
-    const card = page.locator("[data-connected-apps-card]");
-    await expect(card.getByRole("heading", { level: 2, name: messages.title, exact: true })).toBeVisible();
+    await page.goto(appPath(workspace.slug, "/settings/connections"));
+    const card = page.locator("#connections-apps");
+    await expect(
+      card.getByRole("heading", { level: 2, name: englishMessages.Connections.apps.title, exact: true }),
+    ).toBeVisible();
     const apps = card.locator("[data-connected-app]");
     await expect(apps).toHaveCount(1);
     await expect(apps).toContainText("Claude");
-    await expect(apps).toContainText(messages.connectedSince);
-    await expect(apps).toContainText(messages.lastActive);
+    await expect(apps).toContainText(englishMessages.Connections.apps.connected);
     await expect(card).not.toContainText("Colleague Connector");
 
     await clickHydrated(apps.getByRole("button", { name: "Disconnect", exact: true }));
