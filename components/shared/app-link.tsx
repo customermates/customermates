@@ -32,10 +32,20 @@ type BaseProps = {
 type Props = BaseProps &
   (({ external: true } & ComponentProps<typeof NextLink>) | ({ external?: false } & ComponentProps<typeof IntlLink>));
 
+const STATIC_FILE_PATHNAME = /\/[^/]+\.[a-z0-9]{2,5}$/i;
+
+export function staticFileHref(href: string): string | null {
+  if (!href.startsWith("/") || href.startsWith("//")) return null;
+
+  const target = new URL(href, "https://internal.invalid");
+  return STATIC_FILE_PATHNAME.test(target.pathname) ? `${target.pathname}${target.search}${target.hash}` : null;
+}
+
 export function localizedContentHref(href: string, locale: unknown): string | null {
   const base = "https://internal.invalid";
   const target = new URL(href, base);
   if (target.origin !== base || !isMarketingPathname(target.pathname)) return null;
+  if (staticFileHref(href)) return null;
 
   const targetLocale = routingLocaleFromPathname(target.pathname);
   const pathname = stripLocalePrefix(target.pathname);
@@ -114,9 +124,12 @@ export function AppLink(props: Props) {
   }
 
   const internalProps = rest as ComponentProps<typeof IntlLink>;
+  const fileHref = typeof internalProps.href === "string" ? staticFileHref(internalProps.href) : null;
   const hardNavigationHref =
     typeof internalProps.href === "string"
-      ? (contentHrefForLocale(internalProps.href, locale) ?? protectedHrefFromContent(internalProps.href, pathname))
+      ? (fileHref ??
+        contentHrefForLocale(internalProps.href, locale) ??
+        protectedHrefFromContent(internalProps.href, pathname))
       : null;
 
   const fallbackLanguage =
