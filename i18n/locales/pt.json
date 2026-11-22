@@ -4445,7 +4445,7 @@
       "waitingGeneric": "Aguardando a primeira chamada do seu agente. A marca aparece sozinha assim que seu agente estiver conectado."
     },
     "continue": "Continuar",
-    "finish": "Concluir",
+    "finish": "Abrir o espaço de trabalho",
     "goal": {
       "agent": {
         "description": "Conecte-o ao Customermates, cole um modelo e ele monta suas listas, seu pipeline e seus acompanhamentos.",

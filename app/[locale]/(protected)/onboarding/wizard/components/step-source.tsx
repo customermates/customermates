@@ -69,7 +69,7 @@ export const StepSource = observer(() => {
           disabled={disabled}
           id="onboarding-source-skip"
           type="button"
-          variant="ghost"
+          variant="secondary"
           onClick={() => runUserAction(() => store.answerSource(true))}
         >
           {t("OnboardingWizard.source.skip")}

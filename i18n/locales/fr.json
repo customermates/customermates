@@ -4445,7 +4445,7 @@
       "waitingGeneric": "En attente du premier appel de votre agent. La coche apparaît toute seule dès que votre agent est connecté."
     },
     "continue": "Continuer",
-    "finish": "Terminer",
+    "finish": "Ouvrir l’espace de travail",
     "goal": {
       "agent": {
         "description": "Connectez-le à Customermates, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",

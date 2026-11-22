@@ -4445,7 +4445,7 @@
       "waitingGeneric": "Wachten op de eerste aanroep van je agent. Het vinkje verschijnt vanzelf zodra je agent is verbonden."
     },
     "continue": "Doorgaan",
-    "finish": "Afronden",
+    "finish": "Werkruimte openen",
     "goal": {
       "agent": {
         "description": "Koppel hem aan Customermates, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",

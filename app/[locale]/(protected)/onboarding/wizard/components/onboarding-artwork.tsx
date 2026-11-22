@@ -12,30 +12,22 @@ import {
   Compass,
   Languages,
   LayoutTemplate,
-  Link2,
   Mail,
-  MessagesSquare,
-  Plus,
-  Sparkles,
+  Plug,
   UserRound,
   UsersRound,
 } from "lucide-react";
 
-import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
-import { Linkedin } from "@/components/icons/channel-icon";
 import { MateOrb } from "@/components/mate/mate-orb";
-import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
 import { COMPOUND_CONNECTOR_STROKE } from "@/components/marketing/visuals/story-visual-layout";
 import { VisualArtboard } from "@/components/marketing/visuals/visual-artboard";
 import { GridPattern } from "@/components/shared/grid-pattern";
-import { OverlappingStack } from "@/components/shared/overlapping-stack";
-import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/core/utils/cn";
 
 import type { WizardStep } from "./onboarding-wizard.store";
 import type { MilestoneStep } from "./onboarding-wizard-flow";
 
-type SceneStep = Exclude<WizardStep, "setup" | "playbook" | "template" | "prompt" | "source">;
+type SceneStep = Extract<WizardStep, "profile" | "goal">;
 const STEP_ICONS = {
   profile: UserRound,
   goal: Compass,
@@ -43,32 +35,22 @@ const STEP_ICONS = {
   setup: Blocks,
   invite: UsersRound,
   channel: Mail,
-  ai: Sparkles,
+  ai: Plug,
   template: LayoutTemplate,
   prompt: ClipboardCheck,
 };
 
 const NARROW_CONNECTOR = "M40 32C68 32 68 56 96 56";
 const SOURCE_PAIR_CONNECTOR = "M40 32C76 32 76 64 112 64M40 96C76 96 76 64 112 64M112 64H144";
-const AGENT_PAIR_CONNECTOR = "M96 32C136 32 136 64 176 64M96 96C136 96 136 64 176 64M176 64H208";
-const WIDE_SCENE_CLASS = { 320: "sm:w-80", 384: "sm:w-96" } as const;
 
-function Scene({
-  children,
-  connector,
-  width,
-}: {
-  children: ReactNode;
-  connector: string;
-  width: keyof typeof WIDE_SCENE_CLASS;
-}) {
+function Scene({ children }: { children: ReactNode }) {
   const placements = [
     { className: "sm:hidden", d: NARROW_CONNECTOR, viewBox: "0 0 256 112" },
-    { className: "hidden sm:block", d: connector, viewBox: `0 0 ${width} 128` },
+    { className: "hidden sm:block", d: SOURCE_PAIR_CONNECTOR, viewBox: "0 0 320 128" },
   ];
 
   return (
-    <div className={cn("relative h-28 w-64 sm:h-32", WIDE_SCENE_CLASS[width])}>
+    <div className="relative h-28 w-64 sm:h-32 sm:w-80">
       {placements.map(({ className, d, viewBox }) => (
         <svg key={viewBox} className={cn("absolute inset-0 size-full", className)} fill="none" viewBox={viewBox}>
           <path
@@ -145,7 +127,7 @@ function FocalIdentity({ children }: { children: ReactNode }) {
 
 function ProfileScene() {
   return (
-    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+    <Scene>
       <SourcePair first={<Languages className="size-4" />} second={<AtSign className="size-4" />} />
 
       <FocalIdentity>
@@ -157,76 +139,11 @@ function ProfileScene() {
 
 function GoalScene() {
   return (
-    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+    <Scene>
       <SourcePair first={<Bot className="size-4" />} second={<MateOrb className="size-5" />} />
 
       <FocalIdentity>
         <LayoutTemplate className="size-5" />
-      </FocalIdentity>
-    </Scene>
-  );
-}
-
-function ChannelScene() {
-  return (
-    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
-      <SourcePair first={<Linkedin className="size-4" />} second={<Mail className="size-4" />} />
-
-      <FocalIdentity>
-        <MessagesSquare className="size-5" />
-      </FocalIdentity>
-    </Scene>
-  );
-}
-
-function InviteScene() {
-  return (
-    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
-      <SourcePair first={<Link2 className="size-4" />} second={<Mail className="size-4" />} />
-
-      <FocalCard>
-        <div className="flex items-center gap-2">
-          <OverlappingStack
-            badgeKey={(member) => member}
-            badges={["first", "second", "third"]}
-            renderBadge={() => <Avatar fallback="" />}
-            renderOverflow={() => null}
-          />
-
-          <span className="grid size-6 place-items-center rounded-full border border-primary/25 bg-primary/6 text-primary">
-            <Plus className="size-3.5" />
-          </span>
-        </div>
-
-        <div className="mt-3">
-          <TextLines />
-        </div>
-      </FocalCard>
-    </Scene>
-  );
-}
-
-function AiScene() {
-  return (
-    <Scene connector={AGENT_PAIR_CONNECTOR} width={384}>
-      <SourceMark className="top-3 left-0 sm:hidden">
-        <AiClientLogo className="size-4" provider="claude" />
-      </SourceMark>
-
-      <NativeAgentProviderIdentity
-        className="absolute top-3 left-0 z-10 hidden h-10 w-24 justify-center rounded-full border border-border bg-card text-xs shadow-sm sm:inline-flex"
-        iconSize={16}
-        provider="claude"
-      />
-
-      <span className="absolute bottom-3 left-0 z-10 hidden h-10 w-24 items-center justify-center gap-2.5 rounded-full border border-border bg-card shadow-sm sm:flex">
-        {(["chatgpt", "cursor", "gemini"] as const).map((provider) => (
-          <AiClientLogo key={provider} className="size-3.5 opacity-75" provider={provider} />
-        ))}
-      </span>
-
-      <FocalIdentity>
-        <BookOpen className="size-5" />
       </FocalIdentity>
     </Scene>
   );
@@ -238,12 +155,6 @@ function StepScene({ step }: { step: SceneStep }) {
       return <ProfileScene />;
     case "goal":
       return <GoalScene />;
-    case "invite":
-      return <InviteScene />;
-    case "channel":
-      return <ChannelScene />;
-    case "ai":
-      return <AiScene />;
   }
 }
 

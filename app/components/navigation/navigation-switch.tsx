@@ -173,7 +173,10 @@ export function NavigationSwitch({
     );
   } else if (shellMode === "restricted") {
     shell = (
-      <SidebarProvider defaultOpen={defaultSidebarOpen} defaultWidth={defaultSidebarWidth}>
+      <SidebarProvider
+        defaultOpen={currentAccountState === "onboarding" ? false : defaultSidebarOpen}
+        defaultWidth={defaultSidebarWidth}
+      >
         {sidebarUser ? (
           <FallbackWorkspaceSlugProvider slug={workspaces.find((workspace) => workspace.isCurrent)?.slug ?? null}>
             <AppSidebar mode="restricted" user={sidebarUser} />

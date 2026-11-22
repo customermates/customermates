@@ -4445,7 +4445,7 @@
       "waitingGeneric": "Warte auf den ersten Aufruf deines Agenten. Das Häkchen erscheint von selbst, sobald dein Agent verbunden ist."
     },
     "continue": "Weiter",
-    "finish": "Fertig",
+    "finish": "Workspace öffnen",
     "goal": {
       "agent": {
         "description": "Verbinde ihn mit Customermates, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",

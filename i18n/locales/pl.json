@@ -4445,7 +4445,7 @@
       "waitingGeneric": "Czekamy na pierwsze wywołanie od Twojego agenta. Znacznik pojawi się sam, gdy tylko agent zostanie połączony."
     },
     "continue": "Kontynuuj",
-    "finish": "Zakończ",
+    "finish": "Otwórz przestrzeń roboczą",
     "goal": {
       "agent": {
         "description": "Połącz go z Customermates, wklej szablon, a on zbuduje Twoje listy, pipeline i follow-upy.",

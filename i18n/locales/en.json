@@ -4445,7 +4445,7 @@
       "waitingGeneric": "Waiting for your agent's first call. This ticks off by itself once your agent is connected."
     },
     "continue": "Continue",
-    "finish": "Finish",
+    "finish": "Open workspace",
     "goal": {
       "agent": {
         "description": "Connect it to Customermates, paste a template, and it builds your lists, pipeline and follow-ups.",

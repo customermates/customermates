@@ -4445,7 +4445,7 @@
       "waitingGeneric": "In attesa della prima chiamata del tuo agente. La spunta compare da sola appena il tuo agente è connesso."
     },
     "continue": "Continua",
-    "finish": "Fine",
+    "finish": "Apri lo spazio di lavoro",
     "goal": {
       "agent": {
         "description": "Collegalo a Customermates, incolla un modello e lui costruisce le tue liste, la tua pipeline e i tuoi solleciti.",

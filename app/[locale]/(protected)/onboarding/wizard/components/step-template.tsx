@@ -12,6 +12,7 @@ import type {
 
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { SelectableCard } from "@/components/forms/selectable-card";
+import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -109,12 +110,18 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
     <div className="flex flex-col gap-4">
       {cards.length > TEMPLATE_INITIAL_LIMIT || families.length > 1 ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div aria-label={t("OnboardingWizard.template.filtersLabel")} className="flex flex-wrap gap-2" role="group">
+          <OverflowRail
+            ariaLabel={t("OnboardingWizard.template.filtersLabel")}
+            bleed={false}
+            className="min-w-0 max-sm:w-full"
+            railClassName="gap-2 sm:w-full sm:flex-wrap"
+            railProps={{ "aria-label": t("OnboardingWizard.template.filtersLabel"), role: "group" }}
+          >
             {(["all", ...families] as const).map((option) => (
               <Button
                 key={option}
                 aria-pressed={family === option}
-                className="rounded-full"
+                className="shrink-0 rounded-full"
                 disabled={disabled}
                 size="sm"
                 type="button"
@@ -124,7 +131,7 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
                 {option === "all" ? t("OnboardingWizard.template.filterAll") : templateFamilyLabel(t, option)}
               </Button>
             ))}
-          </div>
+          </OverflowRail>
 
           <div className="relative w-full sm:w-56">
             <Search
