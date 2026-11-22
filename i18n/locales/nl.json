@@ -4320,6 +4320,13 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "captions": {
+        "claude": "Claude-app, web of Claude Code",
+        "cursor": "Cursor-editor",
+        "gemini": "Gemini CLI",
+        "openai": "ChatGPT-app of Codex",
+        "other": "Elke app die MCP ondersteunt"
+      },
       "choices": {
         "chatgpt": "ChatGPT",
         "claude": "Claude",
@@ -4405,8 +4412,7 @@
         "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL."
       },
       "providers": {
-        "ariaLabel": "AI-clients",
-        "more": "Meer:"
+        "ariaLabel": "AI-clients"
       },
       "savedKey": "Je hebt al een API-sleutel gemaakt voor deze installatie. Je kunt de onboarding afronden. Heb je de sleutelwaarde opnieuw nodig, maak dan een nieuwe sleutel.",
       "screen": {
@@ -4427,12 +4433,27 @@
     },
     "channel": {
       "addAnother": "Voeg nog een kanaal toe als je klanten je ook ergens anders schrijven.",
+      "captions": {
+        "google": "Je Google-mailbox",
+        "imap": "Elke andere mailbox",
+        "linkedin": "Berichten en contacten, standaard alleen voor jou",
+        "outlook": "Microsoft 365 of Outlook.com"
+      },
+      "connect": "Koppelen",
       "connected": "Gekoppeld",
       "connectedLabel": "Gekoppelde kanalen",
-      "emailDescription": "Koppel de mailbox waar je klanten naartoe schrijven. Je e-mails komen binnen en zijn standaard alleen voor jou zichtbaar.",
-      "emailTitle": "E-mail",
+      "connectNamed": "{channel} koppelen",
       "finishing": "De koppeling wordt afgerond. Je account verschijnt hier binnen enkele seconden.",
       "later": "WhatsApp, Telegram en meer kanalen vind je na de inrichting in de instellingen.",
+      "linkedinPlan": {
+        "hint": {
+          "linkedin": "Berichten, contacten en uitnodigingen.",
+          "linkedin_recruiter": "Plus zoeken naar kandidaten en je Recruiter-berichten.",
+          "linkedin_sales_navigator": "Plus zoeken naar leads en bedrijven en je Sales Navigator-lijsten."
+        },
+        "label": "Welke LinkedIn gebruik je?"
+      },
+      "optionsLabel": "Kanalen om te koppelen",
       "skip": "Voorlopig overslaan"
     },
     "connect": {
@@ -4450,12 +4471,6 @@
       "agent": {
         "description": "Koppel hem aan Customermates, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
         "descriptionSelfHosted": "Koppel hem aan deze instantie, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
-        "steps": {
-          "approve": "Plak en keur het plan goed",
-          "connect": "Koppel je agent",
-          "template": "Kies een sjabloon"
-        },
-        "stepsLabel": "Zo werkt het",
         "title": "Gebruik de AI-agent die je al hebt",
         "worksWith": "Werkt met Claude, ChatGPT, Cursor, Gemini en elke andere MCP-client."
       },
@@ -4495,6 +4510,10 @@
       }
     },
     "invite": {
+      "captions": {
+        "email": "Eén uitnodiging per persoon",
+        "link": "Plak hem in een chat"
+      },
       "emailCount": "{current} van {max} e-mailadressen · scheid ze met een komma of druk op Enter",
       "emailPlaceholder": "collega@voorbeeld.nl",
       "linkDescription": "Iedereen met deze link kan lid worden van je team. De link is 7 dagen geldig.",
@@ -4529,6 +4548,8 @@
       "writesTitle": "Drie kennisbankpagina's, klaar om te bewerken"
     },
     "profile": {
+      "previewName": "Je naam",
+      "previewRole": "Eigenaar",
       "teamSize": {
         "label": "Hoeveel mensen gaan deze werkruimte gebruiken?",
         "large": "Meer dan 20",
@@ -4659,6 +4680,7 @@
       "filtersLabel": "Soorten sjablonen",
       "none": "Geen sjabloon",
       "optionsLabel": "Sjablonen",
+      "pickOne": "Kies een sjabloon om te zien wat het inricht.",
       "recommended": "Aanbevolen",
       "searchLabel": "Sjablonen zoeken",
       "searchPlaceholder": "Sjablonen zoeken",

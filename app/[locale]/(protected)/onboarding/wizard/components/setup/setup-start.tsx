@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Clock, Globe, Loader2, MessageCircleQuestion } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -150,7 +150,9 @@ export const SetupStart = observer(function SetupStart() {
             className="border-2 border-primary bg-primary/5 shadow-sm"
             description={t("WorkspaceSetup.start.website.description")}
             disabled={busy}
+            icon={<Globe />}
             note={t("WorkspaceSetup.start.website.note")}
+            noteIcon={<Clock aria-hidden="true" />}
             title={t("WorkspaceSetup.start.website.title")}
             onClick={() => setWithWebsite(true)}
           />
@@ -158,7 +160,9 @@ export const SetupStart = observer(function SetupStart() {
           <ChoiceCard
             description={t("WorkspaceSetup.start.questions.description")}
             disabled={busy}
+            icon={<MessageCircleQuestion />}
             note={t("WorkspaceSetup.start.questions.note")}
+            noteIcon={<Clock aria-hidden="true" />}
             title={t("WorkspaceSetup.start.questions.title")}
             onClick={() => runUserAction(() => store.start(null))}
           />

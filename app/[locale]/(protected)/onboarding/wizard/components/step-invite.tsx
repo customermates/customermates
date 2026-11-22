@@ -3,9 +3,11 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Loader2 } from "lucide-react";
+import { Link2, Loader2, Send } from "lucide-react";
 
-import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/core/utils/cn";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { reportApplicationError } from "@/core/errors/report-application-error";
@@ -42,28 +44,59 @@ const InviteLink = observer(() => {
   );
 });
 
+const INVITE_MODES = [
+  { value: "link", Icon: Link2 },
+  { value: "email", Icon: Send },
+] as const;
+
 export const StepInvite = observer(() => {
   const t = useTranslations();
-  const { onboardingWizardStore } = useRootStore();
+  const copy = {
+    link: { title: t("OnboardingWizard.invite.tabs.link"), caption: t("OnboardingWizard.invite.captions.link") },
+    email: { title: t("OnboardingWizard.invite.tabs.email"), caption: t("OnboardingWizard.invite.captions.email") },
+  };
+  const { onboardingWizardStore: store } = useRootStore();
 
   return (
-    <SegmentedControl
-      className="w-full"
-      items={[
-        { value: "link", label: t("OnboardingWizard.invite.tabs.link"), disabled: onboardingWizardStore.isSaving },
-        { value: "email", label: t("OnboardingWizard.invite.tabs.email"), disabled: onboardingWizardStore.isSaving },
-      ]}
-      label={t("CompanyInviteModal.title")}
-      value={onboardingWizardStore.inviteTab}
-      onValueChange={onboardingWizardStore.setInviteTab}
-    >
-      <SegmentedControlPanel value="link">
-        <InviteLink />
-      </SegmentedControlPanel>
+    <div className="flex flex-col gap-4">
+      <RadioGroup
+        aria-label={t("CompanyInviteModal.title")}
+        className="grid grid-cols-2 gap-3"
+        disabled={store.isSaving}
+        value={store.inviteTab}
+        onValueChange={store.setInviteTab}
+      >
+        {INVITE_MODES.map(({ value, Icon }) => {
+          const id = `onboarding-invite-${value}`;
+          return (
+            <div key={value} className="relative min-w-0">
+              <RadioGroupItem className="peer sr-only" id={id} value={value} />
 
-      <SegmentedControlPanel value="email">
-        <InviteByEmailForm />
-      </SegmentedControlPanel>
-    </SegmentedControl>
+              <Label
+                className={cn(
+                  "interactive-surface flex h-full min-w-0 cursor-pointer flex-col items-center gap-2 rounded-xl border border-input bg-input-background px-3 py-4 text-center shadow-xs",
+                  "peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary",
+                  "peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
+                )}
+                htmlFor={id}
+              >
+                <span
+                  aria-hidden="true"
+                  className="grid size-11 place-items-center rounded-xl border border-border bg-card text-foreground shadow-xs"
+                >
+                  <Icon className="size-5" />
+                </span>
+
+                <span className="text-sm font-semibold text-foreground">{copy[value].title}</span>
+
+                <span className="text-xs font-normal text-muted-foreground max-sm:hidden">{copy[value].caption}</span>
+              </Label>
+            </div>
+          );
+        })}
+      </RadioGroup>
+
+      {store.inviteTab === "link" ? <InviteLink /> : <InviteByEmailForm />}
+    </div>
   );
 });

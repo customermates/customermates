@@ -20,19 +20,27 @@ const SETUP_CHOICE_CLASS = cn(
   "px-3 aria-checked:border-primary/25 aria-checked:bg-primary/10 aria-checked:text-primary-soft-foreground aria-checked:hover:bg-primary/15 aria-checked:hover:text-primary-soft-foreground",
 );
 
+const SETUP_SEGMENT_CLASS =
+  "inline-flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-card aria-checked:text-foreground aria-checked:shadow-xs aria-invalid:text-destructive [&_svg]:size-4 [&_svg]:shrink-0";
+
 type ChoiceGroupProps = {
   label: string;
   value: string | null;
   disabled?: boolean;
+  segments?: boolean;
   onValueChange: (value: string) => void;
   children: ReactNode;
 };
 
-export function SetupChoiceGroup({ label, value, disabled, onValueChange, children }: ChoiceGroupProps) {
+export function SetupChoiceGroup({ label, value, disabled, segments, onValueChange, children }: ChoiceGroupProps) {
   return (
     <RadioGroupPrimitive.Root
       aria-label={label}
-      className="flex flex-wrap gap-2"
+      className={
+        segments
+          ? "grid w-full auto-cols-fr grid-cols-1 gap-0.5 rounded-lg border border-border bg-muted p-0.5 sm:grid-flow-col sm:grid-cols-none"
+          : "flex flex-wrap gap-2"
+      }
       disabled={disabled}
       value={value ?? ""}
       onValueChange={onValueChange}
@@ -46,15 +54,21 @@ type RadioChipProps = {
   value: string;
   checked: boolean;
   invalid?: boolean;
+  icon?: ReactNode;
+  segment?: boolean;
   children: ReactNode;
 };
 
-export function SetupRadioChip({ value, checked, invalid, children }: RadioChipProps) {
+export function SetupRadioChip({ value, checked, invalid, icon, segment, children }: RadioChipProps) {
   return (
-    <RadioGroupPrimitive.Item aria-invalid={invalid || undefined} className={SETUP_CHOICE_CLASS} value={value}>
-      {checked ? <Check aria-hidden /> : null}
+    <RadioGroupPrimitive.Item
+      aria-invalid={invalid || undefined}
+      className={segment ? SETUP_SEGMENT_CLASS : SETUP_CHOICE_CLASS}
+      value={value}
+    >
+      {icon ?? (checked && !segment ? <Check aria-hidden /> : null)}
 
-      {children}
+      <span className="min-w-0 truncate">{children}</span>
     </RadioGroupPrimitive.Item>
   );
 }
@@ -63,11 +77,12 @@ type CheckChipProps = {
   checked: boolean;
   disabled?: boolean;
   invalid?: boolean;
+  icon?: ReactNode;
   onCheckedChange: (checked: boolean) => void;
   children: ReactNode;
 };
 
-export function SetupCheckChip({ checked, disabled, invalid, onCheckedChange, children }: CheckChipProps) {
+export function SetupCheckChip({ checked, disabled, invalid, icon, onCheckedChange, children }: CheckChipProps) {
   return (
     <CheckboxPrimitive.Root
       aria-invalid={invalid || undefined}
@@ -76,7 +91,7 @@ export function SetupCheckChip({ checked, disabled, invalid, onCheckedChange, ch
       disabled={disabled}
       onCheckedChange={(next) => onCheckedChange(next === true)}
     >
-      {checked ? <Check aria-hidden /> : null}
+      {icon ?? (checked ? <Check aria-hidden /> : null)}
 
       {children}
     </CheckboxPrimitive.Root>

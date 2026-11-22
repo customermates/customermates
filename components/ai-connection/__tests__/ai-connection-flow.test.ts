@@ -104,7 +104,7 @@ describe("AiConnectionOpenAiSetup", () => {
 });
 
 describe("AiConnectionProviderGrid", () => {
-  it("renders four quick connections as two balanced rows with ChatGPT and Codex merged", () => {
+  it("renders the four quick connections as one list of rows with ChatGPT and Codex merged", () => {
     const html = renderToStaticMarkup(
       createElement(AiConnectionProviderGrid, {
         disabled: false,
@@ -113,9 +113,8 @@ describe("AiConnectionProviderGrid", () => {
       }),
     );
 
-    expect(html).toContain("sm:grid-cols-2");
-    expect(html).not.toContain("sm:grid-cols-4");
-    expect(html).not.toContain("sm:col-span");
+    expect(html).toContain("divide-y");
+    expect(html.match(/data-provider=/g)).toHaveLength(4);
 
     for (const provider of ["claude", "openai", "cursor", "gemini"])
       expect(html).toContain(`data-provider="${provider}"`);

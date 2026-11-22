@@ -3,13 +3,16 @@
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { MessagingProvider } from "@/generated/prisma";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, CircleCheck, Loader2 } from "lucide-react";
 
 import { AppCardFooter } from "@/components/card/app-card-footer";
+import { SelectableCard } from "@/components/forms/selectable-card";
+import { LogoStack } from "@/components/shared/logo-stack";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
@@ -24,21 +27,148 @@ function parseConnectReturn(value: string | null): ConnectChannel | null {
 import { orderedEmailChannels } from "./channel-suggestions";
 import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
-type EmailChannel = { key: ConnectChannel; icon: MessagingProvider; label: string };
+type ChannelRow = { key: ConnectChannel; icon: MessagingProvider; label: string; caption: string };
+
+const LINKEDIN_PLANS = ["linkedin", "linkedin_sales_navigator", "linkedin_recruiter"] as const;
+type LinkedinPlan = (typeof LINKEDIN_PLANS)[number];
+
+const LinkedinPlanPicker = ({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: LinkedinPlan;
+  disabled: boolean;
+  onChange: (plan: LinkedinPlan) => void;
+}) => {
+  const t = useTranslations();
+  const plans: Record<LinkedinPlan, { label: string; hint: string }> = {
+    linkedin: {
+      label: t("ConnectedAccountsCard.channels.linkedinClassic"),
+      hint: t("OnboardingWizard.channel.linkedinPlan.hint.linkedin"),
+    },
+    linkedin_sales_navigator: {
+      label: t("ConnectedAccountsCard.channels.linkedinSalesNavigator"),
+      hint: t("OnboardingWizard.channel.linkedinPlan.hint.linkedin_sales_navigator"),
+    },
+    linkedin_recruiter: {
+      label: t("ConnectedAccountsCard.channels.linkedinRecruiter"),
+      hint: t("OnboardingWizard.channel.linkedinPlan.hint.linkedin_recruiter"),
+    },
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs font-medium text-foreground" id="onboarding-linkedin-plan-label">
+        {t("OnboardingWizard.channel.linkedinPlan.label")}
+      </span>
+
+      <RadioGroup
+        aria-labelledby="onboarding-linkedin-plan-label"
+        className="grid grid-cols-1 gap-2 sm:grid-cols-3"
+        disabled={disabled}
+        id="onboarding-linkedin-plan"
+        value={value}
+        onValueChange={(next) => onChange(LINKEDIN_PLANS.find((plan) => plan === next) ?? "linkedin")}
+      >
+        {LINKEDIN_PLANS.map((plan) => (
+          <SelectableCard
+            key={plan}
+            description={plans[plan].hint}
+            disabled={disabled}
+            id={`onboarding-linkedin-plan-${plan}`}
+            label={plans[plan].label}
+            selectionMode="single"
+            value={plan}
+          />
+        ))}
+      </RadioGroup>
+    </div>
+  );
+};
+
+const ChannelRowItem = ({
+  row,
+  primary,
+  disabled,
+  onConnect,
+}: {
+  row: ChannelRow;
+  primary: boolean;
+  disabled: boolean;
+  onConnect: (channel: ConnectChannel) => void;
+}) => {
+  const t = useTranslations();
+  const [plan, setPlan] = useState<LinkedinPlan>("linkedin");
+  const Icon = getProviderIcon(row.icon);
+  const isLinkedin = row.key === "linkedin";
+
+  return (
+    <li className="flex flex-col gap-3 px-4 py-3" data-primary={primary || undefined}>
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-card shadow-xs"
+        >
+          <Icon className="size-5" />
+        </span>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">{row.label}</span>
+
+            {primary ? <Badge>{t("OnboardingWizard.goal.channelsHint.recommended")}</Badge> : null}
+          </span>
+
+          <span className="text-xs text-muted-foreground">{row.caption}</span>
+        </div>
+
+        <Button
+          aria-label={t("OnboardingWizard.channel.connectNamed", { channel: row.label })}
+          className="shrink-0"
+          disabled={disabled}
+          id={`onboarding-channel-${row.key}`}
+          size="sm"
+          type="button"
+          variant={primary ? "default" : "secondary"}
+          onClick={() => onConnect(isLinkedin ? plan : row.key)}
+        >
+          {t("OnboardingWizard.channel.connect")}
+        </Button>
+      </div>
+
+      {isLinkedin ? <LinkedinPlanPicker disabled={disabled} value={plan} onChange={setPlan} /> : null}
+    </li>
+  );
+};
 
 export const StepChannel = observer(({ email }: { email: string }) => {
   const t = useTranslations();
   const { onboardingWizardStore: store, connectedAccountsStore } = useRootStore();
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
-  const LinkedInIcon = getProviderIcon("linkedin");
   const connected = connectedAccountsStore.items.filter((account) => account.isOwner);
   const linkedinFirst = store.connectsAgent;
-  const labels: Record<"google" | "outlook" | "imap", EmailChannel> = {
-    google: { key: "google", icon: "google", label: t("Common.providers.google") },
-    outlook: { key: "outlook", icon: "outlook", label: t("Common.providers.outlook") },
-    imap: { key: "imap", icon: "mail", label: t("OnboardingWizard.goal.channelsHint.otherEmail") },
+  const labels: Record<"google" | "outlook" | "imap", ChannelRow> = {
+    google: {
+      key: "google",
+      icon: "google",
+      label: t("Common.providers.google"),
+      caption: t("OnboardingWizard.channel.captions.google"),
+    },
+    outlook: {
+      key: "outlook",
+      icon: "outlook",
+      label: t("Common.providers.outlook"),
+      caption: t("OnboardingWizard.channel.captions.outlook"),
+    },
+    imap: {
+      key: "imap",
+      icon: "mail",
+      label: t("OnboardingWizard.goal.channelsHint.otherEmail"),
+      caption: t("OnboardingWizard.channel.captions.imap"),
+    },
   };
-  const emailChannels = orderedEmailChannels(email).map((key) => labels[key]);
+  const emailChannels: ChannelRow[] = orderedEmailChannels(email).map((key) => labels[key]);
   const connect = (channel: ConnectChannel) => runUserAction(() => store.connectChannel(channel));
 
   const returnedFrom = parseConnectReturn(useSearchParams().get(ONBOARDING_CHANNEL_RETURN_PARAM));
@@ -54,75 +184,14 @@ export const StepChannel = observer(({ email }: { email: string }) => {
     return () => connectedAccountsStore.stopSyncPolling();
   }, [connectedAccountsStore, returnedFrom]);
 
-  const linkedin = (
-    <div
-      key="linkedin"
-      className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center"
-      data-primary={linkedinFirst || undefined}
-    >
-      <LinkedInIcon aria-hidden="true" className="size-8 shrink-0" />
-
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium">{t("OnboardingWizard.goal.channelsHint.linkedinTitle")}</p>
-
-          {linkedinFirst ? <Badge>{t("OnboardingWizard.goal.channelsHint.recommended")}</Badge> : null}
-        </div>
-
-        <p className="text-xs text-muted-foreground">{t("OnboardingWizard.goal.channelsHint.linkedinDescription")}</p>
-      </div>
-
-      <Button
-        className="shrink-0"
-        disabled={disabled}
-        id="onboarding-channel-linkedin"
-        type="button"
-        variant={linkedinFirst ? "default" : "secondary"}
-        onClick={() => connect("linkedin")}
-      >
-        {t("OnboardingWizard.goal.channelsHint.linkedinAction")}
-      </Button>
-    </div>
-  );
-
-  const mailbox = (
-    <div
-      key="email"
-      className="flex flex-col gap-3 rounded-lg border border-border p-4"
-      data-primary={!linkedinFirst || undefined}
-    >
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium">{t("OnboardingWizard.channel.emailTitle")}</p>
-
-          {linkedinFirst ? null : <Badge>{t("OnboardingWizard.goal.channelsHint.recommended")}</Badge>}
-        </div>
-
-        <p className="text-xs text-muted-foreground">{t("OnboardingWizard.channel.emailDescription")}</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {emailChannels.map((channel, index) => {
-          const ChannelIcon = getProviderIcon(channel.icon);
-          return (
-            <Button
-              key={channel.key}
-              disabled={disabled}
-              id={`onboarding-channel-${channel.key}`}
-              size="sm"
-              type="button"
-              variant={!linkedinFirst && index === 0 ? "default" : "secondary"}
-              onClick={() => connect(channel.key)}
-            >
-              <ChannelIcon aria-hidden="true" className="size-4" />
-
-              {channel.label}
-            </Button>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const rows: ChannelRow[] = [...emailChannels];
+  const linkedinRow: ChannelRow = {
+    key: "linkedin",
+    icon: "linkedin",
+    label: t("OnboardingWizard.goal.channelsHint.linkedinTitle"),
+    caption: t("OnboardingWizard.channel.captions.linkedin"),
+  };
+  rows.splice(linkedinFirst ? 0 : 2, 0, linkedinRow);
 
   return (
     <div className="flex flex-col gap-3">
@@ -172,9 +241,26 @@ export const StepChannel = observer(({ email }: { email: string }) => {
         <p className="text-xs font-medium text-muted-foreground">{t("OnboardingWizard.channel.addAnother")}</p>
       ) : null}
 
-      {linkedinFirst ? [linkedin, mailbox] : [mailbox, linkedin]}
+      <ul
+        aria-label={t("OnboardingWizard.channel.optionsLabel")}
+        className="flex flex-col divide-y divide-border rounded-xl border border-border"
+      >
+        {rows.map((row, index) => (
+          <ChannelRowItem key={row.key} disabled={disabled} primary={index === 0} row={row} onConnect={connect} />
+        ))}
+      </ul>
 
-      <p className="text-xs text-muted-foreground">{t("OnboardingWizard.channel.later")}</p>
+      <div className="flex items-center gap-2">
+        <LogoStack
+          items={(["whatsapp", "telegram", "instagram", "facebook"] as const).map((provider) => {
+            const Icon = getProviderIcon(provider);
+            return { key: provider, node: <Icon /> };
+          })}
+          size="sm"
+        />
+
+        <p className="text-xs text-muted-foreground">{t("OnboardingWizard.channel.later")}</p>
+      </div>
     </div>
   );
 });

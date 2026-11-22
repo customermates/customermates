@@ -220,7 +220,7 @@ test("starting with an empty workspace skips only the guided setup and continues
   expect(errors).toEqual([]);
 });
 
-test("a new workspace offers the own agent first, Mate second and starting empty as the quiet footer", async ({
+test("a new workspace offers the own agent first, Mate beside it and starting empty as the quiet footer", async ({
   page,
   database,
   workspace,
@@ -238,13 +238,17 @@ test("a new workspace offers the own agent first, Mate second and starting empty
   await expect(radios.nth(1)).not.toBeChecked();
   await expect(page.locator("#onboarding-goal-empty")).toHaveText(setup.empty.action);
   const [agentBox, mateBox, emptyBox] = await Promise.all(
-    [page.locator('label[for="onboarding-goal-agent"]'), page.locator('label[for="onboarding-goal-workspace"]'), page.locator("#onboarding-goal-empty")].map(
-      (target) => target.boundingBox(),
-    ),
+    [
+      page.locator('label[for="onboarding-goal-agent"]'),
+      page.locator('label[for="onboarding-goal-workspace"]'),
+      page.locator("#onboarding-goal-empty"),
+    ].map((target) => target.boundingBox()),
   );
   if (!agentBox || !mateBox || !emptyBox) throw new Error("The setup choices must be visible");
-  expect(mateBox.y).toBeGreaterThan(agentBox.y + agentBox.height - 1);
-  expect(emptyBox.y).toBeGreaterThan(mateBox.y + mateBox.height - 1);
+  const sideBySide = (page.viewportSize()?.width ?? 0) >= 640;
+  if (sideBySide) expect(mateBox.x).toBeGreaterThan(agentBox.x + agentBox.width - 1);
+  else expect(mateBox.y).toBeGreaterThan(agentBox.y + agentBox.height - 1);
+  expect(emptyBox.y).toBeGreaterThan(Math.max(agentBox.y + agentBox.height, mateBox.y + mateBox.height) - 1);
   await page.screenshot({ path: testInfo.outputPath("goal-choice-order.png"), fullPage: true });
   expect(errors).toEqual([]);
 });
@@ -327,10 +331,10 @@ test("the signup job preselects following up, which writes the job playbook and 
   expect(rows).toEqual([{ wizard: expect.any(Date), setup: expect.any(Date) }]);
 
   const slug = await workspaceSlugOf(database, companyId);
-  await page.evaluate(
-    ({ key, value }) => window.sessionStorage.setItem(key, value),
-    { key: ONBOARDING_CONNECT_KEY, value: JSON.stringify({ channel: "linkedin", at: Date.now() }) },
-  );
+  await page.evaluate(({ key, value }) => window.sessionStorage.setItem(key, value), {
+    key: ONBOARDING_CONNECT_KEY,
+    value: JSON.stringify({ channel: "linkedin", at: Date.now() }),
+  });
   await page.goto(appPath(slug, "/settings/connections?account_id=e2e-linkedin&status=CREATION_SUCCESS"));
   await expect(page).toHaveURL(appUrlPattern(slug, "/settings/connections\\?from=onboarding&connected=linkedin$"));
   const connected = page.locator("#onboarding-channel-connected");

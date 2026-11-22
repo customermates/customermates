@@ -2,58 +2,95 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Bot, Cloud, Loader2, MessagesSquare } from "lucide-react";
-import { useState } from "react";
+import { ArrowRight, Cloud, Loader2, MessagesSquare } from "lucide-react";
+import { useState, type ReactNode } from "react";
+
+import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { GridPattern } from "@/components/shared/grid-pattern";
+import { LogoStack } from "@/components/shared/logo-stack";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/core/utils/cn";
 
 import { MateOrb } from "@/components/mate/mate-orb";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SelectableCard } from "@/components/forms/selectable-card";
-import { RadioGroup } from "@/components/ui/radio-group";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { OnboardingJob } from "@/features/onboarding-funnel/onboarding-job";
 
-import { agentChecklist } from "./onboarding-copy";
-import { WIZARD_CHOICE_CARD_CLASS } from "./wizard-choice";
 import { WIZARD_FOOTER_CLASS } from "./wizard-footer";
 
-const AgentProviders = () => {
-  const t = useTranslations();
+const AI_PROVIDERS = ["claude", "chatgpt", "cursor", "gemini"] as const;
+
+function GoalHero({ job, selfHosted }: { job: OnboardingJob; selfHosted: boolean }) {
+  if (job === "agent") {
+    return (
+      <LogoStack
+        items={AI_PROVIDERS.map((provider) => ({ key: provider, node: <AiClientLogo provider={provider} /> }))}
+        size="lg"
+      />
+    );
+  }
+  if (job === "workspace" && !selfHosted) return <MateOrb className="size-10" />;
+  const Icon = job === "workspace" ? Cloud : MessagesSquare;
 
   return (
-    <p className="text-xs text-muted-foreground" id="onboarding-goal-works-with">
-      {t("OnboardingWizard.goal.agent.worksWith")}
-    </p>
+    <span className="grid size-10 place-items-center rounded-full border border-border bg-card text-primary shadow-sm">
+      <Icon aria-hidden="true" className="size-5" />
+    </span>
   );
+}
+
+type GoalCardProps = {
+  job: OnboardingJob;
+  label: string;
+  description: string;
+  badge?: ReactNode;
+  disabled: boolean;
+  selfHosted: boolean;
+  caption?: ReactNode;
 };
 
-const AgentSteps = () => {
-  const t = useTranslations();
+function GoalCard({ job, label, description, badge, disabled, selfHosted, caption }: GoalCardProps) {
+  const id = `onboarding-goal-${job}`;
 
   return (
-    <ol
-      aria-label={t("OnboardingWizard.goal.agent.stepsLabel")}
-      className="grid w-full grid-cols-1 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-3"
-    >
-      {agentChecklist(t).map((label, index) => (
-        <li key={label} className="flex items-center gap-2">
-          <span
-            aria-hidden="true"
-            className="grid size-5 shrink-0 place-items-center rounded-full bg-muted text-[11px] font-medium text-foreground"
-          >
-            {index + 1}
+    <div className="relative min-w-0">
+      <RadioGroupItem className="peer absolute top-3 right-3 z-10" disabled={disabled} id={id} value={job} />
+
+      <Label
+        className={cn(
+          "interactive-surface flex h-full min-w-0 cursor-pointer flex-col items-stretch gap-0 overflow-hidden rounded-xl border border-input bg-input-background text-left shadow-xs",
+          "peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary",
+          "peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
+        )}
+        htmlFor={id}
+      >
+        <span className="relative grid h-24 place-items-center overflow-hidden border-b border-border bg-muted/40 max-sm:h-20">
+          <GridPattern className="opacity-60" density="compact" />
+
+          <span className="relative">
+            <GoalHero job={job} selfHosted={selfHosted} />
           </span>
+        </span>
 
-          {label}
-        </li>
-      ))}
-    </ol>
+        <span className="flex flex-1 flex-col items-start gap-1.5 p-4">
+          <span className="pr-6 text-sm leading-snug font-semibold text-foreground">{label}</span>
+
+          <span className="text-xs leading-relaxed font-normal text-muted-foreground">{description}</span>
+
+          {caption}
+
+          {badge ? <span className="mt-auto pt-1">{badge}</span> : null}
+        </span>
+      </Label>
+    </div>
   );
-};
+}
 
 const EmptyWorkspaceAction = observer(() => {
   const t = useTranslations();
@@ -109,7 +146,7 @@ export const StepGoal = observer(() => {
     <div className="flex flex-col gap-3">
       <RadioGroup
         aria-label={t("OnboardingWizard.goal.optionsLabel")}
-        className="flex flex-col gap-3"
+        className={cn("grid grid-cols-1 gap-3", jobs.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2")}
         disabled={disabled}
         value={store.selectedJob}
         onValueChange={store.setSelectedJob}
@@ -117,34 +154,29 @@ export const StepGoal = observer(() => {
         {jobs.map((job) => {
           if (job === "agent") {
             return (
-              <SelectableCard
+              <GoalCard
                 key={job}
                 badge={mateSuggested ? undefined : <Badge>{t("OnboardingWizard.goal.recommended")}</Badge>}
+                caption={
+                  <span className="sr-only" id="onboarding-goal-works-with">
+                    {t("OnboardingWizard.goal.agent.worksWith")}
+                  </span>
+                }
                 description={
                   store.selfHosted
                     ? t("OnboardingWizard.goal.agent.descriptionSelfHosted")
                     : t("OnboardingWizard.goal.agent.description")
                 }
                 disabled={disabled}
-                id="onboarding-goal-agent"
+                job={job}
                 label={t("OnboardingWizard.goal.agent.title")}
-                labelClassName={WIZARD_CHOICE_CARD_CLASS}
-                leading={<Bot aria-hidden="true" className="size-4 text-primary" />}
-                selectionMode="single"
-                value={job}
-                visual={
-                  <>
-                    <AgentProviders />
-
-                    <AgentSteps />
-                  </>
-                }
+                selfHosted={store.selfHosted}
               />
             );
           }
           if (job === "workspace") {
             return (
-              <SelectableCard
+              <GoalCard
                 key={job}
                 badge={
                   store.selfHosted ? (
@@ -159,27 +191,21 @@ export const StepGoal = observer(() => {
                 }
                 description={mateDescription}
                 disabled={disabled}
-                id="onboarding-goal-workspace"
+                job={job}
                 label={mateTitle}
-                labelClassName={WIZARD_CHOICE_CARD_CLASS}
-                leading={<MateOrb />}
-                selectionMode="single"
-                value={job}
+                selfHosted={store.selfHosted}
               />
             );
           }
           return (
-            <SelectableCard
+            <GoalCard
               key={job}
               badge={<Badge variant="secondary">{t("OnboardingWizard.goal.suggested")}</Badge>}
               description={t("OnboardingWizard.goal.followup.description")}
               disabled={disabled}
-              id="onboarding-goal-followup"
+              job={job}
               label={t("OnboardingWizard.goal.followup.title")}
-              labelClassName={WIZARD_CHOICE_CARD_CLASS}
-              leading={<MessagesSquare aria-hidden="true" className="size-4 text-primary" />}
-              selectionMode="single"
-              value={job}
+              selfHosted={store.selfHosted}
             />
           );
         })}

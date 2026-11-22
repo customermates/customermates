@@ -4320,6 +4320,13 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "captions": {
+        "claude": "App Claude, web o Claude Code",
+        "cursor": "Editor Cursor",
+        "gemini": "Gemini CLI",
+        "openai": "App ChatGPT o Codex",
+        "other": "Qualsiasi app che supporta MCP"
+      },
       "choices": {
         "chatgpt": "ChatGPT",
         "claude": "Claude",
@@ -4405,8 +4412,7 @@
         "workspaceNote": "Questo URL collega {workspace}. Ogni spazio di lavoro ha il proprio URL."
       },
       "providers": {
-        "ariaLabel": "Client IA",
-        "more": "Altri:"
+        "ariaLabel": "Client IA"
       },
       "savedKey": "Hai già creato una chiave API per questa configurazione. Puoi completare la configurazione iniziale. Se ti serve di nuovo il valore della chiave, creane una nuova.",
       "screen": {
@@ -4427,12 +4433,27 @@
     },
     "channel": {
       "addAnother": "Aggiungi un altro canale se i clienti ti scrivono anche altrove.",
+      "captions": {
+        "google": "La tua casella Google",
+        "imap": "Qualsiasi altra casella",
+        "linkedin": "Messaggi e contatti, privati per impostazione predefinita",
+        "outlook": "Microsoft 365 o Outlook.com"
+      },
+      "connect": "Collega",
       "connected": "Collegato",
       "connectedLabel": "Canali collegati",
-      "emailDescription": "Collega la casella a cui scrivono i tuoi clienti. Le tue e-mail arrivano e per impostazione predefinita le vedi solo tu.",
-      "emailTitle": "E-mail",
+      "connectNamed": "Collega {channel}",
       "finishing": "Stiamo completando il collegamento. Il tuo account comparirà qui tra pochi secondi.",
       "later": "WhatsApp, Telegram e altri canali sono nelle impostazioni dopo la configurazione.",
+      "linkedinPlan": {
+        "hint": {
+          "linkedin": "Messaggi, contatti e inviti.",
+          "linkedin_recruiter": "In più, ricerca di candidati e i tuoi messaggi di Recruiter.",
+          "linkedin_sales_navigator": "In più, ricerca di lead e aziende e i tuoi elenchi di Sales Navigator."
+        },
+        "label": "Quale LinkedIn usi?"
+      },
+      "optionsLabel": "Canali da collegare",
       "skip": "Salta per ora"
     },
     "connect": {
@@ -4450,12 +4471,6 @@
       "agent": {
         "description": "Collegalo a Customermates, incolla un modello e lui costruisce le tue liste, la tua pipeline e i tuoi solleciti.",
         "descriptionSelfHosted": "Collegalo a questa istanza, incolla un modello e lui costruisce le tue liste, la tua pipeline e i tuoi solleciti.",
-        "steps": {
-          "approve": "Incolla e approva il piano",
-          "connect": "Collega il tuo agente",
-          "template": "Scegli un modello"
-        },
-        "stepsLabel": "Come funziona",
         "title": "Usa l’agente IA che hai già",
         "worksWith": "Funziona con Claude, ChatGPT, Cursor, Gemini e qualsiasi altro client MCP."
       },
@@ -4495,6 +4510,10 @@
       }
     },
     "invite": {
+      "captions": {
+        "email": "Un invito per persona",
+        "link": "Incollalo in una chat"
+      },
       "emailCount": "{current} di {max} e-mail · separale con una virgola o premi Invio",
       "emailPlaceholder": "collega@esempio.com",
       "linkDescription": "Chiunque abbia questo link può unirsi al tuo team. Il link è valido per 7 giorni.",
@@ -4529,6 +4548,8 @@
       "writesTitle": "Tre pagine della base di conoscenza, pronte da modificare"
     },
     "profile": {
+      "previewName": "Il tuo nome",
+      "previewRole": "Proprietario",
       "teamSize": {
         "label": "Quante persone useranno questo spazio di lavoro?",
         "large": "Più di 20",
@@ -4659,6 +4680,7 @@
       "filtersLabel": "Tipi di modello",
       "none": "Nessun modello",
       "optionsLabel": "Modelli",
+      "pickOne": "Scegli un modello per vedere cosa imposta.",
       "recommended": "Consigliato",
       "searchLabel": "Cerca modelli",
       "searchPlaceholder": "Cerca modelli",

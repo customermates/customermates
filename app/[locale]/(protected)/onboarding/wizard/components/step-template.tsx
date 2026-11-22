@@ -2,7 +2,25 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Loader2, Search } from "lucide-react";
+import {
+  ArrowRight,
+  Blocks,
+  BriefcaseBusiness,
+  Hammer,
+  Handshake,
+  House,
+  Inbox,
+  Landmark,
+  ListChecks,
+  Loader2,
+  PenLine,
+  Search,
+  Sparkles,
+  TrendingUp,
+  UserSearch,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 import type {
@@ -11,16 +29,16 @@ import type {
 } from "@/features/onboarding-templates/onboarding-template-offer";
 
 import { AppCardFooter } from "@/components/card/app-card-footer";
-import { SelectableCard } from "@/components/forms/selectable-card";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RadioGroup } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { templateFamilyLabel } from "./onboarding-copy";
-import { WIZARD_CHOICE_CARD_CLASS } from "./wizard-choice";
 import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
 const TEMPLATE_INITIAL_LIMIT = 6;
@@ -35,11 +53,41 @@ function matches(card: OnboardingTemplateCard, query: string): boolean {
   return needle === "" || `${card.name} ${card.summary}`.toLocaleLowerCase().includes(needle);
 }
 
+const FAMILY_ICONS: Record<OnboardingTemplateCard["family"], LucideIcon> = {
+  clients: Handshake,
+  community: UsersRound,
+  content: PenLine,
+  custom: Sparkles,
+  intake: Inbox,
+  investing: Landmark,
+  operations: ListChecks,
+  "professional-services": BriefcaseBusiness,
+  property: House,
+  recruiting: UserSearch,
+  sales: TrendingUp,
+  trades: Hammer,
+};
+
+function FamilyIcon({ family, className }: { family: OnboardingTemplateCard["family"]; className?: string }) {
+  const Icon = FAMILY_ICONS[family];
+
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-foreground", className)}
+    >
+      <Icon className="size-4" />
+    </span>
+  );
+}
+
 const TemplateCounts = ({ counts }: { counts: OnboardingTemplateCard["counts"] }) => {
   const t = useTranslations();
 
   return (
-    <span className="text-xs font-medium text-foreground/80">
+    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/80">
+      <Blocks aria-hidden="true" className="size-3.5 text-muted-foreground" />
+
       {counts.rules > 0
         ? t("OnboardingWizard.template.counts", counts)
         : t("OnboardingWizard.template.countsNoRules", counts)}
@@ -47,33 +95,85 @@ const TemplateCounts = ({ counts }: { counts: OnboardingTemplateCard["counts"] }
   );
 };
 
-const TemplateChoice = ({
+const TemplateRow = ({
   card,
   badge,
   disabled,
+  selected,
 }: {
   card: OnboardingTemplateCard;
   badge: string | null;
   disabled: boolean;
+  selected: boolean;
 }) => {
   const t = useTranslations();
+  const id = `onboarding-template-${card.slug}`;
 
   return (
-    <SelectableCard
-      description={card.summary}
-      disabled={disabled}
-      eyebrow={badge ?? templateFamilyLabel(t, card.family)}
-      id={`onboarding-template-${card.slug}`}
-      label={card.name}
-      labelClassName={WIZARD_CHOICE_CARD_CLASS}
-      selectionMode="single"
-      value={card.slug}
-      visual={
-        <span className="mt-auto w-full border-t border-border/70 pt-2">
-          <TemplateCounts counts={card.counts} />
+    <div className="relative min-w-0">
+      <RadioGroupItem className="peer sr-only" disabled={disabled} id={id} value={card.slug} />
+
+      <Label
+        className={cn(
+          "interactive-surface flex min-w-0 cursor-pointer items-start gap-3 rounded-lg p-2 text-left",
+          "peer-data-[state=checked]:bg-primary/8 peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50",
+          "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
+        )}
+        htmlFor={id}
+      >
+        <FamilyIcon family={card.family} />
+
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm font-medium text-foreground">{card.name}</span>
+
+          <span className="truncate text-xs font-normal text-muted-foreground">
+            {badge ?? templateFamilyLabel(t, card.family)}
+          </span>
+
+          {selected ? (
+            <span className="mt-1 text-xs leading-relaxed font-normal text-muted-foreground md:hidden">
+              {card.summary}
+            </span>
+          ) : null}
         </span>
-      }
-    />
+      </Label>
+    </div>
+  );
+};
+
+const TemplateDetail = ({ card, badge }: { card: OnboardingTemplateCard | undefined; badge: string | null }) => {
+  const t = useTranslations();
+
+  if (!card) {
+    return (
+      <div className="grid min-h-64 place-items-center rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground max-md:hidden">
+        {t("OnboardingWizard.template.pickOne")}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      aria-live="polite"
+      className="flex flex-col gap-4 rounded-xl border border-border bg-muted/30 p-5 max-md:hidden"
+      id="onboarding-template-detail"
+    >
+      <div className="flex items-center gap-3">
+        <FamilyIcon className="size-10 rounded-xl" family={card.family} />
+
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+            {[templateFamilyLabel(t, card.family), badge].filter(Boolean).join(" · ")}
+          </span>
+
+          <span className="text-base font-semibold text-foreground">{card.name}</span>
+        </div>
+      </div>
+
+      <p className="text-sm leading-relaxed text-pretty text-muted-foreground">{card.summary}</p>
+
+      <TemplateCounts counts={card.counts} />
+    </div>
   );
 };
 
@@ -89,6 +189,7 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
   const filtered = cards.filter((card) => (family === "all" || card.family === family) && matches(card, query));
   const filtering = family !== "all" || query.trim() !== "";
   const selected = store.selectedTemplate;
+  const selectedCard = cards.find((card) => card.slug === selected);
   const ordered = [
     ...filtered.filter((card) => card.slug === pinned),
     ...filtered.filter((card) => card.slug !== pinned),
@@ -157,17 +258,27 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
           {t("OnboardingWizard.template.empty")}
         </p>
       ) : (
-        <RadioGroup
-          aria-label={t("OnboardingWizard.template.optionsLabel")}
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
-          disabled={disabled}
-          value={selected ?? ""}
-          onValueChange={store.setSelectedTemplate}
-        >
-          {visible.map((card) => (
-            <TemplateChoice key={card.slug} badge={badgeFor(card)} card={card} disabled={disabled} />
-          ))}
-        </RadioGroup>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+          <RadioGroup
+            aria-label={t("OnboardingWizard.template.optionsLabel")}
+            className="flex flex-col gap-1 md:max-h-[26rem] md:overflow-y-auto md:pr-1"
+            disabled={disabled}
+            value={selected ?? ""}
+            onValueChange={store.setSelectedTemplate}
+          >
+            {visible.map((card) => (
+              <TemplateRow
+                key={card.slug}
+                badge={badgeFor(card)}
+                card={card}
+                disabled={disabled}
+                selected={card.slug === selected}
+              />
+            ))}
+          </RadioGroup>
+
+          <TemplateDetail badge={selectedCard ? badgeFor(selectedCard) : null} card={selectedCard} />
+        </div>
       )}
 
       {limited || (showAll && !filtering && ordered.length > TEMPLATE_INITIAL_LIMIT) ? (

@@ -8,14 +8,6 @@ export function templateFamilyLabel(t: Translate, family: TemplateIndexEntry["fa
   return t(`OnboardingWizard.template.families.${family}`);
 }
 
-export function agentChecklist(t: Translate): string[] {
-  return [
-    t("OnboardingWizard.goal.agent.steps.connect"),
-    t("OnboardingWizard.goal.agent.steps.template"),
-    t("OnboardingWizard.goal.agent.steps.approve"),
-  ];
-}
-
 export function promptChecklist(t: Translate, agent: string | null): string[] {
   return [
     t("OnboardingWizard.prompt.steps.copy"),

@@ -300,7 +300,7 @@ const OnboardingWizardContent = observer(
                     : currentStep === "prompt"
                       ? t("OnboardingWizard.steps.prompt.subtitle", { template: selectedTemplateName ?? "" })
                       : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
-    const artworkStep = currentStep === "profile" || currentStep === "goal" ? currentStep : null;
+    const artworkStep = currentStep === "profile" ? currentStep : null;
     const agentBadge =
       currentStep === "template" && connectsAgent && onboardingWizardStore.agentConnected
         ? agentName
@@ -346,9 +346,7 @@ const OnboardingWizardContent = observer(
             </>
           )}
 
-          {artworkStep ? (
-            <OnboardingArtwork className={artworkStep === "profile" ? undefined : "max-sm:hidden"} step={artworkStep} />
-          ) : null}
+          {artworkStep ? <OnboardingArtwork step={artworkStep} /> : null}
 
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
             <div className="flex min-w-0 flex-col gap-1">

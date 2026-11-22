@@ -4320,6 +4320,13 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "captions": {
+        "claude": "App Claude, web ou Claude Code",
+        "cursor": "Éditeur Cursor",
+        "gemini": "Gemini CLI",
+        "openai": "App ChatGPT ou Codex",
+        "other": "Toute app compatible MCP"
+      },
       "choices": {
         "chatgpt": "ChatGPT",
         "claude": "Claude",
@@ -4405,8 +4412,7 @@
         "workspaceNote": "Cette URL connecte {workspace}. Chaque espace de travail a sa propre URL."
       },
       "providers": {
-        "ariaLabel": "Clients d’IA",
-        "more": "Autres :"
+        "ariaLabel": "Clients d’IA"
       },
       "savedKey": "Vous avez déjà créé une clé API pour cette configuration. Vous pouvez terminer la configuration initiale. Si vous avez besoin de sa valeur à nouveau, créez une nouvelle clé.",
       "screen": {
@@ -4427,12 +4433,27 @@
     },
     "channel": {
       "addAnother": "Ajoutez un autre canal si vos clients vous écrivent aussi ailleurs.",
+      "captions": {
+        "google": "Votre boîte Google",
+        "imap": "Toute autre boîte mail",
+        "linkedin": "Messages et contacts, privés par défaut",
+        "outlook": "Microsoft 365 ou Outlook.com"
+      },
+      "connect": "Connecter",
       "connected": "Connecté",
       "connectedLabel": "Canaux connectés",
-      "emailDescription": "Connectez la boîte mail à laquelle vos clients écrivent. Vos e-mails arrivent et restent privés par défaut.",
-      "emailTitle": "E-mail",
+      "connectNamed": "Connecter {channel}",
       "finishing": "Connexion en cours de finalisation. Votre compte apparaîtra ici dans quelques secondes.",
       "later": "WhatsApp, Telegram et d’autres canaux se trouvent dans les paramètres après la configuration.",
+      "linkedinPlan": {
+        "hint": {
+          "linkedin": "Messages, contacts et invitations.",
+          "linkedin_recruiter": "En plus : recherche de candidats et vos messages Recruiter.",
+          "linkedin_sales_navigator": "En plus : recherche de leads et d’entreprises et vos listes Sales Navigator."
+        },
+        "label": "Quel LinkedIn utilisez-vous ?"
+      },
+      "optionsLabel": "Canaux à connecter",
       "skip": "Passer pour l’instant"
     },
     "connect": {
@@ -4450,12 +4471,6 @@
       "agent": {
         "description": "Connectez-le à Customermates, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",
         "descriptionSelfHosted": "Connectez-le à cette instance, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",
-        "steps": {
-          "approve": "Coller et approuver le plan",
-          "connect": "Connecter votre agent",
-          "template": "Choisir un modèle"
-        },
-        "stepsLabel": "Comment ça marche",
         "title": "Utiliser l’agent IA que vous avez déjà",
         "worksWith": "Fonctionne avec Claude, ChatGPT, Cursor, Gemini et tout autre client MCP."
       },
@@ -4495,6 +4510,10 @@
       }
     },
     "invite": {
+      "captions": {
+        "email": "Une invitation par personne",
+        "link": "À coller dans une discussion"
+      },
       "emailCount": "{current} sur {max} adresses · séparez-les par une virgule ou appuyez sur Entrée",
       "emailPlaceholder": "collegue@example.com",
       "linkDescription": "Toute personne disposant de ce lien peut rejoindre votre équipe. Le lien est valable pendant 7 jours.",
@@ -4529,6 +4548,8 @@
       "writesTitle": "Trois pages de base de connaissances, prêtes à modifier"
     },
     "profile": {
+      "previewName": "Votre nom",
+      "previewRole": "Propriétaire",
       "teamSize": {
         "label": "Combien de personnes utiliseront cet espace de travail ?",
         "large": "Plus de 20",
@@ -4659,6 +4680,7 @@
       "filtersLabel": "Types de modèles",
       "none": "Aucun modèle",
       "optionsLabel": "Modèles",
+      "pickOne": "Choisissez un modèle pour voir ce qu’il met en place.",
       "recommended": "Recommandé",
       "searchLabel": "Rechercher un modèle",
       "searchPlaceholder": "Rechercher un modèle",
