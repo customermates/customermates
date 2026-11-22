@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Sur un événement",
       "label": "Comment elle démarre",
-      "schedule": "Selon un planning"
+      "schedule": "Selon un planning",
+      "scheduleNeedsMateOnly": "Une automatisation planifiée n'exécute que Mate. Retirez les autres étapes pour changer."
     },
     "truncated": "Cette liste contient au plus {rules} automatisations et {routines} automatisations planifiées, et votre espace de travail en compte davantage. Celles qui ne sont pas affichées continuent de s’exécuter.",
     "unavailable": {

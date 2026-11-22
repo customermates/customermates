@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Con un evento",
       "label": "Cómo empieza",
-      "schedule": "Con un horario"
+      "schedule": "Con un horario",
+      "scheduleNeedsMateOnly": "Una automatización programada solo ejecuta a Mate. Quita los demás pasos para cambiar."
     },
     "truncated": "Esta lista contiene como máximo {rules} automatizaciones y {routines} automatizaciones programadas, y tu espacio de trabajo tiene más. Las que no aparecen siguen funcionando.",
     "unavailable": {

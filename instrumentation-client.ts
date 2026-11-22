@@ -1,5 +1,8 @@
 import { captureException } from "@/core/observability/browser";
 import { errorReportingEnabled } from "@/core/errors/reporting-provider";
+import { installRandomUuidFallback } from "@/core/browser/random-uuid-fallback";
+
+installRandomUuidFallback();
 
 if (errorReportingEnabled() && typeof window !== "undefined") {
   window.addEventListener("error", (event) => {

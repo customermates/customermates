@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Num evento",
       "label": "Como começa",
-      "schedule": "Com agendamento"
+      "schedule": "Com agendamento",
+      "scheduleNeedsMateOnly": "Uma automação agendada só executa o Mate. Remova os outros passos para mudar."
     },
     "truncated": "Esta lista comporta no máximo {rules} automações e {routines} automações agendadas, e seu espaço de trabalho tem mais. As que não aparecem continuam sendo executadas.",
     "unavailable": {

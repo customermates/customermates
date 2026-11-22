@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Bij een gebeurtenis",
       "label": "Hoe het start",
-      "schedule": "Volgens schema"
+      "schedule": "Volgens schema",
+      "scheduleNeedsMateOnly": "Een geplande automatisering voert alleen Mate uit. Verwijder de andere stappen om te wisselen."
     },
     "truncated": "Deze lijst bevat hoogstens {rules} automatiseringen en {routines} geplande automatiseringen, en je werkruimte heeft er meer. De niet getoonde blijven gewoon lopen.",
     "unavailable": {

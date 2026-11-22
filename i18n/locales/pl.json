@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Po zdarzeniu",
       "label": "Jak się uruchamia",
-      "schedule": "Według harmonogramu"
+      "schedule": "Według harmonogramu",
+      "scheduleNeedsMateOnly": "Zaplanowana automatyzacja uruchamia tylko Mate. Usuń pozostałe kroki, aby przełączyć."
     },
     "truncated": "Ta lista mieści najwyżej {rules} automatyzacji i {routines} zaplanowanych automatyzacji, a Twój obszar roboczy ma ich więcej. Te, których tu nie ma, nadal działają.",
     "unavailable": {

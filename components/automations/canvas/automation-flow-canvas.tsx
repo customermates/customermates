@@ -192,8 +192,7 @@ function FlowCanvas({
 }) {
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
-  const placeholder = steps[0]?.tone === "empty";
-  const showAdd = !placeholder && Boolean(actions.palette) && actions.editable;
+  const showAdd = Boolean(actions.palette) && actions.editable;
 
   const { nodes, edges } = useMemo(() => {
     const builtNodes: Node[] = steps.map((step, index) => ({

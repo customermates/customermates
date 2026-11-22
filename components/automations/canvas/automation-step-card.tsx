@@ -41,7 +41,6 @@ export function AutomationStepCard({
   markLabel?: string;
   onSelect: (id: string) => void;
 }) {
-  const placeholder = step.tone === "empty";
   const mark = step.mark ?? null;
   return (
     <div className="relative w-72 max-w-full">
@@ -52,7 +51,6 @@ export function AutomationStepCard({
         className={cn(
           "nodrag flex w-full flex-col gap-1.5 rounded-xl border bg-card px-3.5 py-3 text-left text-card-foreground shadow-sm transition-shadow outline-none hover:shadow-md focus-visible:ring-[3px] focus-visible:ring-ring/50",
           selected && "border-ring/60 ring-[3px] ring-ring/10",
-          placeholder && "border-dashed border-border-strong bg-card/80 shadow-none",
           step.invalid && "border-destructive/60",
           mark === "failed" && "border-destructive/60",
           mark === "skipped" && "opacity-60",
@@ -76,9 +74,7 @@ export function AutomationStepCard({
           )}
         </span>
 
-        <span className={cn("text-sm leading-snug break-words", placeholder && "text-muted-foreground")}>
-          {step.sentence}
-        </span>
+        <span className="text-sm leading-snug break-words">{step.sentence}</span>
 
         {markLabel && <span className="sr-only">{markLabel}</span>}
       </button>

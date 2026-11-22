@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "On an event",
       "label": "How it starts",
-      "schedule": "On a schedule"
+      "schedule": "On a schedule",
+      "scheduleNeedsMateOnly": "A scheduled automation only runs Mate. Remove the other steps to switch."
     },
     "truncated": "This list holds at most {rules} automations and {routines} scheduled automations, and your workspace has more. The ones not listed still run.",
     "unavailable": {

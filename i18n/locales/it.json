@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "A un evento",
       "label": "Come parte",
-      "schedule": "Con un programma"
+      "schedule": "Con un programma",
+      "scheduleNeedsMateOnly": "Un'automazione pianificata esegue solo Mate. Rimuovi gli altri passaggi per cambiare."
     },
     "truncated": "Questo elenco contiene al massimo {rules} automazioni e {routines} automazioni pianificate, e il tuo spazio di lavoro ne ha di più. Quelle non elencate continuano a funzionare.",
     "unavailable": {

@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Bei einem Ereignis",
       "label": "Wie sie startet",
-      "schedule": "Nach Zeitplan"
+      "schedule": "Nach Zeitplan",
+      "scheduleNeedsMateOnly": "Eine geplante Automatisierung führt nur Mate aus. Entferne die anderen Schritte, um zu wechseln."
     },
     "truncated": "Diese Liste fasst höchstens {rules} Automatisierungen und {routines} geplante Automatisierungen, und dein Arbeitsbereich hat mehr. Die nicht aufgeführten laufen weiter.",
     "unavailable": {

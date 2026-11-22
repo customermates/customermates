@@ -23,6 +23,7 @@ import {
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { Linkedin } from "@/components/icons/channel-icon";
+import { MateOrb } from "@/components/mate/mate-orb";
 import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
 import { COMPOUND_CONNECTOR_STROKE } from "@/components/marketing/visuals/story-visual-layout";
 import { VisualArtboard } from "@/components/marketing/visuals/visual-artboard";
@@ -157,7 +158,7 @@ function ProfileScene() {
 function GoalScene() {
   return (
     <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
-      <SourcePair first={<Bot className="size-4" />} second={<Sparkles className="size-4" />} />
+      <SourcePair first={<Bot className="size-4" />} second={<MateOrb className="size-5" />} />
 
       <FocalIdentity>
         <LayoutTemplate className="size-5" />
@@ -280,7 +281,7 @@ export function OnboardingMilestones({
 
   return (
     <div className="flex flex-col gap-2">
-      <p aria-hidden="true" className="text-xs text-muted-foreground sm:hidden">
+      <p aria-hidden="true" className="text-xs text-muted-foreground lg:hidden">
         {progressText}
 
         {currentStep ? <span className="font-medium text-foreground">{` · ${labels[currentStep]}`}</span> : null}
@@ -330,7 +331,7 @@ function MilestoneSteps({
 
             <span
               className={cn(
-                "max-w-full px-1 text-center text-xs text-balance wrap-anywhere max-sm:sr-only",
+                "max-w-full px-1 text-center text-xs text-balance max-lg:sr-only",
                 index === current ? "font-medium text-foreground" : "text-muted-foreground",
               )}
             >

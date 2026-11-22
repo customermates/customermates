@@ -216,6 +216,31 @@ test.describe("routines in the same list", () => {
     await expect(await automationName(onEvent)).toHaveValue("Monday review");
   });
 
+  test("keeps a blank automation on an event once it has a step a schedule cannot run", async ({ page, companyId }) => {
+    await page.goto(companyPath(companyId, "/automations"));
+    const builder = await openNewAutomation(page);
+    await page.locator("[data-create-palette-blank]").click();
+    await builder.locator('[data-automation-quick-step="setField"]').click();
+    await expect(step(builder, "effect-0")).toBeVisible();
+    await step(builder, "trigger").click();
+
+    const start = stepPanel(builder, "trigger").locator("[data-automation-start]");
+    await expect(start.getByRole("tab", { name: "On a schedule", exact: true })).toBeDisabled();
+    await expect(start.locator('[data-automation-start-hint="scheduleNeedsMateOnly"]')).toBeVisible();
+  });
+
+  test("saving without a name closes the open step and shows the flagged name field", async ({ page, companyId }) => {
+    await page.goto(companyPath(companyId, "/automations"));
+    const builder = await openNewAutomation(page);
+    await page.locator("[data-create-palette-blank]").click();
+    await builder.locator('[data-automation-quick-step="notify"]').click();
+    await expect(step(builder, "effect-0")).toBeVisible();
+    await builder.getByRole("button", { name: "Switch on", exact: true }).click();
+
+    await expect(builder.locator("#automation-name")).toBeVisible();
+    await expect(builder.locator("#automation-name")).toHaveAttribute("aria-invalid", "true");
+  });
+
   test("opens the routine editor from a routine row", async ({ page, database, companyId, workspace }) => {
     await database.query(
       'INSERT INTO "Routine" (id,"companyId","ownerUserId",name,prompt,enabled,"triggerKind","cronExpression",timezone,"triggerEvents","updatedAt") VALUES ($1,$2,$3,$4,$5,true,\'schedule\',\'0 8 * * 1\',\'Europe/Berlin\',\'{}\',NOW())',

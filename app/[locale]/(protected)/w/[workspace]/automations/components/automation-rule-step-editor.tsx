@@ -26,6 +26,7 @@ export const AutomationRuleStepEditor = observer(function AutomationRuleStepEdit
       <>
         <AutomationStartSwitch
           disabled={{ schedule: !store.canSwitchToSchedule }}
+          hint={store.offersSchedule && store.hasStepsBesidesMate ? "scheduleNeedsMateOnly" : undefined}
           value="event"
           onChange={store.switchToSchedule}
         />
