@@ -80,7 +80,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
           this.user.company?.slug,
           data.returnTo === "onboarding"
             ? `/onboarding/wizard?${ONBOARDING_CHANNEL_RETURN_PARAM}=${encodeURIComponent(data.channel)}`
-            : settingsHref("channels"),
+            : settingsHref("connections"),
         ),
         expiresOn,
         state,

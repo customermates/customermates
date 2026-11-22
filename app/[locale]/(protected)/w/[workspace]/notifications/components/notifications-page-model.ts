@@ -4,52 +4,58 @@ import { NOTIFICATION_KINDS } from "@/features/notifications/notification.schema
 
 export const NOTIFICATIONS_PAGE_SIZE = 25;
 
-export type NotificationKindFilter = "all" | (typeof NOTIFICATION_KINDS)[number];
+export type NotificationPageFilter = "all" | "unread" | (typeof NOTIFICATION_KINDS)[number];
 
-export const NOTIFICATION_KIND_FILTERS = [
+export const NOTIFICATION_PAGE_FILTERS = [
   "all",
+  "unread",
   ...NOTIFICATION_KINDS,
-] as const satisfies readonly NotificationKindFilter[];
+] as const satisfies readonly NotificationPageFilter[];
 
-export type NotificationDayGroup = { key: string; date: Date; items: NotificationDto[] };
+export const NOTIFICATION_AGE_GROUPS = ["today", "thisWeek", "earlier"] as const;
 
-export function filterNotificationsByKind(items: readonly NotificationDto[], kind: NotificationKindFilter) {
-  return kind === "all" ? [...items] : items.filter((item) => item.kind === kind);
+export type NotificationAgeGroup = (typeof NOTIFICATION_AGE_GROUPS)[number];
+
+export type NotificationAgeSection = { group: NotificationAgeGroup; items: NotificationDto[] };
+
+export const NOTIFICATION_PANEL_LIMIT = 8;
+
+export type NotificationPanelFilter = "unread" | "all";
+
+const WEEK_DAYS = 7;
+
+export function filterNotificationsForPage(items: readonly NotificationDto[], filter: NotificationPageFilter) {
+  if (filter === "all") return [...items];
+  if (filter === "unread") return items.filter((item) => !item.read);
+  return items.filter((item) => item.kind === filter);
 }
 
-function dayKey(date: Date) {
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export function isSameNotificationDay(a: Date, b: Date) {
-  return dayKey(a) === dayKey(b);
+export function notificationAgeGroup(date: Date, now: Date): NotificationAgeGroup {
+  const today = startOfDay(now);
+  if (date >= today) return "today";
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - (WEEK_DAYS - 1));
+  return date >= weekStart ? "thisWeek" : "earlier";
 }
 
-export function groupNotificationsByDay(items: readonly NotificationDto[]): NotificationDayGroup[] {
-  const groups: NotificationDayGroup[] = [];
+export function groupNotificationsByAge(items: readonly NotificationDto[], now: Date): NotificationAgeSection[] {
+  const sections = new Map<NotificationAgeGroup, NotificationDto[]>();
   for (const item of items) {
-    const date = new Date(item.createdAt);
-    const current = groups.at(-1);
-    if (current && isSameNotificationDay(current.date, date)) {
-      current.items.push(item);
-      continue;
-    }
-    groups.push({ key: `${dayKey(date)}:${item.id}`, date, items: [item] });
+    const group = notificationAgeGroup(new Date(item.createdAt), now);
+    sections.set(group, [...(sections.get(group) ?? []), item]);
   }
-  return groups;
+  return NOTIFICATION_AGE_GROUPS.flatMap((group) => {
+    const groupItems = sections.get(group);
+    return groupItems ? [{ group, items: groupItems }] : [];
+  });
 }
 
-export function resolveNotificationDayLabel(
-  date: Date,
-  now: Date,
-  labels: { today: string; yesterday: string },
-  formatDate: (date: Date) => string,
-) {
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  if (isSameNotificationDay(date, now)) return labels.today;
-  if (isSameNotificationDay(date, yesterday)) return labels.yesterday;
-  return formatDate(date);
+export function panelNotifications(items: readonly NotificationDto[], filter: NotificationPanelFilter) {
+  return (filter === "unread" ? items.filter((item) => !item.read) : items).slice(0, NOTIFICATION_PANEL_LIMIT);
 }
 
 export type NotificationPage = { items: NotificationDto[]; nextBefore: string | null };

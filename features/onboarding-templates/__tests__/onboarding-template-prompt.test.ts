@@ -8,16 +8,9 @@ import { getTemplate, getTemplateText } from "@/core/templates/__tests__/templat
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 const MCP_URL = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
-const SIGNUP_URL = "https://app.example.test/en/auth/signup";
 
-function render(
-  slug: (typeof TEMPLATE_SLUGS)[number],
-  locale: string,
-  options: { deployment?: "cloud" | "self-hosted"; connected?: boolean } = {},
-) {
+function render(slug: (typeof TEMPLATE_SLUGS)[number], locale: string, options: { connected?: boolean } = {}) {
   return renderTemplatePrompt(getTemplate(slug), getTemplateText(slug, locale), {
-    deployment: options.deployment ?? "cloud",
-    signupUrl: SIGNUP_URL,
     mcpUrl: MCP_URL,
     connected: options.connected ?? true,
   });
@@ -27,16 +20,13 @@ describe("the template prompt shown in onboarding", () => {
   it.each(TEMPLATE_SLUGS)("replaces how to get a workspace with this workspace for %s", async (slug) => {
     const bundle = await loadTemplateBundle(slug);
     expect(bundle).not.toBeNull();
-    for (const deployment of ["cloud", "self-hosted"] as const) {
-      for (const connected of [true, false]) {
-        const prompt = render(slug, "en", { deployment, connected });
+    for (const connected of [true, false]) {
+      const prompt = render(slug, "en", { connected });
 
-        expect(prompt).toContain("## 1. Your workspace");
-        expect(prompt).toContain(MCP_URL);
-        expect(prompt).not.toContain("Get a workspace");
-        expect(prompt).not.toContain("?template=");
-        expect(prompt).not.toContain("<your instance address>");
-      }
+      expect(prompt).toContain("## 1. Your workspace");
+      expect(prompt).toContain(MCP_URL);
+      expect(prompt).not.toContain(templatePromptText("en").workspace.unconnected);
+      expect(prompt).not.toContain("?template=");
     }
   });
 
@@ -57,7 +47,8 @@ describe("the template prompt shown in onboarding", () => {
     const headings = prompt.split("\n").filter((line) => /^## \d+\./.test(line));
     expect(headings[0]).toBe("## 1. Your workspace");
     expect(headings[1]).toBe("## 2. Before you write anything");
-    expect(headings.at(-1)).toMatch(/^## 9\. Questions for me$/);
+    expect(headings.at(-2)).toBe("## 10. Fill the lists from my connected accounts");
+    expect(headings.at(-1)).toMatch(/^## 11\. Questions for me$/);
   });
 
   it.each(APP_LOCALES)(
@@ -69,9 +60,8 @@ describe("the template prompt shown in onboarding", () => {
       expect(prompt).toContain(MCP_URL);
       expect(prompt).toContain(copy.workspace.connectedAt.replace("{mcpUrl}", MCP_URL));
       expect(prompt).not.toContain(copy.workspace.existsAt.replace("{mcpUrl}", MCP_URL));
-      expect(prompt).not.toContain("## 1. Get a workspace");
+      expect(prompt).not.toContain(copy.workspace.unconnected);
       expect(prompt).not.toContain("?template=");
-      expect(prompt).not.toContain("<your instance address>");
       expect(prompt.split("\n").filter((line) => /^## 1\./.test(line))).toHaveLength(1);
     },
   );
@@ -85,7 +75,7 @@ describe("the template prompt shown in onboarding", () => {
       expect(prompt).toContain(copy.workspace.existsAt.replace("{mcpUrl}", MCP_URL));
       expect(prompt).not.toContain(copy.workspace.connectedAt.replace("{mcpUrl}", MCP_URL));
       expect(prompt).not.toContain(copy.workspace.connected);
-      expect(prompt).not.toContain("## 1. Get a workspace");
+      expect(prompt).not.toContain(copy.workspace.unconnected);
       expect(prompt).not.toContain("?template=");
       expect(prompt.split("\n").filter((line) => /^## 1\./.test(line))).toHaveLength(1);
     },

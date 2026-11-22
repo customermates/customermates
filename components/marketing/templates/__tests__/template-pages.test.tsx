@@ -47,6 +47,7 @@ vi.mock("@/components/chip/app-chip", () => ({
   AppChip: ({ children }: { children: ReactNode }) => <span data-chip="">{children}</span>,
 }));
 vi.mock("@/components/marketing/page-updated-at", () => ({ PageUpdatedAt: () => null }));
+vi.mock("@/components/marketing/hero-particle-field", () => ({ HeroParticleField: () => null }));
 vi.mock("@/components/marketing/product-demo", () => ({ buildProductDemoUrl: () => "https://demo.example/dashboard" }));
 vi.mock("@/core/fumadocs/source", () => ({
   featurePagesSource: {
@@ -58,13 +59,7 @@ vi.mock("@/core/fumadocs/source", () => ({
   },
 }));
 vi.mock("../template-copy-prompt", () => ({
-  TemplateCopyPrompt: ({ cloudPrompt, selfHostedPrompt }: { cloudPrompt: string; selfHostedPrompt: string }) => (
-    <div>
-      <pre data-prompt="cloud">{cloudPrompt}</pre>
-
-      <pre data-prompt="selfHosted">{selfHostedPrompt}</pre>
-    </div>
-  ),
+  TemplateCopyPrompt: ({ prompt }: { prompt: string }) => <pre data-prompt="">{prompt}</pre>,
 }));
 vi.mock("../template-copy-button", () => ({
   TemplateCopyButton: ({ label, value }: { label: string; value: string }) => (
@@ -148,16 +143,36 @@ describe("a template page", () => {
     expect(await detail()).toContain('href="/auth/signup?template=client-tracker"');
   });
 
-  it("shows the three steps, the cloud and self-hosted prompts and the honest limits", async () => {
+  it("shows the three steps, one prompt that leans to the cloud and the honest limits", async () => {
     const html = await detail();
 
-    expect(html).toContain("Get a workspace");
+    expect(html).toContain("Start free");
+    expect(html).toContain("This template is set up in your new workspace in about a minute.");
     expect(html).toContain("Paste the prompt into your AI agent");
     expect(html).toContain("Approve the plan");
-    expect(html).toContain('data-prompt="cloud"');
+    expect(html.match(/data-prompt=""/gu)).toHaveLength(1);
     expect(html).toContain("/auth/signup?template=client-tracker");
-    expect(html).toContain('data-prompt="selfHosted"');
+    expect(html).toContain("Running your own instance? The same prompt works there.");
+    expect(html).not.toContain("Self-hosted");
     expect(html).toContain("It is not an invoicing, quoting or time-tracking tool.");
+  });
+
+  it("puts no signup address into the prompt and asks the agent to fill the lists from connected accounts", async () => {
+    const prompt = /<pre data-prompt="">([\s\S]*?)<\/pre>/u.exec(await detail())?.[1] ?? "";
+
+    expect(prompt).toContain("## 1. Your workspace");
+    expect(prompt).not.toContain("signup");
+    expect(prompt).not.toContain("template=");
+    expect(prompt).toContain("Fill the lists from my connected accounts");
+    expect(prompt).toContain("contact details field (field type channels");
+  });
+
+  it("keeps the steps on the rail of the shared process steps so the line runs through the numbers", async () => {
+    const html = await detail();
+    const steps = /<ol[^>]*data-process-steps="true"[^>]*>/u.exec(html)?.[0] ?? "";
+
+    expect(steps).toContain("fd-steps");
+    expect(steps).not.toMatch(/\bps-\d/u);
   });
 
   it("shows what the template creates, the routine, the knowledge pages and the follow-up rules", async () => {

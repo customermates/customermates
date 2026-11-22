@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentsPageText, type AgentAppName } from "../agent-native";
 import {
   address,
   at,
@@ -1832,12 +1832,12 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:copperCounter": "Claude Desktop",
-  "task:greylineFinish": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:copperCounter": "Claude",
+  "task:greylineFinish": "Claude",
   "deal:ninebeanBar": "ChatGPT",
   "deal:brightwellOffice": "ChatGPT",
-  "contact:claire": "Codex CLI",
+  "contact:claire": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2450,7 +2450,7 @@ export default defineSolution<Strings>({
           },
         ],
       },
-      apiKeys: agentApiKeys([62, 35, 14]),
+      ...agentConnections([62, 35, 14]),
       wiki: [
         {
           key: "guide",

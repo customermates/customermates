@@ -4,6 +4,10 @@ export function runnerNpxCommand(url: string, token: string): string {
   return `CUSTOMERMATES_RUNNER_TOKEN=${token} npx customermates-runner --url ${url}`;
 }
 
+export function runnerStartCommand(url: string): string {
+  return `npx customermates-runner --url ${url}`;
+}
+
 export function runnerDockerCommand(url: string, token: string): string {
   return [
     "docker run -d --restart unless-stopped",

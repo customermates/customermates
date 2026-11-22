@@ -1,43 +1,45 @@
 "use client";
 
-import type { AutomationRecipe } from "@/features/automation-rules/recipes";
+import type {
+  AutomationDrawerMeta,
+  AutomationRuntimeBadge,
+} from "@/components/automations/canvas/automation-drawer-shell";
+import type { AppModalActions } from "@/components/modal";
 import type { AutomationBuilderStore } from "./automation-builder.store";
 
-import { Sparkles } from "lucide-react";
+import { Copy, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
+import { AutomationAgentIcon } from "@/components/automations/automation-agent-icon";
+import { AutomationCanvas } from "@/components/automations/canvas/automation-canvas";
+import { AutomationDrawerShell } from "@/components/automations/canvas/automation-drawer-shell";
+import { AutomationReplayBanner } from "@/components/automations/canvas/automation-replay-summary";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { AppModal } from "@/components/modal/app-modal";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Alert } from "@/components/shared/alert";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
-import { Switch } from "@/components/ui/switch";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { AUTOMATION_RULE_NAME_MAX_CHARS } from "@/features/automation-rules/automation-rule.schema";
 
-import { AutomationCardChain } from "./automation-card-chain";
+import { agentRuntimeLabel, effectKindOf } from "./automation-canvas-steps";
 import { unavailableMessage } from "./automation-draft-sentence";
 import { dismissAutomationError, showAutomationError } from "./automation-error-toast";
-import { AutomationPreviewPane } from "./automation-preview-pane";
-import { AutomationRunsPane } from "./automation-runs-pane";
-import { AutomationStartScreen } from "./automation-start-screen";
+import { ruleCanvasView } from "./automation-rule-canvas";
+import { AutomationRulePanel } from "./automation-rule-panel";
 
 type Props = {
   store: AutomationBuilderStore;
-  onRoutineRecipe: (recipe: AutomationRecipe, text: { title: string; prompt: string }) => void;
 };
 
-export const AutomationBuilderModal = observer(function AutomationBuilderModal({ store, onRoutineRecipe }: Props) {
+export const AutomationBuilderModal = observer(function AutomationBuilderModal({ store }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { form } = store;
-  const starting = store.screen === "start";
+  const { showConfirmation } = useDeleteConfirmation();
+  const { form, model, context } = store;
+  const title = store.isExisting ? t("AutomationRules.builder.titleEdit") : t("AutomationRules.builder.titleNew");
+
+  if (!model || !context) return null;
 
   const save = async () => {
     dismissAutomationError();
@@ -48,138 +50,165 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
     if (outcome === "saved") toast.success(t("Common.notifications.updated"));
   };
 
-  const disabledReason = store.rule?.disabledReason;
   const readOnly = store.isReadOnly;
-  const owner = store.rule?.owner;
-  const ownerName = owner ? `${owner.firstName} ${owner.lastName}`.trim() : "";
+  const view = ruleCanvasView(store, t);
+  if (!view) return null;
+  const { steps, replay } = view;
+
+  const owner = store.rule?.owner ?? (store.isExisting ? null : store.rootStore.userStore.user);
+  const agentEffect = form.effects.find((effect) => effectKindOf(effect) === "agent");
+  const agentRuntime =
+    agentEffect?.kind === "agent"
+      ? agentEffect.runtime
+      : agentEffect?.kind === "kept" && agentEffect.effect.kind === "agent"
+        ? agentEffect.effect.runtime
+        : null;
+  const runtime: AutomationRuntimeBadge = agentRuntime
+    ? { label: agentRuntimeLabel(agentRuntime, t), variant: agentRuntime === "mate" ? "ink" : "outline" }
+    : { label: t("Automations.canvas.runtime.free"), variant: "secondary" };
+  const meta: AutomationDrawerMeta = {
+    owner: owner
+      ? {
+          name: `${owner.firstName} ${owner.lastName}`.trim(),
+          firstName: owner.firstName,
+          lastName: owner.lastName,
+          avatarUrl: owner.avatarUrl,
+        }
+      : null,
+    runtime,
+    lastRun: store.rule?.lastRunAt
+      ? t("AutomationRules.lastRun", { time: intlStore.formatRelativeTime(new Date(store.rule.lastRunAt)) })
+      : t("AutomationRules.neverRun"),
+  };
+
+  const ownerName = store.rule?.owner ? `${store.rule.owner.firstName} ${store.rule.owner.lastName}`.trim() : "";
+  const disabledReason = store.rule?.disabledReason;
+  const notices = (
+    <>
+      {readOnly && (
+        <Alert
+          data-automation-read-only=""
+          description={[
+            store.isOwner
+              ? t("Automations.builder.readOnlyRole")
+              : ownerName
+                ? t("Automations.builder.readOnlyOwner", { owner: ownerName })
+                : t("Automations.builder.readOnlyNoOwner"),
+            store.canPauseAsAdmin ? t("Automations.builder.readOnlyAdminPause") : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          title={t("RoutineDetail.readOnlyTitle")}
+          variant="neutral"
+        />
+      )}
+
+      {!form.enabled && disabledReason && (
+        <p className="text-xs text-warning-soft-foreground" data-automation-paused-reason={disabledReason}>
+          {t(`AutomationRules.disabledReason.${disabledReason}`)}
+        </p>
+      )}
+
+      {store.composedByMate && (
+        <p className="flex items-center gap-2 rounded-md bg-muted p-3 text-sm" role="status">
+          <AutomationAgentIcon aria-hidden="true" className="size-4 shrink-0" />
+
+          {t("Automations.builder.composedNotice")}
+        </p>
+      )}
+
+      {form.effects.length === 0 && store.isFlagged("effects") && (
+        <p className="text-xs text-destructive" role="alert">
+          {t("Automations.builder.needsStep")}
+        </p>
+      )}
+    </>
+  );
+  const hasNotices =
+    readOnly ||
+    Boolean(!form.enabled && disabledReason) ||
+    store.composedByMate ||
+    (form.effects.length === 0 && store.isFlagged("effects"));
+
+  const confirmDelete = () =>
+    showConfirmation({
+      title: t("AutomationRules.deleteTitle"),
+      message: t("AutomationRules.deleteMessage", { name: form.name }),
+      confirmLabel: t("Common.actions.delete"),
+      confirmVariant: "destructive",
+      successKey: "Common.notifications.deleted",
+      onConfirm: store.deleteRule,
+    });
+
+  const actions: AppModalActions = [
+    ...(store.canDuplicate
+      ? [
+          {
+            id: "automation-duplicate",
+            label: t("Automations.canvas.duplicateAutomation"),
+            icon: Copy,
+            disabled: store.isLoading,
+            onClick: () => store.duplicateRule(t("Automations.canvas.copyName", { name: form.name.trim() })),
+          },
+        ]
+      : []),
+    ...(store.canDelete
+      ? [
+          {
+            id: "automation-delete",
+            label: t("Common.actions.delete"),
+            icon: Trash2,
+            variant: "destructive" as const,
+            disabled: store.isLoading,
+            onClick: confirmDelete,
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <AppModal
-      description={form.name.trim() || undefined}
-      size="5xl"
+    <AutomationDrawerShell
+      actions={actions}
+      active={{
+        checked: form.enabled,
+        disabled: store.isLoading || (readOnly && !store.canPauseAsAdmin),
+        onChange: (enabled) => {
+          if (!readOnly) store.setEnabled(enabled);
+          else if (!enabled) runUserAction(() => store.pauseAsAdmin());
+        },
+      }}
+      banner={
+        store.replay ? (
+          <AutomationReplayBanner
+            when={intlStore.formatRelativeTime(new Date(store.replay.createdAt))}
+            onBack={store.closeRun}
+          />
+        ) : undefined
+      }
+      canvas={<AutomationCanvas actions={view.actions} steps={steps} />}
+      footer={
+        readOnly ? undefined : (
+          <div className="border-t px-6 py-4">
+            <FormFooterActions
+              creating={!store.isExisting}
+              saveLabel={!store.isExisting && form.enabled ? t("Automations.builder.switchOn") : undefined}
+              saving={store.isLoading}
+              store={store}
+              onCancel={store.close}
+              onSave={() => runUserAction(save)}
+            />
+          </div>
+        )
+      }
+      idPrefix="automation"
+      meta={meta}
+      name={form.name.trim() || t("AutomationRules.builder.titleNew")}
+      notices={hasNotices ? notices : undefined}
+      panel={<AutomationRulePanel replayMatched={replay?.matched ?? true} steps={steps} store={store} />}
+      panelLabel={t("Automations.builder.panesLabel")}
+      sheetOpen={store.expanded !== null}
       store={store}
-      title={store.isExisting ? t("AutomationRules.builder.titleEdit") : t("AutomationRules.builder.titleNew")}
-    >
-      <AppCard>
-        <AppCardBody className="gap-6">
-          {starting ? (
-            <AutomationStartScreen store={store} onRoutineRecipe={onRoutineRecipe} />
-          ) : (
-            <>
-              <div className="flex flex-wrap items-end gap-4">
-                <div className="flex min-w-48 flex-1 flex-col gap-1.5">
-                  <Label className="text-xs text-muted-foreground" htmlFor="automation-name">
-                    {t("AutomationRules.builder.name")}
-                  </Label>
-
-                  <Input
-                    aria-invalid={store.isFlagged("name") || undefined}
-                    id="automation-name"
-                    maxLength={AUTOMATION_RULE_NAME_MAX_CHARS}
-                    placeholder={t("AutomationRules.builder.namePlaceholder")}
-                    readOnly={readOnly}
-                    value={form.name}
-                    onChange={(event) => store.setName(event.target.value)}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pb-2">
-                  <Switch
-                    checked={form.enabled}
-                    disabled={store.isLoading || (readOnly && !store.canPauseAsAdmin)}
-                    id="automation-active"
-                    onCheckedChange={(enabled) => {
-                      if (!readOnly) store.setEnabled(enabled);
-                      else if (!enabled) runUserAction(() => store.pauseAsAdmin());
-                    }}
-                  />
-
-                  <Label htmlFor="automation-active">
-                    {form.enabled ? t("Automations.builder.active") : t("Automations.builder.paused")}
-                  </Label>
-                </div>
-              </div>
-
-              {readOnly && (
-                <Alert
-                  data-automation-read-only=""
-                  description={[
-                    store.isOwner
-                      ? t("Automations.builder.readOnlyRole")
-                      : ownerName
-                        ? t("Automations.builder.readOnlyOwner", { owner: ownerName })
-                        : t("Automations.builder.readOnlyNoOwner"),
-                    store.canPauseAsAdmin ? t("Automations.builder.readOnlyAdminPause") : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  title={t("RoutineDetail.readOnlyTitle")}
-                  variant="neutral"
-                />
-              )}
-
-              {store.rule && (
-                <p className="text-xs text-muted-foreground">
-                  {store.rule.lastRunAt
-                    ? t("AutomationRules.lastRun", {
-                        time: intlStore.formatRelativeTime(new Date(store.rule.lastRunAt)),
-                      })
-                    : t("AutomationRules.neverRun")}
-                </p>
-              )}
-
-              {!form.enabled && disabledReason && (
-                <p className="text-xs text-warning-soft-foreground" data-automation-paused-reason={disabledReason}>
-                  {t(`AutomationRules.disabledReason.${disabledReason}`)}
-                </p>
-              )}
-
-              {store.composedByMate && (
-                <p className="flex items-center gap-2 rounded-md bg-muted p-3 text-sm" role="status">
-                  <Sparkles aria-hidden="true" className="size-4 shrink-0" />
-
-                  {t("Automations.builder.composedNotice")}
-                </p>
-              )}
-
-              <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-                <div className="min-w-0">
-                  <AutomationCardChain store={store} />
-                </div>
-
-                <SegmentedControl
-                  className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3"
-                  idPrefix="automation-pane"
-                  items={[
-                    { value: "preview", label: t("Automations.builder.previewTab") },
-                    { value: "runs", label: t("Automations.builder.runsTab") },
-                  ]}
-                  label={t("Automations.builder.panesLabel")}
-                  value={store.pane}
-                  onValueChange={store.setPane}
-                >
-                  <SegmentedControlPanel className="mt-0" value="preview">
-                    <AutomationPreviewPane store={store} />
-                  </SegmentedControlPanel>
-
-                  <SegmentedControlPanel className="mt-0" value="runs">
-                    <AutomationRunsPane name={form.name} ruleId={form.id} />
-                  </SegmentedControlPanel>
-                </SegmentedControl>
-              </div>
-
-              <FormFooterActions
-                creating={!store.isExisting}
-                saveLabel={!store.isExisting && form.enabled ? t("Automations.builder.switchOn") : undefined}
-                saving={store.isLoading}
-                store={store}
-                onCancel={store.close}
-                onSave={() => runUserAction(save)}
-              />
-            </>
-          )}
-        </AppCardBody>
-      </AppCard>
-    </AppModal>
+      title={title}
+    />
   );
 });

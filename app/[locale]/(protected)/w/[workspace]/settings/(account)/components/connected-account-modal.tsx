@@ -28,6 +28,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { AccountConnectionDetails } from "./account-connection-details";
+import { connectedAccountActions } from "./connected-account-actions";
 import { isEmailProvider } from "@/ee/messaging/provider";
 
 import { AccountFolders } from "./account-folders";
@@ -65,55 +66,44 @@ export const ConnectedAccountModal = observer(() => {
     shown: shownFolders,
     total: account.folders.length,
   });
-  const canReconnect =
-    canUpdate &&
-    (account.status === "credentials" ||
-      account.status === "permissions" ||
-      account.status === "error" ||
-      account.connectionDetails?.status === "partial" ||
-      account.status === "stopped");
-  const canResync = canUpdate && (account.status === "ok" || account.status === "connecting");
-  const hasAccountActions = account.isOwner && (canReconnect || canResync || canDelete);
+  const accountActions = connectedAccountActions(account, { canUpdate, canDelete });
   const canShareAccounts = getEffectiveEntitlements({
     appMode: rootStore.appMode,
     plan: subscriptionStore.subscription?.plan ?? "pro",
   }).sharedAccounts;
-  const reconnectAction: AppModalActionProps | null =
-    hasAccountActions && canReconnect
-      ? {
-          id: "reconnect-account",
-          anchorId: "connected-account-reactivate",
-          label: t("ConnectedAccountsCard.reactivate"),
-          icon: Plug,
-          onClick: () => connectedAccountsStore.reconnect(account.id),
-        }
-      : null;
-  const resyncAction: AppModalActionProps | null =
-    hasAccountActions && canResync
-      ? {
-          id: "resync-account",
-          anchorId: "connected-account-resync",
-          label: t("ConnectedAccountsCard.resync"),
-          icon: RefreshCw,
-          onClick: () => connectedAccountsStore.resync(account.id),
-        }
-      : null;
-  const destructiveAction: AppModalActionProps | null =
-    hasAccountActions && canDelete
-      ? {
-          id: "disconnect-account",
-          anchorId: "connected-account-disconnect",
-          label: t("ConnectedAccountsCard.disconnect"),
-          icon: Trash2,
-          variant: "destructive",
-          onClick: () =>
-            showDeleteConfirmation(async () => {
-              const disconnected = await connectedAccountsStore.disconnect(account.id);
-              if (disconnected) close();
-              return disconnected;
-            }, title),
-        }
-      : null;
+  const reconnectAction: AppModalActionProps | null = accountActions.reconnect
+    ? {
+        id: "reconnect-account",
+        anchorId: "connected-account-reactivate",
+        label: t("ConnectedAccountsCard.reactivate"),
+        icon: Plug,
+        onClick: () => connectedAccountsStore.reconnect(account.id),
+      }
+    : null;
+  const resyncAction: AppModalActionProps | null = accountActions.resync
+    ? {
+        id: "resync-account",
+        anchorId: "connected-account-resync",
+        label: t("ConnectedAccountsCard.resync"),
+        icon: RefreshCw,
+        onClick: () => connectedAccountsStore.resync(account.id),
+      }
+    : null;
+  const destructiveAction: AppModalActionProps | null = accountActions.disconnect
+    ? {
+        id: "disconnect-account",
+        anchorId: "connected-account-disconnect",
+        label: t("ConnectedAccountsCard.disconnect"),
+        icon: Trash2,
+        variant: "destructive",
+        onClick: () =>
+          showDeleteConfirmation(async () => {
+            const disconnected = await connectedAccountsStore.disconnect(account.id);
+            if (disconnected) close();
+            return disconnected;
+          }, title),
+      }
+    : null;
   const modalActions: AppModalActions = [resyncAction, reconnectAction, destructiveAction].filter(
     (action) => action !== null,
   );

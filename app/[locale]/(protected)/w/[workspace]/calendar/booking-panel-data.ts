@@ -13,9 +13,9 @@ import { bookingSetup } from "@/ee/calendar/booking-setup";
 import { env } from "@/env";
 
 export async function loadBookingPanel(options: Pick<PlannerOptions, "personalAvailable">): Promise<BookingPanelState> {
-  if (env.APP_MODE === "demo") return { status: "unavailable", reason: "demo" };
-  if (env.APP_MODE !== "cloud") return { status: "unavailable", reason: "selfHosted" };
-  if (!options.personalAvailable) return { status: "unavailable", reason: "locked" };
+  const readOnly = env.APP_MODE === "demo";
+  if (!readOnly && env.APP_MODE !== "cloud") return { status: "unavailable", reason: "selfHosted" };
+  if (!readOnly && !options.personalAvailable) return { status: "unavailable", reason: "locked" };
 
   const [links, meeting, model, upcoming, brand] = await Promise.all([
     unwrapPage(getGetWorkspaceBookingLinksInteractor().invoke()),
@@ -32,5 +32,6 @@ export async function loadBookingPanel(options: Pick<PlannerOptions, "personalAv
     busyTimeIncomplete: links.busyTimeIncomplete,
     hostCandidates: links.hostCandidates,
     upcoming: upcoming.items,
+    readOnly,
   };
 }

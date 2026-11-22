@@ -4,7 +4,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { pagePublicationOptions } from "@/core/templates/template-deployment";
-import { templatePrompts } from "@/core/templates/template-page-model";
+import { templatePagePrompt } from "@/core/templates/template-page-model";
 import { templatesPairedWith } from "@/core/templates/template-publication";
 import { templatePagePath } from "@/core/templates/templates-source";
 
@@ -30,7 +30,7 @@ export async function TemplateProofBlock({ locale, path }: Props) {
           href: item.visibility === "none" ? null : templatePagePath(item.entry.slug),
           lists: bundle.spec.lists.map((list) => text.lists[list.key]?.pluralLabel).filter(Boolean),
           name: text.name,
-          prompt: templatePrompts(bundle.spec, text, locale).cloud,
+          prompt: templatePagePrompt(bundle.spec, text),
           slug: item.entry.slug,
           summary: text.summary,
         };

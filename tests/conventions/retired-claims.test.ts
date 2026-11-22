@@ -30,6 +30,10 @@ const EXTERNAL =
   /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
 const CONTRASTED = /\b(?:rather than|instead of|as opposed to|not just|statt|anstelle|anstatt|sondern)\b/iu;
 const NO_OR_EXTERNAL = [DENIED, EXTERNAL];
+const CLOUD_BOOKING_OR_MEETING_WINDOW =
+  /^(?![\s\S]*\b(?:two[- ]way|bidirectional|write[- ]enabled|automatic|Zwei[- ]Wege|bidirektional|automatisch)[ -]?(?:calendar|Kalender))(?![\s\S]*\b(?:sync\w*|synchronis\w*)\b)(?=[\s\S]*\b(?:booking pages?|Buchungsseiten?|meetings?|Besprechung\w*)\b)(?=[\s\S]*\b(?:Cloud|Pro)\b)/iu;
+const AUTOMATION_REMINDER =
+  /\b(?:automations?|rules?|routines?|Automatisierung\w*|Automation\w*|Regeln?|Routinen?)\b[^.!?;|]{0,60}\b(?:send\w*|remind\w*|reminders?|erinner\w*|Erinnerung\w*|schick\w*)\b/iu;
 
 const ESM_STATEMENT =
   /^\s*(?:import\s+(?:[\w*{]|["'])|export\s+(?:const|default|function|class|let|var|type|interface|async|\{|\*))/u;
@@ -94,6 +98,7 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:custom|user[- ]defined|your own|eigene\w*|benutzerdefinierte\w*)[^.!?;|]{0,20}\b(?:date|single[- ]select|status|Datums?|Status)\b/iu,
+      AUTOMATION_REMINDER,
     ],
     why: "Tasks have relations, assignees, notes, and custom fields, but no native scheduling/status/reminder semantics",
     authority: "prisma/schema.prisma model Task",
@@ -137,7 +142,11 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     id: "calendar-write-or-booking",
     pattern:
       /\b(?:two[- ]way|bidirectional|write[- ]enabled|automatic|Zwei[- ]Wege|bidirektional|automatisch)[ -]?(?:calendar|Kalender)[ -]?(?:sync|integration|Synchronisierung|Integration)?\b|\b(?:creat|edit|updat|delet|writ|book|schedul|sync|erstell|änder|aktualisier|lösch|schreib|buch|plan|synchronisier)\w*[^.!?;,|]{0,24}\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)\b|\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)[^.!?;,|]{0,24}\b(?:are\s+|werden\s+)?(?:creat|edit|updat|delet|writ|book|schedul|erstell|änder|aktualisier|lösch|schreib|buch|plan)\w*\b/iu,
-    permittedContext: [...NO_OR_EXTERNAL, /\b(?:read[- ]only|nur lesend|schreibgeschützt\w*)\b/iu],
+    permittedContext: [
+      ...NO_OR_EXTERNAL,
+      /\b(?:read[- ]only|nur lesend|schreibgeschützt\w*)\b/iu,
+      CLOUD_BOOKING_OR_MEETING_WINDOW,
+    ],
     why: "Calendar sync is one-way; only the schedule-meeting window, booking pages and the schedule_meeting tool write events",
     authority: "features/mcp-tools/calendar-write.mcp-tools.ts, core/capabilities/capabilities.ts",
     appliesTo: (unit) =>
@@ -651,6 +660,43 @@ describe("retired claims stay retired", () => {
     );
     expect(findViolationsInSource("content/features/en/example.mdx", "EU/GDPR hosting.")[0]).toContain(
       "unsupported-compliance-claim",
+    );
+  });
+
+  it("permits booking pages and the meeting window on Cloud and Pro but still catches calendar sync", () => {
+    const permitted = [
+      "Booking pages on Cloud and Pro create calendar events in your connected calendar.",
+      "Buchungsseiten in Cloud und Pro erstellen Termine im verbundenen Kalender.",
+      "On Cloud, the schedule meeting window books appointments in your calendar.",
+      "Im Besprechungsfenster von Pro erstellst du Termine direkt in deinem Kalender.",
+    ];
+    for (const sentence of permitted)
+      expect(findViolationsInSource("content/features/en/example.mdx", sentence), sentence).toEqual([]);
+
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Booking pages on Cloud include automatic calendar sync.",
+      )[0],
+    ).toContain("calendar-write-or-booking");
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Booking pages on Pro sync calendar events both ways.",
+      )[0],
+    ).toContain("calendar-write-or-booking");
+  });
+
+  it("permits automations that send task reminders but still catches native task reminders", () => {
+    const permitted = [
+      "Automations send a reminder before a task's due date.",
+      "Automatisierungen senden eine Erinnerung, wenn eine Aufgabe fällig wird.",
+    ];
+    for (const sentence of permitted)
+      expect(findViolationsInSource("content/features/en/example.mdx", sentence), sentence).toEqual([]);
+
+    expect(findViolationsInSource("content/features/en/example.mdx", "Tasks have built-in reminders.")[0]).toContain(
+      "native-task-scheduling",
     );
   });
 

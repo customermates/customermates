@@ -4,21 +4,22 @@ import type { AgentProviderKeyDto } from "@/ee/agent-keys/agent-provider-key.sch
 import type { AgentJobPage } from "@/features/agent-jobs/agent-job.schema";
 import type { ListedAgentRunner } from "@/features/agent-runners/get-agent-runners.interactor";
 import type { AgentRuntimeAvailability } from "@/features/automation-rules/agent-runtime-availability";
+import type { AgentRuntimeKind } from "@/features/automation-rules/automation-rule.schema";
 
 import { observer } from "mobx-react-lite";
 import { useLayoutEffect, useState } from "react";
-import { useTranslations } from "next-intl";
 
 import { AgentRunsCard } from "@/components/agent-jobs/agent-runs-card";
 import { AgentRunnersCard } from "@/components/agent-runners/agent-runners-card";
-import { Alert } from "@/components/shared/alert";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { AgentKeyModal } from "./agent-key-modal";
 import { AgentKeysCard } from "./agent-keys-card";
+import { AgentMatePanel } from "./agent-mate-panel";
+import { AgentRuntimeCards } from "./agent-runtime-cards";
+import { agentRuntimeStatus, initialAgentRuntime } from "./agent-runtime-status";
 import { agentRuntimeWithKeys } from "./agent-runtime-with-keys";
-import { AgentRuntimesCard } from "./agent-runtimes-card";
 
 type Props = {
   availability: AgentRuntimeAvailability;
@@ -27,22 +28,45 @@ type Props = {
   runs: AgentJobPage | null;
 };
 
+const NO_RUNNERS: ListedAgentRunner[] = [];
+
 const AgentsPageViewContent = observer(({ availability, keys, runners, runs }: Props) => {
-  const t = useTranslations();
-  const { agentKeysStore } = useRootStore();
+  const { agentKeysStore, agentRunnersStore } = useRootStore();
 
   useState(() => agentKeysStore.setItems(keys));
   useLayoutEffect(() => agentKeysStore.setItems(keys), [agentKeysStore, keys]);
+  useLayoutEffect(() => agentRunnersStore.setItems({ items: runners ?? NO_RUNNERS }), [agentRunnersStore, runners]);
+
+  const keyCount = agentKeysStore.items.length;
+  const effective = agentRuntimeWithKeys(availability, keyCount);
+  const runnerItems = agentRunnersStore.items.length > 0 ? agentRunnersStore.items : (runners ?? NO_RUNNERS);
+  const context = { keyCount, runners: runnerItems };
+  const [selected, setSelected] = useState<AgentRuntimeKind>(() =>
+    initialAgentRuntime(agentRuntimeWithKeys(availability, keys.length), {
+      keyCount: keys.length,
+      runners: runnerItems,
+    }),
+  );
+  const statuses = {
+    mate: agentRuntimeStatus("mate", effective, context),
+    ownKey: agentRuntimeStatus("ownKey", effective, context),
+    runner: agentRuntimeStatus("runner", effective, context),
+  };
 
   return (
-    <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
-      <Alert description={t("AgentKeys.intro")} variant="neutral" />
+    <div
+      className="animate-page-result-in flex w-full max-w-4xl flex-col gap-8 motion-reduce:animate-none"
+      data-agents-page=""
+    >
+      <AgentRuntimeCards selected={selected} statuses={statuses} onSelect={setSelected} />
 
-      <AgentRuntimesCard availability={agentRuntimeWithKeys(availability, agentKeysStore.items.length)} />
+      <div data-agent-runtime-details={selected}>
+        {selected === "mate" ? <AgentMatePanel option={effective.mate} /> : null}
 
-      <AgentKeysCard planAllowed={availability.ownKey.reason !== "plan"} />
+        {selected === "ownKey" ? <AgentKeysCard planAllowed={availability.ownKey.reason !== "plan"} /> : null}
 
-      <AgentRunnersCard runners={runners} />
+        {selected === "runner" ? <AgentRunnersCard runners={runners} /> : null}
+      </div>
 
       {runs ? <AgentRunsCard page={runs} /> : null}
 

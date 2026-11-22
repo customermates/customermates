@@ -52,11 +52,12 @@ beforeEach(() => {
 });
 
 describe("loadBookingPanel", () => {
-  it("says booking pages are not part of the demo and reads nothing", async () => {
+  it("shows the demo workspace's booking pages read-only, even without a personal calendar plan", async () => {
     mocks.env.APP_MODE = "demo";
 
-    expect(await loadBookingPanel({ personalAvailable: true })).toEqual({ status: "unavailable", reason: "demo" });
-    expect(mocks.links).not.toHaveBeenCalled();
+    const state = await loadBookingPanel({ personalAvailable: false });
+
+    expect(state).toEqual(expect.objectContaining({ status: "ready", readOnly: true, upcoming: [UPCOMING] }));
   });
 
   it("says booking pages need the hosted calendar connection when self-hosting", async () => {
@@ -85,6 +86,7 @@ describe("loadBookingPanel", () => {
       busyTimeIncomplete: true,
       hostCandidates: [HOST],
       upcoming: [UPCOMING],
+      readOnly: false,
     });
   });
 });

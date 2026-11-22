@@ -10,7 +10,7 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 import { ApplyOnboardingPlaybookInteractor } from "../apply-onboarding-playbook.interactor";
 
 const owner = { ...createMockUser({ onboardingWikiStepCompletedAt: null }), company: { slug: "atlas-studio" } };
-const REDIRECT = "/w/atlas-studio/settings/channels?from=onboarding";
+const REDIRECT = "/w/atlas-studio/settings/connections?from=onboarding";
 const PAGE_IDS = [
   "0b4c6a52-3d1e-4f7a-8b2c-9d0e1f2a3b41",
   "0b4c6a52-3d1e-4f7a-8b2c-9d0e1f2a3b42",

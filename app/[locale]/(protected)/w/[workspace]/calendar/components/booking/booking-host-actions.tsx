@@ -26,7 +26,8 @@ import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
-import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ItemActionsTrigger } from "@/components/ui/item-actions";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -125,7 +126,12 @@ function BookingRescheduleDialog({ booking, horizonDays, onChanged, onClose }: P
   );
 }
 
-export function BookingHostActions({ booking, horizonDays, onChanged }: Props) {
+export function BookingHostActions({
+  booking,
+  horizonDays,
+  onChanged,
+  disabled = false,
+}: Props & { disabled?: boolean }) {
   const t = useTranslations();
   const reasonId = useId();
   const [mode, setMode] = useState<"cancel" | "reschedule" | null>(null);
@@ -144,30 +150,28 @@ export function BookingHostActions({ booking, horizonDays, onChanged }: Props) {
   }
 
   return (
-    <span className="flex items-center gap-1" data-booking-host-actions={booking.id}>
-      <Button
-        data-booking-host-reschedule=""
-        size="xs"
-        type="button"
-        variant="ghost"
-        onClick={() => setMode("reschedule")}
-      >
-        <CalendarClock aria-hidden />
+    <span className="flex shrink-0 items-center" data-booking-host-actions={booking.id}>
+      <ItemActionsTrigger
+        disabled={disabled}
+        label={t("Booking.hostActions.menu", { name })}
+        menu={
+          disabled ? undefined : (
+            <>
+              <DropdownMenuItem data-booking-host-reschedule="" onSelect={() => setMode("reschedule")}>
+                <CalendarClock aria-hidden className="size-4" />
 
-        {t("Booking.hostActions.reschedule")}
-      </Button>
+                {t("Booking.hostActions.reschedule")}
+              </DropdownMenuItem>
 
-      <Button
-        data-booking-host-cancel=""
-        size="xs"
-        type="button"
-        variant="ghostDestructive"
-        onClick={() => setMode("cancel")}
-      >
-        <CalendarX aria-hidden />
+              <DropdownMenuItem data-booking-host-cancel="" variant="destructive" onSelect={() => setMode("cancel")}>
+                <CalendarX aria-hidden className="size-4" />
 
-        {t("Booking.hostActions.cancelConfirm")}
-      </Button>
+                {t("Booking.hostActions.cancelConfirm")}
+              </DropdownMenuItem>
+            </>
+          )
+        }
+      />
 
       <ConfirmDialog
         cancelLabel={t("Booking.hostActions.keep")}

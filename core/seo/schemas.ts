@@ -2,6 +2,7 @@ import { env } from "@/env";
 import { COMMERCIAL_OFFERS } from "@/core/commercial/plan-catalog";
 
 export const ORGANIZATION_NAME = "Customermates";
+export const WEBSITE_ALTERNATE_NAME = "Customermates CRM";
 const ORGANIZATION_LOGO = `${env.BASE_URL}/images/light/customermates-square.svg`;
 const ORGANIZATION_SAME_AS = [
   "https://github.com/customermates/customermates",
@@ -19,6 +20,22 @@ export function organizationSchema() {
     url: env.BASE_URL,
     logo: ORGANIZATION_LOGO,
     sameAs: ORGANIZATION_SAME_AS,
+  };
+}
+
+export function webSiteSchema(params: { locale: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: ORGANIZATION_NAME,
+    alternateName: WEBSITE_ALTERNATE_NAME,
+    url: env.BASE_URL,
+    inLanguage: params.locale,
+    publisher: {
+      "@type": "Organization",
+      name: ORGANIZATION_NAME,
+      url: env.BASE_URL,
+    },
   };
 }
 

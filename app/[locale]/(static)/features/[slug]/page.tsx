@@ -27,6 +27,7 @@ import { FeatureSteps, LandingHighlights, LandingUseCases, LandingVisual } from 
 import { SolutionLanding } from "../../components/solution-landing";
 
 const DEFAULT_SECTIONS: FeatureSections = { visual: { kind: "film" } };
+const SOURCE_BADGE_SLUGS = new Set(["open-source-crm", "self-hosted"]);
 
 interface Props {
   params: Promise<{
@@ -92,7 +93,12 @@ export default async function FeaturePage({ params }: Props) {
         <SolutionLanding landing={page.data.landing} locale={locale} solutionId={landingSolution.id} />
       ) : (
         <>
-          <LandingHero eyebrow={page.data.featureName} hero={page.data.hero} meta={updatedAt} />
+          <LandingHero
+            eyebrow={page.data.featureName}
+            hero={page.data.hero}
+            meta={updatedAt}
+            sourceBadge={SOURCE_BADGE_SLUGS.has(slug)}
+          />
 
           <LandingVisual locale={locale} name={page.data.featureName} visual={sections.visual} />
 

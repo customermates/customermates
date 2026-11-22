@@ -12,7 +12,7 @@ import {
   type MessagingProvider,
   type RecordSpec,
 } from "../define-solution";
-import { agentApiKeys, agentEdited, agentsPage, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentAppName } from "../agent-native";
 import { inboxThreads, type InboxThreadPlan } from "../inbox-threads";
 import { es } from "./locales/smb.es";
 import { pt } from "./locales/smb.pt";
@@ -2180,12 +2180,12 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:kesslerSupport": "Claude Desktop",
-  "task:invoiceQuestion": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:kesslerSupport": "Claude",
+  "task:invoiceQuestion": "Claude",
   "deal:cobaltSecurity": "ChatGPT",
   "deal:willowSetup": "ChatGPT",
-  "contact:james": "Codex CLI",
+  "contact:james": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2780,7 +2780,7 @@ export default defineSolution<Strings>({
           ],
         },
       ],
-      apiKeys: agentApiKeys([75, 38, 14]),
+      ...agentConnections([75, 38, 14]),
       webhooks: [
         {
           key: "accounting",

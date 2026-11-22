@@ -66,16 +66,14 @@ test("settings live in one area reached from the workspace menu, with Back to th
       "nav-settings-incoming-webhooks",
       "nav-settings-webhook-deliveries",
     ]);
-    await expect(page.locator("#nav-settings-connections")).toHaveCount(0);
+    // Channels & calendars and API keys & connectors are one page, Connections, in both editions.
+    for (const merged of ["#nav-settings-channels", "#nav-settings-api-keys"])
+      await expect(page.locator(merged)).toHaveCount(0);
     const accountItems = await page
       .locator('[data-area-nav-group="account"]')
       .locator("a[id^='nav-settings-']")
       .evaluateAll((links) => links.map((link) => link.id));
-    expect(accountItems).toEqual(
-      e2eAppMode() === "self-hosted"
-        ? ["nav-settings-profile", "nav-settings-workspaces", "nav-settings-api-keys"]
-        : ["nav-settings-profile", "nav-settings-workspaces", "nav-settings-channels", "nav-settings-api-keys"],
-    );
+    expect(accountItems).toEqual(["nav-settings-profile", "nav-settings-workspaces", "nav-settings-connections"]);
     await page.locator("#nav-settings-webhooks").click();
     await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhooks$"));
     await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);

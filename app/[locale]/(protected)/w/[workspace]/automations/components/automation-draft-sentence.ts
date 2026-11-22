@@ -1,6 +1,6 @@
 import type { useTranslations } from "next-intl";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
-import type { AutomationCondition } from "@/features/automation-rules/automation-rule.schema";
+import type { AutomationCondition, AutomationEffect } from "@/features/automation-rules/automation-rule.schema";
 import type { AutomationBuilderField, AutomationBuilderModel } from "./automation-builder-model";
 import type { AutomationDraft, DraftCondition, DraftEffect, DraftTrigger, DraftUnavailable } from "./automation-draft";
 
@@ -128,6 +128,39 @@ export function conditionSentence(
   return t("Automations.sentence.if", { condition: parts.filter(Boolean).join(" ") });
 }
 
+function keptEffectSentence(
+  effect: AutomationEffect,
+  model: AutomationBuilderModel,
+  trigger: DraftTrigger,
+  t: Translate,
+): string {
+  switch (effect.kind) {
+    case "setField": {
+      const labels = effect.fields.flatMap((field) => fieldOfList(model, trigger.typeId, field.fieldId)?.label ?? []);
+      return t("Automations.sentence.effect.setField", {
+        field: labels.length > 0 ? labels.join(", ") : t("Automations.sentence.aField"),
+      });
+    }
+    case "createRecord":
+      return t("Automations.sentence.effect.createRecord", {
+        list: listOf(model, effect.typeId)?.label ?? t("Automations.sentence.aList"),
+      });
+    case "notify":
+      if (effect.recipients.ruleOwner && effect.recipients.assignees)
+        return t("Automations.sentence.effect.notifyBoth");
+      if (effect.recipients.assignees) return t("Automations.sentence.effect.notifyAssignees");
+      return effect.recipients.ruleOwner
+        ? t("Automations.sentence.effect.notifyOwner")
+        : t("Automations.sentence.effect.notifyMembers");
+    case "callWebhook":
+      return t("Automations.sentence.effect.callWebhook");
+    case "agent":
+      return t("Automations.sentence.effect.agent", {
+        prompt: truncatePrompt(effect.prompt) || t("Automations.sentence.somethingForYou"),
+      });
+  }
+}
+
 export function effectSentence(
   effect: DraftEffect,
   model: AutomationBuilderModel,
@@ -154,8 +187,8 @@ export function effectSentence(
       return t("Automations.sentence.effect.agent", {
         prompt: truncatePrompt(effect.prompt) || t("Automations.sentence.somethingForYou"),
       });
-    default:
-      return t("Automations.sentence.effect.kept");
+    case "kept":
+      return keptEffectSentence(effect.effect, model, trigger, t);
   }
 }
 

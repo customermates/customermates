@@ -265,7 +265,7 @@ describe("approved acquisition page contract", () => {
     );
     expect(source).toContain("showOpenSourceBadge = true");
     expect(source).toContain(
-      'showOpenSourceBadge ? <SourceBadge className="mk-hero-chip" /> : null',
+      'showOpenSourceBadge ? <AiBadge className="mk-hero-chip mb-[24px]" /> : null',
     );
   });
 

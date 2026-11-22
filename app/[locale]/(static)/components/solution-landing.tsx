@@ -4,6 +4,7 @@ import type { UseCases } from "@/core/fumadocs/schemas/use-cases";
 
 import { Check, Minus } from "lucide-react";
 
+import { HeroAssurances } from "@/components/marketing/hero-assurances";
 import { MarketingButton } from "@/components/marketing/marketing-button";
 import { MarketingHero } from "@/components/marketing/marketing-hero";
 import { MarketingSection } from "@/components/marketing/marketing-section";
@@ -32,7 +33,7 @@ export function SolutionLanding({ landing, locale, solutionId, useCases }: Props
         <MarketingHero
           description={hero.description}
           eyebrow={hero.eyebrow}
-          footnotes={<p className="text-muted-foreground">{landing.facts}</p>}
+          footnotes={<HeroAssurances text={landing.facts} />}
           primary={hero.primaryCta}
           secondary={hero.secondaryCta}
           title={hero.title}

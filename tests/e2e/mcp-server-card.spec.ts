@@ -57,16 +57,8 @@ test("public discovery matches the authenticated MCP definitions without grantin
   }
 });
 
-test("the footer uses the official Open Source Alternatives image and link", async ({ page }) => {
+test("the footer no longer links the Open Source Alternatives listing", async ({ page }) => {
   await page.goto("/en/contact");
-  const badge = page.locator('a[href="https://www.opensourcealternatives.to"]').first();
-  if (process.env.APP_MODE === "self-hosted") {
-    await expect(badge).toHaveCount(0);
-    return;
-  }
-  await expect(badge).toHaveAttribute("rel", "noopener noreferrer");
-  const image = badge.locator('img[src="https://www.opensourcealternatives.to/badge-osa.svg"]').first();
-  await expect(image).toHaveAttribute("width", "270");
-  await expect(image).toHaveAttribute("height", "20");
-  await expect(image).toHaveAttribute("alt", /Open Source Alternatives/);
+  await expect(page.locator("footer")).toBeVisible();
+  await expect(page.locator('a[href^="https://www.opensourcealternatives.to"]')).toHaveCount(0);
 });

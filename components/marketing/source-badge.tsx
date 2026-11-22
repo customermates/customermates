@@ -2,45 +2,32 @@ import { Github, Star } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { AppLink } from "@/components/shared/app-link";
-import { env } from "@/env";
 import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+
+import { GITHUB_REPOSITORY_URL } from "./github-repository";
+import { getGithubStarCount } from "./github-stars";
 
 type Props = {
   className?: string;
 };
 
-async function getStarCount(): Promise<number | null> {
-  if (env.APP_MODE === "self-hosted") return null;
-
-  try {
-    const res = await fetch("https://api.github.com/repos/customermates/customermates", {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return typeof data.stargazers_count === "number" ? data.stargazers_count : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function SourceBadge({ className }: Props) {
-  const [t, starCount, locale] = await Promise.all([getTranslations(), getStarCount(), getLocale()]);
+  const [t, starCount, locale] = await Promise.all([getTranslations(), getGithubStarCount(), getLocale()]);
   const formattingTag = formattingTagFor(contentLocaleOrDefault(locale));
 
   return (
-    <div
-      className={`mb-[24px] inline-flex items-center gap-2 rounded-full border border-border bg-card px-[11px] py-[5px] text-xs text-foreground ${className ?? ""}`}
-    >
+    <div className={`homepage-hero-badge mb-[24px] ${className ?? ""}`} data-source-badge="">
       <AppLink
         external
         appearance="unstyled"
-        className="inline-flex items-center gap-2 text-foreground no-underline transition-colors hover:text-muted-foreground focus-visible:text-muted-foreground"
-        href="https://github.com/customermates/customermates"
+        className="inline-flex items-center gap-2 transition-colors hover:text-foreground focus-visible:text-foreground"
+        href={GITHUB_REPOSITORY_URL}
       >
-        <Github aria-hidden className="size-3.5" />
+        <span aria-hidden className="homepage-hero-badge-icon">
+          <Github className="size-3" />
+        </span>
 
-        <span className="font-semibold">{t("SourceBadge.label")}</span>
+        <span>{t("SourceBadge.label")}</span>
       </AppLink>
 
       {starCount !== null && (

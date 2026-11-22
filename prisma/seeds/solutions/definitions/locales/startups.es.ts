@@ -321,7 +321,7 @@ export const es: Strings = {
       "Customermates tiene un endpoint MCP, de modo que un cliente de IA que ya usamos puede leer y actualizar este espacio de trabajo. Max trabaja con Claude Desktop; los demás pueden conectar su propio cliente de la misma manera.",
       "",
       "## Cómo conectó Max Claude Desktop",
-      "- Max creó una clave de API personal llamada Claude Desktop en Ajustes, Claves de API y conectores, y la puso en la configuración del cliente. Los clientes con conector personalizado pueden iniciar sesión con OAuth, sin clave.",
+      "- Max añadió Customermates a Claude Desktop como conector personalizado e inició sesión con OAuth, sin clave; la conexión aparece en las apps de IA conectadas. Las herramientas que no pueden iniciar sesión reciben una clave de API personal en Ajustes, Claves de API y conectores.",
       "- La clave actúa como Max y solo en este espacio de trabajo. Puede ver y cambiar exactamente lo que permite su rol, nada más.",
       "- El cliente usa nuestro propio proveedor de IA, que cobra el uso del modelo.",
       "",

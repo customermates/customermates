@@ -302,7 +302,7 @@ export const nl: Strings = {
       "Customermates heeft een MCP-endpoint, zodat een AI-client die we al gebruiken deze werkruimte kan lezen en bijwerken. Max werkt vanuit Claude Desktop; iedereen kan zijn eigen client op dezelfde manier koppelen.",
       "",
       "## Zo heeft Max Claude Desktop gekoppeld",
-      "- Max heeft onder Instellingen, API-sleutels & connectoren een persoonlijke API-sleutel met de naam Claude Desktop aangemaakt en in de configuratie van de client gezet. Clients met een eigen connector kunnen in plaats daarvan met OAuth inloggen, zonder sleutel.",
+      "- Max heeft Customermates als eigen connector aan Claude Desktop toegevoegd en zich met OAuth aangemeld, zonder sleutel; de koppeling staat bij de gekoppelde AI-apps. Tools die zich niet kunnen aanmelden krijgen een persoonlijke API-sleutel onder Instellingen, API-sleutels & connectoren.",
       "- De sleutel handelt als Max en alleen in deze werkruimte. Hij kan precies zien en wijzigen wat de rol van Max toestaat, niet meer.",
       "- De client gebruikt onze eigen AI-aanbieder, die het modelgebruik in rekening brengt.",
       "",

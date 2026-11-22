@@ -84,8 +84,8 @@ describe("GetConnectedAppsInteractor", () => {
     expect(await interactor.invoke()).toEqual({
       ok: true,
       data: [
-        { id: "claude", name: "Claude", connectedAt: days(-40), lastActiveAt: days(-1) },
-        { id: "chatgpt", name: "ChatGPT", connectedAt: days(-2), lastActiveAt: days(-2) },
+        { id: "claude", name: "Claude", device: null, connectedAt: days(-40), lastActiveAt: days(-1) },
+        { id: "chatgpt", name: "ChatGPT", device: null, connectedAt: days(-2), lastActiveAt: days(-2) },
       ],
     });
   });

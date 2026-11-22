@@ -165,7 +165,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
     expect(germanHtml).toContain("E-Mail (Inbox)");
     expect(germanHtml).toContain("Dein Plan wurde auf Starter umgestellt");
     expect(germanHtml).not.toContain("mail (Inbox)");
-    expect(englishHtml).toContain(`${MOCK_ENV_MODULE.env.BASE_URL}/w/acme/settings/channels`);
+    expect(englishHtml).toContain(`${MOCK_ENV_MODULE.env.BASE_URL}/w/acme/settings/connections`);
   });
   describe("shared accounts", () => {
     function setup(shared: unknown[], overrides: Partial<Record<string, unknown>> = {}) {

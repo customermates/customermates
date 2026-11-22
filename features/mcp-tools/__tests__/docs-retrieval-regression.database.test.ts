@@ -20,12 +20,12 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["en", "link to the roles page", "/settings/roles"],
   ["en", "link to the subscription page", "/settings/billing"],
   ["en", "webhooks page URL", "/settings/webhooks"],
-  ["en", "API keys page URL", "/settings/api-keys"],
+  ["en", "API keys page URL", "/settings/connections"],
   ["en", "routines page URL", "/automations"],
   ["en", "URL of the routines page", "/automations"],
   ["de", "URL der Rollen-Seite", "/settings/roles"],
   ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
-  ["de", "URL der API-Keys-Seite", "/settings/api-keys"],
+  ["de", "URL der API-Keys-Seite", "/settings/connections"],
   ["de", "Link zur Routinen-Seite", "/automations"],
   ["en", "webhooks route", "/settings/webhooks"],
   ["de", "Route Webhooks", "/settings/webhooks"],
@@ -124,7 +124,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "link to my profile settings", "app-profile#settings-tab", "/settings/profile"],
   ["en", "link to the routines page", "app-routines#how-do-i-create-a-routine", "/automations"],
   ["en", "link to the onboarding wizard", "app-onboarding#what-are-the-three-steps", null],
-  ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
+  ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/settings/connections"],
   ["en", "Where is the Recent Deliveries page?", "app-company#deliveries-tab", "/settings/webhook-deliveries"],
   ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/settings/billing"],
   ["en", "Where do I set stage probabilities?", "app-company#how-do-stage-probabilities-and-totals-work", "/configure"],
@@ -169,7 +169,12 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "make a channel visible to teammates", "app-profile#private-or-shared", null],
   ["en", "change my password", "app-profile#what-can-i-not-change-here", null],
   ["en", "Why is the inbox locked on Starter?", "app-inbox#who-can-use-the-inbox", null],
-  ["en", "Can an admin read my private conversations?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
+  [
+    "en",
+    "Can an admin read my private conversations?",
+    "app-inbox#which-conversations-do-i-see",
+    "/settings/connections",
+  ],
   ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", null],
   ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", null],
   ["en", "share a dashboard widget with my team", "app-dashboard#what-does-the-dashboard-show", "/dashboard"],
@@ -180,7 +185,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/settings/members"],
   ["de", "Link zum Audit-Log", "app-company#activity-tab", "/settings/activity"],
   ["de", "Link zum Posteingang", "app-inbox#what-is-the-inbox", "/inbox"],
-  ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
+  ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/settings/connections"],
   ["de", "Link zur Routinen-Seite", "app-routines#how-do-i-create-a-routine", "/automations"],
   ["de", "Webhook anlegen", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
   ["de", "Kommen Webhooks in der richtigen Reihenfolge an?", "webhooks#are-deliveries-ordered", null],
@@ -195,7 +200,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Wie lege ich eine Automatisierung an?", "app-routines#how-do-i-create-a-routine", "/automations"],
   ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", null],
   ["de", "Spam-Ordner im Posteingang ausblenden", "app-profile#what-does-the-folders-tab-control", null],
-  ["de", "Sieht der Admin meine privaten Chats?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
+  ["de", "Sieht der Admin meine privaten Chats?", "app-inbox#which-conversations-do-i-see", "/settings/connections"],
   ["de", "Eigene Rolle anlegen", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [
     "de",
@@ -230,10 +235,10 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
     null,
   ],
-  ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
-  ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
-  ["en", "Error connecting my Gmail channel", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
-  ["de", "Fehler beim Verbinden des Gmail-Kanals", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
+  ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/settings/connections"],
+  ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/settings/connections"],
+  ["en", "Error connecting my Gmail channel", "app-profile#how-do-i-connect-a-channel", "/settings/connections"],
+  ["de", "Fehler beim Verbinden des Gmail-Kanals", "app-profile#how-do-i-connect-a-channel", "/settings/connections"],
   [
     "en",
     "LinkedIn rate limit error",
@@ -509,7 +514,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
               ["en", "where do I find the audit log", "app-company#activity-tab", "/settings/activity"],
               ["en", "Where can I find the roles?", "app-company#roles-tab", "/settings/roles"],
               ["en", "take me to the webhooks page", "app-company#webhooks-tab", "/settings/webhooks"],
-              ["de", "Wo ist die Seite Kanäle?", "app-profile#channels-tab", "/settings/channels"],
+              ["de", "Wo ist die Seite Kanäle?", "app-profile#channels-tab", "/settings/connections"],
               ["de", "Wo finde ich das Audit-Log?", "app-company#activity-tab", "/settings/activity"],
             ] as const
           ).map(async ([locale, query, expected, route]) => {
@@ -807,7 +812,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       query: "Walk me through connecting WhatsApp to the Customermates inbox.",
     });
     const bounded = result.slice(0, 512);
-    expect(bounded).toContain(`${APP}${workspaceEntryHref("/settings/channels")}`);
+    expect(bounded).toContain(`${APP}${workspaceEntryHref("/settings/connections")}`);
     expect(bounded).toContain("settings-channels-connect");
     expect(bounded).toContain("WhatsApp");
   });
@@ -829,9 +834,9 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   it("puts the section a query names first and keeps its app link, steps included", async () => {
     for (const [locale, slug, heading, route] of [
-      ["en", "connect-custom-connector", "Can ChatGPT use an API key instead of OAuth?", "/settings/api-keys"],
-      ["de", "connect-custom-connector", "Kann ChatGPT statt OAuth einen API-Key nutzen?", "/settings/api-keys"],
-      ["en", "mcp", "Connect a client", "/settings/api-keys"],
+      ["en", "connect-custom-connector", "Can ChatGPT use an API key instead of OAuth?", "/settings/connections"],
+      ["de", "connect-custom-connector", "Kann ChatGPT statt OAuth einen API-Key nutzen?", "/settings/connections"],
+      ["en", "mcp", "Connect a client", "/settings/connections"],
       ["en", "architecture-security", "How are webhook secrets and destinations secured?", "/settings/webhooks"],
       ["en", "app-profile", "Profile & preferences", "/settings/profile"],
     ] as const) {
@@ -879,7 +884,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("app-profile", query, locale);
       expect(excerpt, query).toContain(action);
-      expect(appLinks(excerpt), query).toContain(`${APP}${workspaceEntryHref("/settings/channels")}`);
+      expect(appLinks(excerpt), query).toContain(`${APP}${workspaceEntryHref("/settings/connections")}`);
     }
   });
 

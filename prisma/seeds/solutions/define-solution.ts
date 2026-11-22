@@ -142,9 +142,8 @@ export type RecordSpec = {
   avatar?: string;
   createdDaysAgo: number;
   /**
-   * Earlier values of fields that changed later, oldest first: each entry is one update. `via` names the API key of
-   * the member's profile the change came through, for example "Claude Desktop"; the history then reads "<member> via
-   * <via>".
+   * Earlier values of fields that changed later, oldest first: each entry is one update. `via` names the AI app the
+   * member signed in to that made the change, for example "Claude"; the history then reads "<member> via <via>".
    */
   history?: ReadonlyArray<{ daysAgo: number; by?: MemberKey; via?: string; previous: Record<string, FieldInput> }>;
 };
@@ -341,7 +340,20 @@ export type WebhookSpec = {
 };
 
 /** An API key on Max's profile, shown in the settings; it cannot authenticate. */
-export type ApiKeySpec = { name: string; createdDaysAgo: number };
+export type ApiKeySpec = { name: string; createdDaysAgo: number; lastUsedMinutesAgo?: number; requestCount?: number };
+
+/**
+ * An AI app Max signed in to over OAuth, shown under connected AI apps: when it connected, the device it runs on and
+ * how long ago it last worked in the workspace. Its tokens never authenticate anywhere.
+ */
+export type AgentAppSpec = {
+  name: string;
+  slug: string;
+  device: string;
+  redirectUrl: string;
+  connectedDaysAgo: number;
+  activeMinutesAgo: number;
+};
 
 export type FileKind = "pdf" | "docx" | "xlsx" | "csv" | "md" | "jpg";
 
@@ -414,6 +426,7 @@ export type SolutionContent = {
   routines?: readonly RoutineSpec[];
   webhooks?: readonly WebhookSpec[];
   apiKeys?: readonly ApiKeySpec[];
+  agentApps?: readonly AgentAppSpec[];
   /** The currency of every amount: USD for US stories, GBP for UK stories, EUR for German, Spanish and Dutch ones, BRL for Brazilian and PLN for Polish ones. */
   currency: "USD" | "GBP" | "EUR" | "BRL" | "PLN";
   /** The time zone of the story: dashboards, calendars and local times of date-time values. */

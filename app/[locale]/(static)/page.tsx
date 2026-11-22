@@ -12,13 +12,14 @@ import { HomepageIntegrations } from "./components/homepage-integrations";
 import { HomepagePillars } from "./components/homepage-pillars";
 import { HomepageProofPartners } from "./components/homepage-proof-partners";
 import { HomepageFollowUp } from "./components/homepage-follow-up";
+import { HomepageTrustStrip } from "./components/homepage-trust-strip";
 import { HomepageWorkspaceGenerator } from "./components/homepage-workspace-generator";
 import { ProductFilm } from "@/components/marketing/product-film";
 import { UseCasesSection } from "@/components/marketing/use-cases-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
-import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
+import { organizationSchema, softwareApplicationSchema, webSiteSchema } from "@/core/seo/schemas";
 import { isMarketingPathPublished, marketingLocalesForPath } from "@/i18n/locale-registry";
 import { enableMarketingLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
@@ -54,8 +55,19 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
   if (!homepagePage) notFound();
 
-  const { closingEyebrow, cta, faq, followUp, generator, hero, pillars, plansTeaser, proofAndPartners, useCases } =
-    homepagePage.data;
+  const {
+    closingEyebrow,
+    cta,
+    faq,
+    followUp,
+    generator,
+    hero,
+    pillars,
+    plansTeaser,
+    proofAndPartners,
+    trust,
+    useCases,
+  } = homepagePage.data;
 
   return (
     <div
@@ -64,6 +76,8 @@ export default async function HomePage({ params }: StaticLocaleProps) {
       data-marketing-flow="continuous"
     >
       <JsonLd schema={organizationSchema()} />
+
+      <JsonLd schema={webSiteSchema({ locale })} />
 
       <JsonLd
         schema={softwareApplicationSchema({
@@ -75,6 +89,8 @@ export default async function HomePage({ params }: StaticLocaleProps) {
       <HomepageHero heroSection={hero} />
 
       <ProductFilm />
+
+      <HomepageTrustStrip trust={trust} />
 
       <UseCasesSection useCases={useCases} />
 

@@ -6,7 +6,7 @@ import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
-import { e2eAppMode } from "./workspace-switching";
+import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
 test.skip(e2eAppMode() === "self-hosted", "Routines are cloud-only");
 
@@ -14,6 +14,7 @@ test("persists a routine for a customer-created type and matches only its config
   page,
   database,
   companyId,
+  workspace,
 }, testInfo) => {
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
@@ -29,14 +30,16 @@ test("persists a routine for a customer-created type and matches only its config
     [companyId, typeId],
   );
   expect(field.rows).toHaveLength(1);
+  // New Mate automations on an event are built as steps; a saved scheduled one can still switch to record changes.
+  await database.query(
+    'INSERT INTO "Routine" (id,"companyId","ownerUserId",name,prompt,enabled,"triggerKind","cronExpression",timezone,"triggerEvents","updatedAt") VALUES ($1,$2,$3,$4,$5,true,\'schedule\',\'0 8 * * 1\',\'Europe/Berlin\',\'{}\',NOW())',
+    [randomUUID(), companyId, workspace.userId, "Project follow-up", "Summarize the changed project without sending messages."],
+  );
   await page.goto(companyPath(companyId, "/automations"));
-  await page.locator("#automations-add").click();
-  await page.getByRole("menuitem", { name: "Routine (Mate on a schedule)" }).click();
-  const routine = page.getByRole("dialog", { name: "Routine", exact: true });
-  await routine.locator("#name").fill("Project follow-up");
-  await routine.locator("#prompt").fill("Summarize the changed project without sending messages.");
-  await routine.getByRole("combobox", { name: "Trigger", exact: false }).first().click();
-  await page.getByRole("option", { name: "When something changes", exact: true }).click();
+  await clickHydrated(page.getByRole("button", { name: "Project follow-up", exact: true }));
+  const routine = page.getByRole("dialog", { name: "Edit automation", exact: true });
+  await routine.locator('[data-automation-step="trigger"]').click();
+  await routine.locator("[data-automation-start]").getByRole("tab", { name: "On an event", exact: true }).click();
   await routine.locator("#triggerEvents").click();
   await page.getByRole("option", { name: "Record updated", exact: true }).click();
   await page.keyboard.press("Escape");
@@ -60,6 +63,7 @@ test("persists a routine for a customer-created type and matches only its config
   });
   await page.reload();
   await page.getByRole("button", { name: "Project follow-up", exact: true }).click();
+  await routine.locator('[data-automation-step="trigger"]').click();
   await expect(routine.getByRole("combobox", { name: "Records from", exact: false })).toContainText("Projects");
   await expect(routine.locator('[id="recordTrigger.changedFieldIds"]')).toContainText(field.rows[0].label);
   await expectPaletteText(page, "record-trigger-filters", "query:search", "Ready");

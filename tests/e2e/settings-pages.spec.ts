@@ -4,6 +4,7 @@ import {
   notificationUnsubscribeSecret,
   signNotificationUnsubscribe,
 } from "../../features/notifications/notification-unsubscribe-token";
+import { openAgentRuntime } from "./agents-page";
 import { companyPath, companyUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { secondUser } from "./second-user";
@@ -32,8 +33,9 @@ test("Agents and Incoming webhooks open as their own settings pages from the are
     await openSidebar(page);
     await page.locator("#nav-settings-agents").click();
     await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/agents$"));
-    // A fresh workspace has no runner: the card says so instead of ending under its heading.
-    await expect(page.locator("[data-agent-runners-card] [data-agent-runners-empty]")).toHaveText(
+    // A fresh workspace has no runner: the runner card says so instead of ending under its heading.
+    await openAgentRuntime(page, "runner");
+    await expect(page.locator("#agent-runners [data-agent-runners-empty]")).toHaveText(
       "You have no runner yet. Add one to run agent steps with your own CLI.",
     );
     await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
@@ -56,12 +58,25 @@ test("Agents and Incoming webhooks open as their own settings pages from the are
 
 test("each settings page keeps its own address and its query", async ({ page, companyId }) => {
   const errors = collectPageErrors(page);
-  const pages = ["agents", "api-keys", "webhooks", "webhook-deliveries", "incoming-webhooks"];
+  const pages = ["connections", "agents", "webhooks", "webhook-deliveries", "incoming-webhooks"];
 
-  for (const slug of e2eAppMode() === "self-hosted" ? pages : ["channels", ...pages]) {
+  for (const slug of pages) {
     await page.goto(companyPath(companyId, `/settings/${slug}`));
     await expect(page, slug).toHaveURL(companyUrlPattern(companyId, `/settings/${slug}$`));
   }
+
+  await test.step("the former Channels and API keys addresses open their section of Connections", async () => {
+    // Self-hosted has no inbox, so its Channels address opens the AI apps instead.
+    const former = { channels: e2eAppMode() === "self-hosted" ? "apps" : "inbox", "api-keys": "keys" };
+    for (const [slug, section] of Object.entries(former)) {
+      await page.goto(companyPath(companyId, `/settings/${slug}`));
+      await expect(page, slug).toHaveURL(companyUrlPattern(companyId, `/settings/connections\\?section=${section}$`));
+    }
+    await page.goto(companyPath(companyId, "/settings/api-keys?connect=claude"));
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/connections\\?"));
+    const params = new URL(page.url()).searchParams;
+    expect([params.get("connect"), params.get("section")]).toEqual(["claude", "apps"]);
+  });
 
   await page.goto(companyPath(companyId, "/settings/webhook-deliveries?search=hello"));
   await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries\\?"));
@@ -210,7 +225,7 @@ test("a member without API access is offered Agents but none of the pages that n
   const roleId = ((await saved.json()) as { role: { id: string } }).role.id;
   const member = await secondUser(browser, database, companyId, testInfo, roleId);
   try {
-    const apiPages = ["api-keys", "webhooks", "incoming-webhooks", "webhook-deliveries"];
+    const apiPages = ["connections", "api-keys", "webhooks", "incoming-webhooks", "webhook-deliveries"];
     await member.page.goto(companyPath(companyId, "/settings/profile"));
     await member.page.waitForLoadState("networkidle");
     await openSidebar(member.page);
@@ -231,7 +246,8 @@ test("a member without API access is offered Agents but none of the pages that n
     await test.step("Agents opens, and its runners card says that the role may not see runners", async () => {
       await member.page.goto(companyPath(companyId, "/settings/agents"));
       await expect(member.page).toHaveURL(companyUrlPattern(companyId, "/settings/agents$"));
-      await expect(member.page.locator("[data-agent-runners-card] [data-agent-runners-withheld]")).toHaveText(
+      await openAgentRuntime(member.page, "runner");
+      await expect(member.page.locator("#agent-runners [data-agent-runners-withheld]")).toHaveText(
         "Your role cannot see runners, so none are listed here.",
       );
       await expect(member.page.locator("[data-agent-runners-empty]")).toHaveCount(0);

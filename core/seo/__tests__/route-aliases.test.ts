@@ -161,7 +161,7 @@ describe("retired app routes", () => {
     expect(destinationOf("/company/members")).toBe("/dashboard?open=%2Fsettings%2Fmembers");
     expect(destinationOf("/company/audit-logs")).toBe("/dashboard?open=%2Fsettings%2Factivity");
     expect(destinationOf("/company/settings")).toBe("/dashboard?open=%2Fconfigure");
-    expect(destinationOf("/fr/profile/api-keys")).toBe("/fr/dashboard?open=%2Fsettings%2Fapi-keys");
+    expect(destinationOf("/fr/profile/api-keys")).toBe("/fr/dashboard?open=%2Fsettings%2Fconnections");
     expect(destinationOf("/profile/settings")).toBe("/dashboard?open=%2Fsettings%2Fprofile");
   });
 

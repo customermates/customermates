@@ -33,7 +33,7 @@ export type ApplyOnboardingPlaybookResult = {
 
 export function onboardingChannelsHref(slug: string | undefined): string {
   const query = new URLSearchParams([[ONBOARDING_ORIGIN_QUERY_PARAM, ONBOARDING_ORIGIN_VALUE]]);
-  return withWorkspaceHref(`${settingsHref("channels")}?${query.toString()}`, slug);
+  return withWorkspaceHref(`${settingsHref("connections")}?${query.toString()}`, slug);
 }
 
 @SystemInteractor

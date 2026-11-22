@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentsPageText, type AgentAppName } from "../agent-native";
 import { address, day, defineSolution, type FileSpec, type RecordSpec, phoneNumber } from "../define-solution";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 import { es } from "./locales/freelancers.es";
@@ -1628,11 +1628,11 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:tidewaterDashboard": "Claude Desktop",
-  "task:replySam": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:tidewaterDashboard": "Claude",
+  "task:replySam": "Claude",
   "deal:fernhillTariff": "ChatGPT",
-  "organization:atlas": "Codex CLI",
+  "organization:atlas": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2089,7 +2089,7 @@ export default defineSolution<Strings>({
           related: ["guide"],
         },
       ],
-      apiKeys: agentApiKeys([62, 35, 11]),
+      ...agentConnections([62, 35, 11]),
       routines: [
         {
           key: "mondayPlan",

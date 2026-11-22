@@ -54,6 +54,20 @@ describe("protected resource metadata of a workspace's MCP URL", () => {
     });
   });
 
+  it("serves the metadata to a client that sends its API key on every request", async () => {
+    const request = new Request(
+      `http://localhost:4000/.well-known/oauth-protected-resource/api/v1/mcp/w/${WORKSPACE}`,
+      {
+        headers: { "x-api-key": "cm_live_example" },
+      },
+    );
+
+    const response = await GET(request, { params: Promise.resolve({ workspaceId: WORKSPACE }) });
+
+    expect(response.status).toBe(200);
+    expect(metadata.handler.mock.calls[0][0].headers.has("x-api-key")).toBe(false);
+  });
+
   it.each(["not-a-workspace", WORKSPACE.toUpperCase()])("answers 404 for %s", async (workspaceId) => {
     const response = await discover(workspaceId);
 

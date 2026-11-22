@@ -27,6 +27,7 @@ import {
   solutionColleagueId,
   type SolutionRecordData,
 } from "./solution-data";
+import { seedSolutionAgentApps } from "./solution-agent-apps";
 import { seedSolutionMateChats, seedSolutionPlanner, seedSolutionTrash } from "./solution-extras";
 import { seedSolutionFiles, solutionFileValues } from "./solution-files";
 import { buildTeamPlatformFixtures, seedSolutionPlatform } from "./solution-platform";
@@ -537,6 +538,7 @@ async function seedSolutionApiKeys(prisma: PrismaClient, workspace: SolutionWork
   const keys = (content.apiKeys ?? []).map((spec, index) => {
     const id = workspaceFixtureId(API_KEY_GROUP, tag, index + 1);
     const createdAt = storyMoment(spec.createdDaysAgo);
+    const lastRequest = spec.lastUsedMinutesAgo === undefined ? null : storyMoment(0, spec.lastUsedMinutesAgo);
     return {
       id,
       name: spec.name,
@@ -547,9 +549,10 @@ async function seedSolutionApiKeys(prisma: PrismaClient, workspace: SolutionWork
       configId: "default",
       enabled: true,
       rateLimitEnabled: false,
-      requestCount: 0,
+      requestCount: spec.requestCount ?? 0,
+      lastRequest,
       createdAt,
-      updatedAt: createdAt,
+      updatedAt: lastRequest ?? createdAt,
       companyId,
     } satisfies Prisma.ApikeyUncheckedCreateInput;
   });
@@ -613,6 +616,7 @@ export async function seedSolutionWorkspace(
   );
   await seedSolutionRoutines(prisma, workspace, content, data);
   await seedSolutionApiKeys(prisma, workspace, content);
+  await seedSolutionAgentApps(prisma, workspace, content);
   await seedSolutionPlanner(prisma, workspace, content);
   await seedSolutionTrash(prisma, workspace, content);
   await seedSolutionMateChats(prisma, workspace, content);

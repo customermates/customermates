@@ -27,7 +27,7 @@ pricing:
     features:
       - "[[commercial.limit.free.fileStorageBytes]] file storage per workspace"
       - "API and MCP with [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day"
-      - "No inbox, Mate, routines, webhooks or n8n triggers"
+      - "No inbox, Mate, scheduled automations, webhooks or n8n triggers"
   - plan: starter
     title: Starter
     description: "Your CRM and your own AI"
@@ -39,7 +39,7 @@ pricing:
       - Contacts, companies, deals and tasks
       - "Connect your own AI over MCP: Claude, ChatGPT or Gemini"
       - REST API, webhooks and your own n8n
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user: Mate works on a schedule or when a record changes"
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] scheduled automation per user: Mate works on a schedule or when a record changes"
       - "Mate usage: 1x per active user, the base allowance"
     missingFeatures:
       - Unified inbox for LinkedIn and email
@@ -58,7 +58,7 @@ pricing:
       - Mate drafts replies from your playbook for you to review and send
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
       - Share individual threads with teammates
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user: Mate works on a schedule or when a record changes"
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] scheduled automations per user: Mate works on a schedule or when a record changes"
       - Meeting scheduling, booking pages and LinkedIn Sales Navigator
       - "Mate usage: 3x Starter per active user"
       - Everything in Starter
@@ -74,7 +74,7 @@ pricing:
       - Everything in Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user included"
       - "Whole-account sharing: share a connected account with the team"
-      - "Routines per user: [[commercial.entitlement.business.includedRoutinesPerUser]] (fair use)"
+      - "Scheduled automations per user: [[commercial.entitlement.business.includedRoutinesPerUser]] (fair use)"
       - Priority support
       - "Mate usage: 10x Starter per active user, the most usage per euro"
   - plan: max
@@ -185,7 +185,7 @@ comparison:
         enterprise: true
   - title: Core CRM
     rows:
-      - label: Routines per user
+      - label: Scheduled automations per user
         catalogFact: includedRoutinesPerUser
       - label: Active automations
         catalogFact: activeAutomationRules
@@ -320,16 +320,16 @@ faq:
     content: "Yes. One login can belong to several fully separate workspaces, for example one for sales and one for bookkeeping, and switch between them. Each workspace has its own plan, subscription and invoices, and seats count per workspace: a person who is active in two workspaces is a paid seat in both. The first workspace you create includes the [[commercial.trial.days]]-day free trial; every additional workspace starts by choosing a plan. A self-hosted instance runs any number of workspaces without billing."
   - id: pricing-faq-10
     title: What do I get when I self-host?
-    content: "A self-hosted instance always has the Starter feature set: core CRM, MCP, REST API, webhooks and the n8n interfaces, without billing. The unified inbox, Mate, routines and AI setup run only on Customermates Cloud. MCP with your own AI client works on a self-hosted instance, and that client uses your own AI provider."
+    content: "A self-hosted instance always has the Starter feature set: core CRM, MCP, REST API, webhooks and the n8n interfaces, without billing. The unified inbox, Mate, scheduled automations and AI setup run only on Customermates Cloud. MCP with your own AI client works on a self-hosted instance, and that client uses your own AI provider."
   - id: pricing-faq-11
     title: Where are my data and connected-account credentials stored?
     content: "The cloud database runs in AWS Frankfurt, and connected accounts sign in through Unipile's hosted flow, so Customermates never receives provider passwords or OAuth tokens. The full answer is in the docs: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
   - id: pricing-faq-12
     title: "What is the Free plan?"
-    content: "Your first Cloud workspace starts with the [[commercial.trial.days]]-day Pro trial, no credit card; every further workspace starts by choosing a plan. If the trial ends without a paid plan, the workspace moves to Free instead of being locked, and nothing is deleted. Free is for trying Customermates on your own: [[commercial.limit.free.maxMembers]] person, up to [[commercial.limit.free.maxRecords]] records and [[commercial.limit.free.fileStorageBytes]] file storage per workspace. It has no inbox or connected accounts, no Mate, no routines, no webhooks and no n8n trigger. The REST API and MCP are included with up to [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace, so you can bring your own Claude or ChatGPT. Records and files above a limit stay; only adding more is refused. You can move to a paid plan at any time. A self-hosted instance stays free without these limits."
+    content: "Your first Cloud workspace starts with the [[commercial.trial.days]]-day Pro trial, no credit card; every further workspace starts by choosing a plan. If the trial ends without a paid plan, the workspace moves to Free instead of being locked, and nothing is deleted. Free is for trying Customermates on your own: [[commercial.limit.free.maxMembers]] person, up to [[commercial.limit.free.maxRecords]] records and [[commercial.limit.free.fileStorageBytes]] file storage per workspace. It has no inbox or connected accounts, no Mate, no scheduled automations, no webhooks and no n8n trigger. The REST API and MCP are included with up to [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace, so you can bring your own Claude or ChatGPT. Records and files above a limit stay; only adding more is refused. You can move to a paid plan at any time. A self-hosted instance stays free without these limits."
   - id: pricing-faq-13
     title: "What happens to my team when a workspace moves to Free?"
-    content: "Free keeps [[commercial.limit.free.maxMembers]] active person per workspace: the person who created the workspace, or else the earliest admin. Everyone else is paused, not removed. Paused people cannot open the workspace, and their records, notes and history stay. Open invitations and join requests are cancelled, routines are paused, automations above the Free limit of [[commercial.entitlement.free.activeAutomationRules]] switch off, public forms stop taking submissions above the monthly limit of [[commercial.entitlement.free.formSubmissionsPerMonth]] and existing webhooks stop sending. An admin can hand the active seat to another admin. As soon as the workspace chooses any paid plan, every paused person is back automatically and counts as a paid seat again, and routines, automations, forms and webhooks resume."
+    content: "Free keeps [[commercial.limit.free.maxMembers]] active person per workspace: the person who created the workspace, or else the earliest admin. Everyone else is paused, not removed. Paused people cannot open the workspace, and their records, notes and history stay. Open invitations and join requests are cancelled, scheduled automations are paused, other automations above the Free limit of [[commercial.entitlement.free.activeAutomationRules]] switch off, public forms stop taking submissions above the monthly limit of [[commercial.entitlement.free.formSubmissionsPerMonth]] and existing webhooks stop sending. An admin can hand the active seat to another admin. As soon as the workspace chooses any paid plan, every paused person is back automatically and counts as a paid seat again, and all automations, forms and webhooks resume."
   - id: pricing-faq-14
     title: "How do you monitor usage on a self-hosted instance?"
     content: "We do not. A self-hosted Community Edition has no licence key and does not report usage to Customermates: the published image has no licence ping and turns off Next.js and Prisma telemetry, and the app's errors stay in your own logs. The licence is kept by its terms, not by telemetry: the Sustainable Use License limits use to your own business, and Enterprise Features, embedding and white-label need an agreement. A Cloud plan unlocks nothing on a self-hosted instance. More: https://customermates.com/docs/licence-faq and https://customermates.com/docs/compare-editions"

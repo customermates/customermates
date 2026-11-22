@@ -41,7 +41,6 @@
   ],
   "fields": [
     { "key": "people.person_role", "type": "select", "options": [{ "key": "author" }, { "key": "editor" }, { "key": "reviewer" }, { "key": "approver" }, { "key": "client_contact" }, { "key": "guest" }] },
-    { "key": "people.profile_url", "type": "url" },
     { "key": "pieces.owner", "type": "member" },
     { "key": "pieces.reviewer", "type": "member" },
     { "key": "pieces.format", "type": "select", "options": [{ "key": "blog_post" }, { "key": "newsletter" }, { "key": "short_video" }, { "key": "long_video" }, { "key": "carousel" }, { "key": "image_post" }, { "key": "text_post" }, { "key": "podcast" }, { "key": "webinar" }, { "key": "case_study" }] },
@@ -96,7 +95,7 @@
     },
     { "key": "campaigns_all", "list": "campaigns", "default": true, "layout": "table", "columns": ["campaigns.status", "campaigns.start_date", "campaigns.end_date", "campaigns.owner"] },
     { "key": "key_dates_all", "list": "key_dates", "default": true, "layout": "table", "sort": { "field": "key_dates.date", "direction": "asc" }, "columns": ["key_dates.date", "key_dates.date_type"] },
-    { "key": "people_all", "list": "people", "default": true, "layout": "table", "columns": ["people.person_role", "people.profile_url"] }
+    { "key": "people_all", "list": "people", "default": true, "layout": "table", "columns": ["people.person_role", "people.channels"] }
   ],
   "widgets": [
     {

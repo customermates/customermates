@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { agentConnections, agentEdited, agentsPage, type AgentsPageText, type AgentAppName } from "../agent-native";
 import { address, day, defineSolution, rangeAt, type FileSpec, type RecordSpec } from "../define-solution";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 import { es } from "./locales/linkedin-crm.es";
@@ -1805,11 +1805,11 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
-const AGENT_EDITS: Record<string, AgentKeyName> = {
-  "deal:hollisProgram": "Claude Desktop",
-  "task:linkKateConversation": "Claude Desktop",
+const AGENT_EDITS: Record<string, AgentAppName> = {
+  "deal:hollisProgram": "Claude",
+  "task:linkKateConversation": "Claude",
   "deal:ashcombeProgram": "ChatGPT",
-  "organization:northmere": "Codex CLI",
+  "organization:northmere": "Codex",
 };
 
 export default defineSolution<Strings>({
@@ -2230,7 +2230,7 @@ export default defineSolution<Strings>({
           related: ["guide"],
         },
       ],
-      apiKeys: agentApiKeys([58, 33, 9]),
+      ...agentConnections([58, 33, 9]),
       files: [
         file("hollisProposal", "hollisProgram", "pdf", 10),
         file("ashcombeProposal", "ashcombeProgram", "pdf", 16),

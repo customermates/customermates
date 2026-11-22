@@ -4,7 +4,7 @@ import type { BookingAssignmentKind, BookingLinkDto, BookingQuestion } from "@/e
 import type { BookingSetup } from "@/ee/calendar/booking-setup";
 import type { WorkingHours, WorkingWeekday } from "@/ee/calendar/working-hours";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, override } from "mobx";
 
 import { Resource } from "@/generated/prisma";
 
@@ -73,6 +73,7 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
   onSaved: (() => void) | null = null;
   calendarMissing = false;
   hostOptions: BookingHostOption[] = [];
+  viewOnly = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore, emptyForm(EMPTY_SETUP), Resource.inboxMessages);
@@ -81,16 +82,23 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
       setup: observable.ref,
       hostOptions: observable.ref,
       calendarMissing: observable,
+      viewOnly: observable,
+      isReadOnly: override,
       configure: action,
       start: action,
     });
   }
 
-  configure = (setup: BookingSetup, onSaved: () => void, hostOptions: BookingHostOption[] = []) => {
+  configure = (setup: BookingSetup, onSaved: () => void, hostOptions: BookingHostOption[] = [], viewOnly = false) => {
     this.setup = setup;
     this.onSaved = onSaved;
     this.hostOptions = hostOptions;
+    this.viewOnly = viewOnly;
   };
+
+  override get isReadOnly(): boolean {
+    return this.viewOnly || super.isReadOnly;
+  }
 
   get knownHosts(): BookingHostOption[] {
     const known = new Map(this.hostOptions.map((host) => [host.userId, host]));
@@ -214,7 +222,7 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (this.isLoading) return;
+    if (this.isLoading || this.viewOnly) return;
 
     this.setIsLoading(true);
     let saved = false;

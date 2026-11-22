@@ -1297,14 +1297,14 @@ describe("agent tools", () => {
     expect(await lineOf("member-modal-save")).toContain("|>a member row");
     expect(await lineOf("webhook-modal-delete")).toContain("|>a webhook row");
     expect(await lineOf("role-modal-delete")).toContain("|>a role row");
-    expect(await lineOf("api-key-delete")).toContain("|>an API key card");
+    expect(await lineOf("api-key-delete")).toContain("|>an API key row");
     expect(await lineOf("webhook-delivery-modal-resend")).toContain("|>a delivery row");
-    expect(await lineOf("connected-account-disconnect")).toContain("|>a channel card");
+    expect(await lineOf("connected-account-disconnect")).toContain("|>an account row");
     expect(await lineOf("connected-account-signature")).toContain("|>connected-account-tab-email");
     expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
     expect(await lineOf("nav-settings-members")).toBe("nav-settings-members|/settings/members|nh");
-    expect(await lineOf("nav-settings-api-keys")).toBe("nav-settings-api-keys|/settings/api-keys|nh");
+    expect(await lineOf("nav-settings-connections")).toBe("nav-settings-connections|/settings/connections|nh");
     expect(await lineOf("widget-modal-cancel")).toBe("widget-modal-cancel|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("webhook-modal-url")).toContain("|>settings-webhooks-add");
   });
@@ -1387,7 +1387,7 @@ describe("agent tools", () => {
     ["Miembros", "nav-settings-members"],
     ["Facturation", "nav-settings-billing"],
     ["profilo", "nav-settings-profile"],
-    ["Kanäle", "nav-settings-channels"],
+    ["Verbindungen", "nav-settings-connections"],
     ["Buscar", "nav-search"],
     ["Rechercher", "nav-search"],
     ["Cerca", "nav-search"],
@@ -1433,8 +1433,7 @@ describe("agent tools", () => {
     ["Boîte de réception", "nav-inbox"],
     ["Tableau de bord", "nav-dashboard"],
     ["Menú personal", "nav-personal-menu"],
-    ["Chiavi API", "nav-settings-api-keys"],
-    ["Clés API", "nav-settings-api-keys"],
+    ["Profilo e preferenze", "nav-settings-profile"],
     ["Menu dello spazio di lavoro", "nav-workspace-menu"],
   ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
@@ -1488,7 +1487,7 @@ describe("agent tools", () => {
     const workflow = String(await execute(tools.list_ui_targets, { query: "connected accounts" }));
     const provider = String(await execute(tools.list_ui_targets, { query: "WhatsApp" }));
 
-    expect(workflow).toContain("nav-settings-channels");
+    expect(workflow).toContain("nav-settings-connections");
     expect(workflow).toContain("settings-channels-connect");
     expect(workflow).toMatch(/\n(?:end|nextCursor=\d+;total=\d+)$/);
     expect(provider).toContain("settings-channels-connect");

@@ -595,6 +595,14 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.locales.${*}", LOCALE_KEYS],
   ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["Common.providers.${*}", PROVIDER_KEYS],
+  [
+    "Connections.inbox.capabilities.${*}",
+    ["calendar", "email", "messages", "posts"].map((capability) => `Connections.inbox.capabilities.${capability}`),
+  ],
+  [
+    "Connections.apps.clients.${*}",
+    ["claude", "cursor", "gemini", "openai"].map((client) => `Connections.apps.clients.${client}`),
+  ],
   ["EntityChannels.groups.${*}", CHANNEL_GROUP_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
@@ -733,6 +741,7 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
   [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-rule-panel.tsx :: t :: status.\${replay.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
   [
     `${AUTOMATIONS_DIRECTORY}/automation-builder-modal.tsx :: t :: disabledReason.\${disabledReason}`,
     AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing", "planPaused"]),
@@ -740,8 +749,14 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`, NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"])],
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`, NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES)],
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
-  [`${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: kinds.\${item.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
-  [`${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: kinds.\${option}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  [
+    `${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: pageFilters.\${option}`,
+    NOTIFICATION_KEYS("pageFilters", ["all", "unread", ...NOTIFICATION_KIND_NAMES]),
+  ],
+  [
+    `${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: groups.\${section.group}`,
+    NOTIFICATION_KEYS("groups", ["today", "thisWeek", "earlier"]),
+  ],
 ];
 const AUTOMATION_QUALIFIED_SITES: ReadonlyArray<readonly [string, readonly string[]]> = AUTOMATION_SITE_CONSUMERS.map(
   ([site, keys]) => {
@@ -879,7 +894,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/account-status-color.ts :: t :: Common.providers.${account.provider}",
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
-  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-section.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-section.tsx :: t :: Common.providers.${account.provider}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-section.tsx :: t :: Connections.inbox.capabilities.${capability}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/ai-apps-section.tsx :: t :: Connections.apps.clients.${provider}",
   "app/components/app-sidebar.tsx :: t :: Common.locales.${value}",
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
@@ -898,8 +916,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-identity-editor.tsx :: t :: EntityChannels.groups.${group}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/routine-configuration-pane.tsx :: t :: RoutineSchedulePreset.${value}",
-  "app/[locale]/(protected)/w/[workspace]/routines/components/routine-configuration-pane.tsx :: t :: RoutineWeekday.${key}",
+  "app/[locale]/(protected)/w/[workspace]/routines/components/routine-trigger-fields.tsx :: t :: RoutineSchedulePreset.${value}",
+  "app/[locale]/(protected)/w/[workspace]/routines/components/routine-trigger-fields.tsx :: t :: RoutineWeekday.${key}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-run-detail.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-runs-pane.tsx :: t :: RoutineRunStatus.${run.status}",

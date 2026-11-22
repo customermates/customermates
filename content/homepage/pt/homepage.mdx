@@ -2,19 +2,34 @@
 title: "CRM com hospedagem própria para follow-up de cada cliente"
 description: "CRM com código-fonte disponível para follow-up de cada cliente: LinkedIn e e-mail no cadastro, próximo passo com data, rascunhos do Mate e hospedagem própria."
 rootMetadata:
-  defaultTitle: "Customermates: follow-up de cada cliente | CRM self-hosted"
-  defaultDescription: "Faça follow-up de cada conversa com clientes: threads de LinkedIn e e-mail no cadastro, um próximo passo com data e respostas do Mate para revisar e enviar."
+  defaultTitle: "Customermates: o CRM com IA que faz o follow-up por você"
+  defaultDescription: "O Customermates reúne LinkedIn, e-mail e WhatsApp em um só lugar. O Mate, seu colega de IA, prepara cada resposta e o próximo passo. Você revisa e envia."
 
 hero:
-  title: Faça follow-up de cada conversa com clientes.
-  subtitle: Um CRM com hospedagem própria em que você conecta o LinkedIn e o e-mail. O Mate ou seu próprio agente de IA prepara cada resposta e o próximo passo, e você revisa e envia tudo em um só lugar.
-  primaryCta:
-    label: Comece seu teste de [[commercial.trial.days]] dias
-    href: /auth/signup?job=followup
+  badge: "Construído em torno da sua IA"
+  title: O CRM que faz o follow-up por você.
+  subtitle: "O Customermates reúne LinkedIn, e-mail e WhatsApp em um só lugar. O Mate, seu colega de IA, prepara cada resposta e o próximo passo. Você revisa e envia."
+  picker:
+    question: "Do que você quer fazer follow-up?"
+    cta: "Comece grátis com {choice}"
+    choices:
+      - label: "Leads de vendas"
+        template: sales-pipeline
+      - label: "Clientes"
+        template: client-tracker
+      - label: "Contatos do site"
+        template: form-to-crm
+      - label: "Atendimentos no WhatsApp"
+        template: whatsapp-enquiry-follow-up
+      - label: "Agendamentos"
+        template: booking-page
   secondaryCta:
     label: Assista ao filme (73 s)
     href: "#film"
-  assurance: Sem cartão de crédito · Código-fonte disponível · Banco de dados em Frankfurt · Funciona com seu Claude ou ChatGPT
+  assurances:
+    sourceAvailable: "Código-fonte disponível"
+    noCard: "Sem cartão de crédito"
+    database: "Banco de dados em Frankfurt"
 
 generator:
   eyebrow: Comece por uma descrição
@@ -22,6 +37,7 @@ generator:
   description: Isto é o que a configuração monta a partir de uma frase. Dados de exemplo, o produto de verdade.
   promptLabel: Sua descrição para o Mate
   arrowLabel: virou este espaço de trabalho
+  mateBubble: "Criei estas listas, o funil e o painel a partir da sua descrição."
   steps:
     - title: "Descreva seu negócio"
       description: "Uma frase sobre sua equipe, seus clientes e como você vende."
@@ -108,10 +124,11 @@ followUp:
 
 pillars:
   eyebrow: Como funciona
-  title: Tudo o que o seu follow-up precisa, em um só lugar. Quatro partes que trabalham juntas.
+  title: "Tudo o que o seu follow-up precisa, em um só lugar."
   description: Seu conhecimento, os dados dos clientes e as conversas vivem juntos, então todo agente que ajuda você trabalha com os mesmos fatos.
   knowledge:
     title: Conhecimento
+    bubble: "Escrevi a resposta para o Jonas com o seu playbook de propostas."
     description: Playbooks, preços e o seu jeito de trabalhar, escritos uma vez. O Mate e os agentes conectados usam as páginas que as permissões deles permitem.
     plan: Todos os planos
     doc:
@@ -123,6 +140,7 @@ pillars:
       usedBy: Usado no rascunho para Jonas Weber
   data:
     title: Dados
+    bubble: "A Halden & Co. está em Proposta enviada. O próximo passo vence na terça."
     description: Clientes, negócios e qualquer lista de que o seu negócio precise, com campos, etapas e visualizações próprios.
     plan: Todos os planos
     lists:
@@ -142,6 +160,7 @@ pillars:
           value: Anna Lindqvist
   inbox:
     title: Caixa de entrada
+    bubble: "O Jonas respondeu no LinkedIn. Vinculei a conversa à Halden & Co."
     description: E-mail e LinkedIn, mais WhatsApp, Instagram e Telegram, junto do cliente a quem cada conversa pertence.
     plan: Cloud, a partir do Pro
     thread:
@@ -150,6 +169,7 @@ pillars:
       linkedTo: Vinculado a Halden & Co.
   agents:
     title: Agentes
+    bubble: "O seu Claude e eu trabalhamos com os mesmos registros e regras."
     description: O Mate já vem integrado. Ou conecte a IA que você já paga, e ela trabalha com os mesmos registros e regras.
     plan: Todos os planos, Mate no Cloud pago
     clients:
@@ -183,6 +203,12 @@ proofAndPartners:
     cta:
       label: Ver o programa de parceiros
       href: /affiliate
+
+trust:
+  label: "Customermates em resumo"
+  database: "Banco de dados em Frankfurt"
+  sourceAvailable: "Código-fonte disponível"
+  agents: "Funciona com Claude e ChatGPT"
 
 plansTeaser:
   eyebrow: Preços

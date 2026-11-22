@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aggregateOfferSchema, articleSchema, organizationSchema, webPageSchema } from "../schemas";
+import { aggregateOfferSchema, articleSchema, organizationSchema, webPageSchema, webSiteSchema } from "../schemas";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -101,5 +101,17 @@ describe("webPageSchema", () => {
     const schema = webPageSchema(params);
     expect(schema.publisher.name).toBe("Customermates");
     expect(schema.about["@type"]).toBe("SoftwareApplication");
+  });
+});
+
+describe("webSiteSchema", () => {
+  it("names the site with the CRM alternate name search engines show as the site name", () => {
+    expect(webSiteSchema({ locale: "de" })).toMatchObject({
+      "@type": "WebSite",
+      alternateName: "Customermates CRM",
+      inLanguage: "de",
+      name: "Customermates",
+      url: organizationSchema().url,
+    });
   });
 });

@@ -14,6 +14,7 @@ const harness = vi.hoisted(() => ({
   roleAdd: vi.fn(),
   roleEdit: vi.fn(),
   builderCreate: vi.fn(),
+  paletteOpen: vi.fn(),
   builderRule: vi.fn(),
   routineCreate: vi.fn(),
   routineEdit: vi.fn(),
@@ -111,6 +112,14 @@ vi.mock(
 );
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/automations/components/use-automation-columns", () => ({
   useAutomationColumns: () => [],
+}));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-create-palette.store", () => ({
+  AutomationCreatePaletteStore: vi.fn(function paletteStore() {
+    return { open: harness.paletteOpen };
+  }),
+}));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-create-palette", () => ({
+  AutomationCreatePalette: () => null,
 }));
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder-modal", () => ({
   AutomationBuilderModal: () => null,
@@ -356,12 +365,15 @@ const fixtures: Fixture[] = [
         }),
       );
     },
-    verifyAdd: () => expect(harness.builderCreate).toHaveBeenCalledTimes(1),
+    verifyAdd: () => {
+      expect(harness.paletteOpen).toHaveBeenCalledTimes(1);
+      expect(harness.builderCreate).not.toHaveBeenCalled();
+    },
     verifyRow: (props) => {
       const item = { id: "row", name: "Weekly digest", rule: { id: "row" } };
       (props.onRowClick as (value: typeof item) => void)(item);
       expect(harness.builderRule).toHaveBeenCalledWith(expect.anything(), item.rule, expect.any(Function), {
-        pane: "preview",
+        pane: undefined,
       });
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),

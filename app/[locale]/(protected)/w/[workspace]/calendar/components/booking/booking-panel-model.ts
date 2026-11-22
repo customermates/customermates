@@ -16,6 +16,7 @@ export type BookingPanelState =
       busyTimeIncomplete?: boolean;
       hostCandidates?: BookingHostCandidate[];
       upcoming?: UpcomingBookingDto[];
+      readOnly?: boolean;
     }
   | { status: "unavailable"; reason: BookingPanelUnavailableReason };
 
@@ -47,5 +48,40 @@ export function groupBookingLinks(links: readonly WorkspaceBookingLinkDto[]): Bo
 }
 
 export function canCreateBookingPage(state: BookingPanelState): boolean {
-  return state.status === "ready" && state.setup.blockedReason === null;
+  return state.status === "ready" && !state.readOnly && state.setup.blockedReason === null;
+}
+
+export type UpcomingBookingDay = {
+  key: string;
+  day: Date;
+  relative: "today" | "tomorrow" | null;
+  bookings: UpcomingBookingDto[];
+};
+
+function localDayKey(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+export function groupUpcomingByDay(bookings: readonly UpcomingBookingDto[], now: Date): UpcomingBookingDay[] {
+  const today = localDayKey(now);
+  const tomorrow = localDayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+  const days = new Map<string, UpcomingBookingDay>();
+  const sorted = [...bookings].sort((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt));
+  for (const booking of sorted) {
+    const day = new Date(booking.startsAt);
+    const key = localDayKey(day);
+    const entry: UpcomingBookingDay = days.get(key) ?? {
+      key,
+      day,
+      relative: key === today ? "today" : key === tomorrow ? "tomorrow" : null,
+      bookings: [],
+    };
+    entry.bookings.push(booking);
+    days.set(key, entry);
+  }
+  return [...days.values()];
+}
+
+export function bookingHostNames(link: Pick<WorkspaceBookingLinkDto, "ownerName" | "hosts">): string[] {
+  return [...new Set([link.ownerName, ...link.hosts.map((host) => host.name)].filter(Boolean))];
 }

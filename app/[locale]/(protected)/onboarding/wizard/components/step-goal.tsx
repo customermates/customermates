@@ -2,9 +2,10 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Bot, Cloud, Loader2, MessagesSquare, Sparkles } from "lucide-react";
+import { ArrowRight, Bot, Cloud, Loader2, MessagesSquare } from "lucide-react";
 import { useState } from "react";
 
+import { MateOrb } from "@/components/mate/mate-orb";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -161,7 +162,7 @@ export const StepGoal = observer(() => {
                 id="onboarding-goal-workspace"
                 label={mateTitle}
                 labelClassName={WIZARD_CHOICE_CARD_CLASS}
-                leading={<Sparkles aria-hidden="true" className="size-4 text-primary" />}
+                leading={<MateOrb />}
                 selectionMode="single"
                 value={job}
               />

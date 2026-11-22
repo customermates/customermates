@@ -5,6 +5,7 @@ import { z } from "zod";
 export const ConnectedAppDtoSchema = z.object({
   id: z.string(),
   name: z.string(),
+  device: z.string().nullable(),
   connectedAt: z.date(),
   lastActiveAt: z.date(),
 });

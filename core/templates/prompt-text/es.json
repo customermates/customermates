@@ -1,4 +1,11 @@
 {
+  "accounts": {
+    "approve": "Dime qué has encontrado antes de escribir nada: cuántos de cada tipo, con algunos ejemplos. Espera mi aprobación y deja fuera lo que rechace.",
+    "none": "Si no hay ninguna cuenta conectada, dilo en una frase, ofrece conectar Gmail, Outlook o LinkedIn con connect_messaging_account y sigue con las listas vacías.",
+    "propose": "A partir de ahí, elige las personas, organizaciones y solicitudes u oportunidades abiertas que encajan en las nuevas listas, cada una con la dirección o el perfil de donde sale. Omite boletines, remitentes no-reply, notificaciones y a quien ya esté en el espacio de trabajo.",
+    "read": "Si hay cuentas conectadas, lee los hilos de correo y las conversaciones de LinkedIn recientes con get_messaging_threads, y las próximas reuniones con get_calendars cuando una lista registre reuniones.",
+    "write": "Después crea los registros aprobados con import_crm_records, con los correos, teléfonos y perfiles como identidades en el campo de datos de contacto, para que sus conversaciones se vinculen solas. Vincula una conversación a una oportunidad u organización con manage_conversation_records solo cuando claramente le pertenezca."
+  },
   "anchorFields": {
     "channels": "Datos de contacto",
     "price": "Precio",
@@ -9,6 +16,7 @@
     "rule": "una regla de automatización",
     "unavailable": "aún no disponible, no la configures"
   },
+  "contactDetails": "Los correos electrónicos, teléfonos y perfiles sociales van solo en el campo integrado de datos de contacto (tipo de campo channels, en la app Teléfono, correo y redes sociales), nunca en un campo de texto o de enlace. Así los mensajes y las conversaciones se vinculan solos al registro correcto.",
   "defaultView": {
     "marker": "vista predeterminada",
     "rule": "Una vista marcada como predeterminada es la vista integrada de la lista que muestra todos los registros: configúrala ahí en lugar de crear una segunda vista y selecciónala al terminar para que la lista se abra con ella."
@@ -39,12 +47,13 @@
   "groupedBy": "agrupada por {field}",
   "headings": {
     "beforeYouWrite": "Antes de escribir nada",
+    "connectedAccounts": "Rellenar las listas con mis cuentas conectadas",
     "dashboardWidgets": "Widgets del panel",
     "followUpRoutines": "Rutinas de seguimiento",
-    "getWorkspace": "Conseguir un espacio de trabajo",
     "knowledgePages": "Páginas de la base de conocimiento (solo esquemas, para rellenar con mis propios datos)",
     "listsAndFields": "Listas y campos",
     "questions": "Preguntas para mí",
+    "recordDetails": "Detalle de los registros",
     "relationships": "Relaciones",
     "rules": "Reglas",
     "thisWorkspace": "Este espacio de trabajo",
@@ -58,9 +67,14 @@
   "nameOnly": "solo el nombre",
   "procedure": {
     "askQuestions": "Haz primero las preguntas del final. Deja vacío todo lo que no sepas en lugar de adivinar.",
+    "checkAccounts": "Comprueba qué cuentas están conectadas (connectedAccounts en get_workspace_context, o manage_connected_accounts con list): Gmail, Outlook, otro correo por IMAP y LinkedIn.",
     "describePlan": "Describe el plan de abajo con palabras sencillas, adaptado a mis respuestas, y espera mi aprobación antes de cambiar nada.",
     "readContext": "Llama a get_workspace_context y lee la guía operativa, las listas, los campos, las vistas y las páginas de la base de conocimiento que ya existen.",
     "reuse": "Reutiliza lo que ya existe. No crees nunca una segunda lista para algo que el espacio de trabajo ya registra."
+  },
+  "recordDetails": {
+    "order": "Ordena los campos de cada lista como se indican arriba con configure_record_model (la posición del campo), para que todo el equipo vea primero los campos más importantes en la página de detalle.",
+    "pins": "Luego fija la etapa, la próxima fecha y el importe clave de cada lista en tu propio diseño de detalle con manage_record_detail_layout. Los campos fijados son personales, así que dime cuáles debería fijar también el equipo."
   },
   "relationship": "{source} se vinculan con {target} (se muestran como {sourceLabel} en {source} y {targetLabel} en {target})",
   "roadRules": {
@@ -76,11 +90,14 @@
     "optional": "opcional"
   },
   "routinesIntro": "Propónlas como conjunto. Configura solo las marcadas como disponibles y cuéntame lo demás.",
+  "sharing": {
+    "views": "Crea cada vista con manage_data_views y compártela con todo el espacio de trabajo (share con visibility workspace), para que todo el equipo pueda abrirla.",
+    "widgets": "Crea cada widget en el panel principal con manage_widgets e isTemplate true, para que lo vea todo el equipo."
+  },
   "workspace": {
-    "cloud": "Crea un espacio de trabajo de Customermates en {url} y conecta tu asistente. La plantilla ya viene preseleccionada allí.",
     "connected": "Ya estás conectado al espacio de trabajo de Customermates que alojará esta plantilla. Trabaja en él y no crees otro.",
     "connectedAt": "Este espacio de trabajo ya existe y estás conectado a él por MCP en {mcpUrl}. Trabaja en este espacio de trabajo y en ningún otro.",
     "existsAt": "Este espacio de trabajo ya existe, pero tu asistente aún no está conectado a él. Conéctalo por MCP en {mcpUrl}, con una clave de API de Ajustes, Claves de API y conectores. Mientras falte la conexión, pídeme que la complete antes de cambiar nada. Después trabaja en este espacio de trabajo y en ningún otro.",
-    "selfHosted": "Usa tu propia instancia de Customermates. Conecta tu asistente a su endpoint MCP en <dirección de tu instancia>/api/v1/mcp con una clave de API de Ajustes, Claves de API y conectores. Nada de esto depende de la nube alojada."
+    "unconnected": "Trabaja en el espacio de trabajo de Customermates al que estás conectado por MCP. Si todavía no estás conectado a ninguno, pídeme que te conecte antes de cambiar nada."
   }
 }

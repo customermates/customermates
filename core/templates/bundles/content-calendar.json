@@ -71,13 +71,6 @@
         ]
       },
       {
-        "key": "people.profile_url",
-        "type": "url",
-        "required": false,
-        "multiple": false,
-        "options": []
-      },
-      {
         "key": "pieces.owner",
         "type": "member",
         "required": false,
@@ -669,7 +662,7 @@
         "sort": null,
         "columns": [
           "people.person_role",
-          "people.profile_url"
+          "people.channels"
         ],
         "summaries": [],
         "filters": []
@@ -1177,10 +1170,6 @@
             "guest": "Gast oder Interviewpartner"
           }
         },
-        "people.profile_url": {
-          "label": "Profil-Link",
-          "options": {}
-        },
         "pieces.owner": {
           "label": "Verantwortlich",
           "options": {}
@@ -1640,10 +1629,6 @@
             "client_contact": "Client contact",
             "guest": "Guest or interviewee"
           }
-        },
-        "people.profile_url": {
-          "label": "Profile link",
-          "options": {}
         },
         "pieces.owner": {
           "label": "Owner",
@@ -2105,10 +2090,6 @@
             "guest": "Invitado o entrevistado"
           }
         },
-        "people.profile_url": {
-          "label": "Enlace del perfil",
-          "options": {}
-        },
         "pieces.owner": {
           "label": "Responsable",
           "options": {}
@@ -2568,10 +2549,6 @@
             "client_contact": "Contact client",
             "guest": "Invité ou interviewé"
           }
-        },
-        "people.profile_url": {
-          "label": "Lien du profil",
-          "options": {}
         },
         "pieces.owner": {
           "label": "Responsable",
@@ -3033,10 +3010,6 @@
             "guest": "Ospite o intervistato"
           }
         },
-        "people.profile_url": {
-          "label": "Link al profilo",
-          "options": {}
-        },
         "pieces.owner": {
           "label": "Responsabile",
           "options": {}
@@ -3496,10 +3469,6 @@
             "client_contact": "Klantcontact",
             "guest": "Gast of geïnterviewde"
           }
-        },
-        "people.profile_url": {
-          "label": "Link naar profiel",
-          "options": {}
         },
         "pieces.owner": {
           "label": "Eigenaar",
@@ -3961,10 +3930,6 @@
             "guest": "Gość lub rozmówca"
           }
         },
-        "people.profile_url": {
-          "label": "Link do profilu",
-          "options": {}
-        },
         "pieces.owner": {
           "label": "Osoba odpowiedzialna",
           "options": {}
@@ -4424,10 +4389,6 @@
             "client_contact": "Contato do cliente",
             "guest": "Convidado ou entrevistado"
           }
-        },
-        "people.profile_url": {
-          "label": "Link do perfil",
-          "options": {}
         },
         "pieces.owner": {
           "label": "Responsável",
