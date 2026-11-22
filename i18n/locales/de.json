@@ -4549,7 +4549,7 @@
     },
     "profile": {
       "previewName": "Dein Name",
-      "previewRole": "Inhaber",
+      "previewRole": "Eigentümer",
       "teamSize": {
         "label": "Wie viele Personen werden diesen Workspace nutzen?",
         "large": "Mehr als 20",

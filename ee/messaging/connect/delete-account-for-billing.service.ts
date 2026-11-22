@@ -1,17 +1,11 @@
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
 import type { AccountRemovalReason } from "./account-removal-reason";
+import type { DeleteAccountForBillingRepo } from "./delete-account-for-billing.repo";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
-
-export abstract class DeleteAccountForBillingRepo {
-  abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
-  abstract markAccountDeletedUnscoped(id: string): Promise<void>;
-  abstract countOtherLiveAccountsForUnipileIdUnscoped(unipileAccountId: string, exceptId: string): Promise<number>;
-}
 
 export class DeleteAccountForBillingService {
   constructor(

@@ -1,15 +1,8 @@
-import type { ConnectedAccount } from "@/generated/prisma";
-
 import { z } from "zod";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
-
-export abstract class ClaimBackfillRepo {
-  abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
-  abstract claimBackfillUnscoped(connectedAccountId: string): Promise<string | null>;
-  abstract markAccountSyncingUnscoped(args: { connectedAccountId: string; syncing: boolean }): Promise<void>;
-}
+import type { ClaimBackfillRepo } from "./claim-backfill.repo";
 
 const Schema = z.object({ connectedAccountId: z.uuid() });
 type ClaimBackfillPayload = z.infer<typeof Schema>;
