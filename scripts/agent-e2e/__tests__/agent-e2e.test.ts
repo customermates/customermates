@@ -129,10 +129,10 @@ describe("agent e2e stream timing", () => {
 });
 
 describe("agent e2e deterministic checks", () => {
-  it("keeps between eight and twelve uniquely named cases", () => {
+  it("keeps between eight and fourteen uniquely named cases", () => {
     const ids = AGENT_E2E_CASES.map((entry) => entry.id);
     expect(ids.length).toBeGreaterThanOrEqual(8);
-    expect(ids.length).toBeLessThanOrEqual(12);
+    expect(ids.length).toBeLessThanOrEqual(14);
     expect(new Set(ids).size).toBe(ids.length);
   });
 

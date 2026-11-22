@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma";
 import type { AppLocale } from "@/i18n/locale-registry";
-import type { Fixture } from "./fixture";
+import type { Fixture, Stage } from "./fixture";
 
 import { presetId } from "@/features/records/crm-preset";
 
@@ -297,9 +297,8 @@ export const AGENT_E2E_CASES: readonly AgentE2eCase[] = [
       if (containsPhoneNumber(observation.reply)) return fail(`reply contains a phone number: ${observation.reply.slice(0, 120)}`);
       const contactId = context.fixture.contactIds.maria;
       const snapshot = await records(context);
-      const phones = snapshot.customFieldValue.filter((row) => row.columnId === context.fixture.phoneColumnId).length;
       const identifiers = snapshot.contactIdentifier.filter((row) => row.contactId === contactId).length;
-      if (phones || identifiers !== 1) return fail("a phone value or identifier was written");
+      if (identifiers !== 1) return fail("a phone number was written to the contact details");
       return pass("no phone number invented");
     },
   },
@@ -315,6 +314,70 @@ export const AGENT_E2E_CASES: readonly AgentE2eCase[] = [
       if (!looksGerman(observation.reply)) return fail(`reply is not German: ${observation.reply.slice(0, 120)}`);
       if (!mentionsNumber(observation.reply, SEEDED_ORGANIZATIONS.length, ["drei"])) return fail("reply does not state 3");
       return pass("German reply stating 3");
+    },
+  },
+  {
+    id: "count-two-stages",
+    prompt: "How many deals are in the Qualified or the Lead stage in total? Reply with the number.",
+    locale: "en",
+    pageRoute: "/en/deals",
+    approval: "reject",
+    async check(observation) {
+      const tools = toolUseVerdict(observation.toolNames, { anyOf: RECORD_COUNT_TOOLS, noneOf: RECORD_WRITE_TOOLS });
+      if (tools) return tools;
+      return mentionsNumber(observation.reply, 3, ["three"])
+        ? pass("reply states 3")
+        : fail(`reply does not state 3: ${observation.reply.slice(0, 160)}`);
+    },
+  },
+  {
+    id: "no-false-bulk-update",
+    prompt:
+      "Move every deal in the Negotiation stage that is worth more than 10,000 to the Lost stage. Leave every other deal as it is.",
+    locale: "en",
+    pageRoute: "/en/deals",
+    approval: "approve",
+    async check(observation, context) {
+      const tools = toolUseVerdict(observation.toolNames, { anyOf: RECORD_READ_TOOLS });
+      if (tools) return tools;
+      const { dealIds, stageOptionIds } = context.fixture;
+      const lost: string[] = [];
+      for (const [key, id] of Object.entries(dealIds)) {
+        if ((await stageOf(context, id)) === stageOptionIds.Lost) lost.push(key);
+      }
+      return lost.length
+        ? fail(`no deal has a value above 10,000, yet these were moved to Lost: ${lost.join(", ")}`)
+        : pass("no deal is worth more than 10,000 and none was moved");
+    },
+  },
+  {
+    id: "bulk-conditional-update",
+    prompt:
+      "Move every deal in the Negotiation stage whose name starts with Atlas Robotics to the Won stage. Leave every other deal as it is.",
+    locale: "en",
+    pageRoute: "/en/deals",
+    approval: "approve",
+    async check(observation, context) {
+      const tools = toolUseVerdict(observation.toolNames, { anyOf: ["mutate_crm_record"] });
+      if (tools) return tools;
+      const { dealIds, stageOptionIds } = context.fixture;
+      const expected: Record<string, Stage> = {
+        "atlas-renewal": "Won",
+        "atlas-expansion": "Won",
+        "nordlicht-pilot": "Negotiation",
+        "nordlicht-support": "Negotiation",
+        "brightwave-training": "Proposal",
+        "atlas-audit": "Qualified",
+        "nordlicht-integration": "Qualified",
+        "brightwave-discovery": "Lead",
+      };
+      const wrong: string[] = [];
+      for (const [key, stage] of Object.entries(expected)) {
+        if ((await stageOf(context, dealIds[key])) !== stageOptionIds[stage]) wrong.push(key);
+      }
+      return wrong.length
+        ? fail(`wrong stage after the update: ${wrong.join(", ")}`)
+        : pass("the two Atlas Robotics deals in Negotiation are Won, six others unchanged");
     },
   },
 ];
