@@ -6521,24 +6521,30 @@
   "SolutionStage": {
     "alt": "{area} no espaço de trabalho de exemplo, com dados de demonstração",
     "captions": {
+      "agents": "Onde as etapas de agente rodam: Mate, sua própria chave ou seu próprio computador",
+      "automations": "Automações e rotinas que rodam sozinhas",
       "calendar": "As datas dos seus registros em um só calendário",
       "clientOverview": "Cada cliente com status e responsável à primeira vista",
       "clients": "Cada cliente com o trabalho que você faz para ele",
       "dashboard": "Widgets criados a partir das listas e dos campos do próprio espaço de trabalho",
       "engagements": "Todos os projetos ativos em um só quadro",
       "inbox": "Conversas ao lado dos registros a que pertencem, no Cloud a partir do Pro",
+      "knowledge": "Playbooks e seu jeito de trabalhar, como um mapa de páginas ligadas",
       "pipeline": "Valor e etapa do negócio em cada cartão",
       "pitchBoard": "Cada pitch, do briefing à decisão"
     },
     "label": "Áreas do produto",
     "livePrompt": "Experimente ao vivo",
     "tabs": {
+      "agents": "Agentes",
+      "automations": "Automações",
       "calendar": "Calendário",
       "clientOverview": "Visão geral dos clientes",
       "clients": "Clientes",
       "dashboard": "Painel",
       "engagements": "Projetos",
       "inbox": "Caixa de entrada",
+      "knowledge": "Base de conhecimento",
       "pipeline": "Pipeline",
       "pitchBoard": "Quadro de pitches"
     }

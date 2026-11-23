@@ -14,15 +14,15 @@ const wikis = SOLUTION_WORKSPACES.map((workspace) => {
 });
 
 describe("demo Knowledge Base fixtures", () => {
-  it("gives every demo workspace one Operating Guide first and a few pages in its data language", () => {
+  it("gives every demo workspace one Operating Guide first and its pages in its data language", () => {
     for (const { workspace, pages } of wikis) {
       expect(pages[0], workspace.slug).toMatchObject({ kind: "guide", sortOrder: -1 });
       expect(
         pages.filter(({ kind }) => kind === "guide"),
         workspace.slug,
       ).toHaveLength(1);
-      expect(pages.length, workspace.slug).toBeGreaterThanOrEqual(4);
-      expect(pages.length, workspace.slug).toBeLessThanOrEqual(7);
+      expect(pages.length, workspace.slug).toBeGreaterThanOrEqual(6);
+      expect(pages.length, workspace.slug).toBeLessThanOrEqual(16);
       expect(new Set(pages.map(({ sortOrder }) => sortOrder)).size).toBe(pages.length);
       for (const { kind, title, whenToUse } of pages) {
         if (kind === "procedure")

@@ -6521,24 +6521,30 @@
   "SolutionStage": {
     "alt": "{area} in de voorbeeldwerkruimte, met demogegevens",
     "captions": {
+      "agents": "Waar agentstappen draaien: Mate, je eigen sleutel of je eigen computer",
+      "automations": "Automatiseringen en routines die vanzelf lopen",
       "calendar": "Data uit je records in één agenda",
       "clientOverview": "Elke klant met status en eigenaar in één oogopslag",
       "clients": "Elke klant met het werk dat je voor die klant doet",
       "dashboard": "Widgets op basis van de eigen lijsten en velden van de werkruimte",
       "engagements": "Elke lopende opdracht op één bord",
       "inbox": "Gesprekken naast de records waar ze bij horen, in Cloud vanaf Pro",
+      "knowledge": "Playbooks en je werkwijze als kaart van gekoppelde pagina's",
       "pipeline": "Dealwaarde en fase op elke kaart",
       "pitchBoard": "Elke pitch van briefing tot besluit"
     },
     "label": "Productgebieden",
     "livePrompt": "Probeer het live",
     "tabs": {
+      "agents": "Agents",
+      "automations": "Automatiseringen",
       "calendar": "Agenda",
       "clientOverview": "Klantoverzicht",
       "clients": "Klanten",
       "dashboard": "Dashboard",
       "engagements": "Opdrachten",
       "inbox": "Inbox",
+      "knowledge": "Kennisbank",
       "pipeline": "Pipeline",
       "pitchBoard": "Pitchbord"
     }

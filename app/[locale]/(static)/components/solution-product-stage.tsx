@@ -7,7 +7,14 @@ import solutionCaptureManifest from "@/core/solutions/solution-capture-manifest.
 import solutionStageCaptures from "@/core/solutions/solution-stage-captures.json";
 import solutionStagePhoneCaptures from "@/core/solutions/solution-stage-phone-captures.json";
 import { type SolutionCaptureManifest, solutionCapturePair } from "@/core/solutions/solution-captures";
-import { type SolutionId, type SolutionStageTabId, findSolution } from "@/core/solutions/solution-catalog";
+import {
+  SOLUTION_EXTRA_TAB_PATHS,
+  type SolutionExtraTabId,
+  type SolutionId,
+  type SolutionStageTabId,
+  findSolution,
+  solutionDataLocaleForUiLocale,
+} from "@/core/solutions/solution-catalog";
 import {
   SOLUTION_STAGE_MAIN_CAPTURE_TAB,
   type SolutionStageCaptures,
@@ -34,6 +41,9 @@ const TAB_AREAS = {
   inbox: "inbox",
   pipeline: "pipeline",
   pitchBoard: "pipeline",
+  knowledge: undefined,
+  automations: "routines",
+  agents: undefined,
 } as const satisfies Record<SolutionStageTabId, HomepageStageArea | undefined>;
 
 function tabLabel(t: Translate, id: SolutionStageTabId): string {
@@ -54,6 +64,12 @@ function tabLabel(t: Translate, id: SolutionStageTabId): string {
       return t("tabs.pipeline");
     case "pitchBoard":
       return t("tabs.pitchBoard");
+    case "knowledge":
+      return t("tabs.knowledge");
+    case "automations":
+      return t("tabs.automations");
+    case "agents":
+      return t("tabs.agents");
   }
 }
 
@@ -75,16 +91,31 @@ function tabCaption(t: Translate, id: SolutionStageTabId): string {
       return t("captions.pipeline");
     case "pitchBoard":
       return t("captions.pitchBoard");
+    case "knowledge":
+      return t("captions.knowledge");
+    case "automations":
+      return t("captions.automations");
+    case "agents":
+      return t("captions.agents");
   }
 }
 
+export type { SolutionExtraTabId };
+
 type Props = {
   className?: string;
+  /** Workspace pages appended after the solution's own tabs (they open the same live demo workspace). */
+  extraTabs?: readonly SolutionExtraTabId[];
   locale: string;
   solutionId: SolutionId;
 };
 
-export async function SolutionProductStage({ className = "mt-8 sm:mt-10 lg:mt-12", locale, solutionId }: Props) {
+export async function SolutionProductStage({
+  className = "mt-8 sm:mt-10 lg:mt-12",
+  extraTabs = [],
+  locale,
+  solutionId,
+}: Props) {
   const t = await getTranslations("SolutionStage");
   const solution = findSolution(solutionId);
   const contentLocale = contentLocaleOrDefault(locale);
@@ -99,8 +130,21 @@ export async function SolutionProductStage({ className = "mt-8 sm:mt-10 lg:mt-12
         light: { ...homepageSize, src: homepageCaptureSrc("homepage-dashboard", assetLocale, "light") },
       };
 
-  const tabs = solution.stage.flatMap((tab): SolutionStageTab[] => {
-    const demoPath = solutionStageRoute(captures.routes, solution, tab.id, locale);
+  const workspaceSlug = solution.workspaces[solutionDataLocaleForUiLocale(locale)].slug;
+  const extra = (id: SolutionExtraTabId) => ({
+    demoPath: `/${locale}/w/${workspaceSlug}${SOLUTION_EXTRA_TAB_PATHS[id]}`,
+    id,
+  });
+  const stageTabs: { demoPath: string | undefined; id: SolutionStageTabId }[] = [];
+  for (const tab of solution.stage) {
+    stageTabs.push({ demoPath: solutionStageRoute(captures.routes, solution, tab.id, locale), id: tab.id });
+    if (tab.id === SOLUTION_STAGE_MAIN_CAPTURE_TAB && extraTabs.includes("knowledge"))
+      stageTabs.push(extra("knowledge"));
+  }
+  for (const id of extraTabs) if (id !== "knowledge") stageTabs.push(extra(id));
+
+  const tabs = stageTabs.flatMap(({ demoPath, id }): SolutionStageTab[] => {
+    const tab = { id };
     if (!demoPath) return [];
     const label = tabLabel(t, tab.id);
     const area = TAB_AREAS[tab.id];

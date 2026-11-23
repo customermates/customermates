@@ -78,49 +78,63 @@ generator:
       linkLabel: Intégration CRM LinkedIn
 
 followUp:
-  eyebrow: Chaque réponse, traitée
-  title: "Ensuite, il suit votre rythme. Réponses rédigées, prochaines étapes sur votre tableau de bord."
-  description: "Quand un client écrit, Mate rédige la réponse à partir de votre guide et inscrit la prochaine étape sur votre tableau de bord. Vous relisez, modifiez et envoyez."
-  desk:
-    label: Scène de suivi client avec des données de démonstration
-    workspace: Lindqvist Conseil
-    conversation:
-      label: LinkedIn
-      name: Jonas Weber
-      company: Halden & Co.
-      time: ven. 16:42
-      message: Ça me va. Pouvez-vous m’envoyer la proposition révisée la semaine prochaine ? Je la présenterai à notre direction.
-    agent:
-      name: Mate
-      intent: Rédige une réponse à partir de votre guide de propositions
-      done: Brouillon enregistré. Prochaine étape ajoutée à votre tableau de bord.
-    draft:
-      badge: Brouillon, en attente de votre relecture
-      text: Bonjour Jonas, merci. Je vous envoie la proposition révisée mardi, avec les deux options d’atelier dont nous avons parlé. Bien à vous, Anna
-      edit: Modifier
-      send: Envoyer le brouillon
-    today:
-      title: Tableau de bord
-      date: mardi
-      addedBy: Ajouté par Mate
-      assign: Attribuer
-      sections:
-        - title: Prochaines étapes à traiter
-          items:
-            - title: Envoyer la proposition révisée
-              meta: Halden & Co. · à faire aujourd’hui
-              owner: AL
-              state: added
-            - title: Relancer pour la signature
-              meta: Norrland Studio · en retard de 2 jours
-              owner: AL
-              state: overdue
-        - title: Propositions sans réponse
-          items:
-            - title: Proposition Norrland Studio
-              meta: envoyée il y a 5 jours
-              owner: AL
-              state: due
+  eyebrow: Automatisations
+  title: "Dites-le une fois. Ça tourne à chaque fois."
+  description: "Dites une fois à Mate ce qui doit se passer quand un client écrit. Il crée l’automatisation, et ensuite chaque réponse arrive en brouillon que vous traitez d’un geste."
+  label: Exemple d’automatisation avec des données de démonstration
+  steps:
+    - title: Vous le dites une fois
+      description: Une phrase, avec vos propres mots.
+    - title: Mate crée l’automatisation
+      description: Quand, demander à l’agent, créer un brouillon.
+    - title: Les brouillons attendent un geste
+      description: À droite, il part. À gauche, il est gardé pour plus tard.
+  prompt:
+    from: Vous, une fois
+    agent: Mate
+    text: À chaque réponse d’un client, rédige une réponse à partir de mon guide de propositions et mets la prochaine étape sur mon tableau de bord.
+  automation:
+    title: "Réponse client : rédiger une réponse"
+    subtitle: Automatisation · créée par Mate à partir de votre phrase
+    inactive: Inactif
+    active: Actif
+    kinds:
+      when: Quand
+      agent: Demander à l’agent
+      draft: Créer un brouillon
+    steps:
+      when: Un client répond sur LinkedIn ou par e-mail
+      agent: Lire l’échange et la fiche client. Rédiger une réponse à partir du guide de propositions.
+      draft: Placer le brouillon dans Revoir les brouillons et dater la prochaine étape
+  review:
+    title: Revoir les brouillons
+    badge: Brouillon
+    sent: Envoyé
+    later: Plus tard
+    hint: Glissez à droite pour envoyer. Glissez à gauche pour le garder pour plus tard.
+    swipeRight: "À droite : envoyer"
+    swipeLeft: "À gauche : plus tard"
+    counts:
+      - 2 en attente
+      - 3 en attente
+      - 2 en attente
+      - 1 en attente · 1 pour plus tard
+    drafts:
+      sent:
+        channel: linkedin
+        name: Jonas Weber
+        company: Halden & Co.
+        text: Bonjour Jonas, merci. Je vous envoie la proposition révisée mardi, avec les deux options d’atelier dont nous avons parlé. Bien à vous, Anna
+      later:
+        channel: email
+        name: George Barlow
+        company: Barlow Manufacturing
+        text: Bonjour George, merci, c’est clair. Je propose six entretiens sur les deux sites et une courte visite des lignes de production le premier jour. Bien à vous, Max
+      next:
+        channel: email
+        name: Sarah Kemp
+        company: Kemp Logistique
+        text: Bonjour Sarah, voici les deux options dont nous avons parlé, avec le périmètre et le calendrier de chacune. Volontiers pour en discuter lors d’un appel. Bien à vous, Max
 
 pillars:
   eyebrow: Comment ça marche
@@ -181,17 +195,70 @@ pillars:
         detail: Connecteur personnalisé
       - name: Cursor, Codex, Gemini CLI
         detail: Clé API
+  scenes:
+    agents:
+      label: "Automatisation · Réponses clients : rédiger une réponse"
+      steps:
+        - kind: "Quand"
+          text: "Un client répond sur LinkedIn ou par e-mail"
+        - kind: "Demander à l’agent"
+          text: "Lire l’échange et le playbook, rédiger la réponse"
+        - kind: "Créer un brouillon"
+          text: "Le placer dans Brouillons à relire, dater la prochaine étape"
+      run: "Jonas Weber · Réponse LinkedIn · brouillon créé"
+      status: "Réussi"
+    inbox:
+      label: "Boîte de réception · tous les canaux, une liste"
+      rows:
+        - name: "Jonas Weber"
+          text: "Parfait. Pouvez-vous envoyer le périmètre révisé ?"
+          linked: "Lié à Halden & Co."
+        - name: "Sarah Kemp"
+          text: "Voici les deux options dont nous avons parlé."
+          linked: "Lié à Kemp Logistics"
+        - name: "Ole Brandt"
+          text: "Pouvons-nous déplacer l’atelier à jeudi ?"
+          linked: "Lié à Brandt Studio"
+        - name: "Helen Ashworth"
+          text: "L’option B nous convient."
+          linked: "Lié à Fairhaven"
+    data:
+      label: "Créé par Mate à partir de votre description"
+      lists: ["Clients", "Missions", "Propositions", "Tâches"]
+      columns: ["Mission", "Étape", "Prochaine étape"]
+      rows:
+        - ["Halden & Co.", "Proposition envoyée", "mar."]
+        - ["Norrland Studio", "Cadrage", "jeu."]
+        - ["Fairhaven", "Décision", "ven."]
+    knowledge:
+      label: "Base de connaissances · carte des pages liées"
+      nodes:
+        guide: "Guide de fonctionnement"
+        playbook: "Playbook des propositions"
+        process: "Le déroulé d’une mission"
+        rates: "Tarifs journaliers"
+        brief: "Fiche relation"
+        icp: "Client idéal"
+        tone: "Ton de voix"
+        agents: "Comment travaillent nos agents"
+      run: "Mate a utilisé le playbook des propositions pour le brouillon à Jonas"
 
 proofAndPartners:
   proof:
-    eyebrow: Nous l’utilisons nous-mêmes
-    title: Nous gérons nos propres ventes avec Customermates.
-    description: Nos prospects, partenaires et conversations sont dans un espace Customermates. Des agents IA connectés via MCP préparent les réponses et les relances. Nous validons une fois chaque nouveau type de message, et les messages semblables suivent ensuite les règles validées.
-    steps:
-      - Une réponse arrive sur LinkedIn ou par e-mail
-      - Un agent rédige la réponse et la prochaine étape
-      - Un nouveau type de message attend notre validation
-    note: Le même produit que celui avec lequel vous commencez aujourd’hui.
+    eyebrow: Un mot du fondateur
+    title: Vous hésitez ? Demandez-moi.
+    paragraphs:
+      - "Bonjour, je suis Ben. Je développe Customermates en Allemagne, et les messages envoyés depuis la page de contact arrivent directement chez moi, pas dans une file de tickets."
+      - "Envoyez-moi les outils que vous utilisez aujourd’hui. Je vous dirai ce qui fonctionne directement et où une intégration séparée est la réponse honnête. Je réponds en général sous 24 heures, souvent le jour même."
+    signature: Ben
+    name: Benjamin Wagner
+    role: Fondateur, Customermates
+    contact:
+      label: Écrivez-moi
+      href: /contact
+    linkedin:
+      label: Me retrouver sur LinkedIn
+      href: https://www.linkedin.com/in/wagner-benjamin/
   partners:
     eyebrow: Pour les assistants virtuels, agences et intégrateurs
     title: Proposez le suivi client à vos clients.
@@ -437,24 +504,33 @@ cta:
 useCases:
   eyebrow: "Comment l’utiliser"
   title: "Choisissez votre besoin. L’espace de travail s’adapte."
+  description: "Mate ou votre propre Claude fait le travail dans la plateforme. Vous n’avez qu’à relire."
   items:
     - title: "Relancer vos conversations LinkedIn"
-      description: "Les échanges LinkedIn et e-mail sont rattachés au client. Mate rédige la réponse et planifie la prochaine étape, vous la relisez et l’envoyez dans la conversation."
+      agent: mate
+      done: "Réponse à Rachel Dawson rédigée"
+      you: "Vous : relire et envoyer"
       href: /features/linkedin-integration
       linkLabel: "Voir LinkedIn dans la boîte"
       visual: conversation
-    - title: "Relancer chaque proposition après l’appel"
-      description: "Clients, missions et propositions avec les conversations associées, et une prochaine étape datée pour chacune."
+    - title: "Relancer chaque proposition"
+      agent: mate
+      done: "Kessler Dental passé à Proposition envoyée"
+      you: "Vous : valider la relance"
       href: /for/consultants
       linkLabel: "CRM pour consultants"
       visual: proposal
     - title: "Les prochaines étapes sur un seul tableau de bord"
-      description: "Chaque client a une prochaine étape datée, et votre tableau de bord montre ce qui est dû pour tous."
+      agent: mate
+      done: "Prochaines étapes manquantes datées"
+      you: "Vous : ouvrir la liste du jour"
       href: /features/follow-up
       linkLabel: "Voir le suivi client"
       visual: dashboard
-    - title: "Laisser votre Claude ou ChatGPT travailler dans votre CRM"
-      description: "Connectez Claude, ChatGPT, Cursor ou un autre client MCP. Il lit et met à jour votre espace dans la limite de vos droits."
+    - title: "Laisser votre propre Claude travailler dans votre CRM"
+      agent: claude
+      done: "Pipeline créé dans votre espace"
+      you: "Vous : vérifier le résultat"
       href: /features/integrations
       linkLabel: "Connecter votre agent"
       visual: agent

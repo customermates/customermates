@@ -49,7 +49,22 @@ export type SolutionStageTabId =
   | "clients"
   | "clientOverview"
   | "inbox"
-  | "calendar";
+  | "calendar"
+  | "knowledge"
+  | "automations"
+  | "agents";
+
+/**
+ * Workspace pages every demo workspace has; the homepage adds them to a solution's own stage tabs:
+ * the Knowledge Base map right after the dashboard, the others at the end.
+ */
+export const SOLUTION_EXTRA_TAB_PATHS = {
+  agents: "/settings/agents",
+  automations: "/automations",
+  knowledge: "/wiki",
+} as const satisfies Partial<Record<SolutionStageTabId, string>>;
+
+export type SolutionExtraTabId = keyof typeof SOLUTION_EXTRA_TAB_PATHS;
 
 export type SolutionStageTab = {
   id: SolutionStageTabId;

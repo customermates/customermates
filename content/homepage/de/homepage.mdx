@@ -6,23 +6,12 @@ rootMetadata:
   defaultDescription: "Customermates bündelt LinkedIn, E-Mail und WhatsApp an einem Ort. Mate, Ihr KI-Kollege, entwirft jede Antwort und den nächsten Schritt. Sie prüfen und senden."
 
 hero:
-  badge: "Rund um Ihre KI gebaut"
-  title: Das CRM, das für Sie nachfasst.
-  subtitle: "Customermates bündelt LinkedIn, E-Mail und WhatsApp an einem Ort. Mate, Ihr KI-Teammitglied, entwirft jede Antwort und den nächsten Schritt. Sie prüfen und senden."
-  picker:
-    question: "Was möchten Sie nachverfolgen?"
-    cta: "Mit {choice} kostenlos starten"
-    choices:
-      - label: "Vertriebs-Leads"
-        template: sales-pipeline
-      - label: "Kunden"
-        template: client-tracker
-      - label: "Website-Anfragen"
-        template: form-to-crm
-      - label: "WhatsApp-Anfragen"
-        template: whatsapp-enquiry-follow-up
-      - label: "Terminbuchungen"
-        template: booking-page
+  badge: "Das KI-CRM, mit dem Sie sprechen"
+  title: Sprechen Sie mit Ihrem Unternehmen. Es antwortet.
+  subtitle: "Leads, Kunden, Leistungen, Ihr ICP und Ihre Playbooks an einem Ort. Planen Sie mit Mate oder Ihrem eigenen Claude, geben Sie den Plan frei und sehen Sie zu, wie er umgesetzt wird."
+  primaryCta:
+    label: "[[commercial.trial.days]] Tage kostenlos testen"
+    href: /auth/signup?job=followup
   secondaryCta:
     label: Film ansehen (81 s)
     href: "#film"
@@ -78,58 +67,72 @@ generator:
       linkLabel: LinkedIn-CRM-Integration
 
 followUp:
-  eyebrow: Jede Antwort im Griff
-  title: "Danach bleibt er dran. Antworten entworfen, nächste Schritte auf Ihrem Dashboard."
-  description: "Schreibt ein Kunde, entwirft Mate die Antwort aus Ihrem Leitfaden und setzt den nächsten Schritt auf Ihr Dashboard. Sie prüfen, bearbeiten und senden."
-  desk:
-    label: Beispielszene zum Nachfassen mit Demodaten
-    workspace: Lindqvist Beratung
-    conversation:
-      label: LinkedIn
-      name: Jonas Weber
-      company: Halden & Co.
-      time: Fr 16:42
-      message: Klingt gut. Können Sie mir nächste Woche das überarbeitete Angebot schicken? Dann nehme ich es mit in die Geschäftsführung.
-    agent:
-      name: Mate
-      intent: Entwirft eine Antwort aus Ihrem Angebotsleitfaden
-      done: Entwurf gespeichert. Nächster Schritt steht auf Ihrem Dashboard.
-    draft:
-      badge: Entwurf, wartet auf Ihre Prüfung
-      text: Hallo Herr Weber, vielen Dank. Ich schicke Ihnen das überarbeitete Angebot am Dienstag, mit den zwei Workshop-Varianten, über die wir gesprochen haben. Viele Grüße, Anna Lindqvist
-      edit: Bearbeiten
-      send: Entwurf senden
-    today:
-      title: Dashboard
-      date: Dienstag
-      addedBy: Von Mate angelegt
-      assign: Zuweisen
-      sections:
-        - title: Fällige nächste Schritte
-          items:
-            - title: Überarbeitetes Angebot senden
-              meta: Halden & Co. · heute fällig
-              owner: AL
-              state: added
-            - title: Unterschriebenes Angebot nachfassen
-              meta: Norrland Studio · 2 Tage überfällig
-              owner: AL
-              state: overdue
-        - title: Angebote ohne Antwort
-          items:
-            - title: Angebot Norrland Studio
-              meta: vor 5 Tagen gesendet
-              owner: AL
-              state: due
+  eyebrow: Automatisierungen
+  title: "Einmal sagen. Läuft jedes Mal."
+  description: "Sagen Sie Mate einmal, was passieren soll, wenn ein Kunde schreibt. Mate baut die Automatisierung, und ab dann kommt jede Antwort als Entwurf, den Sie mit einem Wisch erledigen."
+  label: Beispiel-Automatisierung mit Demodaten
+  steps:
+    - title: Sie sagen es einmal
+      description: Ein Satz, in Ihren eigenen Worten.
+    - title: Mate baut die Automatisierung
+      description: Wenn, Agent fragen, Entwurf anlegen.
+    - title: Entwürfe warten auf einen Wisch
+      description: Rechts sendet. Links legt ihn für später zurück.
+  prompt:
+    from: Sie, einmal
+    agent: Mate
+    text: Jedes Mal, wenn ein Kunde antwortet, entwirf eine Antwort aus meinem Angebotsleitfaden und setz den nächsten Schritt auf mein Dashboard.
+  automation:
+    title: "Kunde antwortet: Antwort entwerfen"
+    subtitle: Automatisierung · von Mate aus Ihrem Satz gebaut
+    inactive: Aus
+    active: Aktiv
+    kinds:
+      when: Wenn
+      agent: Agent fragen
+      draft: Entwurf anlegen
+    steps:
+      when: Ein Kunde antwortet auf LinkedIn oder per E-Mail
+      agent: Verlauf und Kundendatensatz lesen. Eine Antwort aus dem Angebotsleitfaden entwerfen.
+      draft: Den Entwurf unter Entwürfe prüfen ablegen und den nächsten Schritt terminieren
+  review:
+    title: Entwürfe prüfen
+    badge: Entwurf
+    sent: Gesendet
+    later: Später
+    hint: Nach rechts wischen zum Senden. Nach links wischen, um ihn für später zu behalten.
+    swipeRight: "Nach rechts: senden"
+    swipeLeft: "Nach links: später"
+    counts:
+      - 2 warten
+      - 3 warten
+      - 2 warten
+      - 1 wartet · 1 für später
+    drafts:
+      sent:
+        channel: linkedin
+        name: Jonas Weber
+        company: Halden & Co.
+        text: Hallo Herr Weber, vielen Dank. Ich schicke Ihnen das überarbeitete Angebot am Dienstag, mit den zwei Workshop-Varianten, über die wir gesprochen haben. Viele Grüße, Anna Lindqvist
+      later:
+        channel: email
+        name: Georg Bauer
+        company: Bauer Fertigung
+        text: Hallo Herr Bauer, danke, das ist klar. Ich schlage sechs Interviews an beiden Standorten vor und am ersten Tag einen kurzen Rundgang durch die Produktion. Viele Grüße, Max Keller
+      next:
+        channel: email
+        name: Sarah Kemp
+        company: Kemp Logistik
+        text: Hallo Frau Kemp, hier die zwei besprochenen Varianten, jeweils mit Umfang und Zeitplan. Gern gehe ich sie mit Ihnen in einem kurzen Gespräch durch. Viele Grüße, Max Keller
 
 pillars:
   eyebrow: So funktioniert es
-  title: "Alles, was Ihr Nachfassen braucht, an einem Ort."
-  description: Ihr Wissen, Ihre Kundendaten und Ihre Gespräche liegen zusammen, damit jeder Agent, der Ihnen hilft, mit denselben Fakten arbeitet.
+  title: "Alles, was Ihre Agenten brauchen. Nichts mehr von Hand."
+  description: Wissen, Daten, Gespräche und Automationen liegen in einem Workspace, damit Mate oder Ihre eigene KI mit denselben Fakten arbeitet und die Arbeit für Sie erledigt.
   knowledge:
     title: Wissen
     bubble: "Die Antwort an Jonas habe ich mit Ihrem Angebotsleitfaden geschrieben."
-    description: Leitfäden, Preise und Ihre Arbeitsweise, einmal aufgeschrieben. Mate und verbundene Agenten nutzen die Seiten, die ihre Rechte erlauben.
+    description: Leitfäden, Preise und Ihre Arbeitsweise, einmal aufgeschrieben und als Karte verknüpft. Mate und verbundene Agenten nutzen die Seiten, die ihre Rechte erlauben.
     plan: Jeder Tarif
     doc:
       title: Angebotsleitfaden
@@ -140,8 +143,8 @@ pillars:
       usedBy: Genutzt für den Entwurf an Jonas Weber
   data:
     title: Daten
-    bubble: "Halden & Co. steht auf Angebot gesendet. Der nächste Schritt ist am Dienstag fällig."
-    description: Kunden, Deals und jede Liste, die Ihr Geschäft braucht, mit eigenen Feldern, Phasen und Ansichten.
+    bubble: "Diese Listen und das Dashboard habe ich aus Ihrer Beschreibung gebaut."
+    description: Kunden, Deals und jede Liste, die Ihr Geschäft braucht. Ihr Agent richtet Felder, Phasen und Dashboards aus einer Beschreibung ein.
     plan: Jeder Tarif
     lists:
       - Kunden
@@ -169,8 +172,8 @@ pillars:
       linkedTo: Verknüpft mit Halden & Co.
   agents:
     title: Agenten
-    bubble: "Ihr Claude und ich arbeiten mit denselben Datensätzen und Regeln."
-    description: Mate ist eingebaut. Oder verbinden Sie die KI, für die Sie schon bezahlen, und sie arbeitet mit denselben Daten und Regeln.
+    bubble: "Ihr Claude und ich führen dieselben Automationen aus, mit denselben Regeln."
+    description: Mate ist eingebaut. Oder verbinden Sie die KI, für die Sie schon bezahlen. Beide führen Ihre Automationen mit denselben Daten und Regeln aus.
     plan: Jeder Tarif, Mate in bezahlter Cloud
     clients:
       - name: Mate
@@ -181,20 +184,73 @@ pillars:
         detail: Eigener Connector
       - name: Cursor, Codex, Gemini CLI
         detail: API-Schlüssel
+  scenes:
+    agents:
+      label: "Automation · Kundenantworten: Antwort entwerfen"
+      steps:
+        - kind: "Wenn"
+          text: "Ein Kunde antwortet auf LinkedIn oder per E-Mail"
+        - kind: "Agent fragen"
+          text: "Verlauf und Playbook lesen, Antwort entwerfen"
+        - kind: "Entwurf anlegen"
+          text: "In Entwürfe prüfen ablegen, nächsten Schritt terminieren"
+      run: "Jonas Weber · LinkedIn-Antwort · Entwurf angelegt"
+      status: "Erfolgreich"
+    inbox:
+      label: "Posteingang · alle Kanäle, eine Liste"
+      rows:
+        - name: "Jonas Weber"
+          text: "Klingt gut. Können Sie den überarbeiteten Umfang schicken?"
+          linked: "Verknüpft mit Halden & Co."
+        - name: "Sarah Kemp"
+          text: "Hier sind die beiden besprochenen Optionen."
+          linked: "Verknüpft mit Kemp Logistik"
+        - name: "Ole Brandt"
+          text: "Können wir den Workshop auf Donnerstag legen?"
+          linked: "Verknüpft mit Brandt Studio"
+        - name: "Helen Ashworth"
+          text: "Option B passt für uns."
+          linked: "Verknüpft mit Fairhaven"
+    data:
+      label: "Von Mate aus Ihrer Beschreibung gebaut"
+      lists: ["Kunden", "Mandate", "Angebote", "Aufgaben"]
+      columns: ["Mandat", "Phase", "Nächster Schritt"]
+      rows:
+        - ["Halden & Co.", "Angebot gesendet", "Di"]
+        - ["Norrland Studio", "Scoping", "Do"]
+        - ["Fairhaven", "Entscheidung", "Fr"]
+    knowledge:
+      label: "Wissensdatenbank · Karte verknüpfter Seiten"
+      nodes:
+        guide: "Betriebsleitfaden"
+        playbook: "Angebots-Playbook"
+        process: "So laufen Mandate"
+        rates: "Tagessätze"
+        brief: "Beziehungsbriefing"
+        icp: "Idealer Kunde"
+        tone: "Tonalität"
+        agents: "So arbeiten unsere Agenten"
+      run: "Mate hat das Angebots-Playbook für den Entwurf an Jonas genutzt"
 
 proofAndPartners:
   proof:
-    eyebrow: Aus unserer eigenen Arbeit
-    title: Wir machen unseren eigenen Vertrieb mit Customermates.
-    description: Unsere Interessenten, Partner und Gespräche liegen in einem Customermates-Workspace. Über MCP verbundene KI-Agenten bereiten Antworten und Nachfassungen vor. Jede neue Art von Nachricht geben wir einmal frei, ähnliche folgen danach den Regeln, die wir freigegeben haben.
-    steps:
-      - Eine Antwort kommt über LinkedIn oder per E-Mail
-      - Ein Agent entwirft Antwort und nächsten Schritt
-      - Eine neue Art von Nachricht wartet auf unsere Freigabe
-    note: Dasselbe Produkt, mit dem Sie heute starten.
+    eyebrow: Eine Notiz vom Gründer
+    title: Nicht sicher, ob es passt? Fragen Sie mich.
+    paragraphs:
+      - "Hallo, ich bin Ben. Ich baue Customermates in Deutschland, und Nachrichten über die Kontaktseite landen direkt bei mir, nicht in einer Ticket-Warteschlange."
+      - "Schicken Sie mir, womit Sie heute arbeiten. Ich sage Ihnen, was direkt passt und wo eine separate Integration die ehrliche Antwort ist. Meist antworte ich innerhalb von 24 Stunden, oft am selben Tag."
+    signature: Ben
+    name: Benjamin Wagner
+    role: Gründer, Customermates
+    contact:
+      label: Schreiben Sie mir
+      href: /contact
+    linkedin:
+      label: Mich auf LinkedIn finden
+      href: https://www.linkedin.com/in/wagner-benjamin/
   partners:
     eyebrow: Für virtuelle Assistenzen, Agenturen und Automatisierer
-    title: Übernehmen Sie das Nachfassen für Ihre Kunden.
+    title: Erledigen Sie die Arbeit Ihrer Kunden mit Agenten.
     description: Richten Sie pro Kunde einen Workspace ein, verbinden Sie seine Kanäle und lassen Sie Agenten die Arbeit vorbereiten, die Sie liefern.
     points:
       - Bis zu [[commercial.workspaces.creationLimit]] Workspaces pro Login, einer pro Kunde
@@ -426,8 +482,8 @@ faq:
 closingEyebrow: Customermates
 
 cta:
-  action: Bereit, jeden Kunden nachzufassen?
-  description: Starten Sie mit einem Kanal und einem Kunden. Ihr Test läuft [[commercial.trial.days]] Tage auf Pro ohne Kreditkarte, oder sehen Sie sich zuerst einen Demo-Workspace einer Beratung an.
+  action: Einmal sagen. Ihre Agenten erledigen es.
+  description: Beschreiben Sie Ihr Unternehmen, verbinden Sie einen Kanal und geben Sie die erste Aufgabe ab. Ihr Test läuft [[commercial.trial.days]] Tage auf Pro ohne Kreditkarte, oder sehen Sie sich zuerst einen Demo-Workspace einer Beratung an.
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Demo ansehen
@@ -437,24 +493,33 @@ cta:
 useCases:
   eyebrow: "So können Sie es nutzen"
   title: "Wählen Sie die Aufgabe. Der Workspace passt sich an."
+  description: "Mate oder Ihr eigener Claude erledigt die Arbeit in der Plattform. Sie prüfen nur."
   items:
     - title: "LinkedIn-Gespräche nachfassen"
-      description: "LinkedIn- und E-Mail-Verläufe liegen beim Kunden. Mate entwirft die Antwort und terminiert den nächsten Schritt, und Sie prüfen und senden die Antwort im Gespräch."
+      agent: mate
+      done: "Antwort an Rebecca Dreyer entworfen"
+      you: "Sie: prüfen und senden"
       href: /features/linkedin-integration
       linkLabel: "Zu LinkedIn im Posteingang"
       visual: conversation
-    - title: "Jedes Angebot nach dem Termin nachfassen"
-      description: "Kunden, Mandate und Angebote mit den Gesprächen dahinter und einem terminierten nächsten Schritt bei jedem."
+    - title: "Jedes Angebot nachfassen"
+      agent: mate
+      done: "Deal nach dem Termin weitergeschoben"
+      you: "Sie: Erinnerung freigeben"
       href: /for/consultants
       linkLabel: "CRM für Berater"
       visual: proposal
     - title: "Nächste Schritte auf einem Dashboard"
-      description: "Jeder Kunde bekommt einen terminierten nächsten Schritt, und Ihr Dashboard zeigt, was über alle Kunden fällig ist."
+      agent: mate
+      done: "Fehlende nächste Schritte terminiert"
+      you: "Sie: die Liste für heute öffnen"
       href: /features/follow-up
       linkLabel: "Zum Nachfassen"
       visual: dashboard
-    - title: "Claude oder ChatGPT in Ihrem CRM arbeiten lassen"
-      description: "Verbinden Sie Claude, ChatGPT, Cursor oder einen anderen MCP-Client. Er liest und pflegt Ihren Workspace im Rahmen Ihrer Rechte."
+    - title: "Ihren eigenen Claude im CRM arbeiten lassen"
+      agent: claude
+      done: "Pipeline in Ihrem Workspace angelegt"
+      you: "Sie: das Ergebnis prüfen"
       href: /features/integrations
       linkLabel: "Agenten verbinden"
       visual: agent
