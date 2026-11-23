@@ -54,8 +54,7 @@ import { shortcutDestinations } from "./navigation/shortcut-destinations";
 import { SidebarCustomize } from "./navigation/sidebar-customize";
 import { useAccountActions } from "./navigation/use-account-actions";
 import { NavSecondary } from "./navigation/nav-secondary";
-import { DemoSignupButton } from "@/components/acquisition/demo-signup-button";
-
+import { DemoSignupButton } from "./navigation/demo-signup-button";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { FreePlanSidebarCardWithUsage, TrialSidebarCardWithFit } from "./navigation/plan-sidebar-cards";
