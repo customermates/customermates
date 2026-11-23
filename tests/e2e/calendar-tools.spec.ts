@@ -97,7 +97,7 @@ test("an agent sets the Calendar page over MCP, the page shows it, and reset ret
       calendar.locator(`[data-calendar-entry="${sourceId}:${created.refs[0].recordId}"]`).first(),
     ).toBeVisible();
     await page.getByRole("button", { name: "Date sources", exact: true }).click();
-    const sources = page.getByRole("complementary", { name: "Date sources", exact: true });
+    const sources = page.getByRole("dialog", { name: "Date sources", exact: true });
     await expect(sources.locator("[data-planner-source]")).toHaveCount(1);
     await expect(sources.getByRole("checkbox", { name: "Organizations · Due on", exact: true })).toBeChecked();
     await sources.getByRole("button", { name: "Close date sources", exact: true }).click();

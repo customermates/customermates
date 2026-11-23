@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 
-import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
+import { keepOpenForAssistantSurface } from "@/components/modal/assistant-surface";
 import { IconButton } from "@/components/ui/icon-button";
-import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
+import { OVERLAY_SCROLL_REGION, OVERLAY_SIDE_SHEET_CLASS } from "@/components/ui/overlay-contract";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
@@ -29,44 +30,44 @@ export function PlannerSidePanel({
   bodyClassName,
   ...data
 }: Props) {
-  const panelRef = useRef<HTMLElement>(null);
-  const closeRef = useRef(onClose);
-
-  useEffect(() => {
-    closeRef.current = onClose;
-  });
-
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || event.defaultPrevented) return;
-      event.stopPropagation();
-      closeRef.current();
-    };
-    panel.addEventListener("keydown", onKeyDown);
-    return () => panel.removeEventListener("keydown", onKeyDown);
-  }, []);
-
   return (
-    <aside
-      {...data}
-      ref={panelRef}
-      aria-label={title}
-      className={cn(
-        "absolute inset-y-2 right-2 z-20 flex w-[calc(100%-1rem)] max-w-[440px] flex-col overflow-hidden rounded-lg border border-border-strong bg-card shadow-lg",
-        className,
-      )}
+    <Sheet
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
-      <header className="flex shrink-0 items-center gap-2 border-b px-5 pt-4 pb-3">
-        <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</h2>
+      <SheetContent
+        {...data}
+        aria-describedby={undefined}
+        className={cn(OVERLAY_SIDE_SHEET_CLASS, "bg-card sm:max-w-[440px]", className)}
+        showCloseButton={false}
+        side="right"
+        onEscapeKeyDown={keepOpenForAssistantSurface}
+        onInteractOutside={keepOpenForAssistantSurface}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
+        }}
+      >
+        <header className="flex shrink-0 items-center gap-2 border-b px-5 pt-[calc(1rem+var(--safe-top))] pr-[calc(1.25rem+var(--safe-right))] pb-3">
+          <SheetTitle className="min-w-0 flex-1 truncate">{title}</SheetTitle>
 
-        {actions}
+          {actions}
 
-        <IconButton icon={X} label={closeLabel} onClick={onClose} />
-      </header>
+          <IconButton icon={X} label={closeLabel} onClick={onClose} />
+        </header>
 
-      <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col", bodyClassName)}>{children}</div>
-    </aside>
+        <div
+          className={cn(
+            OVERLAY_SCROLL_REGION,
+            "flex flex-col pr-[var(--safe-right)] pb-[var(--safe-bottom)]",
+            bodyClassName,
+          )}
+        >
+          {children}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

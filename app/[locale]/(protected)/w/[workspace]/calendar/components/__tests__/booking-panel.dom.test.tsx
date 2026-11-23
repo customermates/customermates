@@ -111,7 +111,8 @@ const ADA = bookingLink({
   enabled: false,
 });
 
-let container: HTMLDivElement;
+let host: HTMLDivElement;
+let container: HTMLElement;
 let root: Root;
 const onClose = vi.fn();
 
@@ -171,23 +172,24 @@ beforeEach(() => {
   harness.save.mockResolvedValue({ ok: true, data: {} });
   harness.remove.mockResolvedValue({ ok: true, data: {} });
   harness.copy.mockResolvedValue(true);
-  container = document.createElement("div");
-  document.body.append(container);
-  root = createRoot(container);
+  host = document.createElement("div");
+  document.body.append(host);
+  container = document.body;
+  root = createRoot(host);
 });
 
 afterEach(() => {
   act(() => root.unmount());
-  container.remove();
+  host.remove();
   vi.useRealTimers();
 });
 
 describe("BookingPanel", () => {
-  it("shows a drawer header with the title, a new page button and a close button", async () => {
+  it("shows a full-height sheet header with the title, a new page button and a close button", async () => {
     await renderPanel(ready());
 
     const panel = container.querySelector<HTMLElement>("[data-booking-panel]");
-    expect(panel?.getAttribute("aria-label")).toBe("Booking.panelTitle");
+    expect(panel?.getAttribute("role")).toBe("dialog");
     expect(panel?.querySelector("header h2")?.textContent).toBe("Booking.panelTitle");
     expect(buttonWithText(panel?.querySelector("header") as HTMLElement, "Booking.newShort").disabled).toBe(false);
   });
