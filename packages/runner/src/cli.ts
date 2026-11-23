@@ -10,7 +10,7 @@ import { runJob } from "./run-job.js";
 import { sleep } from "./sleep.js";
 import { installStopSignals } from "./stop-signals.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 
 async function main(): Promise<number> {
   const parsed = parseOptions(process.argv.slice(2), process.env);

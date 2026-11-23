@@ -28,7 +28,7 @@ export const TOKEN_FILE_ENV = "CUSTOMERMATES_RUNNER_TOKEN_FILE";
 export const HELP_TEXT = [
   "customermates-runner: run your own agent jobs of a Customermates workspace with your Claude Code, Codex or Gemini CLI.",
   "",
-  "Usage: CUSTOMERMATES_RUNNER_TOKEN=<runner token> npx customermates-runner --url <https://app.customermates.com>",
+  "Usage: CUSTOMERMATES_RUNNER_TOKEN=<runner token> npx customermates-runner --url <https://customermates.com>",
   "",
   "Options:",
   "  --token-file <file>        File that holds the runner token (or CUSTOMERMATES_RUNNER_TOKEN_FILE)",
