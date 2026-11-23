@@ -7,6 +7,7 @@ import type { Client } from "pg";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { appPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 import { emailLanguage, emailLinks, emailText, sentEmailsTo } from "./transactional-mail";
 import { addAdministrator, clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
 
@@ -221,7 +222,7 @@ test("the host cancels one booking with a reason and moves another from the book
   const cara = upcoming.filter({ hasText: "Cara Cancel" });
   const mona = upcoming.filter({ hasText: "Mona Move" });
 
-  await clickHydrated(cara.locator("[data-item-actions-trigger]"));
+  await openItemMenu(page, cara.locator("[data-item-actions-trigger]"));
   await page.locator("[data-booking-host-cancel]").click();
   const confirm = page.locator('[data-slot="confirm-dialog"]');
   await expect(confirm).toContainText(hostActions.cancelTitle.replace("{name}", "Cara Cancel"));
@@ -239,7 +240,7 @@ test("the host cancels one booking with a reason and moves another from the book
   ]);
   expect(cancelledEvent.rows[0].status).toBe("cancelled");
 
-  await mona.locator("[data-item-actions-trigger]").click();
+  await openItemMenu(page, mona.locator("[data-item-actions-trigger]"));
   await page.locator("[data-booking-host-reschedule]").click();
   const reschedule = page.locator("[data-booking-host-reschedule-dialog]");
   await expect(reschedule).toContainText(hostActions.rescheduleTitle.replace("{name}", "Mona Move"));
@@ -350,7 +351,16 @@ test("a logo and an accent colour set under Branding show on the workspace's boo
     .setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: solidPng(24, [15, 98, 254]) });
   const settingsLogo = branding.locator("#settings-general-branding-logo-preview img[data-brand-logo]");
   await expect(settingsLogo).toBeVisible();
-  await expect(page.locator("#nav-workspace-menu img[data-workspace-logo]")).toBeVisible();
+  const navLogo = page.locator("#nav-workspace-menu img[data-workspace-logo]");
+  if (test.info().project.use.isMobile) {
+    await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
+    await page.locator("#sidebar-trigger").click();
+    await expect(navLogo).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(navLogo).toBeHidden();
+  } else {
+    await expect(navLogo).toBeVisible();
+  }
   await expect(branding.locator("#settings-general-branding-logo-error")).toHaveCount(0);
 
   const unsavedChanges = page.locator("[data-slot='unsaved-changes-bar']");

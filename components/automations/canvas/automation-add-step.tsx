@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const AUTOMATION_QUICK_STEP_KINDS: readonly AutomationPaletteKind[] = [
   "agent",
@@ -38,6 +39,7 @@ export function AutomationAddStep({
   quick?: boolean;
 }) {
   const t = useTranslations();
+  const isMobile = useIsMobile();
   const { palette } = actions;
   if (!palette || !actions.editable) return null;
   const open = actions.paletteAt === index;
@@ -145,9 +147,9 @@ export function AutomationAddStep({
 
       <PopoverContent
         align="center"
-        className="w-[34rem] max-w-[calc(100vw-2rem)] border-0 bg-transparent p-0 shadow-none"
-        side="right"
-        sideOffset={14}
+        className="max-h-(--radix-popover-content-available-height) w-[34rem] max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain border-0 bg-transparent p-0 shadow-none"
+        side={isMobile ? "bottom" : "right"}
+        sideOffset={isMobile ? 8 : 14}
         onClick={(event) => event.stopPropagation()}
       >
         <AutomationPalette
