@@ -9,7 +9,7 @@ A runner is a small program. It asks your workspace for the agent jobs of the me
 You need Node 24 and one of Claude Code, Codex or Gemini CLI, signed in on that machine.
 
 ```bash
-CUSTOMERMATES_RUNNER_TOKEN=cmr_... npx customermates-runner --url https://app.customermates.com
+CUSTOMERMATES_RUNNER_TOKEN=cmr_... npx customermates-runner --url https://customermates.com
 ```
 
 Add a runner under **Settings, Agents** in your workspace to get the token. It is shown once. The address is the one you open Customermates at, for a self-hosted instance your own `BASE_URL`.
@@ -20,7 +20,7 @@ With Docker:
 
 ```bash
 docker run -d --restart unless-stopped \
-  -e CUSTOMERMATES_URL=https://app.customermates.com \
+  -e CUSTOMERMATES_URL=https://customermates.com \
   -e CUSTOMERMATES_RUNNER_TOKEN=cmr_... \
   -v "$HOME/.claude:/home/node/.claude" \
   -v "$HOME/.claude.json:/home/node/.claude.json" \

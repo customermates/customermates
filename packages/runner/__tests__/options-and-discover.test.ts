@@ -14,10 +14,10 @@ function options(argv: string[], env: Record<string, string | undefined> = {}) {
 
 describe("runner options", () => {
   it("reads the token and url from the flags and notes that the token was on the command line", () => {
-    expect(options(["--token", TOKEN, "--url", "https://app.customermates.com"])).toMatchObject({
+    expect(options(["--token", TOKEN, "--url", "https://customermates.com"])).toMatchObject({
       token: TOKEN,
       tokenOnCommandLine: true,
-      url: "https://app.customermates.com",
+      url: "https://customermates.com",
       client: null,
       workdir: null,
       permissionMode: "dontAsk",
