@@ -1,18 +1,19 @@
+import { PUBLIC_DEMO_ORIGIN } from "@/components/marketing/product-demo-src";
+
+import { CAMPAIGN_QUERY_PARAMS } from "./signup-campaign";
 import { SIGNUP_PATH } from "./signup-link";
+import { campaignValue } from "./signup-parsing";
 
-export const PUBLIC_DEMO_HOST = "demo.customermates.com";
-
-const UTM_PREFIX = "utm_";
-const MAX_VALUE_LENGTH = 200;
+const PUBLIC_DEMO_HOST = new URL(PUBLIC_DEMO_ORIGIN).host;
+const CAMPAIGN_KEYS = Object.values(CAMPAIGN_QUERY_PARAMS);
 const LOCALIZED_SIGNUP_PATH = /^\/[a-z]{2}(?:-[a-z]{2})?\/auth\/signup$/iu;
 
 export function campaignParams(search: string): [string, string][] {
   const params = new URLSearchParams(search);
   const pairs: [string, string][] = [];
-  for (const [key, value] of params) {
-    if (!key.toLowerCase().startsWith(UTM_PREFIX) || !value || value.length > MAX_VALUE_LENGTH) continue;
-    if (pairs.some(([existing]) => existing === key)) continue;
-    pairs.push([key, value]);
+  for (const key of CAMPAIGN_KEYS) {
+    const value = campaignValue(params.get(key));
+    if (value) pairs.push([key, value]);
   }
   return pairs;
 }

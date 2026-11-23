@@ -104,6 +104,11 @@ describe("PublicAdAttributionConsentCard", () => {
     expect(card?.textContent).not.toContain("Common.actions.close");
   });
 
+  it("opens on a search ad landing page", async () => {
+    await render("/de/start/crm-system?gclid=paid-click&utm_source=google");
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
+  });
+
   it("does not interrupt traffic without a recognised click identifier", async () => {
     await render("/en/features/cloud-crm?utm_source=google&utm_medium=cpc");
     expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();

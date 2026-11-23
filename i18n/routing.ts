@@ -65,6 +65,8 @@ export const HUB_PAGE_ROUTES = [
   "/for/page/:page",
 ] as const;
 
+export const AD_LANDING_ROUTES = ["/start/:slug"] as const;
+
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,
   ...HUB_PAGE_ROUTES,
@@ -84,7 +86,7 @@ export const PUBLIC_ROUTES = [
   "/book/:token",
   "/book/manage/:token",
   "/f/:token",
-  "/start/:slug",
+  ...AD_LANDING_ROUTES,
   "/notification-emails/turn-off",
   "/docs/openapi/:slug",
   "/docs/openapi",
@@ -185,6 +187,10 @@ export function isContentPathname(pathname: string) {
   for (const p of CONTENT_ROUTES) if (buildLocaleAwareRegex(p).test(pathname)) return true;
 
   return false;
+}
+
+export function isAdLandingPathname(pathname: string) {
+  return AD_LANDING_ROUTES.some((p) => buildLocaleAwareRegex(p).test(pathname));
 }
 
 export function isMarketingPathname(pathname: string) {

@@ -361,14 +361,6 @@ const homepageProofSchema = z.object({
 });
 export type HomepageProof = z.infer<typeof homepageProofSchema>;
 
-const homepageTrustSchema = z.object({
-  agents: z.string(),
-  database: z.string(),
-  label: z.string(),
-  sourceAvailable: z.string(),
-});
-export type HomepageTrust = z.infer<typeof homepageTrustSchema>;
-
 const homepagePlansSchema = z.object({
   compareHref: z.string(),
   compareLabel: z.string(),
@@ -414,6 +406,5 @@ export const homepageSchema = frontmatterSchema.extend({
   walkthrough: walkthroughSchema.optional(),
   rootMetadata: rootMetadataSchema,
   title: z.string(),
-  trust: homepageTrustSchema,
   useCases: useCasesSchema,
 });

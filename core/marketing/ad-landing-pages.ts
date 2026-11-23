@@ -1,3 +1,7 @@
+import { SIGNUP_PATH } from "@/features/acquisition/signup-link";
+import { SIGNUP_JOB_QUERY_PARAM } from "@/features/onboarding-funnel/onboarding-job";
+import { buildLocalePath } from "@/i18n/locale-registry";
+
 export type AdLandingPage = {
   h1: string;
   title: string;
@@ -18,7 +22,7 @@ export const AD_LANDING_PRICE_LINE =
 
 export const AD_LANDING_CTA = "[[commercial.trial.days]] Tage kostenlos testen";
 
-export const AD_LANDING_SIGNUP_HREF = "/de/auth/signup?job=workspace";
+export const AD_LANDING_SIGNUP_HREF = `${buildLocalePath(AD_LANDING_LOCALE, SIGNUP_PATH)}?${new URLSearchParams({ [SIGNUP_JOB_QUERY_PARAM]: "workspace" }).toString()}`;
 
 export const AD_LANDING_PRODUCT_CAPTION = "Beispiel-Workspace eines kleinen Dienstleisters, mit Demodaten";
 

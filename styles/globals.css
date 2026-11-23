@@ -2468,23 +2468,6 @@ path:focus {
   color: inherit;
 }
 
-.homepage-trust {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem 2.25rem;
-}
-
-.homepage-trust > li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
-}
-
 .homepage-mate-bubble {
   position: absolute;
   z-index: 2;

@@ -11,7 +11,7 @@ import {
 
 export const SIGNUP_CAMPAIGN_MAX_LENGTH = 1_024;
 
-const CAMPAIGN_QUERY_PARAMS = {
+export const CAMPAIGN_QUERY_PARAMS = {
   source: "utm_source",
   medium: "utm_medium",
   campaign: "utm_campaign",

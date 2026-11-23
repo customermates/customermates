@@ -61,7 +61,6 @@ const components = [
   "homepage-plans.tsx",
   "homepage-product-stage.tsx",
   "homepage-proof-partners.tsx",
-  "homepage-trust-strip.tsx",
   "homepage-viewport-video.tsx",
   "homepage-workspace-generator.tsx",
 ].map(readComponent);

@@ -6,13 +6,19 @@ const PAGE =
   "https://customermates.com/de/start/crm-system?utm_source=google&utm_medium=cpc&utm_campaign=test&utm_content=test&utm_term=test&gclid=x";
 
 describe("campaign links", () => {
-  it("reads every utm_* parameter and nothing else", () => {
+  it("reads the five utm parameters and nothing else", () => {
     expect(campaignParams(new URL(PAGE).search)).toEqual([
       ["utm_source", "google"],
       ["utm_medium", "cpc"],
       ["utm_campaign", "test"],
       ["utm_content", "test"],
       ["utm_term", "test"],
+    ]);
+  });
+
+  it("drops values the signup would reject", () => {
+    expect(campaignParams("?utm_source=google&utm_term=%3Cscript%3E&utm_Medium=cpc&utm_id=1")).toEqual([
+      ["utm_source", "google"],
     ]);
   });
 
