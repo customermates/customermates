@@ -92,7 +92,7 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-03-01
-  updated: 2026-11-16
+  updated: 2026-11-23
   tags:
     - Open Source
     - CRM
@@ -192,6 +192,23 @@ Diese Tabelle ist eine Quellenübersicht, keine Rangliste und keine Behauptung, 
   selbst gehostet werden kann.
 </AcquisitionCallout>
 
+## Das beste selbst gehostete CRM für Ihr Team: Lizenz und Einsatzzweck im Überblick
+
+Wer nach dem besten selbst gehosteten CRM sucht, findet vor allem Listen, die nach Beliebtheit sortieren. Hilfreicher ist eine Übersicht nach der Lizenz, die Sie erhalten, und nach dem Team, für das ein Projekt gebaut ist. Von den oben genannten Projekten nutzen alle außer Customermates eine von der [Open Source Initiative](https://opensource.org/osd) anerkannte Lizenz; Twenty ergänzt seinen AGPL-Kern um kommerziell lizenzierte Dateien.
+
+### Lizenzen, geprüft im jeweiligen offiziellen Repository am 23. November 2026
+
+| Projekt         | Lizenz des selbst gehosteten Codes                                       | Weg zum Self-Hosting                  | Vor allem gebaut für                                  |
+| --------------- | ------------------------------------------------------------------------ | ------------------------------------- | ----------------------------------------------------- |
+| Customermates   | Sustainable Use License (Quellcode einsehbar), `ee/` unter einer kommerziellen Lizenz | Docker-Image plus PostgreSQL 16 | Kleine Teams, die bei jedem Kundengespräch nachfassen |
+| SuiteCRM        | AGPLv3                                                                   | Installationsanleitung für Administratoren | Breites CRM für Vertrieb, Marketing und Service  |
+| EspoCRM         | AGPLv3                                                                   | Offizielle Docker-Installation        | Konfigurierbares CRM für kleine und mittlere Teams    |
+| Twenty          | Überwiegend AGPLv3, als Enterprise markierte Dateien kommerziell, einige Pakete MIT | Docker-Compose-Anleitung     | Modernes, entwicklerfreundliches Datenmodell          |
+| Odoo Community  | LGPLv3                                                                   | Installationsanleitungen von Odoo     | CRM als Modul einer Business-Suite                    |
+| CiviCRM         | AGPLv3                                                                   | Installation in ein bestehendes CMS   | Vereine, Mitglieder und Spender                       |
+
+Lesen Sie die Tabelle als Filter, nicht als Rangliste. Muss die Lizenz von der OSI anerkannt sein, fällt Customermates heraus; brauchen Sie ein fokussiertes CRM mit MCP für Ihren eigenen KI-Client und akzeptieren eine Lizenz mit einsehbarem Quellcode, gehört es auf die Liste. Installieren Sie die offizielle Variante Ihrer zwei oder drei Favoriten, bevor Sie entscheiden, wie es die Prüfliste weiter unten beschreibt, und vergleichen Sie die Editionen im Detail auf der Seite zum [Self-Hosted CRM](/features/self-hosted).
+
 ## Wo Customermates passt
 
 Customermates ist ein CRM mit einsehbarem Quellcode für Kundenbeziehungen und Pipeline aus Deutschland, unter der Sustainable Use License (Fair-Code). Den von Customermates selbst entwickelten Code außerhalb von `ee/` dürfen Sie für Ihre eigenen internen Geschäftszwecke oder für nicht kommerzielle und private Zwecke nutzen und ändern und nur unentgeltlich und nicht kommerziell weitergeben. Für den Code in `ee/` gilt die Customermates Enterprise License. Damit ist es für das eigene Unternehmen kostenlos selbst hostbar, aber Sie dürfen es nicht weiterverkaufen, für Dritte hosten oder umlabeln; ein Einbau geschieht nach Vereinbarung.
@@ -273,6 +290,18 @@ Bei Customermates ist die Trennung ausdrücklich: Kern-CRM, REST, Webhooks und M
 <Faq>
 <FaqItem question="Was bedeutet Open-Source-CRM?">
 Der CRM-Code wird unter einer Open-Source-Lizenz angeboten, die definierte Rechte zum Nutzen, Prüfen, Ändern und Weitergeben gewährt. Prüfen Sie die einzelnen Dateien und Editionsgrenzen genau: Ein Repository kann auch separat lizenzierten Code enthalten.
+</FaqItem>
+
+<FaqItem question="Welche selbst gehosteten CRMs nutzen eine Open-Source-Lizenz?">
+SuiteCRM, EspoCRM und CiviCRM stehen unter der AGPLv3, Odoo Community unter der LGPLv3, und Twenty überwiegend unter der AGPLv3, mit als Enterprise markierten Dateien unter einer kommerziellen Lizenz (Repositories geprüft am 23. November 2026). Customermates lässt sich ebenfalls selbst hosten, aber unter der Sustainable Use License mit einsehbarem Quellcode, die keine von der OSI anerkannte Open-Source-Lizenz ist.
+</FaqItem>
+
+<FaqItem question="Ist ein selbst gehostetes CRM besser als ein Cloud-CRM?">
+Keines ist grundsätzlich besser. Self-Hosting gibt Ihnen Kontrolle darüber, wo Anwendung und Datenbank laufen, und überlässt Ihnen Updates, Backups und Monitoring; ein Cloud-CRM verlagert diese Arbeit zum Anbieter und bietet oft zusätzliche gehostete Funktionen. Bei Customermates läuft Self-Hosting mit dem Funktionsumfang von Starter ohne Posteingang und Mate, die verwaltete Cloud enthält beides.
+</FaqItem>
+
+<FaqItem question="Funktioniert ein selbst gehostetes CRM mit Claude oder anderen KI-Clients?">
+Ja, wenn das CRM eine Schnittstelle bietet, die der KI-Client nutzen kann. Das selbst gehostete Customermates enthält REST, Webhooks und einen MCP-Server, sodass Sie Ihren eigenen KI-Client wie Claude anbinden und den Modellanbieter selbst stellen. Prüfen Sie bei anderen Projekten in der aktuellen Dokumentation, ob es einen MCP-Server oder eine API gibt, die Ihr Client aufrufen kann.
 </FaqItem>
 
 <FaqItem question="Ist jedes Open-Source-CRM kostenlos zu betreiben?">
