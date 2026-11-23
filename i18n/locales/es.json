@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nueva página de reservas",
-    "newShort": "Nueva página",
     "newTitle": "Nueva página de reservas",
     "noCalendar": "El calendario de esta página ya no existe, por ejemplo porque se desconectó su cuenta. Los visitantes ven la página como no disponible hasta que se elija un calendario. Las reservas ya hechas se conservan.",
     "notice": "{hours, plural, =0 {Sin antelación mínima} one {# hora de antelación} other {# horas de antelación}}",

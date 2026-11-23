@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "New booking page",
-    "newShort": "New page",
     "newTitle": "New booking page",
     "noCalendar": "The calendar of this page is gone, for example because its account was disconnected. Visitors see the page as unavailable until a calendar is chosen. Bookings already made stay.",
     "notice": "{hours, plural, =0 {No minimum notice} one {# hour ahead} other {# hours ahead}}",

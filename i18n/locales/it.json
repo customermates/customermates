@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nuova pagina di prenotazione",
-    "newShort": "Nuova pagina",
     "newTitle": "Nuova pagina di prenotazione",
     "noCalendar": "Il calendario di questa pagina non c’è più, ad esempio perché il suo account è stato scollegato. I visitatori vedono la pagina come non disponibile finché non viene scelto un calendario. Le prenotazioni già fatte restano.",
     "notice": "{hours, plural, =0 {Nessun preavviso minimo} one {# ora di anticipo} other {# ore di anticipo}}",

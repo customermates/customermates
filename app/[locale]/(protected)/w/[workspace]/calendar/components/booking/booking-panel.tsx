@@ -129,13 +129,16 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
 
   return (
     <PlannerSidePanel
-      actions={
-        <Button data-booking-new="" disabled={!canCreate} size="sm" onClick={() => modal.start()}>
-          <Plus aria-hidden className="size-4" />
-
-          {t("Booking.newShort")}
-        </Button>
-      }
+      actions={[
+        {
+          id: "booking-new",
+          anchorId: "booking-new",
+          icon: Plus,
+          label: t("Booking.new"),
+          disabled: !canCreate,
+          onClick: () => modal.start(),
+        },
+      ]}
       data-booking-panel=""
       title={t("Booking.panelTitle")}
       onClose={onClose}

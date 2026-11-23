@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} Min.",
     "new": "Neue Buchungsseite",
-    "newShort": "Neue Seite",
     "newTitle": "Neue Buchungsseite",
     "noCalendar": "Der Kalender dieser Seite ist nicht mehr da, zum Beispiel weil sein Konto getrennt wurde. Besucher sehen die Seite als nicht verfügbar, bis ein Kalender gewählt ist. Bereits gebuchte Termine bleiben.",
     "notice": "{hours, plural, =0 {Kein Mindestvorlauf} one {# Stunde im Voraus} other {# Stunden im Voraus}}",

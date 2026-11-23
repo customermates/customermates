@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nieuwe boekingspagina",
-    "newShort": "Nieuwe pagina",
     "newTitle": "Nieuwe boekingspagina",
     "noCalendar": "De agenda van deze pagina is er niet meer, bijvoorbeeld omdat het account is losgekoppeld. Bezoekers zien de pagina als niet beschikbaar totdat er een agenda is gekozen. Boekingen die al zijn gemaakt, blijven staan.",
     "notice": "{hours, plural, =0 {Geen minimale aanlooptijd} one {# uur vooraf} other {# uur vooraf}}",

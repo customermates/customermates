@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { AppModalActions } from "@/components/modal/app-modal";
 
 import { AppModal } from "@/components/modal/app-modal";
 import { cn } from "@/core/utils/cn";
@@ -8,7 +9,7 @@ import { cn } from "@/core/utils/cn";
 type Props = {
   title: string;
   onClose: () => void;
-  actions?: ReactNode;
+  actions?: AppModalActions;
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
@@ -21,8 +22,8 @@ export function PlannerSidePanel({ title, onClose, actions, children, className,
       open
       sheet
       visibleTitle
+      actions={actions}
       bodyClassName="flex flex-col px-0 pb-[var(--safe-bottom)]"
-      controls={actions ? { node: actions, slots: 1 } : undefined}
       layerClassName={cn("bg-card sm:max-w-[440px]", className)}
       title={title}
       onClose={onClose}

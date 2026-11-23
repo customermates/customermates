@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nowa strona rezerwacji",
-    "newShort": "Nowa strona",
     "newTitle": "Nowa strona rezerwacji",
     "noCalendar": "Kalendarz tej strony już nie istnieje, na przykład dlatego, że jego konto zostało odłączone. Odwiedzający widzą stronę jako niedostępną, dopóki nie zostanie wybrany kalendarz. Dokonane już rezerwacje pozostają.",
     "notice": "{hours, plural, =0 {Bez minimalnego wyprzedzenia} one {# godzina wcześniej} few {# godziny wcześniej} many {# godzin wcześniej} other {# godziny wcześniej}}",

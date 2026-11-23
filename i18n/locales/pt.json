@@ -1529,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nova página de agendamento",
-    "newShort": "Nova página",
     "newTitle": "Nova página de agendamento",
     "noCalendar": "O calendário desta página não existe mais, por exemplo porque a conta dele foi desconectada. Os visitantes veem a página como indisponível até que um calendário seja escolhido. Os agendamentos já feitos permanecem.",
     "notice": "{hours, plural, =0 {Sem antecedência mínima} one {# hora de antecedência} other {# horas de antecedência}}",

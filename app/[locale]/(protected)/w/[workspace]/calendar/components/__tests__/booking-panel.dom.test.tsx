@@ -146,9 +146,9 @@ function buttonWithText(scope: HTMLElement, text: string): HTMLButtonElement {
 }
 
 function newPageButton(): HTMLButtonElement {
-  const actions = container.querySelector<HTMLElement>('[data-slot="app-modal-actions"]');
-  if (!actions) throw new Error("The sheet has no header actions.");
-  return buttonWithText(actions, "Booking.newShort");
+  const found = container.querySelector<HTMLButtonElement>("#booking-new");
+  if (!found) throw new Error("The sheet has no new page action.");
+  return found;
 }
 
 function hasButton(scope: HTMLElement, text: string): boolean {
@@ -427,7 +427,7 @@ describe("BookingPanel", () => {
     await renderPanel({ status: "unavailable", reason });
 
     expect(container.textContent).toContain(note);
-    expect(buttonWithText(container, "Booking.newShort").disabled).toBe(true);
+    expect(newPageButton().disabled).toBe(true);
     expect(harness.modal.configure).not.toHaveBeenCalled();
   });
 
