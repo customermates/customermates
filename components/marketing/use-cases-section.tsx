@@ -16,7 +16,6 @@ type Props = {
   useCases: UseCases;
 };
 
-/** Product names, the same in every language. */
 const AGENT_NAMES: Record<UseCaseAgent, string> = { claude: "Claude", mate: "Mate" };
 
 function AgentMark({ agent }: { agent: UseCaseAgent }) {
@@ -27,7 +26,6 @@ function AgentMark({ agent }: { agent: UseCaseAgent }) {
   );
 }
 
-/** Agent card: product capture, who did what, the job, the one step left for you, the link. */
 function AgentCardBody({ item }: { item: UseCaseItem & { agent: UseCaseAgent } }) {
   return (
     <span className="flex flex-1 flex-col p-6">

@@ -21,10 +21,6 @@ export const USE_CASE_AGENTS = ["mate", "claude"] as const;
 
 export type UseCaseAgent = (typeof USE_CASE_AGENTS)[number];
 
-/**
- * A card is either a described card (title, one sentence) or an agent card: which agent did the job
- * (`agent`), what it did (`done`) and the one step left for you (`you`, the full line such as "You: review and send").
- */
 export const useCaseItemSchema = z
   .strictObject({
     agent: z.enum(USE_CASE_AGENTS).optional(),

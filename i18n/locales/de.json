@@ -3300,6 +3300,9 @@
       "saveAsView": "Als Ansicht speichern"
     }
   },
+  "DemoSignup": {
+    "cta": "Eigenen Workspace starten"
+  },
   "Diagrams": {
     "noData": "Keine Daten verfügbar",
     "noGroup": "Nicht zugeordnet",

@@ -51,7 +51,6 @@ function Arrow({ t }: { t: number }) {
   );
 }
 
-/** The sentence said once, in the homepage composer style; its words type in from t0. */
 function SayItOnce({ prompt, t0 }: { prompt: HomepageFollowUpContent["prompt"]; t0: number }) {
   const words = prompt.text.split(" ");
   const sent = t0 + words.length * WORD_STEP + 0.3;
@@ -86,7 +85,6 @@ function SayItOnce({ prompt, t0 }: { prompt: HomepageFollowUpContent["prompt"]; 
 const STEP_ICONS = { agent: Bot, draft: FilePen, when: Zap } as const;
 const STEP_ORDER = ["when", "agent", "draft"] as const;
 
-/** The automation as the app shows it: a title, the Active toggle, and its steps building one by one. */
 function AutomationCard({
   active,
   agent,
@@ -155,7 +153,6 @@ type DeckCardProps = {
   anim: string;
   badge: string;
   draft: Draft;
-  /** The card that stays on top when the loop ends and under reduced motion. */
   resting: boolean;
   stamp?: { anim: string; kind: "later" | "sent"; label: string };
 };
@@ -196,7 +193,6 @@ function DeckCard({ anim, badge, draft, resting, stamp }: DeckCardProps) {
   );
 }
 
-/** The Review drafts window: one draft swipes right (sent), the next swipes left (later), the last one stays. */
 function DraftDeck({ review }: { review: Review }) {
   const lastCount = review.counts.length - 1;
 

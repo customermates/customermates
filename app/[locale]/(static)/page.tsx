@@ -78,7 +78,6 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
       <HomepageHero heroSection={hero} />
 
-      {/* prompt to live workspace first: the fastest way to understand the product (owner review 2026-11-23) */}
       <HomepageWorkspaceGenerator
         extraTabs={HOMEPAGE_EXTRA_DEMO_TABS}
         generator={generator}

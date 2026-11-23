@@ -7,7 +7,6 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
 
-/** A short personal note from the founder with a direct line to him. */
 function FounderNote({ proof }: { proof: HomepageProof["proof"] }) {
   return (
     <div className="homepage-proof-card" data-homepage-proof="founder">

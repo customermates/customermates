@@ -115,7 +115,6 @@ export const heroSchema = z
       sourceAvailable: z.string(),
     }),
     badge: z.string(),
-    /** Template chips with a per-choice CTA; a locale that sets `primaryCta` instead shows one plain CTA. */
     picker: z
       .object({
         choices: z.array(heroChoiceSchema).min(4).max(5),
@@ -237,7 +236,6 @@ const followUpDraftSchema = z.object({
   text: z.string(),
 });
 
-/** "Say it once, it runs every time": one sentence becomes an automation whose drafts wait for a swipe. */
 const homepageFollowUpSchema = z.object({
   automation: z.object({
     active: z.string(),
@@ -257,9 +255,7 @@ const homepageFollowUpSchema = z.object({
   }),
   review: z.object({
     badge: z.string(),
-    /** The waiting count during the loop; the last entry is the resting state. */
     counts: z.array(z.string()).length(4),
-    /** `sent` swipes right, `later` swipes left, `next` stays on top. */
     drafts: z.object({ later: followUpDraftSchema, next: followUpDraftSchema, sent: followUpDraftSchema }),
     hint: z.string(),
     later: z.string(),
@@ -307,7 +303,6 @@ const homepagePillarsSchema = z.object({
       usedBy: z.string(),
     }),
   }),
-  /** Demo copy of the animated pillar scenes (homepage-pillar-scenes.tsx). */
   scenes: z.object({
     agents: z.object({
       label: z.string(),
@@ -353,7 +348,6 @@ const homepageProofSchema = z.object({
     points: z.array(z.string()).length(3),
     title: z.string(),
   }),
-  /** A personal note from the founder with a direct line to him. */
   proof: z.object({
     contact: homepageLinkSchema,
     eyebrow: z.string(),

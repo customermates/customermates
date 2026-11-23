@@ -1,6 +1,3 @@
-// The "say it once, it runs every time" scene runs on one 12 s CSS loop: an element enters at its time (`at(t)`),
-// a label shows only inside its window, and everything fades out together at 11.2 s. Under prefers-reduced-motion
-// the loop is off and the finished state shows: the automation is active and the remaining draft rests on top.
 import type { CSSProperties } from "react";
 
 export const FOLLOW_UP_LOOP = 12;
@@ -9,7 +6,6 @@ const END = 11.2;
 const pct = (t: number) => `${Math.min(100, Math.max(0, (t / FOLLOW_UP_LOOP) * 100)).toFixed(2)}%`;
 const tenth = (t: number) => Math.round(t * 10);
 
-/** The element enters at t seconds into the loop. */
 export function at(t: number): CSSProperties {
   return { animationName: `hfu-in-${tenth(t)}` };
 }
@@ -19,7 +15,6 @@ function keyframesIn(t: number): string {
   return `@keyframes hfu-in-${tenth(t)} { 0%, ${pct(t)} { opacity: 0; transform: translateY(0.375rem); } ${pct(enter)}, ${pct(END)} { opacity: 1; transform: none; } ${pct(END + 0.45)}, 100% { opacity: 0; transform: none; } }`;
 }
 
-/** A label visible only between a and b (fades in 0.3 s, out 0.2 s; a window to END fades with the loop). */
 function windowKeyframes(name: string, a: number, b: number): string {
   const gone = b >= END ? END + 0.45 : b + 0.2;
   return `@keyframes ${name} { 0%, ${pct(a)} { opacity: 0; } ${pct(a + 0.3)}, ${pct(b)} { opacity: 1; } ${pct(gone)}, 100% { opacity: 0; } }`;
@@ -34,7 +29,6 @@ const OUT_L = "transform: translateX(-130%) rotate(-10deg); filter: none;";
 const NUDGE_R = "transform: translateX(1.75rem) rotate(2.5deg); filter: none;";
 const NUDGE_L = "transform: translateX(-1.75rem) rotate(-2.5deg); filter: none;";
 
-/** Keyframe names of the deck, the swipe hints and the waiting count. */
 export const FOLLOW_UP_ANIM = {
   count: ["hfu-c1", "hfu-c2", "hfu-c3", "hfu-c4"],
   hintLeft: "hfu-h2",
@@ -46,8 +40,6 @@ export const FOLLOW_UP_ANIM = {
   sentStamp: "hfu-sent-stamp",
 } as const;
 
-// Timeline: the stack shows at 5.8 s, a new draft drops on top at 6.4 s and swipes right (Sent) at 7.7 to 8.6 s,
-// the next one rises and swipes left (Later) at 9.4 to 10.4 s, the last one rises to the top and stays until 11.2 s.
 const DECK = `
 @keyframes hfu-sent { 0%, ${pct(6.4)} { opacity: 0; ${DROP} } ${pct(6.9)}, ${pct(7.7)} { opacity: 1; ${D0} } ${pct(8.1)} { opacity: 1; ${NUDGE_R} } ${pct(8.6)}, 100% { opacity: 0; ${OUT_R} } }
 @keyframes hfu-later { 0%, ${pct(5.8)} { opacity: 0; ${D0} } ${pct(6.1)}, ${pct(6.4)} { opacity: 1; ${D0} } ${pct(6.9)}, ${pct(8.3)} { opacity: 1; ${D1} } ${pct(8.8)}, ${pct(9.4)} { opacity: 1; ${D0} } ${pct(9.8)} { opacity: 1; ${NUDGE_L} } ${pct(10.4)}, 100% { opacity: 0; ${OUT_L} } }

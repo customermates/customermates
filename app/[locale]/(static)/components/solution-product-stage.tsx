@@ -104,7 +104,6 @@ export type { SolutionExtraTabId };
 
 type Props = {
   className?: string;
-  /** Workspace pages appended after the solution's own tabs (they open the same live demo workspace). */
   extraTabs?: readonly SolutionExtraTabId[];
   locale: string;
   solutionId: SolutionId;

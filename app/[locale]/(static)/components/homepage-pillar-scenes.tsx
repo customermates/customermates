@@ -6,12 +6,6 @@ import { Bot, CheckCircle2, FileText, Zap } from "lucide-react";
 import { Google, Linkedin, Outlook, Whatsapp } from "@/components/icons/channel-icon";
 import { MateOrb } from "@/components/mate/mate-orb";
 
-/*
- * Animated pillar scenes: each shows only the part of the platform that matters for its pillar, in the platform's own
- * look, as an ~9 second loop (static for prefers-reduced-motion). Demo copy comes from the homepage content
- * (pillars.scenes).
- */
-
 function step(index: number): CSSProperties {
   return { "--pa-delay": `${index * 0.7}s` } as CSSProperties;
 }

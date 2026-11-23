@@ -23,11 +23,9 @@ const PROMPT_AGENTS = [
 ] as const;
 
 type Props = {
-  /** Extra live-demo tabs after the solution's own pages (the homepage adds Automations and Agents). */
   extraTabs?: readonly SolutionExtraTabId[];
   generator: HomepageGenerator;
   locale: string;
-  /** "hero": sits right under the hero, so the section header and the build steps are left out. */
   placement?: "hero" | "section";
 };
 
