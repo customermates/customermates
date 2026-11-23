@@ -1,12 +1,10 @@
 import { z } from "zod";
 
+import { CAMPAIGN_VALUE_MAX_LENGTH, CAMPAIGN_VALUE_PATTERN } from "./campaign-query-params";
+
 export type SearchParams = Record<string, string | string[] | undefined>;
 
-export const CampaignValueSchema = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(/^[\p{L}\p{N}._~+\- ]+$/u);
+export const CampaignValueSchema = z.string().min(1).max(CAMPAIGN_VALUE_MAX_LENGTH).regex(CAMPAIGN_VALUE_PATTERN);
 
 export function firstValue(value: string | string[] | null | undefined): string | undefined {
   return (Array.isArray(value) ? value[0] : value) ?? undefined;

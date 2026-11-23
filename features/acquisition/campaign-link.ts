@@ -1,8 +1,7 @@
 import { PUBLIC_DEMO_ORIGIN } from "@/components/marketing/product-demo-src";
 
-import { CAMPAIGN_QUERY_PARAMS } from "./signup-campaign";
+import { CAMPAIGN_QUERY_PARAMS, isCampaignValue } from "./campaign-query-params";
 import { SIGNUP_PATH } from "./signup-link";
-import { campaignValue } from "./signup-parsing";
 
 const PUBLIC_DEMO_HOST = new URL(PUBLIC_DEMO_ORIGIN).host;
 const CAMPAIGN_KEYS = Object.values(CAMPAIGN_QUERY_PARAMS);
@@ -12,8 +11,8 @@ export function campaignParams(search: string): [string, string][] {
   const params = new URLSearchParams(search);
   const pairs: [string, string][] = [];
   for (const key of CAMPAIGN_KEYS) {
-    const value = campaignValue(params.get(key));
-    if (value) pairs.push([key, value]);
+    const value = params.get(key)?.trim();
+    if (value && isCampaignValue(value)) pairs.push([key, value]);
   }
   return pairs;
 }
