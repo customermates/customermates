@@ -295,6 +295,38 @@ describe("provider outages", () => {
     );
   });
 
+  it("records a provider-side 501 on a profile read as a warning, since the downstream network failed", async () => {
+    stubFetch(
+      {
+        object: "Error",
+        status: 501,
+        type: "provider/not_implemented",
+        title: "Feature not implemented",
+        detail: "Internal error fetching data from downstream.",
+        req_id: "req-test",
+      },
+      501,
+    );
+
+    const result = await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "someone" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileProviderError });
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(
+      expect.any(Error),
+      expect.objectContaining({ level: "warning" }),
+    );
+  });
+
+  it("keeps an API-side 501 (an endpoint Unipile does not offer) as an error", async () => {
+    stubFetch({ object: "Error", status: 501, type: "api/not_implemented", title: "Feature not implemented" }, 501);
+
+    const result = await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "someone" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileFeatureUnavailable });
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+    expect(vi.mocked(ErrorReporter.captureException).mock.calls[0][1]).not.toHaveProperty("level");
+  });
+
   it("classifies timeouts and 5xx outages as transient, but not 501 or client errors", () => {
     expect(isUnipileTransientError(new UnipileRequestError(0, null, "{}"))).toBe(true);
     expect(isUnipileTransientError(new UnipileRequestError(502, null, "Bad Gateway"))).toBe(true);

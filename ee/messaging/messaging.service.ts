@@ -436,8 +436,9 @@ export class MessagingService {
     )
       ErrorReporter.captureException(source, { tags: unipileDiagnostics(source) });
     else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
+      const providerSide = isUnipileTransientError(source) || type.startsWith("provider/");
       ErrorReporter.captureException(source, {
-        ...(sending || !isUnipileTransientError(source) ? {} : { level: "warning" as const }),
+        ...(sending || !providerSide ? {} : { level: "warning" as const }),
         tags: unipileDiagnostics(source),
       });
     } else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
