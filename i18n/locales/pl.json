@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Po zdarzeniu",
       "label": "Jak się uruchamia",
-      "schedule": "Według harmonogramu"
+      "schedule": "Według harmonogramu",
+      "scheduleNeedsMateOnly": "Zaplanowana automatyzacja uruchamia tylko Mate. Usuń pozostałe kroki, aby przełączyć."
     },
     "truncated": "Ta lista mieści najwyżej {rules} automatyzacji i {routines} zaplanowanych automatyzacji, a Twój obszar roboczy ma ich więcej. Te, których tu nie ma, nadal działają.",
     "unavailable": {
@@ -1528,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nowa strona rezerwacji",
-    "newShort": "Nowa strona",
     "newTitle": "Nowa strona rezerwacji",
     "noCalendar": "Kalendarz tej strony już nie istnieje, na przykład dlatego, że jego konto zostało odłączone. Odwiedzający widzą stronę jako niedostępną, dopóki nie zostanie wybrany kalendarz. Dokonane już rezerwacje pozostają.",
     "notice": "{hours, plural, =0 {Bez minimalnego wyprzedzenia} one {# godzina wcześniej} few {# godziny wcześniej} many {# godzin wcześniej} other {# godziny wcześniej}}",
@@ -1537,7 +1537,6 @@
     "pagePreviewHint": "Tak odwiedzający widzą tę stronę. Terminy wynikają z Twoich godzin pracy; zajęte terminy w Twoim kalendarzu liczą się dopiero na opublikowanej stronie.",
     "pagePreviewLabel": "Podgląd",
     "pagePreviewTitle": "Twoja strona rezerwacji",
-    "panelClose": "Zamknij strony rezerwacji",
     "panelLocked": "Strony rezerwacji wymagają planu z wiadomościami i dostępu do skrzynki odbiorczej.",
     "panelOwner": "Strony rezerwacji użytkownika {owner}",
     "panelTitle": "Strony rezerwacji",
@@ -4319,6 +4318,13 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "captions": {
+        "claude": "Aplikacja Claude, web lub Claude Code",
+        "cursor": "Edytor Cursor",
+        "gemini": "Gemini CLI",
+        "openai": "Aplikacja ChatGPT lub Codex",
+        "other": "Dowolna aplikacja obsługująca MCP"
+      },
       "choices": {
         "chatgpt": "ChatGPT",
         "claude": "Claude",
@@ -4404,8 +4410,7 @@
         "workspaceNote": "Ten adres URL łączy przestrzeń roboczą {workspace}. Każda przestrzeń robocza ma własny adres URL."
       },
       "providers": {
-        "ariaLabel": "Klienty AI",
-        "more": "Więcej:"
+        "ariaLabel": "Klienty AI"
       },
       "savedKey": "Klucz API do tej konfiguracji został już utworzony. Możesz zakończyć wdrożenie. Jeśli potrzebujesz ponownie wartości klucza, utwórz nowy klucz.",
       "screen": {
@@ -4426,12 +4431,27 @@
     },
     "channel": {
       "addAnother": "Dodaj kolejny kanał, jeśli klienci piszą do Ciebie także gdzie indziej.",
+      "captions": {
+        "google": "Twoja skrzynka Google",
+        "imap": "Dowolna inna skrzynka",
+        "linkedin": "Wiadomości i kontakty, domyślnie prywatne",
+        "outlook": "Microsoft 365 lub Outlook.com"
+      },
+      "connect": "Połącz",
       "connected": "Połączono",
       "connectedLabel": "Połączone kanały",
-      "emailDescription": "Połącz skrzynkę, na którą piszą Twoi klienci. Twoje e-maile trafiają tutaj i domyślnie widzisz je tylko Ty.",
-      "emailTitle": "E-mail",
+      "connectNamed": "Połącz {channel}",
       "finishing": "Kończymy łączenie. Twoje konto pojawi się tutaj za kilka sekund.",
       "later": "WhatsApp, Telegram i inne kanały znajdziesz w ustawieniach po konfiguracji.",
+      "linkedinPlan": {
+        "hint": {
+          "linkedin": "Wiadomości, kontakty i zaproszenia.",
+          "linkedin_recruiter": "Do tego wyszukiwanie kandydatów i Twoje wiadomości w Recruiter.",
+          "linkedin_sales_navigator": "Do tego wyszukiwanie leadów i firm oraz Twoje listy Sales Navigator."
+        },
+        "label": "Z którego LinkedIn korzystasz?"
+      },
+      "optionsLabel": "Kanały do połączenia",
       "skip": "Pomiń na razie"
     },
     "connect": {
@@ -4444,17 +4464,11 @@
       "waitingGeneric": "Czekamy na pierwsze wywołanie od Twojego agenta. Znacznik pojawi się sam, gdy tylko agent zostanie połączony."
     },
     "continue": "Kontynuuj",
-    "finish": "Zakończ",
+    "finish": "Otwórz przestrzeń roboczą",
     "goal": {
       "agent": {
         "description": "Połącz go z Customermates, wklej szablon, a on zbuduje Twoje listy, pipeline i follow-upy.",
         "descriptionSelfHosted": "Połącz go z tą instancją, wklej szablon, a on zbuduje Twoje listy, pipeline i follow-upy.",
-        "steps": {
-          "approve": "Wklej i zatwierdź plan",
-          "connect": "Połącz agenta",
-          "template": "Wybierz szablon"
-        },
-        "stepsLabel": "Jak to działa",
         "title": "Użyj agenta AI, którego już masz",
         "worksWith": "Działa z Claude, ChatGPT, Cursor, Gemini i każdym innym klientem MCP."
       },
@@ -4494,6 +4508,10 @@
       }
     },
     "invite": {
+      "captions": {
+        "email": "Jedno zaproszenie na osobę",
+        "link": "Wklej go na czacie"
+      },
       "emailCount": "{current} z {max} adresów e-mail · oddziel przecinkiem lub naciśnij Enter",
       "emailPlaceholder": "kolega@example.com",
       "linkDescription": "Każdy, kto ma ten link, może dołączyć do Twojego zespołu. Link jest ważny przez 7 dni.",
@@ -4520,7 +4538,6 @@
       "setup": "Przestrzeń robocza",
       "template": "Szablon"
     },
-    "next": "Dalej",
     "playbook": {
       "continue": "Użyj tego playbooka",
       "optionsLabel": "Playbooki",
@@ -4529,6 +4546,8 @@
       "writesTitle": "Trzy strony bazy wiedzy, gotowe do edycji"
     },
     "profile": {
+      "previewName": "Twoje imię",
+      "previewRole": "Właściciel",
       "teamSize": {
         "label": "Ile osób będzie korzystać z tej przestrzeni roboczej?",
         "large": "Ponad 20",
@@ -4619,7 +4638,7 @@
       "setup": {
         "planningSubtitle": "Twoje odpowiedzi są zapisane. Mate zamienia je w plan dla Twojej przestrzeni roboczej, który sprawdzasz, zanim cokolwiek zostanie zbudowane.",
         "startSubtitle": "Budujemy Twoje listy, kroki, pulpit i kilka stron bazy wiedzy. Wszystko możesz później zmienić.",
-        "startTitle": "Jak chcesz skonfigurować swoją przestrzeń roboczą?",
+        "startTitle": "Na podstawie czego Mate ma zbudować Twoją przestrzeń roboczą?",
         "subtitle": "To, co odczytaliśmy z Twojej strony, jest już wypełnione. Sprawdź to i popraw, co się nie zgadza.",
         "title": "Skonfiguruj swoją przestrzeń roboczą",
         "withoutWebsiteSubtitle": "Kilka szybkich pytań o to, czego chcesz pilnować. Większość wymaga jednego kliknięcia."
@@ -4638,7 +4657,7 @@
       "browseAll": "Pokaż wszystkie szablony ({count})",
       "connected": "{agent}: połączono",
       "connectedGeneric": "Agent połączony",
-      "counts": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}} · {rules, plural, one {# reguła follow-upu} few {# reguły follow-upu} many {# reguł follow-upu} other {# reguły follow-upu}}",
+      "counts": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}} · {rules, plural, one {# automatyzacja} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}",
       "countsNoRules": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}}",
       "empty": "Żaden szablon nie pasuje do wyszukiwania.",
       "families": {
@@ -4659,6 +4678,7 @@
       "filtersLabel": "Rodzaje szablonów",
       "none": "Bez szablonu",
       "optionsLabel": "Szablony",
+      "pickOne": "Wybierz szablon, aby zobaczyć, co skonfiguruje.",
       "recommended": "Zalecane",
       "searchLabel": "Szukaj szablonów",
       "searchPlaceholder": "Szukaj szablonów",
@@ -4962,8 +4982,6 @@
   "Planner": {
     "addSource": "Dodaj źródło dat",
     "calendarSync": "Eksport i subskrypcja",
-    "closeCalendarSync": "Zamknij eksport i subskrypcję",
-    "closeSources": "Zamknij źródła dat",
     "connectCalendar": "Połącz kalendarz",
     "createSubscription": "Utwórz adres URL subskrypcji",
     "download": "Pobierz .ics",
@@ -6654,7 +6672,7 @@
     "copyPrompt": "Kopiuj prompt",
     "countFields": "{count, plural, one {# pole} few {# pola} many {# pól} other {# pola}}",
     "countLists": "{count, plural, one {# lista} few {# listy} many {# list} other {# listy}}",
-    "countRules": "{count, plural, one {# reguła kontaktu} few {# reguły kontaktu} many {# reguł kontaktu} other {# reguły kontaktu}}",
+    "countRules": "{count, plural, one {# automatyzacja} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}",
     "countViews": "{count, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}}",
     "countWidgets": "{count, plural, one {# widżet pulpitu} few {# widżety pulpitu} many {# widżetów pulpitu} other {# widżetu pulpitu}}",
     "createsLead": "Listy, pola, etapy, widoki i widżety pulpitu, jako plan, który proponuje Twój agent. Każdą część możesz zmienić lub pominąć.",

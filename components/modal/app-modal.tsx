@@ -179,7 +179,16 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             {props.visibleTitle ? (
-              <SheetHeader className="px-6">
+              <SheetHeader
+                className={cn(
+                  "pr-[calc(1.5rem+var(--safe-right))] pl-[calc(1.5rem+var(--safe-left))]",
+                  "in-data-overlay-close:pr-14",
+                  "in-data-[overlay-action-count=1]:pr-24!",
+                  "in-data-[overlay-action-count=2]:pr-36!",
+                  "in-data-[overlay-action-count=3]:pr-46!",
+                  "in-data-[overlay-action-count=4]:pr-57!",
+                )}
+              >
                 <SheetTitle>{title}</SheetTitle>
 
                 {description ? <SheetDescription>{description}</SheetDescription> : null}

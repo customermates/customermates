@@ -14,6 +14,7 @@ import { UnipileFolderSchema } from "../../unipile.schema";
 const Schema = z.object({
   type: z.enum(["email.folder.create", "email.folder.update", "email.folder.delete"]),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
 });
 type Payload = z.infer<typeof Schema>;
 
@@ -26,7 +27,10 @@ export class ProcessEmailFolderWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const page = await this.messagingService.listFolders({ accountId: account.unipileAccountId });
@@ -40,6 +44,7 @@ export class ProcessEmailFolderWebhookInteractor {
 
     await this.accountRepo.updateAccountUnscoped({
       unipileAccountId: account.unipileAccountId,
+      connectedAccountId: account.id,
       folders: buildFolderCatalog(folders),
       foldersSyncedAt: new Date(),
       ...(sentFolderIds.length > 0 ? { sentFolderIds } : {}),

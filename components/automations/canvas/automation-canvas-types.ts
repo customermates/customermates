@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { AutomationPaletteKind, AutomationPaletteReasons } from "@/components/automations/automation-palette";
 
-export type AutomationStepTone = "trigger" | "condition" | "action" | "agent" | "empty";
+export type AutomationStepTone = "trigger" | "condition" | "action" | "agent";
 
 export type AutomationRunMark = "ok" | "failed" | "skipped";
 

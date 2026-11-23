@@ -15,6 +15,7 @@ import { UnipileCalendarSchema } from "../../unipile.schema";
 const Schema = z.object({
   type: z.enum(["calendar.create", "calendar.update"]),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: UnipileCalendarSchema,
 });
 type Payload = z.infer<typeof Schema>;
@@ -29,7 +30,10 @@ export class ProcessCalendarUpsertWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const calendar = await this.calendarRepo.upsertCalendarUnscoped({

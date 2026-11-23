@@ -15,6 +15,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 const Schema = z.object({
   type: z.literal("message.reaction.new"),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: z.looseObject({
     message_id: z.string(),
     reaction: z.looseObject({
@@ -36,7 +37,10 @@ export class ProcessMessageReactionWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const { message_id, reaction } = envelope.payload;

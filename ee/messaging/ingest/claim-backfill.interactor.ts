@@ -1,15 +1,8 @@
-import type { ConnectedAccount } from "@/generated/prisma";
-
 import { z } from "zod";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
-
-export abstract class ClaimBackfillRepo {
-  abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
-  abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
-  abstract markAccountSyncingUnscoped(args: { unipileAccountId: string; syncing: boolean }): Promise<void>;
-}
+import type { ClaimBackfillRepo } from "./claim-backfill.repo";
 
 const Schema = z.object({ connectedAccountId: z.uuid() });
 type ClaimBackfillPayload = z.infer<typeof Schema>;
@@ -23,10 +16,10 @@ export class ClaimBackfillInteractor {
     const account = await this.repo.findAccountByIdUnscoped(payload.connectedAccountId);
     if (!account) return null;
 
-    const token = await this.repo.claimBackfillUnscoped(account.unipileAccountId);
+    const token = await this.repo.claimBackfillUnscoped(account.id);
     if (!token) return null;
 
-    await this.repo.markAccountSyncingUnscoped({ unipileAccountId: account.unipileAccountId, syncing: true });
+    await this.repo.markAccountSyncingUnscoped({ connectedAccountId: account.id, syncing: true });
 
     return token;
   }

@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "Con un evento",
       "label": "Cómo empieza",
-      "schedule": "Con un horario"
+      "schedule": "Con un horario",
+      "scheduleNeedsMateOnly": "Una automatización programada solo ejecuta a Mate. Quita los demás pasos para cambiar."
     },
     "truncated": "Esta lista contiene como máximo {rules} automatizaciones y {routines} automatizaciones programadas, y tu espacio de trabajo tiene más. Las que no aparecen siguen funcionando.",
     "unavailable": {
@@ -1528,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "Nueva página de reservas",
-    "newShort": "Nueva página",
     "newTitle": "Nueva página de reservas",
     "noCalendar": "El calendario de esta página ya no existe, por ejemplo porque se desconectó su cuenta. Los visitantes ven la página como no disponible hasta que se elija un calendario. Las reservas ya hechas se conservan.",
     "notice": "{hours, plural, =0 {Sin antelación mínima} one {# hora de antelación} other {# horas de antelación}}",
@@ -1537,7 +1537,6 @@
     "pagePreviewHint": "Así ven los visitantes esta página. Los horarios siguen tu horario de trabajo; las franjas ocupadas de tu calendario solo se aplican en la página publicada.",
     "pagePreviewLabel": "Vista previa",
     "pagePreviewTitle": "Tu página de reservas",
-    "panelClose": "Cerrar las páginas de reservas",
     "panelLocked": "Las páginas de reservas requieren un plan con mensajería y acceso a la bandeja de entrada.",
     "panelOwner": "Páginas de reservas de {owner}",
     "panelTitle": "Páginas de reservas",
@@ -4319,6 +4318,13 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "captions": {
+        "claude": "App de Claude, web o Claude Code",
+        "cursor": "Editor Cursor",
+        "gemini": "Gemini CLI",
+        "openai": "App de ChatGPT o Codex",
+        "other": "Cualquier app compatible con MCP"
+      },
       "choices": {
         "chatgpt": "ChatGPT",
         "claude": "Claude",
@@ -4404,8 +4410,7 @@
         "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL."
       },
       "providers": {
-        "ariaLabel": "Clientes de IA",
-        "more": "Más:"
+        "ariaLabel": "Clientes de IA"
       },
       "savedKey": "Ya has creado una clave de API para esta configuración. Puedes finalizar la configuración inicial. Si necesitas volver a ver su valor, crea una nueva clave.",
       "screen": {
@@ -4426,12 +4431,27 @@
     },
     "channel": {
       "addAnother": "Añade otro canal si tus clientes también te escriben por otro medio.",
+      "captions": {
+        "google": "Tu buzón de Google",
+        "imap": "Cualquier otro buzón",
+        "linkedin": "Mensajes y contactos, privados para ti por defecto",
+        "outlook": "Microsoft 365 u Outlook.com"
+      },
+      "connect": "Conectar",
       "connected": "Conectado",
       "connectedLabel": "Canales conectados",
-      "emailDescription": "Conecta el buzón al que escriben tus clientes. Tus correos entran y, por defecto, solo los ves tú.",
-      "emailTitle": "Correo",
+      "connectNamed": "Conectar {channel}",
       "finishing": "Terminando la conexión. Tu cuenta aparecerá aquí en unos segundos.",
       "later": "WhatsApp, Telegram y más canales están en los ajustes después de la configuración.",
+      "linkedinPlan": {
+        "hint": {
+          "linkedin": "Mensajes, contactos e invitaciones.",
+          "linkedin_recruiter": "Además, búsqueda de candidatos y tus mensajes de Recruiter.",
+          "linkedin_sales_navigator": "Además, búsqueda de leads y empresas y tus listas de Sales Navigator."
+        },
+        "label": "¿Qué LinkedIn usas?"
+      },
+      "optionsLabel": "Canales para conectar",
       "skip": "Omitir por ahora"
     },
     "connect": {
@@ -4444,17 +4464,11 @@
       "waitingGeneric": "Esperando la primera llamada de tu agente. La marca aparece sola en cuanto tu agente esté conectado."
     },
     "continue": "Continuar",
-    "finish": "Finalizar",
+    "finish": "Abrir el espacio de trabajo",
     "goal": {
       "agent": {
         "description": "Conéctalo a Customermates, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
         "descriptionSelfHosted": "Conéctalo a esta instancia, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
-        "steps": {
-          "approve": "Pega y aprueba el plan",
-          "connect": "Conecta tu agente",
-          "template": "Elige una plantilla"
-        },
-        "stepsLabel": "Cómo funciona",
         "title": "Usa el agente de IA que ya tienes",
         "worksWith": "Funciona con Claude, ChatGPT, Cursor, Gemini y cualquier otro cliente MCP."
       },
@@ -4494,6 +4508,10 @@
       }
     },
     "invite": {
+      "captions": {
+        "email": "Una invitación por persona",
+        "link": "Pégalo en un chat"
+      },
       "emailCount": "{current} de {max} correos · sepáralos con una coma o pulsa Intro",
       "emailPlaceholder": "companero@ejemplo.com",
       "linkDescription": "Cualquiera que tenga este enlace puede unirse a tu equipo. El enlace es válido durante 7 días.",
@@ -4520,7 +4538,6 @@
       "setup": "Espacio",
       "template": "Plantilla"
     },
-    "next": "Siguiente",
     "playbook": {
       "continue": "Usar este playbook",
       "optionsLabel": "Playbooks",
@@ -4529,6 +4546,8 @@
       "writesTitle": "Tres páginas de la base de conocimiento, listas para editar"
     },
     "profile": {
+      "previewName": "Tu nombre",
+      "previewRole": "Propietario",
       "teamSize": {
         "label": "¿Cuántas personas usarán este espacio de trabajo?",
         "large": "Más de 20",
@@ -4619,7 +4638,7 @@
       "setup": {
         "planningSubtitle": "Tus respuestas están guardadas. Mate las convierte en un plan para tu espacio de trabajo que revisas antes de crear nada.",
         "startSubtitle": "Creamos tus listas, pasos, panel y algunas páginas de la base de conocimiento. Podrás cambiarlo todo más adelante.",
-        "startTitle": "¿Cómo quieres configurar tu espacio de trabajo?",
+        "startTitle": "¿A partir de qué debe crear Mate tu espacio de trabajo?",
         "subtitle": "Lo que leímos en tu sitio web ya está rellenado. Revísalo y cambia lo que no encaje.",
         "title": "Configura tu espacio de trabajo",
         "withoutWebsiteSubtitle": "Unas preguntas rápidas sobre lo que quieres seguir. La mayoría se responden con un clic."
@@ -4638,7 +4657,7 @@
       "browseAll": "Ver las {count} plantillas",
       "connected": "{agent} conectado",
       "connectedGeneric": "Agente conectado",
-      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}} · {rules, plural, one {# regla de seguimiento} other {# reglas de seguimiento}}",
+      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}} · {rules, plural, one {# automatización} other {# automatizaciones}}",
       "countsNoRules": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}}",
       "empty": "Ninguna plantilla coincide con tu búsqueda.",
       "families": {
@@ -4659,6 +4678,7 @@
       "filtersLabel": "Tipos de plantilla",
       "none": "Sin plantilla",
       "optionsLabel": "Plantillas",
+      "pickOne": "Elige una plantilla para ver lo que configura.",
       "recommended": "Recomendada",
       "searchLabel": "Buscar plantillas",
       "searchPlaceholder": "Buscar plantillas",
@@ -4962,8 +4982,6 @@
   "Planner": {
     "addSource": "Añadir fuente de fechas",
     "calendarSync": "Exportar y suscribirse",
-    "closeCalendarSync": "Cerrar exportar y suscribirse",
-    "closeSources": "Cerrar fuentes de fechas",
     "connectCalendar": "Conectar calendario",
     "createSubscription": "Crear URL de suscripción",
     "download": "Descargar .ics",
@@ -6654,7 +6672,7 @@
     "copyPrompt": "Copiar prompt",
     "countFields": "{count, plural, one {# campo} other {# campos}}",
     "countLists": "{count, plural, one {# lista} other {# listas}}",
-    "countRules": "{count, plural, one {# regla de seguimiento} other {# reglas de seguimiento}}",
+    "countRules": "{count, plural, one {# automatización} other {# automatizaciones}}",
     "countViews": "{count, plural, one {# vista} other {# vistas}}",
     "countWidgets": "{count, plural, one {# widget del panel} other {# widgets del panel}}",
     "createsLead": "Listas, campos, etapas, vistas y widgets del panel, como el plan que propone tu agente. Puedes renombrar o quitar cualquier parte.",

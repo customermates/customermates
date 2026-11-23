@@ -15,6 +15,7 @@ import { UnipileUserSchema } from "../../unipile.schema";
 const Schema = z.object({
   type: z.literal("relation.new"),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: z.looseObject({ user: UnipileUserSchema, created_at: z.string().nullish() }),
 });
 type Payload = z.infer<typeof Schema>;
@@ -29,7 +30,10 @@ export class ProcessRelationWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const user = envelope.payload.user;

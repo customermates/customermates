@@ -24,5 +24,6 @@ export abstract class WebhookEventRepo {
     maxAttempts: number;
     limit: number;
   }): Promise<string[]>;
+  abstract listConnectedAccountIdsUnscoped(unipileAccountId: string): Promise<string[]>;
   abstract countRecentEmailDeletesUnscoped(args: { unipileAccountId: string; since: Date }): Promise<number>;
 }

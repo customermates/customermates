@@ -49,7 +49,7 @@ test("creates a booking page from the calendar, sees the preview follow the titl
   await expect(panel.getByText(booking.empty, { exact: true })).toBeVisible();
 
   await panel.getByRole("button", { name: booking.new, exact: true }).first().click();
-  const dialog = page.getByRole("dialog");
+  const dialog = page.getByRole("dialog").filter({ hasNot: page.locator("[data-booking-panel]") });
   await expect(dialog.locator("[data-booking-layout]")).toHaveAttribute("data-booking-layout", "wide");
   const preview = dialog.locator("[data-booking-preview-pane]");
   await expect(preview).toBeVisible();
@@ -105,7 +105,7 @@ async function createBookingPage(page: Page, title: string) {
   const panel = page.locator("[data-booking-panel]");
   await expect(panel).toBeVisible();
   await panel.getByRole("button", { name: booking.new, exact: true }).first().click();
-  const dialog = page.getByRole("dialog");
+  const dialog = page.getByRole("dialog").filter({ hasNot: page.locator("[data-booking-panel]") });
   await dialog.locator("#title").fill(title);
   await dialog.locator("#booking-link-modal-save").click();
   await expect(dialog).toHaveCount(0);
@@ -165,7 +165,7 @@ test("keeps a booking page whose calendar is gone, shows it as unavailable and l
   await expect(visitor.locator("[data-booking-calendar]")).toHaveCount(0);
 
   await orphan.getByRole("button", { name: booking.chooseCalendar, exact: true }).click();
-  const dialog = page.getByRole("dialog");
+  const dialog = page.getByRole("dialog").filter({ hasNot: page.locator("[data-booking-panel]") });
   await expect(dialog.locator("#title")).toHaveValue("Intro call");
   await dialog.locator("#calendarId").click();
   await page.getByRole("option").filter({ hasText: "Second calendar" }).click();

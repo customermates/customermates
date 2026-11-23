@@ -129,22 +129,24 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
 
   return (
     <PlannerSidePanel
-      actions={
-        <Button data-booking-new="" disabled={!canCreate} size="sm" onClick={() => modal.start()}>
-          <Plus aria-hidden className="size-4" />
-
-          {t("Booking.newShort")}
-        </Button>
-      }
-      closeLabel={t("Booking.panelClose")}
+      actions={[
+        {
+          id: "booking-new",
+          anchorId: "booking-new",
+          icon: Plus,
+          label: t("Booking.new"),
+          disabled: !canCreate,
+          onClick: () => modal.start(),
+        },
+      ]}
       data-booking-panel=""
       title={t("Booking.panelTitle")}
       onClose={onClose}
     >
-      {notes.length > 0 ? <div className="flex flex-col gap-3 px-5 pt-4 pb-1">{notes}</div> : null}
+      {notes.length > 0 ? <div className="flex flex-col gap-3 px-6 pt-4 pb-1">{notes}</div> : null}
 
       {ready && store.links.length === 0 ? (
-        <div className="p-5">
+        <div className="p-6">
           <PageState
             action={
               <Button disabled={!canCreate} variant="secondary" onClick={() => modal.start()}>
@@ -161,7 +163,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
       {groups.own.length > 0 ? (
         <section className="flex flex-col" data-booking-group="own">
           {showOwners ? (
-            <h3 className="px-5 pt-4 pb-1 text-xs font-semibold text-muted-foreground">{t("Booking.panelYours")}</h3>
+            <h3 className="px-6 pt-4 pb-1 text-xs font-semibold text-muted-foreground">{t("Booking.panelYours")}</h3>
           ) : null}
 
           <ul className="flex flex-col">
@@ -174,7 +176,7 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
 
       {groups.others.map((group) => (
         <section key={group.ownerName} className="flex flex-col border-t" data-booking-group="owner">
-          <h3 className="px-5 pt-4 pb-1 text-xs font-semibold text-muted-foreground">
+          <h3 className="px-6 pt-4 pb-1 text-xs font-semibold text-muted-foreground">
             {t("Booking.panelOwner", { owner: group.ownerName })}
           </h3>
 

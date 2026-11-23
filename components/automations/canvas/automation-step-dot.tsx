@@ -8,7 +8,6 @@ const TONE_CLASS: Record<AutomationStepTone, string> = {
   condition: "bg-warning/12 text-warning-soft-foreground ring-1 ring-warning/25",
   action: "bg-card text-foreground ring-1 ring-border-strong",
   agent: "bg-primary text-primary-foreground ring-1 ring-primary",
-  empty: "border border-dashed border-border-strong bg-card text-muted-foreground",
 };
 
 export function AutomationStepDot({

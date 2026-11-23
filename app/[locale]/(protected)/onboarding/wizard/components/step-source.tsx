@@ -2,7 +2,13 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import type { ReactNode } from "react";
+
+import { Ellipsis, Library, Loader2, Megaphone, PlayCircle, Search, UsersRound, type LucideIcon } from "lucide-react";
+
+import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { Instagram, Linkedin, XTwitter } from "@/components/icons/channel-icon";
+import { LogoStack } from "@/components/shared/logo-stack";
 
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +21,38 @@ import {
   DISCOVERY_DETAIL_MAX_LENGTH,
   type DiscoveryChoice,
 } from "@/features/onboarding-funnel/discovery-answer";
+
+function iconMark(Icon: LucideIcon) {
+  return <LogoStack items={[{ key: "icon", node: <Icon className="text-muted-foreground" /> }]} size="sm" />;
+}
+
+const CHOICE_MARKS: Record<DiscoveryChoice, ReactNode> = {
+  searchEngine: iconMark(Search),
+  advertisement: iconMark(Megaphone),
+  aiAssistant: (
+    <LogoStack
+      items={(["chatgpt", "claude", "gemini"] as const).map((provider) => ({
+        key: provider,
+        node: <AiClientLogo provider={provider} />,
+      }))}
+      size="sm"
+    />
+  ),
+  directory: iconMark(Library),
+  socialMedia: (
+    <LogoStack
+      items={[
+        { key: "linkedin", node: <Linkedin /> },
+        { key: "instagram", node: <Instagram /> },
+        { key: "x", node: <XTwitter /> },
+      ]}
+      size="sm"
+    />
+  ),
+  recommendation: iconMark(UsersRound),
+  articleOrVideo: iconMark(PlayCircle),
+  other: iconMark(Ellipsis),
+};
 
 export const StepSource = observer(() => {
   const t = useTranslations();
@@ -46,8 +84,10 @@ export const StepSource = observer(() => {
             disabled={disabled}
             id={`onboarding-source-${choice}`}
             label={labels[choice]}
+            labelClassName="flex-row items-center justify-between gap-3"
             selectionMode="single"
             value={choice}
+            visual={CHOICE_MARKS[choice]}
           />
         ))}
       </RadioGroup>
@@ -69,7 +109,7 @@ export const StepSource = observer(() => {
           disabled={disabled}
           id="onboarding-source-skip"
           type="button"
-          variant="ghost"
+          variant="secondary"
           onClick={() => runUserAction(() => store.answerSource(true))}
         >
           {t("OnboardingWizard.source.skip")}

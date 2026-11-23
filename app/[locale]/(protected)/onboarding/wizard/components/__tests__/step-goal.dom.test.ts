@@ -109,7 +109,7 @@ afterEach(() => {
 });
 
 describe("StepGoal", () => {
-  it("offers the own agent first with the recommendation, the supported agents and the three steps", async () => {
+  it("offers the own agent first with the recommendation and the logos of the supported agents", async () => {
     await renderGoal("agent");
 
     expect(radios().map((item) => item.id)).toEqual(["onboarding-goal-agent", "onboarding-goal-workspace"]);
@@ -121,7 +121,8 @@ describe("StepGoal", () => {
     expect(agent).not.toContain("descriptionSelfHosted");
     expect(agent).toContain("OnboardingWizard.goal.agent.worksWith");
     expect(agent).not.toContain("OnboardingWizard.ai.choices.claude");
-    expect(container.querySelectorAll('label[for="onboarding-goal-agent"] ol li')).toHaveLength(3);
+    const logos = container.querySelectorAll('label[for="onboarding-goal-agent"] [data-slot="logo-stack-item"]');
+    expect(logos).toHaveLength(4);
     expect(container.querySelector('label[for="onboarding-goal-workspace"]')?.textContent).toContain(
       "OnboardingWizard.goal.workspace.title",
     );

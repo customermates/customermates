@@ -19,6 +19,7 @@ import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 const Schema = z.object({
   type: z.enum(["message.new", "message.update"]),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: UnipileMessageSchema,
 });
 type Payload = z.infer<typeof Schema>;
@@ -34,7 +35,10 @@ export class ProcessMessageNewWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const message = normalizeChatMessage(envelope.payload, account.provider);

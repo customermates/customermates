@@ -92,7 +92,7 @@ export const BookingPageRow = observer(function BookingPageRow({ link, store, re
 
   return (
     <ItemActions label={t("Booking.pageActions", { title: link.title })} menu={menu}>
-      <li className="flex flex-col gap-2.5 border-b px-5 py-3.5 last:border-b-0" data-booking-link={link.id}>
+      <li className="flex flex-col gap-2.5 border-b px-6 py-3.5 last:border-b-0" data-booking-link={link.id}>
         <div className="flex items-center gap-3">
           <span
             aria-hidden

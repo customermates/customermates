@@ -63,7 +63,7 @@ test("a mailbox connected in the onboarding channel step returns to that step an
   await page.locator("#onboarding-team-size-small").click();
   await clickHydrated(
     page.getByRole("button", {
-      name: englishMessages.OnboardingWizard.next,
+      name: englishMessages.OnboardingWizard.continue,
       exact: true,
     }),
   );

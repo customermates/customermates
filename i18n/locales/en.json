@@ -1453,7 +1453,8 @@
     "startsOn": {
       "event": "On an event",
       "label": "How it starts",
-      "schedule": "On a schedule"
+      "schedule": "On a schedule",
+      "scheduleNeedsMateOnly": "A scheduled automation only runs Mate. Remove the other steps to switch."
     },
     "truncated": "This list holds at most {rules} automations and {routines} scheduled automations, and your workspace has more. The ones not listed still run.",
     "unavailable": {
@@ -1528,7 +1529,6 @@
     },
     "minutes": "{minutes} min",
     "new": "New booking page",
-    "newShort": "New page",
     "newTitle": "New booking page",
     "noCalendar": "The calendar of this page is gone, for example because its account was disconnected. Visitors see the page as unavailable until a calendar is chosen. Bookings already made stay.",
     "notice": "{hours, plural, =0 {No minimum notice} one {# hour ahead} other {# hours ahead}}",
@@ -1537,7 +1537,6 @@
     "pagePreviewHint": "How visitors see this page. The times follow your working hours; busy times in your calendar only apply on the live page.",
     "pagePreviewLabel": "Preview",
     "pagePreviewTitle": "Your booking page",
-    "panelClose": "Close booking pages",
     "panelLocked": "Booking pages need a plan with messaging and access to the inbox.",
     "panelOwner": "Booking pages of {owner}",
     "panelTitle": "Booking pages",
@@ -4319,6 +4318,13 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "captions": {
+        "claude": "Claude app, web or Claude Code",
+        "cursor": "Cursor editor",
+        "gemini": "Gemini CLI",
+        "openai": "ChatGPT app or Codex",
+        "other": "Any app that supports MCP"
+      },
       "choices": {
         "chatgpt": "ChatGPT",
         "claude": "Claude",
@@ -4404,8 +4410,7 @@
         "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL."
       },
       "providers": {
-        "ariaLabel": "AI clients",
-        "more": "More:"
+        "ariaLabel": "AI clients"
       },
       "savedKey": "You already created an API key for this setup. You can finish onboarding. If you need the key value again, create a new key.",
       "screen": {
@@ -4426,12 +4431,27 @@
     },
     "channel": {
       "addAnother": "Add another channel if your clients also write to you elsewhere.",
+      "captions": {
+        "google": "Your Google mailbox",
+        "imap": "Any other mailbox",
+        "linkedin": "Messages and contacts, private to you by default",
+        "outlook": "Microsoft 365 or Outlook.com"
+      },
+      "connect": "Connect",
       "connected": "Connected",
       "connectedLabel": "Connected channels",
-      "emailDescription": "Connect the mailbox your clients write to. Your emails come in, private to you by default.",
-      "emailTitle": "Email",
+      "connectNamed": "Connect {channel}",
       "finishing": "Finishing the connection. Your account appears here in a few seconds.",
       "later": "WhatsApp, Telegram and more channels are in the settings after setup.",
+      "linkedinPlan": {
+        "hint": {
+          "linkedin": "Messages, contacts and invitations.",
+          "linkedin_recruiter": "Also candidate search and your Recruiter messages.",
+          "linkedin_sales_navigator": "Also lead and company search and your Sales Navigator lists."
+        },
+        "label": "Which LinkedIn do you use?"
+      },
+      "optionsLabel": "Channels to connect",
       "skip": "Skip for now"
     },
     "connect": {
@@ -4444,17 +4464,11 @@
       "waitingGeneric": "Waiting for your agent's first call. This ticks off by itself once your agent is connected."
     },
     "continue": "Continue",
-    "finish": "Finish",
+    "finish": "Open workspace",
     "goal": {
       "agent": {
         "description": "Connect it to Customermates, paste a template, and it builds your lists, pipeline and follow-ups.",
         "descriptionSelfHosted": "Connect it to this instance, paste a template, and it builds your lists, pipeline and follow-ups.",
-        "steps": {
-          "approve": "Paste and approve the plan",
-          "connect": "Connect your agent",
-          "template": "Pick a template"
-        },
-        "stepsLabel": "How it works",
         "title": "Use the AI agent you already have",
         "worksWith": "Works with Claude, ChatGPT, Cursor, Gemini and any other MCP client."
       },
@@ -4494,6 +4508,10 @@
       }
     },
     "invite": {
+      "captions": {
+        "email": "One invitation per person",
+        "link": "Paste it into a chat"
+      },
       "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
       "emailPlaceholder": "colleague@example.com",
       "linkDescription": "Anyone with this link can join your team. The link is valid for 7 days.",
@@ -4520,7 +4538,6 @@
       "setup": "Workspace",
       "template": "Template"
     },
-    "next": "Next",
     "playbook": {
       "continue": "Use this playbook",
       "optionsLabel": "Playbooks",
@@ -4529,6 +4546,8 @@
       "writesTitle": "Three Knowledge Base pages, ready to edit"
     },
     "profile": {
+      "previewName": "Your name",
+      "previewRole": "Owner",
       "teamSize": {
         "label": "How many people will use this workspace?",
         "large": "More than 20",
@@ -4619,7 +4638,7 @@
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
         "startSubtitle": "We build your lists, steps, dashboard and a few Knowledge Base pages. You can change everything later.",
-        "startTitle": "How do you want to set up your workspace?",
+        "startTitle": "What should Mate build your workspace from?",
         "subtitle": "What we read on your website is already filled in. Check it and change anything that is off.",
         "title": "Set up your workspace",
         "withoutWebsiteSubtitle": "A few quick questions about what you want to keep track of. Most take one click."
@@ -4638,7 +4657,7 @@
       "browseAll": "Browse all {count} templates",
       "connected": "{agent} connected",
       "connectedGeneric": "Agent connected",
-      "counts": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}} · {rules, plural, one {# follow-up rule} other {# follow-up rules}}",
+      "counts": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}} · {rules, plural, one {# automation} other {# automations}}",
       "countsNoRules": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}}",
       "empty": "No template matches your search.",
       "families": {
@@ -4659,6 +4678,7 @@
       "filtersLabel": "Template types",
       "none": "No template",
       "optionsLabel": "Templates",
+      "pickOne": "Pick a template to see what it sets up.",
       "recommended": "Recommended",
       "searchLabel": "Search templates",
       "searchPlaceholder": "Search templates",
@@ -4962,8 +4982,6 @@
   "Planner": {
     "addSource": "Add date source",
     "calendarSync": "Export & subscribe",
-    "closeCalendarSync": "Close export & subscribe",
-    "closeSources": "Close date sources",
     "connectCalendar": "Connect a calendar",
     "createSubscription": "Create subscription URL",
     "download": "Download .ics",
@@ -6654,7 +6672,7 @@
     "copyPrompt": "Copy prompt",
     "countFields": "{count, plural, one {# field} other {# fields}}",
     "countLists": "{count, plural, one {# list} other {# lists}}",
-    "countRules": "{count, plural, one {# follow-up rule} other {# follow-up rules}}",
+    "countRules": "{count, plural, one {# automation} other {# automations}}",
     "countViews": "{count, plural, one {# view} other {# views}}",
     "countWidgets": "{count, plural, one {# dashboard widget} other {# dashboard widgets}}",
     "createsLead": "Lists, fields, stages, views and dashboard widgets, as the plan your agent proposes. You can rename or drop any part.",

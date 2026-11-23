@@ -122,6 +122,7 @@ export class PrepareBackfillInteractor {
 
     const update: Parameters<BackfillConnectedAccountRepo["updateAccountUnscoped"]>[0] = {
       unipileAccountId: account.unipileAccountId,
+      connectedAccountId: account.id,
       ...connection,
     };
     if (!account.displayName && snapshot.name) update.displayName = snapshot.name;
@@ -178,6 +179,7 @@ export class PrepareBackfillInteractor {
       account.foldersSyncedAt === null ? defaultSelectedFolderIds(folders) : account.selectedFolderIds;
     await this.repo.updateAccountUnscoped({
       unipileAccountId: account.unipileAccountId,
+      connectedAccountId: account.id,
       folders: buildFolderCatalog(folders),
       foldersSyncedAt: new Date(),
       ...(sentFolderIds.length > 0 ? { sentFolderIds } : {}),

@@ -82,6 +82,7 @@ export function serverEnvironment(args: {
     PORT: String(args.port),
     BASE_URL: args.appUrl,
     APP_MODE: "cloud",
+    AGENT_CHAT_DISABLED: "",
     NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
     HOSTED_AI_PROVIDER_WORK_PAUSED: "false",

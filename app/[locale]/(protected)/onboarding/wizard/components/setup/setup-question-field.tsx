@@ -39,6 +39,12 @@ import {
   SetupCustomEntry,
   SetupRadioChip,
 } from "./setup-choice-chips";
+import { setupOptionIcon, showsAsSegments } from "./setup-option-icons";
+
+function optionIcon(questionId: string, optionId: string) {
+  const Icon = setupOptionIcon(questionId, optionId);
+  return Icon ? <Icon aria-hidden /> : undefined;
+}
 
 type FieldProps<F extends SetupQuestionDescriptor["format"]> = {
   descriptor: Extract<SetupQuestionDescriptor, { format: F }>;
@@ -92,10 +98,25 @@ function SingleChoiceField({
       ? APP_LOCALES.map((locale) => ({ id: locale, label: t(`Common.locales.${locale}`) }))
       : descriptor.options;
 
+  const segments = descriptor.optionSource === null && showsAsSegments(options);
+
   return (
-    <SetupChoiceGroup disabled={disabled} label={descriptor.label} value={value?.value ?? null} onValueChange={select}>
+    <SetupChoiceGroup
+      disabled={disabled}
+      label={descriptor.label}
+      segments={segments}
+      value={value?.value ?? null}
+      onValueChange={select}
+    >
       {options.map((option) => (
-        <SetupRadioChip key={option.id} checked={value?.value === option.id} invalid={invalid} value={option.id}>
+        <SetupRadioChip
+          key={option.id}
+          checked={value?.value === option.id}
+          icon={optionIcon(descriptor.id, option.id)}
+          invalid={invalid}
+          segment={segments}
+          value={option.id}
+        >
           {option.label}
         </SetupRadioChip>
       ))}
@@ -122,6 +143,7 @@ function MultipleChoiceField({
           key={option.id}
           checked={values.includes(option.id)}
           disabled={disabled}
+          icon={optionIcon(descriptor.id, option.id)}
           invalid={invalid}
           onCheckedChange={(checked) =>
             update({ values: checked ? [...values, option.id] : values.filter((id) => id !== option.id) })

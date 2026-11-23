@@ -87,9 +87,9 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await page.goto(appPath(DEMO_SLUG, "/calendar"));
     await expect(page.locator("[data-planner-page]")).toBeVisible();
     await page.getByRole("button", { name: "Date sources", exact: true }).click();
-    const defaults = page.getByRole("complementary", { name: "Date sources", exact: true });
+    const defaults = page.getByRole("dialog", { name: "Date sources", exact: true });
     await expect(defaults.getByRole("checkbox", { name: "Tasks · Due date", exact: true })).toBeChecked();
-    await defaults.getByRole("button", { name: "Close date sources", exact: true }).click();
+    await defaults.getByRole("button", { name: "Close", exact: true }).click();
     await expect(defaults).toHaveCount(0);
     const savedCount = await database.query(
       'SELECT COUNT(*)::int AS count FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
@@ -121,7 +121,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await add("Deals", "Expected close");
     await add("Tasks", "Due date");
     await page.getByRole("button", { name: "Date sources", exact: true }).click();
-    const sources = page.getByRole("complementary", { name: "Date sources", exact: true });
+    const sources = page.getByRole("dialog", { name: "Date sources", exact: true });
     await expect(sources.locator("[data-planner-source]")).toHaveCount(2);
 
     if (e2eAppMode() !== "self-hosted") {
@@ -134,7 +134,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await toggle.uncheck();
     await expect(toggle).not.toBeChecked();
     await toggle.check();
-    await sources.getByRole("button", { name: "Close date sources", exact: true }).click();
+    await sources.getByRole("button", { name: "Close", exact: true }).click();
     await expect(sources).toHaveCount(0);
     await expect(page.locator("[data-calendar-entry]").first()).toBeVisible();
     if (e2eAppMode() !== "self-hosted")
@@ -177,9 +177,9 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await page.reload();
     await page.getByRole("button", { name: "Date sources", exact: true }).click();
     await expect(sources.locator("[data-planner-source]")).toHaveCount(2);
-    await sources.getByRole("button", { name: "Close date sources", exact: true }).click();
+    await sources.getByRole("button", { name: "Close", exact: true }).click();
     await page.getByRole("button", { name: "Export & subscribe", exact: true }).click();
-    const sync = page.getByRole("complementary", { name: "Export & subscribe", exact: true });
+    const sync = page.getByRole("dialog", { name: "Export & subscribe", exact: true });
     const downloaded = page.waitForEvent("download");
     await sync.getByRole("button", { name: "Download .ics", exact: true }).click();
     const download = await downloaded;

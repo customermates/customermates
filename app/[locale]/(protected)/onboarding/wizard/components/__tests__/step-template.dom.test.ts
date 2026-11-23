@@ -130,15 +130,16 @@ afterEach(() => {
 });
 
 describe("StepTemplate", () => {
-  it("shows a card per template with the outcome line and the counts, and checks the preselected one", async () => {
+  it("lists every template, checks the preselected one and explains it with its counts beside the list", async () => {
     await setup(THREE, { slug: "client-tracker", reason: "signup" });
 
     expect(radios()).toHaveLength(3);
     const checked = radios().find((radio) => radio.getAttribute("aria-checked") === "true");
     expect(checked?.id).toBe("onboarding-template-client-tracker");
-    expect(container.textContent).toContain("Deals to proposals.");
-    expect(container.textContent).toContain("OnboardingWizard.template.counts 4 8 17");
-    expect(container.textContent).toContain("OnboardingWizard.template.countsNoRules 3 9");
+    const detail = container.querySelector("#onboarding-template-detail")?.textContent ?? "";
+    expect(detail).toContain("One row per client.");
+    expect(detail).toContain("OnboardingWizard.template.countsNoRules 3 9");
+    expect(detail).not.toContain("Deals to proposals.");
     expect(container.querySelector('label[for="onboarding-template-client-tracker"]')?.textContent).toContain(
       "OnboardingWizard.template.suggested",
     );

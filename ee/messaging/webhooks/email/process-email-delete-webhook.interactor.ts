@@ -23,6 +23,7 @@ import { DeferredWebhookError } from "@/core/errors/app-errors";
 const Schema = z.object({
   type: z.literal("email.delete"),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: z.looseObject({
     email: z.looseObject({ id: z.string() }),
     folder_id: z.string().nullish(),
@@ -69,7 +70,10 @@ export class ProcessEmailDeleteWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const existing = await this.ingest.findMessageByUnipileIdUnscoped({

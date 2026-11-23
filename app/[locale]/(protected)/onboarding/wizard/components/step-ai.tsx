@@ -98,11 +98,11 @@ export const StepAiFooter = observer(() => {
   if (onboardingWizardStore.connectsAgent) return <StepConnectFooter />;
 
   return (
-    <AppCardFooter className="max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-2">
+    <AppCardFooter className={WIZARD_FOOTER_CLASS}>
       <Button
         disabled={interactionDisabled}
         type="button"
-        variant="secondary"
+        variant="ghost"
         onClick={() => runUserAction(isProviderChooser ? onboardingWizardStore.back : stepAiStore.backToProviders)}
       >
         {t("Common.actions.back")}

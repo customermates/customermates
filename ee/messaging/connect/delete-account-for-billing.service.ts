@@ -1,16 +1,11 @@
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
 import type { AccountRemovalReason } from "./account-removal-reason";
+import type { DeleteAccountForBillingRepo } from "./delete-account-for-billing.repo";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
-
-export abstract class DeleteAccountForBillingRepo {
-  abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
-  abstract markAccountDeletedUnscoped(id: string): Promise<void>;
-}
 
 export class DeleteAccountForBillingService {
   constructor(
@@ -23,7 +18,8 @@ export class DeleteAccountForBillingService {
     const account = await this.repo.findAccountByIdOrThrowUnscoped(connectedAccountId);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    await this.messagingService.deleteAccount({ accountId: account.unipileAccountId });
+    if (!(await this.repo.countOtherLiveAccountsForUnipileIdUnscoped(account.unipileAccountId, account.id)))
+      await this.messagingService.deleteAccount({ accountId: account.unipileAccountId });
 
     await this.repo.markAccountDeletedUnscoped(connectedAccountId);
 

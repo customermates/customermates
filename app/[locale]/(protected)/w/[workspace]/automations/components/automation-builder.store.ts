@@ -184,6 +184,8 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       setEnabled: action,
       patchTrigger: action,
       setScheduleHandoff: action,
+      offersSchedule: computed,
+      hasStepsBesidesMate: computed,
       canSwitchToSchedule: computed,
       patchCondition: action,
       removeCondition: action,
@@ -332,8 +334,16 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.onSwitchToSchedule = handoff;
   };
 
-  get canSwitchToSchedule(): boolean {
+  get offersSchedule(): boolean {
     return this.onSwitchToSchedule !== null && this.rule === null && !this.isReadOnly;
+  }
+
+  get hasStepsBesidesMate(): boolean {
+    return this.form.conditions.length > 0 || this.form.effects.some((effect) => effect.kind !== "agent");
+  }
+
+  get canSwitchToSchedule(): boolean {
+    return this.offersSchedule && !this.hasStepsBesidesMate;
   }
 
   switchToSchedule = () => {
@@ -600,6 +610,10 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
         this.invalid = [...new Set(issues)];
         const card = automationCardId(unavailable[0]?.card ?? issues[0] ?? "");
         if (card) this.expanded = card;
+        else if (issues.includes("name")) {
+          this.expanded = null;
+          this.pane = "settings";
+        }
       });
       return unavailable.length > 0 ? "unavailable" : "incomplete";
     }

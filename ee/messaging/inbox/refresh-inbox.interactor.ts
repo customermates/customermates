@@ -57,7 +57,7 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
       }
       if (account.status !== "ok") continue;
 
-      const token = await this.repo.claimBackfillUnscoped(account.unipileAccountId);
+      const token = await this.repo.claimBackfillUnscoped(account.id);
       if (!token) continue;
 
       try {
@@ -81,7 +81,7 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
         failedAccounts += 1;
         ErrorReporter.captureException(err);
       } finally {
-        await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, token, true);
+        await this.repo.releaseBackfillClaimUnscoped(account.id, token, true);
       }
     }
 

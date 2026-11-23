@@ -177,7 +177,7 @@ export const StepProfile = observer(
           <Button className="mt-2 self-end max-sm:self-stretch" disabled={isLoading} type="submit">
             {isLoading && <Loader2 className="size-4 animate-spin" />}
 
-            {t("OnboardingWizard.next")}
+            {t("OnboardingWizard.continue")}
 
             {isLoading ? null : <ArrowRight aria-hidden="true" className="size-4" />}
           </Button>

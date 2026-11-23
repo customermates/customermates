@@ -234,7 +234,9 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
         userId: fixtures.userId,
       });
       expect(account?.id).toBe(messagingAccountId(fixtures.tag, provider));
-      expect(records.connectedAccounts[index]?.where).toEqual({ unipileAccountId: account?.unipileAccountId });
+      expect(records.connectedAccounts[index]?.where).toEqual({
+        companyId_unipileAccountId: { companyId: fixtures.companyId, unipileAccountId: account?.unipileAccountId },
+      });
       expect(records.connectedAccounts[index]?.update).toMatchObject(
         SYNTHETIC_SEED_TIMELINE.connectedAccount(ACCOUNT_ORDER.indexOf(provider)),
       );

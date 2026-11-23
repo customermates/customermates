@@ -34,10 +34,11 @@ const account = {
   emailAddress: "ada@example.com",
 };
 
-function disconnect(providerDelete: () => Promise<void>) {
+function disconnect(providerDelete: () => Promise<void>, otherWorkspaces = 0) {
   const repo = {
     findAccountByIdOrThrow: vi.fn().mockResolvedValue(account),
     deleteAccount: vi.fn().mockResolvedValue(undefined),
+    countOtherLiveAccountsForUnipileIdUnscoped: vi.fn().mockResolvedValue(otherWorkspaces),
   };
   const messagingService = { deleteAccount: vi.fn(providerDelete) };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
@@ -78,6 +79,19 @@ describe("DeleteConnectedAccountInteractor", () => {
     });
     expect(messagingService.deleteAccount).toHaveBeenCalledTimes(1);
     expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("keeps the provider account while another workspace still uses it", async () => {
+    const { interactor, repo, messagingService, eventService } = disconnect(() => Promise.resolve(), 1);
+
+    expect(await interactor.invoke({ id: ACCOUNT_ID })).toEqual({
+      ok: true,
+      data: { id: ACCOUNT_ID, disconnected: true },
+    });
+    expect(repo.deleteAccount).toHaveBeenCalledWith(ACCOUNT_ID);
+    expect(repo.countOtherLiveAccountsForUnipileIdUnscoped).toHaveBeenCalledWith("provider-account-1", ACCOUNT_ID);
+    expect(eventService.publish).toHaveBeenCalledTimes(1);
+    expect(messagingService.deleteAccount).not.toHaveBeenCalled();
   });
 
   it("rejects unknown keys before removing anything", async () => {

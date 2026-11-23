@@ -128,7 +128,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   });
 
   return (
-    <CenteredCardPage>
+    <CenteredCardPage align="top">
       <OnboardingWizard
         canNameWorkspace={canCreateCompany}
         flow={flow}

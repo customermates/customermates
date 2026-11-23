@@ -44,8 +44,7 @@ export function AutomationStepColumn({
   actions: AutomationCanvasActions;
   markLabel: (step: AutomationCanvasStep) => string | undefined;
 }) {
-  const placeholder = steps[0]?.tone === "empty";
-  const showAdd = !placeholder && Boolean(actions.palette) && actions.editable;
+  const showAdd = Boolean(actions.palette) && actions.editable;
   return (
     <ol className="flex flex-col items-center px-4 py-6" data-automation-canvas="column">
       {steps.map((step, index) => (

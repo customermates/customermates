@@ -300,14 +300,7 @@ const OnboardingWizardContent = observer(
                     : currentStep === "prompt"
                       ? t("OnboardingWizard.steps.prompt.subtitle", { template: selectedTemplateName ?? "" })
                       : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
-    const artworkStep =
-      currentStep === "profile" ||
-      currentStep === "goal" ||
-      currentStep === "invite" ||
-      currentStep === "channel" ||
-      (currentStep === "ai" && !connectsAgent)
-        ? currentStep
-        : null;
+    const artworkStep = currentStep === "profile" ? currentStep : null;
     const agentBadge =
       currentStep === "template" && connectsAgent && onboardingWizardStore.agentConnected
         ? agentName
@@ -319,15 +312,7 @@ const OnboardingWizardContent = observer(
       <AppCard
         className={cn(
           "relative shadow-xl shadow-primary/5",
-          currentStep === "goal" || currentStep === "playbook"
-            ? "max-w-3xl"
-            : currentStep === "template"
-              ? "max-w-4xl"
-              : currentStep !== "setup"
-                ? "max-w-2xl"
-                : planStage
-                  ? "max-w-5xl"
-                  : "max-w-3xl",
+          currentStep === "template" ? "max-w-4xl" : planStage ? "max-w-5xl" : "max-w-3xl",
         )}
       >
         <AppCardBody>
@@ -361,9 +346,7 @@ const OnboardingWizardContent = observer(
             </>
           )}
 
-          {artworkStep ? (
-            <OnboardingArtwork className={artworkStep === "profile" ? undefined : "max-sm:hidden"} step={artworkStep} />
-          ) : null}
+          {artworkStep ? <OnboardingArtwork step={artworkStep} /> : null}
 
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
             <div className="flex min-w-0 flex-col gap-1">
@@ -404,7 +387,7 @@ const OnboardingWizardContent = observer(
               type="button"
               onClick={() => runUserAction(next)}
             >
-              {t("OnboardingWizard.next")}
+              {t("OnboardingWizard.continue")}
 
               <ArrowRight aria-hidden="true" className="size-4" />
             </Button>

@@ -1,10 +1,16 @@
 import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
+import { CENTERED_CARD_TOP_CLASS } from "@/components/shared/centered-card-page";
 import { cn } from "@/core/utils/cn";
 import type { ReactNode } from "react";
 
-type Props = { animated?: boolean; children?: ReactNode; maxWidth?: "lg" | "2xl" | "3xl" };
+type Props = {
+  align?: "center" | "top";
+  animated?: boolean;
+  children?: ReactNode;
+  maxWidth?: "lg" | "2xl" | "3xl";
+};
 
-export function CenteredCardPageSkeleton({ animated = true, children, maxWidth = "2xl" }: Props) {
+export function CenteredCardPageSkeleton({ align = "center", animated = true, children, maxWidth = "2xl" }: Props) {
   return (
     <div
       aria-hidden="true"
@@ -13,7 +19,12 @@ export function CenteredCardPageSkeleton({ animated = true, children, maxWidth =
       data-page-skeleton-loading={animated || undefined}
       data-skeleton-kind="centered-card"
     >
-      <div className="flex min-h-full w-full items-center justify-center p-4">
+      <div
+        className={cn(
+          "flex min-h-full w-full justify-center",
+          align === "top" ? CENTERED_CARD_TOP_CLASS : "items-center p-4",
+        )}
+      >
         <div
           className={cn(
             "flex w-full flex-col gap-0 rounded-xl border border-border bg-background py-0 shadow-xs",

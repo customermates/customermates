@@ -17,6 +17,7 @@ import { UnipileChatSchema } from "../../unipile.schema";
 const Schema = z.object({
   type: z.literal("chat.update"),
   account_id: z.string(),
+  connectedAccountId: z.uuid().optional(),
   payload: UnipileChatSchema,
 });
 type Payload = z.infer<typeof Schema>;
@@ -31,7 +32,10 @@ export class ProcessChatUpdateWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(
+      envelope.account_id,
+      envelope.connectedAccountId,
+    );
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const chat = envelope.payload;
