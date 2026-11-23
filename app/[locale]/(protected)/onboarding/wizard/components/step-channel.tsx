@@ -12,6 +12,7 @@ import { ArrowRight, CircleCheck, Loader2 } from "lucide-react";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { LogoStack } from "@/components/shared/logo-stack";
+import { SettingsPanelLogo } from "@/components/shared/settings-panel";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -104,14 +105,11 @@ const ChannelRowItem = ({
   const isLinkedin = row.key === "linkedin";
 
   return (
-    <li className="flex flex-col gap-3 px-4 py-3" data-primary={primary || undefined}>
+    <li className="flex flex-col gap-3 border-b px-4 py-3 last:border-b-0" data-primary={primary || undefined}>
       <div className="flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-card shadow-xs"
-        >
-          <Icon className="size-5" />
-        </span>
+        <SettingsPanelLogo>
+          <Icon aria-hidden="true" className="size-5" />
+        </SettingsPanelLogo>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="flex flex-wrap items-center gap-2">
@@ -243,7 +241,7 @@ export const StepChannel = observer(({ email }: { email: string }) => {
 
       <ul
         aria-label={t("OnboardingWizard.channel.optionsLabel")}
-        className="flex flex-col divide-y divide-border rounded-xl border border-border"
+        className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-xs"
       >
         {rows.map((row, index) => (
           <ChannelRowItem key={row.key} disabled={disabled} primary={index === 0} row={row} onConnect={connect} />

@@ -121,9 +121,8 @@ describe("StepGoal", () => {
     expect(agent).not.toContain("descriptionSelfHosted");
     expect(agent).toContain("OnboardingWizard.goal.agent.worksWith");
     expect(agent).not.toContain("OnboardingWizard.ai.choices.claude");
-    expect(
-      container.querySelectorAll('label[for="onboarding-goal-agent"] [data-slot="logo-stack"] > span'),
-    ).toHaveLength(4);
+    const logos = container.querySelectorAll('label[for="onboarding-goal-agent"] [data-slot="logo-stack-item"]');
+    expect(logos).toHaveLength(4);
     expect(container.querySelector('label[for="onboarding-goal-workspace"]')?.textContent).toContain(
       "OnboardingWizard.goal.workspace.title",
     );

@@ -23,7 +23,7 @@ export function PlannerSidePanel({ title, onClose, actions, children, className,
       sheet
       visibleTitle
       actions={actions}
-      bodyClassName="flex flex-col px-0 pb-[var(--safe-bottom)]"
+      bodyClassName="flex flex-col pr-[var(--safe-right)] pb-[var(--safe-bottom)] pl-[var(--safe-left)]"
       layerClassName={cn("bg-card sm:max-w-[440px]", className)}
       title={title}
       onClose={onClose}

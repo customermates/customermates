@@ -6,6 +6,8 @@ import type { AiConnectionProvider } from "./ai-connection.store";
 import { ChevronRight, Plug } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { SettingsPanelLogo } from "@/components/shared/settings-panel";
+
 import { AiClientLogo } from "./ai-client-logo";
 import { AI_CONNECTION_PROVIDERS } from "./ai-connection.store";
 
@@ -17,7 +19,7 @@ type Props = {
 };
 
 const ROW_CLASS =
-  "interactive-surface flex w-full min-w-0 items-center gap-3 px-4 py-3 text-left outline-none first:rounded-t-xl last:rounded-b-xl focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
+  "flex w-full min-w-0 cursor-pointer items-center gap-3 border-b px-4 py-3 text-left first:rounded-t-xl last:rounded-b-xl outline-none transition-colors last:border-b-0 hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset disabled:pointer-events-none disabled:opacity-50";
 
 function ProviderRow({
   logo,
@@ -31,12 +33,7 @@ function ProviderRow({
 }) {
   return (
     <button className={ROW_CLASS} type="button" {...props}>
-      <span
-        aria-hidden="true"
-        className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-card text-foreground shadow-xs"
-      >
-        {logo}
-      </span>
+      <SettingsPanelLogo>{logo}</SettingsPanelLogo>
 
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="text-sm font-medium text-foreground">{title}</span>
@@ -61,7 +58,7 @@ export function AiConnectionProviderGrid({ disabled, onSelect, onSelectOther, re
   return (
     <div
       aria-label={t("OnboardingWizard.ai.providers.ariaLabel")}
-      className="flex flex-col divide-y divide-border rounded-xl border border-border bg-input-background"
+      className="flex flex-col rounded-xl border bg-card shadow-xs"
       role="group"
     >
       {AI_CONNECTION_PROVIDERS.map((provider) => (
@@ -82,7 +79,7 @@ export function AiConnectionProviderGrid({ disabled, onSelect, onSelectOther, re
           caption={t("OnboardingWizard.ai.captions.other")}
           data-other-client=""
           disabled={disabled}
-          logo={<Plug className="size-5" />}
+          logo={<Plug aria-hidden="true" className="size-5" />}
           title={t("OnboardingWizard.ai.other.title")}
           onClick={onSelectOther}
         />

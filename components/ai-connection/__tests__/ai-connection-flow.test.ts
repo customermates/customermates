@@ -113,7 +113,7 @@ describe("AiConnectionProviderGrid", () => {
       }),
     );
 
-    expect(html).toContain("divide-y");
+    expect(html).toContain("rounded-xl border bg-card shadow-xs");
     expect(html.match(/data-provider=/g)).toHaveLength(4);
 
     for (const provider of ["claude", "openai", "cursor", "gemini"])

@@ -1,12 +1,12 @@
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode, SVGProps } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
 type Props = Omit<ComponentProps<typeof Button>, "children" | "title" | "variant"> & {
   badge?: ReactNode;
-  icon?: ReactNode;
+  icon?: React.FC<SVGProps<SVGSVGElement>>;
   noteIcon?: ReactNode;
   description: string;
   note?: string;
@@ -34,14 +34,7 @@ export function ChoiceCard({
       variant="secondary"
       {...props}
     >
-      {icon ? (
-        <span
-          aria-hidden="true"
-          className="mb-2 grid size-11 shrink-0 place-items-center rounded-xl border border-border bg-card text-foreground shadow-xs [&_svg]:size-5"
-        >
-          {icon}
-        </span>
-      ) : null}
+      {icon ? <IconContainer className="mb-2 shrink-0" icon={icon} iconClassName="size-5" size="lg" /> : null}
 
       <span className="flex w-full items-start justify-between gap-2">
         <span className="text-sm font-medium">{title}</span>
@@ -52,12 +45,10 @@ export function ChoiceCard({
       <span className="text-xs font-normal leading-relaxed text-muted-foreground">{description}</span>
 
       {note && noteIcon ? (
-        <span className="mt-auto pt-2">
-          <Badge className="gap-1.5 font-normal" variant="secondary">
-            {noteIcon}
+        <span className="mt-auto flex items-center gap-1 pt-2 text-xs font-normal text-muted-foreground">
+          {noteIcon}
 
-            {note}
-          </Badge>
+          {note}
         </span>
       ) : note ? (
         <span className="mt-auto pt-2 text-[11px] font-normal leading-relaxed text-muted-foreground">{note}</span>

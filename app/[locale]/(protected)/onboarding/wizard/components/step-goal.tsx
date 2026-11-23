@@ -31,7 +31,6 @@ function GoalHero({ job, selfHosted }: { job: OnboardingJob; selfHosted: boolean
     return (
       <LogoStack
         items={AI_PROVIDERS.map((provider) => ({ key: provider, node: <AiClientLogo provider={provider} /> }))}
-        size="lg"
       />
     );
   }

@@ -21,7 +21,7 @@ const SETUP_CHOICE_CLASS = cn(
 );
 
 const SETUP_SEGMENT_CLASS =
-  "inline-flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-card aria-checked:text-foreground aria-checked:shadow-xs aria-invalid:text-destructive [&_svg]:size-4 [&_svg]:shrink-0";
+  "inline-flex min-h-7 min-w-0 items-center justify-center gap-1.5 rounded-md px-2 py-0.5 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-background aria-checked:text-foreground aria-checked:shadow-sm dark:aria-checked:bg-accent aria-invalid:text-destructive [&_svg]:size-4 [&_svg]:shrink-0";
 
 type ChoiceGroupProps = {
   label: string;

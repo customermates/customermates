@@ -32,19 +32,19 @@ export function BookingUpcomingList({ bookings, links, now, readOnly, onChanged 
 
   return (
     <section className="flex flex-col border-t bg-muted/30 pb-2" data-booking-upcoming="">
-      <div className="flex items-center justify-between gap-2 px-5 pt-3">
+      <div className="flex items-center justify-between gap-2 px-6 pt-3">
         <h3 className="text-sm font-semibold">{t("Booking.upcomingTitle")}</h3>
 
         <Badge variant="secondary">{bookings.length}</Badge>
       </div>
 
       {days.length === 0 ? (
-        <p className="px-5 py-3 text-xs text-muted-foreground">{t("Booking.upcoming", { count: 0 })}</p>
+        <p className="px-6 py-3 text-xs text-muted-foreground">{t("Booking.upcoming", { count: 0 })}</p>
       ) : null}
 
       {days.map((day) => (
         <div key={day.key} className="flex flex-col" data-booking-upcoming-day={day.key}>
-          <h4 className="px-5 pt-3 pb-1.5 text-xs font-medium text-muted-foreground">
+          <h4 className="px-6 pt-3 pb-1.5 text-xs font-medium text-muted-foreground">
             {day.relative === "today"
               ? t("Booking.today")
               : day.relative === "tomorrow"
@@ -59,7 +59,7 @@ export function BookingUpcomingList({ bookings, links, now, readOnly, onChanged 
               return (
                 <ItemActions key={booking.id} label={t("Booking.hostActions.menu", { name: booking.inviteeName })}>
                   <li
-                    className="flex items-center gap-3 px-5 py-2 hover:bg-accent/50"
+                    className="flex items-center gap-3 px-6 py-2 hover:bg-accent/50"
                     data-booking-upcoming-item={booking.id}
                   >
                     <Avatar name={booking.inviteeName} size="lg" />
