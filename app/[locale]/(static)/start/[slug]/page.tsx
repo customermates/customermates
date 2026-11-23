@@ -19,10 +19,8 @@ type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };
 
-export const dynamicParams = false;
-
-export function generateStaticParams({ params }: { params: { locale: string } }) {
-  return params.locale === AD_LANDING_LOCALE ? AD_LANDING_SLUGS.map((slug) => ({ slug })) : [];
+export function generateStaticParams({ params }: { params?: { locale?: string } }) {
+  return params?.locale && params.locale !== AD_LANDING_LOCALE ? [] : AD_LANDING_SLUGS.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
