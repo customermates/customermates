@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { CAMPAIGN_QUERY_PARAMS } from "./campaign-query-params";
+
 import {
   CampaignValueSchema,
   type SearchParams,
@@ -11,13 +13,6 @@ import {
 
 export const SIGNUP_CAMPAIGN_MAX_LENGTH = 1_024;
 
-const CAMPAIGN_QUERY_PARAMS = {
-  source: "utm_source",
-  medium: "utm_medium",
-  campaign: "utm_campaign",
-  content: "utm_content",
-  term: "utm_term",
-} as const;
 type CampaignField = keyof typeof CAMPAIGN_QUERY_PARAMS;
 const CAMPAIGN_FIELDS = Object.keys(CAMPAIGN_QUERY_PARAMS) as CampaignField[];
 

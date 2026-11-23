@@ -61,7 +61,6 @@ const components = [
   "homepage-plans.tsx",
   "homepage-product-stage.tsx",
   "homepage-proof-partners.tsx",
-  "homepage-trust-strip.tsx",
   "homepage-viewport-video.tsx",
   "homepage-workspace-generator.tsx",
 ].map(readComponent);
@@ -69,15 +68,16 @@ const componentSource = components.join("\n");
 const captureNames = Object.keys(HOMEPAGE_CAPTURES) as HomepageCaptureName[];
 
 describe("homepage visual-system adoption", () => {
-  it("tells the follow-up story in a fixed order with the film right under the hero", () => {
+  it("tells the follow-up story in a fixed order with the workspace generator right under the hero", () => {
+    // Owner review 2026-11-23: prompt to live workspace first, the film after the pillars, no trust strip.
     const order = [
       "<HomepageHero",
-      "<ProductFilm",
-      "<HomepageTrustStrip",
-      "<UseCasesSection",
       "<HomepageWorkspaceGenerator",
+      "<UseCasesSection",
+      "<HomepageIntegrations",
       "<HomepageFollowUp",
       "<HomepagePillars",
+      "<ProductFilm",
       "<HomepageProofPartners",
       "<HomepagePlans",
       "<HomepageFaq",
@@ -222,8 +222,9 @@ describe("homepage visual-system adoption", () => {
     expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.homepage-drift-tile/u);
     for (const mdx of [englishHomepage, germanHomepage]) {
       expect(mdx).toContain('href: "#film"');
-      expect(mdx).toContain("{choice}");
-      expect(mdx).not.toMatch(/\n  primaryCta:|\n  assurance:/u);
+      // Owner review 2026-11-23: one plain trial CTA instead of the template picker.
+      expect(mdx).toMatch(/\n  primaryCta:/u);
+      expect(mdx).not.toMatch(/\n  picker:|\n  assurance:/u);
     }
   });
 

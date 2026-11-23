@@ -78,49 +78,63 @@ generator:
       linkLabel: LinkedIn CRM-koppeling
 
 followUp:
-  eyebrow: Elk antwoord afgehandeld
-  title: "Daarna loopt het met je mee. Antwoorden als concept, volgende stappen op je dashboard."
-  description: "Als een klant schrijft, stelt Mate het antwoord op volgens je playbook en zet de volgende stap op je dashboard. Jij leest na, past aan en verstuurt."
-  desk:
-    label: Voorbeeldscène van opvolging met demogegevens
-    workspace: Lindqvist Advisory
-    conversation:
-      label: LinkedIn
-      name: Jonas Weber
-      company: Halden & Co.
-      time: vr 16:42
-      message: Klinkt goed. Kun je volgende week de aangepaste scope sturen? Dan neem ik die mee naar ons bestuur.
-    agent:
-      name: Mate
-      intent: Schrijft een antwoord op basis van je voorstel-playbook
-      done: Concept opgeslagen. Volgende stap toegevoegd aan je dashboard.
-    draft:
-      badge: Concept, wacht op jouw beoordeling
-      text: Hoi Jonas, bedankt. Dinsdag stuur ik de aangepaste scope, met de twee workshopopties die we bespraken. Groet, Anna
-      edit: Bewerken
-      send: Concept versturen
-    today:
-      title: Dashboard
-      date: dinsdag
-      addedBy: Toegevoegd door Mate
-      assign: Toewijzen
-      sections:
-        - title: Volgende stappen die aan de beurt zijn
-          items:
-            - title: Aangepaste scope sturen
-              meta: Halden & Co. · vandaag aan de beurt
-              owner: AL
-              state: added
-            - title: Getekend voorstel navragen
-              meta: Norrland Studio · 2 dagen te laat
-              owner: AL
-              state: overdue
-        - title: Voorstellen die op antwoord wachten
-          items:
-            - title: Voorstel Norrland Studio
-              meta: 5 dagen geleden verstuurd
-              owner: AL
-              state: due
+  eyebrow: Automatiseringen
+  title: "Eén keer zeggen. Het loopt elke keer."
+  description: "Vertel Mate één keer wat er moet gebeuren als een klant schrijft. Mate bouwt de automatisering, en vanaf dan komt elk antwoord binnen als concept dat je met één veeg afhandelt."
+  label: Voorbeeldautomatisering met demogegevens
+  steps:
+    - title: Je zegt het één keer
+      description: Eén zin, in je eigen woorden.
+    - title: Mate bouwt de automatisering
+      description: Wanneer, vraag de agent, maak een concept.
+    - title: Concepten wachten op een veeg
+      description: Naar rechts verstuurt. Naar links bewaart voor later.
+  prompt:
+    from: Jij, één keer
+    agent: Mate
+    text: Elke keer dat een klant antwoordt, schrijf een antwoord op basis van mijn voorstel-playbook en zet de volgende stap op mijn dashboard.
+  automation:
+    title: "Klant antwoordt: antwoord opstellen"
+    subtitle: Automatisering · door Mate gebouwd uit jouw zin
+    inactive: Uit
+    active: Actief
+    kinds:
+      when: Wanneer
+      agent: Vraag de agent
+      draft: Maak een concept
+    steps:
+      when: Een klant antwoordt op LinkedIn of per e-mail
+      agent: Lees het gesprek en de klantkaart. Schrijf een antwoord op basis van het voorstel-playbook.
+      draft: Zet het concept in Concepten bekijken en plan de volgende stap
+  review:
+    title: Concepten bekijken
+    badge: Concept
+    sent: Verstuurd
+    later: Later
+    hint: Veeg naar rechts om te versturen. Veeg naar links om het voor later te bewaren.
+    swipeRight: "Naar rechts: versturen"
+    swipeLeft: "Naar links: later"
+    counts:
+      - 2 wachten
+      - 3 wachten
+      - 2 wachten
+      - 1 wacht · 1 voor later
+    drafts:
+      sent:
+        channel: linkedin
+        name: Jonas Weber
+        company: Halden & Co.
+        text: Hoi Jonas, bedankt. Dinsdag stuur ik de aangepaste scope, met de twee workshopopties die we bespraken. Groet, Anna
+      later:
+        channel: email
+        name: George Barlow
+        company: Barlow Manufacturing
+        text: Hoi George, bedankt, dat is duidelijk. Ik stel zes interviews voor op de twee locaties en op de eerste dag een korte rondgang langs de productielijnen. Groet, Max
+      next:
+        channel: email
+        name: Sarah Kemp
+        company: Kemp Logistics
+        text: Hoi Sarah, hier zijn de twee opties die we bespraken, elk met scope en planning. Ik loop ze graag met je door in een kort gesprek. Groet, Max
 
 pillars:
   eyebrow: Zo werkt het
@@ -181,17 +195,70 @@ pillars:
         detail: Aangepaste connector
       - name: Cursor, Codex, Gemini CLI
         detail: API-sleutel
+  scenes:
+    agents:
+      label: "Automatisering · Klantreacties: een antwoord opstellen"
+      steps:
+        - kind: "Wanneer"
+          text: "Een klant reageert op LinkedIn of per e-mail"
+        - kind: "Vraag de agent"
+          text: "Lees de thread en het playbook, stel het antwoord op"
+        - kind: "Concept maken"
+          text: "Zet het in Concepten nakijken, plan de volgende stap"
+      run: "Jonas Weber · LinkedIn-reactie · concept gemaakt"
+      status: "Gelukt"
+    inbox:
+      label: "Inbox · alle kanalen, één lijst"
+      rows:
+        - name: "Jonas Weber"
+          text: "Klinkt goed. Kun je de aangepaste scope sturen?"
+          linked: "Gekoppeld aan Halden & Co."
+        - name: "Sarah Kemp"
+          text: "Hier zijn de twee opties die we bespraken."
+          linked: "Gekoppeld aan Kemp Logistics"
+        - name: "Ole Brandt"
+          text: "Kunnen we de workshop naar donderdag verzetten?"
+          linked: "Gekoppeld aan Brandt Studio"
+        - name: "Helen Ashworth"
+          text: "Optie B werkt voor ons."
+          linked: "Gekoppeld aan Fairhaven"
+    data:
+      label: "Door Mate gebouwd op basis van je beschrijving"
+      lists: ["Klanten", "Opdrachten", "Voorstellen", "Taken"]
+      columns: ["Opdracht", "Fase", "Volgende stap"]
+      rows:
+        - ["Halden & Co.", "Voorstel verstuurd", "di"]
+        - ["Norrland Studio", "Scoping", "do"]
+        - ["Fairhaven", "Beslissing", "vr"]
+    knowledge:
+      label: "Kennisbank · kaart van gekoppelde pagina’s"
+      nodes:
+        guide: "Werkwijzer"
+        playbook: "Voorstel-playbook"
+        process: "Zo lopen opdrachten"
+        rates: "Dagtarieven"
+        brief: "Relatiebriefing"
+        icp: "Ideale klant"
+        tone: "Tone of voice"
+        agents: "Zo werken onze agents"
+      run: "Mate gebruikte het voorstel-playbook voor het concept aan Jonas"
 
 proofAndPartners:
   proof:
-    eyebrow: Gebouwd op ons eigen werk
-    title: We draaien onze eigen sales op Customermates.
-    description: Onze prospects, partners en gesprekken staan in een Customermates-werkruimte. AI-agents die via MCP gekoppeld zijn, bereiden de antwoorden en opvolgingen voor. We keuren elke nieuwe soort bericht één keer goed, en vergelijkbare berichten volgen de regels die we goedkeurden.
-    steps:
-      - Er komt een antwoord binnen op LinkedIn of per e-mail
-      - Een agent schrijft het antwoord en de volgende stap
-      - Een nieuwe soort bericht wacht op onze goedkeuring
-    note: Hetzelfde product waarmee jij vandaag begint.
+    eyebrow: Een berichtje van de oprichter
+    title: Twijfel je of het past? Vraag het mij.
+    paragraphs:
+      - "Hoi, ik ben Ben. Ik bouw Customermates in Duitsland, en berichten via de contactpagina komen rechtstreeks bij mij binnen, niet in een ticketwachtrij."
+      - "Stuur me met welke tools je nu werkt. Ik vertel je wat direct past en waar een aparte koppeling het eerlijke antwoord is. Meestal antwoord ik binnen 24 uur, vaak dezelfde dag."
+    signature: Ben
+    name: Benjamin Wagner
+    role: Oprichter, Customermates
+    contact:
+      label: Schrijf me
+      href: /contact
+    linkedin:
+      label: Vind me op LinkedIn
+      href: https://www.linkedin.com/in/wagner-benjamin/
   partners:
     eyebrow: Voor VA's, agencies en automatiseringsbouwers
     title: Doe de opvolging voor je klanten.
@@ -203,12 +270,6 @@ proofAndPartners:
     cta:
       label: Bekijk het partnerprogramma
       href: /affiliate
-
-trust:
-  label: "Customermates in het kort"
-  database: "Database in Frankfurt"
-  sourceAvailable: "Broncode beschikbaar"
-  agents: "Werkt met Claude en ChatGPT"
 
 plansTeaser:
   eyebrow: Prijzen
@@ -437,24 +498,33 @@ cta:
 useCases:
   eyebrow: "Zo kun je het gebruiken"
   title: "Kies de taak. De werkruimte volgt."
+  description: "Mate of je eigen Claude doet het werk in het platform. Jij controleert alleen."
   items:
     - title: "Volg LinkedIn-gesprekken op"
-      description: "LinkedIn- en e-mailthreads staan bij de klant. Mate schrijft het antwoord en zet een datum op de volgende stap, en jij leest het na en verstuurt het in het gesprek."
+      agent: mate
+      done: "Antwoord op LinkedIn opgesteld"
+      you: "Jij: nalezen en versturen"
       href: /features/linkedin-integration
       linkLabel: "Bekijk LinkedIn in de inbox"
       visual: conversation
-    - title: "Volg elk voorstel op na het gesprek"
-      description: "Klanten, opdrachten en voorstellen met de gesprekken erachter, en bij elk een volgende stap met datum."
+    - title: "Volg elk voorstel op"
+      agent: mate
+      done: "Deal na het gesprek doorgezet"
+      you: "Jij: de herinnering goedkeuren"
       href: /for/consultants
       linkLabel: "CRM voor consultancy"
       visual: proposal
-    - title: "Houd de volgende stappen van klanten op één dashboard"
-      description: "Elke klant krijgt een volgende stap met datum en je dashboard toont wat er bij al die klanten aan de beurt is."
+    - title: "Houd de volgende stappen op één dashboard"
+      agent: mate
+      done: "Ontbrekende volgende stappen gedateerd"
+      you: "Jij: de lijst van vandaag openen"
       href: /features/follow-up
       linkLabel: "Bekijk opvolging"
       visual: dashboard
-    - title: "Laat je eigen Claude of ChatGPT in je CRM werken"
-      description: "Koppel Claude, ChatGPT, Cursor of een andere MCP-client. Die leest en werkt je werkruimte bij binnen jouw rechten."
+    - title: "Laat je eigen Claude in je CRM werken"
+      agent: claude
+      done: "Pipeline gebouwd in je werkruimte"
+      you: "Jij: het resultaat controleren"
       href: /features/integrations
       linkLabel: "Koppel je agent"
       visual: agent

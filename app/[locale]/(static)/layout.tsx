@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 
+import { CampaignLinkCarrier } from "@/components/acquisition/campaign-link-carrier";
 import { LemonSqueezyAffiliateScript } from "@/components/acquisition/lemon-squeezy-affiliate-script";
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
@@ -31,6 +32,8 @@ export default async function StaticLayout({ children, params }: Props) {
 
       {env.APP_MODE === "cloud" ? (
         <>
+          <CampaignLinkCarrier />
+
           {env.VERCEL_ENV ? <Analytics /> : null}
 
           <LemonSqueezyAffiliateScript />

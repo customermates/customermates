@@ -1977,6 +1977,257 @@ path:focus {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* quieter field so the claim and lede read easily (owner review 2026-11-23); applies to every page hero */
+  opacity: 0.7;
+}
+
+.dark .homepage-hero-field {
+  opacity: 0.45;
+}
+
+/* a calm area in the page colour behind the headline and lede */
+.homepage-hero-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 40% 34% at 50% 40%,
+    color-mix(in srgb, var(--background) 60%, transparent) 0%,
+    color-mix(in srgb, var(--background) 30%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+/* the live demo right under the homepage hero: no section header, so only a small gap */
+.homepage-workspace-under-hero {
+  padding-block: 0.25rem var(--mk-section-space);
+}
+
+.homepage-workspace-under-hero [data-homepage-prompt] {
+  margin-top: 1.5rem;
+}
+
+/* animated pillar scenes (homepage-pillar-scenes.tsx): a 10 s loop, static with reduced motion */
+.homepage-pa-frame {
+  margin-top: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  background: var(--background);
+  padding: 0.875rem;
+  min-height: 13.5rem;
+}
+
+.homepage-pa-title {
+  margin-bottom: 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.homepage-pa-step,
+.homepage-pa-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  background: var(--card);
+  padding: 0.5rem 0.625rem;
+}
+
+.homepage-pa-step-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 0.5rem;
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.homepage-pa-tick {
+  margin-left: auto;
+  color: var(--success, #16a34a);
+}
+
+.homepage-pa-run {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+.homepage-pa-ok {
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success, #16a34a) 16%, transparent);
+  padding: 0.0625rem 0.5rem;
+  color: var(--success, #16a34a);
+  font-weight: 500;
+}
+
+.homepage-pa-table {
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+
+.homepage-pa-thead,
+.homepage-pa-trow {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.7fr;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+.homepage-pa-thead {
+  background: var(--card);
+  font-weight: 500;
+}
+
+.homepage-pa-trow {
+  border-top: 1px solid var(--border);
+}
+
+.homepage-pa-map {
+  display: block;
+  width: 100%;
+  aspect-ratio: 20 / 9;
+  overflow: visible;
+}
+
+.homepage-pa-map line {
+  stroke: color-mix(in srgb, var(--foreground) 30%, transparent);
+  stroke-width: 0.45;
+}
+
+.homepage-pa-node {
+  fill: var(--card);
+  stroke: color-mix(in srgb, var(--foreground) 55%, transparent);
+  stroke-width: 0.5;
+}
+
+.homepage-pa-node-hub {
+  fill: var(--foreground);
+}
+
+.homepage-pa-label {
+  fill: var(--muted-foreground);
+  font-size: 4.6px;
+}
+
+.pa-in,
+.pa-tick,
+.pa-node {
+  animation: homepage-pa-in 10s var(--pa-delay, 0s) infinite both;
+}
+
+.pa-tick {
+  animation-name: homepage-pa-pop;
+}
+
+.pa-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: homepage-pa-pop;
+}
+
+.pa-edge {
+  stroke-dasharray: 1;
+  animation: homepage-pa-draw 10s var(--pa-delay, 0s) infinite both;
+}
+
+.pa-pulse {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 0.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: homepage-pa-pulse 2s 4s infinite;
+  opacity: 0;
+}
+
+@keyframes homepage-pa-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  6%,
+  86% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+@keyframes homepage-pa-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  5%,
+  86% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes homepage-pa-draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  8%,
+  86% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  96%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes homepage-pa-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-in,
+  .pa-tick,
+  .pa-node,
+  .pa-edge,
+  .pa-pulse {
+    animation: none;
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .pa-pulse {
+    opacity: 0;
+  }
 }
 
 .homepage-hero-drift {
@@ -2215,23 +2466,6 @@ path:focus {
 .mk-hero-footnotes div {
   font-size: inherit;
   color: inherit;
-}
-
-.homepage-trust {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem 2.25rem;
-}
-
-.homepage-trust > li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
 }
 
 .homepage-mate-bubble {

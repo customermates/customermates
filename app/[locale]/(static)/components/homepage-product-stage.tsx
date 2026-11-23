@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { preconnect } from "react-dom";
 import {
   ArrowUpRight,
+  BookOpen,
+  Bot,
   CalendarDays,
   Inbox,
   KanbanSquare,
@@ -18,6 +20,7 @@ import {
   Settings2,
   UserRound,
   Users,
+  Workflow,
 } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
@@ -60,6 +63,9 @@ const SOLUTION_TAB_ICONS = {
   inbox: Inbox,
   pipeline: KanbanSquare,
   pitchBoard: Presentation,
+  knowledge: BookOpen,
+  automations: Workflow,
+  agents: Bot,
 } as const satisfies Record<SolutionStageTabId, unknown>;
 
 const MOBILE_CAPTURES = {

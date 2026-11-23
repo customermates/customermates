@@ -130,7 +130,7 @@ export function hasUseCaseCapture(kind: UseCaseVisual) {
 }
 
 export function conversationChannel({ description, href, title }: Pick<UseCaseItem, "description" | "href" | "title">) {
-  const text = `${title} ${description} ${href}`.toLowerCase();
+  const text = `${title} ${description ?? ""} ${href}`.toLowerCase();
 
   if (text.includes("linkedin")) return "linkedin";
   if (text.includes("whatsapp")) return "whatsapp";

@@ -3300,6 +3300,9 @@
       "saveAsView": "Enregistrer comme vue"
     }
   },
+  "DemoSignup": {
+    "cta": "Créer votre propre espace de travail"
+  },
   "Diagrams": {
     "noData": "Aucune donnée disponible",
     "noGroup": "Non assigné",
@@ -6521,24 +6524,30 @@
   "SolutionStage": {
     "alt": "{area} dans l’espace de travail d’exemple, avec des données de démonstration",
     "captions": {
+      "agents": "Où s'exécutent les étapes d'agent : Mate, votre propre clé ou votre propre ordinateur",
+      "automations": "Des automatisations et des routines qui tournent toutes seules",
       "calendar": "Les dates de vos fiches dans un seul calendrier",
       "clientOverview": "Chaque client avec son statut et son responsable en un coup d'œil",
       "clients": "Chaque client avec le travail en cours pour lui",
       "dashboard": "Des widgets construits à partir des listes et champs de l’espace",
       "engagements": "Chaque mission en cours sur un seul tableau",
       "inbox": "Les conversations à côté des fiches concernées, sur Cloud dès Pro",
+      "knowledge": "Playbooks et façon de travailler, en carte de pages liées",
       "pipeline": "Valeur et étape de l’affaire sur chaque carte",
       "pitchBoard": "Chaque pitch, du brief à la décision"
     },
     "label": "Espaces du produit",
     "livePrompt": "Essayer en direct",
     "tabs": {
+      "agents": "Agents",
+      "automations": "Automatisations",
       "calendar": "Calendrier",
       "clientOverview": "Vue clients",
       "clients": "Clients",
       "dashboard": "Tableau de bord",
       "engagements": "Missions",
       "inbox": "Boîte de réception",
+      "knowledge": "Base de connaissances",
       "pipeline": "Pipeline",
       "pitchBoard": "Pitchs"
     }

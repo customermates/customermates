@@ -29,7 +29,7 @@ import {
   removeAdClickFromHref,
 } from "@/features/acquisition/ad-click-url";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
-import { isContentPathname } from "@/i18n/routing";
+import { isAdLandingPathname, isContentPathname } from "@/i18n/routing";
 import { OPEN_PRIVACY_CHOICES_EVENT } from "./privacy-choices-event";
 
 type AdAttributionVisit = { pendingAt: string; search: string; provider: AdProvider };
@@ -45,7 +45,8 @@ function replaceCurrentRelativeHref(href: string): void {
 function currentAdAttributionVisit(): AdAttributionVisit | null {
   const pathname = window.location.pathname;
   const search = window.location.search;
-  const eligibleLanding = isContentPathname(pathname) || stripLocalePrefix(pathname) === "/contact";
+  const eligibleLanding =
+    isContentPathname(pathname) || isAdLandingPathname(pathname) || stripLocalePrefix(pathname) === "/contact";
   const markedClick = normalizePendingAdClick({ search });
   if (hasAdAttributionPendingMarker({ search }) && !markedClick) return null;
   if (!eligibleLanding && !markedClick) return null;

@@ -10,6 +10,7 @@ import { SectionHeader } from "@/components/marketing/section-header";
 import { Google, Instagram, Linkedin, Outlook, Telegram, Whatsapp } from "@/components/icons/channel-icon";
 
 import { HomepageMateBubble } from "./homepage-mate-bubble";
+import { AgentsScene, DataScene, InboxScene, KnowledgeScene } from "./homepage-pillar-scenes";
 
 const AGENT_LOGOS = ["claude", "chatgpt", "cursor"] as const;
 
@@ -55,7 +56,7 @@ function StackCard({ bubble, children, description, icon, id, index, plan, title
 }
 
 export function HomepagePillars({ pillars }: { pillars: HomepagePillarsContent }) {
-  const { agents, data, inbox, knowledge } = pillars;
+  const { agents, data, inbox, knowledge, scenes } = pillars;
 
   return (
     <MarketingSection className="mk-section" id="pillars">
@@ -83,15 +84,7 @@ export function HomepagePillars({ pillars }: { pillars: HomepagePillarsContent }
             ))}
           </div>
 
-          <div className="homepage-stack-sheet mt-3">
-            {agents.clients.map((client) => (
-              <p key={client.name} className="flex items-baseline justify-between gap-3">
-                <span className="homepage-stack-sheet-title">{client.name}</span>
-
-                <span className="homepage-stack-line text-right">{client.detail}</span>
-              </p>
-            ))}
-          </div>
+          <AgentsScene scene={scenes.agents} />
         </StackCard>
 
         <StackCard
@@ -111,13 +104,7 @@ export function HomepagePillars({ pillars }: { pillars: HomepagePillarsContent }
             ))}
           </div>
 
-          <div className="homepage-stack-sheet mt-3">
-            <span className="homepage-stack-sheet-title">{inbox.thread.name}</span>
-
-            <span className="homepage-stack-line">{inbox.thread.preview}</span>
-
-            <span className="mk-badge w-fit">{inbox.thread.linkedTo}</span>
-          </div>
+          <InboxScene scene={scenes.inbox} />
         </StackCard>
 
         <StackCard
@@ -129,27 +116,7 @@ export function HomepagePillars({ pillars }: { pillars: HomepagePillarsContent }
           plan={data.plan}
           title={data.title}
         >
-          <div className="flex flex-wrap gap-1.5">
-            {data.lists.map((list, index) => (
-              <span key={list} className={index === 0 ? "mk-badge mk-badge-strong" : "mk-badge"}>
-                {list}
-              </span>
-            ))}
-          </div>
-
-          <div className="homepage-stack-sheet mt-3">
-            <span className="homepage-stack-sheet-title">{data.record.name}</span>
-
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {data.record.fields.map((field) => (
-                <div key={field.label} className="min-w-0">
-                  <dt className="homepage-stack-line">{field.label}</dt>
-
-                  <dd className="truncate text-xs font-medium text-foreground">{field.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+          <DataScene scene={scenes.data} />
         </StackCard>
 
         <StackCard
@@ -161,19 +128,7 @@ export function HomepagePillars({ pillars }: { pillars: HomepagePillarsContent }
           plan={knowledge.plan}
           title={knowledge.title}
         >
-          <div className="homepage-stack-sheet">
-            <span className="homepage-stack-sheet-title">{knowledge.doc.title}</span>
-
-            <ul className="grid gap-1.5">
-              {knowledge.doc.lines.map((line) => (
-                <li key={line} className="homepage-stack-line">
-                  {line}
-                </li>
-              ))}
-            </ul>
-
-            <span className="mk-badge w-fit">{knowledge.doc.usedBy}</span>
-          </div>
+          <KnowledgeScene scene={scenes.knowledge} />
         </StackCard>
       </ol>
     </MarketingSection>

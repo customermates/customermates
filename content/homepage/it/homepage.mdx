@@ -78,49 +78,63 @@ generator:
       linkLabel: Integrazione LinkedIn con il CRM
 
 followUp:
-  eyebrow: Ogni risposta, gestita
-  title: "Poi ti tiene il passo. Risposte preparate, prossimi passi sulla tua dashboard."
-  description: "Quando un cliente scrive, Mate prepara la risposta dal tuo playbook e mette il prossimo passo sulla tua dashboard. Tu rivedi, modifichi e invii."
-  desk:
-    label: Scena di follow up di esempio con dati di esempio
-    workspace: Lindqvist Advisory
-    conversation:
-      label: LinkedIn
-      name: Jonas Weber
-      company: Halden & Co.
-      time: ven 16:42
-      message: Va bene. Puoi inviarmi l’ambito rivisto la prossima settimana? Così lo porto al nostro consiglio di amministrazione.
-    agent:
-      name: Mate
-      intent: Prepara una risposta dal tuo playbook delle proposte
-      done: Bozza salvata. Prossimo passo aggiunto alla tua dashboard.
-    draft:
-      badge: Bozza, in attesa della tua revisione
-      text: Ciao Jonas, grazie. Martedì ti invio l’ambito rivisto, con le due opzioni di workshop di cui abbiamo parlato. Un saluto, Anna
-      edit: Modifica
-      send: Invia la bozza
-    today:
-      title: Dashboard
-      date: martedì
-      addedBy: Aggiunto da Mate
-      assign: Assegna
-      sections:
-        - title: Prossimi passi in scadenza
-          items:
-            - title: Inviare l’ambito rivisto
-              meta: Halden & Co. · scade oggi
-              owner: AL
-              state: added
-            - title: Sollecitare la proposta firmata
-              meta: Norrland Studio · in ritardo di 2 giorni
-              owner: AL
-              state: overdue
-        - title: Proposte in attesa di risposta
-          items:
-            - title: Proposta Norrland Studio
-              meta: inviata 5 giorni fa
-              owner: AL
-              state: due
+  eyebrow: Automazioni
+  title: "Dillo una volta. Funziona ogni volta."
+  description: "Di’ una volta a Mate cosa deve succedere quando un cliente scrive. Lui crea l’automazione, e da quel momento ogni risposta arriva come bozza da gestire con uno swipe."
+  label: Automazione di esempio con dati di esempio
+  steps:
+    - title: Lo dici una volta
+      description: Una frase, con parole tue.
+    - title: Mate crea l’automazione
+      description: Quando, chiedi all’agente, crea una bozza.
+    - title: Le bozze aspettano uno swipe
+      description: A destra la invii. A sinistra la tieni per dopo.
+  prompt:
+    from: Tu, una volta
+    agent: Mate
+    text: Ogni volta che un cliente risponde, prepara una risposta dal mio playbook delle proposte e metti il prossimo passo sulla mia dashboard.
+  automation:
+    title: "Il cliente risponde: prepara una risposta"
+    subtitle: Automazione · creata da Mate dalla tua frase
+    inactive: Spenta
+    active: Attiva
+    kinds:
+      when: Quando
+      agent: Chiedi all’agente
+      draft: Crea una bozza
+    steps:
+      when: Un cliente risponde su LinkedIn o via e-mail
+      agent: Leggi la conversazione e la scheda cliente. Prepara una risposta dal playbook delle proposte.
+      draft: Metti la bozza in Controlla le bozze e dai una data al prossimo passo
+  review:
+    title: Controlla le bozze
+    badge: Bozza
+    sent: Inviata
+    later: Dopo
+    hint: Scorri a destra per inviare. Scorri a sinistra per tenerla per dopo.
+    swipeRight: "A destra: invia"
+    swipeLeft: "A sinistra: dopo"
+    counts:
+      - 2 in attesa
+      - 3 in attesa
+      - 2 in attesa
+      - 1 in attesa · 1 per dopo
+    drafts:
+      sent:
+        channel: linkedin
+        name: Jonas Weber
+        company: Halden & Co.
+        text: Ciao Jonas, grazie. Martedì ti invio l’ambito rivisto, con le due opzioni di workshop di cui abbiamo parlato. Un saluto, Anna
+      later:
+        channel: email
+        name: George Barlow
+        company: Barlow Manufacturing
+        text: Ciao George, grazie, è tutto chiaro. Propongo sei interviste nei due stabilimenti e un breve giro delle linee di produzione il primo giorno. Un saluto, Max
+      next:
+        channel: email
+        name: Sarah Kemp
+        company: Kemp Logistica
+        text: Ciao Sarah, ecco le due opzioni di cui abbiamo parlato, con ambito e tempi di ciascuna. Se vuoi, le vediamo insieme in una call. Un saluto, Max
 
 pillars:
   eyebrow: Come funziona
@@ -181,17 +195,70 @@ pillars:
         detail: Connettore personalizzato
       - name: Cursor, Codex, Gemini CLI
         detail: Chiave API
+  scenes:
+    agents:
+      label: "Automazione · Risposte dei clienti: prepara una risposta"
+      steps:
+        - kind: "Quando"
+          text: "Un cliente risponde su LinkedIn o via e-mail"
+        - kind: "Chiedi all’agente"
+          text: "Leggi il thread e il playbook, prepara la risposta"
+        - kind: "Crea una bozza"
+          text: "Mettila in Bozze da rivedere, data il prossimo passo"
+      run: "Jonas Weber · Risposta LinkedIn · bozza creata"
+      status: "Riuscita"
+    inbox:
+      label: "Posta in arrivo · tutti i canali, un’unica lista"
+      rows:
+        - name: "Jonas Weber"
+          text: "Perfetto. Puoi inviarmi l’ambito rivisto?"
+          linked: "Collegato a Halden & Co."
+        - name: "Sarah Kemp"
+          text: "Ecco le due opzioni di cui abbiamo parlato."
+          linked: "Collegato a Kemp Logistics"
+        - name: "Ole Brandt"
+          text: "Possiamo spostare il workshop a giovedì?"
+          linked: "Collegato a Brandt Studio"
+        - name: "Helen Ashworth"
+          text: "L’opzione B per noi va bene."
+          linked: "Collegato a Fairhaven"
+    data:
+      label: "Creato da Mate dalla tua descrizione"
+      lists: ["Clienti", "Incarichi", "Proposte", "Attività"]
+      columns: ["Incarico", "Fase", "Prossimo passo"]
+      rows:
+        - ["Halden & Co.", "Proposta inviata", "mar"]
+        - ["Norrland Studio", "Definizione", "gio"]
+        - ["Fairhaven", "Decisione", "ven"]
+    knowledge:
+      label: "Knowledge Base · mappa delle pagine collegate"
+      nodes:
+        guide: "Guida operativa"
+        playbook: "Playbook delle proposte"
+        process: "Come avanzano gli incarichi"
+        rates: "Tariffe giornaliere"
+        brief: "Scheda relazione"
+        icp: "Cliente ideale"
+        tone: "Tono di voce"
+        agents: "Come lavorano i nostri agenti"
+      run: "Mate ha usato il playbook delle proposte per la bozza a Jonas"
 
 proofAndPartners:
   proof:
-    eyebrow: Costruito sul nostro lavoro
-    title: Le nostre vendite le gestiamo su Customermates.
-    description: I nostri potenziali clienti, partner e conversazioni vivono in uno spazio di lavoro Customermates. Agenti IA collegati tramite MCP preparano le risposte e i follow up. Approviamo una volta ogni nuovo tipo di messaggio, e quelli simili seguono le regole che abbiamo approvato.
-    steps:
-      - Arriva una risposta su LinkedIn o via e-mail
-      - Un agente prepara la risposta e il prossimo passo
-      - Un nuovo tipo di messaggio aspetta la nostra approvazione
-    note: Lo stesso prodotto con cui inizi oggi.
+    eyebrow: Una nota dal fondatore
+    title: Non sai se fa per te? Chiedimelo.
+    paragraphs:
+      - "Ciao, sono Ben. Sviluppo Customermates in Germania, e i messaggi dalla pagina contatti arrivano direttamente a me, non a una coda di ticket."
+      - "Mandami gli strumenti che usi oggi. Ti dico cosa funziona subito e dove un’integrazione separata è la risposta onesta. Di solito rispondo entro 24 ore, spesso in giornata."
+    signature: Ben
+    name: Benjamin Wagner
+    role: Fondatore, Customermates
+    contact:
+      label: Scrivimi
+      href: /contact
+    linkedin:
+      label: Trovami su LinkedIn
+      href: https://www.linkedin.com/in/wagner-benjamin/
   partners:
     eyebrow: Per assistenti virtuali, agenzie e costruttori di automazioni
     title: Gestisci il follow up per i tuoi clienti.
@@ -203,12 +270,6 @@ proofAndPartners:
     cta:
       label: Vedi il programma partner
       href: /affiliate
-
-trust:
-  label: "Customermates in breve"
-  database: "Database a Francoforte"
-  sourceAvailable: "Codice sorgente disponibile"
-  agents: "Funziona con Claude e ChatGPT"
 
 plansTeaser:
   eyebrow: Prezzi
@@ -437,24 +498,33 @@ cta:
 useCases:
   eyebrow: "Come puoi usarlo"
   title: "Scegli il compito. Lo spazio di lavoro ti segue."
+  description: "Mate o il tuo Claude fa il lavoro nella piattaforma. Tu devi solo rivedere."
   items:
     - title: "Fai follow up sulle conversazioni LinkedIn"
-      description: "I thread LinkedIn ed e-mail stanno sul cliente. Mate prepara la risposta e data il prossimo passo, e tu rivedi e invii nella conversazione."
+      agent: mate
+      done: "Risposta a Rachel Dawson preparata"
+      you: "Tu: rivedi e invia"
       href: /features/linkedin-integration
       linkLabel: "Vedi LinkedIn nella posta in arrivo"
       visual: conversation
-    - title: "Fai follow up su ogni proposta dopo la chiamata"
-      description: "Clienti, incarichi e proposte con le conversazioni che ci stanno dietro, e un prossimo passo datato su ciascuna."
+    - title: "Fai follow up su ogni proposta"
+      agent: mate
+      done: "Kessler Dental spostato a Proposta inviata"
+      you: "Tu: approva il promemoria"
       href: /for/consultants
       linkLabel: "CRM per consulenti"
       visual: proposal
-    - title: "Tieni i prossimi passi dei clienti su un’unica dashboard"
-      description: "Ogni cliente ha un prossimo passo datato, e la tua dashboard mostra cosa è in scadenza su tutti."
+    - title: "Tieni i prossimi passi su un’unica dashboard"
+      agent: mate
+      done: "Prossimi passi mancanti datati"
+      you: "Tu: apri la lista di oggi"
       href: /features/follow-up
       linkLabel: "Vedi il follow up"
       visual: dashboard
-    - title: "Lascia che il tuo Claude o ChatGPT lavori nel tuo CRM"
-      description: "Collega Claude, ChatGPT, Cursor o un altro client MCP. Legge e aggiorna il tuo spazio di lavoro entro i tuoi permessi."
+    - title: "Lascia che il tuo Claude lavori nel tuo CRM"
+      agent: claude
+      done: "Pipeline creata nel tuo spazio di lavoro"
+      you: "Tu: controlla il risultato"
       href: /features/integrations
       linkLabel: "Collega il tuo agente"
       visual: agent

@@ -6,23 +6,12 @@ rootMetadata:
   defaultDescription: "Customermates brings LinkedIn, email and WhatsApp into one place. Mate, your AI teammate, drafts every reply and next step. You review and send."
 
 hero:
-  badge: "Built around your AI"
-  title: The CRM that follows up for you.
-  subtitle: "Customermates brings LinkedIn, email and WhatsApp into one place. Mate, your AI teammate, drafts every reply and next step. You review and send."
-  picker:
-    question: "What do you want to follow up on?"
-    cta: "Start free with {choice}"
-    choices:
-      - label: "Sales leads"
-        template: sales-pipeline
-      - label: "Clients"
-        template: client-tracker
-      - label: "Website inquiries"
-        template: form-to-crm
-      - label: "WhatsApp inquiries"
-        template: whatsapp-enquiry-follow-up
-      - label: "Bookings"
-        template: booking-page
+  badge: "The AI CRM you can talk to"
+  title: Talk to your business. It talks back.
+  subtitle: "Leads, clients, services, your ICP and playbooks in one place. Spar with Mate or your own Claude, get a plan, approve it, and watch it run."
+  primaryCta:
+    label: "Start your [[commercial.trial.days]]-day trial"
+    href: /auth/signup?job=followup
   secondaryCta:
     label: Watch the film (73 s)
     href: "#film"
@@ -78,58 +67,72 @@ generator:
       linkLabel: LinkedIn CRM integration
 
 followUp:
-  eyebrow: Every reply, handled
-  title: "Then it keeps up with you. Replies drafted, next steps on your dashboard."
-  description: "When a client writes, Mate drafts the answer from your playbook and puts the next step on your dashboard. You review, edit and send."
-  desk:
-    label: Example follow-up scene with demo data
-    workspace: Lindqvist Advisory
-    conversation:
-      label: LinkedIn
-      name: Jonas Weber
-      company: Halden & Co.
-      time: Fri 16:42
-      message: Sounds good. Could you send the revised scope next week? Then I can take it to our board.
-    agent:
-      name: Mate
-      intent: Drafting a reply from your proposal playbook
-      done: Draft saved. Next step added to your dashboard.
-    draft:
-      badge: Draft, waiting for your review
-      text: Hi Jonas, thank you. I'll send the revised scope on Tuesday, with the two workshop options we discussed. Best, Anna
-      edit: Edit
-      send: Send draft
-    today:
-      title: Dashboard
-      date: Tuesday
-      addedBy: Added by Mate
-      assign: Assign
-      sections:
-        - title: Next steps due
-          items:
-            - title: Send revised scope
-              meta: Halden & Co. · due today
-              owner: AL
-              state: added
-            - title: Chase the signed proposal
-              meta: Norrland Studio · 2 days overdue
-              owner: AL
-              state: overdue
-        - title: Proposals waiting for an answer
-          items:
-            - title: Norrland Studio proposal
-              meta: sent 5 days ago
-              owner: AL
-              state: due
+  eyebrow: Automations
+  title: "Say it once. It runs every time."
+  description: "Tell Mate once what should happen when a client writes. It builds the automation, and from then on every reply arrives as a draft you swipe through."
+  label: Example automation with demo data
+  steps:
+    - title: You say it once
+      description: One sentence, in your own words.
+    - title: Mate builds the automation
+      description: When, ask the agent, create a draft.
+    - title: Drafts wait for a swipe
+      description: Right sends it. Left keeps it for later.
+  prompt:
+    from: You, once
+    agent: Mate
+    text: Every time a client replies, draft an answer from my proposal playbook and put the next step on my dashboard.
+  automation:
+    title: "Client replies: draft an answer"
+    subtitle: Automation · built by Mate from your sentence
+    inactive: "Off"
+    active: Active
+    kinds:
+      when: When
+      agent: Ask the agent
+      draft: Create a draft
+    steps:
+      when: A client replies on LinkedIn or by email
+      agent: Read the thread and the client record. Draft an answer from the proposal playbook.
+      draft: Put the draft in Review drafts and date the next step
+  review:
+    title: Review drafts
+    badge: Draft
+    sent: Sent
+    later: Later
+    hint: Swipe right to send. Swipe left to keep it for later.
+    swipeRight: "Swipe right: send"
+    swipeLeft: "Swipe left: later"
+    counts:
+      - 2 waiting
+      - 3 waiting
+      - 2 waiting
+      - 1 waiting · 1 for later
+    drafts:
+      sent:
+        channel: linkedin
+        name: Jonas Weber
+        company: Halden & Co.
+        text: Hi Jonas, thank you. I'll send the revised scope on Tuesday, with the two workshop options we discussed. Best, Anna
+      later:
+        channel: email
+        name: George Barlow
+        company: Barlow Manufacturing
+        text: Hi George, thank you, that is clear. I propose six interviews across the two plants and a short walk through the production lines on the first day. Best, Max
+      next:
+        channel: email
+        name: Sarah Kemp
+        company: Kemp Logistics
+        text: Hi Sarah, here are the two options we discussed, with the scope and timing of each. Happy to go through them on a call. Best, Max
 
 pillars:
   eyebrow: How it works
-  title: "Everything your follow-up needs, in one place."
-  description: Your knowledge, your client data and your conversations live together, so every agent that helps you works from the same facts.
+  title: "Everything your agents need. Nothing you do by hand."
+  description: Knowledge, data, conversations and automations live in one workspace, so Mate or your own AI works from the same facts and does the work for you.
   knowledge:
     title: Knowledge
     bubble: "I wrote the reply to Jonas with your proposal playbook."
-    description: Playbooks, prices and how you work, written once. Mate and connected agents use the pages their permissions allow.
+    description: Playbooks, prices and how you work, written once and linked as a map. Mate and connected agents use the pages their permissions allow.
     plan: Every plan
     doc:
       title: Proposal playbook
@@ -140,8 +143,8 @@ pillars:
       usedBy: Used for the draft to Jonas Weber
   data:
     title: Data
-    bubble: "Halden & Co. is at Proposal sent. The next step is due Tuesday."
-    description: Clients, deals and any list your business needs, with your own fields, stages and views.
+    bubble: "I built these lists and the dashboard from your description."
+    description: Clients, deals and any list your business needs. Your agent sets up the fields, stages and dashboards from one description.
     plan: Every plan
     lists:
       - Clients
@@ -169,8 +172,8 @@ pillars:
       linkedTo: Linked to Halden & Co.
   agents:
     title: Agents
-    bubble: "Your Claude and I work from the same records and rules."
-    description: Mate is built in. Or connect the AI you already pay for, and it works with the same records and rules.
+    bubble: "Your Claude and I run the same automations, with the same rules."
+    description: Mate is built in. Or connect the AI you already pay for. Both run your automations with the same records and rules.
     plan: Every plan, Mate on paid Cloud
     clients:
       - name: Mate
@@ -181,20 +184,73 @@ pillars:
         detail: Custom connector
       - name: Cursor, Codex, Gemini CLI
         detail: API key
+  scenes:
+    agents:
+      label: "Automation · Client replies: draft an answer"
+      steps:
+        - kind: "When"
+          text: "A client replies on LinkedIn or by email"
+        - kind: "Ask the agent"
+          text: "Read the thread and the playbook, draft the answer"
+        - kind: "Create a draft"
+          text: "Put it in Review drafts, date the next step"
+      run: "Jonas Weber · LinkedIn reply · draft created"
+      status: "Succeeded"
+    inbox:
+      label: "Inbox · every channel, one list"
+      rows:
+        - name: "Jonas Weber"
+          text: "Sounds good. Could you send the revised scope?"
+          linked: "Linked to Halden & Co."
+        - name: "Sarah Kemp"
+          text: "Here are the two options we discussed."
+          linked: "Linked to Kemp Logistics"
+        - name: "Ole Brandt"
+          text: "Can we move the workshop to Thursday?"
+          linked: "Linked to Brandt Studio"
+        - name: "Helen Ashworth"
+          text: "Option B works for us."
+          linked: "Linked to Fairhaven"
+    data:
+      label: "Built by Mate from your description"
+      lists: ["Clients", "Engagements", "Proposals", "Tasks"]
+      columns: ["Engagement", "Stage", "Next step"]
+      rows:
+        - ["Halden & Co.", "Proposal sent", "Tue"]
+        - ["Norrland Studio", "Scoping", "Thu"]
+        - ["Fairhaven", "Decision", "Fri"]
+    knowledge:
+      label: "Knowledge Base · map of linked pages"
+      nodes:
+        guide: "Operating Guide"
+        playbook: "Proposal playbook"
+        process: "How engagements move"
+        rates: "Day rates"
+        brief: "Relationship brief"
+        icp: "Ideal client"
+        tone: "Tone of voice"
+        agents: "How our agents work"
+      run: "Mate used Proposal playbook for the draft to Jonas"
 
 proofAndPartners:
   proof:
-    eyebrow: Built on our own work
-    title: We run our own sales on Customermates.
-    description: Our prospects, partners and conversations live in a Customermates workspace. AI agents connected through MCP prepare the replies and follow-ups. We approve each new kind of message once, and similar ones follow the rules we approved.
-    steps:
-      - A reply arrives on LinkedIn or by email
-      - An agent drafts the answer and the next step
-      - A new kind of message waits for our approval
-    note: The same product you start with today.
+    eyebrow: A note from the founder
+    title: Not sure it fits? Ask me.
+    paragraphs:
+      - "Hi, I'm Ben. I build Customermates in Germany, and messages from the contact page come straight to me, not to a ticket queue."
+      - "Send me the setup you use today. I'll tell you what fits directly and where a separate integration is the honest answer. I usually reply within 24 hours, often the same day."
+    signature: Ben
+    name: Benjamin Wagner
+    role: Founder, Customermates
+    contact:
+      label: Write to me
+      href: /contact
+    linkedin:
+      label: Find me on LinkedIn
+      href: https://www.linkedin.com/in/wagner-benjamin/
   partners:
     eyebrow: For VAs, agencies and automation builders
-    title: Run follow-up for your clients.
+    title: Run your clients' work with agents.
     description: Set up one workspace per client, connect their channels and let agents prepare the work you deliver.
     points:
       - Up to [[commercial.workspaces.creationLimit]] workspaces per login, one per client
@@ -203,12 +259,6 @@ proofAndPartners:
     cta:
       label: See the partner programme
       href: /affiliate
-
-trust:
-  label: "Customermates at a glance"
-  database: "Database in Frankfurt"
-  sourceAvailable: "Source available"
-  agents: "Works with Claude and ChatGPT"
 
 plansTeaser:
   eyebrow: Pricing
@@ -426,8 +476,8 @@ faq:
 closingEyebrow: Customermates
 
 cta:
-  action: Ready to follow up on every client?
-  description: Start with one channel and one client. Your trial runs [[commercial.trial.days]] days on Pro without a credit card, or explore a consultancy demo workspace first.
+  action: Say it once. Let your agents run it.
+  description: Describe your business, connect one channel and hand off the first job. Your trial runs [[commercial.trial.days]] days on Pro without a credit card, or explore a consultancy demo workspace first.
   buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the demo
@@ -437,24 +487,33 @@ cta:
 useCases:
   eyebrow: "Ways you can use it"
   title: "Pick the job. The workspace follows."
+  description: "Mate or your own Claude does the work in the platform. You only review."
   items:
     - title: "Follow up on LinkedIn conversations"
-      description: "LinkedIn and email threads sit on the client. Mate drafts the reply and dates the next step, and you review and send it in the conversation."
+      agent: mate
+      done: "Reply to Rachel Dawson drafted"
+      you: "You: review and send"
       href: /features/linkedin-integration
       linkLabel: "See LinkedIn in the inbox"
       visual: conversation
-    - title: "Follow up on every proposal after the call"
-      description: "Clients, engagements and proposals with the conversations behind them, and a dated next step on each."
+    - title: "Follow up on every proposal"
+      agent: mate
+      done: "Kessler Dental moved to Proposal sent"
+      you: "You: approve the reminder"
       href: /for/consultants
       linkLabel: "CRM for consultants"
       visual: proposal
-    - title: "Keep client next steps on one dashboard"
-      description: "Every client gets a dated next step, and your dashboard shows what is due across all of them."
+    - title: "Keep next steps on one dashboard"
+      agent: mate
+      done: "Missing next steps dated"
+      you: "You: open today's list"
       href: /features/follow-up
       linkLabel: "See follow-up"
       visual: dashboard
-    - title: "Let your own Claude or ChatGPT work in your CRM"
-      description: "Connect Claude, ChatGPT, Cursor or another MCP client. It reads and updates your workspace within your permissions."
+    - title: "Let your own Claude work in your CRM"
+      agent: claude
+      done: "Pipeline built in your workspace"
+      you: "You: check the result"
       href: /features/integrations
       linkLabel: "Connect your agent"
       visual: agent

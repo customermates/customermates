@@ -1,8 +1,9 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
 
-import { CodeXml, Play } from "lucide-react";
+import { ArrowRight, CodeXml, Play } from "lucide-react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { marketingButtonClassName } from "@/components/marketing/marketing-button";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { TwoToneTitle } from "@/components/marketing/section-header";
 import { AppLink } from "@/components/shared/app-link";
@@ -28,12 +29,14 @@ type Props = {
 };
 
 export function HomepageHero({ heroSection }: Props) {
-  const { assurances, badge, picker, secondaryCta, subtitle, title } = heroSection;
-  const choices = picker.choices.map((choice) => ({
-    href: homepageHeroSignupHref(choice.template),
-    label: choice.label,
-    template: choice.template,
-  }));
+  const { assurances, badge, picker, primaryCta, secondaryCta, subtitle, title } = heroSection;
+  const secondary = (
+    <a className="mk-button mk-button-lg mk-button-ghost" href={secondaryCta.href}>
+      <Play aria-hidden className="!size-3.5 fill-current" />
+
+      {secondaryCta.label}
+    </a>
+  );
 
   return (
     <section className="mk-hero-section relative isolate w-full" data-homepage-hero="" data-homepage-section="hero">
@@ -66,13 +69,34 @@ export function HomepageHero({ heroSection }: Props) {
           <p className="mk-lede homepage-hero-lede mt-5">{subtitle}</p>
 
           <div className="mt-7 w-full">
-            <HomepageHeroPicker choices={choices} cta={picker.cta} question={picker.question}>
-              <a className="mk-button mk-button-lg mk-button-ghost" href={secondaryCta.href}>
-                <Play aria-hidden className="!size-3.5 fill-current" />
+            {picker ? (
+              <HomepageHeroPicker
+                choices={picker.choices.map((choice) => ({
+                  href: homepageHeroSignupHref(choice.template),
+                  label: choice.label,
+                  template: choice.template,
+                }))}
+                cta={picker.cta}
+                question={picker.question}
+              >
+                {secondary}
+              </HomepageHeroPicker>
+            ) : primaryCta ? (
+              <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-2">
+                <AppLink
+                  appearance="unstyled"
+                  className={marketingButtonClassName({ size: "lg" })}
+                  data-homepage-hero-cta=""
+                  href={primaryCta.href}
+                >
+                  {primaryCta.label}
 
-                {secondaryCta.label}
-              </a>
-            </HomepageHeroPicker>
+                  <ArrowRight aria-hidden data-mk-arrow="" />
+                </AppLink>
+
+                {secondary}
+              </div>
+            ) : null}
           </div>
 
           <ul className="homepage-hero-assurances mt-5" data-homepage-assurances="">

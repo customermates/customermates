@@ -14,7 +14,7 @@ import { HomepageComposerText } from "./homepage-composer-text";
 import { HomepageMateBubble, MATE_NAME } from "./homepage-mate-bubble";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { HomepageWorkspaceTabs } from "./homepage-workspace-tabs";
-import { SolutionProductStage } from "./solution-product-stage";
+import { type SolutionExtraTabId, SolutionProductStage } from "./solution-product-stage";
 
 const PROMPT_AGENTS = [
   { compact: false, name: "Claude", provider: "claude" },
@@ -23,8 +23,10 @@ const PROMPT_AGENTS = [
 ] as const;
 
 type Props = {
+  extraTabs?: readonly SolutionExtraTabId[];
   generator: HomepageGenerator;
   locale: string;
+  placement?: "hero" | "section";
 };
 
 export async function HomepageWorkspacePrompt({
@@ -128,7 +130,7 @@ export function WorkspaceBuildSteps({ steps }: { steps: HomepageGenerator["steps
   );
 }
 
-export function HomepageWorkspaceGenerator({ generator, locale }: Props) {
+export function HomepageWorkspaceGenerator({ extraTabs, generator, locale, placement = "section" }: Props) {
   const panels = generator.items.map((item) => (
     <div key={item.solution}>
       <HomepageWorkspacePrompt
@@ -138,7 +140,7 @@ export function HomepageWorkspaceGenerator({ generator, locale }: Props) {
       />
 
       <div className="relative">
-        <SolutionProductStage className="mt-0" locale={locale} solutionId={item.solution} />
+        <SolutionProductStage className="mt-0" extraTabs={extraTabs} locale={locale} solutionId={item.solution} />
 
         <HomepageMateBubble className="right-3 bottom-8 hidden sm:flex lg:-right-4 lg:bottom-14">
           {generator.mateBubble}
@@ -161,13 +163,19 @@ export function HomepageWorkspaceGenerator({ generator, locale }: Props) {
     </div>
   ));
 
+  const underHero = placement === "hero";
+
   return (
-    <MarketingSection className="mk-section" id="workspace">
-      <SectionHeader description={generator.description} eyebrow={generator.eyebrow} title={generator.title} />
+    <MarketingSection className={underHero ? "homepage-workspace-under-hero" : "mk-section"} id="workspace">
+      {underHero ? null : (
+        <>
+          <SectionHeader description={generator.description} eyebrow={generator.eyebrow} title={generator.title} />
 
-      <WorkspaceBuildSteps steps={generator.steps} />
+          <WorkspaceBuildSteps steps={generator.steps} />
+        </>
+      )}
 
-      <div className="mt-10">
+      <div className={underHero ? undefined : "mt-10"}>
         <HomepageWorkspaceTabs
           label={generator.eyebrow}
           labels={generator.items.map((item) => item.label)}

@@ -107,22 +107,29 @@ const heroChoiceSchema = z.object({
   template: z.enum(TEMPLATE_SLUGS),
 });
 
-export const heroSchema = z.object({
-  assurances: z.object({
-    database: z.string(),
-    noCard: z.string(),
-    sourceAvailable: z.string(),
-  }),
-  badge: z.string(),
-  picker: z.object({
-    choices: z.array(heroChoiceSchema).min(4).max(5),
-    cta: z.string().includes("{choice}"),
-    question: z.string(),
-  }),
-  secondaryCta: homepageLinkSchema,
-  subtitle: z.string(),
-  title: z.string(),
-});
+export const heroSchema = z
+  .object({
+    assurances: z.object({
+      database: z.string(),
+      noCard: z.string(),
+      sourceAvailable: z.string(),
+    }),
+    badge: z.string(),
+    picker: z
+      .object({
+        choices: z.array(heroChoiceSchema).min(4).max(5),
+        cta: z.string().includes("{choice}"),
+        question: z.string(),
+      })
+      .optional(),
+    primaryCta: homepageLinkSchema.optional(),
+    secondaryCta: homepageLinkSchema,
+    subtitle: z.string(),
+    title: z.string(),
+  })
+  .refine((hero) => Boolean(hero.picker) !== Boolean(hero.primaryCta), {
+    message: "A homepage hero sets exactly one of picker or primaryCta.",
+  });
 export type Hero = z.infer<typeof heroSchema>;
 
 const howItWorksStepSchema = z.object({
@@ -222,10 +229,42 @@ const homepageGeneratorSchema = z.object({
 });
 export type HomepageGenerator = z.infer<typeof homepageGeneratorSchema>;
 
+const followUpDraftSchema = z.object({
+  channel: z.enum(["linkedin", "email"]),
+  company: z.string(),
+  name: z.string(),
+  text: z.string(),
+});
+
 const homepageFollowUpSchema = z.object({
+  automation: z.object({
+    active: z.string(),
+    inactive: z.string(),
+    kinds: z.object({ agent: z.string(), draft: z.string(), when: z.string() }),
+    steps: z.object({ agent: z.string(), draft: z.string(), when: z.string() }),
+    subtitle: z.string(),
+    title: z.string(),
+  }),
   description: z.string(),
-  desk: deskSchema,
   eyebrow: z.string(),
+  label: z.string(),
+  prompt: z.object({
+    agent: z.string(),
+    from: z.string(),
+    text: z.string(),
+  }),
+  review: z.object({
+    badge: z.string(),
+    counts: z.array(z.string()).length(4),
+    drafts: z.object({ later: followUpDraftSchema, next: followUpDraftSchema, sent: followUpDraftSchema }),
+    hint: z.string(),
+    later: z.string(),
+    sent: z.string(),
+    swipeLeft: z.string(),
+    swipeRight: z.string(),
+    title: z.string(),
+  }),
+  steps: z.array(z.object({ description: z.string(), title: z.string() })).length(3),
   title: z.string(),
 });
 export type HomepageFollowUp = z.infer<typeof homepageFollowUpSchema>;
@@ -264,9 +303,42 @@ const homepagePillarsSchema = z.object({
       usedBy: z.string(),
     }),
   }),
+  scenes: z.object({
+    agents: z.object({
+      label: z.string(),
+      run: z.string(),
+      status: z.string(),
+      steps: z.array(z.object({ kind: z.string(), text: z.string() })).length(3),
+    }),
+    data: z.object({
+      columns: z.array(z.string()).length(3),
+      label: z.string(),
+      lists: z.array(z.string()).length(4),
+      rows: z.array(z.array(z.string()).length(3)).length(3),
+    }),
+    inbox: z.object({
+      label: z.string(),
+      rows: z.array(z.object({ linked: z.string(), name: z.string(), text: z.string() })).length(4),
+    }),
+    knowledge: z.object({
+      label: z.string(),
+      nodes: z.object({
+        agents: z.string(),
+        brief: z.string(),
+        guide: z.string(),
+        icp: z.string(),
+        playbook: z.string(),
+        process: z.string(),
+        rates: z.string(),
+        tone: z.string(),
+      }),
+      run: z.string(),
+    }),
+  }),
   title: z.string(),
 });
 export type HomepagePillars = z.infer<typeof homepagePillarsSchema>;
+export type HomepagePillarScenes = HomepagePillars["scenes"];
 
 const homepageProofSchema = z.object({
   partners: z.object({
@@ -277,22 +349,17 @@ const homepageProofSchema = z.object({
     title: z.string(),
   }),
   proof: z.object({
-    description: z.string(),
+    contact: homepageLinkSchema,
     eyebrow: z.string(),
-    note: z.string(),
-    steps: z.array(z.string()).length(3),
+    linkedin: homepageLinkSchema,
+    name: z.string(),
+    paragraphs: z.array(z.string()).min(1).max(3),
+    role: z.string(),
+    signature: z.string(),
     title: z.string(),
   }),
 });
 export type HomepageProof = z.infer<typeof homepageProofSchema>;
-
-const homepageTrustSchema = z.object({
-  agents: z.string(),
-  database: z.string(),
-  label: z.string(),
-  sourceAvailable: z.string(),
-});
-export type HomepageTrust = z.infer<typeof homepageTrustSchema>;
 
 const homepagePlansSchema = z.object({
   compareHref: z.string(),
@@ -339,6 +406,5 @@ export const homepageSchema = frontmatterSchema.extend({
   walkthrough: walkthroughSchema.optional(),
   rootMetadata: rootMetadataSchema,
   title: z.string(),
-  trust: homepageTrustSchema,
   useCases: useCasesSchema,
 });

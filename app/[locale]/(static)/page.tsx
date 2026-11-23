@@ -12,7 +12,6 @@ import { HomepageIntegrations } from "./components/homepage-integrations";
 import { HomepagePillars } from "./components/homepage-pillars";
 import { HomepageProofPartners } from "./components/homepage-proof-partners";
 import { HomepageFollowUp } from "./components/homepage-follow-up";
-import { HomepageTrustStrip } from "./components/homepage-trust-strip";
 import { HomepageWorkspaceGenerator } from "./components/homepage-workspace-generator";
 import { ProductFilm } from "@/components/marketing/product-film";
 import { UseCasesSection } from "@/components/marketing/use-cases-section";
@@ -26,6 +25,8 @@ import { enableMarketingLocale, type StaticLocaleProps } from "@/i18n/static-loc
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+const HOMEPAGE_EXTRA_DEMO_TABS = ["knowledge", "automations", "agents"] as const;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -55,19 +56,8 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
   if (!homepagePage) notFound();
 
-  const {
-    closingEyebrow,
-    cta,
-    faq,
-    followUp,
-    generator,
-    hero,
-    pillars,
-    plansTeaser,
-    proofAndPartners,
-    trust,
-    useCases,
-  } = homepagePage.data;
+  const { closingEyebrow, cta, faq, followUp, generator, hero, pillars, plansTeaser, proofAndPartners, useCases } =
+    homepagePage.data;
 
   return (
     <div
@@ -88,19 +78,22 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
       <HomepageHero heroSection={hero} />
 
-      <ProductFilm />
-
-      <HomepageTrustStrip trust={trust} />
+      <HomepageWorkspaceGenerator
+        extraTabs={HOMEPAGE_EXTRA_DEMO_TABS}
+        generator={generator}
+        locale={locale}
+        placement="hero"
+      />
 
       <UseCasesSection useCases={useCases} />
 
       <HomepageIntegrations />
 
-      <HomepageWorkspaceGenerator generator={generator} locale={locale} />
-
       <HomepageFollowUp followUp={followUp} />
 
       <HomepagePillars pillars={pillars} />
+
+      <ProductFilm />
 
       <HomepageProofPartners content={proofAndPartners} />
 

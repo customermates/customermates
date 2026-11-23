@@ -54,6 +54,7 @@ import { shortcutDestinations } from "./navigation/shortcut-destinations";
 import { SidebarCustomize } from "./navigation/sidebar-customize";
 import { useAccountActions } from "./navigation/use-account-actions";
 import { NavSecondary } from "./navigation/nav-secondary";
+import { DemoSignupButton } from "./navigation/demo-signup-button";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { FreePlanSidebarCardWithUsage, TrialSidebarCardWithFit } from "./navigation/plan-sidebar-cards";
@@ -625,6 +626,8 @@ const FullAppSidebar = observer(
 
           <SidebarFooter>
             {trialCard}
+
+            {rootStore.appMode === "demo" ? <DemoSignupButton /> : null}
 
             <NavUser
               customizable={!area}
