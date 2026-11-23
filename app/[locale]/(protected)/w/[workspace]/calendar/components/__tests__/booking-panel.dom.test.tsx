@@ -145,6 +145,12 @@ function buttonWithText(scope: HTMLElement, text: string): HTMLButtonElement {
   return found;
 }
 
+function newPageButton(): HTMLButtonElement {
+  const actions = container.querySelector<HTMLElement>('[data-slot="app-modal-actions"]');
+  if (!actions) throw new Error("The sheet has no header actions.");
+  return buttonWithText(actions, "Booking.newShort");
+}
+
 function hasButton(scope: HTMLElement, text: string): boolean {
   return [...scope.querySelectorAll("button")].some((button) => button.textContent?.includes(text));
 }
@@ -172,6 +178,7 @@ beforeEach(() => {
   harness.save.mockResolvedValue({ ok: true, data: {} });
   harness.remove.mockResolvedValue({ ok: true, data: {} });
   harness.copy.mockResolvedValue(true);
+  vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} }));
   host = document.createElement("div");
   document.body.append(host);
   container = document.body;
@@ -181,6 +188,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   host.remove();
+  vi.unstubAllGlobals();
   vi.useRealTimers();
 });
 
@@ -189,9 +197,11 @@ describe("BookingPanel", () => {
     await renderPanel(ready());
 
     const panel = container.querySelector<HTMLElement>("[data-booking-panel]");
-    expect(panel?.getAttribute("role")).toBe("dialog");
-    expect(panel?.querySelector("header h2")?.textContent).toBe("Booking.panelTitle");
-    expect(buttonWithText(panel?.querySelector("header") as HTMLElement, "Booking.newShort").disabled).toBe(false);
+    const sheet = panel?.closest<HTMLElement>('[role="dialog"]');
+    expect(sheet?.querySelector('[data-slot="sheet-title"]')?.textContent).toBe("Booking.panelTitle");
+    expect(sheet?.querySelector('[data-slot="sheet-close"]')).not.toBeNull();
+    expect(sheet?.contains(newPageButton())).toBe(true);
+    expect(newPageButton().disabled).toBe(false);
   });
 
   it("draws one row per page with its length, place, hosts, short link and status, grouped by owner", async () => {
@@ -237,7 +247,7 @@ describe("BookingPanel", () => {
     expect(harness.modal.start).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: MINE.id }), null);
 
     harness.modal.start.mockClear();
-    act(() => buttonWithText(container.querySelector("header") as HTMLElement, "Booking.newShort").click());
+    act(() => newPageButton().click());
     expect(harness.modal.start).toHaveBeenCalledExactlyOnceWith();
   });
 
@@ -391,7 +401,7 @@ describe("BookingPanel", () => {
 
     expect(container.textContent).toContain("ScheduleMeeting.blocked.noCalendar");
     expect(container.querySelector("#connect-calendar")).not.toBeNull();
-    expect(buttonWithText(container.querySelector("header") as HTMLElement, "Booking.newShort").disabled).toBe(true);
+    expect(newPageButton().disabled).toBe(true);
   });
 
   it("shows the pages read-only in the demo: no new page, no switch, no delete, no booking changes", async () => {
@@ -399,7 +409,7 @@ describe("BookingPanel", () => {
     await renderPanel({ status: "ready", links: [MINE], setup: READY_SETUP, upcoming, readOnly: true });
 
     expect(container.querySelector("[data-booking-read-only]")?.textContent).toContain("Booking.demoNote");
-    expect(buttonWithText(container.querySelector("header") as HTMLElement, "Booking.newShort").disabled).toBe(true);
+    expect(newPageButton().disabled).toBe(true);
     expect(row(MINE.id).querySelector<HTMLButtonElement>('[role="switch"]')?.disabled).toBe(true);
     const menu = menuOf("Intro call");
     expect(hasButton(menu, "Booking.edit")).toBe(true);
@@ -424,7 +434,7 @@ describe("BookingPanel", () => {
   it("closes from its close button and from Escape", async () => {
     await renderPanel(ready());
 
-    act(() => container.querySelector<HTMLButtonElement>('button[aria-label="Booking.panelClose"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-slot="sheet-close"]')?.click());
     expect(onClose).toHaveBeenCalledOnce();
 
     act(() => {

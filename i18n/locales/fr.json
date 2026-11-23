@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "Voici comment les visiteurs voient cette page. Les horaires suivent vos heures de travail ; les créneaux occupés de votre agenda ne comptent que sur la page publiée.",
     "pagePreviewLabel": "Aperçu",
     "pagePreviewTitle": "Votre page de réservation",
-    "panelClose": "Fermer les pages de réservation",
     "panelLocked": "Les pages de réservation nécessitent une offre avec messagerie et l’accès à la boîte de réception.",
     "panelOwner": "Pages de réservation de {owner}",
     "panelTitle": "Pages de réservation",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Ajouter une source de dates",
     "calendarSync": "Exporter et s’abonner",
-    "closeCalendarSync": "Fermer Exporter et s’abonner",
-    "closeSources": "Fermer les sources de dates",
     "connectCalendar": "Connecter un calendrier",
     "createSubscription": "Créer l’URL d’abonnement",
     "download": "Télécharger .ics",

@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "How visitors see this page. The times follow your working hours; busy times in your calendar only apply on the live page.",
     "pagePreviewLabel": "Preview",
     "pagePreviewTitle": "Your booking page",
-    "panelClose": "Close booking pages",
     "panelLocked": "Booking pages need a plan with messaging and access to the inbox.",
     "panelOwner": "Booking pages of {owner}",
     "panelTitle": "Booking pages",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Add date source",
     "calendarSync": "Export & subscribe",
-    "closeCalendarSync": "Close export & subscribe",
-    "closeSources": "Close date sources",
     "connectCalendar": "Connect a calendar",
     "createSubscription": "Create subscription URL",
     "download": "Download .ics",

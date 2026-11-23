@@ -100,7 +100,7 @@ test("an agent sets the Calendar page over MCP, the page shows it, and reset ret
     const sources = page.getByRole("dialog", { name: "Date sources", exact: true });
     await expect(sources.locator("[data-planner-source]")).toHaveCount(1);
     await expect(sources.getByRole("checkbox", { name: "Organizations · Due on", exact: true })).toBeChecked();
-    await sources.getByRole("button", { name: "Close date sources", exact: true }).click();
+    await sources.getByRole("button", { name: "Close", exact: true }).click();
 
     const reset = await call({ action: "reset" });
     expect(reset).toMatchObject({ saved: false, config: initial.config });

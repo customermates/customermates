@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "É assim que os visitantes veem esta página. Os horários seguem seu horário de trabalho; os horários ocupados do seu calendário só valem na página publicada.",
     "pagePreviewLabel": "Pré-visualização",
     "pagePreviewTitle": "Sua página de agendamento",
-    "panelClose": "Fechar as páginas de agendamento",
     "panelLocked": "As páginas de agendamento exigem um plano com mensagens e acesso à caixa de entrada.",
     "panelOwner": "Páginas de agendamento de {owner}",
     "panelTitle": "Páginas de agendamento",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Adicionar fonte de datas",
     "calendarSync": "Exportar e assinar",
-    "closeCalendarSync": "Fechar exportar e assinar",
-    "closeSources": "Fechar fontes de datas",
     "connectCalendar": "Conectar um calendário",
     "createSubscription": "Criar URL de assinatura",
     "download": "Baixar .ics",

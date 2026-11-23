@@ -523,7 +523,6 @@ const PlannerPageViewContent = observer(function PlannerPageView({
       {panel === "sources" && (
         <PlannerSidePanel
           bodyClassName="gap-4 px-5 py-4"
-          closeLabel={t("Planner.closeSources")}
           data-planner-sources=""
           title={t("Planner.sources")}
           onClose={closePanel}

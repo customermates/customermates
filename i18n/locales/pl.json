@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "Tak odwiedzający widzą tę stronę. Terminy wynikają z Twoich godzin pracy; zajęte terminy w Twoim kalendarzu liczą się dopiero na opublikowanej stronie.",
     "pagePreviewLabel": "Podgląd",
     "pagePreviewTitle": "Twoja strona rezerwacji",
-    "panelClose": "Zamknij strony rezerwacji",
     "panelLocked": "Strony rezerwacji wymagają planu z wiadomościami i dostępu do skrzynki odbiorczej.",
     "panelOwner": "Strony rezerwacji użytkownika {owner}",
     "panelTitle": "Strony rezerwacji",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Dodaj źródło dat",
     "calendarSync": "Eksport i subskrypcja",
-    "closeCalendarSync": "Zamknij eksport i subskrypcję",
-    "closeSources": "Zamknij źródła dat",
     "connectCalendar": "Połącz kalendarz",
     "createSubscription": "Utwórz adres URL subskrypcji",
     "download": "Pobierz .ics",

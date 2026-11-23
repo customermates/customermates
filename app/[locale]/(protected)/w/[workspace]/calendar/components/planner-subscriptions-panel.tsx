@@ -92,7 +92,6 @@ export function PlannerSubscriptionsPanel({
   return (
     <PlannerSidePanel
       bodyClassName="gap-4 px-5 py-4"
-      closeLabel={t("Planner.closeCalendarSync")}
       data-planner-subscriptions=""
       title={t("Planner.calendarSync")}
       onClose={onClose}

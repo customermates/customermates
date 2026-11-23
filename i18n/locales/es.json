@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "Así ven los visitantes esta página. Los horarios siguen tu horario de trabajo; las franjas ocupadas de tu calendario solo se aplican en la página publicada.",
     "pagePreviewLabel": "Vista previa",
     "pagePreviewTitle": "Tu página de reservas",
-    "panelClose": "Cerrar las páginas de reservas",
     "panelLocked": "Las páginas de reservas requieren un plan con mensajería y acceso a la bandeja de entrada.",
     "panelOwner": "Páginas de reservas de {owner}",
     "panelTitle": "Páginas de reservas",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Añadir fuente de fechas",
     "calendarSync": "Exportar y suscribirse",
-    "closeCalendarSync": "Cerrar exportar y suscribirse",
-    "closeSources": "Cerrar fuentes de fechas",
     "connectCalendar": "Conectar calendario",
     "createSubscription": "Crear URL de suscripción",
     "download": "Descargar .ics",

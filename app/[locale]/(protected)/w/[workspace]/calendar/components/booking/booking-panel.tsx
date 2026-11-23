@@ -136,7 +136,6 @@ export const BookingPanel = observer(function BookingPanel({ state, onClose }: P
           {t("Booking.newShort")}
         </Button>
       }
-      closeLabel={t("Booking.panelClose")}
       data-booking-panel=""
       title={t("Booking.panelTitle")}
       onClose={onClose}

@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "Così i visitatori vedono questa pagina. Gli orari seguono il tuo orario di lavoro; gli impegni del tuo calendario valgono solo sulla pagina pubblicata.",
     "pagePreviewLabel": "Anteprima",
     "pagePreviewTitle": "La tua pagina di prenotazione",
-    "panelClose": "Chiudi le pagine di prenotazione",
     "panelLocked": "Le pagine di prenotazione richiedono un piano con messaggistica e accesso alla posta in arrivo.",
     "panelOwner": "Pagine di prenotazione di {owner}",
     "panelTitle": "Pagine di prenotazione",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Aggiungi fonte delle date",
     "calendarSync": "Esporta e abbonati",
-    "closeCalendarSync": "Chiudi Esporta e abbonati",
-    "closeSources": "Chiudi fonti delle date",
     "connectCalendar": "Collega calendario",
     "createSubscription": "Crea URL di abbonamento",
     "download": "Scarica .ics",

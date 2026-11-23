@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "So sehen Besucher diese Seite. Die Zeiten folgen deinen Arbeitszeiten; belegte Zeiten deines Kalenders gelten erst auf der echten Seite.",
     "pagePreviewLabel": "Vorschau",
     "pagePreviewTitle": "Deine Buchungsseite",
-    "panelClose": "Buchungsseiten schließen",
     "panelLocked": "Buchungsseiten brauchen einen Tarif mit Nachrichten und Zugriff auf den Posteingang.",
     "panelOwner": "Buchungsseiten von {owner}",
     "panelTitle": "Buchungsseiten",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Datumsquelle hinzufügen",
     "calendarSync": "Exportieren & abonnieren",
-    "closeCalendarSync": "Exportieren & abonnieren schließen",
-    "closeSources": "Datumsquellen schließen",
     "connectCalendar": "Kalender verbinden",
     "createSubscription": "Abonnement-URL erstellen",
     "download": ".ics herunterladen",

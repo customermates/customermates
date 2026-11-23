@@ -1538,7 +1538,6 @@
     "pagePreviewHint": "Zo zien bezoekers deze pagina. De tijden volgen je werktijden; bezette tijden in je agenda gelden pas op de echte pagina.",
     "pagePreviewLabel": "Voorbeeld",
     "pagePreviewTitle": "Jouw boekingspagina",
-    "panelClose": "Boekingspagina's sluiten",
     "panelLocked": "Boekingspagina's vereisen een abonnement met berichten en toegang tot de inbox.",
     "panelOwner": "Boekingspagina's van {owner}",
     "panelTitle": "Boekingspagina's",
@@ -4984,8 +4983,6 @@
   "Planner": {
     "addSource": "Datumbron toevoegen",
     "calendarSync": "Exporteren en abonneren",
-    "closeCalendarSync": "Exporteren en abonneren sluiten",
-    "closeSources": "Datumbronnen sluiten",
     "connectCalendar": "Een agenda koppelen",
     "createSubscription": "Abonnements-URL maken",
     "download": ".ics downloaden",
