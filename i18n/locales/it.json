@@ -4351,14 +4351,14 @@
           "steps": "In Langdock aggiungi un'integrazione MCP e incolla l'URL. Come metodo di autenticazione scegli OAuth 2.0 (Dynamic Client Registration), salva, poi connetti, accedi a Customermates e approva l'accesso.",
           "title": "Aggiungi Customermates come integrazione MCP in Langdock"
         },
-        "subtitle": "Aggiungi Customermates a {provider} con l'URL di questo workspace e accedi."
+        "subtitle": "Aggiungi Customermates a {provider} con l'URL di questo spazio di lavoro e accedi."
       },
       "captions": {
         "claude": "App Claude, web o Claude Code",
         "cursor": "Editor Cursor",
         "gemini": "Gemini CLI",
         "grok": "Chat di Grok o Grok Bot",
-        "langdock": "Workspace Langdock",
+        "langdock": "Spazio di lavoro Langdock",
         "openai": "App ChatGPT o Codex",
         "other": "Qualsiasi app che supporta MCP"
       },

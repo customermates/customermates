@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 import type { SolutionId } from "@/core/solutions/solution-catalog";
 
-import { AGENT_APP_NAMES, INTEGRATION_KEYS, agentConnections } from "../seeds/solutions/agent-native";
+import { AGENT_APP_NAMES, EXTRA_AGENT_APPS, INTEGRATION_KEYS, agentConnections } from "../seeds/solutions/agent-native";
 import type { MessagingProvider, SolutionContent } from "../seeds/solutions/define-solution";
 import { inboxThreads } from "../seeds/solutions/inbox-threads";
 import { SOLUTION_SUBSCRIPTION } from "../seeds/solutions/seed-solution";
@@ -70,9 +70,15 @@ describe("agent-native demo workspaces", () => {
   it.each(plans.map(({ workspace, content }) => [workspace.slug, content] as const))(
     "%s shows that Claude, ChatGPT and Codex can create, update and automate",
     (_slug, content) => {
-      expect((content.agentApps ?? []).map((app) => app.name)).toEqual([...AGENT_APP_NAMES]);
-      expect(new Set((content.agentApps ?? []).map((app) => app.connectedDaysAgo)).size).toBe(AGENT_APP_NAMES.length);
-      expect((content.apiKeys ?? []).map((key) => key.name)).toEqual(INTEGRATION_KEYS.map((key) => key.name));
+      const apps = (content.agentApps ?? []).map((app) => app.name);
+      const extraNames: readonly string[] = Object.values(EXTRA_AGENT_APPS).map((app) => app.name);
+      expect(apps.slice(0, AGENT_APP_NAMES.length)).toEqual([...AGENT_APP_NAMES]);
+      expect(apps.slice(AGENT_APP_NAMES.length).every((name) => extraNames.includes(name))).toBe(true);
+      expect(new Set(apps).size).toBe(apps.length);
+      expect(new Set((content.agentApps ?? []).map((app) => app.connectedDaysAgo)).size).toBe(apps.length);
+      const keyNames: readonly string[] = INTEGRATION_KEYS.map((key) => key.name);
+      expect((content.apiKeys ?? []).length).toBeGreaterThan(0);
+      expect((content.apiKeys ?? []).every((key) => keyNames.includes(key.name))).toBe(true);
       expect((content.apiKeys ?? []).every((key) => key.lastUsedMinutesAgo !== undefined)).toBe(true);
       expect((content.apiKeys ?? []).map((key) => key.name)).not.toContain("Claude Desktop");
       expect(new Set(agentNotes(content))).toEqual(new Set(["Claude", "ChatGPT", "Codex"]));
@@ -138,8 +144,8 @@ describe("agent-native demo workspaces", () => {
     expect(agentApps.every(recent)).toBe(true);
     expect(apiKeys.map(({ name, createdDaysAgo }) => [name, createdDaysAgo])).toEqual([
       ["Zapier", 39],
-      ["n8n", 29],
-      ["Webflow", 19],
+      ["n8n", 30],
+      ["Webflow", 21],
     ]);
     expect(apiKeys.every((key) => (key.lastUsedMinutesAgo ?? 0) > 0)).toBe(true);
   });

@@ -90,7 +90,7 @@ suite("generic synthetic seed convergence", { timeout: 360000 }, () => {
         cancelledBookings: 1,
         forms: 1,
         incomingWebhooks: 1,
-        runners: 1,
+        runners: 2,
       });
       expect(platform.rules).toBeGreaterThanOrEqual(5);
       expect(platform.appliedRuns).toBeGreaterThan(0);
