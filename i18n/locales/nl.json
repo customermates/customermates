@@ -980,13 +980,19 @@
   },
   "AgentStart": {
     "copied": "Gekopieerd",
+    "copiedTip": "Gekopieerd. Plak het in je agent",
     "copy": "Kopiëren",
+    "daysLeft": "{count, plural, one {Nog # dag} other {Nog # dagen}}",
     "failed": "Kopiëren mislukt",
+    "getStarted": "Aan de slag",
     "heroHint": "Of plak dit in een willekeurige AI-agent",
     "hint": "Plak dit in een willekeurige AI-agent en die richt Customermates samen met je in",
+    "label": "Richt je agent in",
+    "progress": "{done} van {total} klaar",
     "prompt": "Lees {url} en richt Customermates in voor mijn bedrijf.",
     "sidebarDismiss": "Verbergen",
-    "sidebarTitle": "Koppel je agent"
+    "stepInbox": "Koppel je inbox",
+    "stepPlan": "Kies een abonnement"
   },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",

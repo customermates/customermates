@@ -980,13 +980,19 @@
   },
   "AgentStart": {
     "copied": "Kopiert",
+    "copiedTip": "Kopiert. Füge es in deinen Agenten ein",
     "copy": "Kopieren",
+    "daysLeft": "{count, plural, one {Noch # Tag} other {Noch # Tage}}",
     "failed": "Kopieren fehlgeschlagen",
+    "getStarted": "Erste Schritte",
     "heroHint": "Oder füge das in einen beliebigen KI-Agenten ein",
     "hint": "Füge das in einen beliebigen KI-Agenten ein, und er richtet Customermates mit dir ein",
+    "label": "Agent einrichten",
+    "progress": "{done} von {total} erledigt",
     "prompt": "Lies {url} und richte Customermates für meine Firma ein.",
     "sidebarDismiss": "Ausblenden",
-    "sidebarTitle": "Agent verbinden"
+    "stepInbox": "Postfach verbinden",
+    "stepPlan": "Tarif wählen"
   },
   "ApiKeyModal": {
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",

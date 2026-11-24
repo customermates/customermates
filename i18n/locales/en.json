@@ -980,13 +980,19 @@
   },
   "AgentStart": {
     "copied": "Copied",
+    "copiedTip": "Copied. Paste it into your agent",
     "copy": "Copy",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
     "failed": "Copy failed",
+    "getStarted": "Get started",
     "heroHint": "Or paste this into any AI agent",
     "hint": "Paste this into any AI agent and it sets Customermates up with you",
+    "label": "Onboard your agent",
+    "progress": "{done} of {total} done",
     "prompt": "Read {url} and set up Customermates for my business.",
     "sidebarDismiss": "Hide",
-    "sidebarTitle": "Connect your agent"
+    "stepInbox": "Connect your inbox",
+    "stepPlan": "Pick a plan"
   },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",

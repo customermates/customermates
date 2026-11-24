@@ -2955,3 +2955,195 @@ path:focus {
   padding: 0 0.5rem;
   border-radius: 0.375rem;
 }
+
+.agent-start-pill {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  max-width: 100%;
+  min-height: 2.875rem;
+  padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.agent-start-pill:hover {
+  border-color: color-mix(in oklab, var(--foreground) 25%, transparent);
+}
+
+.agent-start-pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+.agent-start-pill[data-open] {
+  border-radius: 1rem;
+}
+
+.agent-start-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.agent-start-pill .agent-start-chip-logos > span {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: -0.5rem;
+}
+
+.agent-start-pill .agent-start-chip-logos > span:first-child {
+  margin-left: 0;
+}
+
+.agent-start-pill-label {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--foreground);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-start-pill-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  margin-left: auto;
+  padding-left: 0.25rem;
+  color: var(--muted-foreground);
+}
+
+.agent-start-pill-icon[data-status="copied"] {
+  color: var(--success);
+}
+
+.agent-start-pill-prompt {
+  padding: 0.5rem 0.625rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+  border-radius: 0.5rem;
+  background: var(--muted);
+}
+
+.agent-start-pill-tip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--background);
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  background: var(--foreground);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.agent-start-pill[data-size="sm"] {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+}
+
+.agent-start-pill[data-size="sm"] .agent-start-chip-logos > span {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.agent-start-pill[data-size="sm"] .agent-start-pill-label {
+  font-size: 0.8125rem;
+}
+
+.agent-start-pill[data-size="sm"] .agent-start-pill-prompt {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+}
+
+.get-started-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+.get-started-step:hover {
+  background: var(--muted);
+}
+
+.get-started-step:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+.get-started-step-done {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+}
+
+.get-started-mark {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 1.5px dashed var(--border-strong, var(--border));
+  border-radius: 999px;
+}
+
+.get-started-mark[data-done] {
+  color: var(--success-foreground);
+  border: 0;
+  background: var(--success);
+}
+
+.get-started-pill {
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.25rem 0.375rem;
+  border-color: transparent;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  box-shadow: none;
+}
+
+.get-started-pill[data-open] {
+  border-radius: 0.5rem;
+}
+
+.get-started-pill .agent-start-pill-prompt {
+  background: var(--card);
+}
+
+.get-started-pill .agent-start-pill-tip {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.get-started-pill .agent-start-pill-row {
+  gap: 0.5rem;
+}
+
+.get-started-pill .agent-start-pill-label {
+  font-weight: 400;
+}

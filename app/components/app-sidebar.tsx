@@ -59,8 +59,9 @@ import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { FreePlanSidebarCardWithUsage, TrialSidebarCardWithFit } from "./navigation/plan-sidebar-cards";
 import { trialCardVisible } from "./navigation/trial-sidebar-card";
-import { AgentStartSidebarCard } from "./navigation/agent-start-sidebar-card";
+import { GetStartedSidebarCard } from "./navigation/get-started-sidebar-card";
 import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
+import { TRIAL_END_WINDOW_DAYS } from "@/core/commercial/plan-fit";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
@@ -396,6 +397,7 @@ const FullAppSidebar = observer(
     const trialCard =
       subscription &&
       trialDaysLeft !== null &&
+      trialDaysLeft <= TRIAL_END_WINDOW_DAYS &&
       trialCardVisible({
         appMode: rootStore.appMode,
         restricted,
@@ -627,7 +629,12 @@ const FullAppSidebar = observer(
 
           <SidebarFooter>
             {restricted || rootStore.appMode === "demo" ? null : (
-              <AgentStartSidebarCard workspaceKey={workspacesStore.current?.companyId ?? "workspace"} />
+              <GetStartedSidebarCard
+                canOpenBilling={canAccess(Resource.company) && intlPathname !== settingsHref("billing")}
+                trialDaysLeft={subscription?.status === "trial" ? trialDaysLeft : null}
+                workspaceKey={workspacesStore.current?.companyId ?? "workspace"}
+                onNavigate={() => closeMobileSidebar()}
+              />
             )}
 
             {trialCard}

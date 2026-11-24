@@ -980,13 +980,19 @@
   },
   "AgentStart": {
     "copied": "Copiado",
+    "copiedTip": "Copiado. Cole no seu agente",
     "copy": "Copiar",
+    "daysLeft": "{count, plural, one {Falta # dia} other {Faltam # dias}}",
     "failed": "Não foi possível copiar",
+    "getStarted": "Primeiros passos",
     "heroHint": "Ou cole isto em qualquer agente de IA",
     "hint": "Cole isto em qualquer agente de IA e ele configura o Customermates com você",
+    "label": "Configure seu agente",
+    "progress": "{done} de {total} concluídos",
     "prompt": "Leia {url} e configure o Customermates para o meu negócio.",
     "sidebarDismiss": "Ocultar",
-    "sidebarTitle": "Conecte seu agente"
+    "stepInbox": "Conecte sua caixa de entrada",
+    "stepPlan": "Escolha um plano"
   },
   "ApiKeyModal": {
     "addDescription": "Crie uma chave para a sua própria integração ou escolha um cliente de IA para uma configuração guiada.",
