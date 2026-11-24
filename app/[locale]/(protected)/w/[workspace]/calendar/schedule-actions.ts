@@ -8,6 +8,7 @@ import type {
 } from "@/ee/calendar/meeting.schema";
 
 import {
+  getGetCalendarEventByIdInteractor,
   getGetFreeSlotsInteractor,
   getGetMeetingOptionsInteractor,
   getScheduleMeetingInteractor,
@@ -25,6 +26,14 @@ export async function freeSlotsAction(input: Omit<FreeSlotsQuery, "days" | "buff
 
 export async function scheduleMeetingAction(input: ScheduleMeetingInput) {
   return serializeResult(getScheduleMeetingInteractor().invoke(input as never));
+}
+
+export async function meetingEventAction(input: { id: string }) {
+  return serializeTypedResult(getGetCalendarEventByIdInteractor().invoke({ id: input.id }));
+}
+
+export async function updateMeetingAction(input: UpdateMeetingInput) {
+  return serializeResult(getUpdateMeetingInteractor().invoke(input as never));
 }
 
 export async function moveMeetingAction(input: Pick<UpdateMeetingInput, "id" | "startsAt" | "endsAt">) {

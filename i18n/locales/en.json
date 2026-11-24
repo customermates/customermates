@@ -5001,7 +5001,6 @@
       "quarter": "Quarter",
       "timeline": "Timeline"
     },
-    "movableEvent": "This event is in your connected calendar. Drag it to another time or day, or drag its top or bottom edge to change its length; attendees get the update. Edit everything else in the original calendar.",
     "moveEventFailed": "The event could not be moved. It keeps its time.",
     "moveEventUndone": "Move undone",
     "next": "Next period",
@@ -6428,6 +6427,8 @@
     "created": "Meeting scheduled",
     "defaultTitle": "Meeting with {name}",
     "duration": "{minutes} min",
+    "editTitle": "Edit meeting",
+    "eventLoadFailed": "The meeting could not be loaded. Close this window and try again.",
     "fields": {
       "attendees": "Attendees",
       "calendar": "Calendar",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Set the meeting start in",
       "location": "Location",
       "sendInvites": "Send invitations to the attendees",
+      "sendUpdates": "Send the changes to the attendees",
       "time": "Start",
       "title": "Title",
       "videoLink": "Add a video link"
@@ -6453,6 +6455,7 @@
       "demo": "Scheduling meetings needs a connected calendar and is not available in the demo workspace.",
       "selfHosted": "Scheduling meetings needs the hosted calendar connection and is not available when self-hosting."
     },
+    "updated": "Meeting updated",
     "upsell": {
       "detail": "Create events in your Google or Microsoft calendar from any record.",
       "title": "Schedule meetings from {plan}"

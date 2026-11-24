@@ -5001,7 +5001,6 @@
       "quarter": "Trimestre",
       "timeline": "Cronologia"
     },
-    "movableEvent": "Questo evento è nel tuo calendario collegato. Trascinalo su un altro orario o giorno, oppure trascina il bordo superiore o inferiore per cambiarne la durata; i partecipanti ricevono l’aggiornamento. Modifica tutto il resto nel calendario originale.",
     "moveEventFailed": "Impossibile spostare l’evento. Mantiene il suo orario.",
     "moveEventUndone": "Spostamento annullato",
     "next": "Periodo successivo",
@@ -6428,6 +6427,8 @@
     "created": "Riunione pianificata",
     "defaultTitle": "Riunione con {name}",
     "duration": "{minutes} min",
+    "editTitle": "Modifica riunione",
+    "eventLoadFailed": "Non è stato possibile caricare la riunione. Chiudi questa finestra e riprova.",
     "fields": {
       "attendees": "Partecipanti",
       "calendar": "Calendario",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Salva l’inizio della riunione in",
       "location": "Luogo",
       "sendInvites": "Invia inviti ai partecipanti",
+      "sendUpdates": "Invia le modifiche ai partecipanti",
       "time": "Inizio",
       "title": "Titolo",
       "videoLink": "Aggiungi un link per la videochiamata"
@@ -6453,6 +6455,7 @@
       "demo": "Pianificare riunioni richiede un calendario collegato e non è disponibile nello spazio di lavoro demo.",
       "selfHosted": "Pianificare riunioni richiede la connessione al calendario ospitata e non è disponibile con il self-hosting."
     },
+    "updated": "Riunione aggiornata",
     "upsell": {
       "detail": "Crea eventi nel tuo calendario Google o Microsoft da qualsiasi record.",
       "title": "Pianifica riunioni da {plan}"

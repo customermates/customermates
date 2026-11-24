@@ -5001,7 +5001,6 @@
       "quarter": "Trimestre",
       "timeline": "Linha do tempo"
     },
-    "movableEvent": "Este evento está no seu calendário conectado. Arraste-o para outro horário ou dia, ou arraste a borda superior ou inferior para mudar a duração; os participantes recebem a atualização. Edite o resto no calendário original.",
     "moveEventFailed": "Não foi possível mover o evento. Ele mantém o horário.",
     "moveEventUndone": "Movimentação desfeita",
     "next": "Próximo período",
@@ -6428,6 +6427,8 @@
     "created": "Reunião agendada",
     "defaultTitle": "Reunião com {name}",
     "duration": "{minutes} min",
+    "editTitle": "Editar reunião",
+    "eventLoadFailed": "Não foi possível carregar a reunião. Feche esta janela e tente novamente.",
     "fields": {
       "attendees": "Participantes",
       "calendar": "Calendário",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Salvar o início da reunião em",
       "location": "Local",
       "sendInvites": "Enviar convites aos participantes",
+      "sendUpdates": "Enviar as alterações aos participantes",
       "time": "Início",
       "title": "Título",
       "videoLink": "Adicionar um link de videochamada"
@@ -6453,6 +6455,7 @@
       "demo": "Agendar reuniões exige um calendário conectado e não está disponível no espaço de trabalho de demonstração.",
       "selfHosted": "Agendar reuniões exige a conexão de calendário hospedada e não está disponível em instâncias auto-hospedadas."
     },
+    "updated": "Reunião atualizada",
     "upsell": {
       "detail": "Crie eventos no seu calendário Google ou Microsoft a partir de qualquer registro.",
       "title": "Agende reuniões a partir do plano {plan}"

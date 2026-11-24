@@ -5001,7 +5001,6 @@
       "quarter": "Trimestre",
       "timeline": "Chronologie"
     },
-    "movableEvent": "Cet évènement est dans votre calendrier connecté. Faites-le glisser vers une autre heure ou un autre jour, ou faites glisser son bord supérieur ou inférieur pour changer sa durée ; les participants reçoivent la mise à jour. Modifiez le reste dans son calendrier d’origine.",
     "moveEventFailed": "Impossible de déplacer l’évènement. Il garde son horaire.",
     "moveEventUndone": "Déplacement annulé",
     "next": "Période suivante",
@@ -6428,6 +6427,8 @@
     "created": "Réunion planifiée",
     "defaultTitle": "Réunion avec {name}",
     "duration": "{minutes} min",
+    "editTitle": "Modifier la réunion",
+    "eventLoadFailed": "La réunion n’a pas pu être chargée. Fermez cette fenêtre et réessayez.",
     "fields": {
       "attendees": "Participants",
       "calendar": "Agenda",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Enregistrer le début de la réunion dans",
       "location": "Lieu",
       "sendInvites": "Envoyer des invitations aux participants",
+      "sendUpdates": "Envoyer les modifications aux participants",
       "time": "Début",
       "title": "Titre",
       "videoLink": "Ajouter un lien de visioconférence"
@@ -6453,6 +6455,7 @@
       "demo": "La planification de réunions nécessite un agenda connecté et n’est pas disponible dans l’espace de travail de démo.",
       "selfHosted": "La planification de réunions nécessite la connexion d’agenda hébergée et n’est pas disponible en auto-hébergement."
     },
+    "updated": "Réunion mise à jour",
     "upsell": {
       "detail": "Créez des évènements dans votre agenda Google ou Microsoft depuis n’importe quel enregistrement.",
       "title": "Planifier des réunions à partir de {plan}"

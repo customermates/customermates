@@ -5001,7 +5001,6 @@
       "quarter": "Kwartaal",
       "timeline": "Tijdlijn"
     },
-    "movableEvent": "Deze afspraak staat in je gekoppelde agenda. Sleep hem naar een andere tijd of dag, of sleep de boven- of onderrand om de duur te wijzigen; deelnemers krijgen de update. Bewerk de rest in de oorspronkelijke agenda.",
     "moveEventFailed": "De afspraak kon niet worden verplaatst. Hij houdt zijn tijd.",
     "moveEventUndone": "Verplaatsen ongedaan gemaakt",
     "next": "Volgende periode",
@@ -6428,6 +6427,8 @@
     "created": "Afspraak gepland",
     "defaultTitle": "Afspraak met {name}",
     "duration": "{minutes} min",
+    "editTitle": "Afspraak bewerken",
+    "eventLoadFailed": "De afspraak kon niet worden geladen. Sluit dit venster en probeer het opnieuw.",
     "fields": {
       "attendees": "Deelnemers",
       "calendar": "Agenda",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Begintijd van de afspraak opslaan in",
       "location": "Locatie",
       "sendInvites": "Uitnodigingen naar de deelnemers sturen",
+      "sendUpdates": "De wijzigingen naar de deelnemers sturen",
       "time": "Begintijd",
       "title": "Titel",
       "videoLink": "Videolink toevoegen"
@@ -6453,6 +6455,7 @@
       "demo": "Afspraken plannen vereist een gekoppelde agenda en is niet beschikbaar in de demowerkruimte.",
       "selfHosted": "Afspraken plannen vereist de gehoste agendakoppeling en is niet beschikbaar bij zelf hosten."
     },
+    "updated": "Afspraak bijgewerkt",
     "upsell": {
       "detail": "Maak vanuit elk record afspraken in je Google- of Microsoft-agenda.",
       "title": "Afspraken plannen vanaf {plan}"

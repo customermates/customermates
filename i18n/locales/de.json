@@ -5001,7 +5001,6 @@
       "quarter": "Quartal",
       "timeline": "Zeitachse"
     },
-    "movableEvent": "Dieser Termin liegt in deinem verbundenen Kalender. Zieh ihn auf eine andere Zeit oder einen anderen Tag oder zieh seine obere oder untere Kante, um die Dauer zu ändern; Teilnehmende bekommen die Änderung. Alles andere bearbeitest du im ursprünglichen Kalender.",
     "moveEventFailed": "Der Termin konnte nicht verschoben werden. Er behält seine Zeit.",
     "moveEventUndone": "Verschieben rückgängig gemacht",
     "next": "Nächster Zeitraum",
@@ -6428,6 +6427,8 @@
     "created": "Termin geplant",
     "defaultTitle": "Termin mit {name}",
     "duration": "{minutes} Min.",
+    "editTitle": "Termin bearbeiten",
+    "eventLoadFailed": "Der Termin konnte nicht geladen werden. Schließe dieses Fenster und versuche es erneut.",
     "fields": {
       "attendees": "Teilnehmer",
       "calendar": "Kalender",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Terminbeginn speichern in",
       "location": "Standort",
       "sendInvites": "Einladungen an die Teilnehmer senden",
+      "sendUpdates": "Änderungen an die Teilnehmer senden",
       "time": "Beginn",
       "title": "Titel",
       "videoLink": "Videolink hinzufügen"
@@ -6453,6 +6455,7 @@
       "demo": "Das Planen von Terminen braucht einen verbundenen Kalender und ist im Demo-Workspace nicht verfügbar.",
       "selfHosted": "Das Planen von Terminen braucht die gehostete Kalenderverbindung und ist bei selbst gehosteten Instanzen nicht verfügbar."
     },
+    "updated": "Termin aktualisiert",
     "upsell": {
       "detail": "Lege aus jedem Datensatz Termine in deinem Google- oder Microsoft-Kalender an.",
       "title": "Termine planen ab {plan}"

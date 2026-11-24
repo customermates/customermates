@@ -5001,7 +5001,6 @@
       "quarter": "Trimestre",
       "timeline": "Cronograma"
     },
-    "movableEvent": "Este evento está en tu calendario conectado. Arrástralo a otra hora o día, o arrastra su borde superior o inferior para cambiar su duración; los asistentes reciben la actualización. Edita todo lo demás en el calendario original.",
     "moveEventFailed": "No se pudo mover el evento. Conserva su hora.",
     "moveEventUndone": "Movimiento deshecho",
     "next": "Siguiente período",
@@ -6428,6 +6427,8 @@
     "created": "Reunión programada",
     "defaultTitle": "Reunión con {name}",
     "duration": "{minutes} min",
+    "editTitle": "Editar reunión",
+    "eventLoadFailed": "No se pudo cargar la reunión. Cierra esta ventana e inténtalo de nuevo.",
     "fields": {
       "attendees": "Asistentes",
       "calendar": "Calendario",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Guardar el inicio de la reunión en",
       "location": "Lugar",
       "sendInvites": "Enviar invitaciones a los asistentes",
+      "sendUpdates": "Enviar los cambios a los asistentes",
       "time": "Inicio",
       "title": "Título",
       "videoLink": "Añadir un enlace de videollamada"
@@ -6453,6 +6455,7 @@
       "demo": "Programar reuniones requiere un calendario conectado y no está disponible en el espacio de trabajo de demostración.",
       "selfHosted": "Programar reuniones requiere la conexión de calendario alojada y no está disponible en instancias autoalojadas."
     },
+    "updated": "Reunión actualizada",
     "upsell": {
       "detail": "Crea eventos en tu calendario de Google o Microsoft desde cualquier registro.",
       "title": "Programa reuniones desde {plan}"

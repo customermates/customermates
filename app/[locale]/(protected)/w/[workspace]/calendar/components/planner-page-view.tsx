@@ -201,12 +201,15 @@ const PlannerPageViewContent = observer(function PlannerPageView({
   );
   const byId = new Map(entries.map((item) => [item.id, item]));
   const colors = useMemo(() => plannerEntryColors(config, result), [config, result]);
+  const canMoveEvents = root.appMode === "cloud" && options.personalAvailable;
   const open = useCallback(
     (item: PlannerEntry, opener?: HTMLElement | null) => {
       if (item.record) root.recordWorkspaceStore.open(item.record.ref, opener);
+      else if (canMoveEvents && item.editable && item.eventId)
+        root.scheduleMeetingModalStore.edit({ eventId: item.eventId, timeZone: config.timeZone }, opener);
       else setEventDetail(item);
     },
-    [root],
+    [root, canMoveEvents, config.timeZone],
   );
   const stores = useMemo(
     () =>
@@ -249,7 +252,6 @@ const PlannerPageViewContent = observer(function PlannerPageView({
     [creatableKey, createIn, canSchedule, scheduleAt],
   );
   const creatable = Boolean(creatableKey) || canSchedule;
-  const canMoveEvents = root.appMode === "cloud" && options.personalAvailable;
   const moveEvent = useCallback(
     (move: PlannerEventMove) => {
       async function send(next: PlannerEventMove, offerUndo: boolean): Promise<{ saved: boolean }> {
@@ -810,7 +812,6 @@ const PlannerPageViewContent = observer(function PlannerPageView({
       {eventDetail && (
         <PlannerEventModal
           event={eventDetail}
-          movable={canMoveEvents && eventDetail.editable === true}
           name={name(eventDetail)}
           timeZone={config.timeZone}
           onClose={() => setEventDetail(null)}

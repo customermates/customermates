@@ -5001,7 +5001,6 @@
       "quarter": "Kwartał",
       "timeline": "Oś czasu"
     },
-    "movableEvent": "To wydarzenie jest w Twoim połączonym kalendarzu. Przeciągnij je na inną godzinę lub dzień albo przeciągnij jego górną lub dolną krawędź, aby zmienić czas trwania; uczestnicy otrzymają aktualizację. Resztę edytuj w oryginalnym kalendarzu.",
     "moveEventFailed": "Nie udało się przenieść wydarzenia. Zachowuje swój termin.",
     "moveEventUndone": "Przeniesienie cofnięte",
     "next": "Następny okres",
@@ -6428,6 +6427,8 @@
     "created": "Spotkanie zaplanowane",
     "defaultTitle": "Spotkanie z {name}",
     "duration": "{minutes} min",
+    "editTitle": "Edytuj spotkanie",
+    "eventLoadFailed": "Nie udało się wczytać spotkania. Zamknij to okno i spróbuj ponownie.",
     "fields": {
       "attendees": "Uczestnicy",
       "calendar": "Kalendarz",
@@ -6438,6 +6439,7 @@
       "followUpDate": "Zapisz początek spotkania w",
       "location": "Miejsce",
       "sendInvites": "Wyślij zaproszenia do uczestników",
+      "sendUpdates": "Wyślij zmiany do uczestników",
       "time": "Początek",
       "title": "Tytuł",
       "videoLink": "Dodaj link do wideorozmowy"
@@ -6453,6 +6455,7 @@
       "demo": "Planowanie spotkań wymaga połączonego kalendarza i nie jest dostępne w przestrzeni roboczej demo.",
       "selfHosted": "Planowanie spotkań wymaga hostowanego połączenia z kalendarzem i nie jest dostępne przy samodzielnym hostowaniu."
     },
+    "updated": "Spotkanie zaktualizowane",
     "upsell": {
       "detail": "Twórz wydarzenia w kalendarzu Google lub Microsoft z dowolnego rekordu.",
       "title": "Planuj spotkania od planu {plan}"
