@@ -63,7 +63,12 @@ function StepLink({
   onNavigate?: () => void;
 }) {
   return (
-    <IntlLink className={cn("get-started-step", done && "get-started-step-done")} href={href} onClick={onNavigate}>
+    <IntlLink
+      className={cn("get-started-step", done && "get-started-step-done")}
+      href={href}
+      prefetch={false}
+      onClick={onNavigate}
+    >
       <StepMark done={done} />
 
       <span className="min-w-0 flex-1 truncate">{children}</span>
