@@ -7,8 +7,32 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordCalendarViewStore } from "../../records/[typeId]/components/record-calendar-view";
 import type { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 
+import type { CalendarEdit } from "@/features/record-calendar/calendar-entries";
+import type { RecordFieldSaveOutcome } from "../../records/[typeId]/components/record-field-value-editor";
+
 import { calendarEntryColor } from "../../records/[typeId]/components/record-calendar-layout";
+import { editCalendarEntry } from "@/features/record-calendar/calendar-entries";
 import { resolveCalendarFields } from "@/features/record-calendar/record-calendar-query";
+
+export type PlannerEventMove = {
+  entryId: string;
+  eventId: string;
+  startsAt: string;
+  endsAt: string;
+  previous: { startsAt: string; endsAt: string };
+};
+
+export function eventMove(item: PlannerEntry, edit: CalendarEdit, timeZone: string): PlannerEventMove | null {
+  const { time, endTime } = item.entry;
+  if (!item.eventId || !time || !endTime) return null;
+  const next = editCalendarEntry(item.entry, edit, timeZone);
+  if (!next.time || !next.endTime) return null;
+  const startsAt = new Date(next.time).toISOString();
+  const endsAt = new Date(next.endTime).toISOString();
+  const previous = { startsAt: new Date(time).toISOString(), endsAt: new Date(endTime).toISOString() };
+  if (startsAt === previous.startsAt && endsAt === previous.endsAt) return null;
+  return { entryId: item.id, eventId: item.eventId, startsAt, endsAt, previous };
+}
 
 export function plannerEntryColors(config: PlannerConfig, result: PlannerResult): (item: PlannerEntry) => ChipColor {
   const colors = new Map(
@@ -39,6 +63,7 @@ export function plannerCalendarAdapter({
   refresh,
   navigate,
   create,
+  moveEvent = null,
 }: {
   stores: ReadonlyMap<string, RecordExplorationStore>;
   colors: (item: PlannerEntry) => ChipColor;
@@ -50,8 +75,10 @@ export function plannerCalendarAdapter({
   refresh: () => Promise<void>;
   navigate: (date: string) => void;
   create: ((date: string, minutes: number | null, opener?: HTMLElement | null) => void) | null;
+  moveEvent?: ((move: PlannerEventMove) => Promise<RecordFieldSaveOutcome>) | null;
 }): RecordCalendarViewStore {
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
+  const eventMovable = (item: PlannerEntry) => Boolean(moveEvent && item.editable && item.eventId);
   const rows: RecordRow[] = entries.map((item) =>
     item.record
       ? { ...item.record, id: item.id }
@@ -90,14 +117,21 @@ export function plannerCalendarAdapter({
     },
     canMoveCalendarRecord: (row) => {
       const item = byId.get(row.id);
+      if (item && !item.record) return eventMovable(item);
       return Boolean(item?.record && stores.get(item.sourceId)?.canMoveCalendarRecord(item.record));
     },
     canResizeCalendarRecord: (row) => {
       const item = byId.get(row.id);
+      if (item && !item.record) return eventMovable(item);
       return Boolean(item?.record && stores.get(item.sourceId)?.canResizeCalendarRecord(item.record));
     },
     moveCalendarRecord: async (row, edit) => {
       const item = byId.get(row.id);
+      if (item && !item.record) {
+        const move = eventMove(item, edit, window.timeZone);
+        if (!moveEvent || !eventMovable(item) || !move) return { saved: false };
+        return moveEvent(move);
+      }
       const store = item && stores.get(item.sourceId);
       if (!store || !item.record) return { saved: false };
       return store.moveCalendarRecord(item.record, edit);

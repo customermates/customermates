@@ -4991,6 +4991,8 @@
     "endDate": "Data de término",
     "entryCount": "{count, plural, one {# entrada} other {# entradas}}",
     "event": "Evento",
+    "eventMoved": "Evento movido",
+    "eventMovedDescription": "O calendário conectado tem o novo horário. Os participantes recebem a atualização do Google ou da Microsoft.",
     "filterCount": "{count, plural, one {# filtro} other {# filtros}}",
     "filters": "Filtros",
     "includePersonal": "Incluir também eventos conectados selecionados (pode duplicar um calendário existente).",
@@ -4999,6 +5001,9 @@
       "quarter": "Trimestre",
       "timeline": "Linha do tempo"
     },
+    "movableEvent": "Este evento está no seu calendário conectado. Arraste-o para outro horário ou dia, ou arraste a borda superior ou inferior para mudar a duração; os participantes recebem a atualização. Edite o resto no calendário original.",
+    "moveEventFailed": "Não foi possível mover o evento. Ele mantém o horário.",
+    "moveEventUndone": "Movimentação desfeita",
     "next": "Próximo período",
     "noEndDate": "Data única",
     "noSources": "Escolha datas das suas listas para montar seu calendário.",
@@ -5027,7 +5032,8 @@
     "timeZone": "Fuso horário",
     "title": "Calendário",
     "truncated": "Alguns eventos estão fora do limite de exibição. Escolha um período mais curto ou filtre uma fonte de datas. As exportações exigem um resultado completo.",
-    "unavailableSource": "Fonte de datas indisponível"
+    "unavailableSource": "Fonte de datas indisponível",
+    "undoMove": "Desfazer"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# pessoa está pausada} other {# pessoas estão pausadas}}. Escolha {plan} para reativá-las.",

@@ -4991,6 +4991,8 @@
     "endDate": "Data zakończenia",
     "entryCount": "{count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
     "event": "Wydarzenie",
+    "eventMoved": "Wydarzenie przeniesione",
+    "eventMovedDescription": "Połączony kalendarz ma nowy termin. Uczestnicy otrzymają aktualizację od Google lub Microsoft.",
     "filterCount": "{count, plural, one {# filtr} few {# filtry} many {# filtrów} other {# filtra}}",
     "filters": "Filtry",
     "includePersonal": "Uwzględnij też wybrane wydarzenia z połączonych kalendarzy (mogą powielać istniejący kalendarz).",
@@ -4999,6 +5001,9 @@
       "quarter": "Kwartał",
       "timeline": "Oś czasu"
     },
+    "movableEvent": "To wydarzenie jest w Twoim połączonym kalendarzu. Przeciągnij je na inną godzinę lub dzień albo przeciągnij jego górną lub dolną krawędź, aby zmienić czas trwania; uczestnicy otrzymają aktualizację. Resztę edytuj w oryginalnym kalendarzu.",
+    "moveEventFailed": "Nie udało się przenieść wydarzenia. Zachowuje swój termin.",
+    "moveEventUndone": "Przeniesienie cofnięte",
     "next": "Następny okres",
     "noEndDate": "Jedna data",
     "noSources": "Wybierz daty z list, aby zbudować kalendarz.",
@@ -5027,7 +5032,8 @@
     "timeZone": "Strefa czasowa",
     "title": "Kalendarz",
     "truncated": "Niektóre wydarzenia wykraczają poza limit wyświetlania. Wybierz krótszy okres lub przefiltruj źródło dat. Eksport wymaga kompletnego wyniku.",
-    "unavailableSource": "Niedostępne źródło dat"
+    "unavailableSource": "Niedostępne źródło dat",
+    "undoMove": "Cofnij"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# osoba jest wstrzymana} few {# osoby są wstrzymane} many {# osób jest wstrzymanych} other {# osoby są wstrzymane}}. Wybierz plan {plan}, aby przywrócić ich dostęp.",

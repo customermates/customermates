@@ -4991,6 +4991,8 @@
     "endDate": "End date",
     "entryCount": "{count, plural, one {# entry} other {# entries}}",
     "event": "Event",
+    "eventMoved": "Event moved",
+    "eventMovedDescription": "The connected calendar has the new time. Attendees get the update from Google or Microsoft.",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",
     "includePersonal": "Also include selected connected events (may duplicate an existing calendar).",
@@ -4999,6 +5001,9 @@
       "quarter": "Quarter",
       "timeline": "Timeline"
     },
+    "movableEvent": "This event is in your connected calendar. Drag it to another time or day, or drag its top or bottom edge to change its length; attendees get the update. Edit everything else in the original calendar.",
+    "moveEventFailed": "The event could not be moved. It keeps its time.",
+    "moveEventUndone": "Move undone",
     "next": "Next period",
     "noEndDate": "Single date",
     "noSources": "Choose dates from your lists to build your calendar.",
@@ -5027,7 +5032,8 @@
     "timeZone": "Time zone",
     "title": "Calendar",
     "truncated": "Some events are outside the display limit. Choose a shorter period or filter a date source. Exports require a complete result.",
-    "unavailableSource": "Unavailable date source"
+    "unavailableSource": "Unavailable date source",
+    "undoMove": "Undo"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# person is paused} other {# people are paused}}. Choose {plan} to bring them back.",

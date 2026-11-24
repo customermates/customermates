@@ -17,6 +17,8 @@ export type PlannerEntry = {
   entry: CalendarEntry;
   location: string | null;
   provider: string | null;
+  eventId?: string;
+  editable?: boolean;
 };
 
 export function plannerEntries(result: PlannerResult, timeZone: string): PlannerEntry[] {
@@ -67,6 +69,8 @@ export function plannerEntries(result: PlannerResult, timeZone: string): Planner
       },
       location: event.location,
       provider: event.provider,
+      eventId: event.id,
+      editable: event.editable === true && !event.allDay && !event.recurrenceRule,
     });
   }
   return entries.sort((a, b) => compareCalendarEntries(a.entry, b.entry) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

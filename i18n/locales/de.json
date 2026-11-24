@@ -4991,6 +4991,8 @@
     "endDate": "Enddatum",
     "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
     "event": "Ereignis",
+    "eventMoved": "Termin verschoben",
+    "eventMovedDescription": "Der verbundene Kalender hat die neue Zeit. Teilnehmende bekommen die Änderung von Google oder Microsoft.",
     "filterCount": "{count, plural, one {# Filter} other {# Filter}}",
     "filters": "Filter",
     "includePersonal": "Auch ausgewählte verbundene Termine aufnehmen (kann vorhandene Termine verdoppeln).",
@@ -4999,6 +5001,9 @@
       "quarter": "Quartal",
       "timeline": "Zeitachse"
     },
+    "movableEvent": "Dieser Termin liegt in deinem verbundenen Kalender. Zieh ihn auf eine andere Zeit oder einen anderen Tag oder zieh seine obere oder untere Kante, um die Dauer zu ändern; Teilnehmende bekommen die Änderung. Alles andere bearbeitest du im ursprünglichen Kalender.",
+    "moveEventFailed": "Der Termin konnte nicht verschoben werden. Er behält seine Zeit.",
+    "moveEventUndone": "Verschieben rückgängig gemacht",
     "next": "Nächster Zeitraum",
     "noEndDate": "Einzelnes Datum",
     "noSources": "Wähle Datumsfelder aus deinen Listen für deinen Kalender.",
@@ -5027,7 +5032,8 @@
     "timeZone": "Zeitzone",
     "title": "Kalender",
     "truncated": "Einige Termine überschreiten das Anzeigelimit. Wähle einen kürzeren Zeitraum oder zusätzliche Filter. Exporte erfordern vollständige Ergebnisse.",
-    "unavailableSource": "Datumsquelle nicht verfügbar"
+    "unavailableSource": "Datumsquelle nicht verfügbar",
+    "undoMove": "Rückgängig"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# Person ist pausiert} other {# Personen sind pausiert}}. Wähle {plan}, um sie zurückzuholen.",

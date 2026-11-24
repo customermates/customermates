@@ -4991,6 +4991,8 @@
     "endDate": "Einddatum",
     "entryCount": "{count, plural, one {# item} other {# items}}",
     "event": "Afspraak",
+    "eventMoved": "Afspraak verplaatst",
+    "eventMovedDescription": "De gekoppelde agenda heeft de nieuwe tijd. Deelnemers krijgen de update van Google of Microsoft.",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",
     "includePersonal": "Neem ook geselecteerde gekoppelde afspraken op (kan een bestaande agenda dupliceren).",
@@ -4999,6 +5001,9 @@
       "quarter": "Kwartaal",
       "timeline": "Tijdlijn"
     },
+    "movableEvent": "Deze afspraak staat in je gekoppelde agenda. Sleep hem naar een andere tijd of dag, of sleep de boven- of onderrand om de duur te wijzigen; deelnemers krijgen de update. Bewerk de rest in de oorspronkelijke agenda.",
+    "moveEventFailed": "De afspraak kon niet worden verplaatst. Hij houdt zijn tijd.",
+    "moveEventUndone": "Verplaatsen ongedaan gemaakt",
     "next": "Volgende periode",
     "noEndDate": "Enkele datum",
     "noSources": "Kies datums uit je lijsten om je agenda samen te stellen.",
@@ -5027,7 +5032,8 @@
     "timeZone": "Tijdzone",
     "title": "Agenda",
     "truncated": "Sommige afspraken vallen buiten de weergavelimiet. Kies een kortere periode of filter een datumbron. Voor exports is een volledig resultaat nodig.",
-    "unavailableSource": "Datumbron niet beschikbaar"
+    "unavailableSource": "Datumbron niet beschikbaar",
+    "undoMove": "Ongedaan maken"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# persoon is gepauzeerd} other {# personen zijn gepauzeerd}}. Kies {plan} om ze terug te halen.",

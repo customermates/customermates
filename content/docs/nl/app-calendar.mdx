@@ -24,7 +24,7 @@ Elke bron toont maximaal 500 records in de gevraagde periode en gekoppelde agend
 
 ## Welke afspraken staan in mijn agenda? [#connected-calendar-events]
 
-Waar gekoppelde berichten beschikbaar zijn, toont **Mijn gekoppelde agenda's** je Google- en Outlook-agenda's, inclusief gedeelde agenda's volgens de gebruikelijke deelregels. Vink de agenda's aan die je wilt opnemen. Deze afspraken zijn hier alleen-lezen; in hun details open je de gekoppelde agenda om ze te bewerken. Geannuleerde afspraken zijn verborgen. Geïmporteerde terugkerende exemplaren worden getoond en regels van terugkerende reeksen worden uitgevouwen voor de getoonde periode, inclusief tijdzones en uitzonderingen. Ongeldige of niet-ondersteunde herhalingsregels worden gemeld als onvolledige resultaten.
+Waar gekoppelde berichten beschikbaar zijn, toont **Mijn gekoppelde agenda's** je Google- en Outlook-agenda's, inclusief gedeelde agenda's volgens de gebruikelijke deelregels. Vink de agenda's aan die je wilt opnemen. Een losse afspraak met tijd in een agenda die je zelf hebt gekoppeld, verplaats je net als een CRM-item: sleep hem naar een andere tijd of dag, of sleep de boven- of onderrand om de duur te wijzigen. De wijziging wordt opgeslagen in Google of Outlook, dat de update naar de deelnemers stuurt, en een melding biedt **Ongedaan maken**. Weigert de provider de wijziging, bijvoorbeeld bij een afspraak die iemand anders organiseert, dan houdt de afspraak zijn tijd en zie je de reden. Terugkerende reeksen, afspraken van een hele dag en agenda's die iemand anders met je deelt blijven hier alleen-lezen; voor alle andere wijzigingen, zoals de titel of deelnemers, open je in de details de gekoppelde agenda. Geannuleerde afspraken zijn verborgen. Geïmporteerde terugkerende exemplaren worden getoond en regels van terugkerende reeksen worden uitgevouwen voor de getoonde periode, inclusief tijdzones en uitzonderingen. Ongeldige of niet-ondersteunde herhalingsregels worden gemeld als onvolledige resultaten.
 
 Gekoppelde agenda's vereisen het bestaande recht op berichten en leesrechten voor de inbox. Zelf gehoste werkruimtes kunnen recorddatums, elke agendaweergave, exports en abonnementen gebruiken zonder agendaprovider.
 
@@ -62,7 +62,7 @@ Een gekoppeld Google- of Microsoft-account en het abonnement dat de [Inbox](/doc
 
 ### Kan een agent afspraken plannen? [#schedule-meeting-agents]
 
-Ja, met de MCP-tool `schedule_meeting`, met de acties `options`, `slots`, `create`, `update` en `cancel`. `slots` zoekt vrije tijden; `create`, `update` en `cancel` wijzigen afspraken in de eigen gekoppelde agenda van de aanroeper. Net als de andere berichtentools vereist hij Pro of hoger en Customermates Cloud. De exacte schema's staan in de [MCP-catalogus](/docs/mcp#tool-catalog).
+Ja, met de MCP-tool `schedule_meeting`, met de acties `options`, `slots`, `create`, `update` en `cancel`. `slots` zoekt vrije tijden; `create`, `update` en `cancel` wijzigen afspraken in de eigen gekoppelde agenda van de aanroeper. `update` verplaatst ook afspraken die buiten Customermates zijn gemaakt: geef de afspraak-id uit `get_calendars` mee met een nieuwe `startsAt` en `durationMinutes` of `endsAt`, eventueel met een nieuwe titel of beschrijving; het resultaat is de afspraak zoals Google of Microsoft hem heeft opgeslagen. Net als de andere berichtentools vereist hij Pro of hoger en Customermates Cloud. De exacte schema's staan in de [MCP-catalogus](/docs/mcp#tool-catalog).
 
 ## Hoe laat ik anderen een afspraak met mij boeken? [#booking-pages]
 

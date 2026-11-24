@@ -15,11 +15,13 @@ export function PlannerEventModal({
   event,
   timeZone,
   name,
+  movable = false,
   onClose,
 }: {
   event: PlannerEntry;
   timeZone: string;
   name: string;
+  movable?: boolean;
   onClose: () => void;
 }) {
   const t = useTranslations();
@@ -36,7 +38,9 @@ export function PlannerEventModal({
         </AppCardHeader>
 
         <AppCardBody>
-          <p className="text-sm text-muted-foreground">{t("Planner.readOnlyEvent")}</p>
+          <p className="text-sm text-muted-foreground" data-planner-event-hint={movable ? "movable" : "read-only"}>
+            {movable ? t("Planner.movableEvent") : t("Planner.readOnlyEvent")}
+          </p>
 
           <p className="text-sm">{dateLabel(event.entry)}</p>
 

@@ -24,7 +24,7 @@ Każde źródło wyświetla do 500 rekordów w żądanym okresie, a połączone 
 
 ## Jakie spotkania pojawiają się w moim kalendarzu? [#connected-calendar-events]
 
-Tam, gdzie dostępna jest połączona komunikacja, **Moje połączone kalendarze** wyświetla Twoje kalendarze Google i Outlook, w tym udostępnione harmonogramy na zwykłych zasadach udostępniania. Zaznacz kalendarze do uwzględnienia. Te spotkania są tu tylko do odczytu; ich szczegóły otwierają połączony kalendarz do edycji. Anulowane wydarzenia są ukryte. Zaimportowane wystąpienia cykliczne są pokazywane, a reguły serii cyklicznych są rozwijane dla wyświetlanego okresu, z uwzględnieniem stref czasowych i wyłączeń. Nieprawidłowe lub nieobsługiwane reguły powtarzania są zgłaszane jako niekompletne wyniki.
+Tam, gdzie dostępna jest połączona komunikacja, **Moje połączone kalendarze** wyświetla Twoje kalendarze Google i Outlook, w tym udostępnione harmonogramy na zwykłych zasadach udostępniania. Zaznacz kalendarze do uwzględnienia. Pojedyncze spotkanie z godziną w kalendarzu, który połączyłeś samodzielnie, przenosisz jak wpis CRM: przeciągnij je na inną godzinę lub dzień albo przeciągnij jego górną lub dolną krawędź, aby zmienić czas trwania. Zmiana zostaje zapisana w Google lub Outlooku, który wysyła aktualizację uczestnikom, a komunikat oferuje **Cofnij**. Gdy dostawca odrzuci zmianę, na przykład dla spotkania organizowanego przez kogoś innego, spotkanie zachowuje swój termin, a przyczyna jest wyświetlana. Serie cykliczne, wydarzenia całodniowe i kalendarze udostępnione Ci przez inne osoby pozostają tu tylko do odczytu; aby zmienić cokolwiek innego, na przykład tytuł lub uczestników, szczegóły otwierają połączony kalendarz. Anulowane wydarzenia są ukryte. Zaimportowane wystąpienia cykliczne są pokazywane, a reguły serii cyklicznych są rozwijane dla wyświetlanego okresu, z uwzględnieniem stref czasowych i wyłączeń. Nieprawidłowe lub nieobsługiwane reguły powtarzania są zgłaszane jako niekompletne wyniki.
 
 Połączone kalendarze wymagają istniejącego uprawnienia do komunikacji i uprawnienia do odczytu Skrzynki odbiorczej. Przestrzenie robocze samodzielnie hostowane mogą używać dat rekordów, każdego układu kalendarza, eksportów i subskrypcji bez dostawcy kalendarza.
 
@@ -62,7 +62,7 @@ Połączonego konta Google lub Microsoft i planu, którego wymaga [Skrzynka odbi
 
 ### Czy agent może planować spotkania? [#schedule-meeting-agents]
 
-Tak, za pomocą narzędzia MCP `schedule_meeting`, którego akcje to `options`, `slots`, `create`, `update` i `cancel`. `slots` znajduje wolne terminy; `create`, `update` i `cancel` zmieniają spotkania w połączonym kalendarzu wywołującego. Tak jak inne narzędzia wiadomości wymaga planu Pro lub wyższego i Customermates Cloud. Dokładne schematy są w [katalogu MCP](/docs/mcp#tool-catalog).
+Tak, za pomocą narzędzia MCP `schedule_meeting`, którego akcje to `options`, `slots`, `create`, `update` i `cancel`. `slots` znajduje wolne terminy; `create`, `update` i `cancel` zmieniają spotkania w połączonym kalendarzu wywołującego. `update` przenosi też wydarzenia utworzone poza Customermates: przekaż identyfikator wydarzenia z `get_calendars` z nowym `startsAt` oraz `durationMinutes` albo `endsAt`, opcjonalnie z nowym tytułem lub opisem; wynikiem jest wydarzenie w postaci zapisanej przez Google lub Microsoft. Tak jak inne narzędzia wiadomości wymaga planu Pro lub wyższego i Customermates Cloud. Dokładne schematy są w [katalogu MCP](/docs/mcp#tool-catalog).
 
 ## Jak pozwolić innym zarezerwować ze mną spotkanie? [#booking-pages]
 
