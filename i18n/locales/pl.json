@@ -988,7 +988,7 @@
     "hint": "Wklej to do dowolnego agenta AI, a skonfiguruje z Tobą Customermates",
     "label": "Skonfiguruj agenta",
     "progress": "{done} z {total} gotowe",
-    "prompt": "Przeczytaj {url} i skonfiguruj Customermates dla mojej firmy.",
+    "prompt": "Przeczytaj {url}, połącz Customermates i skonfiguruj go dla mojej firmy z najlepiej pasującego szablonu.",
     "sidebarDismiss": "Ukryj",
     "stepInbox": "Połącz skrzynkę odbiorczą",
     "stepPlan": "Wybierz plan"

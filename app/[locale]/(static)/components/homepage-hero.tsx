@@ -1,11 +1,10 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
 
-import { ArrowRight, CodeXml, Play } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { env } from "@/env";
 import { AgentStartPill } from "@/components/agent-start/agent-start-pill";
-import { Google, Linkedin, Outlook, Whatsapp } from "@/components/icons/channel-icon";
 import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
 
 import { marketingButtonClassName } from "@/components/marketing/marketing-button";
@@ -17,15 +16,6 @@ import { HomepageHeroParticles } from "./homepage-hero-particles";
 import { HomepageHeroPicker } from "./homepage-hero-picker";
 import { homepageHeroSignupHref } from "./homepage-hero-signup";
 
-export const HOMEPAGE_SOURCE_AVAILABLE_HREF = "/features/open-source-crm";
-
-const BADGE_CHANNELS = [
-  { id: "linkedin", Icon: Linkedin },
-  { id: "whatsapp", Icon: Whatsapp },
-  { id: "gmail", Icon: Google },
-  { id: "outlook", Icon: Outlook },
-] as const;
-
 type Props = {
   heroSection: Hero;
 };
@@ -33,7 +23,7 @@ type Props = {
 export function HomepageHero({ heroSection }: Props) {
   const { assurances, badge, picker, primaryCta, secondaryCta, subtitle, title } = heroSection;
   const t = useTranslations();
-  const agentPill = (
+  const agentActions = (
     <AgentStartPill
       className="homepage-hero-agent-pill"
       labels={{
@@ -43,13 +33,6 @@ export function HomepageHero({ heroSection }: Props) {
       }}
       prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
     />
-  );
-  const film = (
-    <a className="homepage-hero-film" href={secondaryCta.href}>
-      <Play aria-hidden className="size-3 fill-current" />
-
-      {secondaryCta.label}
-    </a>
   );
 
   return (
@@ -64,15 +47,7 @@ export function HomepageHero({ heroSection }: Props) {
 
       <MarketingContainer className="relative pt-14 pb-12 sm:pt-20 sm:pb-14 lg:pt-24 lg:pb-16">
         <div className="mk-enter relative z-10 mx-auto flex max-w-[50rem] flex-col items-center text-center">
-          <p className="homepage-hero-badge">
-            <span aria-hidden className="homepage-channel-stack">
-              {BADGE_CHANNELS.map(({ id, Icon }) => (
-                <span key={id}>
-                  <Icon className="size-3" />
-                </span>
-              ))}
-            </span>
-
+          <p data-plain className="homepage-hero-badge">
             {badge}
           </p>
 
@@ -91,7 +66,7 @@ export function HomepageHero({ heroSection }: Props) {
                 cta={picker.cta}
                 question={picker.question}
               >
-                {agentPill}
+                {agentActions}
               </HomepageHeroPicker>
             ) : primaryCta ? (
               <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-2">
@@ -106,24 +81,18 @@ export function HomepageHero({ heroSection }: Props) {
                   <ArrowRight aria-hidden data-mk-arrow="" />
                 </AppLink>
 
-                {agentPill}
+                {agentActions}
               </div>
             ) : null}
-
-            <div className="mt-3">{film}</div>
           </div>
 
           <ul className="homepage-hero-assurances mt-5" data-homepage-assurances="">
             <li>
-              <AppLink
-                appearance="unstyled"
-                className="homepage-hero-source-link"
-                href={HOMEPAGE_SOURCE_AVAILABLE_HREF}
-              >
-                <CodeXml aria-hidden className="size-3.5" />
+              <a className="homepage-hero-film" data-homepage-hero-film="" href={secondaryCta.href}>
+                <Play aria-hidden className="size-3 fill-current" />
 
-                {assurances.sourceAvailable}
-              </AppLink>
+                {secondaryCta.label}
+              </a>
             </li>
 
             <li>{assurances.noCard}</li>

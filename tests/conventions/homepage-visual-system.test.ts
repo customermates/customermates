@@ -204,7 +204,6 @@ describe("homepage visual-system adoption", () => {
     expect(hero).toContain('className="homepage-hero-film"');
     expect(hero).toContain("<AgentStartPill");
     expect(hero).not.toMatch(/mk-button-secondary|mk-play/u);
-    expect(hero).toContain('HOMEPAGE_SOURCE_AVAILABLE_HREF = "/features/open-source-crm"');
     expect(hero).not.toMatch(/github\.com|self-host/iu);
     expect(hero).not.toMatch(/RotatingAccent|GridPattern|titleRotations|<iframe\b/u);
     expect(picker).toContain("aria-pressed");

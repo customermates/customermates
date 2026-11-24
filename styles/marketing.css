@@ -26,6 +26,7 @@
   --mk-logo-tint-chatgpt: oklch(0.95 0.03 165);
   --mk-logo-tint-gemini: oklch(0.95 0.025 255);
   --mk-logo-tint-linkedin: oklch(0.94 0.03 250);
+  --mk-logo-tint-whatsapp: oklch(0.95 0.035 150);
   --mk-logo-tint-neutral: oklch(0.94 0.004 270);
   --mk-particle-ink: var(--foreground);
   --mk-particle-teal: oklch(0.6 0.11 185);
@@ -72,6 +73,7 @@
   --mk-logo-tint-chatgpt: oklch(0.34 0.04 165);
   --mk-logo-tint-gemini: oklch(0.34 0.04 255);
   --mk-logo-tint-linkedin: oklch(0.34 0.05 250);
+  --mk-logo-tint-whatsapp: oklch(0.34 0.05 150);
   --mk-logo-tint-neutral: oklch(0.32 0.004 270);
   --mk-particle-teal: oklch(0.72 0.12 185);
   --mk-particle-blue: oklch(0.7 0.16 260);

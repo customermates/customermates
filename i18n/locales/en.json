@@ -988,7 +988,7 @@
     "hint": "Paste this into any AI agent and it sets Customermates up with you",
     "label": "Onboard your agent",
     "progress": "{done} of {total} done",
-    "prompt": "Read {url} and set up Customermates for my business.",
+    "prompt": "Read {url}, connect Customermates and set it up for my business from the best-fitting template.",
     "sidebarDismiss": "Hide",
     "stepInbox": "Connect your inbox",
     "stepPlan": "Pick a plan"

@@ -988,7 +988,7 @@
     "hint": "Incolla questo in qualsiasi agente IA e configurerà Customermates insieme a te",
     "label": "Configura il tuo agente",
     "progress": "{done} di {total} completati",
-    "prompt": "Leggi {url} e configura Customermates per la mia attività.",
+    "prompt": "Leggi {url}, collega Customermates e configuralo per la mia attività con il modello più adatto.",
     "sidebarDismiss": "Nascondi",
     "stepInbox": "Collega la tua casella di posta",
     "stepPlan": "Scegli un piano"

@@ -988,7 +988,7 @@
     "hint": "Cole isto em qualquer agente de IA e ele configura o Customermates com você",
     "label": "Configure seu agente",
     "progress": "{done} de {total} concluídos",
-    "prompt": "Leia {url} e configure o Customermates para o meu negócio.",
+    "prompt": "Leia {url}, conecte o Customermates e configure-o para o meu negócio com o modelo mais adequado.",
     "sidebarDismiss": "Ocultar",
     "stepInbox": "Conecte sua caixa de entrada",
     "stepPlan": "Escolha um plano"

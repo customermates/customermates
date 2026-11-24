@@ -3,6 +3,7 @@ import type { AgentSurface } from "./agent-surface-policy";
 import {
   CRM_DATA_INVARIANTS,
   HOSTED_WORKSPACE_WIKI_INSTRUCTION,
+  PLAN_UPSELL_INSTRUCTION,
   TOOL_APPROVAL_INSTRUCTION,
 } from "@/features/mcp-tools/server-instructions";
 import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
@@ -104,6 +105,7 @@ export function agentSystemPromptParts(context: SystemPromptContext): AgentSyste
     ...rest.map((paragraph) => (paragraph === CRM_INVARIANTS_PLACEHOLDER ? invariantsParagraph() : paragraph)),
     "",
     HOSTED_WORKSPACE_WIKI_INSTRUCTION,
+    ...(context.surface === "chat" ? ["", PLAN_UPSELL_INSTRUCTION] : []),
     ...(context.wikiWebsiteSetup && context.surface === "chat" ? [wikiWebsiteSetupParagraph(context.locale)] : []),
     "",
     `${context.webSearchEnabled ? webSearchSentence(context.surface) : "General web search is not available; do not claim to have searched."} Keep replies concise and grounded in tool results, and never invent CRM data.`,

@@ -988,7 +988,7 @@
     "hint": "Plak dit in een willekeurige AI-agent en die richt Customermates samen met je in",
     "label": "Richt je agent in",
     "progress": "{done} van {total} klaar",
-    "prompt": "Lees {url} en richt Customermates in voor mijn bedrijf.",
+    "prompt": "Lees {url}, koppel Customermates en richt het voor mijn bedrijf in met het best passende sjabloon.",
     "sidebarDismiss": "Verbergen",
     "stepInbox": "Koppel je inbox",
     "stepPlan": "Kies een abonnement"
