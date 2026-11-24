@@ -26,6 +26,7 @@ import {
 } from "./paginate";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 import { synchronizeInboundAvatar, type ProviderAvatars } from "../inbound-avatar";
+import { stopWhenAccountGone, throwIfAccountGone } from "./account-gone";
 
 const Schema = z.object({
   connectedAccountId: z.uuid(),
@@ -44,7 +45,11 @@ export class BackfillEmailsInteractor {
   ) {}
 
   @Enforce(Schema)
-  async invoke({ connectedAccountId, source, cursor }: BackfillEmailsPayload): Promise<PageResult> {
+  invoke(payload: BackfillEmailsPayload): Promise<PageResult> {
+    return stopWhenAccountGone(() => this.backfillPage(payload));
+  }
+
+  private async backfillPage({ connectedAccountId, source, cursor }: BackfillEmailsPayload): Promise<PageResult> {
     const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
     if (!account || account.status === ConnectedAccountStatus.deleted)
       return { nextCursor: null, done: true, complete: false };
@@ -149,6 +154,7 @@ export class BackfillEmailsInteractor {
       });
       await synchronizeInboundAvatar(this.avatars, account.companyId, ingested);
     } catch (err) {
+      await throwIfAccountGone(this.repo, account.id, err);
       ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
