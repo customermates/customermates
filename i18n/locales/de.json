@@ -987,6 +987,7 @@
     "getStarted": "Erste Schritte",
     "hint": "Füge das in einen beliebigen KI-Agenten ein, und er richtet Customermates mit dir ein",
     "label": "Agent einrichten",
+    "openIn": "In {app} öffnen",
     "progress": "{done} von {total} erledigt",
     "prompt": "Lies {url}, verbinde Customermates und richte es mit der passendsten Vorlage für meine Firma ein.",
     "sidebarDismiss": "Ausblenden",

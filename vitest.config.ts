@@ -21,6 +21,7 @@ export const nodeTestInclude = [
   "tests/conventions/*.test.ts",
 ];
 export const domTestFiles = [
+  "components/agent-start/__tests__/agent-start-pill.dom.test.tsx",
   "components/data-view/filter-palette/__tests__/use-filter-palette.dom.test.ts",
   "components/ui/__tests__/segmented-control.dom.test.tsx",
   "components/forms/__tests__/form-footer-actions.dom.test.ts",

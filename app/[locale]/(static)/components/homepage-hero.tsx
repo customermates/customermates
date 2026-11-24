@@ -30,6 +30,8 @@ export function HomepageHero({ heroSection }: Props) {
         copied: t("AgentStart.copiedTip"),
         failed: t("AgentStart.failed"),
         label: t("AgentStart.label"),
+        openInClaude: t("AgentStart.openIn", { app: "Claude" }),
+        openInChatgpt: t("AgentStart.openIn", { app: "ChatGPT" }),
       }}
       prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
     />

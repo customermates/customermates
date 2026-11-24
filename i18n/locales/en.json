@@ -987,6 +987,7 @@
     "getStarted": "Get started",
     "hint": "Paste this into any AI agent and it sets Customermates up with you",
     "label": "Onboard your agent",
+    "openIn": "Open in {app}",
     "progress": "{done} of {total} done",
     "prompt": "Read {url}, connect Customermates and set it up for my business from the best-fitting template.",
     "sidebarDismiss": "Hide",

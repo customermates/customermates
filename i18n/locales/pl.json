@@ -987,6 +987,7 @@
     "getStarted": "Pierwsze kroki",
     "hint": "Wklej to do dowolnego agenta AI, a skonfiguruje z Tobą Customermates",
     "label": "Skonfiguruj agenta",
+    "openIn": "Otwórz w {app}",
     "progress": "{done} z {total} gotowe",
     "prompt": "Przeczytaj {url}, połącz Customermates i skonfiguruj go dla mojej firmy z najlepiej pasującego szablonu.",
     "sidebarDismiss": "Ukryj",

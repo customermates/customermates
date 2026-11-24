@@ -987,6 +987,7 @@
     "getStarted": "Bien démarrer",
     "hint": "Collez ceci dans n’importe quel agent IA : il configure Customermates avec vous",
     "label": "Configurez votre agent",
+    "openIn": "Ouvrir dans {app}",
     "progress": "{done} sur {total} faits",
     "prompt": "Lis {url}, connecte Customermates et configure-le pour mon entreprise avec le modèle le plus adapté.",
     "sidebarDismiss": "Masquer",

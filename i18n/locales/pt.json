@@ -987,6 +987,7 @@
     "getStarted": "Primeiros passos",
     "hint": "Cole isto em qualquer agente de IA e ele configura o Customermates com você",
     "label": "Configure seu agente",
+    "openIn": "Abrir no {app}",
     "progress": "{done} de {total} concluídos",
     "prompt": "Leia {url}, conecte o Customermates e configure-o para o meu negócio com o modelo mais adequado.",
     "sidebarDismiss": "Ocultar",

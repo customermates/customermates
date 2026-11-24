@@ -987,6 +987,7 @@
     "getStarted": "Aan de slag",
     "hint": "Plak dit in een willekeurige AI-agent en die richt Customermates samen met je in",
     "label": "Richt je agent in",
+    "openIn": "Openen in {app}",
     "progress": "{done} van {total} klaar",
     "prompt": "Lees {url}, koppel Customermates en richt het voor mijn bedrijf in met het best passende sjabloon.",
     "sidebarDismiss": "Verbergen",
