@@ -171,7 +171,10 @@ const FullAppSidebar = observer(
     const inboxUpsellPlanName = t(`Subscription.planNames.${MESSAGING_UPSELL_PLAN}`);
     const inboxPlanTag =
       inboxVisible && subscription !== null && !getEntitlements(effectivePlanId(subscription)).messaging
-        ? { plan: inboxUpsellPlanName, label: t("Upsell.availableOn", { plan: inboxUpsellPlanName }) }
+        ? {
+            plan: inboxUpsellPlanName,
+            label: t("Upsell.availableOn", { plan: inboxUpsellPlanName }),
+          }
         : undefined;
 
     const { isMobile, setOpenMobile } = useSidebar();
@@ -394,18 +397,16 @@ const FullAppSidebar = observer(
       </AppChip>
     ) : undefined;
     const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+    const trialVisible = trialCardVisible({
+      appMode: rootStore.appMode,
+      restricted,
+      subscription: subscription ?? null,
+      trialDaysLeft,
+      onBillingPage: intlPathname === settingsHref("billing"),
+      canOpenBilling: canAccess(Resource.company),
+    });
     const trialCard =
-      subscription &&
-      trialDaysLeft !== null &&
-      trialDaysLeft <= TRIAL_END_WINDOW_DAYS &&
-      trialCardVisible({
-        appMode: rootStore.appMode,
-        restricted,
-        subscription,
-        trialDaysLeft,
-        onBillingPage: intlPathname === settingsHref("billing"),
-        canOpenBilling: canAccess(Resource.company),
-      }) ? (
+      subscription && trialVisible && trialDaysLeft !== null && trialDaysLeft <= TRIAL_END_WINDOW_DAYS ? (
         <TrialSidebarCardWithFit
           daysLeft={trialDaysLeft}
           planName={t(`Subscription.planNames.${subscription.plan}`)}
@@ -569,7 +570,9 @@ const FullAppSidebar = observer(
                 ? undefined
                 : {
                     count: pendingMemberCount,
-                    label: t("WorkspaceMenu.pendingMembers", { count: pendingMemberCount }),
+                    label: t("WorkspaceMenu.pendingMembers", {
+                      count: pendingMemberCount,
+                    }),
                   }
             }
             workspaceMenuLabel={t("WorkspaceMenu.label")}
@@ -631,7 +634,7 @@ const FullAppSidebar = observer(
             {restricted || rootStore.appMode === "demo" ? null : (
               <GetStartedSidebarCard
                 canOpenBilling={canAccess(Resource.company) && intlPathname !== settingsHref("billing")}
-                trialDaysLeft={subscription?.status === "trial" ? trialDaysLeft : null}
+                trialDaysLeft={trialVisible ? trialDaysLeft : null}
                 workspaceKey={workspacesStore.current?.companyId ?? "workspace"}
                 onNavigate={() => closeMobileSidebar()}
               />

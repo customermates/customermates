@@ -3122,6 +3122,37 @@ path:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
+.get-started-trial {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--card);
+  text-decoration: none;
+}
+
+.get-started-trial:hover {
+  background: var(--muted);
+}
+
+.get-started-trial:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+.get-started-trial-cta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
 .get-started-step-done {
   color: var(--muted-foreground);
   text-decoration: line-through;

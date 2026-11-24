@@ -70,6 +70,7 @@ export const domTestFiles = [
   "app/components/__tests__/shell-header.test.ts",
   "app/components/navigation/__tests__/navigation-switch.test.ts",
   "app/components/navigation/__tests__/public-navbar-menu.test.ts",
+  "app/components/navigation/__tests__/get-started-sidebar-card.dom.test.tsx",
   "app/components/navigation/__tests__/trial-sidebar-card.dom.test.tsx",
   "app/components/upsell/__tests__/free-plan-prompts.dom.test.tsx",
   "app/components/upsell/__tests__/storage-upsell.dom.test.tsx",

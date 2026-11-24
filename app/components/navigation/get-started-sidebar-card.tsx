@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Check, X } from "lucide-react";
+import { ArrowRight, Check, X } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -11,6 +11,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { AgentStartPill } from "@/components/agent-start/agent-start-pill";
 import { Button } from "@/components/ui/button";
 import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
+import { TRIAL_END_WINDOW_DAYS } from "@/core/commercial/plan-fit";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { actionData } from "@/core/utils/action-data";
@@ -94,7 +95,7 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
     () => null,
   );
   const dismissKey = `${DISMISS_KEY_PREFIX}${workspaceKey}`;
-  const [dismissed, setDismissed] = useState(true);
+  const [dismissed, setDismissed] = useState<boolean | null>(null);
   const canConnectAgent = apps.canManage;
   const canConnectInbox = userStore.can(Resource.inboxMessages, Action.create);
 
@@ -102,13 +103,16 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
     setDismissed(readDismissed(dismissKey));
   }, [dismissKey]);
 
-  const [counts, setCounts] = useState<{ apps: number | null; accounts: number | null }>({
+  const [counts, setCounts] = useState<{
+    apps: number | null;
+    accounts: number | null;
+  }>({
     apps: null,
     accounts: null,
   });
 
   useEffect(() => {
-    if (dismissed) return;
+    if (dismissed !== false) return;
     let current = true;
     if (canConnectAgent && !apps.isReady) {
       void actionData(refreshConnectedAppsAction())
@@ -118,7 +122,12 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
     if (canConnectInbox && !accounts.isReady) {
       void refreshConnectedAccountsAction()
         .then((result) => {
-          if (current && result.ok) setCounts((previous) => ({ ...previous, accounts: result.data.length }));
+          if (current && result.ok) {
+            setCounts((previous) => ({
+              ...previous,
+              accounts: result.data.length,
+            }));
+          }
         })
         .catch(reportApplicationError);
     }
@@ -133,12 +142,33 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
   const inboxLoaded = !canConnectInbox || accountCount !== null;
   const agentDone = canConnectAgent && (appCount ?? 0) > 0;
   const inboxDone = canConnectInbox && (accountCount ?? 0) > 0;
-  const showPlan = trialDaysLeft !== null && canOpenBilling;
+  const showPlan = trialDaysLeft !== null && trialDaysLeft > TRIAL_END_WINDOW_DAYS && canOpenBilling;
   const setupSteps = [canConnectAgent, canConnectInbox].filter(Boolean).length;
   const setupDone = [agentDone, inboxDone].filter(Boolean).length;
 
-  if (dismissed || origin === null || !agentLoaded || !inboxLoaded) return null;
-  if (setupSteps === 0 || setupDone === setupSteps) return null;
+  if (dismissed === null || origin === null) return null;
+  if (dismissed || setupSteps === 0 || (agentLoaded && inboxLoaded && setupDone === setupSteps)) {
+    return showPlan ? (
+      <IntlLink
+        className="get-started-trial group-data-[collapsible=icon]:hidden"
+        data-trial-reminder=""
+        href={billingHref()}
+        prefetch={false}
+        onClick={onNavigate}
+      >
+        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+          {t("Subscription.status.trialDaysLeft", { days: trialDaysLeft })}
+        </span>
+
+        <span className="get-started-trial-cta">
+          {t("AgentStart.stepPlan")}
+
+          <ArrowRight aria-hidden className="size-3" />
+        </span>
+      </IntlLink>
+    ) : null;
+  }
+  if (!agentLoaded || !inboxLoaded) return null;
 
   const total = setupSteps + (showPlan ? 1 : 0);
 
