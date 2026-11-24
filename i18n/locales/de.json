@@ -6424,6 +6424,10 @@
       "needsReconnect": "Dein Google- oder Microsoft-Konto muss unter Kanäle & Kalender neu verbunden werden, bevor Termine angelegt werden können.",
       "noCalendar": "Verbinde unter Kanäle & Kalender einen Google- oder Microsoft-Kalender, um Termine zu planen."
     },
+    "cancelAction": "Termin absagen",
+    "cancelConfirmDescription": "Google oder Outlook sagt den Termin für alle Teilnehmenden ab und benachrichtigt sie. Das lässt sich nicht rückgängig machen.",
+    "cancelConfirmTitle": "Diesen Termin absagen?",
+    "cancelDone": "Termin abgesagt",
     "created": "Termin geplant",
     "defaultTitle": "Termin mit {name}",
     "duration": "{minutes} Min.",
@@ -6446,6 +6450,7 @@
     },
     "followUpNone": "Keine Folgeaufgabe",
     "freeSlots": "Freie Zeiten ({timeZone})",
+    "keepMeeting": "Termin behalten",
     "loadFailed": "Die Kalenderoptionen konnten nicht geladen werden. Schließe dieses Fenster und versuche es erneut.",
     "newMeeting": "Neuer Termin",
     "noFreeSlots": "Keine freien Zeiten an diesem Tag. Du kannst trotzdem eine Startzeit eingeben.",

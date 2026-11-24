@@ -6424,6 +6424,10 @@
       "needsReconnect": "Sua conta Google ou Microsoft precisa ser reconectada em Canais e calendários antes de criar reuniões.",
       "noCalendar": "Conecte um calendário Google ou Microsoft em Canais e calendários para agendar reuniões."
     },
+    "cancelAction": "Cancelar reunião",
+    "cancelConfirmDescription": "O Google ou o Outlook cancela a reunião para todos os participantes e os avisa. Isso não pode ser desfeito.",
+    "cancelConfirmTitle": "Cancelar esta reunião?",
+    "cancelDone": "Reunião cancelada",
     "created": "Reunião agendada",
     "defaultTitle": "Reunião com {name}",
     "duration": "{minutes} min",
@@ -6446,6 +6450,7 @@
     },
     "followUpNone": "Sem acompanhamento",
     "freeSlots": "Horários livres ({timeZone})",
+    "keepMeeting": "Manter reunião",
     "loadFailed": "Não foi possível carregar as opções do calendário. Feche esta janela e tente novamente.",
     "newMeeting": "Nova reunião",
     "noFreeSlots": "Nenhum horário livre neste dia. Você ainda pode digitar um horário de início.",

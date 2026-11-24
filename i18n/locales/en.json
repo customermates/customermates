@@ -6424,6 +6424,10 @@
       "needsReconnect": "Your Google or Microsoft account needs to be reconnected under Channels & calendars before meetings can be created.",
       "noCalendar": "Connect a Google or Microsoft calendar under Channels & calendars to schedule meetings."
     },
+    "cancelAction": "Cancel meeting",
+    "cancelConfirmDescription": "Google or Outlook cancels the meeting for every attendee and tells them. This cannot be undone.",
+    "cancelConfirmTitle": "Cancel this meeting?",
+    "cancelDone": "Meeting cancelled",
     "created": "Meeting scheduled",
     "defaultTitle": "Meeting with {name}",
     "duration": "{minutes} min",
@@ -6446,6 +6450,7 @@
     },
     "followUpNone": "No follow-up",
     "freeSlots": "Free times ({timeZone})",
+    "keepMeeting": "Keep meeting",
     "loadFailed": "The calendar options could not be loaded. Close this window and try again.",
     "newMeeting": "New meeting",
     "noFreeSlots": "No free times on this day. You can still enter a start time.",

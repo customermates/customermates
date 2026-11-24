@@ -6424,6 +6424,10 @@
       "needsReconnect": "Je Google- of Microsoft-account moet opnieuw worden gekoppeld onder Kanalen & agenda's voordat er afspraken kunnen worden gemaakt.",
       "noCalendar": "Koppel een Google- of Microsoft-agenda onder Kanalen & agenda's om afspraken te plannen."
     },
+    "cancelAction": "Afspraak annuleren",
+    "cancelConfirmDescription": "Google of Outlook annuleert de afspraak voor alle deelnemers en brengt hen op de hoogte. Dit kan niet ongedaan worden gemaakt.",
+    "cancelConfirmTitle": "Deze afspraak annuleren?",
+    "cancelDone": "Afspraak geannuleerd",
     "created": "Afspraak gepland",
     "defaultTitle": "Afspraak met {name}",
     "duration": "{minutes} min",
@@ -6446,6 +6450,7 @@
     },
     "followUpNone": "Geen vervolgtaak",
     "freeSlots": "Vrije tijden ({timeZone})",
+    "keepMeeting": "Afspraak behouden",
     "loadFailed": "De agenda-opties konden niet worden geladen. Sluit dit venster en probeer het opnieuw.",
     "newMeeting": "Nieuwe afspraak",
     "noFreeSlots": "Geen vrije tijden op deze dag. Je kunt nog steeds een begintijd invoeren.",

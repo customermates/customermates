@@ -8,6 +8,7 @@ import type {
 } from "@/ee/calendar/meeting.schema";
 
 import {
+  getCancelMeetingInteractor,
   getGetCalendarEventByIdInteractor,
   getGetFreeSlotsInteractor,
   getGetMeetingOptionsInteractor,
@@ -34,6 +35,10 @@ export async function meetingEventAction(input: { id: string }) {
 
 export async function updateMeetingAction(input: UpdateMeetingInput) {
   return serializeResult(getUpdateMeetingInteractor().invoke(input as never));
+}
+
+export async function cancelMeetingAction(input: { id: string }) {
+  return serializeResult(getCancelMeetingInteractor().invoke({ id: input.id } as never));
 }
 
 export async function moveMeetingAction(input: Pick<UpdateMeetingInput, "id" | "startsAt" | "endsAt">) {

@@ -6424,6 +6424,10 @@
       "needsReconnect": "Konto Google lub Microsoft trzeba ponownie połączyć w sekcji Kanały i kalendarze, zanim będzie można tworzyć spotkania.",
       "noCalendar": "Połącz kalendarz Google lub Microsoft w sekcji Kanały i kalendarze, aby planować spotkania."
     },
+    "cancelAction": "Odwołaj spotkanie",
+    "cancelConfirmDescription": "Google lub Outlook odwoła spotkanie dla wszystkich uczestników i ich powiadomi. Tej operacji nie można cofnąć.",
+    "cancelConfirmTitle": "Odwołać to spotkanie?",
+    "cancelDone": "Spotkanie odwołane",
     "created": "Spotkanie zaplanowane",
     "defaultTitle": "Spotkanie z {name}",
     "duration": "{minutes} min",
@@ -6446,6 +6450,7 @@
     },
     "followUpNone": "Bez follow-upu",
     "freeSlots": "Wolne terminy ({timeZone})",
+    "keepMeeting": "Zachowaj spotkanie",
     "loadFailed": "Nie udało się wczytać opcji kalendarza. Zamknij to okno i spróbuj ponownie.",
     "newMeeting": "Nowe spotkanie",
     "noFreeSlots": "Brak wolnych terminów tego dnia. Nadal możesz wpisać godzinę rozpoczęcia.",

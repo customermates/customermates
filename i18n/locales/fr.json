@@ -6424,6 +6424,10 @@
       "needsReconnect": "Votre compte Google ou Microsoft doit être reconnecté sous Canaux et agendas avant de pouvoir créer des réunions.",
       "noCalendar": "Connectez un agenda Google ou Microsoft sous Canaux et agendas pour planifier des réunions."
     },
+    "cancelAction": "Annuler la réunion",
+    "cancelConfirmDescription": "Google ou Outlook annule la réunion pour tous les participants et les prévient. Cette action est irréversible.",
+    "cancelConfirmTitle": "Annuler cette réunion ?",
+    "cancelDone": "Réunion annulée",
     "created": "Réunion planifiée",
     "defaultTitle": "Réunion avec {name}",
     "duration": "{minutes} min",
@@ -6446,6 +6450,7 @@
     },
     "followUpNone": "Aucun suivi",
     "freeSlots": "Créneaux libres ({timeZone})",
+    "keepMeeting": "Garder la réunion",
     "loadFailed": "Les options d’agenda n’ont pas pu être chargées. Fermez cette fenêtre et réessayez.",
     "newMeeting": "Nouvelle réunion",
     "noFreeSlots": "Aucun créneau libre ce jour-là. Vous pouvez tout de même saisir une heure de début.",

@@ -8,6 +8,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { Resource } from "@/generated/prisma";
 
 import {
+  cancelMeetingAction,
   freeSlotsAction,
   meetingEventAction,
   meetingOptionsAction,
@@ -124,6 +125,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
   record: RecordRef | null = null;
   editingId: string | null = null;
   eventLoaded = false;
+  cancelConfirmOpen = false;
   private slotRequest = 0;
 
   constructor(rootStore: RootStore) {
@@ -138,8 +140,10 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       record: observable.ref,
       editingId: observable,
       eventLoaded: observable,
+      cancelConfirmOpen: observable,
       start: action,
       edit: action,
+      setCancelConfirm: action,
     });
   }
 
@@ -191,6 +195,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     this.record = null;
     this.editingId = input.eventId;
     this.eventLoaded = false;
+    this.cancelConfirmOpen = false;
     this.options = null;
     this.optionsFailed = false;
     this.slots = [];
@@ -330,6 +335,33 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {
       if (!created) this.setIsLoading(false);
+    }
+  };
+
+  setCancelConfirm = (open: boolean) => {
+    this.cancelConfirmOpen = open;
+  };
+
+  cancelMeeting = async () => {
+    const id = this.editingId;
+    if (!id || this.isLoading) return;
+
+    this.setIsLoading(true);
+    let cancelled = false;
+    try {
+      const result = await cancelMeetingAction({ id });
+      this.setCancelConfirm(false);
+      if (!result.ok) {
+        this.setError(result.error as never);
+        return;
+      }
+
+      cancelled = true;
+      this.toastSuccess("ScheduleMeeting.cancelDone");
+      this.close();
+      await this.rootStore.recordWorkspaceStore.invalidate();
+    } finally {
+      if (!cancelled) this.setIsLoading(false);
     }
   };
 

@@ -17,6 +17,7 @@ import { FormTextarea } from "@/components/forms/form-textarea";
 import { AppForm } from "@/components/forms/form-context";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModal } from "@/components/modal";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -191,6 +192,18 @@ export const ScheduleMeetingModal = observer(() => {
                     ) : null}
                   </div>
                 ) : null}
+
+                {editing ? (
+                  <Button
+                    className="self-start"
+                    disabled={store.isLoading}
+                    type="button"
+                    variant="destructive"
+                    onClick={() => store.setCancelConfirm(true)}
+                  >
+                    {t("ScheduleMeeting.cancelAction")}
+                  </Button>
+                ) : null}
               </>
             ) : null}
           </AppCardBody>
@@ -198,6 +211,16 @@ export const ScheduleMeetingModal = observer(() => {
           {ready ? <UnsavedChangesBar anchorScope="schedule-meeting-modal" creating={!editing} store={store} /> : null}
         </AppCard>
       </AppForm>
+
+      <ConfirmDialog
+        cancelLabel={t("ScheduleMeeting.keepMeeting")}
+        confirmLabel={t("ScheduleMeeting.cancelAction")}
+        description={t("ScheduleMeeting.cancelConfirmDescription")}
+        open={editing && store.cancelConfirmOpen}
+        title={t("ScheduleMeeting.cancelConfirmTitle")}
+        onCancel={() => store.setCancelConfirm(false)}
+        onConfirm={store.cancelMeeting}
+      />
     </AppModal>
   );
 });
