@@ -557,7 +557,9 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const model = this.model;
     if (!model || !this.isOpen) return;
     const generation = ++this.previewGeneration;
-    const input = draftToPreviewInput(this.form, model);
+    // Kept triggers, conditions and effects pass through the conversion as they are, so the
+    // draft is copied out of MobX first: a server action accepts plain objects only.
+    const input = draftToPreviewInput(toJS(this.form), model);
     if (!input) {
       runInAction(() => {
         this.preview = null;
@@ -632,7 +634,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const model = this.model;
     if (!model || this.isReadOnly) return "failed";
     const unavailable = this.unavailable;
-    const converted = draftToUpsert(this.form, model);
+    const converted = draftToUpsert(toJS(this.form), model);
     const unchosen = this.context ? draftModelIssues(this.form, this.context.runtimes) : [];
     if (unavailable.length > 0 || !converted.ok || unchosen.length > 0) {
       const issues = [

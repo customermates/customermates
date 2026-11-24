@@ -2,6 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { AutomationBuilderContext } from "../components/automation-builder.store";
 
+import { isObservable } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { noAgentRuntimes } from "@/features/automation-rules/agent-runtime-availability";
@@ -652,6 +653,48 @@ describe("AutomationBuilderStore", () => {
 
       expect(store.form.name).toBe("Saved");
       expect(store.hasUnsavedChanges).toBe(false);
+    });
+  });
+
+  describe("a rule whose trigger the builder keeps as it is", () => {
+    const FORM = "77777777-7777-4777-8777-777777777777";
+    const FORM_RULE = {
+      ...SAVED,
+      trigger: { kind: "formSubmitted", typeId: DEALS, sourceId: FORM, timezone: "Europe/Berlin" },
+      effects: [{ kind: "agent", prompt: "Welcome the lead", runtime: "mate" }],
+    };
+
+    function hasObservable(value: unknown): boolean {
+      if (isObservable(value)) return true;
+      if (Array.isArray(value)) return value.some(hasObservable);
+      if (value && typeof value === "object") return Object.values(value).some(hasObservable);
+      return false;
+    }
+
+    it("sends the preview a plain copy, which a server action can take", async () => {
+      const store = makeStore();
+      store.openForRule(CONTEXT, FORM_RULE as never, vi.fn());
+
+      store.resetChanges();
+      await vi.advanceTimersByTimeAsync(AUTOMATION_PREVIEW_DELAY_MS);
+
+      expect(actions.previewAutomationRuleAction).toHaveBeenCalled();
+      const [payload] = actions.previewAutomationRuleAction.mock.calls.at(-1)!;
+      expect(payload.rule.trigger).toEqual(FORM_RULE.trigger);
+      expect(hasObservable(payload)).toBe(false);
+    });
+
+    it("saves a plain copy, which a server action can take", async () => {
+      actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: FORM_RULE });
+      const store = makeStore();
+      store.openForRule(CONTEXT, FORM_RULE as never, vi.fn());
+      store.setName("Renamed");
+
+      expect(await store.save()).toBe("saved");
+
+      const [payload] = actions.upsertAutomationRuleAction.mock.calls[0];
+      expect(payload.trigger).toEqual(FORM_RULE.trigger);
+      expect(hasObservable(payload)).toBe(false);
     });
   });
 });
