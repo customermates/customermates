@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { actionData } from "@/core/utils/action-data";
+import { refreshConnectedAppsAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions";
+import { refreshConnectedAccountsAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/channels/actions";
 import { cn } from "@/core/utils/cn";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -94,16 +97,37 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
     setDismissed(readDismissed(dismissKey));
   }, [dismissKey]);
 
+  const [counts, setCounts] = useState<{ apps: number | null; accounts: number | null }>({
+    apps: null,
+    accounts: null,
+  });
+
   useEffect(() => {
     if (dismissed) return;
-    if (canConnectAgent && !apps.isReady) void apps.refresh().catch(reportApplicationError);
-    if (canConnectInbox && !accounts.isReady) void accounts.refresh().catch(reportApplicationError);
+    let current = true;
+    if (canConnectAgent && !apps.isReady) {
+      void actionData(refreshConnectedAppsAction())
+        .then((items) => current && setCounts((previous) => ({ ...previous, apps: items.length })))
+        .catch(reportApplicationError);
+    }
+    if (canConnectInbox && !accounts.isReady) {
+      void refreshConnectedAccountsAction()
+        .then((result) => {
+          if (current && result.ok) setCounts((previous) => ({ ...previous, accounts: result.data.length }));
+        })
+        .catch(reportApplicationError);
+    }
+    return () => {
+      current = false;
+    };
   }, [accounts, apps, canConnectAgent, canConnectInbox, dismissed]);
 
-  const agentLoaded = !canConnectAgent || apps.dataRequest.status === "ready";
-  const inboxLoaded = !canConnectInbox || accounts.dataRequest.status === "ready";
-  const agentDone = canConnectAgent && apps.items.length > 0;
-  const inboxDone = canConnectInbox && accounts.items.length > 0;
+  const appCount = apps.isReady ? apps.items.length : counts.apps;
+  const accountCount = accounts.isReady ? accounts.items.length : counts.accounts;
+  const agentLoaded = !canConnectAgent || appCount !== null;
+  const inboxLoaded = !canConnectInbox || accountCount !== null;
+  const agentDone = canConnectAgent && (appCount ?? 0) > 0;
+  const inboxDone = canConnectInbox && (accountCount ?? 0) > 0;
   const showPlan = trialDaysLeft !== null && canOpenBilling;
   const setupSteps = [canConnectAgent, canConnectInbox].filter(Boolean).length;
   const setupDone = [agentDone, inboxDone].filter(Boolean).length;
