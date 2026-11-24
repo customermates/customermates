@@ -7,7 +7,7 @@ Customermates est un CRM source-available et IA native que votre IA pilote direc
 
 C’est la voie recommandée pour **Claude** (web, bureau et mobile) et **ChatGPT**. Sur une ligne de commande ou un éditeur (Claude Code, Codex, Cursor, Gemini CLI), utilisez plutôt [la méthode par clé API](/docs/connect-cli).
 
-> Claude propose les connecteurs personnalisés dans toutes ses formules (Free, Pro, Max, Ultra, Team, Enterprise) ; la formule Free en autorise un (aide Anthropic, vérifiée le 3 novembre 2026). Dans ChatGPT, c’est une fonction payante (Plus, Pro, Business, Enterprise).
+> Claude propose les connecteurs personnalisés dans toutes ses formules (Free, Pro, Max, Ultra, Team, Enterprise) ; la formule Free en autorise un (aide Anthropic, vérifiée le 3 novembre 2026). Dans ChatGPT, les règles du compte et de l’espace de travail décident si vous pouvez ajouter un serveur MCP personnalisé (aide OpenAI, vérifiée le 24 novembre 2026).
 
 ## Quelle URL dois-je coller ? [#the-url]
 
@@ -31,7 +31,7 @@ Pour connecter Claude à votre CRM, ajoutez Customermates comme connecteur perso
 
 <Steps>
 <Step title="Ouvrir le formulaire du connecteur">
-**Claude → Settings → Connectors → Add custom connector.**
+**Claude → Customize → Connectors → Add → Add custom connector.** Sur Team et Enterprise, un propriétaire l’ajoute d’abord sous **Organization settings → Connectors → Add → Custom → Web**.
 </Step>
 <Step title="Coller l’URL">
 Laissez l’authentification sur la valeur par défaut (OAuth). Pas d’en-tête, pas de clé.
@@ -50,13 +50,15 @@ En un clic : dans Customermates, ouvrez [Clés API et connecteurs](app:settings
 
 ## Comment connecter ChatGPT ? [#chatgpt]
 
-Pour connecter ChatGPT, ouvrez dans ChatGPT : **Settings → Connectors → Add connector → Custom connector (MCP)**.
+Sur chatgpt.com, ouvrez **[Plugins](https://chatgpt.com/plugins) → + → Add custom MCP server** :
 
 - **Nom :** Customermates
-- **URL :** l’URL de votre espace de travail, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([quelle URL](#the-url))
+- **Connexion :** le point de terminaison public, l’URL de votre espace de travail `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([quelle URL](#the-url))
 - **Authentification :** OAuth
 
-Enregistrez. ChatGPT ouvre une fenêtre Customermates. Connectez-vous, puis cliquez sur **Approuver** sur l’écran de consentement. Chaque outil Customermates est listé, sans clé à stocker ni à renouveler.
+Confirmez l’avertissement de risque avec **I understand and want to continue**, puis **Create as a plugin**. ChatGPT ouvre une fenêtre Customermates. Connectez-vous, puis cliquez sur **Approuver** sur l’écran de consentement. Chaque outil Customermates est listé, sans clé à stocker ni à renouveler.
+
+Dans l’application de bureau ChatGPT, ouvrez **Settings → MCP servers → Add server**, choisissez **Streamable HTTP**, collez la même URL, enregistrez et sélectionnez **Restart**, puis **Authenticate** à côté de Customermates et approuvez l’accès (aide OpenAI, vérifiée le 24 novembre 2026).
 
 ### ChatGPT peut-il utiliser une clé API à la place d’OAuth ? [#chatgpt-with-an-api-key]
 
@@ -118,7 +120,7 @@ Chaque espace de travail définit ses propres types d’enregistrements, comme l
 
 ## Confirmer les appels d’outils : lesquels puis-je toujours autoriser ? [#confirming-tool-calls]
 
-Customermates n’interrompt jamais un appel d’outil pour demander une confirmation ; c’est votre client qui le fait, et vous le contrôlez à cet endroit. Dans Claude : **Settings → Connectors → Customermates**, puis réglez chaque outil (ou le groupe en lecture seule) sur *Always allow* ou *Ask*.
+Customermates n’interrompt jamais un appel d’outil pour demander une confirmation ; c’est votre client qui le fait, et vous le contrôlez à cet endroit. Dans Claude : **Customize → Connectors → Customermates**, puis réglez chaque outil (ou le groupe en lecture seule) sur *Always allow* ou *Ask*.
 
 - Les lectures (`get_*`, `list_*`, `search_*`) portent l’indicateur de lecture seule, vous pouvez donc les autoriser sans risque.
 - Les outils qui peuvent supprimer portent l’indicateur destructif et indiquent `IRREVERSIBLE`.
@@ -145,7 +147,7 @@ Laissez sur *Ask* tout outil qui n’est pas en lecture seule. La liste complèt
 
 ## Sur une formule gratuite ou en ligne de commande ? [#on-a-free-plan-or-in-a-cli]
 
-ChatGPT demande une formule payante pour les connecteurs personnalisés (Claude Free en autorise un), et les clients en ligne de commande et les éditeurs n’utilisent pas du tout le flux du connecteur. Les deux s’authentifient plutôt avec une clé API : voir [CLI et éditeurs](/docs/connect-cli). Claude Desktop sur une formule gratuite peut utiliser la [solution de repli par fichier de configuration](/docs/connect-cli#claude-desktop-config-file).
+Dans ChatGPT, les règles du compte et de l’espace de travail décident des serveurs MCP personnalisés (Claude Free en autorise un), et les clients en ligne de commande et les éditeurs n’utilisent pas du tout le flux du connecteur. Les deux s’authentifient plutôt avec une clé API : voir [CLI et éditeurs](/docs/connect-cli). Claude Desktop sur une formule gratuite peut utiliser la [solution de repli par fichier de configuration](/docs/connect-cli#claude-desktop-config-file).
 
 ## Suite [#next]
 
@@ -153,8 +155,16 @@ ChatGPT demande une formule payante pour les connecteurs personnalisés (Claude 
 - [Webhooks](/docs/webhooks) : l’autre moitié de la boucle agentique.
 - [CLI et éditeurs](/docs/connect-cli) : configuration par clé API pour Claude Code, Codex, Cursor et Gemini CLI.
 
-## Grok Bot [#grok-bot]
+## Grok et Grok Bot [#grok-bot]
 
-Grok Bot peut travailler dans Customermates via son navigateur. Demandez-lui d’ouvrir votre URL Customermates, de prendre la main sur la connexion quand elle est demandée, puis décrivez la tâche. Relisez les brouillons avant l’envoi. Ce flux de travail dans le navigateur ne demande pas de nouvelle clé API Customermates.
+**Conversation Grok :** ouvrez [grok.com/connectors](https://grok.com/connectors), cliquez sur **New Connector**, choisissez **Custom** et collez l’URL de votre espace de travail ([quelle URL](#the-url)). Grok ouvre une fenêtre Customermates : connectez-vous et cliquez sur **Approuver**. Sur Grok Business et Enterprise, un administrateur de l’équipe ajoute d’abord le connecteur dans la console xAI.
 
-Grok Bot et les connecteurs de conversation de Grok ont des flux de configuration différents. Pour la conversation Grok, ajoutez un connecteur MCP personnalisé avec `<BASE_URL>/api/v1/mcp` et terminez l’authentification. Voir le [guide de l’application Grok Bot](https://docs.x.ai/grok-bot/computer-and-apps) et le [guide des connecteurs Grok](https://docs.x.ai/grok/connectors) officiels.
+**Grok Bot :** dans **Connect apps**, choisissez **Add a custom connector**, saisissez le nom Customermates, choisissez le type **Remote HTTPS** et collez l’URL comme **Server URL**. Ajoutez l’en-tête HTTP `x-api-key` avec une clé API standard ([clés API](/docs/api-keys)), puis choisissez **Add plugin**. Si vous préférez, Grok Bot peut aussi travailler dans Customermates via son navigateur.
+
+Dans Customermates, [Clés API et connecteurs](app:settings/api-keys) → **Ajouter** → **Grok** affiche l’URL avec un bouton de copie. Sources : le [guide officiel des connecteurs Grok](https://docs.x.ai/grok/connectors) et le [guide officiel de Grok Bot](https://docs.x.ai/grok-bot/computer-and-apps), vérifiés le 24 novembre 2026.
+
+## Langdock [#langdock]
+
+Dans Langdock, ajoutez une intégration MCP et collez l’URL de votre espace de travail ([quelle URL](#the-url)). Comme méthode d’authentification, choisissez **OAuth 2.0 (Dynamic Client Registration)**, enregistrez et connectez. Une fenêtre Customermates s’ouvre : connectez-vous et cliquez sur **Approuver**. Langdock liste les outils Customermates, et vous choisissez ceux qu’il peut utiliser.
+
+Langdock bloque par défaut les adresses réseau privées et internes, donc une instance auto-hébergée a besoin d’une adresse HTTPS publique. Dans Customermates, [Clés API et connecteurs](app:settings/api-keys) → **Ajouter** → **Langdock** affiche l’URL avec un bouton de copie. Source : le [guide MCP officiel de Langdock](https://docs.langdock.com/en/using-langdock/guides/integrations/mcp/mcp), vérifié le 24 novembre 2026.

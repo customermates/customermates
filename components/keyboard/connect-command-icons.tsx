@@ -38,4 +38,6 @@ export const AI_CLIENT_COMMAND_ICONS: Record<AiConnectionProvider, CommandIcon> 
   openai: aiLogo("openai"),
   cursor: aiLogo("cursor"),
   gemini: aiLogo("gemini"),
+  grok: aiLogo("grok"),
+  langdock: aiLogo("langdock"),
 };

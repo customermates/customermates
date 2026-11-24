@@ -2769,6 +2769,8 @@
         "claude": "Claude",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT"
       },
       "connect": "Connect an app",
@@ -4322,10 +4324,26 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "app": {
+        "grok": {
+          "botSteps": "Grok Bot: under Connect apps, choose Add a custom connector, pick Remote HTTPS and paste the URL as the Server URL. Add the HTTP header x-api-key with a standard API key from the API keys page.",
+          "description": "Grok chat signs in to Customermates with OAuth, so no API key is needed.",
+          "steps": "Open grok.com/connectors, click New Connector, choose Custom and paste the URL. Sign in to Customermates and approve access. On Grok Business or Enterprise, a team admin adds the connector in the xAI console first.",
+          "title": "Add Customermates as a custom connector in Grok"
+        },
+        "langdock": {
+          "description": "Langdock signs in to Customermates with OAuth, so no API key is needed.",
+          "steps": "In Langdock, add an MCP integration and paste the URL. As the authentication method choose OAuth 2.0 (Dynamic Client Registration), save, then connect, sign in to Customermates and approve access.",
+          "title": "Add Customermates as an MCP integration in Langdock"
+        },
+        "subtitle": "Add Customermates to {provider} with this workspace's URL and sign in."
+      },
       "captions": {
         "claude": "Claude app, web or Claude Code",
         "cursor": "Cursor editor",
         "gemini": "Gemini CLI",
+        "grok": "Grok chat or Grok Bot",
+        "langdock": "Langdock workspace",
         "openai": "ChatGPT app or Codex",
         "other": "Any app that supports MCP"
       },
@@ -4337,6 +4355,8 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT & Codex"
       },
       "connector": {

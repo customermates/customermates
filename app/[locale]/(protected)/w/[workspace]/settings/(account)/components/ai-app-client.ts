@@ -10,6 +10,7 @@ const CLIENT_MATCHERS: readonly [RegExp, AiClientLogoProvider][] = [
   [/cursor/i, "cursor"],
   [/gemini/i, "gemini"],
   [/grok/i, "grok"],
+  [/langdock/i, "langdock"],
 ];
 
 export function aiAppLogoProvider(name: string): AiClientLogoProvider | null {
@@ -18,7 +19,8 @@ export function aiAppLogoProvider(name: string): AiClientLogoProvider | null {
 
 function connectionProviderOf(logo: AiClientLogoProvider | null): AiConnectionProvider | null {
   if (logo === "chatgpt" || logo === "codex" || logo === "openai") return "openai";
-  if (logo === "claude" || logo === "cursor" || logo === "gemini") return logo;
+  if (logo === "claude" || logo === "cursor" || logo === "gemini" || logo === "grok" || logo === "langdock")
+    return logo;
   return null;
 }
 

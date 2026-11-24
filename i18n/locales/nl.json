@@ -2769,6 +2769,8 @@
         "claude": "Claude",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT"
       },
       "connect": "App koppelen",
@@ -4322,10 +4324,26 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "app": {
+        "grok": {
+          "botSteps": "Grok Bot: kies onder Connect apps de optie Add a custom connector, daarna Remote HTTPS, en plak de URL als Server URL. Voeg de HTTP-header x-api-key toe met een standaard API-sleutel van de pagina API-sleutels.",
+          "description": "Grok-chat meldt zich met OAuth aan bij Customermates, dus een API-sleutel is niet nodig.",
+          "steps": "Open grok.com/connectors, klik op New Connector, kies Custom en plak de URL. Meld je aan bij Customermates en keur de toegang goed. Bij Grok Business of Enterprise voegt eerst een teambeheerder de connector toe in de xAI-console.",
+          "title": "Customermates als aangepaste connector toevoegen in Grok"
+        },
+        "langdock": {
+          "description": "Langdock meldt zich met OAuth aan bij Customermates, dus een API-sleutel is niet nodig.",
+          "steps": "Voeg in Langdock een MCP-integratie toe en plak de URL. Kies als authenticatiemethode OAuth 2.0 (Dynamic Client Registration), sla op, verbind daarna, meld je aan bij Customermates en keur de toegang goed.",
+          "title": "Customermates als MCP-integratie toevoegen in Langdock"
+        },
+        "subtitle": "Voeg Customermates met de URL van deze workspace toe aan {provider} en meld je aan."
+      },
       "captions": {
         "claude": "Claude-app, web of Claude Code",
         "cursor": "Cursor-editor",
         "gemini": "Gemini CLI",
+        "grok": "Grok-chat of Grok Bot",
+        "langdock": "Langdock-workspace",
         "openai": "ChatGPT-app of Codex",
         "other": "Elke app die MCP ondersteunt"
       },
@@ -4337,6 +4355,8 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT & Codex"
       },
       "connector": {

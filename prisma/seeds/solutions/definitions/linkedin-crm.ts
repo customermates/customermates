@@ -2548,7 +2548,7 @@ export default defineSolution<Strings>({
           related: ["guide"],
         },
       ],
-      ...agentConnections([58, 33, 9]),
+      ...agentConnections([58, 33, 9], { apps: ["grok"], keys: ["Zapier", "Make"] }),
       files: [
         file("hollisProposal", "hollisProgram", "pdf", 10),
         file("ashcombeProposal", "ashcombeProgram", "pdf", 16),

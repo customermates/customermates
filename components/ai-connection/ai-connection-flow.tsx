@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
 import { AiConnectionApiKeySetup } from "./ai-connection-api-key-setup";
+import { AiConnectionAppSetup } from "./ai-connection-app-setup";
 import { AiConnectionClaudeSetup } from "./ai-connection-claude-setup";
 import { executeAiConnectionKeyCreation } from "./ai-connection-key-creation";
 import { AiConnectionOpenAiSetup } from "./ai-connection-openai-setup";
@@ -160,6 +161,31 @@ export const AiConnectionFlow = observer(
             workspaceName={workspaceName}
             onCreate={() => runUserAction(createKey)}
           />
+        </div>
+      );
+    }
+
+    if (store.route.screen === "app") {
+      const appProvider = store.route.provider;
+      const appName = t(`OnboardingWizard.ai.choices.${appProvider}`);
+      return (
+        <div className="flex flex-col gap-4">
+          <AiConnectionSubstepHeader
+            backDisabled={interactionDisabled}
+            backLabel={resolvedBackLabel}
+            headingRef={screenHeadingRef}
+            mode={substepHeaderMode}
+            showBack={showInlineBack}
+            subtitle={t("OnboardingWizard.ai.app.subtitle", {
+              provider: appName,
+            })}
+            title={t("OnboardingWizard.ai.screen.setup.title", {
+              provider: appName,
+            })}
+            onBack={store.backToProviders}
+          />
+
+          <AiConnectionAppSetup mcpUrl={mcpUrl} provider={appProvider} workspaceName={workspaceName} />
         </div>
       );
     }

@@ -14,6 +14,10 @@ export function useSelectedAgentName(): string | null {
       return t("OnboardingWizard.ai.choices.cursor");
     case "gemini":
       return t("OnboardingWizard.ai.choices.gemini");
+    case "grok":
+      return t("OnboardingWizard.ai.choices.grok");
+    case "langdock":
+      return t("OnboardingWizard.ai.choices.langdock");
     case "openai":
       return stepAiStore.openAiMethod === "codex"
         ? t("OnboardingWizard.ai.choices.codex")

@@ -8,20 +8,27 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { createApiKeyAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions";
 import { API_KEY_MAX_EXPIRATION_SECONDS } from "@/features/api-key/api-key-expiration";
 
-export const AI_CONNECTION_PROVIDERS = ["claude", "openai", "cursor", "gemini"] as const;
+export const AI_CONNECTION_PROVIDERS = ["claude", "openai", "cursor", "gemini", "grok", "langdock"] as const;
+export const AI_CONNECTION_APP_PROVIDERS = ["grok", "langdock"] as const;
 
 export type AiConnectionProvider = (typeof AI_CONNECTION_PROVIDERS)[number];
+export type AiConnectionAppProvider = (typeof AI_CONNECTION_APP_PROVIDERS)[number];
 export type AiConnectionClaudeMethod = "account" | "local";
 export type AiConnectionClaudeClient = Extract<McpTool, "claudeCode" | "claudeDesktop">;
 export type AiConnectionOpenAiMethod = "chatgpt" | "codex";
-type AiConnectionDirectProvider = Exclude<AiConnectionProvider, "claude" | "openai">;
+type AiConnectionDirectProvider = Exclude<AiConnectionProvider, "claude" | "openai" | AiConnectionAppProvider>;
 
 type AiConnectionRoute =
   | { screen: "providers" }
   | { screen: "claude" }
   | { screen: "openai" }
   | { screen: "other" }
+  | { screen: "app"; provider: AiConnectionAppProvider }
   | { screen: "setup"; provider: AiConnectionDirectProvider };
+
+function isAppProvider(provider: AiConnectionProvider): provider is AiConnectionAppProvider {
+  return (AI_CONNECTION_APP_PROVIDERS as readonly string[]).includes(provider);
+}
 
 export type AiConnectionCredential = {
   id: string;
@@ -103,7 +110,7 @@ export class AiConnectionStore {
 
   get canFinish(): boolean {
     if (this.isCreating) return false;
-    if (this.connectorProvider || this.route.screen === "other") return true;
+    if (this.connectorProvider || this.route.screen === "other" || this.route.screen === "app") return true;
     return this.selectedTool !== null && (this.credential !== null || this.hasSavedApiKey);
   }
 
@@ -170,7 +177,9 @@ export class AiConnectionStore {
         ? { screen: "claude" }
         : provider === "openai"
           ? { screen: "openai" }
-          : { screen: "setup", provider };
+          : isAppProvider(provider)
+            ? { screen: "app", provider }
+            : { screen: "setup", provider };
   };
 
   selectOtherClient = () => {

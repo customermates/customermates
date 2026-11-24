@@ -3,6 +3,8 @@ import type { SolutionDataLocale, SolutionId } from "@/core/solutions/solution-c
 import type { DisplayType } from "@/features/widget/widget-display.schema";
 import type { RoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 
+import type { RunnerSpec } from "./agent-native";
+
 import { colleagueAvatarUrl, contactAvatarUrl } from "../avatars";
 import type { TEAM_MEMBER_IDS } from "../team";
 
@@ -427,6 +429,7 @@ export type SolutionContent = {
   webhooks?: readonly WebhookSpec[];
   apiKeys?: readonly ApiKeySpec[];
   agentApps?: readonly AgentAppSpec[];
+  runners?: readonly RunnerSpec[];
   /** The currency of every amount: USD for US stories, GBP for UK stories, EUR for German, Spanish and Dutch ones, BRL for Brazilian and PLN for Polish ones. */
   currency: "USD" | "GBP" | "EUR" | "BRL" | "PLN";
   /** The time zone of the story: dashboards, calendars and local times of date-time values. */

@@ -9,11 +9,15 @@ const AiConnectionSelectionSchema = z.strictObject({
     z.strictObject({ screen: z.literal("openai") }),
     z.strictObject({ screen: z.literal("other") }),
     z.strictObject({
+      screen: z.literal("app"),
+      provider: z.enum(["grok", "langdock"]),
+    }),
+    z.strictObject({
       screen: z.literal("setup"),
       provider: z.enum(["cursor", "gemini"]),
     }),
   ]),
-  selectedProvider: z.enum(["claude", "openai", "cursor", "gemini"]).nullable(),
+  selectedProvider: z.enum(["claude", "openai", "cursor", "gemini", "grok", "langdock"]).nullable(),
   claudeMethod: z.enum(["account", "local"]).nullable(),
   claudeClient: z.enum(["claudeCode", "claudeDesktop"]).nullable(),
   openAiMethod: z.enum(["chatgpt", "codex"]).nullable(),

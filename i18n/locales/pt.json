@@ -2769,6 +2769,8 @@
         "claude": "Claude",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT"
       },
       "connect": "Conectar um app",
@@ -4322,10 +4324,26 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "app": {
+        "grok": {
+          "botSteps": "Grok Bot: em Connect apps, escolha Add a custom connector, depois Remote HTTPS, e cole a URL como Server URL. Adicione o cabeçalho HTTP x-api-key com uma chave de API padrão da página Chaves de API.",
+          "description": "O chat do Grok entra no Customermates com OAuth, então não é preciso uma chave de API.",
+          "steps": "Abra grok.com/connectors, clique em New Connector, escolha Custom e cole a URL. Entre no Customermates e aprove o acesso. No Grok Business ou Enterprise, um administrador da equipe adiciona primeiro o conector no console da xAI.",
+          "title": "Adicione o Customermates como conector personalizado no Grok"
+        },
+        "langdock": {
+          "description": "O Langdock entra no Customermates com OAuth, então não é preciso uma chave de API.",
+          "steps": "No Langdock, adicione uma integração MCP e cole a URL. Como método de autenticação escolha OAuth 2.0 (Dynamic Client Registration), salve, depois conecte, entre no Customermates e aprove o acesso.",
+          "title": "Adicione o Customermates como integração MCP no Langdock"
+        },
+        "subtitle": "Adicione o Customermates ao {provider} com a URL deste espaço de trabalho e entre."
+      },
       "captions": {
         "claude": "App Claude, web ou Claude Code",
         "cursor": "Editor Cursor",
         "gemini": "Gemini CLI",
+        "grok": "Chat do Grok ou Grok Bot",
+        "langdock": "Espaço de trabalho Langdock",
         "openai": "App ChatGPT ou Codex",
         "other": "Qualquer app compatível com MCP"
       },
@@ -4337,6 +4355,8 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT & Codex"
       },
       "connector": {
