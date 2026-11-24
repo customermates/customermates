@@ -28,7 +28,7 @@ export function HomepageHero({ heroSection }: Props) {
       className="homepage-hero-agent-pill"
       labels={{
         copied: t("AgentStart.copiedTip"),
-        failed: t("AgentStart.failed"),
+        failed: t("Common.notifications.copyFailed"),
         label: t("AgentStart.label"),
         openInClaude: t("AgentStart.openIn", { app: "Claude" }),
         openInChatgpt: t("AgentStart.openIn", { app: "ChatGPT" }),

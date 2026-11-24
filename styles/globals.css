@@ -3050,11 +3050,11 @@ path:focus {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.75rem;
   line-height: 1.125rem;
-  color: var(--muted-foreground);
+  color: inherit;
   overflow-wrap: anywhere;
   white-space: normal;
   border-radius: 0.5rem;
-  background: var(--muted);
+  background: color-mix(in oklab, currentColor 8%, transparent);
 }
 
 .agent-start-toast-actions {
@@ -3071,17 +3071,20 @@ path:focus {
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1rem;
-  color: var(--popover-foreground);
+  color: inherit;
   text-decoration: none;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
   border-radius: 999px;
-  background: var(--card);
-  transition: border-color 150ms ease;
+  background: color-mix(in oklab, currentColor 6%, transparent);
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 
 .agent-start-toast-action:hover,
 .agent-start-toast-action:focus-visible {
-  border-color: color-mix(in oklab, var(--foreground) 25%, transparent);
+  border-color: color-mix(in oklab, currentColor 55%, transparent);
+  background: color-mix(in oklab, currentColor 12%, transparent);
 }
 
 .agent-start-pill[data-size="sm"] {

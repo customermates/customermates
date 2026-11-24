@@ -10,7 +10,7 @@ const clipboard = vi.hoisted(() => ({ copyToClipboard: vi.fn() }));
 vi.mock("@/core/utils/clipboard", () => clipboard);
 
 const sonner = vi.hoisted(() => {
-  const toast = Object.assign(vi.fn(), { error: vi.fn() });
+  const toast = { success: vi.fn(), error: vi.fn() };
   return { toast };
 });
 vi.mock("sonner", () => sonner);
@@ -60,8 +60,11 @@ describe("AgentStartPill", () => {
     expect(clipboard.copyToClipboard).toHaveBeenCalledWith(PROMPT);
     expect(container.textContent).toBe(labels.label);
     expect(container.querySelector('[data-status="copied"]')).not.toBeNull();
-    expect(sonner.toast).toHaveBeenCalledWith(labels.copied, expect.objectContaining({ id: "agent-start-copied" }));
-    const description = renderToStaticMarkup(sonner.toast.mock.calls[0][1].description as ReactElement);
+    expect(sonner.toast.success).toHaveBeenCalledWith(
+      labels.copied,
+      expect.objectContaining({ id: "agent-start-copied" }),
+    );
+    const description = renderToStaticMarkup(sonner.toast.success.mock.calls[0][1].description as ReactElement);
     const links = agentStartOpenLinks(PROMPT);
     expect(description).toContain(PROMPT);
     expect(description).toContain(`href="${links.claude.replaceAll("&", "&amp;")}"`);
@@ -77,7 +80,7 @@ describe("AgentStartPill", () => {
     await click();
 
     expect(sonner.toast.error).toHaveBeenCalledWith(labels.failed, { id: "agent-start-copied" });
-    expect(sonner.toast).not.toHaveBeenCalled();
+    expect(sonner.toast.success).not.toHaveBeenCalled();
     expect(container.querySelector('[data-status="idle"]')).not.toBeNull();
   });
 

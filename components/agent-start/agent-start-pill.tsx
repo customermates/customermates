@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Check, CircleCheck, Copy } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -78,9 +78,8 @@ export function AgentStartPill({ className, labels, leading, prompt, size = "def
       return;
     }
     setCopied(true);
-    toast(labels.copied, {
+    toast.success(labels.copied, {
       id: TOAST_ID,
-      icon: <CircleCheck className="size-4 text-success" />,
       description: <CopiedToast labels={labels} prompt={prompt} />,
     });
   }
