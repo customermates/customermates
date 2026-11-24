@@ -3104,7 +3104,17 @@ export default defineSolution<Strings>({
           deliveries: 12,
         },
       ],
-      ...agentConnections([75, 41, 14]),
+      ...agentConnections([75, 41, 14], {
+        apps: ["gemini", "langdock"],
+        keys: ["Pipedream", "Zapier", "Typeform"],
+        runner: {
+          name: "Sales ops mini PC",
+          machine: "salesops-nuc",
+          clients: [{ name: "codex", version: "0.98.0" }],
+          createdDaysAgo: 22,
+          lastSeenMinutesAgo: 25,
+        },
+      }),
       routines: [
         {
           key: "stale",

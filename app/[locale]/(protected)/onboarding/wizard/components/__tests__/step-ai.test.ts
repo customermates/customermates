@@ -101,16 +101,18 @@ beforeEach(() => {
 });
 
 describe("StepAi provider chooser", () => {
-  it("renders four provider-first buttons with Back and Finish", () => {
+  it("renders six provider-first buttons with Back and Finish", () => {
     const html = renderStep(makeStore());
     const providerButtons = buttons(html).filter((button) => button.includes("data-provider="));
 
-    expect(providerButtons).toHaveLength(4);
+    expect(providerButtons).toHaveLength(6);
     expect(providerButtons.map((button) => button.match(/data-provider="([^"]+)"/)?.[1])).toEqual([
       "claude",
       "openai",
       "cursor",
       "gemini",
+      "grok",
+      "langdock",
     ]);
     expect(providerButtons.join(" ")).not.toMatch(/connector|api.?key|mcp/i);
     const finishButton = buttonContaining(html, "OnboardingWizard.finish");

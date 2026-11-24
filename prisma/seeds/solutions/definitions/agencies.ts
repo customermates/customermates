@@ -3339,7 +3339,20 @@ export default defineSolution<Strings>({
           ],
         },
       ],
-      ...agentConnections([62, 33, 11]),
+      ...agentConnections([62, 33, 11], {
+        apps: ["cursor", "langdock"],
+        keys: ["Webflow", "Make", "Typeform"],
+        runner: {
+          name: "Studio Mac Studio",
+          machine: "studio-macstudio.local",
+          clients: [
+            { name: "claude", version: "2.1.4" },
+            { name: "codex", version: "0.98.0" },
+          ],
+          createdDaysAgo: 19,
+          lastSeenMinutesAgo: 12,
+        },
+      }),
       messaging: {
         accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,

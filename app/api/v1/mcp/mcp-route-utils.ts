@@ -438,7 +438,13 @@ export function createMcpRoute(
 
     const activeKeys = toolsetKey === "" ? knownKeys : toolsetKey.split(",");
     const tools = [...mcpToolsForToolsets(toolGroups, activeKeys, alwaysOn), ...(operator ? operatorTools : [])];
-    const toolset = { tools, instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)) };
+    const toolset = {
+      tools,
+      instructions: buildMcpServerInstructions(
+        tools.map((tool) => tool.name),
+        { plans: env.APP_MODE !== "self-hosted" },
+      ),
+    };
     toolsets.set(cacheKey, toolset);
     return toolset;
   }

@@ -28,6 +28,7 @@ import {
   type SolutionRecordData,
 } from "./solution-data";
 import { seedSolutionAgentApps } from "./solution-agent-apps";
+import { seedSolutionAgentRunners } from "./solution-agent-runners";
 import { seedSolutionMateChats, seedSolutionPlanner, seedSolutionTrash } from "./solution-extras";
 import { seedSolutionFiles, solutionFileValues } from "./solution-files";
 import { buildTeamPlatformFixtures, seedSolutionPlatform } from "./solution-platform";
@@ -617,6 +618,7 @@ export async function seedSolutionWorkspace(
   await seedSolutionRoutines(prisma, workspace, content, data);
   await seedSolutionApiKeys(prisma, workspace, content);
   await seedSolutionAgentApps(prisma, workspace, content);
+  await seedSolutionAgentRunners(prisma, workspace, content);
   await seedSolutionPlanner(prisma, workspace, content);
   await seedSolutionTrash(prisma, workspace, content);
   await seedSolutionMateChats(prisma, workspace, content);

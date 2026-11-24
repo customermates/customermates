@@ -3099,7 +3099,17 @@ export default defineSolution<Strings>({
           ],
         },
       ],
-      ...agentConnections([75, 38, 14]),
+      ...agentConnections([75, 38, 14], {
+        apps: ["grok", "cursor"],
+        keys: ["Zapier", "Calendly", "Webflow"],
+        runner: {
+          name: "Front desk PC",
+          machine: "frontdesk-pc",
+          clients: [{ name: "claude", version: "2.1.4" }],
+          createdDaysAgo: 20,
+          lastSeenMinutesAgo: 95,
+        },
+      }),
       webhooks: [
         {
           key: "accounting",

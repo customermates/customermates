@@ -7,7 +7,7 @@ Customermates is een source-available, AI-native CRM dat je AI rechtstreeks via 
 
 Dit is de aanbevolen route voor **Claude** (web, desktop en mobiel) en **ChatGPT**. Gebruik je een CLI of editor (Claude Code, Codex, Cursor, Gemini CLI), kies dan [de methode met een API-sleutel](/docs/connect-cli).
 
-> Claude biedt eigen connectoren op elk abonnement (Free, Pro, Max, Ultra, Team, Enterprise); Free staat één eigen connector toe (Anthropic-help, gecontroleerd op 3 november 2026). In ChatGPT zijn ze een betaalde functie (Plus, Pro, Business, Enterprise).
+> Claude biedt eigen connectoren op elk abonnement (Free, Pro, Max, Ultra, Team, Enterprise); Free staat één eigen connector toe (Anthropic-help, gecontroleerd op 3 november 2026). In ChatGPT bepalen de regels van je account en werkruimte of je een eigen MCP-server kunt toevoegen (OpenAI-help, gecontroleerd op 24 november 2026).
 
 ## Welke URL plak ik? [#the-url]
 
@@ -31,7 +31,7 @@ Om Claude aan je CRM te koppelen, voeg je Customermates in Claude toe als eigen 
 
 <Steps>
 <Step title="Open het connectorformulier">
-**Claude → Settings → Connectors → Add custom connector.**
+**Claude → Customize → Connectors → Add → Add custom connector.** Bij Team en Enterprise voegt eerst een eigenaar hem toe onder **Organization settings → Connectors → Add → Custom → Web**.
 </Step>
 <Step title="Plak de URL">
 Laat de authenticatie op de standaardinstelling staan (OAuth). Geen header, geen sleutel.
@@ -50,13 +50,15 @@ Het kan ook met één klik: open in Customermates [API-sleutels & connectoren](a
 
 ## Hoe koppel ik ChatGPT? [#chatgpt]
 
-Om ChatGPT te koppelen, open je in ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
+Open op chatgpt.com **[Plugins](https://chatgpt.com/plugins) → + → Add custom MCP server**:
 
 - **Name:** Customermates
-- **URL:** de URL van je werkruimte, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([welke URL](#the-url))
+- **Connection:** het openbare endpoint, de URL van je werkruimte `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([welke URL](#the-url))
 - **Authentication:** OAuth
 
-Sla op. ChatGPT opent een Customermates-venster. Log in en klik op **Goedkeuren** op het toestemmingsscherm. Alle Customermates-tools staan in de lijst, zonder sleutel om op te slaan of te vernieuwen.
+Bevestig de risicomelding met **I understand and want to continue** en daarna **Create as a plugin**. ChatGPT opent een Customermates-venster. Log in en klik op **Goedkeuren** op het toestemmingsscherm. Alle Customermates-tools staan in de lijst, zonder sleutel om op te slaan of te vernieuwen.
+
+Open in de ChatGPT-desktopapp **Settings → MCP servers → Add server**, kies **Streamable HTTP**, plak dezelfde URL, sla op en kies **Restart**, daarna **Authenticate** naast Customermates en keur de toegang goed (OpenAI-help, gecontroleerd op 24 november 2026).
 
 ### Kan ChatGPT een API-sleutel gebruiken in plaats van OAuth? [#chatgpt-with-an-api-key]
 
@@ -118,7 +120,7 @@ Elke werkruimte definieert zijn eigen recordtypen, zoals contacten, deals of tak
 
 ## Toolaanroepen bevestigen: welke kan ik altijd toestaan? [#confirming-tool-calls]
 
-Customermates onderbreekt een toolaanroep nooit om om bevestiging te vragen; dat doet je client, en daar bepaal je het zelf. In Claude: **Settings → Connectors → Customermates**, en zet daarna elke tool (of de groep met alleen lezen) op *Always allow* of *Ask*.
+Customermates onderbreekt een toolaanroep nooit om om bevestiging te vragen; dat doet je client, en daar bepaal je het zelf. In Claude: **Customize → Connectors → Customermates**, en zet daarna elke tool (of de groep met alleen lezen) op *Always allow* of *Ask*.
 
 - Leesacties (`get_*`, `list_*`, `search_*`) hebben de markering alleen-lezen, dus je kunt ze veilig toestaan.
 - Tools die kunnen verwijderen hebben de markering destructief en vermelden `IRREVERSIBLE`.
@@ -145,7 +147,7 @@ Laat elke tool die niet alleen-lezen is op *Ask* staan. De volledige lijst staat
 
 ## Met een gratis abonnement of in een CLI? [#on-a-free-plan-or-in-a-cli]
 
-ChatGPT vraagt een betaald abonnement voor eigen connectoren (Claude Free staat er één toe), en CLI- en editorclients gebruiken de connectorflow helemaal niet. Beide authenticeren met een API-sleutel: zie [CLI en editors](/docs/connect-cli). Claude Desktop met een gratis abonnement kan het [alternatief met een configuratiebestand](/docs/connect-cli#claude-desktop-config-file) gebruiken.
+In ChatGPT bepalen de regels van je account en werkruimte over eigen MCP-servers (Claude Free staat er één toe), en CLI- en editorclients gebruiken de connectorflow helemaal niet. Beide authenticeren met een API-sleutel: zie [CLI en editors](/docs/connect-cli). Claude Desktop met een gratis abonnement kan het [alternatief met een configuratiebestand](/docs/connect-cli#claude-desktop-config-file) gebruiken.
 
 ## Volgende stappen [#next]
 
@@ -153,8 +155,16 @@ ChatGPT vraagt een betaald abonnement voor eigen connectoren (Claude Free staat 
 - [Webhooks](/docs/webhooks): de andere helft van de agentische lus.
 - [CLI en editors](/docs/connect-cli): installatie met een API-sleutel voor Claude Code, Codex, Cursor en Gemini CLI.
 
-## Grok Bot [#grok-bot]
+## Grok en Grok Bot [#grok-bot]
 
-Grok Bot kan in Customermates werken via zijn browser. Vraag de bot je Customermates-URL te openen, neem het inloggen over wanneer erom wordt gevraagd en beschrijf daarna de taak. Controleer concepten voordat je ze verstuurt. Voor deze browserwerkwijze heb je geen nieuwe Customermates API-sleutel nodig.
+**Grok-chat:** open [grok.com/connectors](https://grok.com/connectors), klik op **New Connector**, kies **Custom** en plak de URL van je werkruimte ([welke URL](#the-url)). Grok opent een Customermates-venster: log in en klik op **Goedkeuren**. Bij Grok Business en Enterprise voegt eerst een teambeheerder de connector toe in de xAI-console.
 
-Grok Bot en de chatconnectoren van Grok hebben een andere installatieflow. Voeg voor de chat van Grok een eigen MCP-connector toe met `<BASE_URL>/api/v1/mcp` en rond de authenticatie af. Zie de officiële [Grok Bot-appgids](https://docs.x.ai/grok-bot/computer-and-apps) en de [Grok-connectorgids](https://docs.x.ai/grok/connectors).
+**Grok Bot:** kies onder **Connect apps** de optie **Add a custom connector**, vul de naam Customermates in, kies het type **Remote HTTPS** en plak de URL als **Server URL**. Voeg de HTTP-header `x-api-key` toe met een standaard API-sleutel ([API-sleutels](/docs/api-keys)) en kies **Add plugin**. Als je dat liever hebt, kan Grok Bot ook via zijn browser in Customermates werken.
+
+In Customermates toont [API-sleutels & connectoren](app:settings/api-keys) → **Toevoegen** → **Grok** de URL met een kopieerknop. Bronnen: de officiële [Grok-connectorgids](https://docs.x.ai/grok/connectors) en [Grok Bot-gids](https://docs.x.ai/grok-bot/computer-and-apps), gecontroleerd op 24 november 2026.
+
+## Langdock [#langdock]
+
+Voeg in Langdock een MCP-integratie toe en plak de URL van je werkruimte ([welke URL](#the-url)). Kies als authenticatiemethode **OAuth 2.0 (Dynamic Client Registration)**, sla op en verbind. Er opent een Customermates-venster: log in en klik op **Goedkeuren**. Langdock toont de Customermates-tools en jij kiest welke het mag gebruiken.
+
+Langdock blokkeert standaard privé- en interne netwerkadressen, dus een zelf gehoste instantie heeft een openbaar HTTPS-adres nodig. In Customermates toont [API-sleutels & connectoren](app:settings/api-keys) → **Toevoegen** → **Langdock** de URL met een kopieerknop. Bron: de officiële [Langdock-MCP-gids](https://docs.langdock.com/en/using-langdock/guides/integrations/mcp/mcp), gecontroleerd op 24 november 2026.

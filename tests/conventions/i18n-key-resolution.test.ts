@@ -425,8 +425,13 @@ const ONBOARDING_CHOICE_KEYS = [
   "codex",
   "cursor",
   "gemini",
+  "grok",
+  "langdock",
   "openai",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
+const ONBOARDING_APP_PROVIDERS = ["grok", "langdock"] as const;
+const onboardingAppKeys = (field: string) =>
+  ONBOARDING_APP_PROVIDERS.map((provider) => `OnboardingWizard.ai.app.${provider}.${field}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
 const ONBOARDING_TEMPLATE_FAMILY_KEYS = TEMPLATE_FAMILIES.map(
@@ -601,7 +606,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
   [
     "Connections.apps.clients.${*}",
-    ["claude", "cursor", "gemini", "openai"].map((client) => `Connections.apps.clients.${client}`),
+    ["claude", "cursor", "gemini", "grok", "langdock", "openai"].map((client) => `Connections.apps.clients.${client}`),
   ],
   ["EntityChannels.groups.${*}", CHANNEL_GROUP_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
@@ -634,6 +639,9 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
   ["Inbox.threadStates.${*}", THREAD_STATE_KEYS],
   ["Inbox.lastMessageDirections.${*}", LAST_MESSAGE_DIRECTION_KEYS],
+  ["OnboardingWizard.ai.app.${*}.description", onboardingAppKeys("description")],
+  ["OnboardingWizard.ai.app.${*}.steps", onboardingAppKeys("steps")],
+  ["OnboardingWizard.ai.app.${*}.title", onboardingAppKeys("title")],
   ["OnboardingWizard.ai.choices.${*}", ONBOARDING_CHOICE_KEYS],
   ["OnboardingWizard.ai.install.instruction.${*}", ONBOARDING_INSTALL_KEYS],
   ["OnboardingWizard.ai.methods.${*}.description", onboardingMethodKeys("description")],
@@ -947,11 +955,16 @@ export const DYNAMIC_KEY_SITES = [
   "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.install.instruction.${tool}",
+  "components/ai-connection/ai-connection-app-setup.tsx :: t :: OnboardingWizard.ai.app.${provider}.description",
+  "components/ai-connection/ai-connection-app-setup.tsx :: t :: OnboardingWizard.ai.app.${provider}.steps",
+  "components/ai-connection/ai-connection-app-setup.tsx :: t :: OnboardingWizard.ai.app.${provider}.title",
+  "components/ai-connection/ai-connection-app-setup.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.choices.${candidate}",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.methods.${candidate}.description",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.methods.${candidate}.meta",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.methods.${candidate}.note",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.methods.${candidate}.title",
+  "components/ai-connection/ai-connection-flow.tsx :: t :: OnboardingWizard.ai.choices.${appProvider}",
   "components/ai-connection/ai-connection-flow.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
   "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.description",
   "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.meta",

@@ -1,8 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { MateOrb } from "@/components/mate/mate-orb";
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
-import { Linkedin } from "@/components/icons/channel-icon";
+import { Linkedin, Whatsapp } from "@/components/icons/channel-icon";
 
 type Drift = {
   children: ReactNode;
@@ -15,22 +14,6 @@ type Drift = {
 
 const DRIFTS: readonly Drift[] = [
   {
-    children: <Linkedin className="size-[44%]" size={24} />,
-    delay: -3,
-    id: "linkedin",
-    path: [86, 10, 83, 92],
-    seconds: 28,
-    size: 54,
-  },
-  {
-    children: <AiClientLogo className="size-[44%]" provider="claude" />,
-    delay: -16,
-    id: "claude",
-    path: [95, 38, 90, 108],
-    seconds: 32,
-    size: 58,
-  },
-  {
     children: <AiClientLogo className="size-[44%]" provider="chatgpt" />,
     delay: -8,
     id: "chatgpt",
@@ -39,11 +22,27 @@ const DRIFTS: readonly Drift[] = [
     size: 56,
   },
   {
-    children: <MateOrb className="size-[62%]" />,
-    delay: -21,
-    id: "mate",
-    path: [6, 34, 1, 108],
-    seconds: 34,
+    children: <AiClientLogo className="size-[44%]" provider="claude" />,
+    delay: -2,
+    id: "claude",
+    path: [2, 60, 11, 118],
+    seconds: 32,
+    size: 58,
+  },
+  {
+    children: <Linkedin className="size-[44%]" size={24} />,
+    delay: -3,
+    id: "linkedin",
+    path: [86, 10, 83, 92],
+    seconds: 28,
+    size: 54,
+  },
+  {
+    children: <Whatsapp className="size-[44%]" size={24} />,
+    delay: -16,
+    id: "whatsapp",
+    path: [95, 38, 90, 108],
+    seconds: 32,
     size: 56,
   },
 ];

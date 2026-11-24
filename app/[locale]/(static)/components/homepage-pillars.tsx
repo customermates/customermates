@@ -5,6 +5,7 @@ import type { HomepagePillars as HomepagePillarsContent } from "@/core/fumadocs/
 import { BookOpen, Bot, Database, Inbox } from "lucide-react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { InView } from "@/components/marketing/in-view";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { Google, Instagram, Linkedin, Outlook, Telegram, Whatsapp } from "@/components/icons/channel-icon";
@@ -47,9 +48,9 @@ function StackCard({ bubble, children, description, icon, id, index, plan, title
       </div>
 
       <div aria-hidden className="homepage-stack-shot">
-        <HomepageMateBubble className="-top-4 left-4 sm:left-6">{bubble}</HomepageMateBubble>
+        <HomepageMateBubble className="homepage-mate-bubble-inline">{bubble}</HomepageMateBubble>
 
-        {children}
+        <InView amount={0.3}>{children}</InView>
       </div>
     </li>
   );

@@ -70,7 +70,7 @@ describe("hero headings", () => {
     expect(html).toContain('href="#film"');
     expect(html).toContain("Start free with Sales leads");
     expect(html).toContain("job=followup&amp;template=sales-pipeline");
-    expect(html).toContain('/features/open-source-crm"');
+    expect(html).toContain('data-homepage-hero-film=""');
     expect(html).not.toContain("github.com");
   });
 

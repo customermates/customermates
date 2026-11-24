@@ -2450,7 +2450,7 @@ export default defineSolution<Strings>({
           },
         ],
       },
-      ...agentConnections([62, 35, 14]),
+      ...agentConnections([62, 35, 14], { apps: ["grok"], keys: ["Make", "Calendly", "Typeform"] }),
       wiki: [
         {
           key: "guide",

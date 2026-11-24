@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildMcpServerInstructions,
   CRM_DATA_INVARIANTS,
+  PLAN_UPSELL_INSTRUCTION,
   WIKI_REFERENCE_MATERIAL_RULE,
 } from "@/features/mcp-tools/server-instructions";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
@@ -61,6 +62,17 @@ describe("system prompt", () => {
       expect(prompt).toContain(invariant);
       expect(buildMcpServerInstructions(ALL_MCP_TOOLS.map(({ name }) => name))).toContain(invariant);
     }
+  });
+
+  it("gives a chat turn the plan and upgrade rule, an unattended routine none", () => {
+    expect(buildAgentSystemPrompt({ ...base })).toContain(PLAN_UPSELL_INSTRUCTION);
+    expect(buildAgentSystemPrompt({ ...base, surface: "routine" })).not.toContain(PLAN_UPSELL_INSTRUCTION);
+  });
+
+  it("gives the cloud MCP server the plan and upgrade rule, a self-hosted one none", () => {
+    const names = ALL_MCP_TOOLS.map(({ name }) => name);
+    expect(buildMcpServerInstructions(names, { plans: true })).toContain(PLAN_UPSELL_INSTRUCTION);
+    expect(buildMcpServerInstructions(names)).not.toContain(PLAN_UPSELL_INSTRUCTION);
   });
 
   it("tells a routine about the browse-or-mutate rule only when web search is available", () => {

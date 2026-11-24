@@ -2931,7 +2931,17 @@ export default defineSolution<Strings>({
           related: ["guide"],
         },
       ],
-      ...agentConnections([74, 36, 11]),
+      ...agentConnections([74, 36, 11], {
+        apps: ["claudeCode", "langdock"],
+        keys: ["Zapier", "Calendly", "n8n"],
+        runner: {
+          name: "Partner MacBook Pro",
+          machine: "partner-mbp.local",
+          clients: [{ name: "codex", version: "0.98.0" }],
+          createdDaysAgo: 27,
+          lastSeenMinutesAgo: 3 * 60,
+        },
+      }),
       messaging: {
         accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,

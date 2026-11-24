@@ -92,7 +92,7 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-03-01
-  updated: 2026-11-23
+  updated: 2026-11-24
   tags:
     - Open Source
     - CRM
@@ -234,6 +234,12 @@ Um Customermates selbst zu testen, [starten Sie Ihre Testphase](/auth/signup?job
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
+## Self-Hosted CRM mit MCP
+
+MCP, das Model Context Protocol, ist der offene Standard, über den KI-Clients wie Claude, ChatGPT und Cursor Werkzeuge in anderer Software aufrufen. Ein selbst gehostetes CRM mit MCP-Server lässt Ihren eigenen KI-Client Datensätze auf Ihrem eigenen Server lesen und ändern, mit den Rechten des Kontos, mit dem er sich anmeldet. Den Modellanbieter wählen und beauftragen Sie selbst.
+
+Das selbst gehostete Customermates enthält seinen MCP-Server mit [[derived.mcp.tools.total]] Werkzeugen neben REST und Webhooks, sodass die Community Edition ohne gehostete Credits mit Ihrem eigenen KI-Client arbeitet. Client und Modell behalten ihre eigene Einrichtung, ihr Abonnement und ihre Datenverarbeitung. Die [MCP-Dokumentation](/docs/mcp) zeigt, wie Sie einen Client verbinden, die [Self-Hosting-Anleitung](/docs/self-hosting) beschreibt das Deployment. Prüfen Sie bei den anderen Projekten der Tabelle oben in deren aktueller Dokumentation, ob es einen MCP-Server oder eine API gibt, die Ihr Client aufrufen kann; dieser Leitfaden nennt keinen, den er nicht geprüft hat.
+
 ## Self-Hosting verändert die Betriebsverantwortung
 
 Open Source gewährt Ihnen die in der Lizenz definierten Rechte; Self-Hosting überträgt Ihnen die Verantwortung für die Infrastruktur. Beides garantiert weder Sicherheit noch Compliance, Portabilität oder niedrige Kosten.
@@ -323,6 +329,14 @@ Ja, wenn das CRM eine Schnittstelle bietet, die der KI-Client nutzen kann. Das s
   OSI-Definition entspricht. Der selbst entwickelte Code außerhalb von `ee/`
   steht unter dieser Lizenz, der Code in `ee/` unter der Customermates
   Enterprise License. Prüfen Sie beide Lizenzdateien für die genaue Grenze.
+</FaqItem>
+
+<FaqItem question="Wie hoste ich Customermates selbst?">
+Sie betreiben das offizielle Docker-Image mit PostgreSQL 16, wie es die [Self-Hosting-Anleitung](/docs/self-hosting) beschreibt. Die Community Edition ist für Ihr eigenes Unternehmen kostenlos und hat den Funktionsumfang von Starter: Kontakte, Deals, eigene Felder, REST, Webhooks und MCP, ohne Posteingang, Mate und KI-Einrichtung des Workspaces.
+</FaqItem>
+
+<FaqItem question="Was kostet Self-Hosting im Vergleich zur Managed Cloud?">
+Für Ihr eigenes Unternehmen kostet die Community Edition keine Lizenzgebühr; Sie zahlen den Server und die Zeit für den Betrieb. Die Managed Cloud kostet einen Monatspreis pro Person in Euro, ab [[commercial.price.starter.monthly]] im Tarif Starter, Posteingang und Mate gibt es ab Pro. Die [Preisseite](/pricing) vergleicht die Tarife.
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Datensätze in Self-Hosted Customermates importieren oder exportieren?">

@@ -30,11 +30,62 @@ export const AGENT_APP_NAMES = AGENT_APPS.map((app) => app.name);
 
 export type AgentAppName = (typeof AGENT_APPS)[number]["name"];
 
+/** Further AI apps a demo workspace may have connected next to Claude, ChatGPT and Codex, so each one looks its own. */
+export const EXTRA_AGENT_APPS = {
+  cursor: {
+    name: "Cursor",
+    device: "Cursor · Windows laptop",
+    redirectUrl: "cursor://anysphere.cursor-mcp/oauth/callback",
+  },
+  gemini: {
+    name: "Gemini CLI",
+    device: "Gemini CLI · Ubuntu workstation",
+    redirectUrl: "http://localhost:7777/oauth/callback",
+  },
+  grok: { name: "Grok", device: "grok.com", redirectUrl: "https://grok.com/connectors/oauth/callback" },
+  langdock: {
+    name: "Langdock",
+    device: "app.langdock.com",
+    redirectUrl: "https://app.langdock.com/api/mcp/oauth/callback",
+  },
+  claudeCode: {
+    name: "Claude Code",
+    device: "Claude Code · MacBook Air",
+    redirectUrl: "http://localhost:54545/callback",
+  },
+} as const;
+
+export type ExtraAgentApp = keyof typeof EXTRA_AGENT_APPS;
+
 export const INTEGRATION_KEYS = [
   { name: "Zapier", lastUsedMinutesAgo: 40, requestCount: 1840 },
   { name: "n8n", lastUsedMinutesAgo: 9 * 60, requestCount: 612 },
   { name: "Webflow", lastUsedMinutesAgo: 2 * 24 * 60 + 180, requestCount: 87 },
+  { name: "Make", lastUsedMinutesAgo: 75, requestCount: 1320 },
+  { name: "Typeform", lastUsedMinutesAgo: 5 * 60, requestCount: 264 },
+  { name: "Calendly", lastUsedMinutesAgo: 3 * 60, requestCount: 418 },
+  { name: "Pipedream", lastUsedMinutesAgo: 26 * 60, requestCount: 351 },
+  { name: "Tally", lastUsedMinutesAgo: 4 * 24 * 60, requestCount: 96 },
+  { name: "Framer", lastUsedMinutesAgo: 6 * 24 * 60, requestCount: 58 },
 ] as const;
+
+export type IntegrationKeyName = (typeof INTEGRATION_KEYS)[number]["name"];
+
+/** A runner on someone's machine that runs agent steps with Claude Code, Codex or Gemini CLI under their own login. */
+export type RunnerSpec = {
+  name: string;
+  machine: string;
+  clients: readonly { name: "claude" | "codex" | "gemini"; version: string }[];
+  createdDaysAgo: number;
+  lastSeenMinutesAgo: number;
+};
+
+/** What makes one demo workspace's connections its own: extra AI apps, the tools with API keys and its runner. */
+export type AgentConnectionProfile = {
+  apps?: readonly ExtraAgentApp[];
+  keys?: readonly IntegrationKeyName[];
+  runner?: RunnerSpec;
+};
 
 const AGENT_EDIT_DAYS_AGO = 3;
 
@@ -78,26 +129,40 @@ export function agentEdited(records: AuthoredRecords, edits: Readonly<Record<str
  * `connectedDaysAgo` days before the story end, and API keys of the tools that feed the CRM, created at the same
  * spacing and used recently.
  */
-export function agentConnections(connectedDaysAgo: readonly [number, number, number]): {
+export function agentConnections(
+  connectedDaysAgo: readonly [number, number, number],
+  profile: AgentConnectionProfile = {},
+): {
   agentApps: AgentAppSpec[];
   apiKeys: ApiKeySpec[];
+  runners: RunnerSpec[];
 } {
-  return {
-    agentApps: AGENT_APPS.map((app, index) => ({
-      name: app.name,
-      slug: app.slug,
-      device: app.device,
-      redirectUrl: app.redirectUrl,
-      connectedDaysAgo: connectedDaysAgo[index],
-      activeMinutesAgo: app.activeMinutesAgo,
-    })),
-    apiKeys: INTEGRATION_KEYS.map((key, index) => ({
+  const base = AGENT_APPS.map((app, index) => ({
+    name: app.name,
+    slug: app.slug,
+    device: app.device,
+    redirectUrl: app.redirectUrl,
+    connectedDaysAgo: connectedDaysAgo[index],
+    activeMinutesAgo: app.activeMinutesAgo,
+  }));
+  const extra = (profile.apps ?? []).map((slug, index) => ({
+    ...EXTRA_AGENT_APPS[slug],
+    slug,
+    connectedDaysAgo: Math.max(2, connectedDaysAgo[2] - 3 - index * 2),
+    activeMinutesAgo: 50 + index * 7 * 60,
+  }));
+  const keyNames = profile.keys ?? INTEGRATION_KEYS.slice(0, 3).map((key) => key.name);
+  const apiKeys = keyNames.map((name, index) => {
+    const key = INTEGRATION_KEYS.find((candidate) => candidate.name === name);
+    if (!key) throw new Error(`Unknown integration key ${name}`);
+    return {
       name: key.name,
-      createdDaysAgo: connectedDaysAgo[index] + 9,
+      createdDaysAgo: connectedDaysAgo[Math.min(index, 2)] + 9 + index,
       lastUsedMinutesAgo: key.lastUsedMinutesAgo,
       requestCount: key.requestCount,
-    })),
-  };
+    };
+  });
+  return { agentApps: [...base, ...extra], apiKeys, runners: profile.runner ? [profile.runner] : [] };
 }
 
 export type AgentsPageText = {

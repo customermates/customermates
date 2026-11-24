@@ -53,6 +53,8 @@ export function AiConnectionProviderGrid({ disabled, onSelect, onSelectOther, re
     openai: t("OnboardingWizard.ai.captions.openai"),
     cursor: t("OnboardingWizard.ai.captions.cursor"),
     gemini: t("OnboardingWizard.ai.captions.gemini"),
+    grok: t("OnboardingWizard.ai.captions.grok"),
+    langdock: t("OnboardingWizard.ai.captions.langdock"),
   };
 
   return (

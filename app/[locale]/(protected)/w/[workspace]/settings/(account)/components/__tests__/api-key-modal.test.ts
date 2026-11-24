@@ -145,12 +145,12 @@ beforeEach(() => {
 });
 
 describe("ApiKeyModal add wizard", () => {
-  it("starts with one standard key option and the same four quick connections", () => {
+  it("starts with one standard key option and the same six quick connections", () => {
     const html = renderModal();
 
     expect(html).not.toContain('data-slot="app-modal-actions"');
     expect(html.match(/data-api-key-option="plain"/g)).toHaveLength(1);
-    expect(html.match(/data-provider=/g)).toHaveLength(4);
+    expect(html.match(/data-provider=/g)).toHaveLength(6);
     expect(html).toContain("ApiKeyModal.quickTitle");
     expect(html).not.toContain("Common.actions.cancel");
     expect(html).not.toContain("Common.actions.back");

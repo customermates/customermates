@@ -20,6 +20,8 @@ vi.mock("next-intl", () => ({
       codex: "Codex",
       cursor: "Cursor",
       gemini: "Gemini",
+      grok: "Grok",
+      langdock: "Langdock",
       openai: "ChatGPT & Codex",
     };
 
@@ -104,7 +106,7 @@ describe("AiConnectionOpenAiSetup", () => {
 });
 
 describe("AiConnectionProviderGrid", () => {
-  it("renders the four quick connections as one list of rows with ChatGPT and Codex merged", () => {
+  it("renders the six quick connections as one list of rows with ChatGPT and Codex merged", () => {
     const html = renderToStaticMarkup(
       createElement(AiConnectionProviderGrid, {
         disabled: false,
@@ -114,12 +116,12 @@ describe("AiConnectionProviderGrid", () => {
     );
 
     expect(html).toContain("rounded-xl border bg-card shadow-xs");
-    expect(html.match(/data-provider=/g)).toHaveLength(4);
+    expect(html.match(/data-provider=/g)).toHaveLength(6);
 
-    for (const provider of ["claude", "openai", "cursor", "gemini"])
+    for (const provider of ["claude", "openai", "cursor", "gemini", "grok", "langdock"])
       expect(html).toContain(`data-provider="${provider}"`);
 
-    for (const label of ["Claude", "ChatGPT &amp; Codex", "Cursor", "Gemini"])
+    for (const label of ["Claude", "ChatGPT &amp; Codex", "Cursor", "Gemini", "Grok", "Langdock"])
       expect(html).toContain(`>${label}</span>`);
 
     expect(html).not.toContain('data-provider="chatgpt"');

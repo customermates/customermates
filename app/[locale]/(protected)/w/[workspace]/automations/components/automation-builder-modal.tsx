@@ -191,6 +191,7 @@ export const AutomationBuilderModal = observer(function AutomationBuilderModal({
           <div className="border-t px-6 py-4">
             <FormFooterActions
               creating={!store.isExisting}
+              reset={store.isExisting ? { differs: store.hasUnsavedChanges, onReset: store.resetChanges } : undefined}
               saveLabel={!store.isExisting && form.enabled ? t("Automations.builder.switchOn") : undefined}
               saving={store.isLoading}
               store={store}

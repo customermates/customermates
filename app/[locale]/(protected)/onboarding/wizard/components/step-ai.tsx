@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 
+import { AgentStartPanel } from "@/components/agent-start/agent-start-panel";
 import { AiConnectionFlow } from "@/components/ai-connection/ai-connection-flow";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
@@ -25,14 +26,15 @@ export const StepAi = observer(() => {
       store={stepAiStore}
     />
   );
-
-  if (!onboardingWizardStore.connectsAgent) return flow;
+  const start = stepAiStore.route.screen === "providers" ? <AgentStartPanel /> : null;
 
   return (
     <div className="flex flex-col gap-4">
+      {start}
+
       {flow}
 
-      <AgentConnectionStatus />
+      {onboardingWizardStore.connectsAgent ? <AgentConnectionStatus /> : null}
     </div>
   );
 });

@@ -2949,7 +2949,7 @@ export default defineSolution<Strings>({
           ],
         },
       ],
-      ...agentConnections([74, 41, 9]),
+      ...agentConnections([74, 41, 9], { apps: ["langdock"], keys: ["Zapier", "Calendly", "Typeform"] }),
       files: [
         ...SIGNED_CONTRACTS.map((key): FileSpec => {
           const facts = CONTRACT_FACTS[key];

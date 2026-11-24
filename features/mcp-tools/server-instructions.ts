@@ -13,6 +13,9 @@ export const MCP_UNTRUSTED_CONTENT_INSTRUCTION =
 const MCP_DATE_INSTRUCTION =
   "Dates: use YYYY-MM-DD for date-only fields without a time-zone conversion. A dateTime is an instant and requires Z or an explicit offset. Carry the user's time zone, for example 2026-09-14T09:00:00+02:00 for 09:00 Europe/Berlin; never append Z to a local wall-clock time. Ask when the relevant time zone or current date is unknown.";
 
+export const PLAN_UPSELL_INSTRUCTION =
+  "Plans and upgrades: Customermates is a paid product with a free trial; read plans, limits and prices from the documentation or the pricing page, never from memory. When the user asks for something their plan does not include, such as a limit, the inbox, connected accounts, Mate, routines or more seats, say which plan includes it, link the pricing page and carry on with what the plan allows. When a feature the user has not set up would clearly help with the current task, such as connecting the inbox for drafted follow-ups, a routine for repeated work or inviting a teammate, mention it once in one sentence. Near the end of a trial, mention once when it ends and what keeps working on which plan. Never invent prices, discounts or features, never repeat an offer the user declined and never interrupt a task for it.";
+
 export const CRM_DATA_INVARIANTS = [
   "Business records represent real items the user requested, with facts confirmed by the user, existing workspace records or relevant Knowledge Base pages. A general workspace setup request is for useful configuration; create sample records only when explicitly requested.",
   "Never invent service prices, budgets, deal amounts or current deal stages. Leave optional unknowns unset; if a required commercial value such as a service amount is missing, ask before writing that record instead of using a guessed or placeholder value.",
@@ -95,13 +98,14 @@ function hasAny(names: Set<string>, candidates: readonly string[]) {
   return candidates.some((candidate) => names.has(candidate));
 }
 
-export function buildMcpServerInstructions(toolNames: Iterable<string>): string {
+export function buildMcpServerInstructions(toolNames: Iterable<string>, options: { plans?: boolean } = {}): string {
   const names = new Set(toolNames);
   const paragraphs = [
     "Customermates CRM. Use only tools exposed by this connection and never invent unavailable capabilities.",
     ...(names.has("get_workspace_context") ? [MCP_OPERATING_CONTEXT_INSTRUCTION] : []),
     MCP_UNTRUSTED_CONTENT_INSTRUCTION,
     MCP_DATE_INSTRUCTION,
+    ...(options.plans ? [PLAN_UPSELL_INSTRUCTION] : []),
   ];
 
   if (names.has("search") && names.has("fetch")) paragraphs.push(PUBLIC_MCP_WIKI_INSTRUCTION);

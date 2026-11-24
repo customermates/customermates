@@ -90,6 +90,8 @@ function rootStoreWith(user: TenantUser | null) {
     appMode: "self-hosted",
     agentChatEnabled: false,
     agentChatStore: { enabled: false, isWorking: false, routeSyncStatus: "idle", toggle: vi.fn() },
+    connectedAccountsStore: { dataRequest: { status: "uninitialized" }, isReady: false, items: [] },
+    connectedAppsStore: { canManage: false, dataRequest: { status: "uninitialized" }, isReady: false, items: [] },
     createWorkspaceModalStore: { start: vi.fn() },
     workspacesStore: { items: [], current: null, canCreate: true, requestSwitch: vi.fn() },
     addPickerStore: {

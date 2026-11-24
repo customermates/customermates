@@ -978,6 +978,22 @@
     "onlineCount": "{count} online",
     "title": "Where agent steps run"
   },
+  "AgentStart": {
+    "copied": "Copied",
+    "copiedTip": "Copied. Paste it into your agent",
+    "copy": "Copy",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "failed": "Copy failed",
+    "getStarted": "Get started",
+    "hint": "Paste this into any AI agent and it sets Customermates up with you",
+    "label": "Onboard your agent",
+    "openIn": "Open in {app}",
+    "progress": "{done} of {total} done",
+    "prompt": "Read {url}, connect Customermates and set it up for my business from the best-fitting template.",
+    "sidebarDismiss": "Hide",
+    "stepInbox": "Connect your inbox",
+    "stepPlan": "Pick a plan"
+  },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
     "addTitle": "Add an API key",
@@ -1453,6 +1469,7 @@
     "startsOn": {
       "event": "On an event",
       "label": "How it starts",
+      "replacesEventVersion": "Saving replaces the on-event version of this automation. Cancel keeps it as it was.",
       "schedule": "On a schedule",
       "scheduleNeedsMateOnly": "A scheduled automation only runs Mate. Remove the other steps to switch."
     },
@@ -2768,6 +2785,8 @@
         "claude": "Claude",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT"
       },
       "connect": "Connect an app",
@@ -4321,10 +4340,26 @@
   },
   "OnboardingWizard": {
     "ai": {
+      "app": {
+        "grok": {
+          "botSteps": "Grok Bot: under Connect apps, choose Add a custom connector, pick Remote HTTPS and paste the URL as the Server URL. Add the HTTP header x-api-key with a standard API key from the API keys page.",
+          "description": "Grok chat signs in to Customermates with OAuth, so no API key is needed.",
+          "steps": "Open grok.com/connectors, click New Connector, choose Custom and paste the URL. Sign in to Customermates and approve access. On Grok Business or Enterprise, a team admin adds the connector in the xAI console first.",
+          "title": "Add Customermates as a custom connector in Grok"
+        },
+        "langdock": {
+          "description": "Langdock signs in to Customermates with OAuth, so no API key is needed.",
+          "steps": "In Langdock, add an MCP integration and paste the URL. As the authentication method choose OAuth 2.0 (Dynamic Client Registration), save, then connect, sign in to Customermates and approve access.",
+          "title": "Add Customermates as an MCP integration in Langdock"
+        },
+        "subtitle": "Add Customermates to {provider} with this workspace's URL and sign in."
+      },
       "captions": {
         "claude": "Claude app, web or Claude Code",
         "cursor": "Cursor editor",
         "gemini": "Gemini CLI",
+        "grok": "Grok chat or Grok Bot",
+        "langdock": "Langdock workspace",
         "openai": "ChatGPT app or Codex",
         "other": "Any app that supports MCP"
       },
@@ -4336,6 +4371,8 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "grok": "Grok",
+        "langdock": "Langdock",
         "openai": "ChatGPT & Codex"
       },
       "connector": {

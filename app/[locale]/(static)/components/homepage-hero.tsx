@@ -1,11 +1,14 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
 
-import { ArrowRight, CodeXml, Play } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { env } from "@/env";
+import { AgentStartPill } from "@/components/agent-start/agent-start-pill";
+import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
+
 import { marketingButtonClassName } from "@/components/marketing/marketing-button";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
-import { TwoToneTitle } from "@/components/marketing/section-header";
 import { AppLink } from "@/components/shared/app-link";
 
 import { HomepageHeroDrift } from "./homepage-hero-drift";
@@ -13,29 +16,25 @@ import { HomepageHeroParticles } from "./homepage-hero-particles";
 import { HomepageHeroPicker } from "./homepage-hero-picker";
 import { homepageHeroSignupHref } from "./homepage-hero-signup";
 
-export const HOMEPAGE_SOURCE_AVAILABLE_HREF = "/features/open-source-crm";
-
-const BADGE_LOGOS = [
-  { id: "claude", provider: "claude" },
-  { id: "chatgpt", provider: "chatgpt" },
-  { id: "gemini", provider: "gemini" },
-  { id: "cursor", provider: "cursor" },
-] as const;
-
-export const HOMEPAGE_AI_CLIENTS = ["Claude", "ChatGPT", "Codex", "Gemini", "Cursor", "Grok"] as const;
-
 type Props = {
   heroSection: Hero;
 };
 
 export function HomepageHero({ heroSection }: Props) {
   const { assurances, badge, picker, primaryCta, secondaryCta, subtitle, title } = heroSection;
-  const secondary = (
-    <a className="mk-button mk-button-lg mk-button-ghost" href={secondaryCta.href}>
-      <Play aria-hidden className="!size-3.5 fill-current" />
-
-      {secondaryCta.label}
-    </a>
+  const t = useTranslations();
+  const agentActions = (
+    <AgentStartPill
+      className="homepage-hero-agent-pill"
+      labels={{
+        copied: t("AgentStart.copiedTip"),
+        failed: t("Common.notifications.copyFailed"),
+        label: t("AgentStart.label"),
+        openInClaude: t("AgentStart.openIn", { app: "Claude" }),
+        openInChatgpt: t("AgentStart.openIn", { app: "ChatGPT" }),
+      }}
+      prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
+    />
   );
 
   return (
@@ -50,21 +49,11 @@ export function HomepageHero({ heroSection }: Props) {
 
       <MarketingContainer className="relative pt-14 pb-12 sm:pt-20 sm:pb-14 lg:pt-24 lg:pb-16">
         <div className="mk-enter relative z-10 mx-auto flex max-w-[50rem] flex-col items-center text-center">
-          <p className="homepage-hero-badge" title={HOMEPAGE_AI_CLIENTS.join(", ")}>
-            <span aria-hidden className="homepage-ai-stack">
-              {BADGE_LOGOS.map((logo) => (
-                <span key={logo.id} data-ai-logo={logo.id}>
-                  <AiClientLogo className="size-3" provider={logo.provider} />
-                </span>
-              ))}
-            </span>
-
+          <p data-plain className="homepage-hero-badge">
             {badge}
           </p>
 
-          <h1 className="mk-hero mt-6">
-            <TwoToneTitle title={title} />
-          </h1>
+          <h1 className="mk-hero mt-6">{title}</h1>
 
           <p className="mk-lede homepage-hero-lede mt-5">{subtitle}</p>
 
@@ -79,7 +68,7 @@ export function HomepageHero({ heroSection }: Props) {
                 cta={picker.cta}
                 question={picker.question}
               >
-                {secondary}
+                {agentActions}
               </HomepageHeroPicker>
             ) : primaryCta ? (
               <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-2">
@@ -94,22 +83,18 @@ export function HomepageHero({ heroSection }: Props) {
                   <ArrowRight aria-hidden data-mk-arrow="" />
                 </AppLink>
 
-                {secondary}
+                {agentActions}
               </div>
             ) : null}
           </div>
 
           <ul className="homepage-hero-assurances mt-5" data-homepage-assurances="">
             <li>
-              <AppLink
-                appearance="unstyled"
-                className="homepage-hero-source-link"
-                href={HOMEPAGE_SOURCE_AVAILABLE_HREF}
-              >
-                <CodeXml aria-hidden className="size-3.5" />
+              <a className="homepage-hero-film" data-homepage-hero-film="" href={secondaryCta.href}>
+                <Play aria-hidden className="size-3 fill-current" />
 
-                {assurances.sourceAvailable}
-              </AppLink>
+                {secondaryCta.label}
+              </a>
             </li>
 
             <li>{assurances.noCard}</li>

@@ -128,6 +128,11 @@ const BLANK_DRAFT: AutomationDraft = {
   effects: [],
 };
 
+export type AutomationReplacement = {
+  replace: () => Promise<void>;
+  reopen: () => void;
+};
+
 export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   context: AutomationBuilderContext | null = null;
   pane: AutomationBuilderPane = "runs";
@@ -140,7 +145,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   rule: AutomationRuleDto | null = null;
   composedByMate = false;
   onSaved: ((rule: AutomationRuleDto) => void) | null = null;
-  onSwitchToSchedule: ((draft: AutomationDraft) => void) | null = null;
+  onSwitchToSchedule: ((draft: AutomationDraft, replacement?: AutomationReplacement) => void) | null = null;
 
   private previewTimer: ReturnType<typeof setTimeout> | undefined;
   private previewGeneration = 0;
@@ -184,6 +189,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
       setEnabled: action,
       patchTrigger: action,
       setScheduleHandoff: action,
+      resetChanges: action,
       offersSchedule: computed,
       hasStepsBesidesMate: computed,
       canSwitchToSchedule: computed,
@@ -330,16 +336,27 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     this.expanded = "trigger";
   }
 
-  setScheduleHandoff = (handoff: ((draft: AutomationDraft) => void) | null) => {
+  setScheduleHandoff = (handoff: ((draft: AutomationDraft, replacement?: AutomationReplacement) => void) | null) => {
     this.onSwitchToSchedule = handoff;
   };
 
   get offersSchedule(): boolean {
-    return this.onSwitchToSchedule !== null && this.rule === null && !this.isReadOnly;
+    return this.onSwitchToSchedule !== null && !this.isReadOnly && (this.rule === null || this.canDelete);
   }
 
+  resetChanges = () => {
+    this.resetForm();
+    this.invalid = [];
+    this.expanded = null;
+    this.palette = null;
+    this.schedulePreview(0);
+  };
+
   get hasStepsBesidesMate(): boolean {
-    return this.form.conditions.length > 0 || this.form.effects.some((effect) => effect.kind !== "agent");
+    return (
+      this.form.conditions.length > 0 ||
+      this.form.effects.some((effect) => (effect.kind === "kept" ? effect.effect.kind : effect.kind) !== "agent")
+    );
   }
 
   get canSwitchToSchedule(): boolean {
@@ -349,9 +366,26 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
   switchToSchedule = () => {
     const handoff = this.onSwitchToSchedule;
     if (!handoff || !this.canSwitchToSchedule) return;
-    const draft = this.form;
+    const draft = toJS(this.form);
+    const { rule, context, onSaved } = this;
     this.close();
-    handoff(draft);
+    if (!rule || !context || !onSaved) {
+      handoff(draft);
+      return;
+    }
+    handoff(draft, {
+      replace: () => this.deleteRuleById(rule.id),
+      reopen: () => {
+        this.openForRule(context, rule, onSaved, { pane: "settings" });
+        this.applyDraft(draft);
+      },
+    });
+  };
+
+  private deleteRuleById = async (id: string): Promise<void> => {
+    const result = await deleteAutomationRuleAction({ id });
+    if (!result.ok) toastZodErrorTree(result.error);
+    await this.rootStore.automationsStore.refresh();
   };
 
   setPane = (pane: AutomationBuilderPane) => {
@@ -523,7 +557,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const model = this.model;
     if (!model || !this.isOpen) return;
     const generation = ++this.previewGeneration;
-    const input = draftToPreviewInput(this.form, model);
+    const input = draftToPreviewInput(toJS(this.form), model);
     if (!input) {
       runInAction(() => {
         this.preview = null;
@@ -598,7 +632,7 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const model = this.model;
     if (!model || this.isReadOnly) return "failed";
     const unavailable = this.unavailable;
-    const converted = draftToUpsert(this.form, model);
+    const converted = draftToUpsert(toJS(this.form), model);
     const unchosen = this.context ? draftModelIssues(this.form, this.context.runtimes) : [];
     if (unavailable.length > 0 || !converted.ok || unchosen.length > 0) {
       const issues = [

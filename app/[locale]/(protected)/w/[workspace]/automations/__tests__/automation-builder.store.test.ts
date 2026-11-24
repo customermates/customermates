@@ -2,12 +2,14 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { AutomationBuilderContext } from "../components/automation-builder.store";
 
+import { isObservable } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { noAgentRuntimes } from "@/features/automation-rules/agent-runtime-availability";
 import { Action, Resource } from "@/generated/prisma";
 
 const actions = vi.hoisted(() => ({
+  deleteAutomationRuleAction: vi.fn(),
   previewAutomationRuleAction: vi.fn(),
   setAutomationRuleEnabledAction: vi.fn(),
   upsertAutomationRuleAction: vi.fn(),
@@ -589,5 +591,111 @@ describe("AutomationBuilderStore", () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.preview?.total).toBe(9);
+  });
+
+  describe("switching a saved automation to a schedule", () => {
+    const MATE_ONLY = { ...SAVED, effects: [{ kind: "agent", prompt: "Summarise the deal", runtime: "mate" }] };
+
+    function openSaved() {
+      const refresh = vi.fn(() => Promise.resolve());
+      const store = new AutomationBuilderStore({
+        registerModalStore: vi.fn(),
+        userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
+        localeStore: { getTranslation: (key: string) => key },
+        automationsStore: { refresh },
+      } as unknown as RootStore);
+      const handoff = vi.fn();
+      store.setScheduleHandoff(handoff);
+      store.openForRule(CONTEXT, MATE_ONLY as never, vi.fn());
+      return { store, handoff, refresh };
+    }
+
+    it("offers the schedule for a saved automation the viewer may delete", () => {
+      const { store } = openSaved();
+
+      expect(store.offersSchedule).toBe(true);
+    });
+
+    it("hands the draft over with a replacement that deletes the saved rule only when asked", async () => {
+      const { store, handoff, refresh } = openSaved();
+      actions.deleteAutomationRuleAction.mockResolvedValue({ ok: true, data: null });
+
+      store.switchToSchedule();
+
+      expect(store.isOpen).toBe(false);
+      expect(actions.deleteAutomationRuleAction).not.toHaveBeenCalled();
+      const [draft, replacement] = handoff.mock.calls[0];
+      expect(draft.name).toBe("Saved");
+
+      await replacement.replace();
+
+      expect(actions.deleteAutomationRuleAction).toHaveBeenCalledWith({ id: RULE });
+      expect(refresh).toHaveBeenCalled();
+    });
+
+    it("reopens the saved rule with the unsaved edits when the switch is taken back", () => {
+      const { store, handoff } = openSaved();
+      store.setName("Renamed");
+
+      store.switchToSchedule();
+      handoff.mock.calls[0][1].reopen();
+
+      expect(store.isOpen).toBe(true);
+      expect(store.form.id).toBe(RULE);
+      expect(store.form.name).toBe("Renamed");
+    });
+
+    it("resets a saved automation to its saved state", () => {
+      const { store } = openSaved();
+      store.setName("Renamed");
+
+      store.resetChanges();
+
+      expect(store.form.name).toBe("Saved");
+      expect(store.hasUnsavedChanges).toBe(false);
+    });
+  });
+
+  describe("a rule whose trigger the builder keeps as it is", () => {
+    const FORM = "77777777-7777-4777-8777-777777777777";
+    const FORM_RULE = {
+      ...SAVED,
+      trigger: { kind: "formSubmitted", typeId: DEALS, sourceId: FORM, timezone: "Europe/Berlin" },
+      effects: [{ kind: "agent", prompt: "Welcome the lead", runtime: "mate" }],
+    };
+
+    function hasObservable(value: unknown): boolean {
+      if (isObservable(value)) return true;
+      if (Array.isArray(value)) return value.some(hasObservable);
+      if (value && typeof value === "object") return Object.values(value).some(hasObservable);
+      return false;
+    }
+
+    it("sends the preview a plain copy, which a server action can take", async () => {
+      const store = makeStore();
+      store.openForRule(CONTEXT, FORM_RULE as never, vi.fn());
+
+      store.resetChanges();
+      await vi.advanceTimersByTimeAsync(AUTOMATION_PREVIEW_DELAY_MS);
+
+      expect(actions.previewAutomationRuleAction).toHaveBeenCalled();
+      const calls = actions.previewAutomationRuleAction.mock.calls;
+      const [payload] = calls[calls.length - 1];
+      expect(payload.rule.trigger).toEqual(FORM_RULE.trigger);
+      expect(hasObservable(payload)).toBe(false);
+    });
+
+    it("saves a plain copy, which a server action can take", async () => {
+      actions.upsertAutomationRuleAction.mockResolvedValue({ ok: true, data: FORM_RULE });
+      const store = makeStore();
+      store.openForRule(CONTEXT, FORM_RULE as never, vi.fn());
+      store.setName("Renamed");
+
+      expect(await store.save()).toBe("saved");
+
+      const [payload] = actions.upsertAutomationRuleAction.mock.calls[0];
+      expect(payload.trigger).toEqual(FORM_RULE.trigger);
+      expect(hasObservable(payload)).toBe(false);
+    });
   });
 });

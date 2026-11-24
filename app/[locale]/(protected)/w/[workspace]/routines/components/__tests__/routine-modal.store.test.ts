@@ -520,6 +520,40 @@ describe("RoutineModalStore", () => {
     });
   });
 
+  it("replaces the event version only after the scheduled version is saved", async () => {
+    const store = makeStore();
+    const replacement = { replace: vi.fn(() => Promise.resolve()), reopen: vi.fn() };
+    routineActions.upsertRoutineAction.mockResolvedValue({ ok: true, data: makeRoutine() });
+
+    await store.openForCreate({ name: "Deal digest", prompt: "Summarise the deal", replacesEventVersion: replacement });
+
+    expect(store.replacesEventVersion).toBe(replacement);
+    expect(replacement.replace).not.toHaveBeenCalled();
+
+    await store.onSubmit();
+
+    expect(routineActions.upsertRoutineAction).toHaveBeenCalled();
+    expect(replacement.replace).toHaveBeenCalledTimes(1);
+    expect(store.replacesEventVersion).toBeNull();
+  });
+
+  it("keeps the event version when the save fails and reopens it when the switch is taken back", async () => {
+    const store = makeStore();
+    const replacement = { replace: vi.fn(() => Promise.resolve()), reopen: vi.fn() };
+    routineActions.upsertRoutineAction.mockResolvedValue({ ok: false, error: { errors: [] } });
+
+    await store.openForCreate({ name: "Deal digest", prompt: "Summarise the deal", replacesEventVersion: replacement });
+    await store.onSubmit();
+
+    expect(replacement.replace).not.toHaveBeenCalled();
+
+    store.switchStart("event");
+
+    expect(replacement.reopen).toHaveBeenCalledTimes(1);
+    expect(store.isOpen).toBe(false);
+    expect(store.replacesEventVersion).toBeNull();
+  });
+
   it("stamps the local time zone on a routine created in the browser", async () => {
     const store = makeStore();
 

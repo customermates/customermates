@@ -18,6 +18,7 @@ import {
   ReactFlowProvider,
   getStraightPath,
   useReactFlow,
+  useStore,
 } from "@xyflow/react";
 import { Maximize, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -34,7 +35,29 @@ import { AutomationStepToolbar } from "./automation-step-toolbar";
 
 const NODE_WIDTH = 288;
 const QUICK_WIDTH = 384;
-const ROW_GAP = 150;
+const ESTIMATED_NODE_HEIGHT = 104;
+const EDGE_LENGTH = 72;
+const ADD_EDGE_LENGTH = 40;
+
+const ADD_STEP_ID = "add-step";
+
+function parseMeasuredSizes(serialized: string): Array<{ width: number; height: number } | undefined> {
+  return serialized.split(",").map((entry) => {
+    if (!entry) return undefined;
+    const [width, height] = entry.split("x").map(Number);
+    return { width, height };
+  });
+}
+
+function stackedTops(heights: readonly number[]): number[] {
+  const tops: number[] = [];
+  let top = 0;
+  for (const height of heights) {
+    tops.push(top);
+    top += height + EDGE_LENGTH;
+  }
+  return tops;
+}
 const FIT_VIEW = { padding: 0.2, maxZoom: 1, minZoom: 0.6 };
 const HANDLE_CLASS = "!size-1.5 !min-h-0 !min-w-0 !border-0 !bg-border-strong";
 
@@ -193,12 +216,25 @@ function FlowCanvas({
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const showAdd = Boolean(actions.palette) && actions.editable;
+  const measuredSizes = useStore((state) =>
+    [...steps.map((step) => step.id), ADD_STEP_ID]
+      .map((id) => {
+        const size = state.nodeLookup.get(id)?.measured;
+        return size?.width && size.height ? `${size.width}x${size.height}` : "";
+      })
+      .join(","),
+  );
+  const measured = measuredSizes.split(",").slice(0, steps.length).every(Boolean);
 
   const { nodes, edges } = useMemo(() => {
+    const sizes = parseMeasuredSizes(measuredSizes);
+    const heights = steps.map((_, index) => sizes[index]?.height ?? ESTIMATED_NODE_HEIGHT);
+    const tops = stackedTops(heights);
     const builtNodes: Node[] = steps.map((step, index) => ({
       id: step.id,
       type: "step",
-      position: { x: -NODE_WIDTH / 2, y: index * ROW_GAP },
+      position: { x: -NODE_WIDTH / 2, y: tops[index] ?? 0 },
+      ...(sizes[index] ? { measured: sizes[index] } : {}),
       data: {
         step,
         actions,
@@ -221,17 +257,22 @@ function FlowCanvas({
     const last = steps[steps.length - 1];
     if (showAdd && last) {
       const quick = steps.length === 1;
+      const addSize = sizes[steps.length];
       builtNodes.push({
-        id: "add-step",
+        id: ADD_STEP_ID,
         type: "add",
-        position: { x: -(quick ? QUICK_WIDTH : NODE_WIDTH) / 2, y: steps.length * ROW_GAP - 30 },
+        position: {
+          x: -(quick ? QUICK_WIDTH : NODE_WIDTH) / 2,
+          y: (tops[steps.length - 1] ?? 0) + (heights[steps.length - 1] ?? ESTIMATED_NODE_HEIGHT) + ADD_EDGE_LENGTH,
+        },
+        ...(addSize ? { measured: addSize } : {}),
         data: { index: steps.length, actions, quick } satisfies AddData,
         selectable: false,
       });
       builtEdges.push({
         id: "edge-add-step",
         source: last.id,
-        target: "add-step",
+        target: ADD_STEP_ID,
         style: {
           stroke: "var(--border-strong)",
           strokeWidth: 1.5,
@@ -240,9 +281,9 @@ function FlowCanvas({
       });
     }
     return { nodes: builtNodes, edges: builtEdges };
-  }, [actions, markLabel, showAdd, steps]);
+  }, [actions, markLabel, measuredSizes, showAdd, steps]);
 
-  const shape = `${steps.length}:${showAdd}`;
+  const shape = `${steps.length}:${showAdd}:${measured}`;
 
   return (
     <div

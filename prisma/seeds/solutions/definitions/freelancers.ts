@@ -2406,7 +2406,20 @@ export default defineSolution<Strings>({
           related: ["guide"],
         },
       ],
-      ...agentConnections([62, 35, 11]),
+      ...agentConnections([62, 35, 11], {
+        apps: ["cursor", "gemini"],
+        keys: ["n8n", "Tally", "Framer"],
+        runner: {
+          name: "Home office workstation",
+          machine: "homeoffice-ubuntu",
+          clients: [
+            { name: "gemini", version: "0.21.0" },
+            { name: "claude", version: "2.1.4" },
+          ],
+          createdDaysAgo: 15,
+          lastSeenMinutesAgo: 40,
+        },
+      }),
       routines: [
         {
           key: "mondayPlan",

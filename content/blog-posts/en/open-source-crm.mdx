@@ -1,6 +1,6 @@
 ---
-title: "Open Source CRM: How to Compare Self-Hosted Options"
-description: "Compare open-source CRM options by license, deployment, operations and scope. Customermates is source-available, not open source: see its boundary."
+title: "Open Source and Self-Hosted CRM: Compare the Best Options"
+description: "Compare the best open-source and self-hosted CRM options by licence, deployment and effort. Customermates is source-available, not open source."
 
 acquisition:
   locale: en
@@ -9,8 +9,8 @@ acquisition:
   role: support
   primaryIntent: Open-source CRM comparison
   metadata:
-    title: "Open Source CRM: How to Compare Self-Hosted Options"
-    description: "Compare open-source CRM options by license, deployment, operations and scope. Customermates is source-available, not open source: see its boundary."
+    title: "Open Source and Self-Hosted CRM: Compare the Best Options"
+    description: "Compare the best open-source and self-hosted CRM options by licence, deployment and effort. Customermates is source-available, not open source."
   proof:
     factReferences:
       - product:source-available-community-core
@@ -92,7 +92,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-03-01
-  updated: 2026-11-23
+  updated: 2026-11-24
   tags:
     - Open Source
     - CRM
@@ -100,7 +100,7 @@ blogPost:
     - Docker
 ---
 
-# Open Source CRM: How to Compare Self-Hosted Options
+# Open Source and Self-Hosted CRM: How to Compare the Best Options
 
 The best **open-source CRM** is the one whose license, self-hosting path, operating effort and CRM scope match your team, and the best self-hosted CRM passes the same test for the edition you will actually run. Customermates' self-hosted Community Edition is one Docker image plus PostgreSQL 16, free for your own business under the Community Build permission, with contacts, deals, custom fields, REST, webhooks and MCP for your own AI client; it has no inbox, no Mate and no AI workspace setup, because self-hosting always runs the Starter feature set. “Source available,” “open core” and “open source” are not interchangeable, and a long feature checklist says little about what you can lawfully run or realistically maintain.
 
@@ -231,6 +231,12 @@ To try Customermates yourself, [start your trial](/auth/signup?job=followup) on 
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
+## Self-hosted CRM with MCP
+
+MCP, the Model Context Protocol, is the open standard that AI clients such as Claude, ChatGPT and Cursor use to call tools in other software. A self-hosted CRM with an MCP server lets your own AI client read and change records on your own server, within the permissions of the account it signs in with, while the model provider stays your choice and your contract.
+
+Self-hosted Customermates includes its MCP server with [[derived.mcp.tools.total]] tools next to REST and webhooks, so the Community Edition works with your own AI client without hosted credits. The client and its model keep their own setup, subscription and data handling. The [MCP documentation](/docs/mcp) shows how to connect a client, and the [self-hosting guide](/docs/self-hosting) covers the deployment. For the other projects in the table above, check their current documentation for an MCP server or an API your client can call; this guide lists none it has not verified.
+
 ## Open source is not the same as self-hosted
 
 The two terms are often searched together but answer different questions. **Open source** is about rights: what the licence lets you inspect, change and redistribute. **Self-hosted** is about operations: whose servers run the application and database. A project can be open source and still be used mainly as a cloud service, and a self-hosted product can be proprietary. This guide covers the licence and shortlist questions; the [self-hosted CRM](/features/self-hosted) page covers the Customermates deployment itself, and the [agentic CRM guide](/blog/agentic-crm) covers how AI clients work with it through MCP.
@@ -326,6 +332,14 @@ It can when the CRM exposes an interface the AI client can use. Self-hosted Cust
 
 <FaqItem question="Which free open source CRM fits B2C or B2B client management?">
 'Opensource CRM' and 'open source CRM' mean the same thing in search, but free to download is not free to run, so check the licence and the CRM model first. For B2C you need people-first records and a simple import; for B2B you need organizations with several contacts and deals. SuiteCRM and EspoCRM are open source under the AGPL and can be self-hosted at no licence fee; Customermates is source-available and free to self-host for your own business. In every case, test customer relationship management on your own data before you commit.
+</FaqItem>
+
+<FaqItem question="How do I self-host Customermates?">
+Run the official Docker image with PostgreSQL 16 as the [self-hosting guide](/docs/self-hosting) describes. The Community Edition is free for your own business and runs the Starter feature set: contacts, deals, custom fields, REST, webhooks and MCP, without the inbox, Mate or AI workspace setup.
+</FaqItem>
+
+<FaqItem question="What does self-hosting cost compared with the managed cloud?">
+Self-hosting the Community Edition has no licence fee for your own business; you pay for the server and the time to run it. The managed cloud is one monthly price per person in euros, from [[commercial.price.starter.monthly]] on Starter, and the inbox and Mate start on Pro. The [pricing page](/pricing) compares the plans.
 </FaqItem>
 
 <FaqItem question="Can I import or export CRM records in self-hosted Customermates?">

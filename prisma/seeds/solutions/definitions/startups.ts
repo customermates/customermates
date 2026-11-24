@@ -2966,7 +2966,21 @@ export default defineSolution<Strings>({
           deliveries: 3,
         },
       ],
-      ...agentConnections([40, 26, 11]),
+      ...agentConnections([40, 26, 11], {
+        apps: ["cursor", "claudeCode", "grok"],
+        keys: ["n8n", "Pipedream", "Framer"],
+        runner: {
+          name: "Founder MacBook Pro",
+          machine: "founder-mbp.local",
+          clients: [
+            { name: "claude", version: "2.1.4" },
+            { name: "codex", version: "0.98.0" },
+            { name: "gemini", version: "0.21.0" },
+          ],
+          createdDaysAgo: 9,
+          lastSeenMinutesAgo: 6,
+        },
+      }),
       routines: [
         {
           key: "demoRecap",

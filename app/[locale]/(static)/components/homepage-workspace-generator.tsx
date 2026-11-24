@@ -11,7 +11,7 @@ import { cn } from "@/core/utils/cn";
 import { env } from "@/env";
 
 import { HomepageComposerText } from "./homepage-composer-text";
-import { HomepageMateBubble, MATE_NAME } from "./homepage-mate-bubble";
+import { MATE_NAME } from "./homepage-mate-bubble";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { HomepageWorkspaceTabs } from "./homepage-workspace-tabs";
 import { type SolutionExtraTabId, SolutionProductStage } from "./solution-product-stage";
@@ -139,13 +139,7 @@ export function HomepageWorkspaceGenerator({ extraTabs, generator, locale, place
         promptLabel={generator.promptLabel}
       />
 
-      <div className="relative">
-        <SolutionProductStage className="mt-0" extraTabs={extraTabs} locale={locale} solutionId={item.solution} />
-
-        <HomepageMateBubble className="right-3 bottom-8 hidden sm:flex lg:-right-4 lg:bottom-14">
-          {generator.mateBubble}
-        </HomepageMateBubble>
-      </div>
+      <SolutionProductStage className="mt-0" extraTabs={extraTabs} locale={locale} solutionId={item.solution} />
 
       <p className="mt-6 text-center">
         <AppLink

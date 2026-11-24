@@ -205,7 +205,6 @@ export type HomepageRootMetadata = z.infer<typeof rootMetadataSchema>;
 
 const homepageGeneratorSchema = z.object({
   arrowLabel: z.string(),
-  mateBubble: z.string(),
   steps: z
     .array(z.object({ description: z.string(), title: z.string() }))
     .length(3)
@@ -346,16 +345,6 @@ const homepageProofSchema = z.object({
     description: z.string(),
     eyebrow: z.string(),
     points: z.array(z.string()).length(3),
-    title: z.string(),
-  }),
-  proof: z.object({
-    contact: homepageLinkSchema,
-    eyebrow: z.string(),
-    linkedin: homepageLinkSchema,
-    name: z.string(),
-    paragraphs: z.array(z.string()).min(1).max(3),
-    role: z.string(),
-    signature: z.string(),
     title: z.string(),
   }),
 });
