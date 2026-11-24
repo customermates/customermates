@@ -679,7 +679,8 @@ describe("AutomationBuilderStore", () => {
       await vi.advanceTimersByTimeAsync(AUTOMATION_PREVIEW_DELAY_MS);
 
       expect(actions.previewAutomationRuleAction).toHaveBeenCalled();
-      const [payload] = actions.previewAutomationRuleAction.mock.calls.at(-1)!;
+      const calls = actions.previewAutomationRuleAction.mock.calls;
+      const [payload] = calls[calls.length - 1];
       expect(payload.rule.trigger).toEqual(FORM_RULE.trigger);
       expect(hasObservable(payload)).toBe(false);
     });

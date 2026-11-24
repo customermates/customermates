@@ -557,8 +557,6 @@ export class AutomationBuilderStore extends BaseModalStore<AutomationDraft> {
     const model = this.model;
     if (!model || !this.isOpen) return;
     const generation = ++this.previewGeneration;
-    // Kept triggers, conditions and effects pass through the conversion as they are, so the
-    // draft is copied out of MobX first: a server action accepts plain objects only.
     const input = draftToPreviewInput(toJS(this.form), model);
     if (!input) {
       runInAction(() => {

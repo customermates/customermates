@@ -2,6 +2,8 @@ import type { Locator, Page } from "@playwright/test";
 
 import { randomUUID } from "node:crypto";
 
+import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { presetId } from "../../features/records/crm-preset";
 import { openAgentRuntime } from "./agents-page";
 import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
@@ -181,6 +183,33 @@ test("opens an automation, with its runs, from its row", async ({ page, database
   await expect(await automationName(builder)).toHaveValue("Open me");
   await builder.getByRole("tab", { name: "Runs", exact: true }).click();
   await expect(builder.locator("[data-automation-runs]")).toBeVisible();
+});
+
+test("opens a rule restricted to one form and previews it without a client error", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  // A trigger with a sourceId is kept as it is by the builder; it used to reach the preview action as a MobX object,
+  // which Next.js refuses ("Only plain objects can be passed to Server Functions").
+  const trigger = { kind: "formSubmitted", typeId: presetId(companyId, "organization"), sourceId: randomUUID() };
+  await database.query(
+    `INSERT INTO "AutomationRule" (id,"companyId","ownerUserId",name,enabled,"triggerKind",trigger,conditions,effects,"updatedAt") VALUES ($1,$2,$3,$4,true,'formSubmitted',$5,'[]',$6,NOW())`,
+    [randomUUID(), companyId, workspace.userId, "One form only", JSON.stringify(trigger), NOTIFY_EFFECT],
+  );
+  await page.goto(companyPath(companyId, "/automations"));
+
+  await clickHydrated(page.getByRole("button", { name: "One form only", exact: true }));
+  const builder = page.getByRole("dialog", { name: "Edit automation" });
+  await step(builder, "trigger").click();
+
+  await expect(stepPanel(builder, "trigger").locator("[data-automation-preview]")).toContainText(
+    englishMessages.Automations.preview.unsupported,
+  );
+  await expect(page.locator("[data-sonner-toast][data-type='error']")).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
 
 test.describe("routines in the same list", () => {
