@@ -978,6 +978,16 @@
     "onlineCount": "Online: {count}",
     "title": "Onde os passos de agente rodam"
   },
+  "AgentStart": {
+    "copied": "Copiado",
+    "copy": "Copiar",
+    "failed": "Não foi possível copiar",
+    "heroHint": "Ou cole isto em qualquer agente de IA",
+    "hint": "Cole isto em qualquer agente de IA e ele configura o Customermates com você",
+    "prompt": "Leia {url} e configure o Customermates para o meu negócio.",
+    "sidebarDismiss": "Ocultar",
+    "sidebarTitle": "Conecte seu agente"
+  },
   "ApiKeyModal": {
     "addDescription": "Crie uma chave para a sua própria integração ou escolha um cliente de IA para uma configuração guiada.",
     "addTitle": "Adicionar uma chave de API",

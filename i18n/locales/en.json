@@ -978,6 +978,16 @@
     "onlineCount": "{count} online",
     "title": "Where agent steps run"
   },
+  "AgentStart": {
+    "copied": "Copied",
+    "copy": "Copy",
+    "failed": "Copy failed",
+    "heroHint": "Or paste this into any AI agent",
+    "hint": "Paste this into any AI agent and it sets Customermates up with you",
+    "prompt": "Read {url} and set up Customermates for my business.",
+    "sidebarDismiss": "Hide",
+    "sidebarTitle": "Connect your agent"
+  },
   "ApiKeyModal": {
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
     "addTitle": "Add an API key",

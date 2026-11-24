@@ -198,11 +198,11 @@ const ConnectedAccountRow = observer(({ account }: { account: ConnectedAccountDt
           </span>
         </button>
 
+        <ItemActionsTrigger />
+
         <AppChip variant={account.shared ? "info" : "secondary"}>
           {account.shared ? t("ConnectedAccountsCard.visibilityShared") : t("ConnectedAccountsCard.visibilityPrivate")}
         </AppChip>
-
-        <ItemActionsTrigger />
       </SettingsPanelRow>
     </ItemActions>
   );

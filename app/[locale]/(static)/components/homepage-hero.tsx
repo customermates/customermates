@@ -1,11 +1,15 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
 
 import { ArrowRight, CodeXml, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
+
+import { env } from "@/env";
+import { AgentStartChip } from "@/components/agent-start/agent-start-chip";
+import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { marketingButtonClassName } from "@/components/marketing/marketing-button";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
-import { TwoToneTitle } from "@/components/marketing/section-header";
 import { AppLink } from "@/components/shared/app-link";
 
 import { HomepageHeroDrift } from "./homepage-hero-drift";
@@ -30,6 +34,7 @@ type Props = {
 
 export function HomepageHero({ heroSection }: Props) {
   const { assurances, badge, picker, primaryCta, secondaryCta, subtitle, title } = heroSection;
+  const t = useTranslations();
   const secondary = (
     <a className="mk-button mk-button-lg mk-button-ghost" href={secondaryCta.href}>
       <Play aria-hidden className="!size-3.5 fill-current" />
@@ -62,9 +67,7 @@ export function HomepageHero({ heroSection }: Props) {
             {badge}
           </p>
 
-          <h1 className="mk-hero mt-6">
-            <TwoToneTitle title={title} />
-          </h1>
+          <h1 className="mk-hero mt-6">{title}</h1>
 
           <p className="mk-lede homepage-hero-lede mt-5">{subtitle}</p>
 
@@ -98,6 +101,18 @@ export function HomepageHero({ heroSection }: Props) {
               </div>
             ) : null}
           </div>
+
+          <AgentStartChip
+            className="mt-6"
+            labels={{
+              copied: t("AgentStart.copied"),
+              copy: t("AgentStart.copy"),
+              failed: t("AgentStart.failed"),
+              hint: t("AgentStart.heroHint"),
+            }}
+            prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
+            variant="hero"
+          />
 
           <ul className="homepage-hero-assurances mt-5" data-homepage-assurances="">
             <li>

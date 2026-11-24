@@ -978,6 +978,16 @@
     "onlineCount": "Online: {count}",
     "title": "Wo Agent-Schritte laufen"
   },
+  "AgentStart": {
+    "copied": "Kopiert",
+    "copy": "Kopieren",
+    "failed": "Kopieren fehlgeschlagen",
+    "heroHint": "Oder füge das in einen beliebigen KI-Agenten ein",
+    "hint": "Füge das in einen beliebigen KI-Agenten ein, und er richtet Customermates mit dir ein",
+    "prompt": "Lies {url} und richte Customermates für meine Firma ein.",
+    "sidebarDismiss": "Ausblenden",
+    "sidebarTitle": "Agent verbinden"
+  },
   "ApiKeyModal": {
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
     "addTitle": "API-Key hinzufügen",

@@ -59,6 +59,7 @@ import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { FreePlanSidebarCardWithUsage, TrialSidebarCardWithFit } from "./navigation/plan-sidebar-cards";
 import { trialCardVisible } from "./navigation/trial-sidebar-card";
+import { AgentStartSidebarCard } from "./navigation/agent-start-sidebar-card";
 import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
@@ -625,6 +626,10 @@ const FullAppSidebar = observer(
           </SidebarContent>
 
           <SidebarFooter>
+            {restricted || rootStore.appMode === "demo" ? null : (
+              <AgentStartSidebarCard workspaceKey={workspacesStore.current?.companyId ?? "workspace"} />
+            )}
+
             {trialCard}
 
             {rootStore.appMode === "demo" ? <DemoSignupButton /> : null}

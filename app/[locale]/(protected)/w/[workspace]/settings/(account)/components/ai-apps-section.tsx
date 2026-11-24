@@ -95,7 +95,7 @@ export const AiAppsSection = observer(() => {
               </span>
             </span>
 
-            <Button size="sm" variant="ghost" onClick={() => disconnect(app)}>
+            <Button size="sm" variant="ghostDestructive" onClick={() => disconnect(app)}>
               {t("ConnectedAccountsCard.disconnect")}
             </Button>
           </SettingsPanelRow>

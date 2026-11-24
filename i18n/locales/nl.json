@@ -978,6 +978,16 @@
     "onlineCount": "Online: {count}",
     "title": "Waar agentstappen draaien"
   },
+  "AgentStart": {
+    "copied": "Gekopieerd",
+    "copy": "Kopiëren",
+    "failed": "Kopiëren mislukt",
+    "heroHint": "Of plak dit in een willekeurige AI-agent",
+    "hint": "Plak dit in een willekeurige AI-agent en die richt Customermates samen met je in",
+    "prompt": "Lees {url} en richt Customermates in voor mijn bedrijf.",
+    "sidebarDismiss": "Verbergen",
+    "sidebarTitle": "Koppel je agent"
+  },
   "ApiKeyModal": {
     "addDescription": "Maak een sleutel voor je eigen integratie of kies een AI-client voor begeleide installatie.",
     "addTitle": "Een API-sleutel toevoegen",

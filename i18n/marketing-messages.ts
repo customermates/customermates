@@ -1,5 +1,6 @@
 export const MARKETING_NAMESPACES = [
   "AcquisitionConsent",
+  "AgentStart",
   "BrowserFrame",
   "Common",
   "ComparePage",
