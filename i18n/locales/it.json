@@ -985,7 +985,6 @@
     "daysLeft": "{count, plural, one {Manca # giorno} other {Mancano # giorni}}",
     "failed": "Copia non riuscita",
     "getStarted": "Per iniziare",
-    "heroHint": "Oppure incolla questo in qualsiasi agente IA",
     "hint": "Incolla questo in qualsiasi agente IA e configurerà Customermates insieme a te",
     "label": "Configura il tuo agente",
     "progress": "{done} di {total} completati",

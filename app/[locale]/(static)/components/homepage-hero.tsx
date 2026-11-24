@@ -4,10 +4,10 @@ import { ArrowRight, CodeXml, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { env } from "@/env";
-import { AgentStartChip } from "@/components/agent-start/agent-start-chip";
+import { AgentStartPill } from "@/components/agent-start/agent-start-pill";
+import { Google, Linkedin, Outlook, Whatsapp } from "@/components/icons/channel-icon";
 import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
 
-import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { marketingButtonClassName } from "@/components/marketing/marketing-button";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppLink } from "@/components/shared/app-link";
@@ -19,14 +19,12 @@ import { homepageHeroSignupHref } from "./homepage-hero-signup";
 
 export const HOMEPAGE_SOURCE_AVAILABLE_HREF = "/features/open-source-crm";
 
-const BADGE_LOGOS = [
-  { id: "claude", provider: "claude" },
-  { id: "chatgpt", provider: "chatgpt" },
-  { id: "gemini", provider: "gemini" },
-  { id: "cursor", provider: "cursor" },
+const BADGE_CHANNELS = [
+  { id: "linkedin", Icon: Linkedin },
+  { id: "whatsapp", Icon: Whatsapp },
+  { id: "gmail", Icon: Google },
+  { id: "outlook", Icon: Outlook },
 ] as const;
-
-export const HOMEPAGE_AI_CLIENTS = ["Claude", "ChatGPT", "Codex", "Gemini", "Cursor", "Grok"] as const;
 
 type Props = {
   heroSection: Hero;
@@ -35,9 +33,20 @@ type Props = {
 export function HomepageHero({ heroSection }: Props) {
   const { assurances, badge, picker, primaryCta, secondaryCta, subtitle, title } = heroSection;
   const t = useTranslations();
-  const secondary = (
-    <a className="mk-button mk-button-lg mk-button-ghost" href={secondaryCta.href}>
-      <Play aria-hidden className="!size-3.5 fill-current" />
+  const agentPill = (
+    <AgentStartPill
+      className="homepage-hero-agent-pill"
+      labels={{
+        copied: t("AgentStart.copiedTip"),
+        failed: t("AgentStart.failed"),
+        label: t("AgentStart.label"),
+      }}
+      prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
+    />
+  );
+  const film = (
+    <a className="homepage-hero-film" href={secondaryCta.href}>
+      <Play aria-hidden className="size-3 fill-current" />
 
       {secondaryCta.label}
     </a>
@@ -55,11 +64,11 @@ export function HomepageHero({ heroSection }: Props) {
 
       <MarketingContainer className="relative pt-14 pb-12 sm:pt-20 sm:pb-14 lg:pt-24 lg:pb-16">
         <div className="mk-enter relative z-10 mx-auto flex max-w-[50rem] flex-col items-center text-center">
-          <p className="homepage-hero-badge" title={HOMEPAGE_AI_CLIENTS.join(", ")}>
-            <span aria-hidden className="homepage-ai-stack">
-              {BADGE_LOGOS.map((logo) => (
-                <span key={logo.id} data-ai-logo={logo.id}>
-                  <AiClientLogo className="size-3" provider={logo.provider} />
+          <p className="homepage-hero-badge">
+            <span aria-hidden className="homepage-channel-stack">
+              {BADGE_CHANNELS.map(({ id, Icon }) => (
+                <span key={id}>
+                  <Icon className="size-3" />
                 </span>
               ))}
             </span>
@@ -82,7 +91,7 @@ export function HomepageHero({ heroSection }: Props) {
                 cta={picker.cta}
                 question={picker.question}
               >
-                {secondary}
+                {agentPill}
               </HomepageHeroPicker>
             ) : primaryCta ? (
               <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-2">
@@ -97,22 +106,12 @@ export function HomepageHero({ heroSection }: Props) {
                   <ArrowRight aria-hidden data-mk-arrow="" />
                 </AppLink>
 
-                {secondary}
+                {agentPill}
               </div>
             ) : null}
-          </div>
 
-          <AgentStartChip
-            className="mt-6"
-            labels={{
-              copied: t("AgentStart.copied"),
-              copy: t("AgentStart.copy"),
-              failed: t("AgentStart.failed"),
-              hint: t("AgentStart.heroHint"),
-            }}
-            prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
-            variant="hero"
-          />
+            <div className="mt-3">{film}</div>
+          </div>
 
           <ul className="homepage-hero-assurances mt-5" data-homepage-assurances="">
             <li>

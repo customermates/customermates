@@ -985,7 +985,6 @@
     "daysLeft": "{count, plural, one {Nog # dag} other {Nog # dagen}}",
     "failed": "Kopiëren mislukt",
     "getStarted": "Aan de slag",
-    "heroHint": "Of plak dit in een willekeurige AI-agent",
     "hint": "Plak dit in een willekeurige AI-agent en die richt Customermates samen met je in",
     "label": "Richt je agent in",
     "progress": "{done} van {total} klaar",

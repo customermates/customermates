@@ -985,7 +985,6 @@
     "daysLeft": "{count, plural, one {# day left} other {# days left}}",
     "failed": "Copy failed",
     "getStarted": "Get started",
-    "heroHint": "Or paste this into any AI agent",
     "hint": "Paste this into any AI agent and it sets Customermates up with you",
     "label": "Onboard your agent",
     "progress": "{done} of {total} done",

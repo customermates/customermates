@@ -985,7 +985,6 @@
     "daysLeft": "{count, plural, one {Został # dzień} few {Zostały # dni} many {Zostało # dni} other {Zostało # dnia}}",
     "failed": "Nie udało się skopiować",
     "getStarted": "Pierwsze kroki",
-    "heroHint": "Albo wklej to do dowolnego agenta AI",
     "hint": "Wklej to do dowolnego agenta AI, a skonfiguruje z Tobą Customermates",
     "label": "Skonfiguruj agenta",
     "progress": "{done} z {total} gotowe",

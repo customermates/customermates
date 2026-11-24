@@ -985,7 +985,6 @@
     "daysLeft": "{count, plural, one {Falta # dia} other {Faltam # dias}}",
     "failed": "Não foi possível copiar",
     "getStarted": "Primeiros passos",
-    "heroHint": "Ou cole isto em qualquer agente de IA",
     "hint": "Cole isto em qualquer agente de IA e ele configura o Customermates com você",
     "label": "Configure seu agente",
     "progress": "{done} de {total} concluídos",
