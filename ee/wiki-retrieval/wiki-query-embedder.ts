@@ -8,7 +8,7 @@ import * as ErrorReporter from "@/core/observability/server";
 import { UserAccessor } from "@/core/base/user-accessor";
 
 import { isBusyDatabaseError, isTransactionEndedError } from "@/core/errors/prisma-client-error";
-import { isTransientGatewayError } from "@/ee/agent-chat/transient-gateway-error";
+import { isMissingGatewayCredentialError, isTransientGatewayError } from "@/ee/agent-chat/transient-gateway-error";
 
 import { WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 
@@ -74,7 +74,10 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
         .catch((error: unknown) => {
           ErrorReporter.captureException(
             error,
-            isTransientGatewayError(error) || isBusyDatabaseError(error) || isTransactionEndedError(error)
+            isTransientGatewayError(error) ||
+              isMissingGatewayCredentialError(error) ||
+              isBusyDatabaseError(error) ||
+              isTransactionEndedError(error)
               ? { level: "warning" }
               : {},
           );
