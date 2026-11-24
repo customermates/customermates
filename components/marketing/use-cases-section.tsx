@@ -82,7 +82,7 @@ export function UseCasesSection({ useCases }: Props) {
       <SectionHeader description={description} eyebrow={eyebrow} title={title} />
 
       <ul
-        className={cn("grid gap-4 sm:grid-cols-2", items.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3")}
+        className={cn("grid gap-4 sm:grid-cols-2", items.length === 4 ? "xl:grid-cols-4" : "lg:grid-cols-3")}
         data-use-cases=""
       >
         {items.map((item) => (

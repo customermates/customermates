@@ -105,6 +105,12 @@ export const FOLLOW_UP_CSS = `
 @keyframes hfu-pulse { 0%, 100% { opacity: 1; transform: none; } 50% { opacity: 0.45; transform: translateX(0.25rem); } }
 ${ENTRANCES}
 ${DECK}
+@media (max-width: 63.99rem) {
+  /* stacked steps: one shared 12 s clock left steps 2 and 3 blank (an empty deck) while you scroll to them, so below
+     the three-column layout the story shows its resting state, the same as with reduced motion */
+  .hfu-at, .hfu-loop, .hfu-pulse { animation: none; }
+  .hfu-stamp, .hfu-transient, .hfu-swipes { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .hfu-at, .hfu-loop, .hfu-pulse, .hfu-swipe svg { animation: none !important; }
   .hfu-stamp, .hfu-transient, .hfu-swipes { display: none !important; }

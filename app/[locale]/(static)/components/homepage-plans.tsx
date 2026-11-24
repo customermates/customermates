@@ -14,12 +14,12 @@ export function HomepagePlans({ plans }: { plans: HomepagePlansContent }) {
     <MarketingSection className="mk-section" id="pricing">
       <SectionHeader description={plans.description} eyebrow={plans.eyebrow} title={plans.title} />
 
-      <ul className="mx-auto mt-12 grid max-w-[68rem] gap-4 md:grid-cols-3">
+      <ul className="mx-auto mt-12 grid max-w-[34rem] gap-4 lg:max-w-[68rem] lg:grid-cols-3">
         {plans.items.map((plan) => (
           <li
             key={plan.name}
             data-reveal
-            className={cn("mk-card flex flex-col p-6", plan.badge && "mk-card-featured max-md:order-first")}
+            className={cn("mk-card flex flex-col p-6", plan.badge && "mk-card-featured max-lg:order-first")}
           >
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
@@ -32,7 +32,7 @@ export function HomepagePlans({ plans }: { plans: HomepagePlansContent }) {
                 {plan.price}
               </span>
 
-              <span className="text-sm text-muted-foreground">{plans.perSeat}</span>
+              <span className="text-sm whitespace-nowrap text-muted-foreground">{plans.perSeat}</span>
             </p>
 
             <p className="mt-3 text-[0.9375rem] text-foreground">{plan.job}</p>

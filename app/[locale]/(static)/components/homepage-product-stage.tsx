@@ -464,7 +464,7 @@ export function HomepageProductStage({
 
                   {embed && !liveAllowed && index === activeIndex ? (
                     <a
-                      className="absolute inset-0 z-10 flex items-end justify-center p-4 no-underline"
+                      className="absolute inset-0 z-10 flex items-end justify-center p-4 no-underline max-sm:bg-[linear-gradient(to_top,color-mix(in_oklab,var(--background)_88%,transparent),transparent_30%)]"
                       data-homepage-stage-open-live=""
                       href={liveSrcFor(tab)}
                       rel="noreferrer noopener"
@@ -530,7 +530,7 @@ export function HomepageProductStage({
               aria-selected={isActive}
               className={cn(
                 !hasPhonePoster(tab) && "max-sm:hidden",
-                "relative isolate inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                "relative isolate inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium max-sm:gap-1.5 max-sm:px-2.5 max-sm:text-[0.8125rem] text-muted-foreground transition-colors duration-300 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 isActive && "text-foreground",
               )}
               data-homepage-stage-tab={tabKey(tab)}

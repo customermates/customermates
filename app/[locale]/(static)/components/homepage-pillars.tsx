@@ -47,7 +47,7 @@ function StackCard({ bubble, children, description, icon, id, index, plan, title
       </div>
 
       <div aria-hidden className="homepage-stack-shot">
-        <HomepageMateBubble className="-top-4 left-4 sm:left-6">{bubble}</HomepageMateBubble>
+        <HomepageMateBubble className="homepage-mate-bubble-inline">{bubble}</HomepageMateBubble>
 
         {children}
       </div>
