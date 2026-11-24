@@ -18,6 +18,7 @@ import {
   ReactFlowProvider,
   getStraightPath,
   useReactFlow,
+  useStore,
 } from "@xyflow/react";
 import { Maximize, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -34,7 +35,19 @@ import { AutomationStepToolbar } from "./automation-step-toolbar";
 
 const NODE_WIDTH = 288;
 const QUICK_WIDTH = 384;
-const ROW_GAP = 150;
+const ESTIMATED_NODE_HEIGHT = 104;
+const EDGE_LENGTH = 72;
+const ADD_EDGE_LENGTH = 40;
+
+function stackedTops(heights: readonly number[]): number[] {
+  const tops: number[] = [];
+  let top = 0;
+  for (const height of heights) {
+    tops.push(top);
+    top += height + EDGE_LENGTH;
+  }
+  return tops;
+}
 const FIT_VIEW = { padding: 0.2, maxZoom: 1, minZoom: 0.6 };
 const HANDLE_CLASS = "!size-1.5 !min-h-0 !min-w-0 !border-0 !bg-border-strong";
 
@@ -193,12 +206,18 @@ function FlowCanvas({
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const showAdd = Boolean(actions.palette) && actions.editable;
+  const measuredHeights = useStore((state) =>
+    steps.map((step) => Math.round(state.nodeLookup.get(step.id)?.measured?.height ?? 0)).join(","),
+  );
+  const measured = !measuredHeights.split(",").includes("0");
 
   const { nodes, edges } = useMemo(() => {
+    const heights = measuredHeights.split(",").map((value) => Number(value) || ESTIMATED_NODE_HEIGHT);
+    const tops = stackedTops(heights);
     const builtNodes: Node[] = steps.map((step, index) => ({
       id: step.id,
       type: "step",
-      position: { x: -NODE_WIDTH / 2, y: index * ROW_GAP },
+      position: { x: -NODE_WIDTH / 2, y: tops[index] ?? 0 },
       data: {
         step,
         actions,
@@ -224,7 +243,10 @@ function FlowCanvas({
       builtNodes.push({
         id: "add-step",
         type: "add",
-        position: { x: -(quick ? QUICK_WIDTH : NODE_WIDTH) / 2, y: steps.length * ROW_GAP - 30 },
+        position: {
+          x: -(quick ? QUICK_WIDTH : NODE_WIDTH) / 2,
+          y: (tops[steps.length - 1] ?? 0) + (heights[steps.length - 1] ?? ESTIMATED_NODE_HEIGHT) + ADD_EDGE_LENGTH,
+        },
         data: { index: steps.length, actions, quick } satisfies AddData,
         selectable: false,
       });
@@ -240,9 +262,9 @@ function FlowCanvas({
       });
     }
     return { nodes: builtNodes, edges: builtEdges };
-  }, [actions, markLabel, showAdd, steps]);
+  }, [actions, markLabel, measuredHeights, showAdd, steps]);
 
-  const shape = `${steps.length}:${showAdd}`;
+  const shape = `${steps.length}:${showAdd}:${measured}`;
 
   return (
     <div

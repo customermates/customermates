@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Bot, Clock, FilePen, Pencil, Send, Trash2, Zap }
 
 import { FOLLOW_UP_ANIM, FOLLOW_UP_CSS, at } from "./homepage-follow-up-motion";
 import { Google, Linkedin } from "@/components/icons/channel-icon";
+import { InView } from "@/components/marketing/in-view";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { MateOrb } from "@/components/mate/mate-orb";
@@ -270,7 +271,10 @@ export function HomepageFollowUp({ followUp }: { followUp: HomepageFollowUpConte
 
       <div className="mx-auto mt-12 max-w-[76rem]">
         <div aria-label={followUp.label} className="mk-stage homepage-desk-stage" role="group">
-          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-4">
+          <InView
+            amount={0.3}
+            className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-4"
+          >
             <div className="min-w-0">
               <StepCaption index={1} start={0} step={say} />
 
@@ -319,7 +323,7 @@ export function HomepageFollowUp({ followUp }: { followUp: HomepageFollowUpConte
                 </div>
               </div>
             </div>
-          </div>
+          </InView>
         </div>
       </div>
     </MarketingSection>

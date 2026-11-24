@@ -4,7 +4,10 @@ import type { AutomationDraft } from "./automation-draft";
 import { blankAgentEffect, emptyChainDraft } from "./automation-draft";
 
 export function agentPromptOf(draft: AutomationDraft): string | undefined {
-  for (const effect of draft.effects) if (effect.kind === "agent" && effect.prompt.trim()) return effect.prompt;
+  for (const draftEffect of draft.effects) {
+    const effect = draftEffect.kind === "kept" ? draftEffect.effect : draftEffect;
+    if (effect.kind === "agent" && effect.prompt.trim()) return effect.prompt;
+  }
 
   return undefined;
 }

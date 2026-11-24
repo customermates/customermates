@@ -97,6 +97,11 @@ function routineFormFor(routine: RoutineDto): RoutineModalForm {
 
 export type RoutineCanvasStep = "trigger" | "agent";
 
+export type RoutineReplacement = {
+  replace: () => Promise<void>;
+  reopen: () => void;
+};
+
 export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   activeTab: "details" | "runs" = "details";
   selectedStep: RoutineCanvasStep | null = null;
@@ -110,6 +115,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   isStartingRun = false;
   recordModel: RecordModelView | null = null;
   onSwitchToEvent: ((seed: { name: string; prompt: string }) => void) | null = null;
+  replacesEventVersion: RoutineReplacement | null = null;
   private filterFieldsLoadPromise: Promise<void> | null = null;
   private runsSessionGeneration = 0;
   private runsRoutineId: string | null = null;
@@ -141,6 +147,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       isStartingRun: observable,
       recordModel: observable.ref,
       onSwitchToEvent: observable.ref,
+      replacesEventVersion: observable.ref,
 
       openRun_: computed,
       latestRunAt: computed,
@@ -181,6 +188,13 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   switchStart = (start: "event" | "schedule") => {
     if (start === "schedule") {
       this.onChange("triggerKind", RoutineTriggerKind.schedule);
+      return;
+    }
+    const replacing = this.replacesEventVersion;
+    if (!this.form.id && replacing) {
+      this.replacesEventVersion = null;
+      this.close();
+      replacing.reopen();
       return;
     }
     const handoff = this.onSwitchToEvent;
@@ -301,7 +315,12 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     return generation === this.runsSessionGeneration && routineId === this.runsRoutineId;
   }
 
-  openForCreate = async (seed?: { name?: string; prompt?: string; cron?: string }) => {
+  openForCreate = async (seed?: {
+    name?: string;
+    prompt?: string;
+    cron?: string;
+    replacesEventVersion?: RoutineReplacement;
+  }) => {
     const generation = this.beginRunsSession(null);
     await this.loadFilterFields();
     if (generation !== this.runsSessionGeneration) return;
@@ -309,6 +328,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     const schedule = seed?.cron ? scheduleFromCron(seed.cron) : null;
 
     runInAction(() => {
+      this.replacesEventVersion = seed?.replacesEventVersion ?? null;
       this.activeTab = "details";
       this.selectedStep = null;
       this.lastRunAt = null;
@@ -338,6 +358,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     if (!this.ownsRunsSession(generation, routine.id)) return;
 
     runInAction(() => {
+      this.replacesEventVersion = null;
       this.activeTab = "runs";
       this.selectedStep = null;
       this.lastRunAt = routine.lastRunAt;
@@ -809,10 +830,20 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.setIsLoading(true);
 
     try {
+      const creating = !this.form.id;
+      const replaces = this.replacesEventVersion;
       const res = await upsertRoutineAction(this.payload);
 
       if (res.ok) {
+        this.replacesEventVersion = null;
         this.close();
+        if (creating && replaces) {
+          try {
+            await replaces.replace();
+          } catch (error) {
+            reportApplicationError(error);
+          }
+        }
         await this.refreshRoutineList();
       } else this.setError(res.error);
     } finally {

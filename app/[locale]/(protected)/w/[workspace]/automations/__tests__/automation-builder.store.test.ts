@@ -8,6 +8,7 @@ import { noAgentRuntimes } from "@/features/automation-rules/agent-runtime-avail
 import { Action, Resource } from "@/generated/prisma";
 
 const actions = vi.hoisted(() => ({
+  deleteAutomationRuleAction: vi.fn(),
   previewAutomationRuleAction: vi.fn(),
   setAutomationRuleEnabledAction: vi.fn(),
   upsertAutomationRuleAction: vi.fn(),
@@ -589,5 +590,68 @@ describe("AutomationBuilderStore", () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.preview?.total).toBe(9);
+  });
+
+  describe("switching a saved automation to a schedule", () => {
+    const MATE_ONLY = { ...SAVED, effects: [{ kind: "agent", prompt: "Summarise the deal", runtime: "mate" }] };
+
+    function openSaved() {
+      const refresh = vi.fn(() => Promise.resolve());
+      const store = new AutomationBuilderStore({
+        registerModalStore: vi.fn(),
+        userStore: { user: { id: "u", role: { isSystemRole: false } }, can: vi.fn(() => true) },
+        localeStore: { getTranslation: (key: string) => key },
+        automationsStore: { refresh },
+      } as unknown as RootStore);
+      const handoff = vi.fn();
+      store.setScheduleHandoff(handoff);
+      store.openForRule(CONTEXT, MATE_ONLY as never, vi.fn());
+      return { store, handoff, refresh };
+    }
+
+    it("offers the schedule for a saved automation the viewer may delete", () => {
+      const { store } = openSaved();
+
+      expect(store.offersSchedule).toBe(true);
+    });
+
+    it("hands the draft over with a replacement that deletes the saved rule only when asked", async () => {
+      const { store, handoff, refresh } = openSaved();
+      actions.deleteAutomationRuleAction.mockResolvedValue({ ok: true, data: null });
+
+      store.switchToSchedule();
+
+      expect(store.isOpen).toBe(false);
+      expect(actions.deleteAutomationRuleAction).not.toHaveBeenCalled();
+      const [draft, replacement] = handoff.mock.calls[0];
+      expect(draft.name).toBe("Saved");
+
+      await replacement.replace();
+
+      expect(actions.deleteAutomationRuleAction).toHaveBeenCalledWith({ id: RULE });
+      expect(refresh).toHaveBeenCalled();
+    });
+
+    it("reopens the saved rule with the unsaved edits when the switch is taken back", () => {
+      const { store, handoff } = openSaved();
+      store.setName("Renamed");
+
+      store.switchToSchedule();
+      handoff.mock.calls[0][1].reopen();
+
+      expect(store.isOpen).toBe(true);
+      expect(store.form.id).toBe(RULE);
+      expect(store.form.name).toBe("Renamed");
+    });
+
+    it("resets a saved automation to its saved state", () => {
+      const { store } = openSaved();
+      store.setName("Renamed");
+
+      store.resetChanges();
+
+      expect(store.form.name).toBe("Saved");
+      expect(store.hasUnsavedChanges).toBe(false);
+    });
   });
 });

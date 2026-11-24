@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "Bij een gebeurtenis",
       "label": "Hoe het start",
+      "replacesEventVersion": "Bij opslaan vervangt deze versie de automatisering die op een gebeurtenis start. Annuleren laat die ongewijzigd.",
       "schedule": "Volgens schema",
       "scheduleNeedsMateOnly": "Een geplande automatisering voert alleen Mate uit. Verwijder de andere stappen om te wisselen."
     },

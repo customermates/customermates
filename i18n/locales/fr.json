@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "Sur un événement",
       "label": "Comment elle démarre",
+      "replacesEventVersion": "L'enregistrement remplace la version déclenchée par un événement. Annuler la laisse inchangée.",
       "schedule": "Selon un planning",
       "scheduleNeedsMateOnly": "Une automatisation planifiée n'exécute que Mate. Retirez les autres étapes pour changer."
     },

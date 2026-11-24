@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "Num evento",
       "label": "Como começa",
+      "replacesEventVersion": "Ao salvar, esta versão substitui a automação iniciada por um evento. Cancelar a mantém como estava.",
       "schedule": "Com agendamento",
       "scheduleNeedsMateOnly": "Uma automação agendada só executa o Mate. Remova os outros passos para mudar."
     },

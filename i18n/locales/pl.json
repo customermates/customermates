@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "Po zdarzeniu",
       "label": "Jak się uruchamia",
+      "replacesEventVersion": "Zapisanie zastąpi wersję uruchamianą zdarzeniem. Anulowanie pozostawi ją bez zmian.",
       "schedule": "Według harmonogramu",
       "scheduleNeedsMateOnly": "Zaplanowana automatyzacja uruchamia tylko Mate. Usuń pozostałe kroki, aby przełączyć."
     },

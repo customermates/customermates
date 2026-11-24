@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "Bei einem Ereignis",
       "label": "Wie sie startet",
+      "replacesEventVersion": "Beim Speichern ersetzt diese Fassung die bisherige, ereignisgesteuerte Automatisierung. Abbrechen lässt sie unverändert.",
       "schedule": "Nach Zeitplan",
       "scheduleNeedsMateOnly": "Eine geplante Automatisierung führt nur Mate aus. Entferne die anderen Schritte, um zu wechseln."
     },

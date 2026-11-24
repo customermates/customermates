@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "Con un evento",
       "label": "Cómo empieza",
+      "replacesEventVersion": "Al guardar, esta versión sustituye a la automatización que se activa por un evento. Cancelar la deja como estaba.",
       "schedule": "Con un horario",
       "scheduleNeedsMateOnly": "Una automatización programada solo ejecuta a Mate. Quita los demás pasos para cambiar."
     },

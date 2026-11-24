@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "On an event",
       "label": "How it starts",
+      "replacesEventVersion": "Saving replaces the on-event version of this automation. Cancel keeps it as it was.",
       "schedule": "On a schedule",
       "scheduleNeedsMateOnly": "A scheduled automation only runs Mate. Remove the other steps to switch."
     },

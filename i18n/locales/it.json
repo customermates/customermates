@@ -1453,6 +1453,7 @@
     "startsOn": {
       "event": "A un evento",
       "label": "Come parte",
+      "replacesEventVersion": "Salvando, questa versione sostituisce l'automazione avviata da un evento. Annulla la lascia com'era.",
       "schedule": "Con un programma",
       "scheduleNeedsMateOnly": "Un'automazione pianificata esegue solo Mate. Rimuovi gli altri passaggi per cambiare."
     },

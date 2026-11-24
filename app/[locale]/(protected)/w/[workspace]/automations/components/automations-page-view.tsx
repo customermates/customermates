@@ -113,9 +113,13 @@ const AutomationsPageViewContent = observer(function AutomationsPageView({
   useEffect(() => {
     automationBuilderStore.setScheduleHandoff(
       canCreateRoutine
-        ? (draft) =>
+        ? (draft, replacement) =>
             runUserAction(() =>
-              routineModalStore.openForCreate({ name: draft.name.trim() || undefined, prompt: agentPromptOf(draft) }),
+              routineModalStore.openForCreate({
+                name: draft.name.trim() || undefined,
+                prompt: agentPromptOf(draft),
+                replacesEventVersion: replacement,
+              }),
             )
         : null,
     );

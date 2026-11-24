@@ -2134,10 +2134,15 @@ path:focus {
   font-size: 4.6px;
 }
 
+/* owner review 2026-11-24: the scenes build once when they come into view and then stay, no loop */
 .pa-in,
 .pa-tick,
 .pa-node {
-  animation: homepage-pa-in 10s var(--pa-delay, 0s) infinite both;
+  animation: homepage-pa-in 0.7s var(--pa-delay, 0s) cubic-bezier(0.22, 1, 0.36, 1) 1 both;
+}
+
+[data-in-view="waiting"] :is(.pa-in, .pa-tick, .pa-node, .pa-edge, .pa-pulse) {
+  animation-play-state: paused;
 }
 
 .pa-tick {
@@ -2152,7 +2157,7 @@ path:focus {
 
 .pa-edge {
   stroke-dasharray: 1;
-  animation: homepage-pa-draw 10s var(--pa-delay, 0s) infinite both;
+  animation: homepage-pa-draw 0.9s var(--pa-delay, 0s) ease-out 1 both;
 }
 
 .pa-pulse {
@@ -2161,7 +2166,7 @@ path:focus {
   stroke-width: 0.5;
   transform-box: fill-box;
   transform-origin: center;
-  animation: homepage-pa-pulse 2s 4s infinite;
+  animation: homepage-pa-pulse 2s 3.5s 2;
   opacity: 0;
 }
 
@@ -2170,14 +2175,8 @@ path:focus {
     opacity: 0;
     transform: translateY(6px);
   }
-  6%,
-  86% {
-    opacity: 1;
-    transform: none;
-  }
-  96%,
   100% {
-    opacity: 0;
+    opacity: 1;
     transform: none;
   }
 }
@@ -2187,14 +2186,9 @@ path:focus {
     opacity: 0;
     transform: scale(0.6);
   }
-  5%,
-  86% {
+  100% {
     opacity: 1;
     transform: none;
-  }
-  96%,
-  100% {
-    opacity: 0;
   }
 }
 
@@ -2202,15 +2196,8 @@ path:focus {
   0% {
     stroke-dashoffset: 1;
   }
-  8%,
-  86% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  96%,
   100% {
     stroke-dashoffset: 0;
-    opacity: 0;
   }
 }
 

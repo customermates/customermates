@@ -12,12 +12,12 @@ export function at(t: number): CSSProperties {
 
 function keyframesIn(t: number): string {
   const enter = Math.min(t + 0.45, END - 0.2);
-  return `@keyframes hfu-in-${tenth(t)} { 0%, ${pct(t)} { opacity: 0; transform: translateY(0.375rem); } ${pct(enter)}, ${pct(END)} { opacity: 1; transform: none; } ${pct(END + 0.45)}, 100% { opacity: 0; transform: none; } }`;
+  return `@keyframes hfu-in-${tenth(t)} { 0%, ${pct(t)} { opacity: 0; transform: translateY(0.375rem); } ${pct(enter)}, 100% { opacity: 1; transform: none; } }`;
 }
 
 function windowKeyframes(name: string, a: number, b: number): string {
-  const gone = b >= END ? END + 0.45 : b + 0.2;
-  return `@keyframes ${name} { 0%, ${pct(a)} { opacity: 0; } ${pct(a + 0.3)}, ${pct(b)} { opacity: 1; } ${pct(gone)}, 100% { opacity: 0; } }`;
+  if (b >= END) return `@keyframes ${name} { 0%, ${pct(a)} { opacity: 0; } ${pct(a + 0.3)}, 100% { opacity: 1; } }`;
+  return `@keyframes ${name} { 0%, ${pct(a)} { opacity: 0; } ${pct(a + 0.3)}, ${pct(b)} { opacity: 1; } ${pct(b + 0.2)}, 100% { opacity: 0; } }`;
 }
 
 const D0 = "transform: none; filter: none;";
@@ -43,7 +43,7 @@ export const FOLLOW_UP_ANIM = {
 const DECK = `
 @keyframes hfu-sent { 0%, ${pct(6.4)} { opacity: 0; ${DROP} } ${pct(6.9)}, ${pct(7.7)} { opacity: 1; ${D0} } ${pct(8.1)} { opacity: 1; ${NUDGE_R} } ${pct(8.6)}, 100% { opacity: 0; ${OUT_R} } }
 @keyframes hfu-later { 0%, ${pct(5.8)} { opacity: 0; ${D0} } ${pct(6.1)}, ${pct(6.4)} { opacity: 1; ${D0} } ${pct(6.9)}, ${pct(8.3)} { opacity: 1; ${D1} } ${pct(8.8)}, ${pct(9.4)} { opacity: 1; ${D0} } ${pct(9.8)} { opacity: 1; ${NUDGE_L} } ${pct(10.4)}, 100% { opacity: 0; ${OUT_L} } }
-@keyframes hfu-next { 0%, ${pct(5.8)} { opacity: 0; ${D1} } ${pct(6.1)}, ${pct(6.4)} { opacity: 1; ${D1} } ${pct(6.9)}, ${pct(8.3)} { opacity: 1; ${D2} } ${pct(8.8)}, ${pct(10.2)} { opacity: 1; ${D1} } ${pct(10.7)}, ${pct(END)} { opacity: 1; ${D0} } ${pct(END + 0.45)}, 100% { opacity: 0; ${D0} } }
+@keyframes hfu-next { 0%, ${pct(5.8)} { opacity: 0; ${D1} } ${pct(6.1)}, ${pct(6.4)} { opacity: 1; ${D1} } ${pct(6.9)}, ${pct(8.3)} { opacity: 1; ${D2} } ${pct(8.8)}, ${pct(10.2)} { opacity: 1; ${D1} } ${pct(10.7)}, 100% { opacity: 1; ${D0} } }
 @keyframes hfu-sent-stamp { 0%, ${pct(7.85)} { opacity: 0; } ${pct(8.05)}, ${pct(8.45)} { opacity: 1; } ${pct(8.6)}, 100% { opacity: 0; } }
 @keyframes hfu-later-stamp { 0%, ${pct(9.55)} { opacity: 0; } ${pct(9.75)}, ${pct(10.25)} { opacity: 1; } ${pct(10.4)}, 100% { opacity: 0; } }
 ${windowKeyframes("hfu-h1", 7.5, 8.6)}
@@ -99,9 +99,11 @@ export const FOLLOW_UP_CSS = `
 .hfu-swipe[data-dir="left"] svg { animation-name: hfu-nudge-l; }
 @keyframes hfu-nudge { 0%, 100% { transform: none; } 50% { transform: translateX(0.2rem); } }
 @keyframes hfu-nudge-l { 0%, 100% { transform: none; } 50% { transform: translateX(-0.2rem); } }
-.hfu-at, .hfu-loop { animation-duration: ${FOLLOW_UP_LOOP}s; animation-iteration-count: infinite; animation-fill-mode: both;
+.hfu-at, .hfu-loop { animation-duration: ${FOLLOW_UP_LOOP}s; animation-iteration-count: 1; animation-fill-mode: both;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
-.hfu-pulse { animation: hfu-pulse 1.6s ease-in-out infinite; }
+[data-in-view="waiting"] :is(.hfu-at, .hfu-loop) { animation-play-state: paused; }
+.hfu-pulse { animation: hfu-pulse 1.6s ease-in-out 2; }
+.hfu-swipe svg { animation-iteration-count: 3; }
 @keyframes hfu-pulse { 0%, 100% { opacity: 1; transform: none; } 50% { opacity: 0.45; transform: translateX(0.25rem); } }
 ${ENTRANCES}
 ${DECK}

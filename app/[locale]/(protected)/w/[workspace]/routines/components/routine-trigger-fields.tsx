@@ -51,6 +51,12 @@ export const RoutineTriggerFields = observer(({ store }: { store: RoutineModalSt
         onChange={store.switchStart}
       />
 
+      {store.replacesEventVersion && !form.id ? (
+        <p className="text-xs text-muted-foreground" data-routine-replaces-event-version="">
+          {t("Automations.startsOn.replacesEventVersion")}
+        </p>
+      ) : null}
+
       {scheduled && preset === "custom" ? (
         <div className="flex flex-wrap items-center gap-3 rounded-md border p-3">
           <p className="text-x-sm flex-1">

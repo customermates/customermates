@@ -557,7 +557,7 @@ export function HomepageProductStage({
                 <Icon aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
               )}
 
-              {tab.label}
+              <span className={cn(!isActive && "max-sm:sr-only")}>{tab.label}</span>
             </button>
           );
         })}
