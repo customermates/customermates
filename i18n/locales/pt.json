@@ -7431,7 +7431,7 @@
       "eyebrow": "O Mate está montando",
       "failedBody": "Tudo o que foi concluído foi mantido. Tente novamente a parte que não terminou para concluir seu espaço de trabalho.",
       "failedTitle": "Uma parte da configuração não foi concluída",
-      "keepsRunning": "Você pode continuar. A montagem termina em segundo plano.",
+      "keepsRunning": "Você pode continuar enquanto a montagem é concluída.",
       "phases": {
         "dashboard": "Painel",
         "dataModel": "Listas e campos",

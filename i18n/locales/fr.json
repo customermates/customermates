@@ -7431,7 +7431,7 @@
       "eyebrow": "Mate construit",
       "failedBody": "Tout ce qui est terminé est conservé. Relancez la partie inachevée pour terminer votre espace.",
       "failedTitle": "Une partie de la configuration n’a pas abouti",
-      "keepsRunning": "Vous pouvez continuer. La construction se termine en arrière-plan.",
+      "keepsRunning": "Vous pouvez continuer pendant que la construction s'achève.",
       "phases": {
         "dashboard": "Tableau de bord",
         "dataModel": "Listes et champs",
