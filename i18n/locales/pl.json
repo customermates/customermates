@@ -981,7 +981,7 @@
   "AgentStart": {
     "connect": {
       "account": "Zalogowano jako {email} · {count, plural, =0 {jeszcze bez przestrzeni roboczej} one {# przestrzeń robocza} few {# przestrzenie robocze} many {# przestrzeni roboczych} other {# przestrzeni roboczej}}",
-      "subtitle": "Wklej to do Claude, ChatGPT lub innego klienta MCP. Jedno połączenie obejmuje wszystkie Twoje przestrzenie robocze.",
+      "subtitle": "Działa z Claude, ChatGPT i każdym innym klientem MCP. Jedno połączenie obejmuje wszystkie Twoje przestrzenie robocze.",
       "title": "Połącz agenta AI"
     },
     "copied": "Skopiowano",
@@ -1030,7 +1030,8 @@
     "tabs": {
       "magicLink": "Magiczny link",
       "password": "Hasło",
-      "sso": "Logowanie jednokrotne"
+      "sso": "Logowanie SSO",
+      "ssoShort": "SSO"
     },
     "tabsLabel": "Metoda logowania"
   },
@@ -3621,8 +3622,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Pamiętasz hasło? <backToSignInLink>Zaloguj się</backToSignInLink>",
     "resetLinkInvalid": "Link do resetowania wygasł. Poproś o nowy link.",
-    "resetLinkSent": "Link do resetowania hasła został wysłany na Twój adres e-mail.",
     "sendCta": "Wyślij link do resetowania",
+    "sentBody": "Wysłaliśmy link do resetowania hasła na adres {email}. Otwórz go, aby ustawić nowe hasło.",
     "title": "Nie pamiętasz hasła?"
   },
   "ForHub": {
@@ -4604,7 +4605,6 @@
     },
     "progress": "Krok {current} z {total}",
     "progressLabel": "Postęp wdrożenia",
-    "questionProgress": "Pytanie {current} z {total}",
     "source": {
       "choices": {
         "advertisement": "Z reklamy",

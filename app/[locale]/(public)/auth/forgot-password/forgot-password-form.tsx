@@ -15,6 +15,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { Alert } from "@/components/shared/alert";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { EmailSentNotice } from "@/components/shared/email-sent-notice";
 import { Reveal } from "@/components/shared/reveal";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -34,8 +35,9 @@ const ForgotPasswordFormContent = observer(({ inviterName, onboardingIntent }: P
   useState(() => {
     forgotPasswordStore.onInitOrRefresh({ onboardingIntent });
     forgotPasswordStore.setWithUnsavedChangesGuard(false);
+    forgotPasswordStore.setSentTo(null);
   });
-  const { form, isLoading } = forgotPasswordStore;
+  const { form, isLoading, sentTo } = forgotPasswordStore;
 
   useEffect(() => {
     if (forgotPasswordStore.form.onboardingIntent !== onboardingIntent)
@@ -74,17 +76,44 @@ const ForgotPasswordFormContent = observer(({ inviterName, onboardingIntent }: P
             </Alert>
           )}
 
-          <FormInput required id="email" type="email" />
+          {sentTo ? (
+            <EmailSentNotice
+              body={t("ForgotPasswordForm.sentBody", { email: sentTo })}
+              title={t("AuthMethods.magicLink.sentTitle")}
+            />
+          ) : (
+            <>
+              <FormInput required id="email" type="email" />
 
-          <Reveal show={Boolean(form.email?.trim())}>
-            <FormInput required id="confirmEmail" type="email" />
-          </Reveal>
+              <Reveal show={Boolean(form.email?.trim())}>
+                <FormInput required id="confirmEmail" type="email" />
+              </Reveal>
+            </>
+          )}
         </AppCardBody>
 
         <AppCardFooter>
-          <Button className="w-full" disabled={isLoading} type="submit">
-            {t("ForgotPasswordForm.sendCta")}
-          </Button>
+          {sentTo ? (
+            <div className="flex w-full flex-col gap-2">
+              <Button className="w-full" disabled={isLoading} type="submit" variant="secondary">
+                {t("AuthMethods.magicLink.resend")}
+              </Button>
+
+              <Button
+                className="w-full"
+                disabled={isLoading}
+                type="button"
+                variant="ghost"
+                onClick={() => forgotPasswordStore.setSentTo(null)}
+              >
+                {t("AuthMethods.magicLink.useAnotherEmail")}
+              </Button>
+            </div>
+          ) : (
+            <Button className="w-full" disabled={isLoading} type="submit">
+              {t("ForgotPasswordForm.sendCta")}
+            </Button>
+          )}
         </AppCardFooter>
       </AppCard>
     </AppForm>

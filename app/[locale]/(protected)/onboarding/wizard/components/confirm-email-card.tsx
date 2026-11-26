@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ExternalLink, Loader2, Mail } from "lucide-react";
+import { ExternalLink, Loader2 } from "lucide-react";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { IconContainer } from "@/components/shared/icon-container";
+import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -60,21 +60,17 @@ function ConfirmEmailCardContent({ email, onboardingIntent }: Props) {
   };
 
   return (
-    <AppCard className="max-w-xl shadow-xl shadow-primary/5" id="onboarding-confirm-email">
+    <AppCard className="max-w-lg" id="onboarding-confirm-email">
+      <CardHeroHeader
+        alt=""
+        subtitle={t.rich("OnboardingWizard.confirmEmail.body", {
+          email,
+          strong: (chunks) => <strong className="font-medium text-foreground">{chunks}</strong>,
+        })}
+        title={t("OnboardingWizard.confirmEmail.title")}
+      />
+
       <AppCardBody className="items-center text-center">
-        <IconContainer color="muted" icon={Mail} size="md" />
-
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-xl font-semibold text-balance sm:text-2xl">{t("OnboardingWizard.confirmEmail.title")}</h1>
-
-          <p className="text-sm text-pretty text-muted-foreground">
-            {t.rich("OnboardingWizard.confirmEmail.body", {
-              email,
-              strong: (chunks) => <strong className="font-medium text-foreground">{chunks}</strong>,
-            })}
-          </p>
-        </div>
-
         <div className="flex w-full flex-wrap items-center justify-center gap-2 max-sm:flex-col max-sm:items-stretch">
           {inbox ? (
             <Button asChild className="min-h-11" variant="secondary">

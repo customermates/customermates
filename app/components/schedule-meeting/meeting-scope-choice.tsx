@@ -23,7 +23,7 @@ export function MeetingScopeChoice({
 
   return (
     <div className="space-y-2" data-meeting-scope="">
-      <p className="text-sm font-medium" id={`${id}-label`}>
+      <p className="text-xs text-muted-foreground" id={`${id}-label`}>
         {t("ScheduleMeeting.scope.label")}
       </p>
 

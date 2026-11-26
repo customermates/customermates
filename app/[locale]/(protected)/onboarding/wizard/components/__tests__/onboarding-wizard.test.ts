@@ -161,11 +161,12 @@ describe("OnboardingWizard", () => {
     expect(html).not.toContain("OnboardingWizard.milestones");
   });
 
-  it("opens the setup for a registered owner and counts the question inside it", () => {
+  it("opens the setup for a registered owner with the same step counter as every other screen", () => {
     const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
 
     expect(html).toContain("WorkspaceSetup.questions.workWith.label");
-    expect(html).toContain("OnboardingWizard.questionProgress current=1 total=4");
+    expect(html).toContain("OnboardingWizard.progress current=2 total=3");
+    expect(html).not.toContain("OnboardingWizard.questionProgress");
     expect(html).toContain("max-w-xl");
     expect(testContext.hydrated).toEqual([AVAILABLE]);
   });

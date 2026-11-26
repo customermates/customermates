@@ -6,6 +6,7 @@ import type { WikiPageStore } from "./wiki-page.store";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFieldHelp } from "@/components/forms/form-field-help";
@@ -55,6 +56,7 @@ export const WikiPageSettings = observer(function WikiPageSettings({
 
   return (
     <AppModal
+      focusContentOnOpen
       titleInContent
       focusReturnTarget={focusReturnTarget}
       open={open}
@@ -62,7 +64,7 @@ export const WikiPageSettings = observer(function WikiPageSettings({
       title={t("Wiki.settings.title")}
       onClose={onClose}
     >
-      <div className="flex min-h-0 flex-col" data-wiki-page-settings="">
+      <AppCard className="relative min-h-0" data-wiki-page-settings="">
         <AppCardHeader className="pb-2">
           <AppModalTitle className="text-lg font-semibold">{t("Wiki.settings.title")}</AppModalTitle>
         </AppCardHeader>
@@ -131,7 +133,7 @@ export const WikiPageSettings = observer(function WikiPageSettings({
             </dl>
           )}
         </AppCardBody>
-      </div>
+      </AppCard>
     </AppModal>
   );
 });

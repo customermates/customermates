@@ -158,7 +158,7 @@ export const ScheduleMeetingModal = observer(() => {
                     />
 
                     <div className="space-y-1.5" data-schedule-meeting-slots="">
-                      <p className="text-sm font-medium">
+                      <p className="text-xs text-muted-foreground">
                         {t("ScheduleMeeting.freeSlots", { timeZone: store.timeZone })}
                       </p>
 

@@ -7,6 +7,7 @@ import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
 import { getListMyWorkspacesInteractor } from "@/core/di";
 import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
 import { env } from "@/env";
+import { buildLocalePath } from "@/i18n/locale-registry";
 import { MCP_ENDPOINT_PATH } from "@/features/auth/mcp-resource";
 import { requireAccess } from "@/features/auth/next/require";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
@@ -18,7 +19,8 @@ type Props = {
 };
 
 export default async function ConnectAgentPage({ params }: Props) {
-  setRequestLocale((await params).locale);
+  const { locale } = await params;
+  setRequestLocale(locale);
   await requireAccess();
 
   const [{ sessionUser }, { data: workspaces }] = await Promise.all([
@@ -30,6 +32,7 @@ export default async function ConnectAgentPage({ params }: Props) {
   return (
     <CenteredCardPage>
       <ConnectAgentCard
+        appHref={buildLocalePath(locale, "/dashboard")}
         email={sessionUser?.email ?? ""}
         guideUrl={agentStartUrl(baseUrl)}
         mcpUrl={`${baseUrl}${MCP_ENDPOINT_PATH}`}

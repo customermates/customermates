@@ -981,7 +981,7 @@
   "AgentStart": {
     "connect": {
       "account": "Sesión iniciada como {email} · {count, plural, =0 {aún sin espacio de trabajo} one {# espacio de trabajo} other {# espacios de trabajo}}",
-      "subtitle": "Pega esto en Claude, ChatGPT o cualquier otro cliente MCP. Una sola conexión llega a todos tus espacios de trabajo.",
+      "subtitle": "Funciona con Claude, ChatGPT y cualquier otro cliente MCP. Una sola conexión llega a todos tus espacios de trabajo.",
       "title": "Conecta tu agente de IA"
     },
     "copied": "Copiado",
@@ -1030,7 +1030,8 @@
     "tabs": {
       "magicLink": "Enlace mágico",
       "password": "Contraseña",
-      "sso": "Inicio de sesión único"
+      "sso": "Acceso SSO",
+      "ssoShort": "SSO"
     },
     "tabsLabel": "Método de inicio de sesión"
   },
@@ -3621,8 +3622,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "¿Recuerdas tu contraseña? <backToSignInLink>Inicia sesión</backToSignInLink>",
     "resetLinkInvalid": "El enlace de restablecimiento ha caducado. Solicita uno nuevo.",
-    "resetLinkSent": "Enlace de restablecimiento enviado a tu correo.",
     "sendCta": "Enviar el enlace de restablecimiento",
+    "sentBody": "Hemos enviado un enlace para restablecer tu contraseña a {email}. Ábrelo para elegir una nueva.",
     "title": "Contraseña olvidada"
   },
   "ForHub": {
@@ -4604,7 +4605,6 @@
     },
     "progress": "Paso {current} de {total}",
     "progressLabel": "Progreso de la configuración inicial",
-    "questionProgress": "Pregunta {current} de {total}",
     "source": {
       "choices": {
         "advertisement": "Un anuncio",

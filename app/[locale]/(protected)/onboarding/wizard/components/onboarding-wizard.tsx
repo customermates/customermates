@@ -200,9 +200,10 @@ const OnboardingWizardContent = observer(
     const progressValue = question
       ? stepIndex + question.current / (question.total + 1)
       : Math.min(stepIndex + 1, progressTotal);
-    const progressText = question
-      ? t("OnboardingWizard.questionProgress", { current: question.current, total: question.total })
-      : t("OnboardingWizard.progress", { current: Math.min(stepIndex + 1, progressTotal), total: progressTotal });
+    const progressText = t("OnboardingWizard.progress", {
+      current: Math.min(stepIndex + 1, progressTotal),
+      total: progressTotal,
+    });
 
     useEffect(() => {
       const { setupAvailable, ...flags } = flowContext;

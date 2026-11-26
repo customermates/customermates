@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
 import { Alert } from "@/components/shared/alert";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 import { Locale } from "@/generated/prisma";
@@ -139,7 +140,12 @@ export const StepProfile = observer(
 
           {asksOwnerQuestions ? (
             <fieldset className="flex flex-col gap-2" id="onboarding-team-size">
-              <legend className="mb-2 text-sm font-medium">
+              <legend
+                className={cn(
+                  "mb-2 text-xs font-normal text-muted-foreground",
+                  store.teamSizeMissing && "text-destructive",
+                )}
+              >
                 {t("OnboardingWizard.profile.teamSize.label")}
 
                 <span aria-hidden="true" className="text-destructive">
@@ -158,6 +164,7 @@ export const StepProfile = observer(
                 {TEAM_SIZES.map((size) => (
                   <SelectableCard
                     key={size}
+                    centeredControl
                     disabled={isLoading}
                     id={`onboarding-team-size-${size}`}
                     label={teamSizeLabels[size]}

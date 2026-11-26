@@ -87,7 +87,7 @@ describe("sign-in method tabs", () => {
 
     expect(tabs().map((tab) => tab.textContent)).toEqual([
       "AuthMethods.tabs.password",
-      "AuthMethods.tabs.sso",
+      "AuthMethods.tabs.ssoAuthMethods.tabs.ssoShort",
       "AuthMethods.tabs.magicLink",
     ]);
     expect(container.textContent).toContain("Password fields");
