@@ -7522,6 +7522,18 @@
       "workWith": {
         "label": "Com quem você trabalha?"
       }
+    },
+    "suggestedSteps": {
+      "contracts": ["Onboarding", "Ativo", "A renovar", "Renovado", "Encerrado"],
+      "deals": ["Nova solicitação", "Contatado", "Oferta enviada", "Ganho", "Perdido"],
+      "dealsClients": ["Solicitação", "Primeira ligação", "Proposta enviada", "Ganho", "Perdido"],
+      "hiring": ["Candidatura enviada", "Entrevista", "Proposta", "Contratado", "Reprovado"],
+      "investors": ["Contatado", "Primeira reunião", "Due diligence", "Comprometido", "Recusado"],
+      "marketing": ["Ideia", "Em andamento", "Pronto", "Publicado"],
+      "orders": ["Novo", "Confirmado", "Enviado", "Pago"],
+      "partners": ["Contatado", "Em conversa", "Ativo", "Em pausa"],
+      "projects": ["Planejado", "Em andamento", "Revisão", "Concluído"],
+      "support": ["Nova", "Em andamento", "Aguardando o cliente", "Resolvida"]
     }
   }
 }
