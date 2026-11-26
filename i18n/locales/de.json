@@ -981,7 +981,7 @@
   "AgentStart": {
     "connect": {
       "account": "Angemeldet als {email} · {count, plural, =0 {noch kein Workspace} one {# Workspace} other {# Workspaces}}",
-      "subtitle": "Füge das in Claude, ChatGPT oder einen anderen MCP-Client ein. Eine Verbindung erreicht alle deine Workspaces.",
+      "subtitle": "Funktioniert mit Claude, ChatGPT und jedem anderen MCP-Client. Eine Verbindung erreicht alle deine Workspaces.",
       "title": "Verbinde deinen KI-Agenten"
     },
     "copied": "Kopiert",
@@ -1030,7 +1030,8 @@
     "tabs": {
       "magicLink": "Magic Link",
       "password": "Passwort",
-      "sso": "Single Sign-on"
+      "sso": "Single Sign-on",
+      "ssoShort": "SSO"
     },
     "tabsLabel": "Anmeldemethode"
   },
@@ -3621,8 +3622,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Passwort wieder eingefallen? <backToSignInLink>Anmelden</backToSignInLink>",
     "resetLinkInvalid": "Der Link zum Zurücksetzen ist abgelaufen. Bitte fordere einen neuen Link an.",
-    "resetLinkSent": "Link zum Zurücksetzen an deine E-Mail gesendet.",
     "sendCta": "Link zum Zurücksetzen senden",
+    "sentBody": "Wir haben einen Link zum Zurücksetzen deines Passworts an {email} gesendet. Öffne ihn, um ein neues Passwort festzulegen.",
     "title": "Passwort vergessen"
   },
   "ForHub": {
@@ -4604,7 +4605,6 @@
     },
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
-    "questionProgress": "Frage {current} von {total}",
     "source": {
       "choices": {
         "advertisement": "Über eine Anzeige",
@@ -6410,7 +6410,7 @@
       "lastDay": "Letzter Tag",
       "location": "Standort",
       "sendInvites": "Einladungen an die Teilnehmer senden",
-      "sendUpdates": "Änderungen an die Teilnehmer senden",
+      "sendUpdates": "Änderungen an die Teilnehmenden senden",
       "time": "Beginn",
       "title": "Titel",
       "videoLink": "Videolink hinzufügen"

@@ -981,7 +981,7 @@
   "AgentStart": {
     "connect": {
       "account": "Ingelogd als {email} · {count, plural, =0 {nog geen werkruimte} one {# werkruimte} other {# werkruimtes}}",
-      "subtitle": "Plak dit in Claude, ChatGPT of een andere MCP-client. Eén koppeling bereikt al je werkruimtes.",
+      "subtitle": "Werkt met Claude, ChatGPT en elke andere MCP-client. Eén koppeling bereikt al je werkruimtes.",
       "title": "Koppel je AI-agent"
     },
     "copied": "Gekopieerd",
@@ -1030,7 +1030,8 @@
     "tabs": {
       "magicLink": "Magic link",
       "password": "Wachtwoord",
-      "sso": "Eenmalige aanmelding"
+      "sso": "SSO-aanmelding",
+      "ssoShort": "SSO"
     },
     "tabsLabel": "Inlogmethode"
   },
@@ -3621,8 +3622,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Weet je je wachtwoord weer? <backToSignInLink>Inloggen</backToSignInLink>",
     "resetLinkInvalid": "De resetlink is verlopen. Vraag een nieuwe link aan.",
-    "resetLinkSent": "Resetlink naar je e-mailadres verzonden.",
     "sendCta": "Resetlink verzenden",
+    "sentBody": "We hebben een link om je wachtwoord opnieuw in te stellen naar {email} gestuurd. Open hem om een nieuw wachtwoord te kiezen.",
     "title": "Wachtwoord vergeten"
   },
   "ForHub": {
@@ -4604,7 +4605,6 @@
     },
     "progress": "Stap {current} van {total}",
     "progressLabel": "Voortgang van de onboarding",
-    "questionProgress": "Vraag {current} van {total}",
     "source": {
       "choices": {
         "advertisement": "Een advertentie",

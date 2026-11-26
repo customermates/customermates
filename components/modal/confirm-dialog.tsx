@@ -144,7 +144,10 @@ export function ConfirmDialog({
             ) : null}
           </AppCardBody>
 
-          <AppCardFooter data-slot="confirm-dialog-actions">
+          <AppCardFooter
+            className={cn("gap-2", onAlternative && "flex-col-reverse items-stretch")}
+            data-slot="confirm-dialog-actions"
+          >
             {onCancel ? (
               <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
                 {cancelLabel ?? (onConfirm ? t("Common.actions.cancel") : t("Common.actions.close"))}

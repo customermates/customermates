@@ -77,7 +77,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
 
   if (!user && !isInvited && emailConfirmationRequired(resolution.emailVerified)) {
     return (
-      <CenteredCardPage align="top">
+      <CenteredCardPage>
         <ConfirmEmailCard email={sessionUser.email} onboardingIntent={effectiveIntent?.intent} />
       </CenteredCardPage>
     );
@@ -116,7 +116,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   });
 
   return (
-    <CenteredCardPage align="top">
+    <CenteredCardPage align="steps">
       <OnboardingWizard
         canNameWorkspace={canCreateCompany}
         flow={flow}

@@ -981,7 +981,7 @@
   "AgentStart": {
     "connect": {
       "account": "Signed in as {email} · {count, plural, =0 {no workspace yet} one {# workspace} other {# workspaces}}",
-      "subtitle": "Paste this into Claude, ChatGPT or any other MCP client. One connection reaches all your workspaces.",
+      "subtitle": "Works with Claude, ChatGPT and any other MCP client. One connection reaches all your workspaces.",
       "title": "Connect your AI agent"
     },
     "copied": "Copied",
@@ -1030,7 +1030,8 @@
     "tabs": {
       "magicLink": "Magic link",
       "password": "Password",
-      "sso": "Single sign-on"
+      "sso": "Single sign-on",
+      "ssoShort": "SSO"
     },
     "tabsLabel": "Sign-in method"
   },
@@ -3621,8 +3622,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Remember your password? <backToSignInLink>Sign in</backToSignInLink>",
     "resetLinkInvalid": "The reset link has expired. Please request a new link.",
-    "resetLinkSent": "Reset link sent to your email.",
     "sendCta": "Send reset link",
+    "sentBody": "We sent a link to reset your password to {email}. Open it to choose a new one.",
     "title": "Forgot password"
   },
   "ForHub": {
@@ -4604,7 +4605,6 @@
     },
     "progress": "Step {current} of {total}",
     "progressLabel": "Onboarding progress",
-    "questionProgress": "Question {current} of {total}",
     "source": {
       "choices": {
         "advertisement": "An ad",

@@ -15,9 +15,15 @@ import { ConnectAgentCard } from "../connect-agent-card";
 const GUIDE = "https://customermates.com/start.md";
 const MCP = "https://customermates.com/api/v1/mcp";
 
-function markup() {
+function markup(workspaceCount = 2) {
   return renderToStaticMarkup(
-    <ConnectAgentCard email="anna@example.com" guideUrl={GUIDE} mcpUrl={MCP} workspaceCount={2} />,
+    <ConnectAgentCard
+      appHref="/en/dashboard"
+      email="anna@example.com"
+      guideUrl={GUIDE}
+      mcpUrl={MCP}
+      workspaceCount={workspaceCount}
+    />,
   );
 }
 
@@ -39,5 +45,10 @@ describe("ConnectAgentCard", () => {
 
   it("names the signed-in account and how many workspaces the connection reaches", () => {
     expect(markup()).toContain("AgentStart.connect.account(email=anna@example.com|count=2)");
+  });
+
+  it("offers the way into the app only when the account has a workspace", () => {
+    expect(markup()).toContain('href="/en/dashboard"');
+    expect(markup(0)).not.toContain('href="/en/dashboard"');
   });
 });

@@ -100,7 +100,8 @@ test("the Mate path asks four questions one per screen and shows a short plan be
   await expect.poll(() => funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
   const progress = page.locator("#onboarding-progress-text");
 
-  await expect(progress).toHaveText(wizard.questionProgress.replace("{current}", "1").replace("{total}", "3"));
+  const stepTwo = wizard.progress.replace("{current}", "2").replace("{total}", "3");
+  await expect(progress).toHaveText(stepTwo);
   await expect(page.locator("#setup-question-pick-hint")).toHaveText(setup.interview.pickOne);
   await page.screenshot({ path: testInfo.outputPath("setup-question-work-with.png"), fullPage: true });
   await page.keyboard.press("1");
@@ -114,7 +115,7 @@ test("the Mate path asks four questions one per screen and shows a short plan be
   await expect(page.getByText(englishMessages.Common.errors.mustNotBeBlank, { exact: true })).toBeVisible();
   await expect(heading(page, setup.questions.purpose.label)).toBeVisible();
   await clickHydrated(page.locator("#setup-purpose-deals"));
-  await expect(progress).toHaveText(wizard.questionProgress.replace("{current}", "2").replace("{total}", "4"));
+  await expect(progress).toHaveText(stepTwo);
   await clickHydrated(page.locator("#setup-question-continue"));
 
   await expect(heading(page, setup.questions.mainSteps.label)).toBeVisible();

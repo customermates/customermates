@@ -55,7 +55,7 @@ function OnboardingSkeletonSurface({ animated, children }: { animated: boolean; 
       <GridPattern />
 
       <div className="relative z-10 size-full min-h-0">
-        <CenteredCardPageSkeleton align="top" animated={animated} maxWidth="xl">
+        <CenteredCardPageSkeleton align="steps" animated={animated} maxWidth="xl">
           {children}
         </CenteredCardPageSkeleton>
       </div>

@@ -100,6 +100,7 @@ const ChoiceRows = observer(function ChoiceRows({
       {options.map((option, index) => (
         <SelectableCard
           key={option.id}
+          centeredControl
           disabled={store.isBusy}
           id={`setup-${part.id}-${option.id}`}
           label={option.label}
@@ -142,6 +143,7 @@ const CheckRows = observer(function CheckRows({
       {shown.map((option) => (
         <SelectableCard
           key={option.id}
+          centeredControl
           checked={values.includes(option.id)}
           disabled={store.isBusy}
           id={`setup-${part.id}-${option.id}`}
@@ -157,6 +159,7 @@ const CheckRows = observer(function CheckRows({
       {custom.map((entry, index) => (
         <SelectableCard
           key={entry}
+          centeredControl
           checked
           disabled={store.isBusy}
           id={`setup-${part.id}-custom-${index}`}

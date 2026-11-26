@@ -9,6 +9,7 @@ import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
   badge?: ReactNode;
+  centeredControl?: boolean;
   description?: string;
   disabled?: boolean;
   eyebrow?: ReactNode;
@@ -36,8 +37,20 @@ const DESCRIPTION_CLASS = "text-xs font-normal leading-relaxed text-muted-foregr
 const EYEBROW_CLASS = "text-[11px] font-medium tracking-wide text-muted-foreground uppercase";
 
 export function SelectableCard(props: Props) {
-  const { badge, description, disabled, eyebrow, id, label, labelClassName, leading, selectionMode, visual } = props;
-  const controlClassName = "peer absolute left-3 top-3 z-10";
+  const {
+    badge,
+    centeredControl,
+    description,
+    disabled,
+    eyebrow,
+    id,
+    label,
+    labelClassName,
+    leading,
+    selectionMode,
+    visual,
+  } = props;
+  const controlClassName = cn("peer absolute left-3 z-10", centeredControl ? "top-1/2 -translate-y-1/2" : "top-3");
   const name = (
     <span className="min-w-0 max-w-full text-sm leading-snug font-medium wrap-anywhere text-foreground">{label}</span>
   );

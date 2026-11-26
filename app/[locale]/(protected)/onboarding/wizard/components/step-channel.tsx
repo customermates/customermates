@@ -288,6 +288,7 @@ export const StepChannelFooter = observer(() => {
       <div className={`${WIZARD_FOOTER_GROUP_CLASS} justify-end`}>
         {hasChannel ? null : (
           <Button
+            className="min-h-11"
             disabled={disabled}
             id="onboarding-channel-skip"
             type="button"
@@ -299,7 +300,7 @@ export const StepChannelFooter = observer(() => {
         )}
 
         <Button
-          className="max-sm:disabled:hidden"
+          className="min-h-11 max-sm:disabled:hidden"
           disabled={disabled || !hasChannel}
           id="onboarding-channel-continue"
           type="button"

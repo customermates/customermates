@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { AuthMethod, AuthMethodState } from "./auth-method-state";
 
-import { KeyRound, LockKeyhole, MailCheck, Mail } from "lucide-react";
+import { KeyRound, LockKeyhole, Mail } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import { availableAuthMethods } from "./auth-method-state";
 import SignInProviderButton from "./sign-in-provider-button";
 
 import { FormInput } from "@/components/forms/form-input";
+import { EmailSentNotice } from "@/components/shared/email-sent-notice";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -64,7 +65,17 @@ export const AuthMethodTabs = observer(
               <>
                 <Icon aria-hidden className="me-1.5 inline size-3.5 align-[-2px] max-sm:hidden" />
 
-                {labels[method]}
+                {method === "sso" ? (
+                  <>
+                    <span className="max-sm:sr-only">{labels.sso}</span>
+
+                    <span aria-hidden className="sm:hidden">
+                      {t("AuthMethods.tabs.ssoShort")}
+                    </span>
+                  </>
+                ) : (
+                  labels[method]
+                )}
               </>
             ),
           };
@@ -101,15 +112,10 @@ export const AuthMethodTabs = observer(
 
         <SegmentedControlPanel className="flex flex-col gap-4 pt-1" value="magicLink">
           {state.magicLinkSentTo ? (
-            <div className="flex flex-col items-center gap-2 py-2 text-center" role="status">
-              <MailCheck aria-hidden className="size-8 text-primary" />
-
-              <p className="text-x-md font-medium">{t("AuthMethods.magicLink.sentTitle")}</p>
-
-              <p className="text-x-sm text-subdued [overflow-wrap:anywhere]">
-                {t("AuthMethods.magicLink.sentBody", { email: state.magicLinkSentTo })}
-              </p>
-            </div>
+            <EmailSentNotice
+              body={t("AuthMethods.magicLink.sentBody", { email: state.magicLinkSentTo })}
+              title={t("AuthMethods.magicLink.sentTitle")}
+            />
           ) : (
             <>
               <FormInput required id="email" type="email" />
