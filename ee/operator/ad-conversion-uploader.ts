@@ -31,8 +31,6 @@ function result(
 
 export type AdConversionUploadTrigger = AdConversionUploadAudit["trigger"];
 
-// One upload run, shared by the operator console button and the daily lifecycle cron. Callers supply the
-// context: an operator session for the button, a system (tenantless) context for the cron.
 export class AdConversionUploader {
   constructor(
     private readonly candidates: GetAdConversionExportRepo,

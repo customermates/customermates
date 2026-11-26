@@ -2,8 +2,6 @@ import type { AdConversionUploadDto } from "./ad-conversion-upload.schema";
 import type { AdConversionUploadMode } from "@/generated/prisma";
 
 export type AdConversionUploadAudit = {
-  // "operator" runs inside an operator session and is attributed to that operator; "cron" is the daily
-  // lifecycle run and is attributed to AD_CONVERSION_UPLOAD_CRON_ACTOR.
   trigger: "operator" | "cron";
   mode: AdConversionUploadMode;
   status: Extract<AdConversionUploadDto["status"], "authorizationFailed" | "unavailable" | "nothingToSend" | "sent">;

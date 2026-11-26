@@ -6,10 +6,6 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 
 const REPORT_TAGS = { kind: "lifecycle-step", step: "uploadAdConversions" } as const;
 
-// Daily upload of offline Google Ads conversions from the lifecycle cron. It runs the same upload as the
-// operator console button (ledger claim, audit row, validate vs ingest), returns quietly when the upload
-// is disabled or not fully configured, and never throws: failures go to the error reporter and the next
-// daily run retries whatever the ledger did not settle.
 @SystemInteractor
 export class UploadAdConversionsSystemInteractor {
   constructor(private readonly uploader: AdConversionUploader) {}
