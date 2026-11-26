@@ -4359,8 +4359,7 @@
       "toneOfVoice": "## Meu jeito de escrever\nPessoal, direto e confiável. Escrevo em meu próprio nome, na primeira pessoa.\n\n## Regras\n- Mensagens curtas, um assunto por mensagem.\n- Manter o tom formal até o cliente usar o primeiro nome e, então, fazer o mesmo.\n- Ser concreto sobre disponibilidade, preço e próximos passos.\n- Simpático, mas sem parágrafos de conversa fiada antes do ponto principal.\n- Sem emojis em uma primeira mensagem; depois, acompanhar o cliente."
     },
     "guide": {
-      "intro": "Este espaço de trabalho começou com o playbook {playbook}. O Mate lê estas páginas antes de redigir uma resposta ou sugerir um próximo passo. Edite-as até soarem como você: seus serviços, seus preços e seu jeito de escrever.",
-      "pagesHeading": "Páginas da Base de conhecimento"
+      "intro": "Este espaço de trabalho começou com o playbook {playbook}. O Mate lê estas páginas antes de redigir uma resposta ou sugerir um próximo passo. Edite-as até soarem como você: seus serviços, seus preços e seu jeito de escrever."
     },
     "pages": {
       "followUps": "Regras de follow-up",
@@ -4541,22 +4540,9 @@
       "title": "Confirme seu e-mail para começar",
       "waiting": "Aguardando sua confirmação"
     },
-    "connect": {
-      "checkAgain": "Verificar novamente",
-      "connected": "Conectado. Seu agente chegou a este espaço de trabalho.",
-      "failed": "Não foi possível verificar a conexão. Tente novamente em instantes.",
-      "skip": "Conectar depois",
-      "statusLabel": "Status da conexão",
-      "waiting": "Aguardando a primeira chamada de {agent}. A marca aparece sozinha assim que {agent} estiver conectado.",
-      "waitingGeneric": "Aguardando a primeira chamada do seu agente. A marca aparece sozinha assim que seu agente estiver conectado."
-    },
     "continue": "Continuar",
     "finish": "Abrir o espaço de trabalho",
     "goal": {
-      "agent": {
-        "title": "Meu próprio agente de IA",
-        "worksWith": "Claude, ChatGPT, Gemini, Cursor ou qualquer cliente MCP"
-      },
       "channelsHint": {
         "action": "Abrir painel",
         "connectedDescription": "O Mate vai redigir respostas na sua caixa de entrada conforme suas conversas chegarem. Os próximos passos aparecem no seu painel.",
@@ -4574,36 +4560,7 @@
         "salesNavigator": "Você usa o Sales Navigator? Conecte o LinkedIn com o Sales Navigator em vez disso",
         "title": "Conecte o LinkedIn primeiro"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "O Mate roda no Customermates Cloud. Seu primeiro espaço cloud elegível ganha {days} dias de Pro, sem cartão. Abre um espaço cloud separado.",
-        "opened": "Abrimos o Customermates Cloud em uma nova aba. Nada desta instância foi enviado para lá. Você pode continuar a configuração aqui.",
-        "title": "Prefere o Mate? Experimente a nuvem gerenciada"
-      },
-      "fastest": "Mais rápido",
-      "followup": {
-        "description": "Escolha um playbook, conecte o LinkedIn e veja quem está esperando uma resposta.",
-        "title": "Acompanhar conversas com clientes"
-      },
-      "optionsLabel": "Primeiros passos",
-      "suggested": "Sugerido",
-      "workspace": {
-        "description": "{count} perguntas rápidas e o Mate monta tudo.",
-        "title": "Mate, em cerca de um minuto"
-      }
-    },
-    "handoff": {
-      "changed": "Seu agente começou a montar. Abra seu espaço de trabalho para acompanhar.",
-      "connected": "{agent} está conectado",
-      "connectedGeneric": "Seu agente está conectado",
-      "copied": "Copiado",
-      "copy": "Copiar",
-      "openIn": "Abrir no {agent}",
-      "prompt": "Configure meu espaço de trabalho do Customermates {workspace}.",
-      "promptGeneric": "Configure meu espaço de trabalho do Customermates.",
-      "promptLabel": "Mensagem para seu agente",
-      "watching": "Aguardando a primeira alteração do {agent}",
-      "watchingGeneric": "Aguardando a primeira alteração do seu agente"
+      "suggested": "Sugerido"
     },
     "invite": {
       "captions": {
@@ -4667,22 +4624,8 @@
         "subtitle": "Suas conversas ficam junto de cada cliente, prontas para rascunhos e acompanhamentos. Nada é enviado sem você, e você pode pular esta etapa.",
         "title": "Conecte o canal por onde seus clientes escrevem para você"
       },
-      "connect": {
-        "subtitle": "Escolha-o e siga as etapas. Leva cerca de um minuto.",
-        "title": "Qual agente você usa?"
-      },
       "finish": {
         "title": "Abrindo seu espaço de trabalho"
-      },
-      "goal": {
-        "subtitleSelfHosted": "Seus dados ficam no seu servidor. Seu próprio agente se conecta por MCP e monta o espaço de trabalho a partir de um modelo.",
-        "title": "Quem deve montar seu espaço de trabalho?",
-        "titleSelfHosted": "Como devemos configurar esta instância?"
-      },
-      "handoff": {
-        "subtitle": "Envie esta linha. Seu agente escolhe um modelo com você e mostra o plano antes de mudar qualquer coisa.",
-        "title": "Deixe o {agent} montar",
-        "titleGeneric": "Deixe seu agente montar"
       },
       "invite": {
         "subtitle": "Compartilhe o link ou convide por e-mail. Você também pode fazer isso depois.",
@@ -7256,6 +7199,13 @@
         "wins": "Onde os clientes nos escolhem em vez de {competitor}"
       },
       "gapsHeading": "Lacunas a confirmar",
+      "links": {
+        "guides": "Guias",
+        "knowledge": "Conhecimento",
+        "lists": "Listas",
+        "procedures": "Procedimentos",
+        "related": "Relacionado"
+      },
       "pagesHeading": "Páginas da base de conhecimento",
       "roles": {
         "company_overview": "Visão geral da empresa",

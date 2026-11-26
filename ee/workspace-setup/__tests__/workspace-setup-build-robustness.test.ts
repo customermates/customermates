@@ -18,6 +18,7 @@ import type {
 } from "../workspace-setup.schema";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { extractWikiLinkTargets } from "@/features/wiki/wiki-link-targets";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 
@@ -112,6 +113,7 @@ function memoryRepo(initial: WorkspaceSetupRecord) {
 function buildService(
   repo: ReturnType<typeof memoryRepo>,
   postalCodes = { lookup: vi.fn(() => Promise.resolve({ status: "unavailable" as const })) },
+  wiki: { readPage?: { invoke: ReturnType<typeof vi.fn> }; updatePage?: { invoke: ReturnType<typeof vi.fn> } } = {},
 ) {
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const records = {
@@ -136,6 +138,9 @@ function buildService(
     createPages as never,
     unused,
     postalCodes as never,
+    undefined,
+    wiki.readPage as never,
+    wiki.updatePage as never,
   );
   return { service, models, records, createPages, importSpreadsheet };
 }
@@ -284,6 +289,7 @@ describe("writing the Knowledge Base from the answers", () => {
     const intendedAt = ago(30_000);
     const repo = memoryRepo(
       setupRecord({
+        phases: { ...setupRecord().phases, dataModel: phase({ status: "completed" }) },
         artifacts: {
           answerPages: {
             planned: keys.length,
@@ -322,6 +328,142 @@ describe("writing the Knowledge Base from the answers", () => {
     await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, RUN_ID));
     expect(repo.findWikiPageCreatedSince).toHaveBeenCalledWith("Lost page", expect.any(Date));
     expect(models.generate.mock.calls.some(([args]) => String(args.prompt).includes("Page title:"))).toBe(true);
+  });
+
+  const LIST_IDS: Record<string, string> = {
+    contact: "2a000000-0000-4000-8000-000000000001",
+    organization: "2a000000-0000-4000-8000-000000000002",
+    deal: "2a000000-0000-4000-8000-000000000003",
+    service: "2a000000-0000-4000-8000-000000000004",
+    task: "2a000000-0000-4000-8000-000000000005",
+    project: "2a000000-0000-4000-8000-000000000006",
+  };
+  const customerAnswers = {
+    ...answers,
+    workWith: { source: "user", confidence: 1, value: { format: "singleChoice", value: "clients" } },
+  } as unknown as WorkspaceSetupRecord["answers"];
+
+  function wikiWorld() {
+    const pages = new Map<string, { id: string; title: string; kind: string; markdown: string; updatedAt: Date }>();
+    let next = 0;
+    const createPages = {
+      invoke: vi.fn(({ pages: input }: { pages: Array<{ title: string; kind?: string; markdown: string }> }) => {
+        const created = input.map((page) => {
+          next += 1;
+          const id = `3b000000-0000-4000-8000-${String(next).padStart(12, "0")}`;
+          const stored = { id, title: page.title, kind: page.kind ?? "knowledge", markdown: page.markdown, updatedAt: new Date() };
+          pages.set(id, stored);
+          return stored;
+        });
+        return Promise.resolve({ ok: true, data: created });
+      }),
+    };
+    const readPage = {
+      invoke: vi.fn(({ id }: { id: string }) => Promise.resolve({ ok: true, data: { ...pages.get(id) } })),
+    };
+    const updatePage = {
+      invoke: vi.fn(({ id, markdown }: { id: string; markdown: string }) => {
+        const page = pages.get(id);
+        if (page) pages.set(id, { ...page, markdown, updatedAt: new Date() });
+        return Promise.resolve({ ok: true, data: pages.get(id) });
+      }),
+    };
+    return { pages, createPages, readPage, updatePage };
+  }
+
+  function builtSetup(dataModel: StoredSetupPhase["status"]) {
+    return setupRecord({
+      answers: customerAnswers,
+      phases: { ...setupRecord().phases, dataModel: phase({ status: dataModel }) },
+      results: {
+        colors: null,
+        lists: plan.recordModel.lists.map((list) => ({
+          id: LIST_IDS[list.key],
+          key: list.key,
+          name: list.label,
+          pluralName: list.pluralLabel,
+          icon: list.icon,
+          color: null,
+          stages: [],
+        })),
+        views: [],
+        records: [],
+        widgets: [],
+        pages: [],
+      },
+    });
+  }
+
+  function draftingModels(models: { generate: ReturnType<typeof vi.fn> }) {
+    models.generate.mockResolvedValue({
+      ok: true,
+      value: {
+        whenToUse: "When a new inquiry arrives",
+        sections: [
+          { heading: "Who we are", evidence: [{ source: "answers", quote: "Studio Example" }], content: "Studio Example." },
+        ],
+        gaps: [],
+      },
+    });
+  }
+
+  it("waits for the data model before it writes the guide and links the pages", async () => {
+    const world = wikiWorld();
+    const repo = memoryRepo(builtSetup("running"));
+    const built = buildService(repo, undefined, { readPage: world.readPage, updatePage: world.updatePage });
+    built.createPages.invoke.mockImplementation(world.createPages.invoke);
+    draftingModels(built.models);
+
+    expect(await run(() => built.service.runPhase(SETUP_ID, "knowledgeBase", false, RUN_ID))).toBe("wait");
+    expect([...world.pages.values()].some((page) => page.kind === "guide")).toBe(false);
+    expect(world.updatePage.invoke).not.toHaveBeenCalled();
+  });
+
+  it("weaves the written pages, the guide and the built lists into one web without orphans", async () => {
+    const world = wikiWorld();
+    const repo = memoryRepo(builtSetup("completed"));
+    const built = buildService(repo, undefined, { readPage: world.readPage, updatePage: world.updatePage });
+    built.createPages.invoke.mockImplementation(world.createPages.invoke);
+    draftingModels(built.models);
+
+    expect(await run(() => built.service.runPhase(SETUP_ID, "knowledgeBase", false, RUN_ID))).toBe("settled");
+    expect(repo.store.setup.phases.knowledgeBase?.status).toBe("completed");
+
+    const all = [...world.pages.values()];
+    const guide = all.find((page) => page.kind === "guide");
+    if (!guide) throw new Error("no guide written");
+    expect(all.length).toBeGreaterThan(4);
+    const pageIds = new Set(all.map((page) => page.id));
+    const listIds = new Set(Object.values(LIST_IDS));
+    const links = new Map(
+      all.map((page) => [
+        page.id,
+        extractWikiLinkTargets(page.markdown, {
+          baseUrl: "https://app.example.test",
+          workspaceSlug: null,
+          pageId: page.id,
+        }),
+      ]),
+    );
+    for (const page of all) {
+      const own = links.get(page.id);
+      expect(own?.pages.length).toBeGreaterThan(0);
+      expect(own?.pages.every((target) => pageIds.has(target))).toBe(true);
+      expect(own?.lists.every((target) => listIds.has(target))).toBe(true);
+      expect([...links].some(([source, targets]) => source !== page.id && targets.pages.includes(page.id))).toBe(true);
+    }
+    const fromGuide = links.get(guide.id);
+    expect(fromGuide?.pages.sort()).toEqual(all.filter((page) => page.id !== guide.id).map((page) => page.id).sort());
+    expect(fromGuide?.lists.sort()).toEqual([...listIds].sort());
+    for (const page of all.filter((candidate) => candidate.id !== guide.id))
+      expect(links.get(page.id)?.pages).toContain(guide.id);
+    const dealLinked = all.filter((page) => links.get(page.id)?.lists.includes(LIST_IDS.deal));
+    expect(dealLinked.length).toBeGreaterThan(1);
+    expect(all.some((page) => page.id !== guide.id && links.get(page.id)?.lists.includes(LIST_IDS.contact))).toBe(true);
+
+    const updates = world.updatePage.invoke.mock.calls.length;
+    expect(await run(() => built.service.runPhase(SETUP_ID, "knowledgeBase", false, "run-b"))).not.toBe("wait");
+    expect(world.updatePage.invoke.mock.calls.length).toBe(updates);
   });
 });
 

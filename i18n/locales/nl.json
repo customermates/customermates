@@ -4359,8 +4359,7 @@
       "toneOfVoice": "## Hoe ik klink\nPersoonlijk, direct en betrouwbaar. Ik schrijf als mezelf, in de ik-vorm.\n\n## Regels\n- Korte berichten, elk over één onderwerp.\n- Blijf formeel tot de klant voornamen gebruikt en doe dan hetzelfde.\n- Wees concreet over beschikbaarheid, prijs en volgende stappen.\n- Vriendelijk, maar geen alinea's small talk voordat ik ter zake kom.\n- Geen emoji's in een eerste bericht; spiegel daarna de klant."
     },
     "guide": {
-      "intro": "Deze werkruimte is gestart vanuit het playbook {playbook}. Mate leest deze pagina's voordat Mate een antwoord opstelt of een volgende stap voorstelt. Pas ze aan tot ze klinken als jij: jouw diensten, jouw prijzen en jouw manier van schrijven.",
-      "pagesHeading": "Pagina's in de Kennisbank"
+      "intro": "Deze werkruimte is gestart vanuit het playbook {playbook}. Mate leest deze pagina's voordat Mate een antwoord opstelt of een volgende stap voorstelt. Pas ze aan tot ze klinken als jij: jouw diensten, jouw prijzen en jouw manier van schrijven."
     },
     "pages": {
       "followUps": "Opvolgregels",
@@ -4541,22 +4540,9 @@
       "title": "Bevestig je e-mailadres om te beginnen",
       "waiting": "We wachten op je bevestiging"
     },
-    "connect": {
-      "checkAgain": "Opnieuw controleren",
-      "connected": "Verbonden. Je agent heeft deze werkruimte bereikt.",
-      "failed": "We konden de verbinding niet controleren. Probeer het zo opnieuw.",
-      "skip": "Later verbinden",
-      "statusLabel": "Verbindingsstatus",
-      "waiting": "Wachten op de eerste aanroep van {agent}. Het vinkje verschijnt vanzelf zodra {agent} is verbonden.",
-      "waitingGeneric": "Wachten op de eerste aanroep van je agent. Het vinkje verschijnt vanzelf zodra je agent is verbonden."
-    },
     "continue": "Doorgaan",
     "finish": "Werkruimte openen",
     "goal": {
-      "agent": {
-        "title": "Mijn eigen AI-agent",
-        "worksWith": "Claude, ChatGPT, Gemini, Cursor of elke MCP-client"
-      },
       "channelsHint": {
         "action": "Dashboard openen",
         "connectedDescription": "Mate schrijft conceptantwoorden in je inbox zodra er gesprekken binnenkomen. De volgende stappen verschijnen op je dashboard.",
@@ -4574,36 +4560,7 @@
         "salesNavigator": "Gebruik je Sales Navigator? Koppel LinkedIn dan met Sales Navigator",
         "title": "Koppel eerst LinkedIn"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate draait in Customermates Cloud. Je eerste in aanmerking komende cloudwerkruimte krijgt {days} dagen Pro, zonder kaart. Opent een aparte cloudwerkruimte.",
-        "opened": "We hebben Customermates Cloud in een nieuw tabblad geopend. Er is niets van deze instantie naartoe gestuurd. Je kunt hier verder inrichten.",
-        "title": "Liever Mate? Probeer de beheerde cloud"
-      },
-      "fastest": "Snelst",
-      "followup": {
-        "description": "Kies een playbook, koppel LinkedIn en zie wie op een antwoord wacht.",
-        "title": "Klantgesprekken opvolgen"
-      },
-      "optionsLabel": "Eerste stappen",
-      "suggested": "Voorgesteld",
-      "workspace": {
-        "description": "{count} korte vragen, daarna bouwt Mate hem.",
-        "title": "Mate, in ongeveer een minuut"
-      }
-    },
-    "handoff": {
-      "changed": "Je agent is begonnen met bouwen. Open je workspace om mee te kijken.",
-      "connected": "{agent} is verbonden",
-      "connectedGeneric": "Je agent is verbonden",
-      "copied": "Gekopieerd",
-      "copy": "Kopiëren",
-      "openIn": "Openen in {agent}",
-      "prompt": "Richt mijn Customermates-workspace {workspace} in.",
-      "promptGeneric": "Richt mijn Customermates-workspace in.",
-      "promptLabel": "Bericht voor je agent",
-      "watching": "We wachten op de eerste wijziging van {agent}",
-      "watchingGeneric": "We wachten op de eerste wijziging van je agent"
+      "suggested": "Voorgesteld"
     },
     "invite": {
       "captions": {
@@ -4667,22 +4624,8 @@
         "subtitle": "Je gesprekken staan dan bij elke klant, klaar voor concepten en opvolging. Er wordt niets verstuurd zonder jou, en je kunt deze stap overslaan.",
         "title": "Koppel het kanaal waarop je klanten je schrijven"
       },
-      "connect": {
-        "subtitle": "Kies hem en volg de stappen. Het duurt ongeveer een minuut.",
-        "title": "Welke agent gebruik je?"
-      },
       "finish": {
         "title": "Je workspace wordt geopend"
-      },
-      "goal": {
-        "subtitleSelfHosted": "Je gegevens blijven op je eigen server. Je eigen agent koppelt via MCP en bouwt de werkruimte uit een sjabloon.",
-        "title": "Wie moet je workspace bouwen?",
-        "titleSelfHosted": "Hoe richten we deze instantie in?"
-      },
-      "handoff": {
-        "subtitle": "Stuur deze regel. Je agent kiest samen met jou een sjabloon en toont het plan voordat hij iets wijzigt.",
-        "title": "Laat {agent} hem bouwen",
-        "titleGeneric": "Laat je agent hem bouwen"
       },
       "invite": {
         "subtitle": "Deel de link of nodig uit per e-mail. Dat kan ook later.",
@@ -7256,6 +7199,13 @@
         "wins": "Waar klanten voor ons kiezen in plaats van {competitor}"
       },
       "gapsHeading": "Nog te bevestigen",
+      "links": {
+        "guides": "Handleidingen",
+        "knowledge": "Kennis",
+        "lists": "Lijsten",
+        "procedures": "Procedures",
+        "related": "Zie ook"
+      },
       "pagesHeading": "Kennisbank-pagina's",
       "roles": {
         "company_overview": "Bedrijfsoverzicht",

@@ -4359,8 +4359,7 @@
       "toneOfVoice": "## So klinge ich\nPersönlich, direkt und verlässlich. Ich schreibe als ich selbst, in der ersten Person.\n\n## Regeln\n- Kurze Nachrichten, je ein Thema.\n- Siezen, bis der Kunde das Du anbietet, dann ebenfalls duzen.\n- Konkret sein bei Verfügbarkeit, Preis und nächsten Schritten.\n- Freundlich, aber ohne Absätze voller Small Talk vor dem eigentlichen Punkt.\n- Keine Emojis in einer ersten Nachricht, danach am Kunden orientieren."
     },
     "guide": {
-      "intro": "Dieser Workspace startete mit dem Playbook {playbook}. Mate liest diese Seiten, bevor es eine Antwort entwirft oder einen nächsten Schritt vorschlägt. Passe sie an, bis sie nach dir klingen: deine Leistungen, deine Preise und deine Art zu schreiben.",
-      "pagesHeading": "Wissensdatenbank-Seiten"
+      "intro": "Dieser Workspace startete mit dem Playbook {playbook}. Mate liest diese Seiten, bevor es eine Antwort entwirft oder einen nächsten Schritt vorschlägt. Passe sie an, bis sie nach dir klingen: deine Leistungen, deine Preise und deine Art zu schreiben."
     },
     "pages": {
       "followUps": "Regeln zum Nachfassen",
@@ -4541,22 +4540,9 @@
       "title": "Bestätige deine E-Mail-Adresse, um loszulegen",
       "waiting": "Wir warten auf deine Bestätigung"
     },
-    "connect": {
-      "checkAgain": "Erneut prüfen",
-      "connected": "Verbunden. Dein Agent hat diesen Workspace erreicht.",
-      "failed": "Wir konnten die Verbindung nicht prüfen. Versuche es gleich noch einmal.",
-      "skip": "Später verbinden",
-      "statusLabel": "Verbindungsstatus",
-      "waiting": "Warte auf den ersten Aufruf von {agent}. Das Häkchen erscheint von selbst, sobald {agent} verbunden ist.",
-      "waitingGeneric": "Warte auf den ersten Aufruf deines Agenten. Das Häkchen erscheint von selbst, sobald dein Agent verbunden ist."
-    },
     "continue": "Weiter",
     "finish": "Workspace öffnen",
     "goal": {
-      "agent": {
-        "title": "Mein eigener KI-Agent",
-        "worksWith": "Claude, ChatGPT, Gemini, Cursor oder jeder MCP-Client"
-      },
       "channelsHint": {
         "action": "Dashboard öffnen",
         "connectedDescription": "Mate entwirft Antworten in deinem Posteingang, sobald deine Gespräche ankommen. Die nächsten Schritte landen auf deinem Dashboard.",
@@ -4574,36 +4560,7 @@
         "salesNavigator": "Du nutzt Sales Navigator? Verbinde LinkedIn stattdessen mit Sales Navigator",
         "title": "Verbinde zuerst LinkedIn"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate läuft in Customermates Cloud. Dein erster berechtigter Cloud-Workspace erhält {days} Tage Pro, ganz ohne Karte. Öffnet einen separaten Cloud-Workspace.",
-        "opened": "Wir haben Customermates Cloud in einem neuen Tab geöffnet. Von dieser Instanz wurde nichts dorthin gesendet. Du kannst hier weiter einrichten.",
-        "title": "Lieber Mate? Teste die verwaltete Cloud"
-      },
-      "fastest": "Am schnellsten",
-      "followup": {
-        "description": "Wähle ein Playbook, verbinde LinkedIn und sieh, wer auf eine Antwort wartet.",
-        "title": "Bei Kundengesprächen nachfassen"
-      },
-      "optionsLabel": "Erste Schritte",
-      "suggested": "Vorgeschlagen",
-      "workspace": {
-        "description": "{count} kurze Fragen, dann baut Mate ihn auf.",
-        "title": "Mate, in etwa einer Minute"
-      }
-    },
-    "handoff": {
-      "changed": "Dein Agent hat angefangen. Öffne deinen Workspace, um zuzusehen.",
-      "connected": "{agent} ist verbunden",
-      "connectedGeneric": "Dein Agent ist verbunden",
-      "copied": "Kopiert",
-      "copy": "Kopieren",
-      "openIn": "In {agent} öffnen",
-      "prompt": "Richte meinen Customermates-Workspace {workspace} ein.",
-      "promptGeneric": "Richte meinen Customermates-Workspace ein.",
-      "promptLabel": "Nachricht für deinen Agenten",
-      "watching": "Wir warten auf die erste Änderung von {agent}",
-      "watchingGeneric": "Wir warten auf die erste Änderung deines Agenten"
+      "suggested": "Vorgeschlagen"
     },
     "invite": {
       "captions": {
@@ -4667,22 +4624,8 @@
         "subtitle": "Deine Gespräche liegen dann bei jedem Kunden, bereit für Entwürfe und zum Nachfassen. Ohne dich wird nichts gesendet, und du kannst diesen Schritt überspringen.",
         "title": "Verbinde den Kanal, über den deine Kunden dir schreiben"
       },
-      "connect": {
-        "subtitle": "Wähle ihn aus und folge den Schritten. Das dauert etwa eine Minute.",
-        "title": "Welchen Agenten nutzt du?"
-      },
       "finish": {
         "title": "Dein Workspace wird geöffnet"
-      },
-      "goal": {
-        "subtitleSelfHosted": "Deine Daten bleiben auf deinem Server. Dein eigener Agent verbindet sich über MCP und baut den Workspace aus einer Vorlage.",
-        "title": "Wer soll deinen Workspace aufbauen?",
-        "titleSelfHosted": "Wie sollen wir diese Instanz einrichten?"
-      },
-      "handoff": {
-        "subtitle": "Sende diese eine Zeile. Dein Agent wählt mit dir eine Vorlage und zeigt dir den Plan, bevor er etwas ändert.",
-        "title": "Lass {agent} den Workspace aufbauen",
-        "titleGeneric": "Lass deinen Agenten den Workspace aufbauen"
       },
       "invite": {
         "subtitle": "Teile den Link oder lade per E-Mail ein. Das geht auch später.",
@@ -7256,6 +7199,13 @@
         "wins": "Warum sich Kunden für uns statt für {competitor} entscheiden"
       },
       "gapsHeading": "Noch zu klären",
+      "links": {
+        "guides": "Leitfäden",
+        "knowledge": "Wissen",
+        "lists": "Listen",
+        "procedures": "Verfahren",
+        "related": "Siehe auch"
+      },
       "pagesHeading": "Wissensdatenbank-Seiten",
       "roles": {
         "company_overview": "Unternehmensüberblick",

@@ -271,7 +271,6 @@ import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/rec
 import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
 import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
 import { RecordChannelSkippedInteractor } from "@/features/onboarding-funnel/record-channel-skipped.interactor";
-import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -1389,6 +1388,7 @@ export const getApplyOnboardingPlaybookInteractor = () =>
     getUserRepo(),
     getUserRepo(),
     getRouteGuardService(),
+    getUpdateWikiPageInteractor(),
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
 export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
@@ -1396,14 +1396,12 @@ export const getRecordChannelSkippedInteractor = () =>
   new RecordChannelSkippedInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getRecordDiscoveryAnswerInteractor = () =>
   new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
-export const getGetOnboardingAgentStatusInteractor = () =>
-  new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
-  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService());
 
 export const getSaveOnboardingWizardProgressInteractor = () =>
-  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -2948,6 +2946,8 @@ export const getWorkspaceSetupBuildService = () =>
     getSavePlannerInteractor(),
     getPostalCodeService(),
     getShareDataViewInteractor(),
+    getGetWikiPageInteractor(),
+    getUpdateWikiPageInteractor(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(

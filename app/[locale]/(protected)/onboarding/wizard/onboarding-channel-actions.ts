@@ -2,13 +2,9 @@
 
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 
-import { getGetOnboardingAgentStatusInteractor, getRecordChannelSkippedInteractor } from "@/core/di";
+import { getRecordChannelSkippedInteractor } from "@/core/di";
 import { serializeTypedResult } from "@/core/utils/action-result";
 import { startConnectAccountAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/channels/actions";
-
-export async function getOnboardingAgentStatusAction() {
-  return serializeTypedResult(getGetOnboardingAgentStatusInteractor().invoke());
-}
 
 export async function recordChannelSkippedAction() {
   return serializeTypedResult(getRecordChannelSkippedInteractor().invoke());

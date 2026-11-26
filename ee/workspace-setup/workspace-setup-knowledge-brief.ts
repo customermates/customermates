@@ -17,6 +17,11 @@ export type SetupPageCopy = {
   sourcesHeading: string;
   gapsHeading: string;
   pagesHeading: string;
+  guidesHeading: string;
+  proceduresHeading: string;
+  knowledgeHeading: string;
+  listsHeading: string;
+  relatedHeading: string;
   answersSource: (date: string) => string;
 };
 
@@ -37,6 +42,11 @@ export async function setupPageTitles(locale: string): Promise<SetupPageCopy> {
     sourcesHeading: t("sourcesHeading"),
     gapsHeading: t("gapsHeading"),
     pagesHeading: t("pagesHeading"),
+    guidesHeading: t("links.guides"),
+    proceduresHeading: t("links.procedures"),
+    knowledgeHeading: t("links.knowledge"),
+    listsHeading: t("links.lists"),
+    relatedHeading: t("links.related"),
     answersSource: (date) => t("answersSource", { date }),
     title: (kind) => titles[kind],
   };

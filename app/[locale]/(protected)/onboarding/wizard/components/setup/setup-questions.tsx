@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppCardFooter } from "@/components/card/app-card-footer";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Kbd } from "@/components/keyboard/shortcut-keys";
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { Button } from "@/components/ui/button";
@@ -290,6 +291,41 @@ export const SetupQuestions = observer(function SetupQuestions() {
   );
 });
 
+const StartEmptyAction = observer(function StartEmptyAction() {
+  const t = useTranslations();
+  const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
+  const [confirming, setConfirming] = useState(false);
+
+  return (
+    <>
+      <Button
+        className="min-h-11 text-muted-foreground"
+        disabled={store.isBusy || wizard.isBusy}
+        id="setup-start-empty"
+        type="button"
+        variant="ghost"
+        onClick={() => setConfirming(true)}
+      >
+        {t("WorkspaceSetup.empty.action")}
+      </Button>
+
+      <ConfirmDialog
+        anchorScope="setup-start-empty-confirm"
+        confirmLabel={t("WorkspaceSetup.empty.confirm")}
+        confirmVariant="default"
+        description={t("WorkspaceSetup.empty.description")}
+        open={confirming}
+        title={t("WorkspaceSetup.empty.title")}
+        onCancel={() => setConfirming(false)}
+        onConfirm={async () => {
+          setConfirming(false);
+          await wizard.startEmptyWorkspace();
+        }}
+      />
+    </>
+  );
+});
+
 export const SetupQuestionsFooter = observer(function SetupQuestionsFooter() {
   const t = useTranslations();
   const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
@@ -318,7 +354,7 @@ export const SetupQuestionsFooter = observer(function SetupQuestionsFooter() {
           {t("Common.actions.back")}
         </Button>
       ) : (
-        <span />
+        <StartEmptyAction />
       )}
 
       <div className={cn(WIZARD_FOOTER_GROUP_CLASS, "justify-end")}>

@@ -97,7 +97,29 @@ describe("SetupQuestions", () => {
     expect(store.currentQuestion.id).toBe("purpose");
   });
 
-  it("goes back to the previous wizard step from the first question", () => {
+  it("offers starting empty instead of Back on the first question right after the profile", async () => {
+    const startEmptyWorkspace = vi.fn().mockResolvedValue(undefined);
+    harness.rootStore = {
+      workspaceSetupStore: store,
+      onboardingWizardStore: { isFirstStep: true, isBusy: false, back: harness.back, startEmptyWorkspace },
+    };
+    render();
+
+    expect(button("Common.actions.back")).toBeUndefined();
+    act(() => container.querySelector<HTMLButtonElement>("#setup-start-empty")?.click());
+    const confirm = [...document.body.querySelectorAll<HTMLButtonElement>("button")].find(
+      (candidate) => candidate.textContent?.trim() === "WorkspaceSetup.empty.confirm",
+    );
+    expect(confirm).toBeDefined();
+    await act(async () => {
+      confirm?.click();
+      await Promise.resolve();
+    });
+
+    expect(startEmptyWorkspace).toHaveBeenCalledOnce();
+  });
+
+  it("goes back to the previous wizard step from the first question when there is one", () => {
     render();
 
     act(() => button("Common.actions.back")?.click());

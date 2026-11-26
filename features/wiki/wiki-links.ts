@@ -47,6 +47,18 @@ export function wikiPageMarkdownLink(title: string, id: string): string {
   return `[${title.replace(/[\\[\]]/g, "\\$&")}](${wikiPagePath(id)})`;
 }
 
+export function recordListMarkdownLink(label: string, typeId: string): string {
+  if (!UUID_PATTERN.test(typeId)) throw new Error("List id must be a UUID.");
+  return `[${label.replace(/[\\[\]]/g, "\\$&")}](/records/${typeId.toLowerCase()})`;
+}
+
+export function withRelatedSection(markdown: string, section: string, heading: string): string {
+  const marker = `\n## ${heading}\n`;
+  const start = `\n${markdown}`.lastIndexOf(marker);
+  const kept = (start === -1 ? markdown : markdown.slice(0, Math.max(start - 1, 0))).trimEnd();
+  return kept ? `${kept}\n\n${section}` : section;
+}
+
 export function wikiPageUrl(baseUrl: string, slug: string, id: string): string {
   const base = normalizedBaseUrl(baseUrl);
   if (!base) throw new Error("Knowledge Base base URL must be HTTP(S).");

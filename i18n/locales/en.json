@@ -4359,8 +4359,7 @@
       "toneOfVoice": "## How I sound\nPersonal, direct and reliable. I write as myself, in the first person.\n\n## Rules\n- Short messages, one topic each.\n- Stay formal until the client uses first names, then do the same.\n- Be concrete about availability, price and next steps.\n- Friendly, but no paragraphs of small talk before the point.\n- No emojis in a first message; mirror the client after that."
     },
     "guide": {
-      "intro": "This workspace started from the {playbook} playbook. Mate reads these pages before it drafts a reply or suggests a next step. Edit them until they sound like you: your services, your prices and your way of writing.",
-      "pagesHeading": "Knowledge Base pages"
+      "intro": "This workspace started from the {playbook} playbook. Mate reads these pages before it drafts a reply or suggests a next step. Edit them until they sound like you: your services, your prices and your way of writing."
     },
     "pages": {
       "followUps": "Follow-up rules",
@@ -4541,22 +4540,9 @@
       "title": "Confirm your email to start",
       "waiting": "Waiting for your confirmation"
     },
-    "connect": {
-      "checkAgain": "Check again",
-      "connected": "Connected. Your agent reached this workspace.",
-      "failed": "We could not check the connection. Try again in a moment.",
-      "skip": "I'll connect later",
-      "statusLabel": "Connection status",
-      "waiting": "Waiting for the first call from {agent}. This ticks off by itself once {agent} is connected.",
-      "waitingGeneric": "Waiting for your agent's first call. This ticks off by itself once your agent is connected."
-    },
     "continue": "Continue",
     "finish": "Open workspace",
     "goal": {
-      "agent": {
-        "title": "My own AI agent",
-        "worksWith": "Claude, ChatGPT, Gemini, Cursor or any MCP client"
-      },
       "channelsHint": {
         "action": "Open dashboard",
         "connectedDescription": "Mate will draft replies in your inbox as your conversations come in. The next steps land on your dashboard.",
@@ -4574,36 +4560,7 @@
         "salesNavigator": "Using Sales Navigator? Connect LinkedIn with Sales Navigator instead",
         "title": "Connect LinkedIn first"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate runs in Customermates Cloud. Your first eligible cloud workspace gets {days} days of Pro, no card needed. Opens a separate cloud workspace.",
-        "opened": "We opened Customermates Cloud in a new tab. Nothing from this instance was sent there. You can keep setting up here.",
-        "title": "Prefer Mate? Try the managed cloud"
-      },
-      "fastest": "Fastest",
-      "followup": {
-        "description": "Pick a playbook, connect LinkedIn, then see who is waiting for a reply.",
-        "title": "Follow up client conversations"
-      },
-      "optionsLabel": "First steps",
-      "suggested": "Suggested",
-      "workspace": {
-        "description": "{count} quick questions, then Mate builds it.",
-        "title": "Mate, in about a minute"
-      }
-    },
-    "handoff": {
-      "changed": "Your agent started building. Open your workspace to follow along.",
-      "connected": "{agent} is connected",
-      "connectedGeneric": "Your agent is connected",
-      "copied": "Copied",
-      "copy": "Copy",
-      "openIn": "Open in {agent}",
-      "prompt": "Set up my Customermates workspace {workspace}.",
-      "promptGeneric": "Set up my Customermates workspace.",
-      "promptLabel": "Message for your agent",
-      "watching": "Waiting for the first change from {agent}",
-      "watchingGeneric": "Waiting for the first change from your agent"
+      "suggested": "Suggested"
     },
     "invite": {
       "captions": {
@@ -4667,22 +4624,8 @@
         "subtitle": "Your conversations then sit next to each client, ready for drafts and follow-ups. Nothing is sent without you, and you can skip this step.",
         "title": "Connect where your clients write to you"
       },
-      "connect": {
-        "subtitle": "Pick it and follow the steps. It takes about a minute.",
-        "title": "Which agent do you use?"
-      },
       "finish": {
         "title": "Opening your workspace"
-      },
-      "goal": {
-        "subtitleSelfHosted": "Your data stays on your server. Your own agent connects over MCP and builds the workspace from a template.",
-        "title": "Who should build your workspace?",
-        "titleSelfHosted": "How should we set up this instance?"
-      },
-      "handoff": {
-        "subtitle": "Send this line. Your agent picks a template with you and shows the plan before it changes anything.",
-        "title": "Let {agent} build it",
-        "titleGeneric": "Let your agent build it"
       },
       "invite": {
         "subtitle": "Share the link or invite by email. You can do this later.",
@@ -7256,6 +7199,13 @@
         "wins": "Where customers choose us over {competitor}"
       },
       "gapsHeading": "Gaps to confirm",
+      "links": {
+        "guides": "Guides",
+        "knowledge": "Knowledge",
+        "lists": "Lists",
+        "procedures": "Procedures",
+        "related": "Related"
+      },
       "pagesHeading": "Knowledge Base pages",
       "roles": {
         "company_overview": "Company overview",

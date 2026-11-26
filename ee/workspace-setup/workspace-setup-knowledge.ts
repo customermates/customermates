@@ -29,6 +29,11 @@ const PAGE_ROLES: Record<SetupPageKind, WikiSynthesisRole> = {
 };
 const MAX_KEY_LENGTH = 40;
 
+export function setupPageKindOfRole(role: WikiSynthesisRole): SetupPageKind | null {
+  const match = Object.entries(PAGE_ROLES).find(([, candidate]) => candidate === role);
+  return match ? (match[0] as SetupPageKind) : null;
+}
+
 export function setupPageKinds(answers: SetupAnswers): SetupPageKind[] {
   const [overview, ...rest] = ALWAYS_PAGE_KINDS;
   return [overview, ...(conditionMet(WITH_CUSTOMERS, answers) ? CUSTOMER_PAGE_KINDS : []), ...rest];

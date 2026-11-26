@@ -7,6 +7,8 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
+import { extractWikiLinkTargets } from "@/features/wiki/wiki-link-targets";
+
 import { ApplyOnboardingPlaybookInteractor } from "../apply-onboarding-playbook.interactor";
 
 const owner = { ...createMockUser({ onboardingWikiStepCompletedAt: null }), company: { slug: "atlas-studio" } };
@@ -69,6 +71,46 @@ describe("ApplyOnboardingPlaybookInteractor", () => {
     expect(guide.pages[0].markdown).toContain("Beratung");
     expect(setupStep.markOnboardingSetupStepCompleted).toHaveBeenCalledExactlyOnceWith({ userId: owner.id });
     expect(wizard.markOnboardingWizardCompleted).toHaveBeenCalledExactlyOnceWith({ userId: owner.id });
+  });
+
+  it("links every playbook page back to the guide and to its neighbours so no page is an orphan", async () => {
+    const updatePage = { invoke: vi.fn().mockResolvedValue({ ok: true, data: {} }) };
+    const linked = new ApplyOnboardingPlaybookInteractor(
+      createPages as never,
+      setupStep as never,
+      wizard as never,
+      routeGuardService as never,
+      updatePage as never,
+    );
+
+    await expect(linked.invoke({ playbook: "agencies", locale: "en" })).resolves.toMatchObject({ ok: true });
+
+    const [, guide] = calls();
+    const guideId = PAGE_IDS[3];
+    const pageIds = PAGE_IDS.slice(0, 3);
+    const markdownById = new Map<string, string>([[guideId, guide.pages[0].markdown]]);
+    for (const [call] of updatePage.invoke.mock.calls as Array<[{ id: string; markdown: string }]>)
+      markdownById.set(call.id, call.markdown);
+    expect([...markdownById.keys()].sort()).toEqual([...pageIds, guideId].sort());
+    const outbound = new Map(
+      [...markdownById].map(([id, markdown]) => [
+        id,
+        extractWikiLinkTargets(markdown, { baseUrl: "https://app.example.test", workspaceSlug: null, pageId: id }).pages,
+      ]),
+    );
+    const known = new Set([...pageIds, guideId]);
+    for (const [id, targets] of outbound) {
+      expect(targets.length).toBeGreaterThan(0);
+      expect(targets.every((target) => known.has(target))).toBe(true);
+      expect([...outbound].some(([source, links]) => source !== id && links.includes(id))).toBe(true);
+    }
+    expect(outbound.get(guideId)?.sort()).toEqual([...pageIds].sort());
+    for (const id of pageIds) expect(outbound.get(id)).toContain(guideId);
+    expect(outbound.get(PAGE_IDS[0])).toEqual(expect.arrayContaining([PAGE_IDS[1], PAGE_IDS[2]]));
+    expect(outbound.get(PAGE_IDS[2])).toEqual(expect.arrayContaining([PAGE_IDS[0], PAGE_IDS[1]]));
+    expect(outbound.get(PAGE_IDS[1])).toEqual([guideId]);
+    for (const [call] of updatePage.invoke.mock.calls as Array<[{ markdown: string }]>)
+      expect(call.markdown.match(/## Related/gu)).toHaveLength(1);
   });
 
   it("finishes onboarding without writing when the owner skips the playbook", async () => {

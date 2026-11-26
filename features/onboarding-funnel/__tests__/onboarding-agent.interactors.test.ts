@@ -1,13 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
-import { GetOnboardingAgentStatusInteractor } from "../get-onboarding-agent-status.interactor";
 import { RecordAgentFirstCallInteractor } from "../record-agent-first-call.interactor";
 
 const owner = createMockUser({ onboardingWizardCompletedAt: null });
@@ -86,50 +84,4 @@ describe("RecordAgentFirstCallInteractor", () => {
     await expect(record()).resolves.toEqual({ ok: true, data: { recorded: true } });
     expect(repo.recordAgentFirstCall).toHaveBeenCalledTimes(2);
   });
-});
-
-describe("GetOnboardingAgentStatusInteractor", () => {
-  let repo: { findOnboardingAgentStatus: ReturnType<typeof vi.fn> };
-  let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
-
-  beforeEach(() => {
-    repo = { findOnboardingAgentStatus: vi.fn().mockResolvedValue({ connected: true, schemaRevision: 4 }) };
-    routeGuardService = { resolveAccountState: vi.fn().mockResolvedValue({ state: "onboarding", user: owner }) };
-  });
-
-  const interactor = () => new GetOnboardingAgentStatusInteractor(repo as never, routeGuardService as never);
-
-  it("reports whether the agent has called this workspace and the current model revision", async () => {
-    await expect(interactor().invoke()).resolves.toEqual({
-      ok: true,
-      data: { connected: true, schemaRevision: 4 },
-    });
-  });
-
-  it("redirects invited members without reading", async () => {
-    routeGuardService.resolveAccountState.mockResolvedValue({
-      state: "onboarding",
-      user: createMockUserWithPermissions([]),
-    });
-
-    await expect(interactor().invoke()).resolves.toEqual({ redirect: "/" });
-    expect(repo.findOnboardingAgentStatus).not.toHaveBeenCalled();
-  });
-
-  it("redirects a visitor without a session to sign-in", async () => {
-    routeGuardService.resolveAccountState.mockResolvedValue({ state: "onboarding", user: null });
-
-    await expect(interactor().invoke()).resolves.toEqual({ redirect: "/auth/signin" });
-    expect(repo.findOnboardingAgentStatus).not.toHaveBeenCalled();
-  });
-
-  it.each(ACCOUNT_STATES.filter((state) => state !== "onboarding"))(
-    "redirects the %s state without reading",
-    async (state) => {
-      routeGuardService.resolveAccountState.mockResolvedValue({ state, user: owner });
-
-      await expect(interactor().invoke()).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
-      expect(repo.findOnboardingAgentStatus).not.toHaveBeenCalled();
-    },
-  );
 });

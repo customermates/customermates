@@ -7,6 +7,7 @@ import type * as StructuredModelCall from "@/ee/agent-chat/structured-model-call
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { extractWikiLinkTargets } from "@/features/wiki/wiki-link-targets";
 
 const state = vi.hoisted(() => ({
   dispatch: vi.fn((..._args: unknown[]) => Promise.resolve()),
@@ -208,7 +209,7 @@ async function references(ws: Workspace, setupId: string) {
 async function build(ws: Workspace, setupId: string) {
   const service = di.getWorkspaceSetupBuildService();
   const results: Record<string, string> = {};
-  for (const phase of ["knowledgeBase", "dataModel", "views", "records", "dashboard"] as const) {
+  for (const phase of ["dataModel", "views", "records", "dashboard", "knowledgeBase"] as const) {
     for (let round = 0; round < SETUP_BUILD_PHASE_ATTEMPTS + 1; round += 1) {
       results[phase] = await ws.run(() => service.runPhase(setupId, phase, false, RUN_ID));
       if (results[phase] !== "wait") break;
@@ -276,6 +277,13 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(about).toMatchObject({ kind: "knowledge" });
     expect(JSON.stringify(about)).toContain("Answers given during the workspace setup");
     expect(guide).toMatchObject({ kind: "guide" });
+    const linkTargets = (page: { id: string; markdown: string }) =>
+      extractWikiLinkTargets(page.markdown, { baseUrl: "http://localhost:4000", workspaceSlug: null, pageId: page.id });
+    const listIds = view.results.lists.map((list) => list.id).sort();
+    expect(linkTargets(guide).pages).toEqual([about.id]);
+    expect(linkTargets(guide).lists.sort()).toEqual(listIds);
+    expect(linkTargets(about).pages).toEqual([guide.id]);
+    expect(linkTargets(about).lists.every((id) => listIds.includes(id))).toBe(true);
     expect(view.results.lists.map((list) => list.key)).toEqual([
       "contact",
       "organization",

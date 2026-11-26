@@ -1,5 +1,4 @@
 import type { FunnelEventInput, OnboardingFunnelRepo, OnboardingJobChoice } from "./onboarding-funnel.repo";
-import type { OnboardingAgentStatus, OnboardingAgentStatusRepo } from "./onboarding-agent.repo";
 import type { OnboardingJob } from "./onboarding-job";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -8,17 +7,8 @@ import { parseTeamSize } from "./team-size";
 
 export class PrismaOnboardingFunnelRepo
   extends TenantRepository
-  implements OnboardingFunnelRepo, OnboardingAgentStatusRepo
+  implements OnboardingFunnelRepo
 {
-  async findOnboardingAgentStatus(): Promise<OnboardingAgentStatus> {
-    const { companyId } = this.user;
-    const [company, schema] = await Promise.all([
-      this.prisma.company.findUnique({ where: { id: companyId }, select: { agentFirstCallAt: true } }),
-      this.prisma.recordSchemaState.findUnique({ where: { companyId }, select: { revision: true } }),
-    ]);
-    return { connected: Boolean(company?.agentFirstCallAt), schemaRevision: schema?.revision ?? 0 };
-  }
-
   recordFunnelEvent(event: FunnelEventInput) {
     return this.insertOnce(this.user.companyId, event);
   }

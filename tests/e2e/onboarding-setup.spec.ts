@@ -9,7 +9,7 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { moveWithKeyboard } from "./keyboard-drag";
 import { uniqueWorkspaceName } from "./workspace-names";
 import { clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
-import { completeSetupStepInDatabase, openGoalOfNewWorkspace } from "./workspace-setup";
+import { completeSetupStepInDatabase, openQuestionsOfNewWorkspace } from "./workspace-setup";
 import { openOnboardingAsNewLogin } from "./onboarding-login";
 import { secondUser } from "./second-user";
 import { appPath, appUrlPattern, workspaceSlugOf } from "./app-paths";
@@ -26,11 +26,17 @@ function heading(page: Page, name: string) {
   return page.getByRole("heading", { level: 1, name, exact: true });
 }
 
-async function openQuestionsOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
-  const companyId = await openGoalOfNewWorkspace(page, database, workspace, name);
-  await clickHydrated(page.locator("#onboarding-goal-workspace"));
-  await clickHydrated(page.locator("#onboarding-goal-continue"));
-  await expect(heading(page, setup.questions.workWith.label)).toBeVisible({ timeout: 30_000 });
+async function openWorkspaceWithTeam(
+  page: Page,
+  database: Client,
+  workspace: BrowserWorkspace,
+  name: string,
+  teamSize: string,
+) {
+  const companyId = await openQuestionsOfNewWorkspace(page, database, workspace, name);
+  await database.query('UPDATE "Company" SET "teamSize"=$1 WHERE id=$2', [teamSize, companyId]);
+  await page.reload();
+  await expect(heading(page, setup.questions.workWith.label)).toBeVisible();
   return companyId;
 }
 
@@ -57,40 +63,30 @@ async function stepEntries(page: Page) {
 }
 
 async function startEmpty(page: Page) {
-  await clickHydrated(page.locator("#onboarding-goal-empty"));
+  await clickHydrated(page.locator("#setup-start-empty"));
   const confirm = page.getByRole("alertdialog", { name: setup.empty.title });
   await expect(confirm).toContainText(setup.empty.description);
   await confirm.getByRole("button", { name: setup.empty.confirm, exact: true }).click();
 }
 
-test("a new workspace offers Mate first as the fastest way, the own agent beside it and starting empty as the quiet footer", async ({
+test("a new workspace opens Mate's first question with starting empty as the quiet footer and no Back", async ({
   page,
   database,
   workspace,
 }, testInfo) => {
   const errors = collectPageErrors(page);
-  await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Choice Order"));
+  await openQuestionsOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("First Question"));
 
-  const options = page.getByRole("radiogroup", { name: goal.optionsLabel, exact: true });
-  const radios = options.getByRole("radio");
-  await expect(radios).toHaveCount(2);
-  await expect(radios.nth(0)).toHaveAttribute("id", "onboarding-goal-workspace");
-  await expect(radios.nth(1)).toHaveAttribute("id", "onboarding-goal-agent");
-  await expect(page.locator("#onboarding-goal-agent")).toBeChecked();
-  const mate = page.locator('label[for="onboarding-goal-workspace"]');
-  await expect(mate).toContainText(goal.workspace.title);
-  await expect(mate).toContainText(goal.fastest);
-  const agent = page.locator('label[for="onboarding-goal-agent"]');
-  await expect(agent).toContainText(goal.agent.title);
-  await expect(page.locator("#onboarding-goal-works-with")).toHaveText(goal.agent.worksWith);
-  await expect(page.locator("#onboarding-goal-empty")).toHaveText(setup.empty.action);
-  const [mateBox, agentBox, emptyBox] = await Promise.all(
-    [mate, agent, page.locator("#onboarding-goal-empty")].map((target) => target.boundingBox()),
+  await expect(page.locator("#onboarding-goal-continue")).toHaveCount(0);
+  await expect(page.locator("#setup-question-back")).toHaveCount(0);
+  const empty = page.locator("#setup-start-empty");
+  await expect(empty).toHaveText(setup.empty.action);
+  const [question, emptyBox] = await Promise.all(
+    [page.locator("#setup-question-workWith"), empty].map((target) => target.boundingBox()),
   );
-  if (!mateBox || !agentBox || !emptyBox) throw new Error("The setup choices must be visible");
-  expect(agentBox.y).toBeGreaterThan(mateBox.y + mateBox.height - 1);
-  expect(emptyBox.y).toBeGreaterThan(agentBox.y + agentBox.height - 1);
-  await page.screenshot({ path: testInfo.outputPath("goal-choice-order.png"), fullPage: true });
+  if (!question || !emptyBox) throw new Error("The first question and the footer must be visible");
+  expect(emptyBox.y).toBeGreaterThan(question.y + question.height - 1);
+  await page.screenshot({ path: testInfo.outputPath("setup-first-question.png"), fullPage: true });
   expect(errors).toEqual([]);
 });
 
@@ -101,7 +97,7 @@ test("the Mate path asks four questions one per screen and shows a short plan be
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const companyId = await openQuestionsOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Mate Studio"));
-  expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
+  await expect.poll(() => funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
   const progress = page.locator("#onboarding-progress-text");
 
   await expect(progress).toHaveText(wizard.questionProgress.replace("{current}", "1").replace("{total}", "3"));
@@ -158,7 +154,7 @@ test("the Mate path asks four questions one per screen and shows a short plan be
   expect(errors).toEqual([]);
 });
 
-test("the questions go back one screen at a time and from the first question back to the choice of who builds", async ({
+test("the questions go back one screen at a time and stop at the first question", async ({
   page,
   database,
   workspace,
@@ -170,9 +166,8 @@ test("the questions go back one screen at a time and from the first question bac
   await clickHydrated(page.locator("#setup-question-back"));
   await expect(heading(page, setup.questions.workWith.label)).toBeVisible();
   await expect(page.locator("#setup-workWith-customers")).toBeChecked();
-  await clickHydrated(page.locator("#setup-question-back"));
-  await expect(heading(page, steps.goal.title)).toBeVisible();
-  await expect(page.locator("#onboarding-goal-workspace")).toBeChecked();
+  await expect(page.locator("#setup-question-back")).toHaveCount(0);
+  await expect(page.locator("#setup-start-empty")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -229,9 +224,7 @@ test("starting empty as a solo owner skips the invitations and finishes after th
   workspace,
 }, testInfo) => {
   const errors = collectPageErrors(page);
-  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Empty Studio"));
-  await database.query('UPDATE "Company" SET "teamSize"=$1 WHERE id=$2', ["solo", companyId]);
-  await page.reload();
+  const companyId = await openWorkspaceWithTeam(page, database, workspace, uniqueWorkspaceName("Empty Studio"), "solo");
   await startEmpty(page);
   await page.screenshot({ path: testInfo.outputPath("setup-empty-channel.png"), fullPage: true });
 
@@ -249,15 +242,13 @@ test("starting empty as a solo owner skips the invitations and finishes after th
   expect(lists.rowCount).toBe(0);
   expect(await onboardingState(database, companyId)).toEqual([{ wizard: expect.any(Date), setup: expect.any(Date) }]);
   const events = await funnelEvents(database, companyId);
-  expect(events.filter((event) => event.type !== "channelSkipped")).toEqual([]);
+  expect(events.filter((event) => event.type !== "channelSkipped")).toEqual([{ type: "jobSelected", job: "workspace" }]);
   expect(errors).toEqual([]);
 });
 
 test("starting empty as a team shows the invitations first", async ({ page, database, workspace }) => {
   const errors = collectPageErrors(page);
-  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Empty Team"));
-  await database.query('UPDATE "Company" SET "teamSize"=$1 WHERE id=$2', ["medium", companyId]);
-  await page.reload();
+  const companyId = await openWorkspaceWithTeam(page, database, workspace, uniqueWorkspaceName("Empty Team"), "medium");
   await startEmpty(page);
 
   await expect(heading(page, steps.invite.title)).toBeVisible();
@@ -270,33 +261,32 @@ test("starting empty as a team shows the invitations first", async ({ page, data
   expect(errors).toEqual([]);
 });
 
-test("the signup job preselects following up, which writes the job playbook and leads to connecting LinkedIn first", async ({
+test("the follow-up signup job opens the playbook right after the profile, writes it and leads to connecting LinkedIn first", async ({
   page,
   database,
   workspace,
 }, testInfo) => {
   const errors = collectPageErrors(page);
-  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Follow Studio"));
+  const companyId = await openQuestionsOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Follow Studio"));
+  await expect.poll(() => funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
+  await database.query('DELETE FROM "CompanyFunnelEvent" WHERE "companyId"=$1', [companyId]);
   await database.query(
     'INSERT INTO "CompanySignupSource" (id,"companyId",job,"landingPath","capturedAt") VALUES ($1,$2,\'followup\',\'/en/for/consultants\',NOW())',
     [randomUUID(), companyId],
   );
   await page.reload();
 
-  await expect(page.locator("#onboarding-goal-followup")).toBeChecked();
-  await expect(page.locator('label[for="onboarding-goal-followup"]')).toContainText(goal.suggested);
-  await page.screenshot({ path: testInfo.outputPath("goal-step.png"), fullPage: true });
-  await clickHydrated(page.locator("#onboarding-goal-continue"));
-
   const playbooks = englishMessages.OnboardingPlaybooks;
   await expect(heading(page, steps.playbook.title)).toBeVisible();
+  await expect(page.locator("#onboarding-goal-continue")).toHaveCount(0);
   const consultants = page.getByRole("radio", { name: new RegExp(`^${playbooks.consultants.label}`) });
   await expect(consultants).toBeChecked();
   await expect(page.locator('label[for="onboarding-playbook-consultants"]')).toContainText(goal.suggested);
-  expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "followup" }]);
+  await page.screenshot({ path: testInfo.outputPath("playbook-step.png"), fullPage: true });
+  await expect.poll(() => funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "followup" }]);
   await page.reload();
   await expect(heading(page, steps.playbook.title)).toBeVisible();
-  await expect(page.locator("#onboarding-playbook-back")).toBeVisible();
+  await expect(page.locator("#onboarding-playbook-back")).toHaveCount(0);
   await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${playbooks.agencies.label}`) }));
   await clickHydrated(page.locator("#onboarding-playbook-continue"));
 
@@ -351,12 +341,8 @@ test("an invited teammate whose profile is done skips every owner step and lands
     await database.query('UPDATE "User" SET "onboardingWizardCompletedAt"=NULL WHERE id=$1', [member.userId]);
     await member.page.goto(appPath(workspace.slug, "/dashboard"));
     await expect(member.page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"), { timeout: 30_000 });
-    await expect(member.page.locator("#onboarding-goal-continue")).toHaveCount(0);
-    const { rows } = await database.query<{ done: Date | null }>(
-      'SELECT "onboardingWizardCompletedAt" AS done FROM "User" WHERE id=$1',
-      [member.userId],
-    );
-    expect(rows).toEqual([{ done: expect.any(Date) }]);
+    await expect(member.page.locator("#setup-start-empty")).toHaveCount(0);
+    await expect(member.page.locator("#onboarding-progress-text")).toHaveCount(0);
     expect(member.errors).toEqual([]);
   } finally {
     await member.close();
@@ -409,7 +395,8 @@ test("the profile asks the team size and, optionally, how the owner found us, wi
   await page.screenshot({ path: testInfo.outputPath("profile-step.png"), fullPage: true });
   await clickHydrated(page.locator("#onboarding-profile-continue"));
 
-  await expect(heading(page, steps.goal.title)).toBeVisible({ timeout: 30_000 });
+  await expect(heading(page, setup.questions.workWith.label)).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator("#setup-start-empty")).toBeVisible();
   const { rows } = await database.query<{ teamSize: string | null; choice: string | null }>(
     'SELECT "teamSize", "discoveryChoice" AS choice FROM "Company" WHERE "createdByAuthUserId"=$1',
     [login.authUserId],

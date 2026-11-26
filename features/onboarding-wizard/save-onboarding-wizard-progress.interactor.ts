@@ -1,5 +1,4 @@
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
-import type { AuthService } from "@/features/auth/auth.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { OnboardingWizardProgress } from "./onboarding-wizard-progress.schema";
@@ -27,7 +26,6 @@ export class SaveOnboardingWizardProgressInteractor {
   constructor(
     private repo: SaveOnboardingWizardProgressRepo,
     private routeGuardService: RouteGuardService,
-    private authService: AuthService,
   ) {}
 
   @Validate(Schema)
@@ -37,28 +35,12 @@ export class SaveOnboardingWizardProgressInteractor {
     const resolution = await this.routeGuardService.resolveAccountState();
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
     if (!resolution.user || !resolution.sessionUser) return redirectTo("/auth/signin");
-    const ownerAuthUserId = resolution.sessionUser.id;
-    const ownerCompanyId = resolution.user.companyId;
     if (resolution.user.id !== data.userId) return failAuthorization(CustomErrorCode.permissionDenied);
 
     return runWithTenant(resolution.user, async () => {
-      const references = Object.entries(data.progress.ai.apiKeyIds);
-      const { active, foreign } = await this.authService.resolveApiKeyReferences(
-        ownerAuthUserId,
-        references.map(([, id]) => id),
-        ownerCompanyId,
-      );
-      if (references.some(([, id]) => foreign.has(id)))
-        return failAuthorization(CustomErrorCode.permissionDenied, ["progress", "ai", "apiKeyIds"]);
-
-      const progress = {
-        ...data.progress,
-        ai: { ...data.progress.ai, apiKeyIds: Object.fromEntries(references.filter(([, id]) => active.has(id))) },
-      };
-
-      const saved = await this.repo.saveOnboardingWizardProgress(progress);
+      const saved = await this.repo.saveOnboardingWizardProgress(data.progress);
       if (!saved) return redirectTo("/");
-      return { ok: true as const, data: progress };
+      return { ok: true as const, data: data.progress };
     });
   }
 }

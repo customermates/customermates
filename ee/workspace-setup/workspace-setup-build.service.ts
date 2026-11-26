@@ -28,7 +28,9 @@ import type { SetupModelOutcome, WorkspaceSetupModelService } from "./workspace-
 import type { GeneratedSampleList, SampleCalendarDates, SampleListSpec } from "./workspace-setup-samples";
 import type { PostalCodeService } from "@/features/addresses/postal-codes/postal-code.service";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
-import type { WikiPageInput } from "@/features/wiki/wiki.schema";
+import type { WikiPageDto, WikiPageInput } from "@/features/wiki/wiki.schema";
+import type { GetWikiPageInteractor } from "@/features/wiki/get-wiki-page.interactor";
+import type { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import type { SetupAnswerPages } from "./workspace-setup-answer-pages";
 import type { WikiSynthesisDraft } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 import type { WikiSynthesisBriefTopic } from "@/ee/wiki-crawl/wiki-synthesis-brief";
@@ -102,7 +104,13 @@ import {
   setupAnswerPage,
   setupAnswerTopics,
   setupAnswersSourceText,
+  setupBuiltLists,
+  setupPageLists,
+  setupRelatedSection,
+  type SetupLinkedPage,
 } from "./workspace-setup-answer-pages";
+import { setupPageKindOfRole } from "./workspace-setup-knowledge";
+import { withRelatedSection } from "@/features/wiki/wiki-links";
 import { setupPageTitles } from "./workspace-setup-knowledge-brief";
 import {
   SETUP_ANSWER_PAGE_GUIDANCE,
@@ -214,6 +222,8 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       lookup: () => Promise.resolve({ status: "unavailable" }),
     },
     private shareView?: Pick<ShareDataViewInteractor, "invoke">,
+    private readPage?: Pick<GetWikiPageInteractor, "invoke">,
+    private updatePage?: Pick<UpdateWikiPageInteractor, "invoke">,
   ) {
     super();
   }
@@ -500,20 +510,56 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       if (page) await create(topic.key, page);
       else await record({ key: topic.key, title: topic.title, pageId: null });
     }
+    if (unwritten > 0) return { status: "failed", error: "generation", patch };
+    const dataModel = setup.phases.dataModel?.status ?? "pending";
+    if (dataModel === "pending" || dataModel === "running") return { status: "wait" };
+
+    const kinds = new Map(topics.map((topic) => [topic.key, setupPageKindOfRole(topic.role)]));
+    const loaded = new Map<string, WikiPageDto>();
+    const pages: SetupLinkedPage[] = [];
+    for (const entry of done.pages) {
+      if (entry.key === SETUP_ANSWER_GUIDE_KEY || !entry.pageId) continue;
+      const read = this.readPage ? await this.readPage.invoke({ id: entry.pageId }) : null;
+      if (read && !read.ok) continue;
+      if (read) loaded.set(entry.key, read.data);
+      pages.push({
+        key: entry.key,
+        title: read?.data.title ?? entry.title,
+        pageId: entry.pageId,
+        kind: kinds.get(entry.key) ?? null,
+        wikiKind: read?.data.kind ?? "knowledge",
+      });
+    }
+    const lists = setupBuiltLists(setup.results);
     if (
-      unwritten === 0 &&
       !done.pages.some(({ key, pageId }) => key === SETUP_ANSWER_GUIDE_KEY && pageId) &&
       !(await recover(SETUP_ANSWER_GUIDE_KEY))
     ) {
-      const guide = setupAnswerGuide({
-        pages: done.pages.flatMap(({ key, title: pageTitle, pageId }) =>
-          key !== SETUP_ANSWER_GUIDE_KEY && pageId ? [{ title: pageTitle, pageId }] : [],
-        ),
-        copy,
-      });
+      const guide = setupAnswerGuide({ pages, lists, copy });
       if (guide) await create(SETUP_ANSWER_GUIDE_KEY, guide);
     }
-    if (unwritten > 0) return { status: "failed", error: "generation", patch };
+    const guideEntry = done.pages.find(({ key, pageId }) => key === SETUP_ANSWER_GUIDE_KEY && pageId);
+    if (guideEntry?.pageId && this.updatePage) {
+      const listsByKind = setupPageLists(setup.plan, lists);
+      for (const page of pages) {
+        const current = loaded.get(page.key);
+        if (!current || done.linked?.includes(page.key)) continue;
+        const section = setupRelatedSection({
+          page,
+          pages,
+          guide: { title: guideEntry.title, pageId: guideEntry.pageId },
+          lists: page.kind ? listsByKind[page.kind] : [],
+          copy,
+        });
+        const updated = await this.updatePage.invoke({
+          id: page.pageId,
+          expectedUpdatedAt: current.updatedAt,
+          markdown: withRelatedSection(current.markdown, section, copy.relatedHeading),
+        });
+        if (!updated.ok && failureOf(updated.error) === "permission") throw phaseFailure("permission");
+        await store({ ...done, linked: [...(done.linked ?? []), page.key] });
+      }
+    }
     return { status: "completed", patch };
   }
 
