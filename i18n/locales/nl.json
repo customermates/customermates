@@ -7524,18 +7524,6 @@
       "workWith": {
         "label": "Met wie werk je samen?"
       }
-    },
-    "suggestedSteps": {
-      "contracts": ["Onboarding", "Actief", "Te verlengen", "Verlengd", "Beëindigd"],
-      "deals": ["Nieuwe aanvraag", "Contact gehad", "Offerte verstuurd", "Gewonnen", "Verloren"],
-      "dealsClients": ["Aanvraag", "Eerste gesprek", "Voorstel verstuurd", "Gewonnen", "Verloren"],
-      "hiring": ["Gesolliciteerd", "Gesprek", "Aanbod", "Aangenomen", "Afgewezen"],
-      "investors": ["Contact gehad", "Eerste gesprek", "Controles", "Toegezegd", "Afgehaakt"],
-      "marketing": ["Idee", "Bezig", "Klaar", "Gepubliceerd"],
-      "orders": ["Nieuw", "Bevestigd", "Verzonden", "Betaald"],
-      "partners": ["Contact gehad", "In gesprek", "Actief", "Gepauzeerd"],
-      "projects": ["Gepland", "Bezig", "Beoordeling", "Afgerond"],
-      "support": ["Nieuw", "Bezig", "Wachten op klant", "Opgelost"]
     }
   }
 }

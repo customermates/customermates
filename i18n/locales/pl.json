@@ -7524,18 +7524,6 @@
       "workWith": {
         "label": "Z kim pracujesz?"
       }
-    },
-    "suggestedSteps": {
-      "contracts": ["Wdrożenie", "Aktywna", "Do odnowienia", "Odnowiona", "Zakończona"],
-      "deals": ["Nowe zapytanie", "Nawiązano kontakt", "Oferta wysłana", "Wygrana", "Przegrana"],
-      "dealsClients": ["Zapytanie", "Pierwsza rozmowa", "Propozycja wysłana", "Wygrana", "Przegrana"],
-      "hiring": ["Aplikacja", "Rozmowa kwalifikacyjna", "Oferta", "Zatrudniony", "Odrzucony"],
-      "investors": ["Nawiązano kontakt", "Pierwsze spotkanie", "Weryfikacja", "Zobowiązał się", "Zrezygnował"],
-      "marketing": ["Pomysł", "W toku", "Gotowe", "Opublikowane"],
-      "orders": ["Nowe", "Potwierdzone", "Wysłane", "Opłacone"],
-      "partners": ["Nawiązano kontakt", "W rozmowach", "Aktywny", "Wstrzymany"],
-      "projects": ["Zaplanowany", "W toku", "Przegląd", "Zakończony"],
-      "support": ["Nowe", "W toku", "Oczekuje na klienta", "Rozwiązane"]
     }
   }
 }
