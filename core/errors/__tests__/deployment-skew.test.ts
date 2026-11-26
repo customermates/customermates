@@ -29,4 +29,27 @@ describe("deployment skew", () => {
     expect(isDeploymentSkewError(css)).toBe(true);
     expect(isDeploymentSkewError(new Error("Loading the record failed"))).toBe(false);
   });
+
+  it("recognizes the previous deployment's webpack runtime requiring a module the new chunks do not define", () => {
+    const runtime = "https://customermates.com/_next/static/chunks/webpack-9aa8008e3f7c251c.js";
+    const page = "https://customermates.com/_next/static/chunks/app/settings/page-8315f6165089b5ba.js";
+    const chrome = Object.assign(new TypeError("Cannot read properties of undefined (reading 'call')"), {
+      stack: `TypeError: Cannot read properties of undefined (reading 'call')\n    at b (${runtime}:1:161)\n    at 9408 (${page}:1:443)`,
+    });
+    const safari = Object.assign(new TypeError("undefined is not an object (evaluating 'e[o].call')"), {
+      stack: `b@${runtime}:1:161\n9408@${page}:1:443`,
+    });
+    const firefox = Object.assign(new TypeError("e[o] is undefined"), {
+      stack: `b@${runtime}:1:161\n9408@${page}:1:443`,
+    });
+    expect(isDeploymentSkewError(chrome)).toBe(true);
+    expect(isDeploymentSkewError(safari)).toBe(true);
+    expect(isDeploymentSkewError(firefox)).toBe(true);
+
+    const appCode = Object.assign(new TypeError("Cannot read properties of undefined (reading 'call')"), {
+      stack: `TypeError: Cannot read properties of undefined (reading 'call')\n    at 9408 (${page}:1:443)\n    at b (${runtime}:1:161)`,
+    });
+    expect(isDeploymentSkewError(appCode)).toBe(false);
+    expect(isDeploymentSkewError(new TypeError("Cannot read properties of undefined (reading 'call')"))).toBe(false);
+  });
 });
