@@ -923,6 +923,30 @@ describe("RegisterUserInteractor", () => {
     expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
   });
 
+  it("starts no first cloud workspace before the email is confirmed, but lets an unconfirmed login join an invitation", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    const unverified = await mockRouteGuardService.resolveAccountState();
+    mockRouteGuardService.resolveAccountState.mockResolvedValue({ ...unverified, emailVerified: false });
+    const profile = {
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      avatarUrl: null,
+      agreeToTerms: true,
+    };
+
+    const created = await createInteractor().invoke(profile, { target: { type: "createCompany" } });
+    const joined = await createInteractor().invoke(profile, {
+      target: { type: "invitation", companyId: "invited-company-id" },
+    });
+
+    expect("ok" in created && !created.ok && interactorFailureCodes(created.error)).toEqual([
+      CustomErrorCode.emailNotVerified,
+    ]);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(joined).toMatchObject({ ok: true });
+  });
+
   it("does not count created workspaces when the profile joins an invited workspace", async () => {
     mutableEnv.APP_MODE = "cloud";
     mockRepo.countCreatedWorkspacesUnscoped.mockResolvedValue(20);

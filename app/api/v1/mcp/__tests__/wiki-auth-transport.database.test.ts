@@ -288,6 +288,11 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     });
 
     const outsider = { authorization: `Bearer ${outsiderBearer}` };
+    const locked = await connect(outsider);
+    expect(locked.status).toBe(403);
+    expect(JSON.parse(locked.body)).toMatchObject({ error: "insufficient_permissions" });
+
+    await client.query('UPDATE "OauthAccessToken" SET "accountWide"=TRUE WHERE "accessToken"=$1', [outsiderBearer]);
     expect((await connect(outsider)).status).toBe(200);
     const called = await send(outsider, {
       jsonrpc: "2.0",

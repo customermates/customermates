@@ -15,10 +15,9 @@ type WorkspaceCreationCounts = {
 export async function workspaceCreationRefusal(
   login: { authUserId: string; emailVerified: boolean | null },
   counts: WorkspaceCreationCounts,
-  options: { requireVerifiedEmail: boolean },
 ): Promise<InteractorFailure | null> {
   if (env.APP_MODE !== "cloud") return null;
-  if (options.requireVerifiedEmail && !login.emailVerified) return failAuthorization(CustomErrorCode.emailNotVerified);
+  if (!login.emailVerified) return failAuthorization(CustomErrorCode.emailNotVerified);
 
   if ((await counts.countCreatedWorkspacesUnscoped(login.authUserId)) >= CLOUD_WORKSPACE_CREATION_LIMIT)
     return failConflict(CustomErrorCode.workspaceLimitReached, [], { limit: CLOUD_WORKSPACE_CREATION_LIMIT });

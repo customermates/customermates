@@ -80,6 +80,7 @@ export type RegistrationTarget = Data<typeof RegistrationTargetSchema>;
 
 const RegistrationSchema = RegisterUserSchema.extend({
   sessionUserId: z.string().min(1),
+  sessionEmailVerified: z.boolean(),
   adAttribution: z.array(RegistrationAdAttributionSchema),
   signupSource: RegistrationSignupSourceSchema.nullable(),
   signupTemplate: z.enum(TEMPLATE_SLUGS).nullable(),
@@ -119,6 +120,7 @@ export class RegisterUserInteractor {
       ...data,
       email: resolution.sessionUser.email,
       sessionUserId: resolution.sessionUser.id,
+      sessionEmailVerified: resolution.emailVerified === true,
       adAttribution: context.adAttribution ?? [],
       signupSource: context.signupSource ?? null,
       signupTemplate: context.signupTemplate ?? null,
@@ -148,6 +150,7 @@ export class RegisterUserInteractor {
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
     const {
       sessionUserId,
+      sessionEmailVerified,
       adAttribution,
       signupSource,
       signupTemplate,
@@ -183,9 +186,7 @@ export class RegisterUserInteractor {
     if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
     const creationRefused = companyId
       ? null
-      : await workspaceCreationRefusal({ authUserId: sessionUserId, emailVerified: null }, this.repo, {
-          requireVerifiedEmail: false,
-        });
+      : await workspaceCreationRefusal({ authUserId: sessionUserId, emailVerified: sessionEmailVerified }, this.repo);
     if (creationRefused) return creationRefused;
     if (
       companyId &&

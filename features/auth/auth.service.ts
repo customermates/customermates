@@ -32,6 +32,7 @@ import { redirectTo } from "./auth-outcome";
 import {
   approveMcpAuthorizationCodeValue,
   mcpAuthorizationCodeWorkspaceIdentifier,
+  parseMcpCodeBinding,
   mcpResourceWorkspaceOf,
   withMcpResourceWorkspace,
 } from "./mcp-authorization-code";
@@ -61,13 +62,14 @@ type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 export type InteractiveSession = Session;
 export type AuthenticatedSession = Pick<Session, "session" | "user">;
 export type CredentialWorkspace =
-  | { kind: "integration"; companyId: string | null }
+  | { kind: "integration"; companyId: string | null; accountWide?: true }
   | { kind: "session"; sessionId: string; workspaceSlug: string | null };
 export type AgentJobApiKey = AgentJobCredentialMarker & { keyId: string; companyId: string | null };
 export type McpCredentialWorkspace = {
   credential: "apiKey" | "bearer";
   email: string;
   companyId: string | null;
+  accountWide: boolean;
   agentJobKey: AgentJobApiKey | null;
 };
 type CreateApiKeyError =
@@ -166,10 +168,15 @@ export class AuthService {
     if (this.hasBearerToken(requestHeaders)) {
       const token = await prisma.oauthAccessToken.findUnique({
         where: { accessToken: session.session.token },
-        select: { userId: true, companyId: true },
+        select: { userId: true, companyId: true, accountWide: true },
       });
       if (token?.userId !== session.user.id) return { kind: "integration", companyId: null };
-      return { kind: "integration", companyId: currentMcpWorkspace()?.companyId ?? token.companyId };
+      if (!token.accountWide) return { kind: "integration", companyId: token.companyId };
+      return {
+        kind: "integration",
+        companyId: currentMcpWorkspace()?.companyId ?? token.companyId,
+        accountWide: true,
+      };
     }
 
     return {
@@ -609,6 +616,7 @@ export class AuthService {
     consentCode: string;
     accept: boolean;
     companyId: string | null;
+    accountWide: boolean;
   }): Promise<{ redirectURI: string } | null> {
     const resolved = await this.resolvePendingConsent(args.consentCode);
     if (!resolved) return null;
@@ -616,8 +624,9 @@ export class AuthService {
     const { verification, value } = resolved;
     const redirectUrl = new URL(value.redirectURI);
     const resourceCompanyId = mcpResourceWorkspaceOf(value);
+    const bindable = args.accountWide ? resourceCompanyId === null : args.companyId !== null;
 
-    if (!args.accept || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
+    if (!args.accept || !bindable || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
       await prisma.authVerification.delete({ where: { id: verification.id } });
       redirectUrl.searchParams.set("error", "access_denied");
       if (value.state) redirectUrl.searchParams.set("state", value.state);
@@ -636,7 +645,7 @@ export class AuthService {
       data: {
         id: crypto.randomUUID(),
         identifier: mcpAuthorizationCodeWorkspaceIdentifier(code),
-        value: args.companyId ?? "",
+        value: JSON.stringify({ companyId: args.companyId, accountWide: args.accountWide }),
         expiresAt: new Date(Date.now() + MCP_CODE_WORKSPACE_TTL_MS),
       },
     });
@@ -653,13 +662,16 @@ export class AuthService {
     return { redirectURI: redirectUrl.toString() };
   }
 
-  async consumeMcpAuthorizationCodeWorkspace(code: string): Promise<{ companyId: string | null } | null> {
+  async consumeMcpAuthorizationCodeWorkspace(
+    code: string,
+  ): Promise<{ companyId: string | null; accountWide: boolean } | null> {
     const identifier = mcpAuthorizationCodeWorkspaceIdentifier(code);
     const binding = await prisma.authVerification.findFirst({ where: { identifier } });
     if (!binding) return null;
 
     await prisma.authVerification.deleteMany({ where: { identifier } });
-    return binding.expiresAt.getTime() > Date.now() ? { companyId: binding.value || null } : null;
+    if (binding.expiresAt.getTime() <= Date.now()) return null;
+    return parseMcpCodeBinding(binding.value);
   }
 
   private handleError(source: unknown): AuthResult {
@@ -740,6 +752,7 @@ export class AuthService {
         credential: key ? "apiKey" : "bearer",
         email: session.user.email,
         companyId: binding.kind === "integration" ? binding.companyId : null,
+        accountWide: binding.kind === "integration" && binding.accountWide === true,
         agentJobKey: key ? await this.getAgentJobApiKey(session, headersList) : null,
       };
     } catch {

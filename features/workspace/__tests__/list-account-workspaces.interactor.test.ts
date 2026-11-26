@@ -50,6 +50,7 @@ describe("ListAccountWorkspacesInteractor", () => {
       credential: "bearer",
       email: "member@example.com",
       companyId: null,
+      accountWide: true,
       agentJobKey: null,
     });
     access.listWorkspaces.mockResolvedValue([option("acme"), option("empty"), option("waiting", "pending")]);
@@ -92,11 +93,15 @@ describe("ListAccountWorkspacesInteractor", () => {
     expect(planFacts.factsFor).not.toHaveBeenCalledWith(expect.objectContaining({ companyId: "waiting" }));
   });
 
-  it("lists only the key's own workspace for an API key and offers no new workspace", async () => {
+  it.each([
+    ["an API key", "apiKey"],
+    ["a connection approved for one workspace", "bearer"],
+  ] as const)("lists only the own workspace for %s and offers no new workspace", async (_label, credential) => {
     authService.getMcpCredential.mockResolvedValue({
-      credential: "apiKey",
+      credential,
       email: "member@example.com",
       companyId: "empty",
+      accountWide: false,
       agentJobKey: null,
     });
 

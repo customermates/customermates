@@ -145,6 +145,8 @@ model OauthAccessToken {
   scopes                String
   companyId             String?
   company               Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  /// True only for tokens approved on the account-wide consent; other tokens stay locked to companyId.
+  accountWide           Boolean          @default(false)
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
 

@@ -47,6 +47,8 @@ const FOREIGN_API_KEY_WORKSPACE_MESSAGE =
   "An API key always works in the workspace it was created in. Leave workspace out, pass that workspace, or connect with OAuth to work across the account's workspaces.";
 const LOCKED_WORKSPACE_MESSAGE =
   "This connection uses an older workspace URL and is locked to that workspace. Leave workspace out, or connect to the account-wide URL to work in other workspaces.";
+const SINGLE_WORKSPACE_TOKEN_MESSAGE =
+  "This connection was approved for one workspace only. Leave workspace out to work there, or ask the user to remove the connector and connect again to approve access to the whole account.";
 const MIXED_WORKSPACES_MESSAGE = "Send calls for different workspaces as separate requests.";
 
 type RequestScope = { workspace: McpWorkspaceSelection | null; checkAccess: boolean };
@@ -609,14 +611,15 @@ export function createMcpRoute(
     const bound = await di.getAuthService().resolveMcpCredentialWorkspace(request.headers);
     if (!bound) return { refusal: unauthorizedChallenge(resourceMetadataUrl) };
 
-    if (bound.credential === "apiKey") {
+    if (bound.credential === "apiKey" || !bound.accountWide) {
       const own =
         requested.length === 0 ||
         (bound.companyId !== null &&
           (await di.getMcpWorkspaceAccessService().isWorkspace(bound.companyId, requested[0])));
-      return own
-        ? { scope: WORKSPACE_SCOPE, agentJobKey: bound.agentJobKey }
-        : { refusal: toolCallRefusal(FOREIGN_API_KEY_WORKSPACE_MESSAGE, toolCall) };
+      if (own) return { scope: WORKSPACE_SCOPE, agentJobKey: bound.agentJobKey };
+      const message =
+        bound.credential === "apiKey" ? FOREIGN_API_KEY_WORKSPACE_MESSAGE : SINGLE_WORKSPACE_TOKEN_MESSAGE;
+      return { refusal: toolCallRefusal(message, toolCall) };
     }
 
     const access = di.getMcpWorkspaceAccessService();

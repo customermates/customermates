@@ -53,6 +53,7 @@ function track<T>(name: string, value: T) {
 describe("CreateWorkspaceInteractor", () => {
   let authService: {
     getAccountSession: ReturnType<typeof vi.fn>;
+    getMcpCredential: ReturnType<typeof vi.fn>;
     sendNewUserNotificationEmail: ReturnType<typeof vi.fn>;
   };
   let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
@@ -79,6 +80,7 @@ describe("CreateWorkspaceInteractor", () => {
         session: { id: "session-1" },
         user: { id: "login-1", email: "ben@example.com", name: "Ben Wagner" },
       }),
+      getMcpCredential: vi.fn().mockResolvedValue({ credential: "bearer", accountWide: true }),
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     routeGuardService = { resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed", emailVerified: true }) };
@@ -229,6 +231,20 @@ describe("CreateWorkspaceInteractor", () => {
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceTermsNotAccepted]);
+      expect(registration.createCompanyAndUser).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["a connection approved for one workspace", { credential: "bearer", accountWide: false }],
+      ["an API key", { credential: "apiKey", accountWide: false }],
+    ])("refuses %s", async (_label, credential) => {
+      authService.getMcpCredential.mockResolvedValue(credential);
+
+      const result = await interactor().invokeForAgent({ name: "Acme", teamSize: "solo" });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceCreationUnavailable]);
       expect(registration.createCompanyAndUser).not.toHaveBeenCalled();
     });
 

@@ -178,7 +178,7 @@ export const auth = betterAuth({
           : grant?.type === "refresh_token"
             ? await prisma.oauthAccessToken.findUnique({
                 where: { refreshToken: grant.refreshToken },
-                select: { companyId: true },
+                select: { companyId: true, accountWide: true },
               })
             : null;
 
@@ -190,7 +190,7 @@ export const auth = betterAuth({
         });
       }
 
-      const { companyId } = binding;
+      const { companyId, accountWide } = binding;
       const requestedCompanyId = mcpWorkspaceIdFromResource(resourceFromTokenRequest(ctx.body), env.BASE_URL);
       if (requestedCompanyId && requestedCompanyId !== companyId) {
         await prisma.oauthAccessToken.deleteMany({ where: { accessToken } });
@@ -200,7 +200,7 @@ export const auth = betterAuth({
         });
       }
 
-      await prisma.oauthAccessToken.update({ where: { accessToken }, data: { companyId } });
+      await prisma.oauthAccessToken.update({ where: { accessToken }, data: { companyId, accountWide } });
     }),
   },
 

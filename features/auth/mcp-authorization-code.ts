@@ -80,3 +80,22 @@ export function issuedAccessToken(returned: unknown): string | null {
 export function mcpAuthorizationCodeWorkspaceIdentifier(code: string): string {
   return `mcp-code-workspace:${code}`;
 }
+
+export type McpCodeBinding = { companyId: string | null; accountWide: boolean };
+
+export function parseMcpCodeBinding(raw: string): McpCodeBinding {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && "accountWide" in parsed && parsed.accountWide === true) {
+      return {
+        companyId: "companyId" in parsed && typeof parsed.companyId === "string" ? parsed.companyId : null,
+        accountWide: true,
+      };
+    }
+    if (parsed && typeof parsed === "object" && "companyId" in parsed && typeof parsed.companyId === "string")
+      return { companyId: parsed.companyId, accountWide: false };
+  } catch {
+    return { companyId: raw || null, accountWide: false };
+  }
+  return { companyId: null, accountWide: false };
+}

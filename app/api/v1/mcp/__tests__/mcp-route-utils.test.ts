@@ -24,11 +24,13 @@ const apiKeys = vi.hoisted(() => ({
       credential: "apiKey" | "bearer";
       email: string;
       companyId: string | null;
+      accountWide: boolean;
       agentJobKey: null;
     } | null>({
       credential: "apiKey",
       email: "member@example.com",
       companyId: "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f",
+      accountWide: false,
       agentJobKey: null,
     }),
   ),
@@ -109,7 +111,7 @@ const WORKSPACE = "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
 const OTHER_WORKSPACE = "0b7d6c5a-2e1f-4a3b-8c9d-1e2f3a4b5c6d";
 
 function credentialOf(credential: "apiKey" | "bearer", companyId: string | null) {
-  return { credential, email: "member@example.com", companyId, agentJobKey: null };
+  return { credential, email: "member@example.com", companyId, accountWide: false, agentJobKey: null };
 }
 
 async function rpc(
@@ -792,6 +794,7 @@ describe("account-wide MCP connection", () => {
       credential: "bearer",
       email: "member@example.com",
       companyId: null,
+      accountWide: true,
       agentJobKey: null,
     });
     access.resolve.mockResolvedValue({ ok: true, workspace: { companyId: WORKSPACE, slug: "acme" } });
@@ -879,6 +882,7 @@ describe("account-wide MCP connection", () => {
       credential: "apiKey",
       email: "member@example.com",
       companyId: WORKSPACE,
+      accountWide: false,
       agentJobKey: null,
     });
 
@@ -891,11 +895,37 @@ describe("account-wide MCP connection", () => {
     expect(access.resolve).not.toHaveBeenCalled();
   });
 
+  it("keeps a token approved for one workspace locked to it at the account URL and tells how to widen it", async () => {
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValue({
+      credential: "bearer",
+      email: "member@example.com",
+      companyId: WORKSPACE,
+      accountWide: false,
+      agentJobKey: null,
+    });
+
+    const plain = await rpc(handler(), call("workspace_echo", {}, 1), undefined, { credential: bearer });
+    const own = await rpc(handler(), call("workspace_echo", { workspace: WORKSPACE }, 2), undefined, {
+      credential: bearer,
+    });
+    const other = await rpc(handler(), call("workspace_echo", { workspace: "taxes" }, 3), undefined, {
+      credential: bearer,
+    });
+
+    expect(JSON.parse(text(plain.data))).toMatchObject({ workspace: null });
+    expect(JSON.parse(text(own.data))).toMatchObject({ workspace: null });
+    expect(text(other.data)).toContain("approved for one workspace only");
+    expect(text(other.data)).toContain("connect again");
+    expect(access.resolve).not.toHaveBeenCalled();
+    expect(access.defaultWorkspace).not.toHaveBeenCalled();
+  });
+
   it("keeps an older workspace URL locked to its workspace", async () => {
     apiKeys.resolveMcpCredentialWorkspace.mockResolvedValue({
       credential: "bearer",
       email: "member@example.com",
       companyId: WORKSPACE,
+      accountWide: true,
       agentJobKey: null,
     });
 

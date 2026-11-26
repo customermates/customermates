@@ -51,16 +51,15 @@ export class ListAccountWorkspacesInteractor {
     if (!credential) return failAuthorization(CustomErrorCode.notAuthenticated);
 
     const options = await this.access.listWorkspaces(credential.email);
-    const visible =
-      credential.credential === "apiKey"
-        ? options.filter((option) => option.companyId === credential.companyId)
-        : options;
+    const visible = credential.accountWide
+      ? options
+      : options.filter((option) => option.companyId === credential.companyId);
 
     return {
       ok: true,
       data: {
         workspaces: await Promise.all(visible.map((option) => this.describe(option))),
-        canCreateWorkspace: env.APP_MODE === "cloud" && credential.credential === "bearer",
+        canCreateWorkspace: env.APP_MODE === "cloud" && credential.accountWide,
       },
     };
   }

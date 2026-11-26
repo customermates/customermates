@@ -173,7 +173,12 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId });
+    const decision = await service.decideMcpConsent({
+      consentCode,
+      accept: true,
+      companyId: workspaceId,
+      accountWide: false,
+    });
     const callback = new URL(decision?.redirectURI ?? "");
     const code = callback.searchParams.get("code") ?? "";
 
@@ -189,6 +194,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
       consentCode: secondConsentCode,
       accept: true,
       companyId: workspaceId,
+      accountWide: false,
     });
     const secondCode = new URL(secondDecision?.redirectURI ?? "").searchParams.get("code") ?? "";
 
@@ -220,7 +226,12 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId });
+    const decision = await service.decideMcpConsent({
+      consentCode,
+      accept: true,
+      companyId: workspaceId,
+      accountWide: false,
+    });
     const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
     const issued = await exchange({ code, clientId, verifier });
     expect(issued.status).toBe(200);
@@ -240,6 +251,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
       where: { accessToken: refreshedTokens.access_token },
     });
     expect(refreshedStored?.companyId).toBe(workspaceId);
+    expect(refreshedStored?.accountWide).toBe(false);
   });
 
   it("refuses an approved code whose workspace binding is gone and keeps no token", async () => {
@@ -249,7 +261,12 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId });
+    const decision = await service.decideMcpConsent({
+      consentCode,
+      accept: true,
+      companyId: workspaceId,
+      accountWide: false,
+    });
     const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
     const prisma = await db();
     await prisma.authVerification.deleteMany({ where: { identifier: `mcp-code-workspace:${code}` } });
@@ -268,7 +285,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: null });
+    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: null, accountWide: true });
     const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
     const response = await exchange({ code, clientId, verifier });
     const body = (await response.json()) as { access_token?: string; refresh_token?: string };
@@ -287,9 +304,11 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const refreshedTokens = (await refreshed.json()) as { access_token?: string };
     expect(refreshed.status).toBe(200);
     expect(
-      (await prisma.oauthAccessToken.findUnique({ where: { accessToken: refreshedTokens.access_token ?? "" } }))
-        ?.companyId,
-    ).toBeNull();
+      await prisma.oauthAccessToken.findUnique({
+        where: { accessToken: refreshedTokens.access_token ?? "" },
+        select: { companyId: true, accountWide: true },
+      }),
+    ).toEqual({ companyId: null, accountWide: true });
   });
 
   it("does not let another user see or decide a pending consent", async () => {
@@ -306,8 +325,12 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const signedOut = await serviceSignedInAs(null);
 
     expect(await other.getMcpConsentPrompt({ consentCode, clientId })).toBeNull();
-    expect(await other.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId })).toBeNull();
-    expect(await signedOut.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId })).toBeNull();
+    expect(
+      await other.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId, accountWide: false }),
+    ).toBeNull();
+    expect(
+      await signedOut.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId, accountWide: false }),
+    ).toBeNull();
     expect(await codeExists(consentCode)).toBe(true);
 
     const owner = await serviceSignedInAs(ownerId);
@@ -327,7 +350,9 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     });
     const service = await serviceSignedInAs(userId);
 
-    expect(await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId })).toBeNull();
+    expect(
+      await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId, accountWide: false }),
+    ).toBeNull();
     expect(await codeExists(consentCode)).toBe(false);
   });
 
@@ -342,7 +367,12 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: false, companyId: workspaceId });
+    const decision = await service.decideMcpConsent({
+      consentCode,
+      accept: false,
+      companyId: workspaceId,
+      accountWide: false,
+    });
     const callback = new URL(decision?.redirectURI ?? "");
 
     expect(callback.searchParams.get("error")).toBe("access_denied");

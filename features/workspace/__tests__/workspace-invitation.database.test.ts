@@ -333,7 +333,10 @@ describeDatabase("joining another workspace by invitation with an existing login
       'SELECT "value" FROM "AuthVerification" WHERE "identifier" = $1',
       [`mcp-code-workspace:${authorizationCode}`],
     );
-    expect(binding.rows[0]?.value).toBe(fixture.companies.own);
+    expect(JSON.parse(binding.rows[0]?.value ?? "null")).toEqual({
+      companyId: fixture.companies.own,
+      accountWide: true,
+    });
   });
 
   it("opens the invited workspace after an admin approves the member", async () => {
