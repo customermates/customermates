@@ -1016,6 +1016,24 @@
   "ApiKeysCard": {
     "unnamed": "Unbenannt"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "Wir schicken dir einen Link per E-Mail, der dich anmeldet. Er funktioniert einmal und läuft nach 15 Minuten ab.",
+      "resend": "Link erneut senden",
+      "resendIn": "Erneut senden in {seconds} s",
+      "sentBody": "Wir haben einen Link an {email} gesendet. Öffne ihn auf diesem Gerät, um fortzufahren.",
+      "sentTitle": "Schau in dein Postfach",
+      "signInCta": "Anmeldelink per E-Mail senden",
+      "signUpCta": "Registrierungslink per E-Mail senden",
+      "useAnotherEmail": "Andere E-Mail verwenden"
+    },
+    "tabs": {
+      "magicLink": "Magic Link",
+      "password": "Passwort",
+      "sso": "Single Sign-on"
+    },
+    "tabsLabel": "Anmeldemethode"
+  },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
@@ -1033,6 +1051,7 @@
     "invalidProfile": "Das Profil vom Anbieter war ungültig. Bitte versuche es erneut.",
     "issuerMismatch": "Der Antwort des Anbieters konnte nicht vertraut werden. Bitte versuche es erneut.",
     "issuerMissing": "Die Antwort des Anbieters konnte nicht überprüft werden. Bitte versuche es erneut.",
+    "magicLinkInvalid": "Dieser Anmeldelink ist abgelaufen oder wurde bereits verwendet. Fordere einen neuen an.",
     "missingProfile": "Der Anbieter hat keine Profildaten übermittelt. Bitte versuche es erneut.",
     "nameIsMissing": "Der Anbieter hat keinen Namen zurückgegeben. Bitte versuche es erneut.",
     "noCallbackUrl": "Die Anmeldeanfrage war unvollständig. Bitte versuche es erneut.",
@@ -1926,6 +1945,7 @@
       "bookingRateLimited": "Zu viele Buchungsversuche. Versuche es später erneut.",
       "bookingSlotTaken": "Diese Zeit ist nicht mehr verfügbar. Wähle eine andere Zeit.",
       "bookingUnavailable": "Diese Buchungsseite ist gerade nicht verfügbar.",
+      "botDetected": "Wir konnten diese Anfrage nicht verifizieren. Lade die Seite neu und versuche es erneut.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "calendarExportIncomplete": "Dieser Zeitraum enthält mehr Einträge, als ein Export aufnehmen kann. Wähle einen kürzeren Zeitraum oder engere Filter für die Datumsquellen.",
       "calendarNeedsReconnect": "Verbinde dein Google- oder Microsoft-Konto unter Kanäle & Kalender erneut, um Kalenderänderungen zu erlauben, und versuche es dann noch einmal.",
@@ -1943,6 +1963,7 @@
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
+      "disposableEmail": "Mit temporären E-Mail-Adressen lässt sich keine Testphase starten. Bitte nutze deine geschäftliche oder private E-Mail-Adresse.",
       "draftAlreadySent": "Dieser Entwurf wurde bereits gesendet.",
       "draftChanged": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast.",
       "draftFilesEmailOnly": "Nur E-Mail-Entwürfe können Anhänge enthalten.",
@@ -1988,6 +2009,7 @@
       "linkedinInboxUnavailable": "Dieses LinkedIn-Konto hat keinen {product}-Posteingang. Verbinde das Konto mit {product}, um ihn zu nutzen.",
       "linkedinProductRequiresLinkedin": "InMail- und LinkedIn-Produktoptionen brauchen ein LinkedIn-Konto.",
       "linkedinProductUnavailable": "Dieses LinkedIn-Konto hat dieses Produkt nicht verbunden.",
+      "magicLinkRateLimited": "Für diese E-Mail-Adresse wurden zu viele Anmeldelinks angefordert. Warte eine Stunde oder melde dich auf andere Weise an.",
       "memberReferenceRequired": "Gib das Mitglied mit userId oder email an.",
       "messageContentRequired": "Bitte eine Nachricht oder einen Anhang hinzufügen.",
       "messageNotFound": "Diese Nachricht ist nicht mehr verfügbar.",
@@ -4029,6 +4051,14 @@
   },
   "Loading": {
     "text": "Laden..."
+  },
+  "MagicLinkEmail": {
+    "cta": "Bei Customermates anmelden",
+    "expiry": "Der Link funktioniert einmal und läuft in 15 Minuten ab.",
+    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "intro": "Mit dem Button unten meldest du dich bei Customermates an.",
+    "securityNotice": "Falls du diesen Link nicht angefordert hast, kannst du diese E-Mail einfach ignorieren.",
+    "subject": "Dein Anmeldelink für Customermates"
   },
   "MassActions": {
     "clearField": "Feld leeren",
@@ -6558,11 +6588,10 @@
     "forgotPassword": "Passwort vergessen?",
     "inviteSubtitle": "{inviterName} hat dich in einen Workspace eingeladen. Melde dich an, um die Einladung zu prüfen.",
     "inviteSubtitleNamed": "{inviterName} hat dich eingeladen, {workspace} beizutreten. Melde dich an, um die Einladung zu prüfen.",
-    "or": "ODER",
     "rememberMe": "Angemeldet bleiben",
     "signInCta": "Anmelden",
     "signInTitle": "Bei deinem Konto anmelden",
-    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>"
+    "switchToSignUp": "Neu bei Customermates? <registerLink>Konto erstellen →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Weiter",
@@ -6572,9 +6601,8 @@
     "inviteSubtitle": "{inviterName} hat dich in einen Workspace auf Customermates eingeladen. Wähle aus, wie du dein Konto erstellen möchtest.",
     "inviteSubtitleNamed": "{inviterName} hat dich eingeladen, {workspace} auf Customermates beizutreten. Wähle aus, wie du dein Konto erstellen möchtest.",
     "inviteTitle": "Firmeneinladung annehmen",
-    "or": "ODER",
     "signUpCta": "Konto erstellen",
-    "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden</signInLink>",
+    "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden →</signInLink>",
     "title": "Customermates-Konto erstellen"
   },
   "SolutionStage": {

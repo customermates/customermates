@@ -126,7 +126,7 @@ test("a signed-out person opens an invitation, signs in with the existing login 
     await context.clearCookies();
     await page.goto(`/en/invitation/${token}`);
     await expect(page).toHaveURL(/\/en\/auth\/signup\?intent=/);
-    await page.getByRole("link", { name: "Sign in", exact: true }).click();
+    await page.getByRole("link", { name: "Sign in →", exact: true }).click();
     await expect(page).toHaveURL(/\/en\/auth\/signin\?intent=/);
     await expectHydrated(page.locator("#email"));
     await page.locator("#email").fill(login.rows[0].email);

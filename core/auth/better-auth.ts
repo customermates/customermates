@@ -1,5 +1,5 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { oAuthProxy, mcp } from "better-auth/plugins";
+import { oAuthProxy, mcp, magicLink } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
@@ -32,6 +32,14 @@ import {
   tokenGrantFromRequest,
 } from "@/features/auth/mcp-authorization-code";
 import { MCP_ENDPOINT_PATH, mcpWorkspaceIdFromResource } from "@/features/auth/mcp-resource";
+import { refusesDisposableEmail } from "@/features/auth/disposable-email";
+
+const MAGIC_LINK_EXPIRES_IN_SECONDS = 15 * 60;
+
+function refuseDisposableEmail(email: string): void {
+  if (refusesDisposableEmail(email))
+    throw new APIError("BAD_REQUEST", { code: "DISPOSABLE_EMAIL", message: "Disposable email addresses are refused" });
+}
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -201,6 +209,10 @@ export const auth = betterAuth({
     customRules: {
       "/mcp/register": { window: 3600, max: 10 },
       "/send-verification-email": { window: 3600, max: 10 },
+      "/sign-in/magic-link": { window: 3600, max: 5 },
+      "/magic-link/verify": { window: 60, max: 10 },
+      "/sign-up/email": { window: 3600, max: 10 },
+      "/sign-in/email": { window: 300, max: 10 },
     },
   },
 
@@ -213,6 +225,7 @@ export const auth = betterAuth({
       create: {
         before: async (user) => {
           const state = await getOAuthState();
+          if (!state) refuseDisposableEmail(user.email);
           const lastPage = SignupLastPageSchema.safeParse(state?.signupLastPage);
           const campaign = EncodedSignupCampaignSchema.safeParse(state?.signupCampaign);
           if (!lastPage.success && !campaign.success) return undefined;
@@ -380,6 +393,16 @@ export const auth = betterAuth({
         allowPlainCodeChallengeMethod: false,
         accessTokenExpiresIn: 3600,
         refreshTokenExpiresIn: 60 * 60 * 24 * 30,
+      },
+    }),
+    magicLink({
+      expiresIn: MAGIC_LINK_EXPIRES_IN_SECONDS,
+      disableSignUp: false,
+      storeToken: "hashed",
+      sendMagicLink: async ({ email, url }) => {
+        refuseDisposableEmail(email);
+        const { getAuthService } = await import("@/core/di");
+        await getAuthService().sendMagicLinkEmail({ to: email, url });
       },
     }),
     nextCookies(),

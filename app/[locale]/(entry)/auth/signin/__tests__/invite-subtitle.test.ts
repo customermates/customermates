@@ -28,6 +28,7 @@ vi.mock("@/core/stores/root-store.provider", () => {
   const store = {
     form: {},
     isLoading: false,
+    methods: { method: "password", magicLinkSentTo: null, resendAvailableAt: 0, restoreMethod: () => undefined },
     onInitOrRefresh: () => undefined,
     setWithUnsavedChangesGuard: () => undefined,
     showPassword: false,

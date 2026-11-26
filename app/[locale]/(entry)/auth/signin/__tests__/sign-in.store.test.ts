@@ -7,6 +7,7 @@ const authActions = vi.hoisted(() => ({
   signInWithEmailAction: vi.fn(),
   continueWithGoogleAction: vi.fn(),
   continueWithMicrosoftAction: vi.fn(),
+  requestMagicLinkAction: vi.fn(),
 }));
 
 vi.mock("@/app/[locale]/(public)/auth/actions", () => authActions);
@@ -195,6 +196,37 @@ describe("SignInStore", () => {
 
     expect(store.isLoading).toBe(false);
     expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("sends a sign-in link from the magic link tab with the invitation callback and shows the inbox state", async () => {
+    authActions.requestMagicLinkAction.mockResolvedValue({ ok: true, data: { email: "invited@example.com" } });
+    const store = new SignInStore(rootStore);
+    store.onInitOrRefresh({ callbackURL: "/auth/invitation?intent=signed.intent" });
+    store.onChange("email", "Invited@Example.com");
+    store.methods.setMethod("magicLink");
+
+    await store.onSubmit();
+
+    expect(authActions.requestMagicLinkAction).toHaveBeenCalledExactlyOnceWith({
+      email: "Invited@Example.com",
+      callbackURL: "/auth/invitation?intent=signed.intent",
+    });
+    expect(authActions.signInWithEmailAction).not.toHaveBeenCalled();
+    expect(store.methods.magicLinkSentTo).toBe("invited@example.com");
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("keeps the email form open when a sign-in link is refused", async () => {
+    const error = { errors: [], properties: { email: { errors: ["Temporary email addresses can't start a trial."] } } };
+    authActions.requestMagicLinkAction.mockResolvedValue({ ok: false, error });
+    const store = new SignInStore(rootStore);
+    store.onChange("email", "someone@mailinator.com");
+
+    await store.requestMagicLink();
+
+    expect(store.error).toEqual(error);
+    expect(store.methods.magicLinkSentTo).toBeNull();
+    expect(store.isLoading).toBe(false);
   });
 
   it("shows a social validation error and releases the lock", async () => {

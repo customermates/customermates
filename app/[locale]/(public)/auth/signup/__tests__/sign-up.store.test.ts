@@ -7,6 +7,7 @@ const authActions = vi.hoisted(() => ({
   signUpWithEmailAction: vi.fn(),
   continueWithGoogleAction: vi.fn(),
   continueWithMicrosoftAction: vi.fn(),
+  requestMagicLinkAction: vi.fn(),
 }));
 const toastZodErrorTree = vi.hoisted(() => vi.fn());
 
@@ -160,6 +161,39 @@ describe("SignUpStore signup journey", () => {
 
     expect(authActions.signUpWithEmailAction).toHaveBeenLastCalledWith(expect.any(Object), journey);
     expect(authActions.continueWithGoogleAction).toHaveBeenLastCalledWith("/onboarding", "/auth/signup", journey);
+  });
+
+  it("sends a sign-up link that lands on onboarding and carries the journey", async () => {
+    authActions.requestMagicLinkAction.mockResolvedValue({ ok: true, data: { email: "new@example.com" } });
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: undefined });
+    store.setSignupJourney(journey);
+    store.onChange("email", "new@example.com");
+    store.methods.setMethod("magicLink");
+
+    await store.onSubmit();
+
+    expect(authActions.requestMagicLinkAction).toHaveBeenCalledExactlyOnceWith(
+      { email: "new@example.com", callbackURL: "/onboarding" },
+      journey,
+    );
+    expect(authActions.signUpWithEmailAction).not.toHaveBeenCalled();
+    expect(store.methods.magicLinkSentTo).toBe("new@example.com");
+  });
+
+  it("sends an invited visitor's sign-up link back to the invitation", async () => {
+    authActions.requestMagicLinkAction.mockResolvedValue({ ok: true, data: { email: "invited@example.com" } });
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: "invite-a" });
+    store.setSignupJourney(journey);
+    store.onChange("email", "invited@example.com");
+
+    await store.requestMagicLink();
+
+    expect(authActions.requestMagicLinkAction).toHaveBeenCalledExactlyOnceWith({
+      email: "invited@example.com",
+      callbackURL: "/auth/invitation?intent=invite-a",
+    });
   });
 
   it("keeps an invitation signup free of the journey", async () => {

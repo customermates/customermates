@@ -4,6 +4,7 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
+import type { RequestMagicLinkData } from "@/features/auth/request-magic-link.interactor";
 import type { ResendVerificationEmailData } from "@/features/auth/resend-verification-email.interactor";
 import type { DecideMcpConsentData } from "@/features/auth/decide-mcp-consent.interactor";
 import type { JoinWorkspaceData } from "@/features/workspace/join-workspace.interactor";
@@ -12,6 +13,7 @@ import {
   getSignInWithEmailInteractor,
   getSignUpWithEmailInteractor,
   getRequestPasswordResetInteractor,
+  getRequestMagicLinkInteractor,
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
   getResendVerificationEmailInteractor,
@@ -22,6 +24,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import { serializeResult } from "@/core/utils/action-result";
+import { refuseBots } from "@/core/security/bot-check";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { buildLocalePath } from "@/i18n/locale-registry";
 import { rememberSignupJourney } from "@/features/acquisition/next/signup-journey-cookie";
@@ -34,6 +37,9 @@ function lastPageOf(signupJourney: unknown): { signupLastPage?: string; signupCa
 }
 
 export async function signInWithEmailAction(data: EmailSignInData) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
   const result = await getSignInWithEmailInteractor().invoke(data);
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
 
@@ -83,6 +89,9 @@ export async function continueWithMicrosoftAction(
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData, signupJourney?: unknown) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
   const fromSignupForm = signupJourney !== undefined && data.onboardingIntent === undefined;
   if (fromSignupForm) await rememberSignupJourney(signupJourney);
   const result = await getSignUpWithEmailInteractor().invoke(
@@ -93,7 +102,18 @@ export async function signUpWithEmailAction(data: EmailSignUpData, signupJourney
   return serializeResult(result);
 }
 
+export async function requestMagicLinkAction(data: RequestMagicLinkData, signupJourney?: unknown) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
+  if (signupJourney !== undefined) await rememberSignupJourney(signupJourney);
+  return serializeResult(getRequestMagicLinkInteractor().invoke(data));
+}
+
 export async function requestPasswordResetAction(data: RequestPasswordResetData) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
   return serializeResult(getRequestPasswordResetInteractor().invoke(data));
 }
 
@@ -108,6 +128,9 @@ export async function resendVerificationEmailFromAuthAction(data: ResendVerifica
 }
 
 export async function decideMcpConsentAction(data: DecideMcpConsentData) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
   return serializeResult(getDecideMcpConsentInteractor().invoke(data));
 }
 

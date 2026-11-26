@@ -15,6 +15,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
+import { refusesDisposableEmail } from "./disposable-email";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z
@@ -71,6 +72,16 @@ export class SignUpWithEmailInteractor {
 
   @Validate(Schema)
   private async signUp(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
+    if (refusesDisposableEmail(data.email)) {
+      const t = await getTranslations();
+      return {
+        ok: false,
+        error: createZodError<EmailSignUpData>(t("Common.errors.disposableEmail"), ["email"], {
+          error: CustomErrorCode.disposableEmail,
+        }),
+      };
+    }
+
     const res = await this.authService.registerWithEmail({
       email: data.email,
       name: data.email,

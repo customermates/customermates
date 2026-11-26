@@ -25,6 +25,7 @@ vi.mock("@/core/stores/root-store.provider", () => {
   const store = {
     form: {},
     isLoading: false,
+    methods: { method: "sso", magicLinkSentTo: null, resendAvailableAt: 0, restoreMethod: () => undefined },
     onInitOrRefresh: () => undefined,
     setWithUnsavedChangesGuard: () => undefined,
     showPassword: false,
@@ -66,7 +67,7 @@ describe("sign-in and sign-up provider buttons", () => {
     const markup = render();
     const buttons = providerButtons(markup);
 
-    expect(markup).toContain('<div class="flex flex-col items-center gap-4">');
+    expect(markup).toContain("flex flex-col items-center gap-4");
     expect(markup).not.toContain("sm:flex-row");
     expect(buttons).toHaveLength(2);
     for (const button of buttons) expect(button).not.toContain("sm:flex-1");
