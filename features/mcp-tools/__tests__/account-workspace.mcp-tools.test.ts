@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { z } from "zod";
 
-const calls = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn() }));
+const calls = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn(), setup: vi.fn(), advance: vi.fn() }));
 
 vi.mock("@/core/di", () => ({
   getListAccountWorkspacesInteractor: () => ({ invoke: calls.list }),
   getCreateWorkspaceInteractor: () => ({ invokeForAgent: calls.create }),
+  getStartAgentWorkspaceSetupInteractor: () => ({ invoke: calls.setup }),
+  getAdvanceAgentWorkspaceSetupInteractor: () => ({ invoke: calls.advance }),
 }));
 
 import { createZodError } from "@/core/validation/validation.utils";
@@ -14,7 +16,7 @@ import { mcpToolResultText } from "@/features/mcp-tools/mcp-tool";
 import { mcpToolInputSchema } from "@/features/mcp-tools/mcp-workspace-argument";
 import { ALL_MCP_TOOLS, mcpAlwaysOnToolsForAppMode } from "@/features/mcp-tools/tool-registry";
 
-import { createWorkspaceTool, listWorkspacesTool } from "../account-workspace.mcp-tools";
+import { createWorkspaceTool, getWorkspaceSetupStatusTool, listWorkspacesTool } from "../account-workspace.mcp-tools";
 
 describe("account workspace MCP tools", () => {
   beforeEach(() => {
@@ -32,6 +34,8 @@ describe("account workspace MCP tools", () => {
     );
     expect(mcpAlwaysOnToolsForAppMode("self-hosted")).toContain(listWorkspacesTool);
     expect(mcpAlwaysOnToolsForAppMode("self-hosted")).not.toContain(createWorkspaceTool);
+    expect(mcpAlwaysOnToolsForAppMode("self-hosted")).not.toContain(getWorkspaceSetupStatusTool);
+    expect(Object.keys((mcpToolInputSchema(getWorkspaceSetupStatusTool) as z.ZodObject).shape)).toEqual(["workspace"]);
   });
 
   it("returns the account's workspaces with their plan facts", async () => {
@@ -76,7 +80,109 @@ describe("account workspace MCP tools", () => {
     const result = await createWorkspaceTool.execute(input);
 
     expect(calls.create).toHaveBeenCalledWith({ name: "New Co", teamSize: "small", displayLanguage: "de" });
-    expect(result).toMatchObject({ structuredContent: { slug: "new-co", trial: true } });
+    expect(result).toMatchObject({ structuredContent: { slug: "new-co", trial: true, setup: null } });
+    expect(calls.setup).not.toHaveBeenCalled();
+  });
+
+  it("starts the Mate setup of the new workspace from a description and the answers the agent knows", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: { companyId: "company-n", slug: "new-co", trial: true } });
+    calls.setup.mockResolvedValue({ ok: true, data: { setupId: "setup-1", status: "planning" } });
+    const input = createWorkspaceTool.inputSchema.parse({
+      name: "Alpine Studio",
+      teamSize: "solo",
+      displayLanguage: "de",
+      description: "We design websites for small hotels.",
+      workWith: "clients",
+      pricing: "fixedPrice",
+      exampleRecords: false,
+    });
+
+    const result = await createWorkspaceTool.execute(input);
+
+    expect(calls.setup).toHaveBeenCalledWith({
+      companyId: "company-n",
+      description: "We design websites for small hotels.",
+      teamSize: "solo",
+      locale: "de",
+      workWith: "clients",
+      pricing: "fixedPrice",
+      exampleRecords: false,
+    });
+    expect(result).toMatchObject({
+      structuredContent: { slug: "new-co", setup: { status: "planning", setupId: "setup-1", reason: null } },
+    });
+    expect(createWorkspaceTool.outputSchema.safeParse((result as { structuredContent: unknown }).structuredContent).success).toBe(true);
+  });
+
+  it("keeps the new workspace and names the reason when the setup cannot start", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: { companyId: "company-n", slug: "new-co", trial: false } });
+    calls.setup.mockResolvedValue({
+      ok: false,
+      error: createZodError("Mate is not included in this plan.", [], { error: CustomErrorCode.permissionDenied }),
+    });
+
+    const result = await createWorkspaceTool.execute(
+      createWorkspaceTool.inputSchema.parse({ name: "Second", teamSize: "solo", description: "A bakery." }),
+    );
+
+    expect(result).toMatchObject({
+      structuredContent: { slug: "new-co", setup: { status: "notStarted", setupId: null } },
+    });
+    expect(JSON.stringify(result)).toContain("Mate is not included in this plan.");
+  });
+
+  it("starts no setup when the workspace itself could not be created", async () => {
+    calls.create.mockResolvedValue({
+      ok: false,
+      error: createZodError("Email not verified.", [], { error: CustomErrorCode.emailNotVerified }),
+    });
+
+    const result = await createWorkspaceTool.execute(
+      createWorkspaceTool.inputSchema.parse({ name: "X", teamSize: "solo", description: "A bakery." }),
+    );
+
+    expect(result).toMatchObject({ failure: { issues: [expect.objectContaining({ customCode: "emailNotVerified" })] } });
+    expect(calls.setup).not.toHaveBeenCalled();
+  });
+
+  it("reports the setup progress in a compact form", async () => {
+    calls.advance.mockResolvedValue({
+      ok: true,
+      data: {
+        available: true,
+        setup: {
+          status: "building",
+          plan: { status: "completed", error: null },
+          currentPhase: "views",
+          phases: [
+            { key: "dataModel", status: "completed", error: null, attempts: 1, startedAt: null, finishedAt: null },
+            { key: "views", status: "running", error: null, attempts: 1, startedAt: null, finishedAt: null },
+          ],
+          knowledgeBase: { pagesPlanned: 4, pagesWritten: 1 },
+          finishedAt: null,
+        },
+      },
+    });
+
+    const result = await getWorkspaceSetupStatusTool.execute();
+
+    expect(result).toMatchObject({
+      structuredContent: {
+        available: true,
+        reason: null,
+        status: "building",
+        currentPhase: "views",
+        phases: [
+          { phase: "dataModel", status: "completed", error: null },
+          { phase: "views", status: "running", error: null },
+        ],
+      },
+    });
+
+    calls.advance.mockResolvedValue({ ok: true, data: { available: false, reason: "configured", setup: null } });
+    expect(await getWorkspaceSetupStatusTool.execute()).toMatchObject({
+      structuredContent: { available: false, reason: "configured", status: null, phases: [] },
+    });
   });
 
   it("refuses an unknown team size before anything is created", () => {

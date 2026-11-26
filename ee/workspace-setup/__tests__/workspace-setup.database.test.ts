@@ -56,6 +56,7 @@ const { WORKSPACE_SETUP_BUDGETS } = await import("../workspace-setup-spend");
 const { SETUP_BUILD_PHASE_ATTEMPTS } = await import("../workspace-setup-attempts");
 const { SETUP_PHASE_STALE_MS, emptySetupPhase } = await import("../workspace-setup-phases");
 const { SETUP_GENERATION_STALE_MS } = await import("../workspace-setup-interview.service");
+const { StartAgentWorkspaceSetupInteractor: AgentSetup } = await import("../start-agent-workspace-setup.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -1398,5 +1399,89 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(
       await second.run(() => di.getWorkspaceSetupBuildService().runPhase(setupId, "dataModel", false, RUN_ID)),
     ).toBe("skip");
+  });
+
+  function agentSetup(ws: Workspace) {
+    return new AgentSetup(
+      { getAccountSession: () => Promise.resolve({ user: { email: ws.owner.email } } as never) },
+      { findMembershipUnscoped: () => Promise.resolve(ws.owner) },
+      di.getWorkspaceSetupRepo(),
+      di.getStartWorkspaceSetupInteractor(),
+      di.getPlanWorkspaceSetupInteractor(),
+    );
+  }
+
+  it("plans from the description an agent gave without follow-up questions and builds once the plan is ready", async () => {
+    const ws = await workspace();
+    const description = "We design brand identities and websites for small hotels in the Alps.";
+
+    const started = await agentSetup(ws).invoke({
+      companyId: ws.companyId,
+      description,
+      locale: "en",
+      teamSize: "small",
+      workWith: "clients",
+      purpose: ["deals", "projects"],
+      mainSteps: ["Briefing", "Design", "Build"],
+      pricing: "fixedPrice",
+      exampleRecords: true,
+    });
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const { setupId } = started.data;
+    expect(started.data.status).toBe("planning");
+    expect(state.dispatch).toHaveBeenCalledWith("plan-workspace-setup", { setupId, userId: ws.owner.id });
+
+    const interview = di.getWorkspaceSetupInterviewService();
+    expect(await ws.run(() => interview.followUps(setupId))).toBe("none");
+    const seeded = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(seeded?.answers).toMatchObject({
+      workWith: { value: { format: "singleChoice", value: "clients" } },
+      purpose: { value: { format: "multipleChoice", values: ["deals", "projects"], custom: [] } },
+      pricing: { value: { format: "singleChoice", value: "fixedPrice" } },
+      teamSize: { value: { format: "singleChoice", value: "small" } },
+    });
+    expect(seeded?.interview.followUpAnswers).toEqual([
+      { id: "followUp1", value: { format: "shortText", value: description } },
+    ]);
+
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+    expect(
+      state.generate.mock.calls.some(([args]) => JSON.stringify(args).includes("small hotels in the Alps")),
+    ).toBe(true);
+
+    const advanced = await ws.run(() => di.getAdvanceAgentWorkspaceSetupInteractor().invoke());
+    if (!advanced.ok || !advanced.data.available || !advanced.data.setup) throw new Error("no setup");
+    expect(advanced.data.setup.status).toBe("building");
+    expect(state.dispatch).toHaveBeenCalledWith("build-workspace-setup", { setupId, userId: ws.owner.id });
+
+    expect(await build(ws, setupId)).toMatchObject({ dataModel: "settled", records: "settled" });
+    expect((await status(ws)).status).toBe("completed");
+  });
+
+  it("never builds a plan the owner started in the app when an agent reads the status", async () => {
+    const ws = await workspace();
+    await planned(ws);
+
+    const advanced = await ws.run(() => di.getAdvanceAgentWorkspaceSetupInteractor().invoke());
+
+    expect(advanced.ok && advanced.data.available && advanced.data.setup?.status).toBe("planned");
+    expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
+  });
+
+  it("refuses an agent setup for a workspace the login does not belong to and an invalid answer", async () => {
+    const ws = await workspace();
+    const outsider = new AgentSetup(
+      { getAccountSession: () => Promise.resolve({ user: { email: "someone@example.test" } } as never) },
+      { findMembershipUnscoped: () => Promise.resolve(null) },
+      di.getWorkspaceSetupRepo(),
+      di.getStartWorkspaceSetupInteractor(),
+      di.getPlanWorkspaceSetupInteractor(),
+    );
+
+    expect((await outsider.invoke({ companyId: ws.companyId, description: "Bakery" })).ok).toBe(false);
+    expect(
+      (await agentSetup(ws).invoke({ companyId: ws.companyId, description: "Bakery", mainSteps: ["x".repeat(81)] })).ok,
+    ).toBe(false);
+    expect(state.dispatch).not.toHaveBeenCalled();
   });
 });

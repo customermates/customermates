@@ -53761,7 +53761,7 @@
     {
       "name": "create_workspace",
       "title": "Create workspace",
-      "description": "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). Cloud only; needs a verified email address and an OAuth connection, allows at most 3 new workspaces per account in any 24 hours, and follows the terms the account accepted when it connected.",
+      "description": "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial, setup }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). With a description, Mate plans and builds the whole workspace on the server, the same setup the app's onboarding runs: setup.status planning means it started and the workspace setup status reports its progress; notStarted carries the reason, for example a plan without Mate, and leaves an empty workspace. Without a description the workspace starts empty and setup is null. Cloud only; needs a verified email address and an OAuth connection approved for the whole account, allows at most 3 new workspaces per account in any 24 hours, and follows the terms the account accepted.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -53799,6 +53799,67 @@
               "pl",
               "nl"
             ]
+          },
+          "description": {
+            "description": "One or two sentences about the business in the owner's words: what it does and for whom. When given, Mate builds the workspace from it on the server: lists, fields, pipeline, views, dashboard and Knowledge Base",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "workWith": {
+            "description": "Who the business works with: clients (ongoing relationships), customers (one-off buyers) or ownWork",
+            "type": "string",
+            "enum": [
+              "clients",
+              "customers",
+              "ownWork"
+            ]
+          },
+          "purpose": {
+            "description": "What the workspace keeps track of",
+            "maxItems": 11,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "deals",
+                "projects",
+                "contracts",
+                "orders",
+                "chats",
+                "support",
+                "hiring",
+                "investors",
+                "partners",
+                "finances",
+                "marketing"
+              ]
+            }
+          },
+          "mainSteps": {
+            "description": "Pipeline steps of the main tracked work, in order",
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            }
+          },
+          "pricing": {
+            "description": "How the business charges",
+            "type": "string",
+            "enum": [
+              "fixedPrice",
+              "timeBased",
+              "subscription",
+              "products",
+              "free"
+            ]
+          },
+          "exampleRecords": {
+            "description": "Whether Mate adds example records (default true)",
+            "type": "boolean"
           }
         },
         "required": [
@@ -53826,12 +53887,58 @@
           },
           "trial": {
             "type": "boolean"
+          },
+          "setup": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "planning",
+                      "notStarted"
+                    ]
+                  },
+                  "setupId": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "status",
+                  "setupId",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "companyId",
           "slug",
-          "trial"
+          "trial",
+          "setup"
         ],
         "additionalProperties": false
       },
@@ -53839,6 +53946,175 @@
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_workspace_setup_status",
+      "title": "Get workspace setup status",
+      "description": "Reports the Mate setup of the workspace: status interview, planning, planned, building, completed or failed, the plan generation state with its error, the build phases (knowledgeBase, dataModel, views, records, dashboard) with status and error, the current phase, the Knowledge Base pages planned and written, and finishedAt. For a setup that the workspace creation started from a description, a finished plan is built right away, so a read during planned moves it to building. status null means no setup ran; available false carries the reason, such as configured for a workspace that already has lists.",
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "status",
+                  "error"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currentPhase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "phase": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "error": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "phase",
+                "status",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "knowledgeBase": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "pagesPlanned": {
+                    "type": "number"
+                  },
+                  "pagesWritten": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "pagesPlanned",
+                  "pagesWritten"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "available",
+          "reason",
+          "status",
+          "plan",
+          "currentPhase",
+          "phases",
+          "knowledgeBase",
+          "finishedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
         "openWorldHint": false
       }
     }

@@ -31,10 +31,18 @@ describe("agent start guide", () => {
 
   it("lists workspaces before anything is created and never sets one up twice", () => {
     const guide = agentStartGuide(BASE, "en", []);
-    expect(guide.indexOf("Call `list_workspaces` first")).toBeLessThan(guide.indexOf("call `create_workspace`"));
+    expect(guide.indexOf("Call `list_workspaces` first")).toBeLessThan(guide.indexOf("Call `create_workspace`"));
     expect(guide).toContain("never set it up a second time");
     expect(guide).toContain("Never create a second workspace when an existing one fits");
     expect(guide).toContain("the team size");
+  });
+
+  it("lets Mate build a new workspace from a one-sentence description instead of step by step", () => {
+    const guide = agentStartGuide(BASE, "en", []);
+    expect(guide).toContain("Call `create_workspace` with that sentence as `description`");
+    expect(guide).toContain("`get_workspace_setup_status`");
+    expect(guide.indexOf("`get_workspace_setup_status`")).toBeLessThan(guide.indexOf("## 4. Connect the inbox"));
+    expect(guide).toContain("Skip this step when `create_workspace` started a Mate setup");
   });
 
   it("lists every offered template with its slug, name, summary and page", () => {
