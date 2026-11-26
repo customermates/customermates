@@ -7042,7 +7042,7 @@
     "signedOutBody": "Log in op je account om een nieuwe verificatiemail aan te vragen.",
     "subtitle": "Bevestig je e-mailadres om verder te gaan.",
     "title": "E-mailverificatie",
-    "verifiedSignIn": "Je e-mailadres is nu bevestigd. Log in om verder te gaan."
+    "verifiedSignIn": "Je e-mailadres is nu bevestigd. Log in om verder te gaan. Heb je de link op een ander apparaat geopend? Log dan in met een magic link of stel je wachtwoord opnieuw in."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Bezorgpogingen verschijnen hier zodra een webhook wordt geactiveerd.",

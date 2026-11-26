@@ -7042,7 +7042,7 @@
     "signedOutBody": "Melde dich in deinem Konto an, um eine neue Bestätigungs-E-Mail anzufordern.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
     "title": "E-Mail-Verifizierung",
-    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren."
+    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren. Wenn du den Link auf einem anderen Gerät geöffnet hast, melde dich mit einem Magic Link an oder setze dein Passwort zurück."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",

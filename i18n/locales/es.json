@@ -7042,7 +7042,7 @@
     "signedOutBody": "Inicia sesión en tu cuenta para solicitar un nuevo correo de verificación.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
     "title": "Verificación del correo",
-    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar."
+    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar. Si abriste el enlace en otro dispositivo, inicia sesión con un enlace mágico o restablece tu contraseña."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",

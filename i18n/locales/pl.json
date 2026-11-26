@@ -7042,7 +7042,7 @@
     "signedOutBody": "Zaloguj się na swoje konto, aby poprosić o nowy e-mail weryfikacyjny.",
     "subtitle": "Zweryfikuj swój adres e-mail, aby kontynuować.",
     "title": "Weryfikacja adresu e-mail",
-    "verifiedSignIn": "Twój adres e-mail został zweryfikowany. Zaloguj się, aby kontynuować."
+    "verifiedSignIn": "Twój adres e-mail został zweryfikowany. Zaloguj się, aby kontynuować. Jeśli link został otwarty na innym urządzeniu, zaloguj się magicznym linkiem lub zresetuj hasło."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Próby dostarczenia pojawią się tutaj, gdy webhook zostanie uruchomiony.",

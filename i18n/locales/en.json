@@ -7042,7 +7042,7 @@
     "signedOutBody": "Sign in to your account to request a new verification email.",
     "subtitle": "Verify your email address to continue.",
     "title": "Email Verification",
-    "verifiedSignIn": "Your email address is now verified. Sign in to continue."
+    "verifiedSignIn": "Your email address is now verified. Sign in to continue. If you opened the link on another device, sign in with a magic link or reset your password."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",
