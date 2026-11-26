@@ -13,11 +13,6 @@ function isMissingReference(error: unknown): boolean {
   return (error as { code?: unknown } | null)?.code === "P2003";
 }
 
-/**
- * A backfill step checks the account once at its start, then writes for minutes. When the account or its whole
- * workspace is deleted in between, every write fails on the connectedAccountId foreign key. That is the expected end
- * of the backfill, not an ingest bug: throw an account-gone error so the page stops instead of reporting it.
- */
 export async function throwIfAccountGone(
   repo: BackfillConnectedAccountRepo,
   connectedAccountId: string,
