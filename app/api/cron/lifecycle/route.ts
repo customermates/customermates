@@ -23,6 +23,7 @@ import {
   getNormalizePhoneIdentitiesInteractor,
   getPruneWikiKnowledgeGapsInteractor,
   getSyncStaleWikiSectionsInteractor,
+  getUploadAdConversionsSystemInteractor,
 } from "@/core/di";
 import { isUnipileRateLimit, isUnipileTransientError } from "@/ee/messaging/messaging.service";
 import { env } from "@/env";
@@ -114,12 +115,13 @@ export async function GET(req: Request) {
   if (env.VERCEL_ENV === "preview") return Response.json({ skipped: "preview-environment" });
 
   const failures = await failedSteps(concurrentSteps());
-  if (env.APP_MODE === "cloud" && env.UNIPILE_API_KEY) {
-    failures.push(
-      ...(await failedSteps([
-        ["deleteOrphanedUnipileAccounts", () => getDeleteOrphanedUnipileAccountsInteractor().invoke()],
-      ])),
-    );
+  if (env.APP_MODE === "cloud") {
+    const sequential: LifecycleStep[] = [
+      ["uploadAdConversions", () => getUploadAdConversionsSystemInteractor().invoke()],
+    ];
+    if (env.UNIPILE_API_KEY)
+      sequential.push(["deleteOrphanedUnipileAccounts", () => getDeleteOrphanedUnipileAccountsInteractor().invoke()]);
+    failures.push(...(await failedSteps(sequential)));
   }
 
   const retryable = failures.filter(({ error }) => isRetryableUpstreamFailure(error));

@@ -8,6 +8,7 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/core/decorators/operator-interactor.decorator", () => ({ OperatorInteractor: () => undefined }));
+vi.mock("@/core/decorators/system-interactor.decorator", () => ({ SystemInteractor: () => undefined }));
 const errorReporter = vi.hoisted(() => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 vi.mock("@/core/observability/server", () => errorReporter);
 
@@ -29,7 +30,9 @@ import {
   buildDataManagerIngestRequests,
 } from "../data-manager/data-manager-request";
 import { GoogleDataManagerTransport } from "../data-manager/google-data-manager-transport";
+import { AdConversionUploader } from "../ad-conversion-uploader";
 import { UploadAdConversionsInteractor } from "../upload-ad-conversions.interactor";
+import { UploadAdConversionsSystemInteractor } from "@/ee/lifecycle/upload-ad-conversions.interactor";
 import { GetAdConversionExportInteractor } from "../get/get-ad-conversion-export.interactor";
 
 const NOW = new Date("2026-10-29T12:00:00.000Z");
@@ -106,10 +109,12 @@ function uploader(
   audit = auditLog(),
 ): UploadAdConversionsInteractor {
   return new UploadAdConversionsInteractor(
-    { listAdConversionCandidatesUnscoped: () => Promise.resolve(rows) },
-    ledgerRepo,
-    transportDouble,
-    audit,
+    new AdConversionUploader(
+      { listAdConversionCandidatesUnscoped: () => Promise.resolve(rows) },
+      ledgerRepo,
+      transportDouble,
+      audit,
+    ),
   );
 }
 
@@ -357,10 +362,7 @@ describe("upload ad conversions interactor", () => {
     const candidates = vi.fn();
     const audit = auditLog();
     const interactor = new UploadAdConversionsInteractor(
-      { listAdConversionCandidatesUnscoped: candidates },
-      ledgerRepo,
-      transportDouble,
-      audit,
+      new AdConversionUploader({ listAdConversionCandidatesUnscoped: candidates }, ledgerRepo, transportDouble, audit),
     );
 
     await expect(unwrapValidated(interactor.invoke())).resolves.toMatchObject({ status: "disabled", batches: [] });
@@ -425,6 +427,7 @@ describe("upload ad conversions interactor", () => {
     );
     expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledTimes(1);
     expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledWith({
+      trigger: "operator",
       mode: "validate",
       status: "sent",
       eligibleCount: 1,
@@ -520,6 +523,7 @@ describe("upload ad conversions interactor", () => {
       expect(ledgerRepo.claimBatchUnscoped).not.toHaveBeenCalled();
       expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledTimes(1);
       expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledWith({
+        trigger: "operator",
         mode: "validate",
         status: reason,
         eligibleCount: 1,
@@ -562,5 +566,116 @@ describe("upload ad conversions interactor", () => {
       httpStatus: 400,
       errorStatus: "INVALID_ARGUMENT",
     });
+  });
+});
+
+describe("daily ad conversion upload from the lifecycle cron", () => {
+  function systemUploader(
+    rows: AdConversionExportRow[],
+    ledgerRepo = ledger(),
+    transportDouble = transport(),
+    audit = auditLog(),
+    candidates = vi.fn(() => Promise.resolve(rows)),
+  ) {
+    return new UploadAdConversionsSystemInteractor(
+      new AdConversionUploader({ listAdConversionCandidatesUnscoped: candidates }, ledgerRepo, transportDouble, audit),
+    );
+  }
+
+  it("returns quietly without the flag and never calls Google or the database", async () => {
+    testEnv.value = { ...READY_ENV, GOOGLE_ADS_CONVERSION_UPLOAD_ENABLED: false };
+    const transportDouble = transport();
+    const candidates = vi.fn(() => Promise.resolve([row()]));
+    const audit = auditLog();
+
+    await expect(systemUploader([row()], ledger(), transportDouble, audit, candidates).invoke()).resolves.toMatchObject(
+      { status: "disabled" },
+    );
+    expect(candidates).not.toHaveBeenCalled();
+    expect(transportDouble.accessToken).not.toHaveBeenCalled();
+    expect(transportDouble.ingest).not.toHaveBeenCalled();
+    expect(audit.recordAdConversionUploadUnscoped).not.toHaveBeenCalled();
+    expect(errorReporter.captureException).not.toHaveBeenCalled();
+    expect(errorReporter.captureMessage).not.toHaveBeenCalled();
+  });
+
+  it("returns quietly when the configuration is incomplete", async () => {
+    testEnv.value = { ...READY_ENV, GOOGLE_DATA_MANAGER_CLIENT_SECRET: "" };
+    const transportDouble = transport();
+
+    await expect(systemUploader([row()], ledger(), transportDouble).invoke()).resolves.toMatchObject({
+      status: "incomplete",
+      missing: ["GOOGLE_DATA_MANAGER_CLIENT_SECRET"],
+    });
+    expect(transportDouble.ingest).not.toHaveBeenCalled();
+    expect(errorReporter.captureMessage).not.toHaveBeenCalled();
+  });
+
+  it("ingests once when ready and audits the run as the cron", async () => {
+    testEnv.value = { ...READY_ENV, GOOGLE_ADS_CONVERSION_UPLOAD_INGEST: true };
+    const ledgerRepo = ledger();
+    const transportDouble = transport();
+    const audit = auditLog();
+
+    const outcome = await systemUploader([row()], ledgerRepo, transportDouble, audit).invoke();
+
+    expect(outcome).toMatchObject({ status: "sent", mode: "ingest", batches: [{ rowCount: 1, result: "submitted" }] });
+    expect(transportDouble.ingest).toHaveBeenCalledTimes(1);
+    expect(transportDouble.ingest.mock.calls[0][0]).toMatchObject({ validateOnly: false });
+    expect(ledgerRepo.claimBatchUnscoped).toHaveBeenCalledWith(expect.objectContaining({ mode: "ingest" }));
+    expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ trigger: "cron", mode: "ingest", status: "sent" }),
+    );
+    expect(errorReporter.captureMessage).not.toHaveBeenCalled();
+  });
+
+  it("never uploads a click past Google's reporting deadline", async () => {
+    testEnv.value = { ...READY_ENV, GOOGLE_ADS_CONVERSION_UPLOAD_INGEST: true };
+    const transportDouble = transport();
+    const expired = row({
+      clickedAt: new Date("2026-07-01T10:00:00.000Z"),
+      conversionAt: new Date("2026-07-02T10:00:00.000Z"),
+    });
+
+    await expect(systemUploader([expired], ledger(), transportDouble).invoke()).resolves.toMatchObject({
+      status: "nothingToSend",
+      eligibleCount: 0,
+    });
+    expect(transportDouble.ingest).not.toHaveBeenCalled();
+  });
+
+  it("reports a transport failure instead of throwing", async () => {
+    testEnv.value = { ...READY_ENV, GOOGLE_ADS_CONVERSION_UPLOAD_INGEST: true };
+    const failure = new Error("socket hang up");
+    const transportDouble = transport();
+    transportDouble.ingest.mockRejectedValueOnce(failure);
+
+    await expect(systemUploader([row()], ledger(), transportDouble).invoke()).resolves.toBeNull();
+    expect(errorReporter.captureException).toHaveBeenCalledWith(failure, {
+      tags: { kind: "lifecycle-step", step: "uploadAdConversions" },
+    });
+  });
+
+  it("warns when Google refuses the credentials or rejects a batch", async () => {
+    await expect(
+      systemUploader([row()], ledger(), transport([], { ok: false, reason: "authorizationFailed" })).invoke(),
+    ).resolves.toMatchObject({ status: "authorizationFailed" });
+    await expect(
+      systemUploader(
+        [row()],
+        ledger(),
+        transport([{ result: "rejected", httpStatus: 400, errorStatus: "INVALID_ARGUMENT" }]),
+      ).invoke(),
+    ).resolves.toMatchObject({ status: "sent", batches: [{ result: "rejected" }] });
+
+    expect(errorReporter.captureMessage).toHaveBeenCalledTimes(2);
+    expect(errorReporter.captureMessage).toHaveBeenCalledWith(
+      "Daily ad conversion upload did not reach Google cleanly",
+      expect.objectContaining({ level: "warning", tags: expect.objectContaining({ status: "authorizationFailed" }) }),
+    );
+    expect(errorReporter.captureMessage).toHaveBeenCalledWith(
+      "Daily ad conversion upload did not reach Google cleanly",
+      expect.objectContaining({ tags: expect.objectContaining({ batchResult: "rejected" }) }),
+    );
   });
 });

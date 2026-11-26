@@ -24,6 +24,7 @@ import { PrismaAdConversionExportRepo } from "../prisma-ad-conversion-export.rep
 import { PrismaAdConversionUploadRepo } from "../prisma-ad-conversion-upload.repository";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
+import { AdConversionUploader } from "../ad-conversion-uploader";
 import { UploadAdConversionsInteractor } from "../upload-ad-conversions.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -67,10 +68,12 @@ const SUBMITTED: DataManagerIngestOutcome = { result: "submitted", httpStatus: 2
 async function upload(ingest: boolean, transport: ReturnType<typeof recordingTransport>) {
   testEnv.value = configured(ingest);
   const interactor = new UploadAdConversionsInteractor(
-    new PrismaAdConversionExportRepo(),
-    new PrismaAdConversionUploadRepo(),
-    transport,
-    new PrismaOperatorRepo({} as never, {} as never),
+    new AdConversionUploader(
+      new PrismaAdConversionExportRepo(),
+      new PrismaAdConversionUploadRepo(),
+      transport,
+      new PrismaOperatorRepo({} as never, {} as never),
+    ),
   );
   return runWithOperator(actor, () => runWithoutTenant(() => unwrapValidated(interactor.invoke())));
 }
@@ -235,7 +238,7 @@ describeDatabase("ad conversion upload ledger against a real database", { timeou
     expect(events[0]).toMatchObject({
       action: OPERATOR_AUDIT_ACTION.adConversionUpload,
       targetCompanyId: null,
-      metadata: { mode: "validate", status: "sent" },
+      metadata: { trigger: "operator", mode: "validate", status: "sent" },
     });
     const [ledgerRow] = await ledgerOf(companyId);
     const serialized = JSON.stringify(events);
