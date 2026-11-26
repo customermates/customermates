@@ -66,6 +66,10 @@ describe("bot check", () => {
     mocks.checkBotId.mockRejectedValue(failure);
 
     await expect(checkForBot()).resolves.toEqual({ ok: true });
-    expect(mocks.captureException).toHaveBeenCalledWith(failure);
+    expect(mocks.captureException).toHaveBeenCalledWith(expect.objectContaining({ cause: failure }), {
+      level: "warning",
+      tags: { kind: "bot-check" },
+    });
+    expect(mocks.captureException.mock.calls[0]?.[0]).toBeInstanceOf(Error);
   });
 });

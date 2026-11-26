@@ -14,10 +14,6 @@ import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
 import { refusesDisposableEmail } from "./disposable-email";
 
-export const MAGIC_LINK_REQUESTS_PER_HOUR = 5;
-
-const HOUR_MS = 60 * 60 * 1000;
-
 const Schema = z.object({
   email: z.email(),
   callbackURL: callbackUrlSchema.optional(),
@@ -39,13 +35,7 @@ export class RequestMagicLinkInteractor {
       return this.refuse(t("Common.errors.disposableEmail"), CustomErrorCode.disposableEmail, ["email"]);
     }
 
-    const recent = await this.authService.countMagicLinksSince(email, new Date(Date.now() - HOUR_MS));
-    if (recent >= MAGIC_LINK_REQUESTS_PER_HOUR) {
-      const t = await getTranslations();
-      return this.refuse(t("Common.errors.magicLinkRateLimited"), CustomErrorCode.magicLinkRateLimited);
-    }
-
-    await this.authService.requestMagicLink({
+    const sent = await this.authService.requestMagicLink({
       email,
       callbackURL: data.callbackURL,
       errorCallbackURL:
@@ -53,6 +43,13 @@ export class RequestMagicLinkInteractor {
           ? pathWithOnboardingIntent("/auth/signin", onboardingIntent.intent)
           : "/auth/signin",
     });
+
+    if (!sent.ok) {
+      const t = await getTranslations();
+      return sent.error === CustomErrorCode.disposableEmail
+        ? this.refuse(t("Common.errors.disposableEmail"), CustomErrorCode.disposableEmail, ["email"])
+        : this.refuse(t("Common.errors.magicLinkRateLimited"), CustomErrorCode.magicLinkRateLimited);
+    }
 
     return { ok: true as const, data: { email } };
   }

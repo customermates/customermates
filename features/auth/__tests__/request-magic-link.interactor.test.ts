@@ -21,16 +21,13 @@ vi.mock("next-intl/server", () => ({
   getTranslations: vi.fn().mockResolvedValue(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
-import { MAGIC_LINK_REQUESTS_PER_HOUR, RequestMagicLinkInteractor } from "../request-magic-link.interactor";
+import { RequestMagicLinkInteractor } from "../request-magic-link.interactor";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
-function buildInteractor(recentRequests = 0) {
-  const requestMagicLink = vi.fn().mockResolvedValue(undefined);
-  const countMagicLinksSince = vi.fn().mockResolvedValue(recentRequests);
-  const interactor = new RequestMagicLinkInteractor({
-    requestMagicLink,
-    countMagicLinksSince,
-  } as unknown as AuthService);
-  return { interactor, requestMagicLink, countMagicLinksSince };
+function buildInteractor(outcome: { ok: true } | { ok: false; error: CustomErrorCode } = { ok: true }) {
+  const requestMagicLink = vi.fn().mockResolvedValue(outcome);
+  const interactor = new RequestMagicLinkInteractor({ requestMagicLink } as unknown as AuthService);
+  return { interactor, requestMagicLink };
 }
 
 function emailErrors(result: unknown): string[] {
@@ -44,14 +41,13 @@ beforeEach(() => {
 
 describe("RequestMagicLinkInteractor", () => {
   it("sends the link to a normalized address and returns to sign-in on a broken link", async () => {
-    const { interactor, requestMagicLink, countMagicLinksSince } = buildInteractor();
+    const { interactor, requestMagicLink } = buildInteractor();
 
     await expect(interactor.invoke({ email: "Known.User@Gmail.com" })).resolves.toEqual({
       ok: true,
       data: { email: "known.user@gmail.com" },
     });
 
-    expect(countMagicLinksSince).toHaveBeenCalledWith("known.user@gmail.com", expect.any(Date));
     expect(requestMagicLink).toHaveBeenCalledExactlyOnceWith({
       email: "known.user@gmail.com",
       callbackURL: undefined,
@@ -109,8 +105,8 @@ describe("RequestMagicLinkInteractor", () => {
     expect(requestMagicLink).toHaveBeenCalledOnce();
   });
 
-  it("stops after the hourly limit of links for one address", async () => {
-    const { interactor, requestMagicLink } = buildInteractor(MAGIC_LINK_REQUESTS_PER_HOUR);
+  it("explains the hourly limit when better-auth refuses another link for the address", async () => {
+    const { interactor } = buildInteractor({ ok: false, error: CustomErrorCode.magicLinkRateLimited });
 
     const result = await interactor.invoke({ email: "busy@example.com" });
 
@@ -118,14 +114,15 @@ describe("RequestMagicLinkInteractor", () => {
     expect((result as { error: { issues: { message: string }[] } }).error.issues[0]?.message).toBe(
       "Common.errors.magicLinkRateLimited",
     );
-    expect(requestMagicLink).not.toHaveBeenCalled();
   });
 
-  it("sends the last link below the limit", async () => {
-    const { interactor, requestMagicLink } = buildInteractor(MAGIC_LINK_REQUESTS_PER_HOUR - 1);
+  it("explains a temporary address refused inside better-auth on the email field", async () => {
+    appMode.value = "self-hosted";
+    const { interactor } = buildInteractor({ ok: false, error: CustomErrorCode.disposableEmail });
 
-    await expect(interactor.invoke({ email: "busy@example.com" })).resolves.toMatchObject({ ok: true });
-    expect(requestMagicLink).toHaveBeenCalledOnce();
+    const result = await interactor.invoke({ email: "someone@example.com" });
+
+    expect(emailErrors(result)).toEqual(["Common.errors.disposableEmail"]);
   });
 
   it("rejects a malformed invitation callback", async () => {
