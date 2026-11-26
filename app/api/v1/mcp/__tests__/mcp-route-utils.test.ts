@@ -20,9 +20,16 @@ const apiKeys = vi.hoisted(() => ({
   isMcpApiKeyValid: vi.fn(() => Promise.resolve(true)),
   isMcpBearerValid: vi.fn(() => Promise.resolve(true)),
   resolveMcpCredentialWorkspace: vi.fn((_headers: Headers) =>
-    Promise.resolve<{ credential: "apiKey" | "bearer"; companyId: string | null } | null>({
+    Promise.resolve<{
+      credential: "apiKey" | "bearer";
+      email: string;
+      companyId: string | null;
+      agentJobKey: null;
+    } | null>({
       credential: "apiKey",
+      email: "member@example.com",
       companyId: "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f",
+      agentJobKey: null,
     }),
   ),
   authorize: vi.fn(() => Promise.resolve({ ok: true, data: true })),
@@ -30,6 +37,13 @@ const apiKeys = vi.hoisted(() => ({
 }));
 
 const requestLimit = vi.hoisted(() => ({ exemptCurrentRequestFromIntegrationLimit: vi.fn(() => Promise.resolve()) }));
+const access = vi.hoisted(() => ({
+  resolve: vi.fn(),
+  defaultWorkspace: vi.fn(),
+  isWorkspace: vi.fn((companyId: string, requested: string) =>
+    Promise.resolve(requested === companyId || requested === `slug-${companyId}`),
+  ),
+}));
 
 vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/ee/subscription/integration-request-limiter", () => requestLimit);
@@ -40,9 +54,12 @@ vi.mock("@/core/di", () => ({
   getGetCustomColumnsByEntityTypeInteractor: vi.fn(),
   getDeleteCustomColumnInteractor: vi.fn(),
   getAuthService: () => apiKeys,
+  getMcpWorkspaceAccessService: () => access,
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: apiKeys.authorize }),
   getRecordAgentFirstCallInteractor: () => ({ invoke: apiKeys.firstCall }),
 }));
+
+import { currentMcpWorkspace } from "@/features/auth/mcp-workspace-context";
 
 import { ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE, createMcpRoute, readMcpToolCall } from "../mcp-route-utils";
 
@@ -90,6 +107,10 @@ function requestBody(method: string, id?: number) {
 
 const WORKSPACE = "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
 const OTHER_WORKSPACE = "0b7d6c5a-2e1f-4a3b-8c9d-1e2f3a4b5c6d";
+
+function credentialOf(credential: "apiKey" | "bearer", companyId: string | null) {
+  return { credential, email: "member@example.com", companyId, agentJobKey: null };
+}
 
 async function rpc(
   handler: (request: Request, workspaceId?: string) => Promise<Response>,
@@ -220,7 +241,7 @@ describe("public MCP execution boundary", () => {
 
     expect(rejected.response.status).toBe(401);
     expect(rejected.response.headers.get("www-authenticate")).toBe(
-      'Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource"',
+      'Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource/api/v1/mcp"',
     );
     expect(apiKeys.isMcpApiKeyValid).toHaveBeenCalledWith(expect.any(Headers));
   });
@@ -315,26 +336,65 @@ describe("public MCP execution boundary", () => {
     const post = (body: unknown) =>
       new Request("http://localhost:4105/api/v1/mcp", { method: "POST", body: JSON.stringify(body) });
 
-    expect(await readMcpToolCall(post(requestBody("initialize", 1)))).toEqual({
+    expect(await readMcpToolCall(post(requestBody("initialize", 1)))).toMatchObject({
       toolCall: false,
       singleToolCallId: null,
     });
-    expect(await readMcpToolCall(post(requestBody("tools/list", 2)))).toEqual({
+    expect(await readMcpToolCall(post(requestBody("tools/list", 2)))).toMatchObject({
       toolCall: false,
       singleToolCallId: null,
     });
-    expect(await readMcpToolCall(post(requestBody("tools/call", 3)))).toEqual({ toolCall: true, singleToolCallId: 3 });
-    expect(await readMcpToolCall(post([requestBody("tools/call", 4), requestBody("tools/list", 5)]))).toEqual({
+    expect(await readMcpToolCall(post(requestBody("tools/call", 3)))).toMatchObject({
+      toolCall: true,
+      singleToolCallId: 3,
+    });
+    expect(await readMcpToolCall(post([requestBody("tools/call", 4), requestBody("tools/list", 5)]))).toMatchObject({
       toolCall: true,
       singleToolCallId: null,
     });
-    expect(await readMcpToolCall(new Request("http://localhost:4105/api/v1/mcp"))).toEqual({
+    expect(await readMcpToolCall(new Request("http://localhost:4105/api/v1/mcp"))).toMatchObject({
       toolCall: false,
       singleToolCallId: null,
     });
     expect(
       await readMcpToolCall(new Request("http://localhost:4105/api/v1/mcp", { method: "POST", body: "not json" })),
-    ).toEqual({ toolCall: false, singleToolCallId: null });
+    ).toMatchObject({ toolCall: false, singleToolCallId: null });
+  });
+
+  it("reads the tool name and workspace argument of every tool call and the workspace of a prompt read", async () => {
+    const post = (body: unknown) =>
+      new Request("http://localhost:4105/api/v1/mcp", { method: "POST", body: JSON.stringify(body) });
+    const call = (id: number, name: string, args: Record<string, unknown>) => ({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: { name, arguments: args },
+    });
+
+    expect(await readMcpToolCall(post(call(1, "query_crm_records", { workspace: " acme ", typeId: "x" })))).toEqual({
+      toolCall: true,
+      singleToolCallId: 1,
+      calls: [{ name: "query_crm_records", workspace: "acme" }],
+      promptWorkspace: null,
+    });
+    expect(
+      await readMcpToolCall(post([call(2, "list_workspaces", {}), call(3, "read_crm_record", { workspace: 7 })])),
+    ).toMatchObject({
+      calls: [
+        { name: "list_workspaces", workspace: null },
+        { name: "read_crm_record", workspace: null },
+      ],
+    });
+    expect(
+      await readMcpToolCall(
+        post({
+          jsonrpc: "2.0",
+          id: 4,
+          method: "prompts/get",
+          params: { name: "setup-from-template", arguments: { template: "client-tracker", workspace: "acme" } },
+        }),
+      ),
+    ).toMatchObject({ toolCall: false, promptWorkspace: "acme" });
   });
 
   it("answers a rate-limited tool call with a tool error the agent can relay, naming the plan and the upgrade", async () => {
@@ -417,7 +477,7 @@ describe("public MCP execution boundary", () => {
     expect(refused.response.status).toBe(403);
     expect(apiKeys.firstCall).toHaveBeenCalledTimes(1);
 
-    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce({ credential: "apiKey", companyId: OTHER_WORKSPACE });
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce(credentialOf("apiKey", OTHER_WORKSPACE));
     await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
     expect(apiKeys.firstCall).toHaveBeenCalledTimes(1);
   });
@@ -465,7 +525,7 @@ describe("public MCP execution boundary", () => {
     "answers an OAuth token bound to %s with invalid_token so the client authorizes for this workspace",
     async (companyId) => {
       const handler = createMcpRoute({ test: [expectedFailureTool] });
-      apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce({ credential: "bearer", companyId });
+      apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce(credentialOf("bearer", companyId));
 
       const refused = await rpc(handler, requestBody("initialize", 1), undefined, {
         workspaceId: WORKSPACE,
@@ -484,7 +544,7 @@ describe("public MCP execution boundary", () => {
 
   it("refuses an API key of another workspace with a structured 403", async () => {
     const handler = createMcpRoute({ test: [expectedFailureTool] });
-    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce({ credential: "apiKey", companyId: OTHER_WORKSPACE });
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce(credentialOf("apiKey", OTHER_WORKSPACE));
 
     const refused = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
 
@@ -511,14 +571,15 @@ describe("public MCP execution boundary", () => {
     expect(removed.response.headers.get("www-authenticate")).toContain(`/api/v1/mcp/w/${WORKSPACE}"`);
   });
 
-  it("does not consult the workspace binding at the bare endpoint", async () => {
+  it("keeps an API key at the bare endpoint in its own workspace without consulting the account", async () => {
     const handler = createMcpRoute({ test: [expectedFailureTool] });
 
     const initialized = await rpc(handler, requestBody("initialize", 1));
 
     expect(initialized.response.status).toBe(200);
     expect(apiKeys.isMcpApiKeyValid).toHaveBeenCalled();
-    expect(apiKeys.resolveMcpCredentialWorkspace).not.toHaveBeenCalled();
+    expect(access.resolve).not.toHaveBeenCalled();
+    expect(access.defaultWorkspace).not.toHaveBeenCalled();
   });
 
   it("answers two parallel connections that number their requests alike, each with its own workspace's data", async () => {
@@ -541,10 +602,7 @@ describe("public MCP execution boundary", () => {
       },
     };
     apiKeys.resolveMcpCredentialWorkspace.mockImplementation((headers: Headers) =>
-      Promise.resolve({
-        credential: "apiKey",
-        companyId: headers.get("x-api-key"),
-      }),
+      Promise.resolve(credentialOf("apiKey", headers.get("x-api-key"))),
     );
     const handler = createMcpRoute({ test: [workspaceTool] });
     const call = {
@@ -626,7 +684,7 @@ describe("anonymous MCP discovery", () => {
 
     expect(challenged.response.status).toBe(401);
     expect(challenged.response.headers.get("www-authenticate")).toBe(
-      'Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource"',
+      'Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource/api/v1/mcp"',
     );
     expect(executed).not.toHaveBeenCalled();
   });
@@ -688,5 +746,194 @@ describe("anonymous MCP discovery", () => {
       const response = await handler(new Request("http://localhost:4105/api/v1/mcp", { method }));
       expect(response.status).toBe(401);
     }
+  });
+});
+
+describe("account-wide MCP connection", () => {
+  const bearer = { authorization: "Bearer account-token" };
+  const echoTool: McpTool = {
+    name: "workspace_echo",
+    title: "Workspace echo",
+    description: "Returns the workspace the call works in.",
+    inputSchema: z.object({ note: z.string().optional() }),
+    execute: (input: { note?: string }) => JSON.stringify({ workspace: currentMcpWorkspace(), input }),
+  };
+  const accountTool: McpTool = {
+    name: "account_echo",
+    title: "Account echo",
+    description: "Runs for the whole account.",
+    scope: "account",
+    inputSchema: z.object({}),
+    execute: () => JSON.stringify({ workspace: currentMcpWorkspace() }),
+  };
+  const planTool: McpTool = {
+    name: "plan_limited",
+    title: "Plan limited",
+    description: "Hits a plan limit.",
+    inputSchema: z.object({}),
+    execute: () =>
+      mcpInteractorFailure(
+        createZodError("Record limit reached", [], { error: CustomErrorCode.planRecordLimitReached }),
+      ),
+  };
+  const call = (name: string, args: Record<string, unknown> = {}, id = 1) => ({
+    jsonrpc: "2.0",
+    id,
+    method: "tools/call",
+    params: { name, arguments: args },
+  });
+  const handler = () => createMcpRoute({ test: [echoTool, planTool] }, [accountTool]);
+  const text = (data: Record<string, unknown> | undefined) =>
+    String(((data?.result as { content?: Array<{ text: string }> })?.content ?? [])[0]?.text ?? "");
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValue({
+      credential: "bearer",
+      email: "member@example.com",
+      companyId: null,
+      agentJobKey: null,
+    });
+    access.resolve.mockResolvedValue({ ok: true, workspace: { companyId: WORKSPACE, slug: "acme" } });
+    access.defaultWorkspace.mockResolvedValue(null);
+  });
+
+  it("adds the optional workspace argument to every workspace tool and leaves account tools without it", async () => {
+    const listed = await rpc(handler(), requestBody("tools/list", 1), undefined, { credential: bearer });
+    const tools = (listed.data?.result as { tools: Array<{ name: string; inputSchema: { properties?: object } }> })
+      .tools;
+
+    expect(Object.keys(tools.find((tool) => tool.name === "workspace_echo")?.inputSchema.properties ?? {})).toEqual([
+      "note",
+      "workspace",
+    ]);
+    expect(tools.find((tool) => tool.name === "account_echo")?.inputSchema.properties ?? {}).not.toHaveProperty(
+      "workspace",
+    );
+  });
+
+  it("runs a call without workspace in the account's only usable workspace and hides the argument from the tool", async () => {
+    const result = await rpc(handler(), call("workspace_echo", { note: "hi" }), undefined, { credential: bearer });
+
+    expect(access.resolve).toHaveBeenCalledWith("member@example.com", null);
+    expect(JSON.parse(text(result.data))).toEqual({
+      workspace: { companyId: WORKSPACE, slug: "acme" },
+      input: { note: "hi" },
+    });
+    expect(apiKeys.authorize).toHaveBeenCalledOnce();
+  });
+
+  it("passes a named workspace to the resolution and runs the call there", async () => {
+    access.resolve.mockResolvedValue({ ok: true, workspace: { companyId: OTHER_WORKSPACE, slug: "taxes" } });
+
+    const result = await rpc(handler(), call("workspace_echo", { workspace: "taxes" }), undefined, {
+      credential: bearer,
+    });
+
+    expect(access.resolve).toHaveBeenCalledWith("member@example.com", "taxes");
+    expect(JSON.parse(text(result.data))).toMatchObject({
+      workspace: { companyId: OTHER_WORKSPACE, slug: "taxes" },
+      input: {},
+    });
+  });
+
+  it.each([
+    [
+      "several workspaces and no workspace argument",
+      {},
+      "This account has several workspaces. … acme (acme), Taxes (taxes).",
+    ],
+    ["a workspace of another login", { workspace: "foreign" }, 'This account has no workspace "foreign".'],
+  ])("answers %s with a tool error before the tool runs", async (_label, args, message) => {
+    access.resolve.mockResolvedValue({ ok: false, message });
+
+    const result = await rpc(handler(), call("workspace_echo", args, 9), undefined, { credential: bearer });
+
+    expect(result.response.status).toBe(200);
+    expect(result.data).toMatchObject({
+      id: 9,
+      result: { isError: true, _meta: { failure: { kind: "validation", issues: [{ path: ["workspace"], message }] } } },
+    });
+    expect(text(result.data)).toBe(message);
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+  });
+
+  it("runs an account tool for a login without any usable workspace, without the workspace checks", async () => {
+    const result = await rpc(handler(), call("account_echo"), undefined, { credential: bearer });
+
+    expect(JSON.parse(text(result.data))).toEqual({ workspace: null });
+    expect(access.resolve).not.toHaveBeenCalled();
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+  });
+
+  it("serves discovery of a login without a default workspace without workspace checks", async () => {
+    const listed = await rpc(handler(), requestBody("tools/list", 1), undefined, { credential: bearer });
+
+    expect(listed.response.status).toBe(200);
+    expect(access.defaultWorkspace).toHaveBeenCalledWith("member@example.com", null);
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+  });
+
+  it("refuses an API key that names another workspace than its own", async () => {
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValue({
+      credential: "apiKey",
+      email: "member@example.com",
+      companyId: WORKSPACE,
+      agentJobKey: null,
+    });
+
+    const own = await rpc(handler(), call("workspace_echo", { workspace: `slug-${WORKSPACE}` }, 1));
+    const foreign = await rpc(handler(), call("workspace_echo", { workspace: "taxes" }, 2));
+
+    expect(JSON.parse(text(own.data))).toMatchObject({ workspace: null });
+    expect(foreign.data).toMatchObject({ id: 2, result: { isError: true } });
+    expect(text(foreign.data)).toContain("An API key always works in the workspace it was created in");
+    expect(access.resolve).not.toHaveBeenCalled();
+  });
+
+  it("keeps an older workspace URL locked to its workspace", async () => {
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValue({
+      credential: "bearer",
+      email: "member@example.com",
+      companyId: WORKSPACE,
+      agentJobKey: null,
+    });
+
+    const same = await rpc(handler(), call("workspace_echo", { workspace: WORKSPACE }, 1), undefined, {
+      credential: bearer,
+      workspaceId: WORKSPACE,
+    });
+    const other = await rpc(handler(), call("workspace_echo", { workspace: "taxes" }, 2), undefined, {
+      credential: bearer,
+      workspaceId: WORKSPACE,
+    });
+
+    expect(JSON.parse(text(same.data))).toMatchObject({ workspace: null, input: {} });
+    expect(text(other.data)).toContain("locked to that workspace");
+    expect(access.resolve).not.toHaveBeenCalled();
+  });
+
+  it("refuses calls for two workspaces in one request", async () => {
+    const result = await rpc(
+      handler(),
+      [call("workspace_echo", { workspace: "acme" }, 1), call("workspace_echo", { workspace: "taxes" }, 2)] as never,
+      undefined,
+      { credential: bearer },
+    );
+
+    expect(result.response.status).toBe(400);
+    expect(access.resolve).not.toHaveBeenCalled();
+  });
+
+  it("adds the workspace's plan link to a plan-limit failure", async () => {
+    const result = await rpc(handler(), call("plan_limited"), undefined, { credential: bearer });
+
+    expect(result.data).toMatchObject({
+      result: {
+        isError: true,
+        _meta: { choosePlanUrl: "http://localhost:4105/w/acme/settings/billing" },
+      },
+    });
+    expect(text(result.data)).toContain("Choose a plan: http://localhost:4105/w/acme/settings/billing");
   });
 });

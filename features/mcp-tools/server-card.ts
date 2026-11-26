@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { McpTool } from "./mcp-tool";
 
+import { mcpToolInputSchema } from "./mcp-workspace-argument";
 import { MCP_GET_STARTED_PROMPT_INFO, MCP_SERVER_INFO, MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO } from "./server-metadata";
 
 export function buildMcpServerCard(tools: readonly McpTool[]) {
@@ -13,10 +14,7 @@ export function buildMcpServerCard(tools: readonly McpTool[]) {
       title: tool.title,
       description: tool.description,
       execution: { taskSupport: "forbidden" },
-      inputSchema: z.toJSONSchema(
-        tool.inputSchema instanceof z.ZodObject ? tool.inputSchema.strict() : tool.inputSchema,
-        { target: "draft-07", io: "input" },
-      ),
+      inputSchema: z.toJSONSchema(mcpToolInputSchema(tool), { target: "draft-07", io: "input" }),
       ...(tool.outputSchema
         ? { outputSchema: z.toJSONSchema(tool.outputSchema, { target: "draft-07", io: "output" }) }
         : {}),

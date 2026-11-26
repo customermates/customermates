@@ -2155,6 +2155,7 @@
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
       "workspaceChanged": "Dieser Workspace ist nicht mehr verfügbar. Er wurde gelöscht, seine URL wurde geändert oder dein Zugriff wurde entfernt.",
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
+      "workspaceDailyLimitReached": "Du kannst innerhalb von 24 Stunden bis zu {limit} Workspaces erstellen. Versuche es morgen erneut oder nutze einen deiner bestehenden Workspaces.",
       "workspaceDeleteAdminRequired": "Nur ein Admin kann diesen Workspace löschen.",
       "workspaceDeleteBillingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
       "workspaceDeleteBillingUnverified": "Die Abrechnung dieses Workspace konnte bei Lemon Squeezy nicht geprüft werden, daher wurde nichts gelöscht. Versuche es in ein paar Minuten noch einmal.",
@@ -2176,7 +2177,8 @@
       "workspaceSetupConflict": "Die Workspace-Einrichtung ist gerade mit einem anderen Schritt beschäftigt. Lade sie neu und versuche es erneut.",
       "workspaceSetupNotFound": "Für diesen Workspace wurde keine Einrichtung gefunden.",
       "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar.",
-      "workspaceSlugTaken": "Ein anderer Workspace verwendet diese URL bereits. Wähle eine andere."
+      "workspaceSlugTaken": "Ein anderer Workspace verwendet diese URL bereits. Wähle eine andere.",
+      "workspaceTermsNotAccepted": "Für neue Workspaces müssen die Bedingungen akzeptiert sein. Verbinde erneut und akzeptiere die Bedingungen auf dem Zustimmungsbildschirm, oder erstelle den Workspace in Customermates."
     },
     "events": {
       "automation": {
@@ -4047,7 +4049,6 @@
     "deny": "Ablehnen",
     "destination": "Verbindungsziel: {host}",
     "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut oder starte die Verbindung in deinem Client neu.",
-    "permissionRequired": "Deine Rolle erlaubt keine MCP-Verbindungen. Die Verbindung über MCP braucht Lesen Alle bei API & Webhooks. Bitte eine Person mit Admin-Rechten, sie dir zu geben.",
     "scopes": {
       "email": "Deine E-Mail-Adresse lesen",
       "offlineAccess": "Verbunden bleiben, während du abwesend bist",
@@ -4057,10 +4058,11 @@
     "subtitle": "{client} möchte sich mit deinem Konto verbinden."
   },
   "McpConsentWorkspace": {
-    "current": "Aktueller Workspace",
+    "accountHint": "{client} wählt für jede Anfrage den Workspace. Wenn du einen Workspace verlässt oder daraus entfernt wirst, verliert {client} den Zugriff darauf.",
+    "accountTitle": "{client} den Zugriff auf dein Customermates-Konto erlauben",
     "fixed": {
-      "hint": "{client} erreicht nur {workspace}. Jeder Workspace hat eine eigene MCP-URL, so kannst du weitere als separate Verbindungen hinzufügen.",
-      "notMember": "Diese MCP-URL gehört zu einem Workspace, in dem du kein Mitglied bist. Melde dich mit dem Konto an, das du dort nutzt, oder kopiere die MCP-URL deines eigenen Workspaces unter Einstellungen → API-Schlüssel & Konnektoren.",
+      "hint": "Diese ältere Verbindungs-URL erreicht nur {workspace}. Verbindungen, die du unter Einstellungen → API-Schlüssel & Konnektoren hinzufügst, erreichen alle deine Workspaces.",
+      "notMember": "Diese MCP-URL gehört zu einem Workspace, in dem du kein Mitglied bist. Melde dich mit dem Konto an, das du dort nutzt, oder verbinde erneut mit der URL unter Einstellungen → API-Schlüssel & Konnektoren.",
       "unavailable": {
         "inactive": "Dein Zugriff auf {workspace} ist deaktiviert. Bitte eine Person mit Admin-Rechten, ihn wieder zu aktivieren.",
         "pending": "Deine Anfrage für {workspace} wartet noch auf Genehmigung. Verbinde erneut, sobald eine Person mit Admin-Rechten sie genehmigt hat.",
@@ -4069,8 +4071,8 @@
         "terms": "Bevor du {workspace} verbinden kannst, müssen neue Bedingungen akzeptiert werden. Öffne Customermates, akzeptiere sie und verbinde dann erneut."
       }
     },
-    "pickerLabel": "Workspace auswählen",
-    "scopeHint": "{client} erreicht nur den Workspace, den du auswählst. Für einen anderen Workspace verbindest du erneut.",
+    "newWorkspaces": "Neue Workspaces, die es für dich erstellt",
+    "noneAvailable": "Keiner deiner Workspaces kann gerade über MCP genutzt werden. Den Grund siehst du neben jedem Workspace.",
     "title": "{client} mit diesem Workspace verbinden",
     "titleNamed": "{client} mit {workspace} verbinden",
     "unavailable": {
@@ -4078,7 +4080,8 @@
       "permission": "Deine Rolle hat keinen API-Zugriff",
       "plan": "Kein aktives Abonnement",
       "terms": "Neue Bedingungen müssen akzeptiert werden"
-    }
+    },
+    "workspacesLabel": "Workspaces, die es nutzen kann"
   },
   "MemberRemoval": {
     "action": "Aus Workspace entfernen",
@@ -4384,7 +4387,7 @@
         "claudeTitle": "Claude-Konto verbinden",
         "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Customermates prüft die externe Verbindung nicht automatisch. <guide>Vollständige Anleitung lesen</guide>.",
         "urlLabel": "MCP-Server-URL",
-        "workspaceNote": "Diese URL verbindet {workspace}. Jeder Workspace hat eine eigene URL, so kannst du mehrere Workspaces gleichzeitig mit {client} verbinden."
+        "workspaceNote": "Eine Verbindung deckt alle deine Workspaces ab: {client} wählt für jede Anfrage den Workspace und kann auf deinen Wunsch einen neuen erstellen."
       },
       "createKey": "API-Key erstellen",
       "createKeyIntro": "Erstelle einen API-Key für diesen Agenten. Der Key wird nur einmal angezeigt und ist im Install-Snippet unten enthalten.",
@@ -4447,7 +4450,7 @@
         "stepsTitle": "Customermates als entfernten MCP-Server hinzufügen",
         "subtitle": "Jeder Client, der einen entfernten MCP-Server hinzufügen kann, funktioniert mit dieser URL.",
         "title": "Anderer MCP-Client",
-        "workspaceNote": "Diese URL verbindet {workspace}. Jeder Workspace hat eine eigene URL."
+        "workspaceNote": "Dieselbe URL gilt für alle deine Workspaces. Ein API-Schlüssel arbeitet immer in dem Workspace, in dem er erstellt wurde."
       },
       "providers": {
         "ariaLabel": "KI-Clients"

@@ -19,6 +19,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "linkedin_search_sales_companies",
   "linkedin_search_sales_leads",
   "list_users",
+  "list_workspaces",
   "lookup_address",
   "preview_crm_deletion",
   "query_crm_measure",
@@ -64,6 +65,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
 [
   "comment_on_social_post",
   "configure_record_model",
+  "create_workspace",
   "import_crm_records",
   "manage_calendar",
   "manage_conversation_records",

@@ -2155,6 +2155,7 @@
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
       "workspaceChanged": "This workspace is not available any more. It was deleted, its URL changed or your access was removed.",
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
+      "workspaceDailyLimitReached": "You can create up to {limit} workspaces in 24 hours. Try again tomorrow, or use one of your existing workspaces.",
       "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
       "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
       "workspaceDeleteBillingUnverified": "We couldn't verify this workspace's billing with Lemon Squeezy, so nothing was deleted. Try again in a few minutes.",
@@ -2176,7 +2177,8 @@
       "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
       "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
       "workspaceSetupUnavailable": "The AI workspace setup is not available here.",
-      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one."
+      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one.",
+      "workspaceTermsNotAccepted": "New workspaces need accepted terms. Connect again and accept the terms on the consent screen, or create the workspace in Customermates."
     },
     "events": {
       "automation": {
@@ -4047,7 +4049,6 @@
     "deny": "Deny",
     "destination": "Connection destination: {host}",
     "error": "Something went wrong. Please try again, or restart the connection from your client.",
-    "permissionRequired": "Your role does not allow MCP connections. Connecting through MCP requires Read access All on API & Webhooks. Ask a workspace administrator to grant it.",
     "scopes": {
       "email": "Read your email address",
       "offlineAccess": "Stay connected while you are away",
@@ -4057,10 +4058,11 @@
     "subtitle": "{client} wants to connect to your account."
   },
   "McpConsentWorkspace": {
-    "current": "Current workspace",
+    "accountHint": "{client} chooses the workspace for each request. If you leave a workspace or are removed from it, {client} loses access to it.",
+    "accountTitle": "Allow {client} to use your Customermates account",
     "fixed": {
-      "hint": "{client} only reaches {workspace}. Every workspace has its own MCP URL, so you can connect others as separate connections.",
-      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or copy your own workspace's MCP URL from Settings → API keys & connectors.",
+      "hint": "This older connection URL only reaches {workspace}. Connections added from Settings → API keys & connectors reach all your workspaces.",
+      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or connect again with the URL from Settings → API keys & connectors.",
       "unavailable": {
         "inactive": "Your access to {workspace} is deactivated. Ask a workspace administrator to reactivate it.",
         "pending": "Your request to join {workspace} is still waiting for approval. Connect again once an administrator has approved it.",
@@ -4069,8 +4071,8 @@
         "terms": "Updated terms need to be accepted before you can connect {workspace}. Open Customermates, accept them, then connect again."
       }
     },
-    "pickerLabel": "Choose a workspace",
-    "scopeHint": "{client} only reaches the workspace you choose. To use another workspace, connect again.",
+    "newWorkspaces": "New workspaces it creates for you",
+    "noneAvailable": "None of your workspaces can be used through MCP right now. The reason is shown next to each workspace.",
     "title": "Connect {client} to this workspace",
     "titleNamed": "Connect {client} to {workspace}",
     "unavailable": {
@@ -4078,7 +4080,8 @@
       "permission": "Your role has no API access",
       "plan": "No active subscription",
       "terms": "Updated terms need to be accepted"
-    }
+    },
+    "workspacesLabel": "Workspaces it can use"
   },
   "MemberRemoval": {
     "action": "Remove from workspace",
@@ -4384,7 +4387,7 @@
         "claudeTitle": "Connect your Claude account",
         "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection. <guide>Read the full setup guide</guide>.",
         "urlLabel": "MCP server URL",
-        "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL, so you can connect several workspaces to {client} at the same time."
+        "workspaceNote": "One connection covers all your workspaces: {client} chooses the workspace for each request and can create a new one when you ask for it."
       },
       "createKey": "Create API key",
       "createKeyIntro": "Generate an API key for this agent. The key is shown once and embedded in the install snippet below.",
@@ -4447,7 +4450,7 @@
         "stepsTitle": "Add Customermates as a remote MCP server",
         "subtitle": "Any client that can add a remote MCP server works with this URL.",
         "title": "Other MCP client",
-        "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL."
+        "workspaceNote": "The same URL serves all your workspaces. An API key always works in the workspace it was created in."
       },
       "providers": {
         "ariaLabel": "AI clients"

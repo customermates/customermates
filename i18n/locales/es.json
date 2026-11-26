@@ -2155,6 +2155,7 @@
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo.",
       "workspaceChanged": "Este espacio de trabajo ya no está disponible. Se eliminó, su URL cambió o se retiró tu acceso.",
       "workspaceCreationUnavailable": "Aquí no se pueden crear nuevos espacios de trabajo.",
+      "workspaceDailyLimitReached": "Puedes crear hasta {limit} espacios de trabajo en 24 horas. Vuelve a intentarlo mañana o usa uno de tus espacios de trabajo actuales.",
       "workspaceDeleteAdminRequired": "Solo un administrador puede eliminar este espacio de trabajo.",
       "workspaceDeleteBillingActive": "Este espacio de trabajo aún tiene una suscripción que se puede cobrar o reanudar. Cancélala y espera a que termine, o contacta con el soporte.",
       "workspaceDeleteBillingUnverified": "No pudimos verificar la facturación de este espacio de trabajo con Lemon Squeezy, así que no se eliminó nada. Inténtalo de nuevo en unos minutos.",
@@ -2176,7 +2177,8 @@
       "workspaceSetupConflict": "La configuración del espacio de trabajo está ocupada con otro paso. Vuelve a cargarla e inténtalo de nuevo.",
       "workspaceSetupNotFound": "No se encontró ninguna configuración para este espacio de trabajo.",
       "workspaceSetupUnavailable": "La configuración del espacio de trabajo con IA no está disponible aquí.",
-      "workspaceSlugTaken": "Otro espacio de trabajo ya usa esta URL. Elige otra."
+      "workspaceSlugTaken": "Otro espacio de trabajo ya usa esta URL. Elige otra.",
+      "workspaceTermsNotAccepted": "Los nuevos espacios de trabajo requieren aceptar las condiciones. Vuelve a conectar y acepta las condiciones en la pantalla de consentimiento, o crea el espacio de trabajo en Customermates."
     },
     "events": {
       "automation": {
@@ -4047,7 +4049,6 @@
     "deny": "Denegar",
     "destination": "Destino de la conexión: {host}",
     "error": "Algo ha salido mal. Inténtalo de nuevo o reinicia la conexión desde tu cliente.",
-    "permissionRequired": "Tu rol no permite conexiones MCP. Conectar mediante MCP requiere acceso de lectura Todos en API y webhooks. Pide a un administrador del espacio de trabajo que te lo conceda.",
     "scopes": {
       "email": "Leer tu dirección de correo",
       "offlineAccess": "Mantener la conexión mientras estás ausente",
@@ -4057,10 +4058,11 @@
     "subtitle": "{client} quiere conectarse a tu cuenta."
   },
   "McpConsentWorkspace": {
-    "current": "Espacio de trabajo actual",
+    "accountHint": "{client} elige el espacio de trabajo en cada solicitud. Si sales de un espacio de trabajo o te eliminan de él, {client} pierde el acceso a ese espacio.",
+    "accountTitle": "Permitir que {client} use tu cuenta de Customermates",
     "fixed": {
-      "hint": "{client} solo accede a {workspace}. Cada espacio de trabajo tiene su propia URL de MCP, así que puedes conectar otros como conexiones independientes.",
-      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o copia la URL de MCP de tu propio espacio de trabajo en Ajustes → Claves de API y conectores.",
+      "hint": "Esta URL de conexión antigua solo accede a {workspace}. Las conexiones que añades desde Ajustes → Claves de API y conectores acceden a todos tus espacios de trabajo.",
+      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o vuelve a conectar con la URL de Ajustes → Claves de API y conectores.",
       "unavailable": {
         "inactive": "Tu acceso a {workspace} está desactivado. Pide a un administrador del espacio de trabajo que lo reactive.",
         "pending": "Tu solicitud para unirte a {workspace} sigue esperando aprobación. Vuelve a conectar cuando un administrador la haya aprobado.",
@@ -4069,8 +4071,8 @@
         "terms": "Antes de conectar {workspace} hay que aceptar las nuevas condiciones. Abre Customermates, acéptalas y vuelve a conectar."
       }
     },
-    "pickerLabel": "Elige un espacio de trabajo",
-    "scopeHint": "{client} solo accede al espacio de trabajo que elijas. Para usar otro, vuelve a conectarlo.",
+    "newWorkspaces": "Nuevos espacios de trabajo que cree para ti",
+    "noneAvailable": "Ninguno de tus espacios de trabajo se puede usar por MCP en este momento. El motivo aparece junto a cada uno.",
     "title": "Conectar {client} con este espacio de trabajo",
     "titleNamed": "Conectar {client} con {workspace}",
     "unavailable": {
@@ -4078,7 +4080,8 @@
       "permission": "Tu rol no tiene acceso a la API",
       "plan": "Sin suscripción activa",
       "terms": "Hay que aceptar las nuevas condiciones"
-    }
+    },
+    "workspacesLabel": "Espacios de trabajo que puede usar"
   },
   "MemberRemoval": {
     "action": "Quitar del espacio de trabajo",
@@ -4384,7 +4387,7 @@
         "claudeTitle": "Conecta tu cuenta de Claude",
         "externalNote": "Esta configuración se realiza en una pestaña nueva o en tu IA. Customermates no verifica automáticamente la conexión externa. <guide>Lee la guía de configuración completa</guide>.",
         "urlLabel": "URL del servidor MCP",
-        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL, así que puedes conectar varios espacios de trabajo a {client} a la vez."
+        "workspaceNote": "Una conexión cubre todos tus espacios de trabajo: {client} elige el espacio de trabajo en cada solicitud y puede crear uno nuevo cuando se lo pidas."
       },
       "createKey": "Crear una clave de API",
       "createKeyIntro": "Genera una clave de API para este agente. La clave se muestra una sola vez y se incluye en el fragmento de instalación de abajo.",
@@ -4447,7 +4450,7 @@
         "stepsTitle": "Añade Customermates como servidor MCP remoto",
         "subtitle": "Cualquier cliente que pueda añadir un servidor MCP remoto funciona con esta URL.",
         "title": "Otro cliente MCP",
-        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL."
+        "workspaceNote": "La misma URL sirve para todos tus espacios de trabajo. Una clave de API siempre trabaja en el espacio de trabajo donde se creó."
       },
       "providers": {
         "ariaLabel": "Clientes de IA"

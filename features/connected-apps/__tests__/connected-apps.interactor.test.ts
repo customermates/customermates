@@ -102,17 +102,17 @@ describe("GetConnectedAppsInteractor", () => {
     expect(result.data.map((app) => app.id)).toEqual(["chatgpt"]);
   });
 
-  it("never shows another member's connections or the member's connections to another workspace", async () => {
+  it("never shows another member's connections and shows the member's account-wide connections in every workspace", async () => {
     const { interactor, repo } = list([
       token({ userId: OTHER_LOGIN, clientId: "cursor" }),
       token({ companyId: OTHER_COMPANY, clientId: "chatgpt" }),
-      token({ companyId: null, clientId: "chatgpt" }),
+      token({ companyId: null, clientId: "grok" }),
       token(),
     ]);
 
     const result = await interactor.invoke();
 
-    expect(result.data.map((app) => app.id)).toEqual(["claude"]);
+    expect(result.data.map((app) => app.id).sort()).toEqual(["chatgpt", "claude", "grok"]);
     expect(repo.askedFor).toEqual([LOGIN]);
   });
 
@@ -142,12 +142,12 @@ describe("DisconnectConnectedAppInteractor", () => {
     };
   }
 
-  it("revokes the app for the signed-in login in the current workspace only", async () => {
+  it("revokes the account-wide app of the signed-in login", async () => {
     const { interactor, revokeOauthClientAccess } = disconnect();
 
     expect(await interactor.invoke({ id: "claude" })).toEqual({ ok: true, data: "claude" });
     expect(revokeOauthClientAccess).toHaveBeenCalledTimes(1);
-    expect(revokeOauthClientAccess).toHaveBeenCalledWith({ authUserId: LOGIN, companyId: COMPANY, clientId: "claude" });
+    expect(revokeOauthClientAccess).toHaveBeenCalledWith({ authUserId: LOGIN, clientId: "claude" });
   });
 
   it("works for a member who may use the API without managing keys", async () => {
@@ -158,7 +158,7 @@ describe("DisconnectConnectedAppInteractor", () => {
     const { interactor, revokeOauthClientAccess } = disconnect();
 
     expect(await interactor.invoke({ id: "claude" })).toMatchObject({ ok: true });
-    expect(revokeOauthClientAccess).toHaveBeenCalledWith({ authUserId: LOGIN, companyId: COMPANY, clientId: "claude" });
+    expect(revokeOauthClientAccess).toHaveBeenCalledWith({ authUserId: LOGIN, clientId: "claude" });
   });
 
   it("revokes nothing without a browser session of the member", async () => {

@@ -173521,6 +173521,8 @@
                         "workspaceDeletePlatformOperator",
                         "workspaceInvitationInvalid",
                         "workspaceLimitReached",
+                        "workspaceDailyLimitReached",
+                        "workspaceTermsNotAccepted",
                         "workspacePlanRequired",
                         "workspaceMemberLeft",
                         "workspaceMemberLastAdmin",

@@ -305,13 +305,17 @@ describeDatabase("joining another workspace by invitation with an existing login
     });
   });
 
-  it("lets the pending member connect an MCP client to another of their workspaces only", async () => {
+  it("lets the pending member connect an MCP client to the account, defaulting to the only usable workspace", async () => {
     const { getDecideMcpConsentInteractor, getListMcpConsentWorkspacesInteractor } = await import("@/core/di");
     asSession();
 
     const listed = await getListMcpConsentWorkspacesInteractor().invoke();
     expect(
-      listed.data.map(({ companyId, isCurrent, unavailableReason }) => [companyId, isCurrent, unavailableReason]),
+      listed.data.workspaces.map(({ companyId, isCurrent, unavailableReason }) => [
+        companyId,
+        isCurrent,
+        unavailableReason,
+      ]),
     ).toEqual(
       expect.arrayContaining([
         [fixture.companies.own, false, null],
@@ -319,23 +323,9 @@ describeDatabase("joining another workspace by invitation with an existing login
       ]),
     );
 
-    const restrictedCode = await pendingConsent();
-    asSession();
-    await expect(
-      getDecideMcpConsentInteractor().invoke({
-        consentCode: restrictedCode,
-        accept: true,
-        companyId: fixture.companies.invited,
-      }),
-    ).resolves.toEqual({ ok: true, data: null });
-
     const consentCode = await pendingConsent();
     asSession();
-    const decided = await getDecideMcpConsentInteractor().invoke({
-      consentCode,
-      accept: true,
-      companyId: fixture.companies.own,
-    });
+    const decided = await getDecideMcpConsentInteractor().invoke({ consentCode, accept: true });
     if (!decided.ok || !decided.data) throw new Error("The consent was not decided.");
     const authorizationCode = new URL(decided.data.redirectURI).searchParams.get("code");
     expect(authorizationCode).toBeTruthy();
@@ -384,10 +374,12 @@ describeDatabase("joining another workspace by invitation with an existing login
 
     asSession();
     const listed = await getListMcpConsentWorkspacesInteractor().invoke();
-    expect(listed.data.find((workspace) => workspace.companyId === fixture.companies.invited)).toMatchObject({
-      isCurrent: true,
-      unavailableReason: "permission",
-    });
+    expect(listed.data.workspaces.find((workspace) => workspace.companyId === fixture.companies.invited)).toMatchObject(
+      {
+        isCurrent: true,
+        unavailableReason: "permission",
+      },
+    );
   });
 
   it("keeps a member who left out until a new invitation revives the membership as pending", async () => {

@@ -15,10 +15,8 @@ import { AiConnectionOpenAiSetup } from "./ai-connection-openai-setup";
 import { AiConnectionOtherSetup } from "./ai-connection-other-setup";
 import { AiConnectionProviderGrid } from "./ai-connection-provider-grid";
 import { AiConnectionSubstepHeader } from "./ai-connection-substep-header";
-import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { useRootStore } from "@/core/stores/root-store.provider";
-import { MCP_ENDPOINT_PATH, mcpWorkspaceUrl } from "@/features/auth/mcp-resource";
+import { MCP_ENDPOINT_PATH } from "@/features/auth/mcp-resource";
 
 type Props = {
   backLabel?: string;
@@ -41,7 +39,6 @@ export const AiConnectionFlow = observer(
     onKeyCreated,
   }: Props) => {
     const t = useTranslations();
-    const { workspacesStore } = useRootStore();
     const providerRefs = useRef<Partial<Record<AiConnectionProvider, HTMLButtonElement | null>>>({});
     const screenHeadingRef = useRef<HTMLHeadingElement>(null);
     const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -49,9 +46,7 @@ export const AiConnectionFlow = observer(
     const previousApiKey = useRef(store.apiKey);
 
     const baseUrl = typeof window === "undefined" ? "" : window.location.origin;
-    const workspaceId = workspacesStore.current?.companyId;
-    const mcpUrl = baseUrl && (workspaceId ? mcpWorkspaceUrl(baseUrl, workspaceId) : `${baseUrl}${MCP_ENDPOINT_PATH}`);
-    const workspaceName = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
+    const mcpUrl = baseUrl && `${baseUrl}${MCP_ENDPOINT_PATH}`;
     const interactionDisabled = disabled || store.isCreating;
 
     useEffect(() => {
@@ -106,7 +101,7 @@ export const AiConnectionFlow = observer(
             onBack={store.backToProviders}
           />
 
-          <AiConnectionOtherSetup mcpUrl={mcpUrl} workspaceName={workspaceName} />
+          <AiConnectionOtherSetup mcpUrl={mcpUrl} />
         </div>
       );
     }
@@ -131,7 +126,6 @@ export const AiConnectionFlow = observer(
             mcpUrl={mcpUrl}
             resultHeadingRef={resultHeadingRef}
             store={store}
-            workspaceName={workspaceName}
             onCreate={() => runUserAction(createKey)}
           />
         </div>
@@ -158,7 +152,6 @@ export const AiConnectionFlow = observer(
             mcpUrl={mcpUrl}
             resultHeadingRef={resultHeadingRef}
             store={store}
-            workspaceName={workspaceName}
             onCreate={() => runUserAction(createKey)}
           />
         </div>
@@ -185,7 +178,7 @@ export const AiConnectionFlow = observer(
             onBack={store.backToProviders}
           />
 
-          <AiConnectionAppSetup mcpUrl={mcpUrl} provider={appProvider} workspaceName={workspaceName} />
+          <AiConnectionAppSetup mcpUrl={mcpUrl} provider={appProvider} />
         </div>
       );
     }

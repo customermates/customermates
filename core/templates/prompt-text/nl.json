@@ -96,8 +96,8 @@
   },
   "workspace": {
     "connected": "Je bent al verbonden met de Customermates-werkruimte die dit sjabloon gaat bevatten. Werk daarin en maak geen nieuwe aan.",
-    "connectedAt": "Deze werkruimte bestaat al en je bent er via MCP mee verbonden op {mcpUrl}. Werk in deze werkruimte en in geen andere.",
-    "existsAt": "Deze werkruimte bestaat al, maar je assistent is er nog niet mee verbonden. Verbind hem via MCP op {mcpUrl}, met een API-sleutel uit Instellingen, API-sleutels & connectoren. Zolang de verbinding ontbreekt, vraag me haar af te ronden voordat je iets wijzigt. Werk daarna in deze werkruimte en in geen andere.",
+    "connectedAt": "Deze werkruimte bestaat al en je bent er via MCP mee verbonden op {mcpUrl}. Geef bij elke toolaanroep workspace {workspace} mee en werk in deze werkruimte en in geen andere.",
+    "existsAt": "Deze werkruimte bestaat al, maar je assistent is er nog niet mee verbonden. Verbind hem via MCP op {mcpUrl} en meld je aan met mijn Customermates-account. Zolang de verbinding ontbreekt, vraag me haar af te ronden voordat je iets wijzigt. Geef daarna bij elke toolaanroep workspace {workspace} mee en werk in deze werkruimte en in geen andere.",
     "unconnected": "Werk in de Customermates-werkruimte waarmee je via MCP verbonden bent. Ben je nog met geen enkele verbonden, vraag me dan je te verbinden voordat je iets wijzigt."
   }
 }

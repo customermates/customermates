@@ -36,6 +36,7 @@ import {
 } from "./mcp-authorization-code";
 import { requestedWorkspaceSlug } from "@/core/navigation/workspace-request-header";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
+import { currentMcpWorkspace } from "./mcp-workspace-context";
 import { eventVia, type EventVia } from "@/features/event/event-via";
 import {
   parseAgentJobCredentialMetadata,
@@ -64,6 +65,7 @@ export type CredentialWorkspace =
 export type AgentJobApiKey = AgentJobCredentialMarker & { keyId: string; companyId: string | null };
 export type McpCredentialWorkspace = {
   credential: "apiKey" | "bearer";
+  email: string;
   companyId: string | null;
   agentJobKey: AgentJobApiKey | null;
 };
@@ -103,13 +105,9 @@ export class AuthService {
     return consents.count;
   }
 
-  async revokeOauthClientAccess(args: { authUserId: string; companyId: string; clientId: string }): Promise<number> {
+  async revokeOauthClientAccess(args: { authUserId: string; clientId: string }): Promise<number> {
     const tokens = await revokeOauthClientTokens(args);
-    const elsewhere = await prisma.oauthAccessToken.count({
-      where: { userId: args.authUserId, clientId: args.clientId },
-    });
-    if (elsewhere === 0)
-      await prisma.oauthConsent.deleteMany({ where: { userId: args.authUserId, clientId: args.clientId } });
+    await prisma.oauthConsent.deleteMany({ where: { userId: args.authUserId, clientId: args.clientId } });
 
     return tokens;
   }
@@ -148,6 +146,11 @@ export class AuthService {
     }
   }
 
+  async getAccountSession(): Promise<AuthenticatedSession | null> {
+    if ((await headers()).has("x-api-key")) return null;
+    return this.getSession();
+  }
+
   async getCredentialWorkspace(session: AuthenticatedSession, headersList?: Headers): Promise<CredentialWorkspace> {
     const requestHeaders = headersList ?? (await headers());
 
@@ -164,7 +167,8 @@ export class AuthService {
         where: { accessToken: session.session.token },
         select: { userId: true, companyId: true },
       });
-      return { kind: "integration", companyId: token?.userId === session.user.id ? token.companyId : null };
+      if (token?.userId !== session.user.id) return { kind: "integration", companyId: null };
+      return { kind: "integration", companyId: currentMcpWorkspace()?.companyId ?? token.companyId };
     }
 
     return {
@@ -570,7 +574,7 @@ export class AuthService {
     const redirectUrl = new URL(value.redirectURI);
     const resourceCompanyId = mcpResourceWorkspaceOf(value);
 
-    if (!args.accept || !args.companyId || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
+    if (!args.accept || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
       await prisma.authVerification.delete({ where: { id: verification.id } });
       redirectUrl.searchParams.set("error", "access_denied");
       if (value.state) redirectUrl.searchParams.set("state", value.state);
@@ -589,7 +593,7 @@ export class AuthService {
       data: {
         id: crypto.randomUUID(),
         identifier: mcpAuthorizationCodeWorkspaceIdentifier(code),
-        value: args.companyId,
+        value: args.companyId ?? "",
         expiresAt: new Date(Date.now() + MCP_CODE_WORKSPACE_TTL_MS),
       },
     });
@@ -606,13 +610,13 @@ export class AuthService {
     return { redirectURI: redirectUrl.toString() };
   }
 
-  async consumeMcpAuthorizationCodeWorkspace(code: string): Promise<string | null> {
+  async consumeMcpAuthorizationCodeWorkspace(code: string): Promise<{ companyId: string | null } | null> {
     const identifier = mcpAuthorizationCodeWorkspaceIdentifier(code);
     const binding = await prisma.authVerification.findFirst({ where: { identifier } });
     if (!binding) return null;
 
     await prisma.authVerification.deleteMany({ where: { identifier } });
-    return binding.expiresAt.getTime() > Date.now() ? binding.value : null;
+    return binding.expiresAt.getTime() > Date.now() ? { companyId: binding.value || null } : null;
   }
 
   private handleError(source: unknown): AuthResult {
@@ -676,6 +680,10 @@ export class AuthService {
     }
   }
 
+  async getMcpCredential(): Promise<McpCredentialWorkspace | null> {
+    return this.resolveMcpCredentialWorkspace(await headers());
+  }
+
   async resolveMcpCredentialWorkspace(headersList: Headers): Promise<McpCredentialWorkspace | null> {
     const key = headersList.get("x-api-key");
     try {
@@ -687,6 +695,7 @@ export class AuthService {
       const binding = await this.getCredentialWorkspace(session, headersList);
       return {
         credential: key ? "apiKey" : "bearer",
+        email: session.user.email,
         companyId: binding.kind === "integration" ? binding.companyId : null,
         agentJobKey: key ? await this.getAgentJobApiKey(session, headersList) : null,
       };

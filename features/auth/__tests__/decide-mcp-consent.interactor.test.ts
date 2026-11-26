@@ -4,291 +4,157 @@ import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-tes
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
+
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureCodes } from "@/core/validation/validation.utils";
+import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 
 import { DecideMcpConsentInteractor } from "../decide-mcp-consent.interactor";
 import { ACCOUNT_STATES } from "../account-state";
 
 const COMPANY_A = "00000000-0000-4000-8000-00000000000a";
 const COMPANY_B = "00000000-0000-4000-8000-00000000000b";
-const COMPANY_X = "00000000-0000-4000-8000-0000000000ff";
-const admin = { companyId: COMPANY_A, status: "active", role: { isSystemRole: true, permissions: [] } };
-const consent = {
-  consentCode: "consent-code",
-  accept: true,
-};
+const sessionUser = { id: "login-1", email: "owner@example.com" };
+const adminRole = { isSystemRole: true, permissions: [] };
+const consent = { consentCode: "consent-code", accept: true };
+
+function workspace(companyId: string, unavailableReason: string | null = null) {
+  return { companyId, name: companyId, roleName: "Admin", isCurrent: false, unavailableReason, inactiveReason: null };
+}
 
 describe("DecideMcpConsentInteractor", () => {
   let authService: { decideMcpConsent: ReturnType<typeof vi.fn>; getMcpConsentWorkspace: ReturnType<typeof vi.fn> };
   let routeGuardService: {
     resolveAccountState: ReturnType<typeof vi.fn>;
-    resolveMcpConsentState: ReturnType<typeof vi.fn>;
     resolveMembershipForConsent: ReturnType<typeof vi.fn>;
   };
+  let consentAccount: { invoke: ReturnType<typeof vi.fn> };
+  let legal: { recordAccountLegalVersionsUnscoped: ReturnType<typeof vi.fn> };
+
+  function account(workspaces: ReturnType<typeof workspace>[], termsRequired = false) {
+    consentAccount.invoke.mockResolvedValue({ ok: true, data: { workspaces, termsRequired } });
+  }
 
   beforeEach(() => {
     vi.clearAllMocks();
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "self-hosted";
     authService = {
-      decideMcpConsent: vi.fn().mockResolvedValue({
-        redirectURI: "https://client.example/callback",
-      }),
+      decideMcpConsent: vi.fn().mockResolvedValue({ redirectURI: "https://client.example/callback" }),
       getMcpConsentWorkspace: vi.fn().mockResolvedValue(null),
     };
     routeGuardService = {
-      resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed", user: admin }),
-      resolveMcpConsentState: vi.fn((resolution: { state: string }) => Promise.resolve(resolution.state)),
+      resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed", sessionUser }),
       resolveMembershipForConsent: vi.fn().mockResolvedValue(null),
     };
+    consentAccount = { invoke: vi.fn() };
+    legal = { recordAccountLegalVersionsUnscoped: vi.fn().mockResolvedValue(undefined) };
+    account([workspace(COMPANY_A)]);
   });
 
   function createInteractor() {
-    return new DecideMcpConsentInteractor(authService as never, routeGuardService as never);
+    return new DecideMcpConsentInteractor(
+      authService as never,
+      routeGuardService as never,
+      consentAccount as never,
+      legal as never,
+    );
   }
 
-  it.each([
-    { state: "allowed", accept: true },
-    { state: "allowed", accept: false },
-    { state: "onboarding", accept: true },
-    { state: "onboarding", accept: false },
-  ])("delegates consent for $state with accept=$accept", async ({ state, accept }) => {
-    routeGuardService.resolveAccountState.mockResolvedValue({ state, user: admin });
-    const decision = { ...consent, accept };
-
-    await expect(createInteractor().invoke(decision)).resolves.toEqual({
+  it("binds the only usable workspace as the token's default workspace", async () => {
+    await expect(createInteractor().invoke(consent)).resolves.toEqual({
       ok: true,
       data: { redirectURI: "https://client.example/callback" },
     });
 
-    expect(routeGuardService.resolveAccountState).toHaveBeenCalledOnce();
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...decision, companyId: COMPANY_A });
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_A });
   });
 
-  it.each([
-    { isSystemRole: false, permissions: [{ resource: "wiki", action: "readAll" }] },
-    { isSystemRole: false, permissions: [{ resource: "api", action: "create" }] },
-  ])("turns an approval into a denial when the role lacks Read access All on API & Webhooks", async (role) => {
-    routeGuardService.resolveAccountState.mockResolvedValue({ state: "allowed", user: { role } });
+  it("approves the whole account without a default when several workspaces are usable", async () => {
+    account([workspace(COMPANY_A), workspace(COMPANY_B), workspace("waiting", "pending")]);
+
+    await createInteractor().invoke(consent);
+
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: null });
+  });
+
+  it("lets an account without any workspace authorize once it accepted the terms, and records the acceptance", async () => {
+    routeGuardService.resolveAccountState.mockResolvedValue({ state: "unregistered", sessionUser });
+    account([], true);
+
+    await createInteractor().invoke({ ...consent, acceptTerms: true });
+
+    expect(legal.recordAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1", currentLegalDocumentVersions());
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: null });
+  });
+
+  it("refuses an approval without the required terms and records nothing", async () => {
+    routeGuardService.resolveAccountState.mockResolvedValue({ state: "unregistered", sessionUser });
+    account([], true);
+
+    const result = await createInteractor().invoke(consent);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.termsNotAgreed]);
+    expect(legal.recordAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
+    expect(authService.decideMcpConsent).not.toHaveBeenCalled();
+  });
+
+  it("lets a denial through without the terms", async () => {
+    account([], true);
+
+    await createInteractor().invoke({ ...consent, accept: false });
+
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
+    expect(legal.recordAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("turns an approval into a denial when no workspace of the account can be used", async () => {
+    account([workspace(COMPANY_A, "permission"), workspace(COMPANY_B, "pending")]);
 
     await createInteractor().invoke(consent);
 
     expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
   });
 
-  it.each(ACCOUNT_STATES.filter((state) => state !== "allowed" && state !== "onboarding"))(
+  it.each(ACCOUNT_STATES.filter((state) => ["unauthenticated", "overdueVerification"].includes(state)))(
     "fails closed for the %s state",
     async (state) => {
-      routeGuardService.resolveAccountState.mockResolvedValue({ state });
-
-      await expect(createInteractor().invoke(consent)).resolves.toEqual({
-        ok: true,
-        data: null,
+      routeGuardService.resolveAccountState.mockResolvedValue({
+        state,
+        sessionUser: state === "unauthenticated" ? null : sessionUser,
       });
-      expect(authService.decideMcpConsent).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each(["legal", "subscription"])(
-    "fails closed for onboarding when the workspace would otherwise be in the %s state",
-    async (blocked) => {
-      routeGuardService.resolveAccountState.mockResolvedValue({ state: "onboarding" });
-      routeGuardService.resolveMcpConsentState.mockResolvedValue(blocked);
 
       await expect(createInteractor().invoke(consent)).resolves.toEqual({ ok: true, data: null });
       expect(authService.decideMcpConsent).not.toHaveBeenCalled();
     },
   );
 
-  it("binds the connection to another workspace the user chose and may connect", async () => {
-    const other = { companyId: COMPANY_B, status: "active", role: { isSystemRole: true, permissions: [] } };
-    routeGuardService.resolveMembershipForConsent.mockResolvedValue(other);
-
-    await createInteractor().invoke({ ...consent, companyId: COMPANY_B });
-
-    expect(routeGuardService.resolveMembershipForConsent).toHaveBeenCalledWith(COMPANY_B);
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_B });
-  });
-
-  it("keeps the current workspace when the user chose it explicitly", async () => {
-    await createInteractor().invoke({ ...consent, companyId: COMPANY_A });
-
-    expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_A });
-  });
-
-  it.each(["inactive", "pending", "legal", "subscription"])(
-    "lets a member whose current workspace is %s connect another workspace",
-    async (state) => {
-      const other = { companyId: COMPANY_B, status: "active", role: { isSystemRole: true, permissions: [] } };
-      routeGuardService.resolveAccountState.mockResolvedValue({ state, user: admin });
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue(other);
-
-      await createInteractor().invoke({ ...consent, companyId: COMPANY_B });
-
-      expect(routeGuardService.resolveMembershipForConsent).toHaveBeenCalledWith(COMPANY_B);
-      expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_B });
-    },
-  );
-
-  it.each(["legal", "subscription"])(
-    "lets onboarding blocked by the %s state connect another workspace",
-    async (blocked) => {
-      const other = { companyId: COMPANY_B, status: "active", role: { isSystemRole: true, permissions: [] } };
-      routeGuardService.resolveAccountState.mockResolvedValue({ state: "onboarding", user: admin });
-      routeGuardService.resolveMcpConsentState.mockResolvedValue(blocked);
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue(other);
-
-      await createInteractor().invoke({ ...consent, companyId: COMPANY_B });
-
-      expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_B });
-    },
-  );
-
-  it.each(["pending", "inactive"])(
-    "fails closed when a %s member names its own restricted workspace",
-    async (state) => {
-      routeGuardService.resolveAccountState.mockResolvedValue({ state, user: admin });
-
-      await expect(createInteractor().invoke({ ...consent, companyId: COMPANY_A })).resolves.toEqual({
-        ok: true,
-        data: null,
-      });
-      expect(authService.decideMcpConsent).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each(["unauthenticated", "overdueVerification", "unregistered"])(
-    "never binds another workspace for the %s state",
-    async (state) => {
-      routeGuardService.resolveAccountState.mockResolvedValue({
-        state,
-        user: state === "overdueVerification" ? admin : null,
-      });
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue({ ...admin, companyId: COMPANY_B });
-
-      await expect(createInteractor().invoke({ ...consent, companyId: COMPANY_B })).resolves.toEqual({
-        ok: true,
-        data: null,
-      });
-      expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
-      expect(authService.decideMcpConsent).not.toHaveBeenCalled();
-    },
-  );
-
-  it("denies another workspace that a restricted member cannot connect", async () => {
-    routeGuardService.resolveAccountState.mockResolvedValue({ state: "pending", user: admin });
-
-    await createInteractor().invoke({ ...consent, companyId: COMPANY_X });
-
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
-  });
-
-  it("denies a chosen workspace the user cannot connect", async () => {
-    await createInteractor().invoke({ ...consent, companyId: COMPANY_X });
-
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
-  });
-
-  it("validates the action input before persistence", async () => {
-    const result = await createInteractor().invoke({
-      consentCode: "",
-      accept: true,
-    });
-
-    expect(result.ok).toBe(false);
-    expect(authService.decideMcpConsent).not.toHaveBeenCalled();
-  });
-
-  it("preserves consent in demo mode", async () => {
-    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "demo";
-
-    await expect(createInteractor().invoke(consent)).resolves.toMatchObject({
-      ok: true,
-    });
-    expect(authService.decideMcpConsent).toHaveBeenCalledOnce();
-  });
-
-  describe("for a per-workspace MCP URL", () => {
-    const bergmann = { companyId: COMPANY_B, status: "active", role: { isSystemRole: true, permissions: [] } };
-
+  describe("older per-workspace URL", () => {
     beforeEach(() => {
       authService.getMcpConsentWorkspace.mockResolvedValue(COMPANY_B);
     });
 
-    it("binds the URL's workspace although the session works in another one", async () => {
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue(bergmann);
+    it("keeps the workspace of the URL as the token's workspace", async () => {
+      routeGuardService.resolveMembershipForConsent.mockResolvedValue({ companyId: COMPANY_B, role: adminRole });
 
-      await expect(createInteractor().invoke(consent)).resolves.toEqual({
-        ok: true,
-        data: { redirectURI: "https://client.example/callback" },
-      });
+      await createInteractor().invoke(consent);
 
-      expect(authService.getMcpConsentWorkspace).toHaveBeenCalledWith("consent-code");
       expect(routeGuardService.resolveMembershipForConsent).toHaveBeenCalledWith(COMPANY_B);
-      expect(routeGuardService.resolveMcpConsentState).not.toHaveBeenCalled();
       expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_B });
-    });
-
-    it("binds the URL's workspace when it is the current one", async () => {
-      authService.getMcpConsentWorkspace.mockResolvedValue(COMPANY_A);
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue(admin);
-
-      await createInteractor().invoke({ ...consent, companyId: COMPANY_A });
-
-      expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_A });
-    });
-
-    it("never binds another workspace the request names", async () => {
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue(bergmann);
-
-      await expect(createInteractor().invoke({ ...consent, companyId: COMPANY_A })).resolves.toEqual({
-        ok: true,
-        data: null,
-      });
-      expect(authService.decideMcpConsent).not.toHaveBeenCalled();
+      expect(consentAccount.invoke).not.toHaveBeenCalled();
     });
 
     it.each([
-      ["no eligible membership", null],
-      ["a role without API & Webhooks read access", { ...bergmann, role: { isSystemRole: false, permissions: [] } }],
-    ])("denies the URL's workspace for %s", async (_reason, membership) => {
+      ["not a usable member", null],
+      ["without API access", { companyId: COMPANY_B, role: { isSystemRole: false, permissions: [] } }],
+    ])("denies the workspace of the URL for a login %s", async (_label, membership) => {
       routeGuardService.resolveMembershipForConsent.mockResolvedValue(membership);
 
       await createInteractor().invoke(consent);
 
-      expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
-    });
-
-    it.each(["unauthenticated", "overdueVerification", "unregistered"])(
-      "denies without looking up the membership for the %s state",
-      async (state) => {
-        routeGuardService.resolveAccountState.mockResolvedValue({ state, user: null });
-        routeGuardService.resolveMembershipForConsent.mockResolvedValue(bergmann);
-
-        await createInteractor().invoke(consent);
-
-        expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
-        expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
-      },
-    );
-
-    it.each(["inactive", "pending", "legal", "subscription", "onboarding"])(
-      "lets a member whose current workspace is %s connect the URL's workspace",
-      async (state) => {
-        routeGuardService.resolveAccountState.mockResolvedValue({ state, user: admin });
-        routeGuardService.resolveMembershipForConsent.mockResolvedValue(bergmann);
-
-        await createInteractor().invoke(consent);
-
-        expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_B });
-      },
-    );
-
-    it("denies without looking up the membership when the person denies", async () => {
-      routeGuardService.resolveMembershipForConsent.mockResolvedValue(bergmann);
-
-      await createInteractor().invoke({ ...consent, accept: false });
-
-      expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
       expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
     });
   });

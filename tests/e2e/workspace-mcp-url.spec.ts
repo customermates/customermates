@@ -115,7 +115,7 @@ async function approveOnConsentScreen(page: Page, authorizationUrl: URL, workspa
     page.getByRole("heading", { level: 1, name: `Connect Claude to ${workspaceName}`, exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("radio")).toHaveCount(0);
-  await expect(page.getByText(englishMessages.McpConsentWorkspace.pickerLabel, { exact: true })).toHaveCount(0);
+  await expect(page.locator("#mcp-consent-new-workspaces")).toHaveCount(0);
   await expect(page.locator("[id^='mcp-consent-fixed-workspace-']")).toContainText(workspaceName);
   await clickHydrated(page.getByRole("button", { name: "Approve", exact: true }));
   await expect(page).toHaveURL(/^https:\/\/connector\.example\.test\/callback\?/);
@@ -139,9 +139,9 @@ async function connectThroughWorkspaceUrl(
   return { provider, authorizationUrl };
 }
 
-test("the Claude quick connection shows the current workspace's own MCP URL", async ({ page, workspace }) => {
+test("the Claude quick connection shows the one account-wide MCP URL", async ({ page, workspace }) => {
   const errors = collectPageErrors(page);
-  const mcpUrl = workspaceMcpUrl(workspace.companyId);
+  const mcpUrl = `${localE2eEnvironment().baseUrl}/api/v1/mcp`;
 
   await page.goto(appPath(workspace.slug, "/settings/api-keys"));
   await clickHydrated(page.locator("#settings-api-keys-generate"));
@@ -152,20 +152,19 @@ test("the Claude quick connection shows the current workspace's own MCP URL", as
 
   await expect(details.locator("pre code")).toHaveText(mcpUrl);
   await expect(details).toContainText(
-    englishMessages.OnboardingWizard.ai.connector.workspaceNote
-      .replace("{workspace}", "Browser workspace")
-      .replace("{client}", "Claude"),
+    englishMessages.OnboardingWizard.ai.connector.workspaceNote.replaceAll("{client}", "Claude"),
   );
+  await expect(details).not.toContainText("/api/v1/mcp/w/");
   const href = await details
     .getByRole("link", { name: englishMessages.OnboardingWizard.ai.connector.claudeButton })
     .getAttribute("href");
   const connectorLink = new URL(href ?? "");
   expect(connectorLink.searchParams.get("connectorUrl")).toBe(mcpUrl);
-  expect(connectorLink.searchParams.get("connectorName")).toBe("Customermates (Browser workspace)");
+  expect(connectorLink.searchParams.get("connectorName")).toBe("Customermates");
   expect(errors).toEqual([]);
 });
 
-test("two workspaces connect through their own MCP URLs with one client and login, each token reaching only its own", async ({
+test("older per-workspace MCP URLs keep working for existing connectors, each token reaching only its own workspace", async ({
   page,
   database,
   workspace,

@@ -169,7 +169,11 @@ export class RouteGuardService {
     const session = await this.authService.getInteractiveSession();
     if (!session) return null;
 
-    const membership = await this.userRepo.findMembershipUnscoped(session.user.email, companyId);
+    return this.resolveMcpMembership(session.user.email, companyId);
+  }
+
+  async resolveMcpMembership(email: string, companyId: string): Promise<TenantUser | null> {
+    const membership = await this.userRepo.findMembershipUnscoped(email, companyId);
     if (!membership || membership.status !== Status.active) return null;
 
     const { state } = await runWithTenant(membership, () => this.resolveCommercialState(membership));

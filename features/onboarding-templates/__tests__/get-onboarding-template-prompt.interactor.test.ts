@@ -52,7 +52,9 @@ describe("GetOnboardingTemplatePromptInteractor", () => {
     expect(prompt).toContain("## 1. Dein Workspace");
     expect(prompt).not.toContain("## 1. Your workspace");
     expect(prompt).not.toContain("?template=");
-    expect(prompt).toContain("https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f");
+    expect(prompt).toMatch(/https:\/\/app\.example\.test\/api\/v1\/mcp(?!\/)/u);
+    expect(prompt).not.toContain("/api/v1/mcp/w/");
+    expect(prompt).toContain(`workspace ${owner.company?.slug ?? owner.companyId}`);
     expect(loadBundle).toHaveBeenCalledExactlyOnceWith("sales-pipeline");
   });
 
@@ -109,7 +111,7 @@ describe("GetOnboardingTemplatePromptInteractor", () => {
     const prompt = (later as { data: { prompt: string } }).data.prompt;
     expect(prompt).toContain("your assistant is not connected to it yet");
     expect(prompt).not.toContain("you are connected");
-    expect(prompt).toContain("https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f");
+    expect(prompt).toMatch(/https:\/\/app\.example\.test\/api\/v1\/mcp(?!\/)/u);
   });
 
   it("writes the self-hosted variant on a self-hosted instance without any cloud sign-up", async () => {

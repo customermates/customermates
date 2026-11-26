@@ -21,6 +21,7 @@ export abstract class RegisterUserRepo {
   abstract recordSignupAttributionUnscoped(authUserId: string, attribution: Partial<SignupAttribution>): Promise<void>;
   abstract takeSignupAttributionUnscoped(authUserId: string): Promise<SignupAttribution>;
   abstract countCreatedWorkspacesUnscoped(authUserId: string): Promise<number>;
+  abstract countWorkspacesCreatedSinceUnscoped(authUserId: string, since: Date): Promise<number>;
   abstract hasLeftMembershipUnscoped(email: string, companyId: string): Promise<boolean>;
   abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
   abstract createCompanyOwnerOrThrow(

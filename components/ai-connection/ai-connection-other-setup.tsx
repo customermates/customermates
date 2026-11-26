@@ -7,10 +7,9 @@ import { CopyableCode } from "@/components/shared/copyable-code";
 
 type Props = {
   mcpUrl: string;
-  workspaceName: string;
 };
 
-export function AiConnectionOtherSetup({ mcpUrl, workspaceName }: Props) {
+export function AiConnectionOtherSetup({ mcpUrl }: Props) {
   const t = useTranslations();
 
   return (
@@ -26,9 +25,7 @@ export function AiConnectionOtherSetup({ mcpUrl, workspaceName }: Props) {
 
         <CopyableCode value={mcpUrl} />
 
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          {t("OnboardingWizard.ai.other.workspaceNote", { workspace: workspaceName })}
-        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground">{t("OnboardingWizard.ai.other.workspaceNote")}</p>
       </div>
 
       <p className="text-xs leading-relaxed text-muted-foreground">
