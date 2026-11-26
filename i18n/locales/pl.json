@@ -7106,31 +7106,18 @@
       "label": "Mapa Bazy wiedzy",
       "legend": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją otworzyć.",
       "legendEdit": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją otworzyć, przeciągnij ją, aby przypiąć ją w miejscu.",
-      "linkedFrom": "Linki z",
-      "linkedFromCount": "{count, plural, one {Linki z # strony} few {Linki z # stron} many {Linki z # stron} other {Linki z # strony}}",
+      "linkedPages": "Powiązane strony",
       "linksFailed": "Nie udało się wczytać linków tej strony.",
-      "linksTo": "Prowadzi do",
+      "listsUsed": "Używane listy",
       "loadFailed": "Nie udało się wczytać stron Bazy wiedzy.",
       "missingLinks": "{count, plural, one {# link prowadzi do usuniętej strony} few {# linki prowadzą do usuniętych stron} many {# linków prowadzi do usuniętych stron} other {# linku prowadzi do usuniętych stron}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Brak stron",
       "noMatches": "Żadna strona nie pasuje do filtra.",
       "pin": "Przypnij na mapie",
-      "pinHelp": "Zatrzymuje tę stronę w jej miejscu na mapie. Możesz też przeciągnąć stronę, aby ją przypiąć.",
-      "pinned": "Przypięta",
-      "pinnedHelp": "Ta strona zachowuje swoje miejsce, gdy mapa układa się na nowo.",
-      "records": "Powiązane rekordy",
       "search": "Znajdź stronę",
-      "segments": {
-        "details": "Szczegóły",
-        "links": "Linki",
-        "page": "Strona"
-      },
-      "sheetSegments": "Sekcje strony",
       "syncing": "Linki są jeszcze wczytywane. Odśwież stronę, aby zobaczyć wszystkie.",
       "truncated": "Pokazano pierwsze {count} stron. Wyszukaj i naciśnij Enter, aby otworzyć dowolną inną stronę.",
-      "unpin": "Odepnij",
-      "unpinHelp": "Mapa znów sama ustawi tę stronę."
+      "unpin": "Odepnij"
     },
     "kind": {
       "guide": "Przewodnik operacyjny",
@@ -7146,6 +7133,7 @@
       "procedureHelp": "Użyj dla powtarzalnego zadania, np. wdrażania klienta. Napisz ponumerowane kroki i opisz pasujące zapytanie w polu „Kiedy używać”. Mate i połączone narzędzia AI będą je stosować, gdy takie zapytanie się pojawi."
     },
     "linkPage": "Link do strony Bazy wiedzy…",
+    "linksHere": "{count, plural, one {# strona prowadzi tutaj} few {# strony prowadzą tutaj} many {# stron prowadzi tutaj} other {# strony prowadzi tutaj}}",
     "loadFailed": "Nie udało się wczytać stron.",
     "newPage": "Nowa strona",
     "next": "Następna",
@@ -7187,11 +7175,14 @@
       "title": "Propozycje"
     },
     "reload": "Odśwież stronę",
+    "settings": {
+      "invalid": "Sprawdź ustawienia strony: jedno pole wymaga uwagi.",
+      "title": "Ustawienia strony"
+    },
     "unavailableBody": "Ta strona została usunięta lub nie masz do niej dostępu. Wybierz inną stronę.",
     "unavailableTitle": "Strona niedostępna",
     "untitled": "Strona bez tytułu",
     "verified": {
-      "help": "Zapisuje, że dziś sprawdzono tę stronę i nadal jest poprawna.",
       "label": "Ostatnio sprawdzona",
       "mark": "Oznacz jako sprawdzoną",
       "never": "Jeszcze nie sprawdzona",
@@ -7199,9 +7190,9 @@
       "saveFirst": "Zapisz zmiany, zanim oznaczysz stronę jako sprawdzoną."
     },
     "view": {
+      "fullPage": "Cała strona",
       "label": "Widok Bazy wiedzy",
       "map": "Mapa",
-      "openFullPage": "Otwórz jako całą stronę",
       "pages": "Strony",
       "showOnMap": "Pokaż na mapie"
     },

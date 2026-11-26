@@ -7106,31 +7106,18 @@
       "label": "Knowledge Base map",
       "legend": "Larger circles are pages that more pages link to. Click a page to open it.",
       "legendEdit": "Larger circles are pages that more pages link to. Click a page to open it, drag it to pin it in place.",
-      "linkedFrom": "Linked from",
-      "linkedFromCount": "{count, plural, one {Linked from # page} other {Linked from # pages}}",
+      "linkedPages": "Linked pages",
       "linksFailed": "The links of this page could not be loaded.",
-      "linksTo": "Links to",
+      "listsUsed": "Lists it uses",
       "loadFailed": "The Knowledge Base pages could not be loaded.",
       "missingLinks": "{count, plural, one {# link points to a deleted page} other {# links point to deleted pages}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "No pages",
       "noMatches": "No page matches the filter.",
       "pin": "Pin on the map",
-      "pinHelp": "Keep this page where it is on the map. You can also drag a page to pin it.",
-      "pinned": "Pinned",
-      "pinnedHelp": "This page keeps its place when the map rearranges.",
-      "records": "Linked records",
       "search": "Find a page",
-      "segments": {
-        "details": "Details",
-        "links": "Links",
-        "page": "Page"
-      },
-      "sheetSegments": "Page sections",
       "syncing": "Links are still being read. Reload the page to see all of them.",
       "truncated": "Showing the first {count} pages. Search and press Enter to open any other page.",
-      "unpin": "Release pin",
-      "unpinHelp": "Let the map place this page again."
+      "unpin": "Release pin"
     },
     "kind": {
       "guide": "Operating Guide",
@@ -7146,6 +7133,7 @@
       "procedureHelp": "Use for a repeatable task, such as customer onboarding. Write numbered steps and describe the matching request in “When to use.” Mate and connected AI tools follow them when that request comes up."
     },
     "linkPage": "Link to a Knowledge Base page…",
+    "linksHere": "{count, plural, one {# page links here} other {# pages link here}}",
     "loadFailed": "Pages could not be loaded.",
     "newPage": "New page",
     "next": "Next",
@@ -7187,11 +7175,14 @@
       "title": "Proposals"
     },
     "reload": "Reload page",
+    "settings": {
+      "invalid": "Check the page settings: a field needs attention.",
+      "title": "Page settings"
+    },
     "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
     "unavailableTitle": "Page unavailable",
     "untitled": "Untitled page",
     "verified": {
-      "help": "Record that you checked this page today and it is still correct.",
       "label": "Last verified",
       "mark": "Mark as verified",
       "never": "Not verified yet",
@@ -7199,9 +7190,9 @@
       "saveFirst": "Save your changes before marking the page as verified."
     },
     "view": {
+      "fullPage": "Full page",
       "label": "Knowledge Base view",
       "map": "Map",
-      "openFullPage": "Open as a full page",
       "pages": "Pages",
       "showOnMap": "Show on the map"
     },

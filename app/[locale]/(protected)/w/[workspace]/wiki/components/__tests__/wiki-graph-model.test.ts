@@ -11,7 +11,6 @@ import {
   WIKI_GRAPH_NODE_RADII,
   WIKI_GRAPH_WORLD_HEIGHT,
   WIKI_GRAPH_WORLD_WIDTH,
-  WIKI_KIND_CHIP,
   wikiGraphFitTransform,
   wikiGraphLabel,
   wikiGraphLabelIds,
@@ -46,8 +45,7 @@ describe("Knowledge Base map model", () => {
     expect(wikiGraphWorldPoint({ x: 0.5, y: 0.25 })).toEqual({ x: WIKI_GRAPH_WORLD_WIDTH / 2, y: 250 });
   });
 
-  it("shows each page kind as a soft tint with a ring in the colour of its chip", () => {
-    expect(WIKI_KIND_CHIP).toEqual({ guide: "ink", procedure: "info", knowledge: "secondary" });
+  it("shows each page kind as a soft tint with a ring", () => {
     expect(WIKI_GRAPH_KIND_NODE).toEqual({
       guide: { tint: "fill-background", ring: "stroke-foreground" },
       procedure: { tint: "fill-info/15", ring: "stroke-info" },

@@ -144,26 +144,27 @@ test("opens the Knowledge Base as a map and a page in the side sheet records ope
     await expect(sheet.getByText("Refunds within 14 days.")).toBeVisible();
     await expect(sheet.getByText("Support team", { exact: true })).toBeVisible();
     await expect(sheet.getByText(/^Verified /)).toBeVisible();
-    await expect(sheet.getByText("Linked from 1 page", { exact: true })).toBeVisible();
+    await expect(sheet.getByRole("button", { name: "1 page links here", exact: true })).toBeVisible();
     await expect(canvas.locator(`[data-wiki-graph-node="${refunds.id}"]`)).toHaveAttribute("aria-pressed", "true");
 
-    // Links lists both directions, and a linked page opens in the same sheet.
-    await sheet.getByRole("tab", { name: englishMessages.Wiki.graph.segments.links, exact: true }).click();
-    await expect(sheet.getByText(`${englishMessages.Wiki.graph.linkedFrom} · 1`)).toBeVisible();
-    await expect(sheet.getByText(`${englishMessages.Wiki.graph.linksTo} · 1`)).toBeVisible();
-    await sheet.getByRole("button", { name: "Onboarding", exact: true }).click();
+    // The linked pages close the document, once each, and a linked page opens in the same sheet.
+    const linkedPages = sheet.locator("[data-wiki-linked-pages]");
+    await expect(linkedPages.getByText(englishMessages.Wiki.graph.linkedPages, { exact: true })).toBeVisible();
+    await expect(linkedPages.getByRole("button", { name: "Onboarding", exact: true })).toHaveCount(1);
+    await linkedPages.getByRole("button", { name: "Onboarding", exact: true }).click();
     const onboardingSheet = page.getByRole("dialog", { name: "Onboarding", exact: true });
     await expect(onboardingSheet).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`[?&]page=${onboarding.id}`));
-    await onboardingSheet.getByRole("tab", { name: englishMessages.Wiki.graph.segments.page, exact: true }).click();
     await expect(onboardingSheet.getByText("A new customer signs the contract.")).toBeVisible();
 
-    // Pinning from the sheet marks the page on the map; releasing the pin removes the mark.
-    await onboardingSheet.getByRole("button", { name: englishMessages.Wiki.graph.pin, exact: true }).click();
+    // Pinning from the more menu marks the page on the map; releasing the pin removes the mark.
+    const moreActions = onboardingSheet.getByRole("button", { name: englishMessages.DataView.moreActions, exact: true });
+    await moreActions.click();
+    await page.getByRole("menuitem", { name: englishMessages.Wiki.graph.pin, exact: true }).click();
     const onboardingNode = canvas.locator(`[data-wiki-graph-node="${onboarding.id}"]`);
     await expect(onboardingNode.locator("[data-wiki-graph-pin]")).toHaveCount(1);
-    await expect(onboardingSheet.getByText(englishMessages.Wiki.graph.pinned, { exact: true })).toBeVisible();
-    await onboardingSheet.getByRole("button", { name: englishMessages.Wiki.graph.unpin, exact: true }).click();
+    await moreActions.click();
+    await page.getByRole("menuitem", { name: englishMessages.Wiki.graph.unpin, exact: true }).click();
     await expect(onboardingNode.locator("[data-wiki-graph-pin]")).toHaveCount(0);
 
     // Escape closes the sheet and returns the address to the map.
@@ -284,7 +285,7 @@ test("switches between the map and the page list with full-page content, and rem
     await expect(sheet).toBeVisible();
     await expect(canvas).toBeVisible();
     await expect.poll(storedView).toBe("map");
-    await sheet.getByRole("button", { name: englishMessages.Wiki.view.openFullPage, exact: true }).click();
+    await sheet.getByRole("button", { name: englishMessages.Wiki.view.fullPage, exact: true }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(title).toHaveValue("Pricing");
     await expect(pagesTab).toHaveAttribute("aria-selected", "true");

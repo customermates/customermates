@@ -7106,31 +7106,18 @@
       "label": "Mappa della base di conoscenza",
       "legend": "I cerchi più grandi sono pagine a cui rimandano più pagine. Fai clic su una pagina per aprirla.",
       "legendEdit": "I cerchi più grandi sono pagine a cui rimandano più pagine. Fai clic su una pagina per aprirla, trascinala per fissarla al suo posto.",
-      "linkedFrom": "Collegata da",
-      "linkedFromCount": "{count, plural, one {Collegata da # pagina} other {Collegata da # pagine}}",
+      "linkedPages": "Pagine collegate",
       "linksFailed": "Impossibile caricare i collegamenti di questa pagina.",
-      "linksTo": "Rimanda a",
+      "listsUsed": "Liste usate",
       "loadFailed": "Impossibile caricare le pagine della base di conoscenza.",
       "missingLinks": "{count, plural, one {# collegamento porta a una pagina eliminata} other {# collegamenti portano a pagine eliminate}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Nessuna pagina",
       "noMatches": "Nessuna pagina corrisponde al filtro.",
       "pin": "Fissa sulla mappa",
-      "pinHelp": "Mantiene questa pagina al suo posto sulla mappa. Puoi anche trascinare una pagina per fissarla.",
-      "pinned": "Fissata",
-      "pinnedHelp": "Questa pagina mantiene il suo posto quando la mappa si riordina.",
-      "records": "Record collegati",
       "search": "Trova una pagina",
-      "segments": {
-        "details": "Dettagli",
-        "links": "Collegamenti",
-        "page": "Pagina"
-      },
-      "sheetSegments": "Sezioni della pagina",
       "syncing": "I link sono ancora in lettura. Ricarica la pagina per vederli tutti.",
       "truncated": "Sono mostrate le prime {count} pagine. Cerca e premi Invio per aprire qualsiasi altra pagina.",
-      "unpin": "Togli il blocco",
-      "unpinHelp": "La mappa torna a posizionare questa pagina."
+      "unpin": "Togli il blocco"
     },
     "kind": {
       "guide": "Guida operativa",
@@ -7146,6 +7133,7 @@
       "procedureHelp": "Per attività ricorrenti, come l’onboarding dei clienti. Scrivi passaggi numerati e descrivi la richiesta corrispondente in «Quando usarla». Mate e gli strumenti di IA collegati li seguono quando si presenta quella richiesta."
     },
     "linkPage": "Collega una pagina della base di conoscenza…",
+    "linksHere": "{count, plural, one {# pagina rimanda qui} other {# pagine rimandano qui}}",
     "loadFailed": "Impossibile caricare le pagine.",
     "newPage": "Nuova pagina",
     "next": "Avanti",
@@ -7187,11 +7175,14 @@
       "title": "Proposte"
     },
     "reload": "Ricarica pagina",
+    "settings": {
+      "invalid": "Controlla le impostazioni della pagina: un campo richiede attenzione.",
+      "title": "Impostazioni della pagina"
+    },
     "unavailableBody": "Questa pagina è stata eliminata oppure non hai accesso. Scegli un’altra pagina.",
     "unavailableTitle": "Pagina non disponibile",
     "untitled": "Pagina senza titolo",
     "verified": {
-      "help": "Registra che oggi hai controllato questa pagina ed è ancora corretta.",
       "label": "Ultima verifica",
       "mark": "Segna come verificata",
       "never": "Non ancora verificata",
@@ -7199,9 +7190,9 @@
       "saveFirst": "Salva le modifiche prima di segnare la pagina come verificata."
     },
     "view": {
+      "fullPage": "Pagina intera",
       "label": "Vista della base di conoscenza",
       "map": "Mappa",
-      "openFullPage": "Apri a pagina intera",
       "pages": "Pagine",
       "showOnMap": "Mostra sulla mappa"
     },

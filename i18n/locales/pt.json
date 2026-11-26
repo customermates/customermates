@@ -7106,31 +7106,18 @@
       "label": "Mapa da base de conhecimento",
       "legend": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para abri-la.",
       "legendEdit": "Círculos maiores são páginas para as quais mais páginas apontam. Clique em uma página para abri-la, arraste-a para fixá-la no lugar.",
-      "linkedFrom": "Linkada de",
-      "linkedFromCount": "{count, plural, one {Linkada de # página} other {Linkada de # páginas}}",
+      "linkedPages": "Páginas vinculadas",
       "linksFailed": "Não foi possível carregar os links desta página.",
-      "linksTo": "Aponta para",
+      "listsUsed": "Listas usadas",
       "loadFailed": "Não foi possível carregar as páginas da base de conhecimento.",
       "missingLinks": "{count, plural, one {# link aponta para uma página excluída} other {# links apontam para páginas excluídas}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Nenhuma página",
       "noMatches": "Nenhuma página corresponde ao filtro.",
       "pin": "Fixar no mapa",
-      "pinHelp": "Mantém esta página no lugar no mapa. Você também pode arrastar uma página para fixá-la.",
-      "pinned": "Fixada",
-      "pinnedHelp": "Esta página mantém o lugar quando o mapa se reorganiza.",
-      "records": "Registros vinculados",
       "search": "Encontrar uma página",
-      "segments": {
-        "details": "Detalhes",
-        "links": "Links",
-        "page": "Página"
-      },
-      "sheetSegments": "Seções da página",
       "syncing": "Os links ainda estão sendo lidos. Recarregue a página para ver todos.",
       "truncated": "Mostrando as primeiras {count} páginas. Pesquise e pressione Enter para abrir qualquer outra página.",
-      "unpin": "Soltar a fixação",
-      "unpinHelp": "O mapa volta a posicionar esta página."
+      "unpin": "Soltar a fixação"
     },
     "kind": {
       "guide": "Guia operacional",
@@ -7146,6 +7133,7 @@
       "procedureHelp": "Use para uma tarefa repetível, como a integração de clientes. Escreva etapas numeradas e descreva a solicitação correspondente em “Quando usar”. O Mate e as ferramentas de IA conectadas as seguem quando essa solicitação aparece."
     },
     "linkPage": "Vincular a uma página da base de conhecimento…",
+    "linksHere": "{count, plural, one {# página aponta para cá} other {# páginas apontam para cá}}",
     "loadFailed": "Não foi possível carregar as páginas.",
     "newPage": "Nova página",
     "next": "Próximo",
@@ -7187,11 +7175,14 @@
       "title": "Propostas"
     },
     "reload": "Recarregar página",
+    "settings": {
+      "invalid": "Confira as configurações da página: um campo precisa de atenção.",
+      "title": "Configurações da página"
+    },
     "unavailableBody": "Esta página foi excluída ou você não tem acesso a ela. Escolha outra página.",
     "unavailableTitle": "Página indisponível",
     "untitled": "Página sem título",
     "verified": {
-      "help": "Registra que você conferiu esta página hoje e que ela continua correta.",
       "label": "Última verificação",
       "mark": "Marcar como verificada",
       "never": "Ainda não verificada",
@@ -7199,9 +7190,9 @@
       "saveFirst": "Salve suas alterações antes de marcar a página como verificada."
     },
     "view": {
+      "fullPage": "Página inteira",
       "label": "Vista da base de conhecimento",
       "map": "Mapa",
-      "openFullPage": "Abrir como página inteira",
       "pages": "Páginas",
       "showOnMap": "Mostrar no mapa"
     },

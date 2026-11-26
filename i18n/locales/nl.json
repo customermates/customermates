@@ -7106,31 +7106,18 @@
       "label": "Kaart van de Kennisbank",
       "legend": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen.",
       "legendEdit": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen, sleep haar om haar op haar plek vast te zetten.",
-      "linkedFrom": "Gekoppeld vanuit",
-      "linkedFromCount": "{count, plural, one {Gekoppeld vanuit # pagina} other {Gekoppeld vanuit # pagina's}}",
+      "linkedPages": "Gekoppelde pagina's",
       "linksFailed": "De koppelingen van deze pagina konden niet worden geladen.",
-      "linksTo": "Verwijst naar",
+      "listsUsed": "Gebruikte lijsten",
       "loadFailed": "De pagina's van de Kennisbank konden niet worden geladen.",
       "missingLinks": "{count, plural, one {# koppeling wijst naar een verwijderde pagina} other {# koppelingen wijzen naar verwijderde pagina's}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Geen pagina's",
       "noMatches": "Geen pagina past bij het filter.",
       "pin": "Vastzetten op de kaart",
-      "pinHelp": "Houdt deze pagina op haar plek op de kaart. Je kunt een pagina ook slepen om haar vast te zetten.",
-      "pinned": "Vastgezet",
-      "pinnedHelp": "Deze pagina houdt haar plek wanneer de kaart zich opnieuw ordent.",
-      "records": "Gekoppelde records",
       "search": "Pagina zoeken",
-      "segments": {
-        "details": "Details",
-        "links": "Koppelingen",
-        "page": "Pagina"
-      },
-      "sheetSegments": "Onderdelen van de pagina",
       "syncing": "Links worden nog ingelezen. Laad de pagina opnieuw om ze allemaal te zien.",
       "truncated": "De eerste {count} pagina's worden getoond. Zoek en druk op Enter om een andere pagina te openen.",
-      "unpin": "Losmaken",
-      "unpinHelp": "De kaart plaatst deze pagina weer zelf."
+      "unpin": "Losmaken"
     },
     "kind": {
       "guide": "Werkhandleiding",
@@ -7146,6 +7133,7 @@
       "procedureHelp": "Gebruik dit voor een terugkerende taak, zoals het onboarden van klanten. Schrijf genummerde stappen en beschrijf het bijbehorende verzoek bij “Wanneer gebruiken”. Mate en gekoppelde AI-tools volgen ze wanneer dat verzoek voorkomt."
     },
     "linkPage": "Link naar een Kennisbank-pagina…",
+    "linksHere": "{count, plural, one {# pagina verwijst hierheen} other {# pagina's verwijzen hierheen}}",
     "loadFailed": "Pagina's konden niet worden geladen.",
     "newPage": "Nieuwe pagina",
     "next": "Volgende",
@@ -7187,11 +7175,14 @@
       "title": "Voorstellen"
     },
     "reload": "Pagina opnieuw laden",
+    "settings": {
+      "invalid": "Controleer de pagina-instellingen: een veld vraagt aandacht.",
+      "title": "Pagina-instellingen"
+    },
     "unavailableBody": "Deze pagina is verwijderd of je hebt er geen toegang toe. Kies een andere pagina.",
     "unavailableTitle": "Pagina niet beschikbaar",
     "untitled": "Pagina zonder titel",
     "verified": {
-      "help": "Legt vast dat je deze pagina vandaag hebt gecontroleerd en dat ze nog klopt.",
       "label": "Laatst gecontroleerd",
       "mark": "Markeren als gecontroleerd",
       "never": "Nog niet gecontroleerd",
@@ -7199,9 +7190,9 @@
       "saveFirst": "Sla je wijzigingen op voordat je de pagina als gecontroleerd markeert."
     },
     "view": {
+      "fullPage": "Volledige pagina",
       "label": "Weergave van de kennisbank",
       "map": "Kaart",
-      "openFullPage": "Als volledige pagina openen",
       "pages": "Pagina's",
       "showOnMap": "Op de kaart tonen"
     },

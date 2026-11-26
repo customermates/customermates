@@ -7106,31 +7106,18 @@
       "label": "Karte der Wissensdatenbank",
       "legend": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu öffnen.",
       "legendEdit": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu öffnen, ziehe sie, um sie an ihrem Platz festzupinnen.",
-      "linkedFrom": "Verweise von",
-      "linkedFromCount": "{count, plural, one {Verweis von # Seite} other {Verweise von # Seiten}}",
+      "linkedPages": "Verknüpfte Seiten",
       "linksFailed": "Die Verweise dieser Seite konnten nicht geladen werden.",
-      "linksTo": "Verweist auf",
+      "listsUsed": "Verwendete Listen",
       "loadFailed": "Die Seiten der Wissensdatenbank konnten nicht geladen werden.",
       "missingLinks": "{count, plural, one {# Verweis führt zu einer gelöschten Seite} other {# Verweise führen zu gelöschten Seiten}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Keine Seiten",
       "noMatches": "Keine Seite passt zum Filter.",
       "pin": "Auf der Karte festpinnen",
-      "pinHelp": "Hält diese Seite an ihrem Platz auf der Karte. Du kannst eine Seite auch ziehen, um sie festzupinnen.",
-      "pinned": "Festgepinnt",
-      "pinnedHelp": "Diese Seite behält ihren Platz, wenn sich die Karte neu ordnet.",
-      "records": "Verknüpfte Datensätze",
       "search": "Seite finden",
-      "segments": {
-        "details": "Details",
-        "links": "Verweise",
-        "page": "Seite"
-      },
-      "sheetSegments": "Bereiche der Seite",
       "syncing": "Links werden noch eingelesen. Lade die Seite neu, um alle zu sehen.",
       "truncated": "Die ersten {count} Seiten werden gezeigt. Suche und drücke Enter, um eine andere Seite zu öffnen.",
-      "unpin": "Pin lösen",
-      "unpinHelp": "Die Karte ordnet diese Seite wieder selbst ein."
+      "unpin": "Pin lösen"
     },
     "kind": {
       "guide": "Betriebsleitfaden",
@@ -7146,6 +7133,7 @@
       "procedureHelp": "Für wiederkehrende Aufgaben wie das Onboarding eines Kunden. Schreibe nummerierte Schritte und beschreibe unter „Wann verwenden“ die passende Anfrage. Mate und verbundene KI-Tools folgen den Schritten, wenn diese Anfrage auftritt."
     },
     "linkPage": "Wissensdatenbank-Seite verlinken…",
+    "linksHere": "{count, plural, one {# Seite verweist hierher} other {# Seiten verweisen hierher}}",
     "loadFailed": "Die Seiten konnten nicht geladen werden.",
     "newPage": "Neue Seite",
     "next": "Weiter",
@@ -7187,11 +7175,14 @@
       "title": "Vorschläge"
     },
     "reload": "Seite neu laden",
+    "settings": {
+      "invalid": "Prüfe die Seiteneinstellungen: Ein Feld braucht deine Aufmerksamkeit.",
+      "title": "Seiteneinstellungen"
+    },
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
     "unavailableTitle": "Seite nicht verfügbar",
     "untitled": "Unbenannte Seite",
     "verified": {
-      "help": "Hält fest, dass du diese Seite heute geprüft hast und sie noch stimmt.",
       "label": "Zuletzt geprüft",
       "mark": "Als geprüft markieren",
       "never": "Noch nicht geprüft",
@@ -7199,9 +7190,9 @@
       "saveFirst": "Speichere deine Änderungen, bevor du die Seite als geprüft markierst."
     },
     "view": {
+      "fullPage": "Ganze Seite",
       "label": "Ansicht der Wissensdatenbank",
       "map": "Karte",
-      "openFullPage": "Als ganze Seite öffnen",
       "pages": "Seiten",
       "showOnMap": "Auf der Karte zeigen"
     },
