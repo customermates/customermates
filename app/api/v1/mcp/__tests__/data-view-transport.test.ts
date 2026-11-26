@@ -104,6 +104,7 @@ describe("saved-view MCP HTTP transport", () => {
     expect(toolNames?.toSorted()).toEqual([
       "create_workspace",
       "fetch",
+      "get_workspace_setup_status",
       "list_workspaces",
       "manage_calendar",
       "manage_data_views",

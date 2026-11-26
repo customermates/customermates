@@ -16,6 +16,7 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "core/data-view/view-owner-context.ts",
   "core/decorators/background-tenant.ts",
   "core/decorators/tenant-interactor.decorator.ts",
+  "ee/workspace-setup/start-agent-workspace-setup.interactor.ts",
   "features/acquisition/withdraw-ad-attribution.interactor.ts",
   "features/onboarding-funnel/apply-onboarding-playbook.interactor.ts",
   "features/onboarding-funnel/record-discovery-answer.interactor.ts",

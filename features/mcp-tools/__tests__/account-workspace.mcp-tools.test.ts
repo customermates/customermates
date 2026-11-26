@@ -111,7 +111,9 @@ describe("account workspace MCP tools", () => {
     expect(result).toMatchObject({
       structuredContent: { slug: "new-co", setup: { status: "planning", setupId: "setup-1", reason: null } },
     });
-    expect(createWorkspaceTool.outputSchema.safeParse((result as { structuredContent: unknown }).structuredContent).success).toBe(true);
+    expect(
+      createWorkspaceTool.outputSchema.safeParse((result as { structuredContent: unknown }).structuredContent).success,
+    ).toBe(true);
   });
 
   it("keeps the new workspace and names the reason when the setup cannot start", async () => {
@@ -141,7 +143,9 @@ describe("account workspace MCP tools", () => {
       createWorkspaceTool.inputSchema.parse({ name: "X", teamSize: "solo", description: "A bakery." }),
     );
 
-    expect(result).toMatchObject({ failure: { issues: [expect.objectContaining({ customCode: "emailNotVerified" })] } });
+    expect(result).toMatchObject({
+      failure: { issues: [expect.objectContaining({ customCode: "emailNotVerified" })] },
+    });
     expect(calls.setup).not.toHaveBeenCalled();
   });
 

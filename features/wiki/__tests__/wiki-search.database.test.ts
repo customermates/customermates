@@ -95,6 +95,7 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
       fetchTool.name,
       "list_workspaces",
       "create_workspace",
+      "get_workspace_setup_status",
     ]);
   });
 

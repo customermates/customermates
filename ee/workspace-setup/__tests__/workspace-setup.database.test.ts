@@ -1145,9 +1145,9 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ]);
 
     expect(await draftPlan(ws, setupId)).toBe("planned");
-    expect(
-      state.generate.mock.calls.some(([args]) => JSON.stringify(args).includes("small hotels in the Alps")),
-    ).toBe(true);
+    expect(state.generate.mock.calls.some(([args]) => JSON.stringify(args).includes("small hotels in the Alps"))).toBe(
+      true,
+    );
 
     const advanced = await ws.run(() => di.getAdvanceAgentWorkspaceSetupInteractor().invoke());
     if (!advanced.ok || !advanced.data.available || !advanced.data.setup) throw new Error("no setup");

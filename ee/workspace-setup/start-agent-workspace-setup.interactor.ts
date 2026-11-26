@@ -67,7 +67,9 @@ const OutputSchema = z.object({ setupId: z.string(), status: z.literal("planning
 type StartAgentWorkspaceSetupResult = Data<typeof OutputSchema>;
 
 export function isAgentWorkspaceSetup(questions: readonly SetupFollowUpQuestion[]): boolean {
-  return questions.some((question) => question.id === "followUp1" && question.label === AGENT_SETUP_DESCRIPTION_QUESTION);
+  return questions.some(
+    (question) => question.id === "followUp1" && question.label === AGENT_SETUP_DESCRIPTION_QUESTION,
+  );
 }
 
 function agentAnswers(data: StartAgentWorkspaceSetupData): Array<[keyof SetupAnswers, SetupAnswerValue]> {
@@ -75,7 +77,10 @@ function agentAnswers(data: StartAgentWorkspaceSetupData): Array<[keyof SetupAns
   const entries: Array<[keyof SetupAnswers, SetupAnswerValue | null]> = [
     ["teamSize", teamSize ? { format: "singleChoice", value: teamSize } : null],
     ["workWith", data.workWith ? { format: "singleChoice", value: data.workWith } : null],
-    ["purpose", data.purpose?.length ? { format: "multipleChoice", values: [...new Set(data.purpose)], custom: [] } : null],
+    [
+      "purpose",
+      data.purpose?.length ? { format: "multipleChoice", values: [...new Set(data.purpose)], custom: [] } : null,
+    ],
     [
       "mainSteps",
       data.mainSteps?.length ? { format: "orderedList", items: data.mainSteps.map((label) => ({ label })) } : null,
