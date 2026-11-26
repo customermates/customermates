@@ -357,6 +357,9 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: false,
     expiresIn: 24 * 60 * 60,
+    beforeEmailVerification: async (user, request) => {
+      await revokeAccessBeforeVerification(user.id, request);
+    },
     sendVerificationEmail: async ({ user, url }) => {
       const verificationUrl = new URL(url);
       const requested = verificationUrl.searchParams.get("callbackURL") ?? undefined;
@@ -516,6 +519,19 @@ async function revokeUnprovenAccess(userId: string, options: { removeAccounts: b
   const sessions = await prisma.authSession.deleteMany({ where: { userId } });
 
   return accounts.count + sessions.count + (await revokeUnprovenIntegrations(userId));
+}
+
+async function revokeAccessBeforeVerification(userId: string, request?: Request): Promise<void> {
+  const current = request
+    ? await auth.api.getSession({ headers: request.headers, query: { disableCookieCache: true } }).catch(() => null)
+    : null;
+  const keptSessionId = current?.user.id === userId ? current.session.id : null;
+
+  await prisma.authSession.deleteMany({
+    where: { userId, ...(keptSessionId ? { id: { not: keptSessionId } } : {}) },
+  });
+  if (!keptSessionId) await prisma.authAccount.deleteMany({ where: { userId, providerId: "credential" } });
+  await revokeUnprovenIntegrations(userId);
 }
 
 async function revokeUnprovenIntegrations(userId: string): Promise<number> {

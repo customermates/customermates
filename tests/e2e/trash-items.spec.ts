@@ -61,7 +61,8 @@ test("undoes a Knowledge Base page delete from the toast", async ({ page, databa
   const pageId = created.rows[0].id as string;
   await page.goto(pagePath(page, `/wiki?page=${pageId}`));
   await expect(page.getByText("Refunds take five days.").first()).toBeVisible();
-  await page.getByRole("dialog").getByRole("button", { name: englishMessages.Wiki.delete, exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: englishMessages.DataView.moreActions, exact: true }).click();
+  await page.getByRole("menuitem", { name: englishMessages.Wiki.delete, exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText('Are you sure you want to delete "Refund policy"?');
   await expect(confirmation).toContainText("It moves to Trash, where you can restore it for 30 days.");

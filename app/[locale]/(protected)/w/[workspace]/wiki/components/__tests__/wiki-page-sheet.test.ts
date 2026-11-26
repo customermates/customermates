@@ -1,7 +1,5 @@
-import type * as TooltipModule from "@/components/ui/tooltip";
 import type { ComponentProps, ReactNode } from "react";
 import type { Root } from "react-dom/client";
-import type { AppModalActionProps } from "@/components/modal/app-modal-action";
 import type { WikiPageLinks } from "@/features/wiki/wiki-graph.schema";
 import type { WikiPageKind } from "@/features/wiki/wiki.schema";
 import type { WikiPageStore } from "../wiki-page.store";
@@ -17,10 +15,10 @@ const harness = vi.hoisted(() => ({
   getLinks: vi.fn(),
   copy: vi.fn(),
   reported: [] as unknown[],
-  actions: [] as unknown[],
   trash: vi.fn(),
   bar: null as unknown,
   editor: null as unknown,
+  controlSlots: null as number | null,
 }));
 
 vi.mock("next-intl", () => ({
@@ -29,32 +27,24 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("../../actions", () => ({ getWikiPageLinksAction: harness.getLinks }));
 vi.mock("../wiki-link-picker", () => ({ WikiLinkPicker: () => null }));
-vi.mock("@/components/ui/tooltip", async (importOriginal) => {
-  const actual = await importOriginal<typeof TooltipModule>();
-  return {
-    ...actual,
-    Tooltip: (props: ComponentProps<typeof actual.Tooltip>) =>
-      createElement(actual.TooltipProvider, null, createElement(actual.Tooltip, props)),
-  };
-});
 vi.mock("@/components/modal/app-modal", () => ({
   AppModalTitle: ({ children }: { children?: ReactNode }) => createElement("h2", { "data-modal-title": "" }, children),
   AppModal: ({
-    actions,
     children,
+    controls,
     open,
     sheet,
     title,
     titleInContent,
   }: {
-    actions?: unknown[];
     children?: ReactNode;
+    controls?: { node: ReactNode; slots: number };
     open: boolean;
     sheet?: boolean;
     title?: string;
     titleInContent?: boolean;
   }) => {
-    harness.actions = actions ?? [];
+    if (sheet) harness.controlSlots = controls?.slots ?? null;
     return open
       ? createElement(
           "div",
@@ -63,10 +53,35 @@ vi.mock("@/components/modal/app-modal", () => ({
             "data-title": title,
             "data-title-in-content": String(Boolean(titleInContent)),
           },
+          controls ? createElement("div", { "data-modal-controls": "" }, controls.node) : null,
           children,
         )
       : null;
   },
+}));
+vi.mock("@/components/ui/item-actions", () => ({
+  ItemActionsTrigger: ({ label, menu }: { label?: string; menu?: ReactNode }) =>
+    createElement("div", { "data-menu": label }, menu),
+}));
+vi.mock("@/components/ui/dropdown-menu", () => ({
+  DropdownMenuSeparator: () => createElement("hr"),
+  DropdownMenuItem: ({
+    children,
+    disabled,
+    onSelect,
+    variant,
+    ...props
+  }: {
+    children?: ReactNode;
+    disabled?: boolean;
+    onSelect?: () => void;
+    variant?: string;
+  }) =>
+    createElement(
+      "button",
+      { ...props, type: "button", role: "menuitem", disabled, "data-variant": variant, onClick: () => onSelect?.() },
+      children,
+    ),
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({ showTrashConfirmation: harness.trash }),
@@ -136,13 +151,14 @@ vi.mock("@/i18n/navigation", () => ({
   useWorkspaceSlug: () => "acme",
 }));
 
-import { WikiPageDocument, WikiPageSheet } from "../wiki-page-sheet";
+import { WikiPageDocument, WikiPageSheet, linkedPagesOf } from "../wiki-page-sheet";
 
 type SheetProps = ComponentProps<typeof WikiPageSheet>;
 
 const GUIDE = "10000000-0000-4000-8000-000000000001";
 const REFUNDS = "10000000-0000-4000-8000-000000000002";
 const PRICING = "10000000-0000-4000-8000-000000000003";
+const TONE = "10000000-0000-4000-8000-000000000004";
 const PEOPLE = "20000000-0000-4000-8000-000000000001";
 const DEALS = "20000000-0000-4000-8000-000000000002";
 const updatedAt = new Date("2026-11-16T10:00:00.000Z");
@@ -159,7 +175,10 @@ const links: WikiPageLinks = {
     { id: GUIDE, title: "Operating Guide", kind: "guide" },
     { id: PRICING, title: "Pricing", kind: "knowledge" },
   ],
-  linksTo: [{ id: PRICING, title: "Pricing", kind: "knowledge" }],
+  linksTo: [
+    { id: PRICING, title: "Pricing", kind: "knowledge" },
+    { id: TONE, title: "Tone of voice", kind: "knowledge" },
+  ],
   missing: 1,
   missingPageIds: ["30000000-0000-4000-8000-000000000001"],
   records: [
@@ -263,28 +282,27 @@ const holds = (change: () => void) =>
     await Promise.resolve();
     await Promise.resolve();
   });
-const action = (id: string) =>
-  (harness.actions as AppModalActionProps[]).find((candidate) => candidate.id === id) as
-    | (AppModalActionProps & { onClick: () => void | Promise<void>; disabled?: boolean; pressed?: boolean })
-    | undefined;
-const actionIds = () => (harness.actions as AppModalActionProps[]).map((candidate) => candidate.id);
-const openSegment = (container: HTMLElement, name: "page" | "links" | "details") =>
+const menuItem = (container: HTMLElement, id: string) =>
+  container.querySelector<HTMLButtonElement>(`[data-wiki-page-menu="${id}"]`);
+const menuIds = (container: HTMLElement) =>
+  [...container.querySelectorAll("[data-wiki-page-menu]")].map((item) => item.getAttribute("data-wiki-page-menu"));
+const select = (container: HTMLElement, id: string) =>
   act(async () => {
-    const tab = container.querySelector<HTMLButtonElement>(`#wiki-page-sheet-tab-${name}`);
-    tab?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-    tab?.focus();
+    menuItem(container, id)?.click();
+    await Promise.resolve();
     await Promise.resolve();
   });
-const chips = (container: HTMLElement) =>
-  [...(container.querySelector("[data-wiki-page-chips]")?.children ?? [])].map((chip) => chip.textContent);
+const metaParts = (container: HTMLElement) =>
+  [...(container.querySelector("[data-wiki-page-meta]")?.children ?? [])].map((part) => part.textContent);
+const settings = (container: HTMLElement) => container.querySelector("[data-wiki-page-settings]");
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
   harness.reported.length = 0;
-  harness.actions = [];
   harness.bar = null;
   harness.editor = null;
+  harness.controlSlots = null;
   harness.getLinks.mockResolvedValue({ ok: true, data: links });
   harness.copy.mockResolvedValue(undefined);
   permissions.delete = true;
@@ -317,6 +335,12 @@ afterEach(() => {
   for (const container of containers.splice(0)) container.remove();
 });
 
+describe("linked pages", () => {
+  it("lists every page linked from or to this one once, in that order", () => {
+    expect(linkedPagesOf(links).map((page) => page.title)).toEqual(["Operating Guide", "Pricing", "Tone of voice"]);
+  });
+});
+
 describe("Knowledge Base page sheet", () => {
   it("renders nothing while it is closed and reads no links", async () => {
     const { container } = await mount({ open: false });
@@ -325,59 +349,74 @@ describe("Knowledge Base page sheet", () => {
     expect(harness.getLinks).not.toHaveBeenCalled();
   });
 
-  it("opens as the side sheet records open in", async () => {
+  it("opens as the side sheet records open in, without tabs or chips", async () => {
     const { container } = await mount();
 
     expect(container.querySelector("[data-modal]")?.getAttribute("data-modal")).toBe("sheet");
     expect(container.querySelector("[data-modal]")?.getAttribute("data-title")).toBe("Refunds");
+    expect(container.querySelector('[role="tab"]')).toBeNull();
+    expect(container.querySelector("[data-slot='collapsible-section']")).toBeNull();
+    expect(container.textContent).not.toContain("Wiki.onThisPage");
   });
 
-  it("shows a skeleton and no actions while the page is fetched", async () => {
+  it("shows a skeleton and no controls while the page is fetched", async () => {
     const { container } = await mount({ state: "loading" });
 
     expect(container.querySelector("[data-wiki-page-sheet-skeleton]")?.getAttribute("aria-label")).toBe(
       "PageState.loading",
     );
     expect(container.querySelector("[data-modal]")?.getAttribute("data-title")).toBe("PageState.loading");
-    expect(actionIds()).toEqual([]);
+    expect(container.querySelector("[data-modal-controls]")).toBeNull();
     expect(harness.getLinks).not.toHaveBeenCalled();
   });
 
-  it("says that the page is gone, once, as the sheet's own title, and offers no actions on it", async () => {
+  it("says that the page is gone, once, as the sheet's own title, and offers no controls", async () => {
     const { container } = await mount({ state: "error" });
 
     expect(container.querySelector("[data-modal-title]")?.textContent).toBe("Wiki.unavailableTitle");
     expect(container.querySelector("[data-modal]")?.getAttribute("data-title-in-content")).toBe("true");
     expect(container.textContent).toContain("Wiki.unavailableBody");
     expect(container.textContent).not.toContain("Refunds");
-    expect(actionIds()).toEqual([]);
+    expect(container.querySelector("[data-modal-controls]")).toBeNull();
   });
 
-  describe("an editor", () => {
-    it("edits the title in the heading and gets verify, pin, copy link and delete in the action rail", async () => {
+  describe("the header", () => {
+    it("edits the title and keeps pin, copy link, page settings, verify and delete in the more menu", async () => {
       const { container } = await mount();
 
       const title = container.querySelector('[data-wiki-page-title][role="heading"]');
       expect(title?.getAttribute("aria-level")).toBe("2");
       expect(title?.querySelector('[data-form-input="title"]')).not.toBeNull();
-      expect(actionIds()).toEqual(["verify", "pin", "copy-link", "delete"]);
+      expect(container.querySelector("[data-menu]")?.getAttribute("data-menu")).toBe("DataView.moreActions");
+      expect(menuIds(container)).toEqual(["pin", "copy-link", "settings", "verify", "delete"]);
       expect(container.querySelector("[data-editor]")?.getAttribute("data-readonly")).toBe("false");
       expect(container.querySelector("[data-unsaved-bar]")).not.toBeNull();
+      expect(harness.controlSlots).toBe(1);
     });
 
-    it("describes the page in chips: kind, pages linking here, owner, verified date and the pin", async () => {
+    it("shows one visible button that opens the page as a full page where that view exists", async () => {
+      const onSwitchView = vi.fn();
+      const { container } = await mount({ onSwitchView });
+
+      const button = [...container.querySelectorAll("[data-wiki-page-controls] > button")];
+      expect(button.map((control) => control.textContent)).toEqual(["Wiki.view.fullPage"]);
+      expect(harness.controlSlots).toBe(3);
+      act(() => (button[0] as HTMLButtonElement).click());
+      expect(onSwitchView).toHaveBeenCalledOnce();
+    });
+
+    it("describes the page in one quiet line: kind, owner, verified date and pages linking here", async () => {
       runInAction(() => {
         state.form.owner = " Support team ";
         state.form.verifiedAt = new Date("2026-11-10T08:00:00.000Z");
       });
-      const { container, render } = await mount({ pinned: true });
+      const { container } = await mount();
 
-      expect(chips(container)).toEqual([
+      expect(metaParts(container)).toEqual([
         "Wiki.kind.procedure",
-        "Wiki.graph.linkedFromCount:2",
         "Support team",
         "Wiki.verified.on:2026-11-10",
-        "Wiki.graph.pinned",
+        "Wiki.linksHere:2",
       ]);
 
       harness.getLinks.mockResolvedValue({ ok: true, data: { ...links, linkedFrom: [] } });
@@ -386,58 +425,59 @@ describe("Knowledge Base page sheet", () => {
         state.form.verifiedAt = null;
         state.form.updatedAt = new Date("2026-11-17T10:00:00.000Z");
       });
-      await render({ pinned: false });
-      expect(chips(container)).toEqual(["Wiki.kind.procedure"]);
+      expect(metaParts(container)).toEqual(["Wiki.kind.procedure"]);
+    });
+
+    it("scrolls to the linked pages from the meta line", async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+      const { container } = await mount();
+
+      act(() => container.querySelector<HTMLButtonElement>("[data-wiki-links-here]")?.click());
+      expect(scrollIntoView).toHaveBeenCalledOnce();
+      expect(scrollIntoView.mock.contexts[0]).toBe(container.querySelector("[data-wiki-page-links]"));
     });
 
     it("marks a saved page as verified and asks to save first when there are unsaved changes", async () => {
-      await mount();
-      expect(action("verify")).toMatchObject({
-        label: "Wiki.verified.mark",
-        tooltip: "Wiki.verified.help",
-        disabled: false,
-      });
-      await act(async () => action("verify")?.onClick());
+      const { container } = await mount();
+      await select(container, "verify");
       expect(spies.markVerified).toHaveBeenCalledOnce();
 
       await holds(() => (state.hasUnsavedChanges = true));
-      expect(action("verify")).toMatchObject({ tooltip: "Wiki.verified.saveFirst", disabled: true });
+      expect(menuItem(container, "verify")?.disabled).toBe(true);
+      expect(menuItem(container, "verify")?.textContent).toBe("Wiki.verified.saveFirst");
     });
 
-    it("pins and unpins the page on the map and explains what a pin does", async () => {
-      const { render } = await mount({ pinned: false });
-      expect(action("pin")).toMatchObject({ label: "Wiki.graph.pin", tooltip: "Wiki.graph.pinHelp", pressed: false });
-      await act(async () => action("pin")?.onClick());
+    it("pins and unpins the page on the map", async () => {
+      const { container, render } = await mount({ pinned: false });
+      expect(menuItem(container, "pin")?.textContent).toBe("Wiki.graph.pin");
+      await select(container, "pin");
       expect(callbacks.onTogglePin).toHaveBeenCalledOnce();
 
       await render({ pinned: true });
-      expect(action("pin")).toMatchObject({
-        label: "Wiki.graph.unpin",
-        tooltip: "Wiki.graph.unpinHelp",
-        pressed: true,
-      });
+      expect(menuItem(container, "pin")?.textContent).toBe("Wiki.graph.unpin");
     });
 
     it("leaves the pin out where the map is not shown or the page is not on it", async () => {
-      const { render } = await mount({ canPin: false });
-      expect(actionIds()).toEqual(["verify", "copy-link", "delete"]);
+      const { container, render } = await mount({ canPin: false });
+      expect(menuIds(container)).toEqual(["copy-link", "settings", "verify", "delete"]);
 
       await render({ canPin: true, pinned: null });
-      expect(actionIds()).toEqual(["verify", "copy-link", "delete"]);
+      expect(menuIds(container)).toEqual(["copy-link", "settings", "verify", "delete"]);
     });
 
     it("copies the page's address", async () => {
-      await mount();
-      await act(async () => action("copy-link")?.onClick());
+      const { container } = await mount();
+      await select(container, "copy-link");
 
       expect(harness.copy).toHaveBeenCalledExactlyOnceWith(`${window.location.origin}/w/acme/wiki?page=${REFUNDS}`);
     });
 
     it("moves the page to the trash after confirmation and shows it again when the move is undone", async () => {
-      await mount();
-      await act(async () => action("delete")?.onClick());
+      const { container } = await mount();
+      expect(menuItem(container, "delete")?.getAttribute("data-variant")).toBe("destructive");
+      await select(container, "delete");
 
-      expect(action("delete")).toMatchObject({ variant: "destructive", disabled: false });
       expect(harness.trash).toHaveBeenCalledExactlyOnceWith(
         expect.any(Function),
         "Refunds",
@@ -463,24 +503,76 @@ describe("Knowledge Base page sheet", () => {
     });
   });
 
+  describe("page settings", () => {
+    it("open from the menu with the kind, when to use a procedure, the owner and the dates", async () => {
+      runInAction(() => (state.form.verifiedAt = new Date("2026-11-10T08:00:00.000Z")));
+      const { container } = await mount();
+      expect(settings(container)).toBeNull();
+
+      await select(container, "settings");
+      expect(settings(container)?.closest("[data-modal]")?.getAttribute("data-modal")).toBe("dialog");
+      expect(container.querySelector('[data-form-select="kind"]')).not.toBeNull();
+      expect(container.querySelector('[data-form-textarea="whenToUse"]')).not.toBeNull();
+      expect(container.querySelector<HTMLInputElement>('[data-form-input="owner"]')?.maxLength).toBe(80);
+      expect(settings(container)?.querySelector("dl")?.textContent).toBe(
+        "Wiki.verified.label2026-11-10Wiki.changed2026-11-16",
+      );
+
+      await holds(() => {
+        state.form.kind = "knowledge";
+        state.form.verifiedAt = null;
+      });
+      expect(container.querySelector('[data-form-textarea="whenToUse"]')).toBeNull();
+      expect(settings(container)?.querySelector("dl")?.textContent).toContain("Wiki.verified.never");
+    });
+
+    it("do not let a second page become the guide", async () => {
+      const { container } = await mount({ otherGuide: true });
+      await select(container, "settings");
+
+      const guide = container.querySelector<HTMLOptionElement>('[data-form-select="kind"] option');
+      expect(guide?.disabled).toBe(true);
+      expect(guide?.getAttribute("data-description")).toBe("Wiki.kind.guideExists");
+    });
+
+    it("point to themselves when one of their fields is invalid", async () => {
+      runInAction(() => (state.errors = { owner: ["too long"] }));
+      const { container } = await mount();
+
+      const hint = container.querySelector<HTMLButtonElement>("[data-wiki-settings-invalid]");
+      expect(hint?.textContent).toBe("Wiki.settings.invalid");
+      act(() => hint?.click());
+      expect(settings(container)).not.toBeNull();
+    });
+
+    it("close when another page opens", async () => {
+      const { container } = await mount();
+      await select(container, "settings");
+      expect(settings(container)).not.toBeNull();
+
+      await holds(() => (state.form.id = PRICING));
+      expect(settings(container)).toBeNull();
+    });
+  });
+
   describe("a reader", () => {
     beforeEach(() => {
       runInAction(() => (state.canManage = false));
       permissions.delete = false;
     });
 
-    it("reads the title as a heading, cannot edit and can only copy the link", async () => {
+    it("reads the title as a heading, cannot edit and can copy the link or look at the settings", async () => {
       const { container } = await mount({ canPin: false });
 
       expect(container.querySelector("h2")?.textContent).toBe("Refunds");
       expect(container.querySelector('[data-form-input="title"]')).toBeNull();
-      expect(actionIds()).toEqual(["copy-link"]);
+      expect(menuIds(container)).toEqual(["copy-link", "settings"]);
       expect(container.querySelector("[data-editor]")?.getAttribute("data-readonly")).toBe("true");
     });
 
-    it("sees the details without being able to change them", async () => {
+    it("sees the settings without being able to change them", async () => {
       const { container } = await mount({ canPin: false });
-      await openSegment(container, "details");
+      await select(container, "settings");
 
       expect(container.querySelector<HTMLSelectElement>('[data-form-select="kind"]')?.disabled).toBe(true);
       expect(container.querySelector<HTMLTextAreaElement>('[data-form-textarea="whenToUse"]')?.disabled).toBe(true);
@@ -488,57 +580,38 @@ describe("Knowledge Base page sheet", () => {
     });
   });
 
-  describe("the page segment", () => {
+  describe("the document", () => {
     it("shows when to use a procedure above its text", async () => {
       const { container } = await mount();
-      expect(container.textContent).toContain("Wiki.whenToUse.label: When a customer asks for a refund.");
+      expect(container.querySelector("[data-wiki-when-to-use]")?.textContent).toBe(
+        "Wiki.whenToUse.label When a customer asks for a refund.",
+      );
 
       await holds(() => (state.form.kind = "knowledge"));
-      expect(container.textContent).not.toContain("Wiki.whenToUse.label");
+      expect(container.querySelector("[data-wiki-when-to-use]")).toBeNull();
     });
 
-    it("lists the headings of a long page and leaves a short page without an outline", async () => {
-      runInAction(
-        () =>
-          (state.editorDocument = {
-            type: "doc",
-            content: [heading(1, "Overview"), heading(2, "Steps"), heading(3, "Exceptions")],
-          }),
-      );
-      const { container } = await mount();
-      expect(container.textContent).toContain("Wiki.onThisPage");
-
-      await holds(
-        () => (state.editorDocument = { type: "doc", content: [heading(1, "Overview"), heading(2, "Steps")] }),
-      );
-      expect(container.textContent).not.toContain("Wiki.onThisPage");
-    });
-  });
-
-  describe("the links segment", () => {
     it("reads the page's links once the page shows", async () => {
       await mount();
 
       expect(harness.getLinks).toHaveBeenCalledExactlyOnceWith({ id: REFUNDS });
     });
 
-    it("lists the pages that link here and the pages linked from here, and opens one on a click", async () => {
+    it("ends with the linked pages as pills and opens one on a click", async () => {
       const { container } = await mount();
-      await openSegment(container, "links");
 
-      expect(container.textContent).toContain("Wiki.graph.linkedFrom · 2");
-      expect(container.textContent).toContain("Wiki.graph.linksTo · 1");
+      const pills = [...container.querySelectorAll("[data-wiki-linked-pages] button")];
+      expect(container.querySelector("[data-wiki-linked-pages]")?.textContent).toContain("Wiki.graph.linkedPages");
+      expect(pills.map((pill) => pill.textContent)).toEqual(["Operating Guide", "Pricing", "Tone of voice"]);
       expect(container.textContent).toContain("Wiki.graph.missingLinks:1");
-      act(() =>
-        [...container.querySelectorAll("button")].find((button) => button.textContent === "Operating Guide")?.click(),
-      );
+      act(() => (pills[0] as HTMLButtonElement).click());
       expect(callbacks.onSelect).toHaveBeenCalledExactlyOnceWith(GUIDE);
     });
 
-    it("links to the lists the page mentions, with the number of single records it links to", async () => {
+    it("ends with the lists the page uses, with the number of single records it links to", async () => {
       const { container } = await mount();
-      await openSegment(container, "links");
 
+      expect(container.querySelector("[data-wiki-linked-lists]")?.textContent).toContain("Wiki.graph.listsUsed");
       const records = [...container.querySelectorAll<HTMLAnchorElement>('a[href^="/records/"]')];
       expect(records.map((link) => [link.getAttribute("href"), link.textContent])).toEqual([
         [`/records/${PEOPLE}`, "People · 2"],
@@ -546,16 +619,15 @@ describe("Knowledge Base page sheet", () => {
       ]);
     });
 
-    it("says so when a page links nowhere", async () => {
+    it("leaves the sections out when a page links nowhere", async () => {
       harness.getLinks.mockResolvedValue({
         ok: true,
         data: { ...links, linkedFrom: [], linksTo: [], missing: 0, missingPageIds: [], records: [] },
       });
       const { container } = await mount();
-      await openSegment(container, "links");
 
-      expect(container.textContent?.match(/Wiki\.graph\.noLinks/g)).toHaveLength(2);
-      expect(container.textContent).not.toContain("Wiki.graph.records");
+      expect(container.querySelector("[data-wiki-linked-pages]")).toBeNull();
+      expect(container.querySelector("[data-wiki-linked-lists]")).toBeNull();
       expect(container.textContent).not.toContain("Wiki.graph.missingLinks");
     });
 
@@ -563,7 +635,6 @@ describe("Knowledge Base page sheet", () => {
       const failure = new Error("offline");
       harness.getLinks.mockRejectedValue(failure);
       const { container } = await mount();
-      await openSegment(container, "links");
 
       expect(container.textContent).toContain("Wiki.graph.linksFailed");
       expect(harness.reported).toEqual([failure]);
@@ -579,52 +650,6 @@ describe("Knowledge Base page sheet", () => {
     });
   });
 
-  describe("the details segment", () => {
-    it("holds the kind, when to use a procedure, the owner and the dates", async () => {
-      runInAction(() => (state.form.verifiedAt = new Date("2026-11-10T08:00:00.000Z")));
-      const { container } = await mount();
-      await openSegment(container, "details");
-
-      expect(container.querySelector('[data-form-select="kind"]')).not.toBeNull();
-      expect(container.querySelector('[data-form-textarea="whenToUse"]')).not.toBeNull();
-      expect(container.querySelector<HTMLInputElement>('[data-form-input="owner"]')?.maxLength).toBe(80);
-      expect(container.querySelector("dl")?.textContent).toBe("Wiki.verified.label2026-11-10Wiki.changed2026-11-16");
-
-      await holds(() => {
-        state.form.kind = "knowledge";
-        state.form.verifiedAt = null;
-      });
-      expect(container.querySelector('[data-form-textarea="whenToUse"]')).toBeNull();
-      expect(container.querySelector("dl")?.textContent).toContain("Wiki.verified.never");
-    });
-
-    it("does not let a second page become the guide", async () => {
-      const { container } = await mount({ otherGuide: true });
-      await openSegment(container, "details");
-
-      const guide = container.querySelector<HTMLOptionElement>('[data-form-select="kind"] option');
-      expect(guide?.disabled).toBe(true);
-      expect(guide?.getAttribute("data-description")).toBe("Wiki.kind.guideExists");
-    });
-
-    it("marks the segment that holds an invalid field", async () => {
-      runInAction(() => (state.errors = { owner: ["too long"] }));
-      const { container } = await mount();
-
-      expect(container.querySelector("#wiki-page-sheet-tab-details")?.getAttribute("data-invalid")).toBe("true");
-      expect(container.querySelector("#wiki-page-sheet-tab-page")?.getAttribute("data-invalid")).toBeNull();
-    });
-
-    it("returns to the page when another page opens", async () => {
-      const { container } = await mount();
-      await openSegment(container, "details");
-      expect(container.querySelector("[data-editor]")).toBeNull();
-
-      await holds(() => (state.form.id = PRICING));
-      expect(container.querySelector("[data-editor]")).not.toBeNull();
-    });
-  });
-
   describe("a new page", () => {
     beforeEach(() => {
       runInAction(() => {
@@ -633,17 +658,18 @@ describe("Knowledge Base page sheet", () => {
       });
     });
 
-    it("has no links yet, no actions and no dates, and cancelling closes the sheet", async () => {
-      const { container } = await mount({ pinned: null });
+    it("has no links yet, only the page settings in the menu and no dates, and cancelling closes the sheet", async () => {
+      const { container } = await mount({ pinned: null, onSwitchView: vi.fn() });
 
       expect(container.querySelector("[data-modal]")?.getAttribute("data-title")).toBe("Wiki.newPage");
-      expect(container.querySelector("#wiki-page-sheet-tab-links")).toBeNull();
-      expect(actionIds()).toEqual([]);
+      expect(container.querySelector("[data-wiki-page-links]")).toBeNull();
+      expect(menuIds(container)).toEqual(["settings"]);
+      expect(container.querySelector("[data-wiki-page-controls] > button")).toBeNull();
       expect(harness.getLinks).not.toHaveBeenCalled();
       expect(harness.bar).toMatchObject({ creating: true, onCancel: callbacks.onClose, store });
 
-      await openSegment(container, "details");
-      expect(container.querySelector("dl")).toBeNull();
+      await select(container, "settings");
+      expect(settings(container)?.querySelector("dl")).toBeNull();
     });
 
     it("discards changes to an existing page instead of closing", async () => {
@@ -655,16 +681,6 @@ describe("Knowledge Base page sheet", () => {
 
       expect(harness.bar).toMatchObject({ creating: false, onCancel: spies.resetDocument });
     });
-  });
-
-  it("offers to open the page as a full page where the pages view exists", async () => {
-    const onSwitchView = vi.fn();
-    await mount({ onSwitchView });
-
-    expect(actionIds()).toEqual(["verify", "pin", "copy-link", "delete", "switch-view"]);
-    expect(action("switch-view")?.label).toBe("Wiki.view.openFullPage");
-    await action("switch-view")?.onClick();
-    expect(onSwitchView).toHaveBeenCalledOnce();
   });
 });
 
@@ -695,24 +711,20 @@ describe("Knowledge Base page as a full page", () => {
     });
     return container;
   }
-  const railLabels = (container: HTMLElement) =>
-    [...container.querySelectorAll('[data-slot="app-modal-actions"] [data-slot="app-modal-action"]')].map((control) =>
-      control.getAttribute("aria-label"),
-    );
 
-  it("shows the page in the content area instead of a sheet, with its actions beside the title", async () => {
+  it("shows the page in the content area with the map button and the more menu beside the title", async () => {
     const container = await mountDocument();
 
-    expect(container.querySelector("[data-modal]")).toBeNull();
+    expect(container.querySelector("[data-modal='sheet']")).toBeNull();
     expect(container.querySelector("section[data-wiki-document]")?.getAttribute("data-wiki-document")).toBe("page");
     expect(container.querySelector("section[data-wiki-document]")?.getAttribute("aria-label")).toBe("Wiki.document");
-    expect(container.querySelector('[data-wiki-page-title] [data-form-input="title"]')).not.toBeNull();
-    expect(railLabels(container)).toEqual([
-      "Wiki.verified.mark",
-      "Wiki.copyLink",
-      "Wiki.delete",
-      "Wiki.view.showOnMap",
-    ]);
+    const header = container.querySelector("[data-slot='card-header']");
+    expect(header?.querySelector('[data-wiki-page-title] [data-form-input="title"]')).not.toBeNull();
+    expect(header?.querySelector("[data-wiki-page-controls]")).not.toBeNull();
+    expect(
+      [...container.querySelectorAll("[data-wiki-page-controls] > button")].map((button) => button.textContent),
+    ).toEqual(["Wiki.view.showOnMap"]);
+    expect(menuIds(container)).toEqual(["copy-link", "settings", "verify", "delete"]);
     expect(container.querySelector("[data-editor]")).not.toBeNull();
     expect(harness.getLinks).toHaveBeenCalledExactlyOnceWith({ id: REFUNDS });
   });
@@ -720,9 +732,9 @@ describe("Knowledge Base page as a full page", () => {
   it("returns to the map on request and offers no pinning away from the map", async () => {
     const container = await mountDocument();
 
-    expect(railLabels(container)).not.toContain("Wiki.graph.pin");
+    expect(menuItem(container, "pin")).toBeNull();
     await act(async () => {
-      container.querySelector<HTMLButtonElement>('[aria-label="Wiki.view.showOnMap"]')?.click();
+      container.querySelector<HTMLButtonElement>("[data-wiki-page-controls] > button")?.click();
       await Promise.resolve();
     });
     expect(onSwitchView).toHaveBeenCalledOnce();
@@ -758,7 +770,7 @@ describe("Knowledge Base page as a full page", () => {
     expect(gone.textContent).toContain("Wiki.unavailableBody");
   });
 
-  it("cancels a new page through the view and lets a reader only read, copy the link and return to the map", async () => {
+  it("cancels a new page through the view and lets a reader only read, copy the link, see the settings and return to the map", async () => {
     runInAction(() => {
       state.creating = true;
       Object.assign(state.form, { id: null, title: "", kind: "knowledge", whenToUse: "", updatedAt: null });
@@ -774,6 +786,9 @@ describe("Knowledge Base page as a full page", () => {
     permissions.delete = false;
     const reader = await mountDocument();
     expect(reader.querySelector("h2")?.textContent).toBe("Refunds");
-    expect(railLabels(reader)).toEqual(["Wiki.copyLink", "Wiki.view.showOnMap"]);
+    expect(menuIds(reader)).toEqual(["copy-link", "settings"]);
+    expect(
+      [...reader.querySelectorAll("[data-wiki-page-controls] > button")].map((button) => button.textContent),
+    ).toEqual(["Wiki.view.showOnMap"]);
   });
 });

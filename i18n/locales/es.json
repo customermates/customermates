@@ -6985,7 +6985,7 @@
     "signedOutBody": "Inicia sesión en tu cuenta para solicitar un nuevo correo de verificación.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
     "title": "Verificación del correo",
-    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar."
+    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar. Si abriste el enlace en otro dispositivo, inicia sesión con un enlace mágico o restablece tu contraseña."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",
@@ -7049,31 +7049,18 @@
       "label": "Mapa de la base de conocimientos",
       "legend": "Los círculos más grandes son páginas a las que enlazan más páginas. Haz clic en una página para abrirla.",
       "legendEdit": "Los círculos más grandes son páginas a las que enlazan más páginas. Haz clic en una página para abrirla y arrástrala para fijarla en su sitio.",
-      "linkedFrom": "Enlazada desde",
-      "linkedFromCount": "{count, plural, one {Enlazada desde # página} other {Enlazada desde # páginas}}",
+      "linkedPages": "Páginas enlazadas",
       "linksFailed": "No se pudieron cargar los enlaces de esta página.",
-      "linksTo": "Enlaza a",
+      "listsUsed": "Listas que usa",
       "loadFailed": "No se pudieron cargar las páginas de la base de conocimientos.",
       "missingLinks": "{count, plural, one {# enlace apunta a una página eliminada} other {# enlaces apuntan a páginas eliminadas}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Ninguna página",
       "noMatches": "Ninguna página coincide con el filtro.",
       "pin": "Fijar en el mapa",
-      "pinHelp": "Mantiene esta página en su sitio en el mapa. También puedes arrastrar una página para fijarla.",
-      "pinned": "Fijada",
-      "pinnedHelp": "Esta página mantiene su sitio cuando el mapa se reordena.",
-      "records": "Registros enlazados",
       "search": "Buscar una página",
-      "segments": {
-        "details": "Detalles",
-        "links": "Enlaces",
-        "page": "Página"
-      },
-      "sheetSegments": "Secciones de la página",
       "syncing": "Los enlaces aún se están leyendo. Recarga la página para verlos todos.",
       "truncated": "Se muestran las primeras {count} páginas. Busca y pulsa Intro para abrir cualquier otra página.",
-      "unpin": "Soltar la fijación",
-      "unpinHelp": "El mapa vuelve a colocar esta página."
+      "unpin": "Soltar la fijación"
     },
     "kind": {
       "guide": "Guía operativa",
@@ -7089,6 +7076,7 @@
       "procedureHelp": "Para tareas recurrentes, como la incorporación de clientes. Escribe pasos numerados y describe la solicitud correspondiente en «Cuándo usarlo». Mate y las herramientas de IA conectadas los siguen cuando surge esa solicitud."
     },
     "linkPage": "Enlazar una página de la base de conocimientos…",
+    "linksHere": "{count, plural, one {# página enlaza aquí} other {# páginas enlazan aquí}}",
     "loadFailed": "No se pudieron cargar las páginas.",
     "newPage": "Nueva página",
     "next": "Siguiente",
@@ -7130,11 +7118,14 @@
       "title": "Propuestas"
     },
     "reload": "Recargar página",
+    "settings": {
+      "invalid": "Revisa los ajustes de la página: un campo necesita atención.",
+      "title": "Ajustes de la página"
+    },
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
     "unavailableTitle": "Página no disponible",
     "untitled": "Página sin título",
     "verified": {
-      "help": "Deja constancia de que hoy has revisado esta página y sigue siendo correcta.",
       "label": "Última verificación",
       "mark": "Marcar como verificada",
       "never": "Aún sin verificar",
@@ -7142,9 +7133,9 @@
       "saveFirst": "Guarda tus cambios antes de marcar la página como verificada."
     },
     "view": {
+      "fullPage": "Página completa",
       "label": "Vista de la base de conocimientos",
       "map": "Mapa",
-      "openFullPage": "Abrir como página completa",
       "pages": "Páginas",
       "showOnMap": "Mostrar en el mapa"
     },

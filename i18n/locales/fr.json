@@ -6985,7 +6985,7 @@
     "signedOutBody": "Connectez-vous à votre compte pour demander un nouvel e-mail de vérification.",
     "subtitle": "Vérifiez votre adresse e-mail pour continuer.",
     "title": "Vérification de l’adresse e-mail",
-    "verifiedSignIn": "Votre adresse e-mail est maintenant vérifiée. Connectez-vous pour continuer."
+    "verifiedSignIn": "Votre adresse e-mail est maintenant vérifiée. Connectez-vous pour continuer. Si vous avez ouvert le lien sur un autre appareil, connectez-vous avec un lien magique ou réinitialisez votre mot de passe."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",
@@ -7049,31 +7049,18 @@
       "label": "Carte de la base de connaissances",
       "legend": "Les grands cercles sont des pages vers lesquelles pointent plus de pages. Cliquez sur une page pour l’ouvrir.",
       "legendEdit": "Les grands cercles sont des pages vers lesquelles pointent plus de pages. Cliquez sur une page pour l’ouvrir, faites-la glisser pour l’épingler à sa place.",
-      "linkedFrom": "Liée depuis",
-      "linkedFromCount": "{count, plural, one {Liée depuis # page} other {Liée depuis # pages}}",
+      "linkedPages": "Pages liées",
       "linksFailed": "Les liens de cette page n’ont pas pu être chargés.",
-      "linksTo": "Pointe vers",
+      "listsUsed": "Listes utilisées",
       "loadFailed": "Les pages de la base de connaissances n’ont pas pu être chargées.",
       "missingLinks": "{count, plural, one {# lien pointe vers une page supprimée} other {# liens pointent vers des pages supprimées}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Aucune page",
       "noMatches": "Aucune page ne correspond au filtre.",
       "pin": "Épingler sur la carte",
-      "pinHelp": "Garde cette page à sa place sur la carte. Vous pouvez aussi faire glisser une page pour l’épingler.",
-      "pinned": "Épinglée",
-      "pinnedHelp": "Cette page garde sa place quand la carte se réorganise.",
-      "records": "Enregistrements liés",
       "search": "Trouver une page",
-      "segments": {
-        "details": "Détails",
-        "links": "Liens",
-        "page": "Page"
-      },
-      "sheetSegments": "Sections de la page",
       "syncing": "Les liens sont encore en cours de lecture. Rechargez la page pour les voir tous.",
       "truncated": "Les {count} premières pages sont affichées. Recherchez et appuyez sur Entrée pour ouvrir une autre page.",
-      "unpin": "Retirer l’épingle",
-      "unpinHelp": "La carte replace cette page elle-même."
+      "unpin": "Retirer l’épingle"
     },
     "kind": {
       "guide": "Guide opérationnel",
@@ -7089,6 +7076,7 @@
       "procedureHelp": "Pour une tâche récurrente, comme l’accueil d’un client. Rédigez des étapes numérotées et décrivez la demande correspondante dans « Quand l’utiliser ». Mate et les outils d’IA connectés les suivent lorsque cette demande se présente."
     },
     "linkPage": "Lier une page de la base de connaissances…",
+    "linksHere": "{count, plural, one {# page pointe ici} other {# pages pointent ici}}",
     "loadFailed": "Impossible de charger les pages.",
     "newPage": "Nouvelle page",
     "next": "Suivant",
@@ -7130,11 +7118,14 @@
       "title": "Propositions"
     },
     "reload": "Recharger la page",
+    "settings": {
+      "invalid": "Vérifiez les paramètres de la page : un champ demande votre attention.",
+      "title": "Paramètres de la page"
+    },
     "unavailableBody": "Cette page a été supprimée ou vous n’y avez pas accès. Choisissez une autre page.",
     "unavailableTitle": "Page indisponible",
     "untitled": "Page sans titre",
     "verified": {
-      "help": "Indique que vous avez vérifié cette page aujourd’hui et qu’elle est toujours correcte.",
       "label": "Dernière vérification",
       "mark": "Marquer comme vérifiée",
       "never": "Pas encore vérifiée",
@@ -7142,9 +7133,9 @@
       "saveFirst": "Enregistrez vos modifications avant de marquer la page comme vérifiée."
     },
     "view": {
+      "fullPage": "Pleine page",
       "label": "Vue de la base de connaissances",
       "map": "Carte",
-      "openFullPage": "Ouvrir en pleine page",
       "pages": "Pages",
       "showOnMap": "Afficher sur la carte"
     },
