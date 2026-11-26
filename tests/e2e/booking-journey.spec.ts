@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { deflateSync } from "node:zlib";
 
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -180,6 +180,28 @@ async function bookAs(page: Page, token: string, name: string, email: string) {
   return manageUrl;
 }
 
+// The first free day can hold only a few times late in the evening; any later day is a whole free day.
+async function pickLaterDay(calendar: Locator) {
+  await expect(calendar).toHaveAttribute("aria-busy", "false");
+  const firstDay = await calendar.locator('button[data-day][data-selected-single="true"]').getAttribute("data-day");
+  if (!firstDay) throw new Error("The slot picker did not select its first free day.");
+  const laterDay = async () =>
+    (
+      await calendar
+        .locator('button[data-day]:not([disabled]):not([aria-disabled="true"])')
+        .evaluateAll((days) => days.map((day) => day.getAttribute("data-day") ?? ""))
+    ).find((day) => day > firstDay) ?? null;
+  let day = await laterDay();
+  if (!day) {
+    await calendar.locator("button.rdp-button_next").click();
+    await expect.poll(laterDay).not.toBeNull();
+    day = await laterDay();
+  }
+  const button = calendar.locator(`button[data-day="${day}"]`);
+  await button.click();
+  await expect(button).toHaveAttribute("data-selected-single", "true");
+}
+
 async function bookingFor(database: Client, email: string) {
   const result = await database.query<{
     status: string;
@@ -244,7 +266,8 @@ test("the host cancels one booking with a reason and moves another from the book
   await page.locator("[data-booking-host-reschedule]").click();
   const reschedule = page.locator("[data-booking-host-reschedule-dialog]");
   await expect(reschedule).toContainText(hostActions.rescheduleTitle.replace("{name}", "Mona Move"));
-  await reschedule.locator("[data-booking-slots] button").nth(3).click();
+  await pickLaterDay(reschedule.locator("[data-booking-calendar]"));
+  await reschedule.locator("[data-booking-slots] button").last().click();
   await reschedule.locator("#booking-host-reschedule-save").click();
   await expect(
     page.locator("[data-sonner-toast]").filter({ hasText: hostActions.rescheduled.replace("{name}", "Mona Move") }),
