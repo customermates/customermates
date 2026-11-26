@@ -153,7 +153,7 @@ Lista kontrolna idzie w kolejności, w jakiej ją przechodzisz. Opiera się na [
 
 *Ujawnienie: Customermates to nasz produkt.* Customermates to CRM source-available z Niemiec. W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt (`eu-central-1`). To wybrane ustawienie, a nie umowne zobowiązanie co do lokalizacji danych; aplikacja działa na Vercel w USA, a [lista podwykonawców](/subprocessors) wymienia każdego dostawcę z lokalizacją i podstawą transferu. Idea: CRM pozostaje systemem nadrzędnym, a Claude sięga przez [serwer MCP](/docs/mcp) tylko po to, czego potrzebuje zadanie, ograniczony rolą, toolsetami i zatwierdzeniami. Czym jest serwer MCP, wyjaśnia poradnik o [serwerze MCP](/blog/what-is-an-mcp-server).
 
-Serwer MCP odpowiada na wywołania: Claude wywołuje narzędzie (szukanie, odczyt, zmiana), Customermates sprawdza użytkownika, przestrzeń roboczą i rolę, i zwraca to, co rola może zobaczyć. Sam nic do Claude nie wysyła. MCP działa w każdym planie, także Free, i na własnym hostingu; każda przestrzeń robocza ma własny adres URL.
+Serwer MCP odpowiada na wywołania: Claude wywołuje narzędzie (szukanie, odczyt, zmiana), Customermates sprawdza użytkownika, przestrzeń roboczą i rolę, i zwraca to, co rola może zobaczyć. Sam nic do Claude nie wysyła. MCP działa w każdym planie, także Free, i na własnym hostingu; jeden adres URL obejmuje całe Twoje konto.
 
 ### Co trafia do Anthropic, gdy Claude czyta rekord?
 
@@ -186,7 +186,7 @@ Kroki wynikają z [poradnika o konektorze](/docs/connect-custom-connector), [dok
   <Step title="Utwórz osobnego użytkownika dla Claude">
     W **Ustawienia › Członkowie** zaproś użytkownika z tą rolą; zajmuje miejsce. Połączenie niesie uprawnienia użytkownika, który je zatwierdził, bez zakresu na klucz: z Twoim własnym użytkownikiem Claude widziałby wszystko, co widzisz Ty. Ustawienie członka jako **Nieaktywny** blokuje też jego połączenia MCP.
   </Step>
-  <Step title="Skopiuj adres URL przestrzeni roboczej i ustaw toolsety">
+  <Step title="Skopiuj adres URL i ustaw toolsety">
     Otwórz **Ustawienia › Klucze API i konektory**, kliknij **Dodaj**, wybierz **Claude** w sekcji **Szybkie połączenia**, a potem **Konto Claude**. Skopiuj adres URL i dopisz `?toolsets=records`. Serwer oferuje wtedy tylko narzędzia do rekordów (plus Kosz i status operacji): wiadomości, administracja rolami i członkami, webhooki i rutyny znikają. `search` i `fetch` zawsze zostają włączone. Jeśli Claude ma czytać także bazę wiedzy, dodaj `wiki`: `?toolsets=records,wiki`. [Dokumentacja MCP](/docs/mcp#narrowing-with-toolsets) wymienia wszystkie toolsety.
   </Step>
   <Step title="Dodaj konektor w Claude">
