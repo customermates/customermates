@@ -33,6 +33,8 @@ const ENFORCED = true;
 
 const LOCALE_TAG = /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})*$/;
 
+const LOCALE_PREFIXED_ONLY_SEGMENTS = new Set(["lp"]);
+
 function prismaLocaleEnumValues(): string[] {
   const schema = readFileSync(join(REPO_ROOT, "prisma", "schema.prisma"), "utf8");
   const block = schema.match(/enum Locale \{([\s\S]*?)\}/);
@@ -147,7 +149,9 @@ describe("locale registry", () => {
         .map((entry) => entry.name),
     );
 
-    const ambiguous = segments.filter((segment) => /^[a-z]{2}$/.test(segment));
+    const ambiguous = segments.filter(
+      (segment) => /^[a-z]{2}$/.test(segment) && !LOCALE_PREFIXED_ONLY_SEGMENTS.has(segment),
+    );
     expect(
       ambiguous,
       `two-letter route segments collide with locale prefixes and break the unsupported-prefix guard:\n${ambiguous.join("\n")}`,

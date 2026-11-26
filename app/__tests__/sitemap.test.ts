@@ -31,6 +31,14 @@ describe("sitemap.xml", () => {
     expect(urls.filter((url) => !url.startsWith("https://crm.example.com/"))).toEqual([]);
   });
 
+  it("keeps the paid-search landing pages out of the sitemap and its alternates", () => {
+    const urls = route
+      .default()
+      .flatMap((entry) => [entry.url, ...Object.values(entry.alternates?.languages ?? {}).map(String)]);
+
+    expect(urls.filter((url) => /\/[a-z]{2}\/lp(?:\/|$)/u.test(new URL(url).pathname))).toEqual([]);
+  });
+
   it("lists every content locale in the sitemap alternates", () => {
     const entries = route.default();
 
