@@ -28,7 +28,6 @@ import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ItemActionsTrigger } from "@/components/ui/item-actions";
-import { overlayIconControlClass } from "@/components/ui/overlay-contract";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { actionData } from "@/core/utils/action-data";
@@ -212,7 +211,7 @@ function WikiPageControls({
           className={VISIBLE_MENU_TRIGGER_CLASS}
           label={t("DataView.moreActions")}
           menu={menu}
-          trigger={<button className={overlayIconControlClass()} type="button" />}
+          trigger={<Button className="text-muted-foreground" size="icon-sm" type="button" variant="ghost" />}
           onCloseAutoFocus={onMenuCloseAutoFocus}
         />
       )}
