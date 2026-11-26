@@ -119,11 +119,11 @@ Dla serwera, który zamiast OAuth używa klucza API, Claude Code przyjmuje `--he
 
 ## Jak połączyć Claude z Customermates jako własny konektor? [#connect-customermates]
 
-Customermates zawiera zdalny serwer MCP, więc łączy się drogą własnego konektora. Każda przestrzeń robocza ma własny adres URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates, w chmurze lub na własnej instancji. Nie musisz go składać: aplikacja pokazuje go z przyciskiem kopiowania. To kroki z [poradnika o konektorze](/docs/connect-custom-connector); kroki w Claude odpowiadają artykułowi Anthropic powyżej.
+Customermates zawiera zdalny serwer MCP, więc łączy się drogą własnego konektora. Jeden adres URL obejmuje całe Twoje konto, `<BASE_URL>/api/v1/mcp`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates, w chmurze lub na własnej instancji. Nie musisz go składać: aplikacja pokazuje go z przyciskiem kopiowania. To kroki z [poradnika o konektorze](/docs/connect-custom-connector); kroki w Claude odpowiadają artykułowi Anthropic powyżej.
 
 <Steps>
-  <Step title="Skopiuj adres URL przestrzeni roboczej">
-    W Customermates otwórz **Ustawienia › Klucze API i konektory**, kliknij **Dodaj**, wybierz **Claude** w sekcji **Szybkie połączenia**, a potem **Konto Claude**. Okno pokazuje adres URL Twojej bieżącej przestrzeni roboczej. Połączenie wymaga ustawienia **Dostęp do odczytu** na **Wszystkie** w wierszu **API i webhooki** Twojej roli; wbudowana rola Administrator je ma.
+  <Step title="Skopiuj adres URL">
+    W Customermates otwórz **Ustawienia › Klucze API i konektory**, kliknij **Dodaj**, wybierz **Claude** w sekcji **Szybkie połączenia**, a potem **Konto Claude**. Okno pokazuje adres URL. Połączenie wymaga ustawienia **Dostęp do odczytu** na **Wszystkie** w wierszu **API i webhooki** Twojej roli; wbudowana rola Administrator je ma.
   </Step>
   <Step title="Dodaj konektor w Claude">
     Otwórz **Customize › Connectors**, kliknij **+ Add**, wybierz **Add custom connector**, nadaj nazwę i wklej adres URL. Zostaw uwierzytelnianie na OAuth: nie ma klucza do skopiowania. Przycisk **Dodaj do Claude** w tym samym oknie otwiera formularz Claude z wypełnionym adresem URL (tylko Claude w przeglądarce i Team).
@@ -142,7 +142,7 @@ Każda przestrzeń robocza definiuje własne listy i pola, więc poproś Claude,
 2. „W szansie sprzedaży Acme ustaw pole Status na Wygrana i dopisz w notatkach, że umowę podpisano dzisiaj.” (zmiana)
 3. „Które rozmowy z klientami czekają na moją odpowiedź? Napisz odpowiedź na najstarszą i zapisz ją jako szkic.” (wymaga planu z komunikacją, w chmurze od Pro)
 
-Dodawaj jeden konektor na przestrzeń roboczą; Claude odrzuca drugi konektor z adresem URL, który już zna. W planie Free, z jedynym własnym konektorem, możesz więc połączyć jedną przestrzeń roboczą. Aby dać Claude mniej narzędzi, dopisz do adresu URL `?toolsets=records,messaging`, jak wyjaśnia [dokumentacja MCP](/docs/mcp#narrowing-with-toolsets). Aby wypróbować to na własnym koncie Claude, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+Jeden konektor obejmuje każdą przestrzeń roboczą, do której należysz, więc jedyny własny konektor planu Free wystarcza: Claude wskazuje przestrzeń roboczą przy każdym wywołaniu i pyta Cię, którą masz na myśli, gdy masz ich kilka. Aby dać Claude mniej narzędzi, dopisz do adresu URL `?toolsets=records,messaging`, jak wyjaśnia [dokumentacja MCP](/docs/mcp#narrowing-with-toolsets). Aby wypróbować to na własnym koncie Claude, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
 
 ## Jakie uprawnienia dostaje konektor Claude i jak je ograniczyć? [#permissions]
 
@@ -169,8 +169,7 @@ Konektor daje Claude dostęp, ale nie mówi mu, jak przebiega praca. Przy powtar
 | „Access blocked: your institution’s admin needs to review Claude for Google Drive” | Administrator Google Workspace nie oznaczył Claude jako zaufanej aplikacji | Administrator otwiera admin.google.com, potem **Security › Access and data control › API controls › Manage third-party app access** (ścieżka z artykułu Anthropic), wyszukuje Claude, ustawia Trusted i czeka około 15 minut |
 | Brak opcji **Add custom connector** albo drugi jest odrzucany | Free pozwala na jeden własny konektor | Usunąć istniejący własny konektor albo wybrać plan płatny |
 | „Couldn’t register with the sign-in service” | Adres URL jest błędny albo serwery Anthropic nie mogą do niego dotrzeć | Skopiować adres URL ponownie z aplikacji; serwer w sieci prywatnej wymaga zgody na dostęp |
-| „A connector with this URL already exists in your organization” | Ten adres URL jest już podłączony, może dla innej przestrzeni roboczej | Dodać drugą przestrzeń roboczą z jej własnym adresem URL, skopiowanym przy otwartej tej przestrzeni |
-| Customermates odpowiada HTTP 401 z `invalid_token` | Połączenie zatwierdzono dla innej przestrzeni roboczej | Połączyć ponownie; Claude loguje się jeszcze raz dla przestrzeni roboczej z adresu URL |
+| Claude mówi, że potrzebuje przestrzeni roboczej | Należysz do kilku przestrzeni roboczych, a prośba żadnej nie wskazała | Wskazać przestrzeń roboczą w wiadomości albo poprosić Claude o wylistowanie przestrzeni roboczych i wybór jednej |
 | „Tool not found” | Nieaktualna pamięć podręczna konektora | Usunąć konektor i dodać go ponownie |
 
 [Poradnik o konektorze](/docs/connect-custom-connector#troubleshooting) zawiera pełną tabelę dla Customermates.

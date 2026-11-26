@@ -96,6 +96,8 @@ export const CLOUD_TRIAL = {
 
 export const CLOUD_WORKSPACE_CREATION_LIMIT = 20;
 
+export const CLOUD_DAILY_WORKSPACE_CREATION_LIMIT = 3;
+
 export const FREE_PLAN_ID = "free" satisfies PlanId;
 
 export const FREE_PLAN_UPGRADE_PLAN = "starter" satisfies PurchasablePlanId;

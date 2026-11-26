@@ -62,6 +62,8 @@ vi.mock("@/core/di", () => ({
   getGetMyConnectedAccountsContextInteractor: () => ({
     invoke: calls.accounts,
   }),
+  getWorkspaceSlugResolver: () => ({ requireSlugOf: () => Promise.resolve("acme") }),
+  getWorkspacePlanFactsService: () => ({ factsFor: () => Promise.resolve(null) }),
 }));
 vi.mock("../docs.mcp-tools", () => ({
   searchDocsHits: async (...args: unknown[]) => ((await calls.docs(...args)) as { results: unknown[] }).results,
@@ -454,6 +456,7 @@ describe("workspace-context Wiki discovery", () => {
     expect(Object.keys(decode(mcpToolResultText(result)) as object)).toEqual([
       "user",
       "company",
+      "plan",
       "wiki",
       "roles",
       "connectedAccounts",

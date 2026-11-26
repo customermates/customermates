@@ -119,11 +119,11 @@ For a server that takes an API key instead of OAuth, Claude Code accepts `--head
 
 ## How do I connect Claude to Customermates as a custom connector? [#connect-customermates]
 
-Customermates includes a remote MCP server, so it connects through the custom connector route. Every workspace has its own URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, where `<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. You do not assemble it: the app shows it with a copy button. These are the steps of the [connector guide](/docs/connect-custom-connector); the steps inside Claude match Anthropic's article above.
+Customermates includes a remote MCP server, so it connects through the custom connector route. One URL covers your whole account, `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. You do not assemble it: the app shows it with a copy button. These are the steps of the [connector guide](/docs/connect-custom-connector); the steps inside Claude match Anthropic's article above.
 
 <Steps>
-  <Step title="Copy the workspace URL">
-    In Customermates, open **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. The dialog shows the URL of your current workspace. Connecting needs **Read access All** on the **API & Webhooks** row of your role; the built-in Admin role has it.
+  <Step title="Copy the URL">
+    In Customermates, open **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. The dialog shows the URL. Connecting needs **Read access All** on the **API & Webhooks** row of your role; the built-in Admin role has it.
   </Step>
   <Step title="Add the connector in Claude">
     Open **Customize › Connectors**, click **+ Add**, choose **Add custom connector**, name it and paste the URL. Leave authentication on OAuth: there is no key to copy. The **Add to Claude** button in the same dialog opens Claude's form with the URL filled in (Claude web and Team only).
@@ -142,7 +142,7 @@ Each workspace defines its own lists and fields, so ask Claude to call `discover
 2. "Set the Status field on the Acme deal to Won and add a note that the contract was signed today." (update)
 3. "Which client conversations are waiting for my reply? Draft an answer to the oldest one and save it as a draft." (needs a plan with messaging, Pro or higher in the cloud)
 
-Add one connector per workspace; Claude refuses a second connector with a URL it already has, so on the Free plan, with its single custom connector, you can connect one workspace. To give Claude fewer tools, append `?toolsets=records,messaging` to the URL, as the [MCP reference](/docs/mcp#narrowing-with-toolsets) explains. To try it on your own Claude account, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
+One connector covers every workspace you belong to, so the single custom connector of the Free plan is enough: Claude names the workspace on each call and asks you which one you mean when you have several. To give Claude fewer tools, append `?toolsets=records,messaging` to the URL, as the [MCP reference](/docs/mcp#narrowing-with-toolsets) explains. To try it on your own Claude account, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 ## What permissions does a Claude connector get, and how do I limit them? [#permissions]
 
@@ -169,8 +169,7 @@ A connector gives Claude access; it does not tell Claude how the work goes. For 
 | "Access blocked: your institution's admin needs to review Claude for Google Drive" | A Google Workspace admin has not marked Claude as a trusted app | The admin opens admin.google.com, **Security › Access and data control › API controls › Manage third-party app access**, finds Claude and sets it to Trusted, then waits about 15 minutes |
 | No **Add custom connector** option, or a second one is refused | Free allows one custom connector | Remove the existing custom connector, or choose a paid plan |
 | "Couldn't register with the sign-in service" | The URL is wrong, or Anthropic's servers cannot reach it | Copy the URL again from the app; a private-network server needs allowlisting |
-| "A connector with this URL already exists in your organization" | That URL is already connected, possibly for another workspace | Add the other workspace with its own URL, copied while that workspace is open |
-| Customermates answers HTTP 401 with `invalid_token` | The connection was approved for another workspace | Reconnect; Claude signs in again for the workspace of the URL |
+| Claude says it needs a workspace | You belong to several workspaces and the request named none | Name the workspace in your message, or ask Claude to list your workspaces and pick one |
 | "Tool not found" | A stale connector cache | Remove the connector and add it again |
 
 The [connector guide](/docs/connect-custom-connector#troubleshooting) has the full table for Customermates.

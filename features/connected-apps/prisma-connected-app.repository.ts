@@ -20,7 +20,7 @@ export class PrismaConnectedAppRepo extends TenantRepository implements Connecte
   async findGrantsOfLogin(authUserId: string): Promise<ConnectedAppGrant[]> {
     const groups = await this.prisma.oauthAccessToken.groupBy({
       by: ["clientId"],
-      where: { userId: authUserId, companyId: this.companyId },
+      where: { userId: authUserId },
       _min: { createdAt: true },
       _max: { updatedAt: true, refreshTokenExpiresAt: true },
     });

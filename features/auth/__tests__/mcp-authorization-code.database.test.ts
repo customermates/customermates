@@ -261,7 +261,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     expect(await prisma.oauthAccessToken.count({ where: { userId, clientId } })).toBe(0);
   });
 
-  it("denies a consent that names no workspace", async () => {
+  it("issues an account-wide token without a default workspace and keeps it across a refresh", async () => {
     const userId = await seedUser();
     const clientId = await seedClient();
     const verifier = randomUUID() + randomUUID();
@@ -269,8 +269,27 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const service = await serviceSignedInAs(userId);
 
     const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: null });
+    const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
+    const response = await exchange({ code, clientId, verifier });
+    const body = (await response.json()) as { access_token?: string; refresh_token?: string };
+    const prisma = await db();
 
-    expect(new URL(decision?.redirectURI ?? "").searchParams.get("error")).toBe("access_denied");
+    expect(response.status).toBe(200);
+    expect(
+      (await prisma.oauthAccessToken.findUnique({ where: { accessToken: body.access_token ?? "" } }))?.companyId,
+    ).toBeNull();
+
+    const refreshed = await postToken({
+      grant_type: "refresh_token",
+      refresh_token: body.refresh_token ?? "",
+      client_id: clientId,
+    });
+    const refreshedTokens = (await refreshed.json()) as { access_token?: string };
+    expect(refreshed.status).toBe(200);
+    expect(
+      (await prisma.oauthAccessToken.findUnique({ where: { accessToken: refreshedTokens.access_token ?? "" } }))
+        ?.companyId,
+    ).toBeNull();
   });
 
   it("does not let another user see or decide a pending consent", async () => {

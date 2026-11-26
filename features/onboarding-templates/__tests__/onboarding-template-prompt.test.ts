@@ -7,13 +7,19 @@ import { templatePromptText } from "@/core/templates/template-prompt-text";
 import { getTemplate, getTemplateText } from "@/core/templates/__tests__/template-fixtures";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
-const MCP_URL = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
+const MCP_URL = "https://app.example.test/api/v1/mcp";
+const WORKSPACE = "acme";
 
 function render(slug: (typeof TEMPLATE_SLUGS)[number], locale: string, options: { connected?: boolean } = {}) {
   return renderTemplatePrompt(getTemplate(slug), getTemplateText(slug, locale), {
     mcpUrl: MCP_URL,
+    workspace: WORKSPACE,
     connected: options.connected ?? true,
   });
+}
+
+function filled(template: string) {
+  return template.replace("{mcpUrl}", MCP_URL).replaceAll("{workspace}", WORKSPACE);
 }
 
 describe("the template prompt shown in onboarding", () => {
@@ -58,8 +64,8 @@ describe("the template prompt shown in onboarding", () => {
       const prompt = render("sales-pipeline", locale, { connected: true });
 
       expect(prompt).toContain(MCP_URL);
-      expect(prompt).toContain(copy.workspace.connectedAt.replace("{mcpUrl}", MCP_URL));
-      expect(prompt).not.toContain(copy.workspace.existsAt.replace("{mcpUrl}", MCP_URL));
+      expect(prompt).toContain(filled(copy.workspace.connectedAt));
+      expect(prompt).not.toContain(filled(copy.workspace.existsAt));
       expect(prompt).not.toContain(copy.workspace.unconnected);
       expect(prompt).not.toContain("?template=");
       expect(prompt.split("\n").filter((line) => /^## 1\./.test(line))).toHaveLength(1);
@@ -72,8 +78,8 @@ describe("the template prompt shown in onboarding", () => {
       const copy = templatePromptText(locale);
       const prompt = render("sales-pipeline", locale, { connected: false });
 
-      expect(prompt).toContain(copy.workspace.existsAt.replace("{mcpUrl}", MCP_URL));
-      expect(prompt).not.toContain(copy.workspace.connectedAt.replace("{mcpUrl}", MCP_URL));
+      expect(prompt).toContain(filled(copy.workspace.existsAt));
+      expect(prompt).not.toContain(filled(copy.workspace.connectedAt));
       expect(prompt).not.toContain(copy.workspace.connected);
       expect(prompt).not.toContain(copy.workspace.unconnected);
       expect(prompt).not.toContain("?template=");

@@ -96,8 +96,8 @@
   },
   "workspace": {
     "connected": "Sei già collegato allo spazio di lavoro Customermates che ospiterà questo modello. Lavora al suo interno e non crearne un altro.",
-    "connectedAt": "Questo spazio di lavoro esiste già e sei collegato tramite MCP all’indirizzo {mcpUrl}. Lavora in questo spazio di lavoro e in nessun altro.",
-    "existsAt": "Questo spazio di lavoro esiste già, ma il tuo assistente non è ancora collegato. Collegalo tramite MCP all’indirizzo {mcpUrl}, con una chiave API da Impostazioni, Chiavi API e connettori. Finché manca il collegamento, chiedimi di completarlo prima di cambiare qualsiasi cosa. Poi lavora in questo spazio di lavoro e in nessun altro.",
+    "connectedAt": "Questo spazio di lavoro esiste già e sei collegato tramite MCP all’indirizzo {mcpUrl}. Passa workspace {workspace} a ogni chiamata di uno strumento e lavora in questo spazio di lavoro e in nessun altro.",
+    "existsAt": "Questo spazio di lavoro esiste già, ma il tuo assistente non è ancora collegato. Collegalo tramite MCP all’indirizzo {mcpUrl} e accedi con il mio account Customermates. Finché manca il collegamento, chiedimi di completarlo prima di cambiare qualsiasi cosa. Poi passa workspace {workspace} a ogni chiamata di uno strumento e lavora in questo spazio di lavoro e in nessun altro.",
     "unconnected": "Lavora nello spazio di lavoro Customermates a cui sei collegato tramite MCP. Se non sei ancora collegato a nessuno, chiedimi di collegarti prima di modificare qualsiasi cosa."
   }
 }

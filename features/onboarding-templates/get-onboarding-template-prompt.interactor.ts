@@ -17,7 +17,7 @@ import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { routineAllowanceOf } from "@/ee/subscription/entitlements";
 import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
-import { mcpWorkspaceUrl } from "@/features/auth/mcp-resource";
+import { MCP_ENDPOINT_PATH } from "@/features/auth/mcp-resource";
 import { env } from "@/env";
 import { APP_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -72,7 +72,8 @@ export class GetOnboardingTemplatePromptInteractor {
       data: {
         prompt: renderTemplatePrompt(bundle.spec, text, {
           connected,
-          mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
+          mcpUrl: `${env.BASE_URL}${MCP_ENDPOINT_PATH}`,
+          workspace: user.company?.slug ?? user.companyId,
           routineAllowance,
         }),
         connected,

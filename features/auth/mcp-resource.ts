@@ -20,7 +20,7 @@ export function mcpWorkspaceUrl(baseUrl: string, companyId: string): string {
 }
 
 export function mcpProtectedResourceMetadataUrl(baseUrl: string, companyId?: string): string {
-  return `${baseUrl}${PROTECTED_RESOURCE_METADATA_PATH}${companyId ? mcpWorkspacePath(companyId) : ""}`;
+  return `${baseUrl}${PROTECTED_RESOURCE_METADATA_PATH}${companyId ? mcpWorkspacePath(companyId) : MCP_ENDPOINT_PATH}`;
 }
 
 export function mcpWorkspaceIdFromResource(resource: unknown, baseUrl: string): string | null {

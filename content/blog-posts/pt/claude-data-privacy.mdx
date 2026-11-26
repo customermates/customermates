@@ -153,7 +153,7 @@ A checklist segue a ordem em que você a percorre. Ela se apoia no [GDPR](https:
 
 *Transparência: o Customermates é o nosso produto.* O Customermates é um CRM com hospedagem própria e código-fonte disponível, de origem alemã. No Customermates Cloud, o banco de dados de produção principal está configurado na região AWS de Frankfurt (`eu-central-1`). É uma configuração escolhida e não um compromisso contratual sobre o local dos dados; o aplicativo roda na Vercel nos EUA, e a [lista de suboperadores](/subprocessors) nomeia cada provedor com local e base de transferência. A ideia: o CRM continua sendo o sistema de referência, e o Claude acessa pelo [servidor MCP](/docs/mcp) só o que uma tarefa precisa, limitado por função, toolsets e aprovações. O que é um servidor MCP, o guia sobre o [servidor MCP](/blog/what-is-an-mcp-server) explica.
 
-O servidor MCP responde a chamadas: o Claude chama uma ferramenta (buscar, ler, alterar), o Customermates verifica usuário, espaço de trabalho e função, e devolve o que a função pode ver. Ele não envia nada ao Claude por conta própria. O MCP funciona em todos os planos, o Free incluído, e em hospedagem própria; cada espaço de trabalho tem a própria URL.
+O servidor MCP responde a chamadas: o Claude chama uma ferramenta (buscar, ler, alterar), o Customermates verifica usuário, espaço de trabalho e função, e devolve o que a função pode ver. Ele não envia nada ao Claude por conta própria. O MCP funciona em todos os planos, o Free incluído, e em hospedagem própria; uma única URL cobre toda a sua conta.
 
 ### O que chega à Anthropic quando o Claude lê um registro?
 
@@ -186,7 +186,7 @@ Os passos seguem o [guia do conector](/docs/connect-custom-connector), a [docume
   <Step title="Criar um usuário separado para o Claude">
     Em **Configurações › Membros**, convide um usuário com essa função; ele ocupa uma vaga. Uma conexão carrega as permissões do usuário que a aprovou, sem escopo por chave: com o seu próprio usuário, o Claude veria tudo que você vê. Colocar um membro em **Inativo** bloqueia também as conexões MCP dele.
   </Step>
-  <Step title="Copiar a URL do espaço de trabalho e definir os toolsets">
+  <Step title="Copiar a URL e definir os toolsets">
     Abra **Configurações › Chaves de API e conectores**, clique em **Adicionar**, escolha **Claude** em **Conexões rápidas** e depois **Conta do Claude**. Copie a URL e acrescente `?toolsets=records`. O servidor passa a oferecer só as ferramentas de registros (mais Lixeira e status das operações): mensagens, administração de funções e membros, webhooks e rotinas somem. `search` e `fetch` continuam sempre ativos. Se o Claude também deve ler a base de conhecimento, acrescente `wiki`: `?toolsets=records,wiki`. A [referência do MCP](/docs/mcp#narrowing-with-toolsets) lista todos os toolsets.
   </Step>
   <Step title="Adicionar o conector no Claude">

@@ -136,6 +136,8 @@ export enum CustomErrorCode {
   workspaceDeletePlatformOperator = "workspaceDeletePlatformOperator",
   workspaceInvitationInvalid = "workspaceInvitationInvalid",
   workspaceLimitReached = "workspaceLimitReached",
+  workspaceDailyLimitReached = "workspaceDailyLimitReached",
+  workspaceTermsNotAccepted = "workspaceTermsNotAccepted",
   workspacePlanRequired = "workspacePlanRequired",
   workspaceMemberLeft = "workspaceMemberLeft",
   workspaceMemberLastAdmin = "workspaceMemberLastAdmin",

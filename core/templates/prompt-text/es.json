@@ -96,8 +96,8 @@
   },
   "workspace": {
     "connected": "Ya estás conectado al espacio de trabajo de Customermates que alojará esta plantilla. Trabaja en él y no crees otro.",
-    "connectedAt": "Este espacio de trabajo ya existe y estás conectado a él por MCP en {mcpUrl}. Trabaja en este espacio de trabajo y en ningún otro.",
-    "existsAt": "Este espacio de trabajo ya existe, pero tu asistente aún no está conectado a él. Conéctalo por MCP en {mcpUrl}, con una clave de API de Ajustes, Claves de API y conectores. Mientras falte la conexión, pídeme que la complete antes de cambiar nada. Después trabaja en este espacio de trabajo y en ningún otro.",
+    "connectedAt": "Este espacio de trabajo ya existe y estás conectado a él por MCP en {mcpUrl}. Pasa workspace {workspace} en cada llamada a una herramienta y trabaja en este espacio de trabajo y en ningún otro.",
+    "existsAt": "Este espacio de trabajo ya existe, pero tu asistente aún no está conectado a él. Conéctalo por MCP en {mcpUrl} e inicia sesión con mi cuenta de Customermates. Mientras falte la conexión, pídeme que la complete antes de cambiar nada. Después pasa workspace {workspace} en cada llamada a una herramienta y trabaja en este espacio de trabajo y en ningún otro.",
     "unconnected": "Trabaja en el espacio de trabajo de Customermates al que estás conectado por MCP. Si todavía no estás conectado a ninguno, pídeme que te conecte antes de cambiar nada."
   }
 }

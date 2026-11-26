@@ -1,5 +1,6 @@
 import type { Locale, SubscriptionPlan, SubscriptionStatus, Status, Theme } from "@/generated/prisma";
 import type { TenantUser } from "@/features/user/user.schema";
+import type { LegalDocumentVersions } from "@/constants/legal-documents";
 
 export type WorkspaceMembershipRow = {
   id: string;
@@ -40,6 +41,9 @@ export abstract class WorkspaceMembershipRepo {
   abstract strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }): Promise<boolean>;
   abstract detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number>;
   abstract countCreatedWorkspacesUnscoped(authUserId: string): Promise<number>;
+  abstract countWorkspacesCreatedSinceUnscoped(authUserId: string, since: Date): Promise<number>;
+  abstract findAccountLegalVersionsUnscoped(authUserId: string): Promise<Partial<LegalDocumentVersions> | null>;
+  abstract recordAccountLegalVersionsUnscoped(authUserId: string, versions: LegalDocumentVersions): Promise<void>;
   abstract findLoginIdUnscoped(email: string): Promise<string | null>;
   abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
   abstract findAuthUserCompanyIdForUpdateUnscoped(userId: string): Promise<string | null | undefined>;

@@ -23,7 +23,14 @@ export const MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO = {
   title: "Set up from a template",
   description:
     "Sets up a workspace from a Customermates template: reads the workspace first, proposes the plan and builds only after approval",
-  arguments: [{ name: "template", description: "The template slug, for example client-tracker", required: true }],
+  arguments: [
+    { name: "template", description: "The template slug, for example client-tracker", required: true },
+    {
+      name: "workspace",
+      description: "Slug or id of the workspace to set up; needed when the account has several workspaces",
+      required: false,
+    },
+  ],
 };
 
 export const MCP_TEMPLATE_RESOURCE_INFO = {

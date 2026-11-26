@@ -172,26 +172,25 @@ export const auth = betterAuth({
 
       const grant = tokenGrantFromRequest(ctx.body);
       const { getAuthService } = await import("@/core/di");
-      const companyId =
+      const binding =
         grant?.type === "authorization_code"
           ? await getAuthService().consumeMcpAuthorizationCodeWorkspace(grant.code)
           : grant?.type === "refresh_token"
-            ? ((
-                await prisma.oauthAccessToken.findUnique({
-                  where: { refreshToken: grant.refreshToken },
-                  select: { companyId: true },
-                })
-              )?.companyId ?? null)
+            ? await prisma.oauthAccessToken.findUnique({
+                where: { refreshToken: grant.refreshToken },
+                select: { companyId: true },
+              })
             : null;
 
-      if (!companyId) {
+      if (!binding) {
         await prisma.oauthAccessToken.deleteMany({ where: { accessToken } });
         throw new APIError("UNAUTHORIZED", {
           error: "invalid_grant",
-          error_description: "the grant is not bound to a workspace",
+          error_description: "the grant was not approved on the consent screen",
         });
       }
 
+      const { companyId } = binding;
       const requestedCompanyId = mcpWorkspaceIdFromResource(resourceFromTokenRequest(ctx.body), env.BASE_URL);
       if (requestedCompanyId && requestedCompanyId !== companyId) {
         await prisma.oauthAccessToken.deleteMany({ where: { accessToken } });
@@ -464,23 +463,16 @@ export async function revokeMembershipCredentials(authUserId: string, companyId:
   const apiKeys = await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
     where: { referenceId: authUserId, companyId },
   });
-  const tokens = await (getTransactionClient<typeof prisma>() ?? prisma).oauthAccessToken.deleteMany({
+  await (getTransactionClient<typeof prisma>() ?? prisma).oauthAccessToken.updateMany({
     where: { userId: authUserId, companyId },
+    data: { companyId: null },
   });
-  return apiKeys.count + tokens.count;
+  return apiKeys.count;
 }
 
-export async function revokeOauthClientTokens(args: {
-  authUserId: string;
-  companyId: string;
-  clientId: string;
-}): Promise<number> {
+export async function revokeOauthClientTokens(args: { authUserId: string; clientId: string }): Promise<number> {
   const tokens = await (getTransactionClient<typeof prisma>() ?? prisma).oauthAccessToken.deleteMany({
-    where: {
-      userId: args.authUserId,
-      clientId: args.clientId,
-      OR: [{ companyId: args.companyId }, { companyId: null }],
-    },
+    where: { userId: args.authUserId, clientId: args.clientId },
   });
   return tokens.count;
 }

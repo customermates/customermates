@@ -15,6 +15,8 @@ import { listOfferedTemplates, loadTemplate } from "@/core/templates/template-re
 import { type TemplateSlug, isTemplateSlug } from "@/core/templates/template-slugs";
 import { routineAllowanceOf } from "@/ee/subscription/entitlements";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
+import { MCP_ENDPOINT_PATH } from "@/features/auth/mcp-resource";
+import { env } from "@/env";
 
 import { MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO, MCP_TEMPLATE_RESOURCE_INFO } from "./server-metadata";
 
@@ -66,10 +68,11 @@ export async function templateResourceContents(slug: TemplateSlug, locale: strin
   };
 }
 
-export async function templatePromptText(slug: TemplateSlug, locale: string): Promise<string> {
+export async function templatePromptText(slug: TemplateSlug, locale: string, workspace?: string): Promise<string> {
   const { spec, text } = await loadTemplate(slug, locale);
   return renderTemplatePrompt(spec, text, {
     connected: true,
+    ...(workspace ? { mcpUrl: `${env.BASE_URL}${MCP_ENDPOINT_PATH}`, workspace } : {}),
     routineAllowance: await workspaceRoutineAllowance(),
   });
 }
@@ -79,9 +82,9 @@ function slugCompletions(value: string): string[] {
   return offeredTemplateSlugs().filter((slug) => slug.startsWith(prefix));
 }
 
-function describePromptArgument(schema: z.ZodString, description: string) {
-  const definition = { ...schema._zod.def, description };
-  return schema.clone(definition);
+function describePromptArgument<T extends z.ZodString | z.ZodOptional<z.ZodString>>(schema: T, description: string): T {
+  const definition: unknown = { ...schema._zod.def, description };
+  return schema.clone(definition as never) as T;
 }
 
 function registerTemplatePrompt(server: McpServer) {
@@ -98,17 +101,17 @@ function registerTemplatePrompt(server: McpServer) {
           ),
           slugCompletions,
         ),
+        workspace: describePromptArgument(
+          z.string().min(1).max(100).optional(),
+          MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.arguments[1].description,
+        ),
       },
     },
-    async ({ template }) => {
+    async ({ template, workspace }) => {
       const slug = offeredSlug(template.trim().toLowerCase());
+      const text = await templatePromptText(slug, await workspaceLocale(), workspace?.trim() || undefined);
       return {
-        messages: [
-          {
-            role: "user" as const,
-            content: { type: "text" as const, text: await templatePromptText(slug, await workspaceLocale()) },
-          },
-        ],
+        messages: [{ role: "user" as const, content: { type: "text" as const, text } }],
       };
     },
   );

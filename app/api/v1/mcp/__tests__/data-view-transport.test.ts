@@ -15,7 +15,11 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({
 }));
 vi.mock("@/core/di", () => ({
   getManageDataViewsInteractor: () => ({ invoke: interactors.manage }),
-  getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
+  getAuthService: () => ({
+    isMcpApiKeyValid: () => Promise.resolve(true),
+    resolveMcpCredentialWorkspace: () =>
+      Promise.resolve({ credential: "apiKey", email: "member@example.com", companyId: null, agentJobKey: null }),
+  }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
   getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),
   getOperatorAccessService: () => ({ isReadEligible: () => Promise.resolve(false) }),
@@ -98,7 +102,9 @@ describe("saved-view MCP HTTP transport", () => {
     const listed = await rpc({ jsonrpc: "2.0", id: 2, method: "tools/list" }, sessionId);
     const toolNames = listed.data?.result?.tools?.map(({ name }) => name);
     expect(toolNames?.toSorted()).toEqual([
+      "create_workspace",
       "fetch",
+      "list_workspaces",
       "manage_calendar",
       "manage_data_views",
       "manage_forms",

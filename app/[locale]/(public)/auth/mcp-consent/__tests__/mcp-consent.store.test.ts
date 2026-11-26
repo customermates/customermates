@@ -15,15 +15,18 @@ const rootStore = {
 } as unknown as RootStore;
 
 const active = { unavailableReason: null, inactiveReason: null };
-const crm = { companyId: "company-a", name: "CRM", isCurrent: true, ...active };
-const taxes = { companyId: "company-b", name: "Taxes", isCurrent: false, ...active };
+const crm = { companyId: "company-a", name: "CRM", roleName: "Admin", isCurrent: true, ...active };
+const taxes = { companyId: "company-b", name: "Taxes", roleName: "Sales", isCurrent: false, ...active };
 const waiting = {
   companyId: "company-c",
   name: null,
+  roleName: null,
   isCurrent: false,
   unavailableReason: "pending" as const,
   inactiveReason: null,
 };
+const accountWide = { fixedWorkspace: false, termsRequired: false };
+const redirect = { ok: true, data: { redirectURI: "https://client.example/callback" } };
 
 describe("McpConsentStore", () => {
   beforeEach(() => {
@@ -31,18 +34,13 @@ describe("McpConsentStore", () => {
   });
 
   it("returns the serialized redirect and keeps the submitting state for navigation", async () => {
-    authActions.decideMcpConsentAction.mockResolvedValue({
-      ok: true,
-      data: { redirectURI: "https://client.example/callback" },
-    });
+    authActions.decideMcpConsentAction.mockResolvedValue(redirect);
     const store = new McpConsentStore(rootStore);
+    store.initialize([crm, taxes], accountWide);
 
     await expect(store.decide("consent-code", true)).resolves.toBe("https://client.example/callback");
 
-    expect(authActions.decideMcpConsentAction).toHaveBeenCalledWith({
-      consentCode: "consent-code",
-      accept: true,
-    });
+    expect(authActions.decideMcpConsentAction).toHaveBeenCalledWith({ consentCode: "consent-code", accept: true });
     expect(store.isSubmitting).toBe(true);
     expect(toast.error).not.toHaveBeenCalled();
   });
@@ -60,68 +58,63 @@ describe("McpConsentStore", () => {
     expect(toast.error).toHaveBeenCalledWith("McpConsentCard.error", expect.any(Object));
   });
 
-  it("defaults to the current workspace and binds the decision to it", async () => {
-    authActions.decideMcpConsentAction.mockResolvedValue({
-      ok: true,
-      data: { redirectURI: "https://client.example/callback" },
-    });
+  it.each([
+    ["one workspace", [crm], true],
+    ["two workspaces", [crm, taxes], true],
+    ["an account without any workspace", [], true],
+    ["only workspaces that cannot be used", [waiting, { ...crm, unavailableReason: "permission" as const }], false],
+  ])("approves the whole account for %s", (_label, workspaces, approvable) => {
     const store = new McpConsentStore(rootStore);
-    store.initialize([taxes, crm, waiting]);
+    store.initialize(workspaces, accountWide);
 
-    expect(store.selectedWorkspace).toEqual(crm);
+    expect(store.canApprove).toBe(approvable);
+  });
+
+  it("asks an account without a workspace to accept the terms before it can approve, and sends the acceptance", async () => {
+    authActions.decideMcpConsentAction.mockResolvedValue(redirect);
+    const store = new McpConsentStore(rootStore);
+    store.initialize([], { fixedWorkspace: false, termsRequired: true });
+
     expect(store.canApprove).toBe(true);
+    expect(store.canSubmitApproval).toBe(false);
+
+    store.setTermsAccepted(true);
+    expect(store.canSubmitApproval).toBe(true);
 
     await store.decide("consent-code", true);
 
     expect(authActions.decideMcpConsentAction).toHaveBeenCalledWith({
       consentCode: "consent-code",
       accept: true,
-      companyId: "company-a",
+      acceptTerms: true,
     });
   });
 
-  it("switches to another available workspace and ignores unavailable ones", () => {
+  it("does not send a terms answer with a denial", async () => {
+    authActions.decideMcpConsentAction.mockResolvedValue(redirect);
     const store = new McpConsentStore(rootStore);
-    store.initialize([crm, taxes, waiting]);
+    store.initialize([], { fixedWorkspace: false, termsRequired: true });
 
-    store.select("company-b");
-    expect(store.selectedCompanyId).toBe("company-b");
+    await store.decide("consent-code", false);
 
-    store.select("company-c");
-    store.select("unknown-company");
-    expect(store.selectedCompanyId).toBe("company-b");
+    expect(authActions.decideMcpConsentAction).toHaveBeenCalledWith({ consentCode: "consent-code", accept: false });
   });
 
-  it("falls back to the first available workspace when the current one cannot be connected", () => {
+  it("keeps the fixed workspace of an older per-workspace URL approvable only while it can be used", () => {
     const store = new McpConsentStore(rootStore);
-    store.initialize([{ ...crm, unavailableReason: "pending" }, waiting, taxes]);
+    store.initialize([taxes], { fixedWorkspace: true, termsRequired: true });
 
-    expect(store.selectedCompanyId).toBe("company-b");
     expect(store.canApprove).toBe(true);
-  });
+    expect(store.termsRequired).toBe(false);
 
-  it("keeps the current workspace selected for a denial when nothing can be connected", () => {
-    const store = new McpConsentStore(rootStore);
-    store.initialize([waiting, { ...crm, unavailableReason: "permission" }]);
+    store.initialize([{ ...taxes, unavailableReason: "plan" }], { fixedWorkspace: true, termsRequired: false });
+    expect(store.canApprove).toBe(false);
 
-    expect(store.selectedCompanyId).toBe("company-a");
+    store.initialize([], { fixedWorkspace: true, termsRequired: false });
     expect(store.canApprove).toBe(false);
   });
 
-  it("keeps the chosen workspace when the list refreshes and moves off it once it becomes unavailable", () => {
-    const store = new McpConsentStore(rootStore);
-    store.initialize([crm, taxes]);
-    store.select("company-b");
-
-    store.initialize([crm, { ...taxes }, waiting]);
-    expect(store.selectedCompanyId).toBe("company-b");
-
-    store.initialize([crm, { ...taxes, unavailableReason: "permission" }]);
-    expect(store.selectedCompanyId).toBe("company-a");
-    expect(store.workspaces).toHaveLength(2);
-  });
-
-  it("does not change the workspace while a decision is submitting", async () => {
+  it("does not change the terms answer while a decision is submitting", async () => {
     let resolveDecision: (value: unknown) => void = () => undefined;
     authActions.decideMcpConsentAction.mockReturnValue(
       new Promise((resolve) => {
@@ -129,13 +122,14 @@ describe("McpConsentStore", () => {
       }),
     );
     const store = new McpConsentStore(rootStore);
-    store.initialize([crm, taxes]);
+    store.initialize([], { fixedWorkspace: false, termsRequired: true });
+    store.setTermsAccepted(true);
 
     const decision = store.decide("consent-code", true);
-    store.select("company-b");
+    store.setTermsAccepted(false);
 
-    expect(store.selectedCompanyId).toBe("company-a");
-    resolveDecision({ ok: true, data: { redirectURI: "https://client.example/callback" } });
+    expect(store.termsAccepted).toBe(true);
+    resolveDecision(redirect);
     await decision;
   });
 

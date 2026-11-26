@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 import { createMcpHandler } from "mcp-handler";
 import * as ErrorReporter from "@/core/observability/server";
 
@@ -28,11 +26,33 @@ import {
 } from "@/features/agent-runners/agent-job-request-context";
 import type { AgentJobApiKey } from "@/features/auth/auth.service";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import {
+  MCP_WORKSPACE_ARGUMENT,
+  mcpToolInputSchema,
+  withoutWorkspaceArgument,
+} from "@/features/mcp-tools/mcp-workspace-argument";
+import {
+  currentMcpWorkspace,
+  runInMcpWorkspace,
+  type McpWorkspaceSelection,
+} from "@/features/auth/mcp-workspace-context";
 
 const UNEXPECTED_FAILURE_MESSAGE = "The operation could not be completed because of an unexpected server error.";
 const FOREIGN_TOKEN_MESSAGE = "The access token belongs to another workspace. Connect again through this MCP URL.";
 const FOREIGN_API_KEY_MESSAGE =
   "This API key belongs to another workspace. Use the MCP URL of that workspace, or create an API key in this one.";
+
+const FOREIGN_API_KEY_WORKSPACE_MESSAGE =
+  "An API key always works in the workspace it was created in. Leave workspace out, pass that workspace, or connect with OAuth to work across the account's workspaces.";
+const LOCKED_WORKSPACE_MESSAGE =
+  "This connection uses an older workspace URL and is locked to that workspace. Leave workspace out, or connect to the account-wide URL to work in other workspaces.";
+const MIXED_WORKSPACES_MESSAGE = "Send calls for different workspaces as separate requests.";
+
+type RequestScope = { workspace: McpWorkspaceSelection | null; checkAccess: boolean };
+
+const ACCOUNT_SCOPE: RequestScope = { workspace: null, checkAccess: false };
+const WORKSPACE_SCOPE: RequestScope = { workspace: null, checkAccess: true };
 
 const UNEXPECTED_FAILURE: SerializedInteractorFailure = {
   kind: "unavailable",
@@ -46,14 +66,38 @@ function createTextContent(text: string, isError = false) {
   };
 }
 
-const strictInputSchemas = new WeakMap<z.ZodType, z.ZodType>();
+const WORKSPACE_ARGUMENT = MCP_WORKSPACE_ARGUMENT;
 
-function strictInputSchema(inputSchema: z.ZodType): z.ZodType {
-  const cached = strictInputSchemas.get(inputSchema);
-  if (cached) return cached;
-  const strict = inputSchema instanceof z.ZodObject ? inputSchema.strict() : inputSchema;
-  strictInputSchemas.set(inputSchema, strict);
-  return strict;
+const PLAN_FAILURE_CODES: ReadonlySet<string> = new Set([
+  CustomErrorCode.planMemberLimitReached,
+  CustomErrorCode.planRecordLimitReached,
+  CustomErrorCode.planWebhooksNotIncluded,
+  CustomErrorCode.routinesRequirePlan,
+  CustomErrorCode.workspacePlanRequired,
+  CustomErrorCode.agentOwnKeyPlanRequired,
+  CustomErrorCode.storageQuotaExceeded,
+]);
+
+function isPlanFailure(failure: SerializedInteractorFailure): boolean {
+  return failure.issues.some(
+    (issue) =>
+      issue.entitlement !== undefined || (issue.customCode !== undefined && PLAN_FAILURE_CODES.has(issue.customCode)),
+  );
+}
+
+async function workspaceChoosePlanUrl(request: Request | null): Promise<string | null> {
+  try {
+    const { mcpWorkspaceSlug, mcpChoosePlanUrl } = await import("@/features/mcp-tools/mcp-workspace-slug");
+    const selected = currentMcpWorkspace();
+    if (selected) return mcpChoosePlanUrl(selected.slug);
+    if (!request) return mcpChoosePlanUrl(await mcpWorkspaceSlug());
+    const { getAuthService, getWorkspaceSlugResolver } = await import("@/core/di");
+    const companyId = (await getAuthService().resolveMcpCredentialWorkspace(request.headers))?.companyId;
+    const slug = companyId ? await getWorkspaceSlugResolver().slugFor(companyId) : null;
+    return slug ? mcpChoosePlanUrl(slug) : null;
+  } catch {
+    return null;
+  }
 }
 
 async function recordAgentConnected(toolName: string): Promise<void> {
@@ -93,12 +137,13 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
       {
         title: tool.title,
         description: tool.description,
-        inputSchema: strictInputSchema(tool.inputSchema),
+        inputSchema: mcpToolInputSchema(tool),
         ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}),
         annotations: tool.annotations,
       },
-      async (...args: unknown[]) => {
+      async (...rawArgs: unknown[]) => {
         try {
+          const args = withoutWorkspaceArgument(rawArgs);
           const job = currentAgentJobRequest();
           const refused = job ? await agentJobToolRefusal(job, tool, args[0], countAgentJobToolCall) : null;
           const result =
@@ -107,9 +152,13 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
               ? await runInCausation(agentJobRequestCausation(job), () => executeMcpTool(tool, args))
               : await executeMcpTool(tool, args));
           if (!result.ok) {
+            const choosePlanUrl = isPlanFailure(result.failure) ? await workspaceChoosePlanUrl(null) : null;
             return {
-              ...createTextContent(result.result, true),
-              _meta: { failure: result.failure },
+              ...createTextContent(
+                choosePlanUrl ? `${result.result}\nChoose a plan: ${choosePlanUrl}` : result.result,
+                true,
+              ),
+              _meta: { failure: result.failure, ...(choosePlanUrl ? { choosePlanUrl } : {}) },
             };
           }
           await recordAgentConnected(tool.name);
@@ -256,16 +305,37 @@ function insufficientPermissions() {
   );
 }
 
-function planRequired(message: string) {
-  return new Response(JSON.stringify({ error: "plan_required", message }), {
-    status: 403,
-    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-  });
+function planRequired(message: string, choosePlanUrl: string | null) {
+  return new Response(
+    JSON.stringify({ error: "plan_required", message, ...(choosePlanUrl ? { choosePlanUrl } : {}) }),
+    {
+      status: 403,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    },
+  );
 }
 
-type McpRpcCall = { method?: unknown; id?: unknown };
+type McpRpcCall = { method?: unknown; id?: unknown; params?: unknown };
 
-export type McpToolCallInfo = { toolCall: boolean; singleToolCallId: string | number | null };
+type McpToolCallTarget = { name: string | null; workspace: string | null };
+
+export type McpToolCallInfo = {
+  toolCall: boolean;
+  singleToolCallId: string | number | null;
+  calls: McpToolCallTarget[];
+  promptWorkspace: string | null;
+};
+
+function toolCallTarget(call: McpRpcCall): McpToolCallTarget {
+  const params = typeof call.params === "object" && call.params !== null ? call.params : {};
+  const name = "name" in params && typeof params.name === "string" ? params.name : null;
+  const args = "arguments" in params && typeof params.arguments === "object" ? params.arguments : null;
+  const workspace =
+    args && WORKSPACE_ARGUMENT in args && typeof args[WORKSPACE_ARGUMENT] === "string"
+      ? args[WORKSPACE_ARGUMENT].trim() || null
+      : null;
+  return { name, workspace };
+}
 
 async function readRpcMessages(request: Request): Promise<unknown[] | null> {
   if (request.method !== "POST") return null;
@@ -300,12 +370,18 @@ export async function isPublicDiscoveryRequest(request: Request): Promise<boolea
 
 export async function readMcpToolCall(request: Request): Promise<McpToolCallInfo> {
   const messages = await readRpcMessages(request);
-  if (!messages) return { toolCall: false, singleToolCallId: null };
+  if (!messages) return { toolCall: false, singleToolCallId: null, calls: [], promptWorkspace: null };
   const calls = messages.filter(isRpcCall);
   const toolCalls = calls.filter((call) => call.method === "tools/call");
   const only = calls.length === 1 ? toolCalls[0] : undefined;
   const id = only && (typeof only.id === "string" || typeof only.id === "number") ? only.id : null;
-  return { toolCall: toolCalls.length > 0, singleToolCallId: id };
+  const promptCall = calls.find((call) => call.method === "prompts/get");
+  return {
+    toolCall: toolCalls.length > 0,
+    singleToolCallId: id,
+    calls: toolCalls.map(toolCallTarget),
+    promptWorkspace: promptCall ? toolCallTarget(promptCall).workspace : null,
+  };
 }
 
 const RATE_LIMIT_HEADERS = (error: ApiRateLimitExceededError) => ({
@@ -319,7 +395,7 @@ function rateLimitUpgrade(error: ApiRateLimitExceededError) {
   return { plan: error.upgrade.plan.toLowerCase(), price: error.upgrade.price, url: error.upgrade.url };
 }
 
-function rateLimitedToolResult(error: ApiRateLimitExceededError, id: string | number) {
+function rateLimitedToolResult(error: ApiRateLimitExceededError, id: string | number, choosePlanUrl: string | null) {
   const structuredContent = {
     error: "rate_limited",
     plan: "free",
@@ -327,6 +403,7 @@ function rateLimitedToolResult(error: ApiRateLimitExceededError, id: string | nu
     limit: error.limit,
     retryAfterSeconds: error.retryAfterSeconds,
     upgrade: rateLimitUpgrade(error),
+    ...(choosePlanUrl ? { choosePlanUrl } : {}),
   };
   return new Response(
     JSON.stringify({ jsonrpc: "2.0", id, result: { ...createTextContent(error.message, true), structuredContent } }),
@@ -334,10 +411,37 @@ function rateLimitedToolResult(error: ApiRateLimitExceededError, id: string | nu
   );
 }
 
-function rateLimited(error: ApiRateLimitExceededError, toolCall: McpToolCallInfo) {
-  if (toolCall.singleToolCallId !== null) return rateLimitedToolResult(error, toolCall.singleToolCallId);
-  const body = { error: "rate_limited", message: error.message, plan: "free", upgrade: rateLimitUpgrade(error) };
+function rateLimited(error: ApiRateLimitExceededError, toolCall: McpToolCallInfo, choosePlanUrl: string | null) {
+  if (toolCall.singleToolCallId !== null) return rateLimitedToolResult(error, toolCall.singleToolCallId, choosePlanUrl);
+  const body = {
+    error: "rate_limited",
+    message: error.message,
+    plan: "free",
+    upgrade: rateLimitUpgrade(error),
+    ...(choosePlanUrl ? { choosePlanUrl } : {}),
+  };
   return new Response(JSON.stringify(body), { status: 429, headers: RATE_LIMIT_HEADERS(error) });
+}
+
+function toolCallRefusal(message: string, toolCall: McpToolCallInfo) {
+  const failure: SerializedInteractorFailure = {
+    kind: "validation",
+    issues: [{ code: "custom", path: [WORKSPACE_ARGUMENT], message }],
+  };
+  if (toolCall.singleToolCallId !== null) {
+    return new Response(
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: toolCall.singleToolCallId,
+        result: { ...createTextContent(message, true), _meta: { failure } },
+      }),
+      { status: 200, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } },
+    );
+  }
+  return new Response(JSON.stringify({ error: "workspace_required", message }), {
+    status: 400,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
 }
 
 function inactiveUser(message: string) {
@@ -354,15 +458,21 @@ function emailNotVerified(message: string) {
   });
 }
 
-async function mcpAccessRefusal(resourceMetadataUrl: string, toolCall: McpToolCallInfo): Promise<Response | null> {
+async function mcpAccessRefusal(
+  resourceMetadataUrl: string,
+  toolCall: McpToolCallInfo,
+  request: Request,
+): Promise<Response | null> {
   const { getAuthorizeMcpConnectionInteractor } = await import("@/core/di");
   try {
     await getAuthorizeMcpConnectionInteractor().invoke();
     return null;
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedChallenge(resourceMetadataUrl);
-    if (error instanceof WorkspacePlanRequiredError) return planRequired(error.message);
-    if (error instanceof ApiRateLimitExceededError) return rateLimited(error, toolCall);
+    if (error instanceof WorkspacePlanRequiredError)
+      return planRequired(error.message, await workspaceChoosePlanUrl(request));
+    if (error instanceof ApiRateLimitExceededError)
+      return rateLimited(error, toolCall, await workspaceChoosePlanUrl(request));
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
     if (error instanceof EmailVerificationRequiredError) return emailNotVerified(error.message);
@@ -472,16 +582,86 @@ export function createMcpRoute(
     return handlerFor(toolsets.key, false)(request);
   }
 
-  async function serve(request: Request, workspaceId: string | undefined, resourceMetadataUrl: string) {
-    const toolCall = await readMcpToolCall(request);
-    if (!toolCall.toolCall) await exemptCurrentRequestFromIntegrationLimit();
-    const refused = await mcpAccessRefusal(resourceMetadataUrl, toolCall);
-    if (refused) return refused;
-    await recordAgentFirstCall();
-    const toolsets = resolveToolsetKey(request, knownKeys);
-    if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
-    const operator = await isOperatorRequest(operatorTools);
-    return handlerFor(toolsets.key, operator)(workspaceId ? await atEndpoint(request, endpoint) : request);
+  const accountToolNames = new Set(
+    [...Object.values(toolGroups).flat(), ...alwaysOn, ...operatorTools]
+      .filter((tool) => tool.scope === "account")
+      .map((tool) => tool.name),
+  );
+
+  function requestedWorkspaces(toolCall: McpToolCallInfo) {
+    const workspaceCalls = toolCall.calls.filter((call) => call.name === null || !accountToolNames.has(call.name));
+    const requested = [
+      ...new Set(workspaceCalls.map((call) => call.workspace).filter((value): value is string => value !== null)),
+    ];
+    return { accountOnly: toolCall.toolCall && workspaceCalls.length === 0, requested };
+  }
+
+  async function accountScope(
+    request: Request,
+    toolCall: McpToolCallInfo,
+    resourceMetadataUrl: string,
+  ): Promise<{ refusal: Response } | { scope: RequestScope; agentJobKey: AgentJobApiKey | null }> {
+    const { accountOnly, requested } = requestedWorkspaces(toolCall);
+    if (requested.length > 1) return { refusal: toolCallRefusal(MIXED_WORKSPACES_MESSAGE, toolCall) };
+    if (accountOnly) return { scope: ACCOUNT_SCOPE, agentJobKey: null };
+
+    const di = await import("@/core/di");
+    const bound = await di.getAuthService().resolveMcpCredentialWorkspace(request.headers);
+    if (!bound) return { refusal: unauthorizedChallenge(resourceMetadataUrl) };
+
+    if (bound.credential === "apiKey") {
+      const own =
+        requested.length === 0 ||
+        (bound.companyId !== null &&
+          (await di.getMcpWorkspaceAccessService().isWorkspace(bound.companyId, requested[0])));
+      return own
+        ? { scope: WORKSPACE_SCOPE, agentJobKey: bound.agentJobKey }
+        : { refusal: toolCallRefusal(FOREIGN_API_KEY_WORKSPACE_MESSAGE, toolCall) };
+    }
+
+    const access = di.getMcpWorkspaceAccessService();
+    if (!toolCall.toolCall) {
+      const prompted = toolCall.promptWorkspace ? await access.resolve(bound.email, toolCall.promptWorkspace) : null;
+      const workspace = prompted?.ok ? prompted.workspace : await access.defaultWorkspace(bound.email, bound.companyId);
+      return { scope: workspace ? { workspace, checkAccess: true } : ACCOUNT_SCOPE, agentJobKey: null };
+    }
+
+    const resolution = await access.resolve(bound.email, requested[0] ?? null);
+    if (!resolution.ok) return { refusal: toolCallRefusal(resolution.message, toolCall) };
+    return { scope: { workspace: resolution.workspace, checkAccess: true }, agentJobKey: null };
+  }
+
+  async function lockedWorkspaceRefusal(workspaceId: string, toolCall: McpToolCallInfo): Promise<Response | null> {
+    const { requested } = requestedWorkspaces(toolCall);
+    if (requested.length > 1) return toolCallRefusal(MIXED_WORKSPACES_MESSAGE, toolCall);
+    if (requested.length === 0) return null;
+
+    const { getMcpWorkspaceAccessService } = await import("@/core/di");
+    return (await getMcpWorkspaceAccessService().isWorkspace(workspaceId, requested[0]))
+      ? null
+      : toolCallRefusal(LOCKED_WORKSPACE_MESSAGE, toolCall);
+  }
+
+  async function serve(
+    request: Request,
+    workspaceId: string | undefined,
+    resourceMetadataUrl: string,
+    toolCall: McpToolCallInfo,
+    scope: RequestScope = WORKSPACE_SCOPE,
+  ) {
+    const run = async () => {
+      if (!toolCall.toolCall) await exemptCurrentRequestFromIntegrationLimit();
+      if (scope.checkAccess) {
+        const refused = await mcpAccessRefusal(resourceMetadataUrl, toolCall, request);
+        if (refused) return refused;
+        await recordAgentFirstCall();
+      }
+      const toolsets = resolveToolsetKey(request, knownKeys);
+      if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
+      const operator = await isOperatorRequest(operatorTools);
+      return handlerFor(toolsets.key, operator)(workspaceId ? await atEndpoint(request, endpoint) : request);
+    };
+    return scope.workspace ? runInMcpWorkspace(scope.workspace, run) : run();
   }
 
   return async (request: Request, workspaceId?: string) => {
@@ -492,14 +672,26 @@ export function createMcpRoute(
         if (!apiKey && !bearer && (await isPublicDiscoveryRequest(request))) return anonymousDiscovery(request);
         return unauthorizedChallenge(resourceMetadataUrl);
       }
-      return serve(request, workspaceId, resourceMetadataUrl);
+      const toolCall = await readMcpToolCall(request);
+      const account = await accountScope(request, toolCall, resourceMetadataUrl);
+      if ("refusal" in account) return account.refusal;
+      if (!account.agentJobKey) return serve(request, workspaceId, resourceMetadataUrl, toolCall, account.scope);
+
+      const accountJob = await admitAgentJobKey(account.agentJobKey);
+      if (!accountJob) return unauthorizedChallenge(resourceMetadataUrl);
+      return runAsAgentJobRequest(accountJob, () =>
+        serve(request, workspaceId, resourceMetadataUrl, toolCall, account.scope),
+      );
     }
     const credential = await workspaceCredential(request, workspaceId, resourceMetadataUrl);
     if (credential.refusal) return credential.refusal;
-    if (!credential.agentJobKey) return serve(request, workspaceId, resourceMetadataUrl);
+    const toolCall = await readMcpToolCall(request);
+    const locked = await lockedWorkspaceRefusal(workspaceId, toolCall);
+    if (locked) return locked;
+    if (!credential.agentJobKey) return serve(request, workspaceId, resourceMetadataUrl, toolCall);
 
     const job = await admitAgentJobKey(credential.agentJobKey);
     if (!job) return unauthorizedChallenge(resourceMetadataUrl);
-    return runAsAgentJobRequest(job, () => serve(request, workspaceId, resourceMetadataUrl));
+    return runAsAgentJobRequest(job, () => serve(request, workspaceId, resourceMetadataUrl, toolCall));
   };
 }

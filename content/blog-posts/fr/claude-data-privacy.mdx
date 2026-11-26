@@ -153,7 +153,7 @@ La checklist suit l’ordre dans lequel vous la parcourez. Elle s’appuie sur l
 
 *Transparence&nbsp;: Customermates est notre produit.* Customermates est un CRM source-available d’origine allemande. Dans Customermates Cloud, la base de données de production principale est configurée dans la région AWS de Francfort (`eu-central-1`). C’est un réglage choisi et non un engagement contractuel sur le lieu des données&nbsp;; l’application tourne chez Vercel aux États-Unis, et la [liste des sous-traitants ultérieurs](/subprocessors) nomme chaque prestataire avec son lieu et sa base de transfert. L’idée&nbsp;: le CRM reste le système de référence, et Claude n’accède via le [serveur MCP](/docs/mcp) qu’à ce dont une tâche a besoin, limité par le rôle, les toolsets et les validations. Ce qu’est un serveur MCP, le guide sur le [serveur MCP](/blog/what-is-an-mcp-server) l’explique.
 
-Le serveur MCP répond à des appels&nbsp;: Claude appelle un outil (chercher, lire, modifier), Customermates vérifie l’utilisateur, l’espace de travail et le rôle, et renvoie ce que le rôle peut voir. Il n’envoie rien de lui-même à Claude. MCP fonctionne sur toutes les formules, Free comprise, et en auto-hébergement&nbsp;; chaque espace de travail a sa propre URL.
+Le serveur MCP répond à des appels&nbsp;: Claude appelle un outil (chercher, lire, modifier), Customermates vérifie l’utilisateur, l’espace de travail et le rôle, et renvoie ce que le rôle peut voir. Il n’envoie rien de lui-même à Claude. MCP fonctionne sur toutes les formules, Free comprise, et en auto-hébergement&nbsp;; une URL couvre tout votre compte.
 
 ### Que reçoit Anthropic quand Claude lit une fiche&nbsp;?
 
@@ -186,7 +186,7 @@ Les étapes suivent le [guide du connecteur](/docs/connect-custom-connector), la
   <Step title="Créer un utilisateur distinct pour Claude">
     Sous **Paramètres › Membres**, invitez un utilisateur avec ce rôle&nbsp;; il occupe une place. Une connexion porte les droits de l’utilisateur qui l’a approuvée, sans périmètre par clé&nbsp;: avec votre propre utilisateur, Claude verrait tout ce que vous voyez. Passer un membre sur **Inactif** bloque aussi ses connexions MCP.
   </Step>
-  <Step title="Copier l’URL de l’espace de travail et définir les toolsets">
+  <Step title="Copier l’URL et définir les toolsets">
     Ouvrez **Paramètres › Clés API et connecteurs**, cliquez sur **Ajouter**, choisissez **Claude** sous **Connexions rapides**, puis **Compte Claude**. Copiez l’URL et ajoutez `?toolsets=records`. Le serveur n’offre alors que les outils de fiches (plus la Corbeille et le statut des opérations)&nbsp;: messagerie, administration des rôles et des membres, webhooks et routines disparaissent. `search` et `fetch` restent toujours actifs. Si Claude doit aussi lire la base de connaissances, ajoutez `wiki`&nbsp;: `?toolsets=records,wiki`. La [référence MCP](/docs/mcp#narrowing-with-toolsets) liste tous les toolsets.
   </Step>
   <Step title="Ajouter le connecteur dans Claude">

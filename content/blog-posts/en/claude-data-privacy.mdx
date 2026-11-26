@@ -153,7 +153,7 @@ The checklist follows the order in which you work through it. It draws on the [G
 
 *Disclosure: Customermates is our product.* Customermates is a source-available CRM from Germany. In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region (`eu-central-1`). That is a selected setting, not a contractual commitment on data location; the application runs on Vercel in the USA, and the [subprocessor list](/subprocessors) names every provider with its location and transfer basis. The idea: the CRM stays the system of record, and Claude reaches only what a task needs through the [MCP server](/docs/mcp), limited by role, toolsets and approvals. What an MCP server is, the guide to the [MCP server](/blog/what-is-an-mcp-server) explains.
 
-The MCP server answers calls: Claude calls a tool (search, read, change), Customermates checks user, workspace and role, and returns what the role may see. It sends nothing to Claude by itself. MCP works on every plan, Free included, and self-hosted; every workspace has its own URL.
+The MCP server answers calls: Claude calls a tool (search, read, change), Customermates checks user, workspace and role, and returns what the role may see. It sends nothing to Claude by itself. MCP works on every plan, Free included, and self-hosted; one URL covers your whole account.
 
 ### What reaches Anthropic when Claude reads a record?
 
@@ -186,7 +186,7 @@ The steps follow the [connector guide](/docs/connect-custom-connector), the [rol
   <Step title="Create a separate user for Claude">
     Under **Settings › Members**, invite a user with that role; it takes a seat. A connection carries the permissions of the user who approved it, with no scope per key: with your own user, Claude would see everything you see. Setting a member to **Inactive** also blocks their MCP connections.
   </Step>
-  <Step title="Copy the workspace URL and set toolsets">
+  <Step title="Copy the URL and set toolsets">
     Open **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections** and then **Claude account**. Copy the URL and append `?toolsets=records`. The server then offers only the record tools (plus Trash and operation status): messaging, role and member administration, webhooks and routines are gone. `search` and `fetch` always stay on. If Claude should also read the Knowledge Base, add `wiki`: `?toolsets=records,wiki`. The [MCP reference](/docs/mcp#narrowing-with-toolsets) lists all toolsets.
   </Step>
   <Step title="Add the connector in Claude">

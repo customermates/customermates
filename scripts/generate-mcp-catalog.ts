@@ -12,12 +12,12 @@ const summariesPath = (locale: ContentLocale) => join(ROOT, "content", "docs", l
 
 export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
   records: MCP_TOOL_GROUPS.records,
-  workspace: MCP_TOOL_GROUPS.workspace,
+  workspace: [...MCP_TOOL_GROUPS.workspace, ...MCP_ALWAYS_ON_TOOLS.filter((tool) => tool.scope === "account")],
   views: MCP_TOOL_GROUPS.views,
   wiki: MCP_TOOL_GROUPS.wiki,
   messaging: MCP_TOOL_GROUPS.messaging,
   social: MCP_TOOL_GROUPS.social,
-  docs: [...MCP_TOOL_GROUPS.docs, ...MCP_ALWAYS_ON_TOOLS],
+  docs: [...MCP_TOOL_GROUPS.docs, ...MCP_ALWAYS_ON_TOOLS.filter((tool) => tool.scope !== "account")],
   "record-model": MCP_TOOL_GROUPS["record-model"],
   widgets: MCP_TOOL_GROUPS.widgets,
   routines: MCP_TOOL_GROUPS.routines,

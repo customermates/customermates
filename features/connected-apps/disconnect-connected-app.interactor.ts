@@ -26,11 +26,7 @@ export class DisconnectConnectedAppInteractor extends AuthenticatedInteractor<Di
     const session = await this.authService.getInteractiveSession();
     if (!session || session.user.email !== this.user.email) return failAuthorization(CustomErrorCode.permissionDenied);
 
-    await this.authService.revokeOauthClientAccess({
-      authUserId: session.user.id,
-      companyId: this.companyId,
-      clientId: data.id,
-    });
+    await this.authService.revokeOauthClientAccess({ authUserId: session.user.id, clientId: data.id });
 
     return { ok: true as const, data: data.id };
   }
