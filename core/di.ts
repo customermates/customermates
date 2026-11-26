@@ -567,6 +567,8 @@ import { OperatorAccessService } from "@/ee/operator/operator-access.service";
 import { PrismaAdConversionExportRepo } from "@/ee/operator/prisma-ad-conversion-export.repository";
 import { PrismaAdConversionUploadRepo } from "@/ee/operator/prisma-ad-conversion-upload.repository";
 import { UploadAdConversionsInteractor } from "@/ee/operator/upload-ad-conversions.interactor";
+import { AdConversionUploader } from "@/ee/operator/ad-conversion-uploader";
+import { UploadAdConversionsSystemInteractor } from "@/ee/lifecycle/upload-ad-conversions.interactor";
 import { GoogleDataManagerTransport } from "@/ee/operator/data-manager/google-data-manager-transport";
 import { PrismaOperatorAccessRepo } from "@/ee/operator/prisma-operator-access.repository";
 import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
@@ -2712,13 +2714,18 @@ export const getAdConversionUploadRepo = () => new PrismaAdConversionUploadRepo(
 
 export const getDataManagerTransport = () => new GoogleDataManagerTransport();
 
-export const getUploadAdConversionsInteractor = () =>
-  new UploadAdConversionsInteractor(
+export const getAdConversionUploader = () =>
+  new AdConversionUploader(
     getAdConversionExportRepo(),
     getAdConversionUploadRepo(),
     getDataManagerTransport(),
     getOperatorRepo(),
   );
+
+export const getUploadAdConversionsInteractor = () => new UploadAdConversionsInteractor(getAdConversionUploader());
+
+export const getUploadAdConversionsSystemInteractor = () =>
+  new UploadAdConversionsSystemInteractor(getAdConversionUploader());
 
 export const getOperatorBillingUsageRepo = () => new PrismaOperatorBillingUsageRepo();
 

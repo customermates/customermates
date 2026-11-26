@@ -28,7 +28,11 @@ import {
 
 import { normalizeOperatorEmail } from "./operator-access.service";
 import type { OperatorRefusal, OperatorRepo } from "./operator.repo";
-import type { AdConversionUploadAudit, AdConversionUploadAuditRepo } from "./ad-conversion-upload-audit.repo";
+import {
+  AD_CONVERSION_UPLOAD_CRON_ACTOR,
+  type AdConversionUploadAudit,
+  type AdConversionUploadAuditRepo,
+} from "./ad-conversion-upload-audit.repo";
 import {
   OPERATOR_AUDIT_ACTION,
   type AgentCreditAdjustmentDto,
@@ -217,11 +221,11 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     targetUserId?: string | null;
     reason?: string | null;
     metadata?: Prisma.InputJsonValue;
+    actorUserId?: string;
   }): Promise<void> {
-    const actor = getOperatorActor();
     await this.prisma.operatorAuditEvent.create({
       data: {
-        actorUserId: actor.userId,
+        actorUserId: args.actorUserId ?? getOperatorActor().userId,
         action: args.action,
         targetCompanyId: args.targetCompanyId ?? null,
         targetUserId: args.targetUserId ?? null,
@@ -1355,7 +1359,9 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
   async recordAdConversionUploadUnscoped(audit: AdConversionUploadAudit): Promise<void> {
     await this.createAudit({
       action: OPERATOR_AUDIT_ACTION.adConversionUpload,
+      actorUserId: audit.trigger === "cron" ? AD_CONVERSION_UPLOAD_CRON_ACTOR : undefined,
       metadata: {
+        trigger: audit.trigger,
         mode: audit.mode,
         status: audit.status,
         eligibleCount: audit.eligibleCount,
