@@ -13,8 +13,7 @@ type Props = {
 
 export const CENTERED_CARD_AREA_CLASS = "items-center px-4 py-6 sm:py-10";
 
-export const CENTERED_CARD_STEPS_CLASS =
-  "flex w-full items-start justify-center min-h-[min(38rem,calc(100dvh-12rem))]";
+export const CENTERED_CARD_STEPS_CLASS = "flex w-full items-start justify-center min-h-[min(38rem,calc(100dvh-12rem))]";
 
 export function CenteredCardPage({ children, className, align = "center" }: Props) {
   return (
