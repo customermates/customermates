@@ -981,8 +981,8 @@
   "AgentStart": {
     "connect": {
       "account": "Angemeldet als {email} · {count, plural, =0 {noch kein Workspace} one {# Workspace} other {# Workspaces}}",
-      "subtitle": "Fügen Sie das in Claude, ChatGPT oder einen anderen MCP-Client ein. Eine Verbindung erreicht alle Ihre Workspaces.",
-      "title": "Verbinden Sie Ihren KI-Agenten"
+      "subtitle": "Füge das in Claude, ChatGPT oder einen anderen MCP-Client ein. Eine Verbindung erreicht alle deine Workspaces.",
+      "title": "Verbinde deinen KI-Agenten"
     },
     "copied": "Kopiert",
     "copy": "Kopieren",
