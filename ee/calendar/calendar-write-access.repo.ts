@@ -22,6 +22,11 @@ export type WritableEventRow = {
   accountStatus: ConnectedAccountStatus;
   connectedAccountId: string;
   timezone?: string | null;
+  allDay?: boolean;
+  startsAt?: Date;
+  endsAt?: Date;
+  recurrenceRule?: string | null;
+  masterUnipileEventId?: string | null;
 };
 
 export type CalendarWriteAccounts = {

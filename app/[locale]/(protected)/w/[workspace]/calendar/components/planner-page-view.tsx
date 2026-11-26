@@ -72,8 +72,16 @@ import { RecordCalendarView } from "../../records/[typeId]/components/record-cal
 import { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 import { calendarSwatchStyle } from "../../records/[typeId]/components/record-calendar-layout";
 import { cn } from "@/core/utils/cn";
-import { type PlannerEventMove, plannerCalendarAdapter, plannerEntryColors } from "./planner-calendar-adapter";
+import {
+  type PlannerEventMove,
+  type PlannerEventTiming,
+  type PlannerMoveQuestion,
+  plannerCalendarAdapter,
+  plannerEntryColors,
+  plannerMoveQuestion,
+} from "./planner-calendar-adapter";
 import { moveMeetingAction } from "../schedule-actions";
+import { type PlannerMoveDecision, PlannerMoveDialog } from "./planner-move-dialog";
 import { BookingPanel } from "./booking/booking-panel";
 import type { BookingPanelState } from "./booking/booking-panel-model";
 import { PlannerSettingsStore } from "./planner-settings.store";
@@ -204,9 +212,9 @@ const PlannerPageViewContent = observer(function PlannerPageView({
   const canMoveEvents = root.appMode === "cloud" && options.personalAvailable;
   const open = useCallback(
     (item: PlannerEntry, opener?: HTMLElement | null) => {
+      const edit = { eventId: item.eventId ?? "", timeZone: config.timeZone, recurring: item.recurring === true };
       if (item.record) root.recordWorkspaceStore.open(item.record.ref, opener);
-      else if (canMoveEvents && item.editable && item.eventId)
-        root.scheduleMeetingModalStore.edit({ eventId: item.eventId, timeZone: config.timeZone }, opener);
+      else if (canMoveEvents && item.editable && item.eventId) root.scheduleMeetingModalStore.edit(edit, opener);
       else setEventDetail(item);
     },
     [root, canMoveEvents, config.timeZone],
@@ -252,10 +260,45 @@ const PlannerPageViewContent = observer(function PlannerPageView({
     [creatableKey, createIn, canSchedule, scheduleAt],
   );
   const creatable = Boolean(creatableKey) || canSchedule;
+  const [moveQuestion, setMoveQuestion] = useState<{
+    question: PlannerMoveQuestion;
+    resolve: (decision: PlannerMoveDecision | null) => void;
+  } | null>(null);
+  const decideMove = useCallback(
+    (decision: PlannerMoveDecision | null) => {
+      moveQuestion?.resolve(decision);
+      setMoveQuestion(null);
+    },
+    [moveQuestion],
+  );
   const moveEvent = useCallback(
-    (move: PlannerEventMove) => {
-      async function send(next: PlannerEventMove, offerUndo: boolean): Promise<{ saved: boolean }> {
-        const result = await moveMeetingAction({ id: next.eventId, startsAt: next.startsAt, endsAt: next.endsAt });
+    async (move: PlannerEventMove) => {
+      const item = entries.find((entry) => entry.id === move.entryId);
+      const question = plannerMoveQuestion(item ?? {});
+      const asked =
+        question.scope || question.notify
+          ? await new Promise<PlannerMoveDecision | null>((resolve) => setMoveQuestion({ question, resolve }))
+          : { sendInvites: false };
+      if (!asked) return { saved: false };
+      const decision: PlannerMoveDecision = question.notify
+        ? asked
+        : { ...asked, sendInvites: item?.hasGuests === true };
+      const outlookGuests = item?.hasGuests === true && item.provider?.toLowerCase() === "outlook";
+      const description = outlookGuests
+        ? t("Planner.eventMovedMicrosoft")
+        : decision.sendInvites
+          ? t("Planner.eventMovedNotified")
+          : item?.hasGuests
+            ? t("Planner.eventMovedQuiet")
+            : undefined;
+
+      async function send(timing: PlannerEventTiming, offerUndo: boolean): Promise<{ saved: boolean }> {
+        const result = await moveMeetingAction({
+          id: move.eventId,
+          ...timing,
+          sendInvites: decision.sendInvites,
+          scope: decision.scope,
+        });
         await refresh().catch(reportApplicationError);
         if (!result.ok) {
           if (!toastZodErrorTree(result.error)) toast.error(t("Planner.moveEventFailed"));
@@ -266,20 +309,17 @@ const PlannerPageViewContent = observer(function PlannerPageView({
           return { saved: true };
         }
         toast.success(t("Planner.eventMoved"), {
-          description: t("Planner.eventMovedDescription"),
+          description,
           action: {
             label: t("Planner.undoMove"),
-            onClick: () =>
-              runUserAction(() =>
-                send({ ...next, startsAt: next.previous.startsAt, endsAt: next.previous.endsAt }, false),
-              ),
+            onClick: () => runUserAction(() => send(move.previous, false)),
           },
         });
         return { saved: true };
       }
-      return send(move, true);
+      return send(move.timing, true);
     },
-    [refresh, t],
+    [entries, refresh, t],
   );
   const adapter = useMemo(
     () =>
@@ -808,6 +848,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({
           </PopoverContent>
         </Popover>
       )}
+
+      <PlannerMoveDialog question={moveQuestion?.question ?? null} onDecide={decideMove} />
 
       {eventDetail && (
         <PlannerEventModal

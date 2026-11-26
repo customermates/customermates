@@ -1734,6 +1734,7 @@ model CalendarEvent {
   calendarId         String
   calendar           Calendar                  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   unipileEventId     String
+  masterUnipileEventId String?
   title              String
   description        String?
   location           String?
@@ -1756,6 +1757,7 @@ model CalendarEvent {
   @@unique([companyId, id])
   @@unique([connectedAccountId, unipileEventId])
   @@index([companyId, startsAt])
+  @@index([connectedAccountId, masterUnipileEventId])
   @@index([attendeeEmails], type: Gin)
 }
 

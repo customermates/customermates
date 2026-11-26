@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { MeetingOptions } from "@/ee/calendar/meeting.schema";
+import type { MeetingOptions, MeetingScope } from "@/ee/calendar/meeting.schema";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
@@ -20,12 +20,15 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { actionData } from "@/core/utils/action-data";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { zonedDate, zonedDayStart, zonedInstant, zonedParts } from "@/features/record-calendar/zoned-time";
+import { addCalendarDays } from "@/features/record-calendar/calendar-date";
 
 export type ScheduleMeetingForm = {
   title: string;
   description: string;
   location: string;
   date: string;
+  endDate: string;
+  scope: MeetingScope;
   time: string;
   durationMinutes: number;
   calendarId: string;
@@ -46,7 +49,7 @@ export type ScheduleMeetingStart = {
   timeZone?: string;
 };
 
-export type EditMeetingStart = { eventId: string; timeZone?: string };
+export type EditMeetingStart = { eventId: string; timeZone?: string; recurring?: boolean };
 
 export type EditableMeetingEvent = {
   title: string;
@@ -54,8 +57,11 @@ export type EditableMeetingEvent = {
   location: string | null;
   startsAt: Date | string;
   endsAt: Date | string;
+  allDay?: boolean;
   attendees: { email: string; isOrganizer?: boolean }[];
 };
+
+export type MeetingEditShape = { allDay: boolean; recurring: boolean };
 
 const MINUTE_MS = 60_000;
 
@@ -76,6 +82,8 @@ function emptyForm(date: string, time: string): ScheduleMeetingForm {
     description: "",
     location: "",
     date,
+    endDate: date,
+    scope: "occurrence",
     time,
     durationMinutes: DEFAULT_DURATION,
     calendarId: "",
@@ -89,20 +97,37 @@ function emptyForm(date: string, time: string): ScheduleMeetingForm {
 
 export function eventForm(event: EditableMeetingEvent, timeZone: string): Partial<ScheduleMeetingForm> {
   const startsAt = new Date(event.startsAt);
-  const parts = zonedParts(startsAt, timeZone);
-  return {
+  const shared = {
     title: event.title,
     description: event.description ?? "",
     location: event.location ?? "",
-    date: zonedDate(startsAt, timeZone),
+    attendees: event.attendees.filter((attendee) => !attendee.isOrganizer).map((attendee) => attendee.email),
+  };
+  if (event.allDay) {
+    const date = startsAt.toISOString().slice(0, 10);
+    const lastDay = addCalendarDays(new Date(event.endsAt).toISOString().slice(0, 10), -1);
+    return { ...shared, date, endDate: lastDay < date ? date : lastDay };
+  }
+  const parts = zonedParts(startsAt, timeZone);
+  const date = zonedDate(startsAt, timeZone);
+  return {
+    ...shared,
+    date,
+    endDate: date,
     time: clock(parts.hour * 60 + parts.minute),
     durationMinutes: Math.round((new Date(event.endsAt).getTime() - startsAt.getTime()) / MINUTE_MS),
-    attendees: event.attendees.filter((attendee) => !attendee.isOrganizer).map((attendee) => attendee.email),
   };
 }
 
-export function meetingChanges(form: ScheduleMeetingForm, saved: ScheduleMeetingForm, startsAt: string) {
-  const timing = form.date !== saved.date || form.time !== saved.time || form.durationMinutes !== saved.durationMinutes;
+export function meetingChanges(
+  form: ScheduleMeetingForm,
+  saved: ScheduleMeetingForm,
+  startsAt: string,
+  shape: MeetingEditShape = { allDay: false, recurring: false },
+) {
+  const timing = shape.allDay
+    ? form.date !== saved.date || form.endDate !== saved.endDate
+    : form.date !== saved.date || form.time !== saved.time || form.durationMinutes !== saved.durationMinutes;
   const sameAttendees =
     form.attendees.length === saved.attendees.length &&
     form.attendees.every((email) => saved.attendees.includes(email));
@@ -110,9 +135,14 @@ export function meetingChanges(form: ScheduleMeetingForm, saved: ScheduleMeeting
     ...(form.title !== saved.title ? { title: form.title } : {}),
     ...(form.description !== saved.description ? { description: form.description } : {}),
     ...(form.location !== saved.location ? { location: form.location } : {}),
-    ...(timing ? { startsAt, durationMinutes: form.durationMinutes } : {}),
+    ...(timing
+      ? shape.allDay
+        ? { startDate: form.date, endDate: form.endDate < form.date ? form.date : form.endDate }
+        : { startsAt, durationMinutes: form.durationMinutes }
+      : {}),
     ...(sameAttendees ? {} : { attendees: form.attendees.map((email) => ({ email })) }),
     sendInvites: form.sendInvites,
+    ...(shape.recurring ? { scope: form.scope } : {}),
   };
 }
 
@@ -126,6 +156,9 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
   editingId: string | null = null;
   eventLoaded = false;
   cancelConfirmOpen = false;
+  allDay = false;
+  recurring = false;
+  provider: string | null = null;
   private slotRequest = 0;
 
   constructor(rootStore: RootStore) {
@@ -141,6 +174,9 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       editingId: observable,
       eventLoaded: observable,
       cancelConfirmOpen: observable,
+      allDay: observable,
+      recurring: observable,
+      provider: observable,
       start: action,
       edit: action,
       setCancelConfirm: action,
@@ -174,6 +210,9 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     this.record = input.record ?? null;
     this.editingId = null;
     this.eventLoaded = false;
+    this.allDay = false;
+    this.recurring = false;
+    this.provider = null;
     this.options = null;
     this.optionsFailed = false;
     this.slots = [];
@@ -196,6 +235,9 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     this.editingId = input.eventId;
     this.eventLoaded = false;
     this.cancelConfirmOpen = false;
+    this.allDay = false;
+    this.recurring = input.recurring === true;
+    this.provider = null;
     this.options = null;
     this.optionsFailed = false;
     this.slots = [];
@@ -211,6 +253,8 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       const event = await actionData(meetingEventAction({ id }));
       if (this.editingId !== id) return;
       runInAction(() => {
+        this.allDay = event.allDay;
+        this.provider = event.provider;
         this.onInitOrRefresh({ ...this.form, ...eventForm(event, this.timeZone) });
         this.eventLoaded = true;
       });
@@ -247,7 +291,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
 
   loadSlots = async () => {
     const request = ++this.slotRequest;
-    if (!this.form.date) return;
+    if (!this.form.date || this.allDay) return;
     runInAction(() => (this.slotsLoading = true));
     try {
       const result = await actionData(
@@ -331,6 +375,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       created = true;
       this.toastSuccess("ScheduleMeeting.created");
       if (result.data.warnings.length) this.toastError("ScheduleMeeting.partial");
+      this.setIsLoading(false);
       this.close();
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {
@@ -349,7 +394,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     this.setIsLoading(true);
     let cancelled = false;
     try {
-      const result = await cancelMeetingAction({ id });
+      const result = await cancelMeetingAction({ id, ...(this.recurring ? { scope: this.form.scope } : {}) });
       this.setCancelConfirm(false);
       if (!result.ok) {
         this.setError(result.error as never);
@@ -358,6 +403,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
 
       cancelled = true;
       this.toastSuccess("ScheduleMeeting.cancelDone");
+      this.setIsLoading(false);
       this.close();
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {
@@ -369,7 +415,10 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     this.setIsLoading(true);
     let saved = false;
     try {
-      const result = await updateMeetingAction({ id, ...meetingChanges(this.form, this.savedState, startsAt) });
+      const result = await updateMeetingAction({
+        id,
+        ...meetingChanges(this.form, this.savedState, startsAt, { allDay: this.allDay, recurring: this.recurring }),
+      });
       if (!result.ok) {
         this.setError(result.error as never);
         return;
@@ -377,6 +426,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
 
       saved = true;
       this.toastSuccess("ScheduleMeeting.updated");
+      this.setIsLoading(false);
       this.close();
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {

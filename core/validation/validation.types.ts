@@ -180,6 +180,7 @@ export enum CustomErrorCode {
   calendarSubscriptionNotFound = "calendarSubscriptionNotFound",
   calendarWriteUnavailable = "calendarWriteUnavailable",
   calendarNeedsReconnect = "calendarNeedsReconnect",
+  calendarEventChangeUnsupported = "calendarEventChangeUnsupported",
   bookingLinkNotFound = "bookingLinkNotFound",
   bookingLinkLimitReached = "bookingLinkLimitReached",
   bookingLinkHasUpcomingBookings = "bookingLinkHasUpcomingBookings",

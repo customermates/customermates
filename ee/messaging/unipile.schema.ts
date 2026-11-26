@@ -195,6 +195,7 @@ const UnipileCalendarTimeSchema = z.union([
 export const UnipileCalendarEventSchema = z.looseObject({
   object: z.literal("CalendarEvent").nullish(),
   id: z.string(),
+  master_event_id: z.string().nullish(),
   calendar_id: z.string().nullish(),
   title: z.string().nullish(),
   body: z.string().nullish(),

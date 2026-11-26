@@ -3,6 +3,7 @@
 import type {
   FreeSlotsQuery,
   MeetingOptionsQuery,
+  MeetingScope,
   ScheduleMeetingInput,
   UpdateMeetingInput,
 } from "@/ee/calendar/meeting.schema";
@@ -37,12 +38,23 @@ export async function updateMeetingAction(input: UpdateMeetingInput) {
   return serializeResult(getUpdateMeetingInteractor().invoke(input as never));
 }
 
-export async function cancelMeetingAction(input: { id: string }) {
-  return serializeResult(getCancelMeetingInteractor().invoke({ id: input.id } as never));
+export async function cancelMeetingAction(input: { id: string; scope?: MeetingScope }) {
+  return serializeResult(getCancelMeetingInteractor().invoke({ id: input.id, scope: input.scope } as never));
 }
 
-export async function moveMeetingAction(input: Pick<UpdateMeetingInput, "id" | "startsAt" | "endsAt">) {
+export async function moveMeetingAction(
+  input: Pick<UpdateMeetingInput, "id" | "startsAt" | "endsAt" | "startDate" | "endDate" | "scope"> & {
+    sendInvites: boolean;
+  },
+) {
   return serializeResult(
-    getUpdateMeetingInteractor().invoke({ id: input.id, startsAt: input.startsAt, endsAt: input.endsAt } as never),
+    getUpdateMeetingInteractor().invoke({
+      id: input.id,
+      ...(input.startDate !== undefined
+        ? { startDate: input.startDate, endDate: input.endDate }
+        : { startsAt: input.startsAt, endsAt: input.endsAt }),
+      sendInvites: input.sendInvites,
+      scope: input.scope,
+    } as never),
   );
 }

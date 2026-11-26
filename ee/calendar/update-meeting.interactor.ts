@@ -15,7 +15,10 @@ import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
 import type { CalendarEventWriter, EventPatchInput } from "./calendar-event-writer";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 
+import { addCalendarDays } from "@/features/record-calendar/calendar-date";
+
 import { eventWriteFailure } from "./event-write-failure";
+import { meetingTarget, meetingTimingFits } from "./meeting-scope";
 import { toMeeting } from "./meeting-dto";
 import { type Meeting, type UpdateMeetingData, MeetingSchema, UpdateMeetingSchema } from "./meeting.schema";
 
@@ -41,6 +44,10 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
     const event = await this.access.findOwnEvent(data.id);
     if (!event) return failNotFound(CustomErrorCode.calendarEventNotFound, ["id"]);
     if (event.accountStatus !== ConnectedAccountStatus.ok) return fail(CustomErrorCode.calendarNeedsReconnect, ["id"]);
+    const target = meetingTarget(event, data.scope);
+    if (!target) return fail(CustomErrorCode.calendarEventChangeUnsupported, ["scope"]);
+    if (!meetingTimingFits(event, data))
+      return fail(CustomErrorCode.calendarEventChangeUnsupported, [data.startDate ? "startDate" : "startsAt"]);
 
     const startsAt = data.startsAt ? new Date(data.startsAt) : undefined;
     const patch: EventPatchInput = {
@@ -59,8 +66,14 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
       timeZone:
         data.timeZone ?? (startsAt && event.timezone && isIanaTimeZone(event.timezone) ? event.timezone : undefined),
       notifyAttendees: data.sendInvites,
+      ...(data.startDate && data.endDate
+        ? { startDate: data.startDate, endDate: addCalendarDays(data.endDate, 1) }
+        : {}),
     };
-    const written = await this.writer.update(this.companyId, event, patch);
+    const written =
+      target.kind === "series"
+        ? await this.writer.updateSeries(this.companyId, event, target.masterUnipileEventId, patch)
+        : await this.writer.update(this.companyId, event, patch);
     if (!written.ok) return eventWriteFailure(written);
     if (written.event.status === CalendarEventStatus.cancelled)
       return failNotFound(CustomErrorCode.calendarEventNotFound, ["id"]);
