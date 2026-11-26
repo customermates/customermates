@@ -3,7 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
-    values ? `${key}(${Object.entries(values).map(([name, value]) => `${name}=${String(value)}`).join("|")})` : key,
+    values
+      ? `${key}(${Object.entries(values)
+          .map(([name, value]) => `${name}=${String(value)}`)
+          .join("|")})`
+      : key,
 }));
 
 import { ConnectAgentCard } from "../connect-agent-card";
