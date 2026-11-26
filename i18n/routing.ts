@@ -65,7 +65,7 @@ export const HUB_PAGE_ROUTES = [
   "/for/page/:page",
 ] as const;
 
-export const AD_LANDING_ROUTES = ["/start/:slug"] as const;
+export const AD_LANDING_ROUTES = ["/lp/:slug"] as const;
 
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,

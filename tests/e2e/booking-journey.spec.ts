@@ -23,6 +23,12 @@ const EVERY_DAY = Object.fromEntries(
   ]),
 );
 
+function noticeUntilNextFullDay(now = new Date()) {
+  const opens = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8));
+  while (opens.getTime() - now.getTime() < 65 * 60_000) opens.setUTCDate(opens.getUTCDate() + 1);
+  return Math.floor((opens.getTime() - now.getTime()) / 60_000) - 5;
+}
+
 // A booking sent sooner than two seconds after the page was rendered counts as automated and is refused.
 async function confirmLikeAPerson(page: Page) {
   await page.waitForTimeout(2200);
@@ -58,7 +64,7 @@ async function addBookingPage(
   const id = randomUUID();
   const token = `e2e${randomUUID().replace(/-/gu, "")}`;
   await database.query(
-    'INSERT INTO "BookingLink"(id,"companyId","userId","calendarId",token,title,"durationMinutes","minNoticeMinutes","horizonDays","timeZone","workingHours",assignment,"updatedAt") VALUES($1,$2,$3,$4,$5,$6,30,60,30,\'UTC\',$7,$8::"BookingAssignment",now())',
+    'INSERT INTO "BookingLink"(id,"companyId","userId","calendarId",token,title,"durationMinutes","minNoticeMinutes","horizonDays","timeZone","workingHours",assignment,"updatedAt") VALUES($1,$2,$3,$4,$5,$6,30,$9,30,\'UTC\',$7,$8::"BookingAssignment",now())',
     [
       id,
       owner.companyId,
@@ -68,6 +74,7 @@ async function addBookingPage(
       options.title,
       JSON.stringify(EVERY_DAY),
       options.assignment ?? "single",
+      noticeUntilNextFullDay(),
     ],
   );
   return { id, token };

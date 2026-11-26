@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 22 }, () => vi.fn(() => Promise.resolve())));
+const invokes = vi.hoisted(() => Array.from({ length: 23 }, () => vi.fn(() => Promise.resolve())));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
@@ -41,6 +41,7 @@ vi.mock("@/core/di", () => ({
   getPruneAutomationRuleRunsInteractor: () => ({ invoke: invokes[19] }),
   getPruneNotificationsInteractor: () => ({ invoke: invokes[20] }),
   getPruneAgentJobsInteractor: () => ({ invoke: invokes[21] }),
+  getUploadAdConversionsSystemInteractor: () => ({ invoke: invokes[22] }),
 }));
 
 import { GET } from "../route";
@@ -49,6 +50,8 @@ import { UnipileRequestError } from "@/ee/messaging/unipile-request-error";
 
 const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const UNIPILE_STEPS = [3, 4, 5];
+const EXPIRE_AD_ATTRIBUTION = 6;
+const UPLOAD_AD_CONVERSIONS = 22;
 
 function callLifecycle() {
   return GET(
@@ -196,5 +199,35 @@ describe("lifecycle cron", () => {
     expect(error).toBeInstanceOf(AggregateError);
     expect((error as AggregateError).errors).toEqual([unauthorized]);
     expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("uploads ad conversions daily in the cloud, only after expired clicks were deleted", async () => {
+    mockEnv.VERCEL_ENV = "production";
+    let releaseExpiry: () => void = () => undefined;
+    invokes[EXPIRE_AD_ATTRIBUTION].mockImplementationOnce(
+      () => new Promise<void>((resolve) => (releaseExpiry = resolve)),
+    );
+
+    const pending = callLifecycle();
+    await vi.waitFor(() => expect(invokes[EXPIRE_AD_ATTRIBUTION]).toHaveBeenCalled());
+    await Promise.resolve();
+    expect(invokes[UPLOAD_AD_CONVERSIONS]).not.toHaveBeenCalled();
+    releaseExpiry();
+
+    const response = await pending;
+    expect(response.status).toBe(200);
+    expect(invokes[UPLOAD_AD_CONVERSIONS]).toHaveBeenCalledTimes(1);
+    expect(invokes[EXPIRE_AD_ATTRIBUTION].mock.invocationCallOrder[0]).toBeLessThan(
+      invokes[UPLOAD_AD_CONVERSIONS].mock.invocationCallOrder[0],
+    );
+  });
+
+  it("still uploads ad conversions when Unipile is not configured", async () => {
+    mockEnv.VERCEL_ENV = "production";
+    mockEnv.UNIPILE_API_KEY = undefined;
+
+    await callLifecycle();
+
+    expect(invokes[UPLOAD_AD_CONVERSIONS]).toHaveBeenCalledTimes(1);
   });
 });

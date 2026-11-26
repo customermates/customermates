@@ -105,7 +105,7 @@ describe("PublicAdAttributionConsentCard", () => {
   });
 
   it("opens on a search ad landing page", async () => {
-    await render("/de/start/crm-system?gclid=paid-click&utm_source=google");
+    await render("/de/lp/crm-system?gclid=paid-click&utm_source=google");
     expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
   });
 
