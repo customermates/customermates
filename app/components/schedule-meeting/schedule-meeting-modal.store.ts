@@ -375,6 +375,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       created = true;
       this.toastSuccess("ScheduleMeeting.created");
       if (result.data.warnings.length) this.toastError("ScheduleMeeting.partial");
+      this.setIsLoading(false);
       this.close();
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {
@@ -402,6 +403,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
 
       cancelled = true;
       this.toastSuccess("ScheduleMeeting.cancelDone");
+      this.setIsLoading(false);
       this.close();
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {
@@ -424,6 +426,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
 
       saved = true;
       this.toastSuccess("ScheduleMeeting.updated");
+      this.setIsLoading(false);
       this.close();
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {

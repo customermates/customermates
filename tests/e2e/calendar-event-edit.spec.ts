@@ -266,9 +266,17 @@ test("dragging a meeting with attendees asks whether to notify them, and one wit
       endsAt: `${today()}T12:30:00Z`,
     });
     await openPlanner(page);
+    const block = page.locator(`[data-planner-schedule-entry="event:${aloneId}"]`);
+    await block.scrollIntoViewIfNeeded();
+    await dragBy(page, block, 0, HOUR_HEIGHT);
+    await expect
+      .poll(() => writesFor(calendar.accountId).at(-1))
+      .toMatchObject({ eventId: alone, body: { notify: "none", start: { date_time: `${today()}T13:00:00Z` } } });
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
+    await expect(page.getByText("Event moved").first()).toBeVisible();
+
     const meeting = page.locator(`[data-planner-schedule-entry="event:${guestsId}"]`);
     await meeting.scrollIntoViewIfNeeded();
-
     await dragBy(page, meeting, 0, HOUR_HEIGHT);
     const ask = page.getByRole("alertdialog", { name: "Notify the attendees?" });
     await expect(ask).toBeVisible();
@@ -300,20 +308,13 @@ test("dragging a meeting with attendees asks whether to notify them, and one wit
       .poll(() => writesFor(calendar.accountId).at(-1))
       .toMatchObject({ eventId: withGuests, body: { notify: "none", start: { date_time: `${today()}T09:00:00Z` } } });
 
+    const writesBefore = writesFor(calendar.accountId).length;
     await dragBy(page, meeting, 0, HOUR_HEIGHT);
     const again = page.getByRole("alertdialog", { name: "Notify the attendees?" });
     await again.getByRole("button", { name: "Cancel", exact: true }).click();
     await expect(again).toHaveCount(0);
-    const writesBefore = writesFor(calendar.accountId).length;
-
-    const block = page.locator(`[data-planner-schedule-entry="event:${aloneId}"]`);
-    await block.scrollIntoViewIfNeeded();
-    await dragBy(page, block, 0, HOUR_HEIGHT);
-    await expect
-      .poll(() => writesFor(calendar.accountId).at(-1))
-      .toMatchObject({ eventId: alone, body: { notify: "none", start: { date_time: `${today()}T13:00:00Z` } } });
-    expect(writesFor(calendar.accountId)).toHaveLength(writesBefore + 1);
-    await expect(page.getByRole("alertdialog")).toHaveCount(0);
+    await expect(meeting).toHaveAttribute("aria-label", /10:00/u);
+    expect(writesFor(calendar.accountId)).toHaveLength(writesBefore);
     expect((await calendar.row(guestsId)).startsAt.toISOString()).toBe(`${today()}T09:00:00.000Z`);
     expect(errors).toEqual([]);
   } finally {
@@ -360,10 +361,13 @@ test("an all-day event moves by whole days and opens with its days but no time",
       .toBe(`${shiftDate(day, 1)}T00:00:00.000Z`);
     await page.screenshot({ path: testInfo.outputPath("1-all-day-moved.png") });
 
-    await page.locator(`[data-calendar-entry="event:${id}"]`).first().click();
     const editor = page.getByRole("dialog", { name: "Edit meeting" });
-    await expect(editor.getByText("First day", { exact: true })).toBeVisible();
-    await expect(editor.getByText("Last day", { exact: true })).toBeVisible();
+    await expect(async () => {
+      await page.locator(`[data-calendar-entry="event:${id}"]`).first().click();
+      await expect(editor.getByRole("button", { name: /^First day/u })).toBeVisible({ timeout: 3000 });
+    }).toPass();
+    await expect(editor.getByRole("button", { name: /^First day/u })).toContainText(/November|\d/u);
+    await expect(editor.getByRole("button", { name: /^Last day/u })).toBeVisible();
     await expect(editor.locator("[data-schedule-meeting-slots]")).toHaveCount(0);
     await expect(editor.getByLabel("Start", { exact: true })).toHaveCount(0);
     await settled(page);
