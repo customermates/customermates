@@ -12,7 +12,6 @@ import { STRUCTURED_OUTPUT_MAX_UNION_TYPES, structuredOutputUnionTypes } from "@
 
 import {
   FollowUpWireSchema,
-  MappingWireSchema,
   PlanKnowledgeWireSchema,
   PlanModelWireSchema,
   PlanViewsWireSchema,
@@ -121,7 +120,6 @@ describe("model-facing setup schemas", () => {
       PlanModelWireSchema,
       PlanViewsWireSchema,
       PlanKnowledgeWireSchema,
-      MappingWireSchema,
       samples: sampleRecordsWireSchema(Array.from({ length: 30 }, (_value, index) => `column${index}`)),
     };
     const over = Object.entries(schemas).filter(

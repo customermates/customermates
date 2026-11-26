@@ -14,6 +14,7 @@ import type { CalendarEventWriter } from "./calendar-event-writer";
 import type { CalendarWriteAccessRepo } from "./calendar-write-access.repo";
 
 import { eventWriteFailure } from "./event-write-failure";
+import { meetingTarget } from "./meeting-scope";
 import {
   type CancelMeetingData,
   type CancelMeetingResult,
@@ -41,7 +42,13 @@ export class CancelMeetingInteractor extends AuthenticatedInteractor<CancelMeeti
     if (!event) return failNotFound(CustomErrorCode.calendarEventNotFound, ["id"]);
     if (event.accountStatus !== ConnectedAccountStatus.ok) return fail(CustomErrorCode.calendarNeedsReconnect, ["id"]);
 
-    const cancelled = await this.writer.cancel(event, data.comment);
+    const target = meetingTarget(event, data.scope);
+    if (!target) return fail(CustomErrorCode.calendarEventChangeUnsupported, ["scope"]);
+
+    const cancelled =
+      target.kind === "series"
+        ? await this.writer.cancelSeries(event, target.masterUnipileEventId, data.comment)
+        : await this.writer.cancel(event, data.comment);
     if (!cancelled.ok) return eventWriteFailure(cancelled);
 
     await this.bookings.eventCancelled({ companyId: this.companyId, calendarEventId: event.id });

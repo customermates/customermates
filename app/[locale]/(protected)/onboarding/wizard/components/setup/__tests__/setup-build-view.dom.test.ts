@@ -88,7 +88,6 @@ describe("SetupBuildView", () => {
           phaseView("dashboard"),
         ],
         results: {
-          colors: null,
           lists: [{ key: "deal", id: "1", pluralName: "Deals", icon: "handshake", color: null, stages: [] }],
           views: [],
           records: [],

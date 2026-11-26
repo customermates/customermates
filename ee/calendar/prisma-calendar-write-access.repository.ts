@@ -133,6 +133,11 @@ export class PrismaCalendarWriteAccessRepo extends TenantRepository implements C
         calendarId: true,
         connectedAccountId: true,
         timezone: true,
+        allDay: true,
+        startsAt: true,
+        endsAt: true,
+        recurrenceRule: true,
+        masterUnipileEventId: true,
         calendar: { select: { unipileCalendarId: true } },
         connectedAccount: { select: { provider: true, status: true, unipileAccountId: true } },
       },
@@ -149,6 +154,11 @@ export class PrismaCalendarWriteAccessRepo extends TenantRepository implements C
       accountStatus: row.connectedAccount.status,
       connectedAccountId: row.connectedAccountId,
       timezone: row.timezone,
+      allDay: row.allDay,
+      startsAt: row.startsAt,
+      endsAt: row.endsAt,
+      recurrenceRule: row.recurrenceRule,
+      masterUnipileEventId: row.masterUnipileEventId,
     };
   }
 }

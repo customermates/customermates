@@ -31,8 +31,6 @@ export function useSetupFailureMessage() {
     invalidPlan: t("WorkspaceSetup.failures.invalidPlan"),
     schemaChanged: t("WorkspaceSetup.failures.schemaChanged"),
     permission: t("WorkspaceSetup.failures.permission"),
-    crawlFailed: t("WorkspaceSetup.failures.crawlFailed"),
-    spreadsheet: t("WorkspaceSetup.failures.spreadsheet"),
     dependency: t("WorkspaceSetup.failures.dependency"),
     error: t("WorkspaceSetup.failures.error"),
   };

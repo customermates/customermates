@@ -2,7 +2,6 @@ import {
   BriefcaseBusiness,
   Building2,
   Clock,
-  FileSpreadsheet,
   Gift,
   Handshake,
   Hammer,
@@ -51,7 +50,6 @@ const OPTION_ICONS: Record<string, LucideIcon> = {
   "teamSize.large": Building2,
   "existingData.sampleData": Sparkles,
   "existingData.empty": SquareDashed,
-  "existingData.spreadsheet": FileSpreadsheet,
 };
 
 export function setupOptionIcon(questionId: string, optionId: string): LucideIcon | null {

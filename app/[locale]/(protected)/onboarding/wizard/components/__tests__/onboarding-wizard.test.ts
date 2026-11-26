@@ -10,7 +10,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const testContext = vi.hoisted(() => ({
   rootStore: null as RootStore | null,
   hydrated: [] as unknown[],
-  agentName: null as string | null,
   setupHeading: {
     title: "WorkspaceSetup.questions.workWith.label",
     subtitle: null as string | null,
@@ -38,32 +37,18 @@ vi.mock("../../actions", () => ({
   selectOnboardingJobAction: vi.fn(),
   applyOnboardingPlaybookAction: vi.fn(),
 }));
-vi.mock("../../onboarding-agent-actions", () => ({
-  getOnboardingAgentStatusAction: vi.fn(),
+vi.mock("../../onboarding-channel-actions", () => ({
   recordChannelSkippedAction: vi.fn(),
   startOnboardingChannelConnectAction: vi.fn(),
 }));
 vi.mock("../step-profile", () => ({ StepProfile: () => createElement("div", { "data-step": "profile" }) }));
 vi.mock("../step-invite", () => ({ StepInvite: () => createElement("div", { "data-step": "invite" }) }));
-vi.mock("../step-goal", () => ({
-  StepGoal: () => createElement("div", { "data-step": "goal" }),
-  StepGoalFooter: () => createElement("div", { "data-step-footer": "goal" }),
-}));
 vi.mock("../step-playbook", () => ({ StepPlaybook: () => createElement("div", { "data-step": "playbook" }) }));
-vi.mock("../step-ai", () => ({
-  StepAi: () => createElement("div", { "data-step": "ai" }),
-  StepAiFooter: () => createElement("div", { "data-step-footer": "ai" }),
-}));
-vi.mock("../step-handoff", () => ({
-  StepHandoff: () => createElement("div", { "data-step": "handoff" }),
-  StepHandoffFooter: () => createElement("div", { "data-step-footer": "handoff" }),
-}));
 vi.mock("../step-channel", () => ({
   StepChannel: () => createElement("div", { "data-step": "channel" }),
   StepChannelFooter: () => createElement("div", { "data-step-footer": "channel" }),
 }));
 vi.mock("../step-finish", () => ({ StepFinish: () => createElement("div", { "data-step": "finish" }) }));
-vi.mock("../use-selected-agent-name", () => ({ useSelectedAgentName: () => testContext.agentName }));
 vi.mock("../setup/use-setup-heading", () => ({ useSetupHeading: () => testContext.setupHeading }));
 vi.mock("../setup/step-setup", () => ({
   StepSetup: () => createElement("div", { "data-step": "setup" }),
@@ -86,7 +71,7 @@ const choice = (
 ): OnboardingJobChoiceView => ({
   selectedJob,
   signupJob: null,
-  preselectedJob: selectedJob ?? "agent",
+  preselectedJob: selectedJob ?? "workspace",
   suggestedPlaybook: null,
   discoveryResolved: true,
   teamSize: null,
@@ -141,7 +126,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   testContext.rootStore = null;
   testContext.hydrated = [];
-  testContext.agentName = null;
   testContext.setupHeading = {
     title: "WorkspaceSetup.questions.workWith.label",
     subtitle: null,
@@ -149,12 +133,19 @@ beforeEach(() => {
   };
 });
 
-describe("the job preselected on the goal step", () => {
-  it("offers the user's own agent first and keeps what the server preselected", () => {
-    expect(wizardJobChoice(undefined)).toMatchObject({ selectedJob: "agent", suggestedJob: null });
-    expect(
-      wizardJobChoice({ preselectedJob: "followup", signupJob: "followup", suggestedPlaybook: "smb" }),
-    ).toMatchObject({ selectedJob: "followup", suggestedJob: "followup", suggestedPlaybook: "smb" });
+describe("the job taken from the signup", () => {
+  it("builds with Mate unless the owner signed up for following up", () => {
+    expect(wizardJobChoice(undefined)).toEqual({ job: "workspace", jobRecorded: true, suggestedPlaybook: null });
+    expect(wizardJobChoice({ selectedJob: null, signupJob: "followup", suggestedPlaybook: "smb" })).toEqual({
+      job: "followup",
+      jobRecorded: false,
+      suggestedPlaybook: "smb",
+    });
+    expect(wizardJobChoice({ selectedJob: "workspace", signupJob: "agent", suggestedPlaybook: null })).toEqual({
+      job: "workspace",
+      jobRecorded: true,
+      suggestedPlaybook: null,
+    });
   });
 });
 
@@ -165,7 +156,7 @@ describe("OnboardingWizard", () => {
     expect(html).toContain('data-step="profile"');
     expect(html).toContain("OnboardingWizard.steps.profile.title");
     expect(html).toContain('role="progressbar"');
-    expect(html).toContain("OnboardingWizard.progress current=1 total=5");
+    expect(html).toContain("OnboardingWizard.progress current=1 total=3");
     expect(html).toContain("max-w-xl");
     expect(html).not.toContain("OnboardingWizard.milestones");
   });
@@ -189,36 +180,33 @@ describe("OnboardingWizard", () => {
 
     expect(html).toContain("WorkspaceSetup.plan.title");
     expect(html).toContain("WorkspaceSetup.plan.subtitle");
-    expect(html).toContain("OnboardingWizard.progress current=3 total=4");
+    expect(html).toContain("OnboardingWizard.progress current=2 total=3");
   });
 
-  it("asks a registered owner who builds the workspace until a job is chosen", () => {
+  it("goes from the profile straight to the first question without a choice of who builds", () => {
     const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE, jobChoice: choice(null) });
 
-    expect(html).toContain("OnboardingWizard.steps.goal.title");
-    expect(html).not.toContain("OnboardingWizard.steps.goal.titleSelfHosted");
+    expect(html).toContain('data-onboarding-step="setup"');
+    expect(html).toContain("WorkspaceSetup.questions.workWith.label");
+    expect(html).not.toContain("OnboardingWizard.steps.goal");
   });
 
-  it("asks a self-hosted owner how to set up this instance", () => {
-    const html = renderWizard({ profileCompleted: true, appMode: "self-hosted", jobChoice: choice(null) });
-
-    expect(html).toContain("OnboardingWizard.steps.goal.titleSelfHosted");
-    expect(html).toContain("OnboardingWizard.steps.goal.subtitleSelfHosted");
-    expect(html).toContain("OnboardingWizard.progress current=2 total=4");
-  });
-
-  it("names the agent in the handoff title once the agent path is chosen", () => {
-    testContext.agentName = "Claude";
+  it("opens the playbook for an owner who signed up to follow up", () => {
     const html = renderWizard({
       profileCompleted: true,
       setupStatus: AVAILABLE,
-      setupStepCompleted: true,
-      jobChoice: choice("agent"),
-      savedProgress: { step: "handoff" },
+      jobChoice: choice(null, { signupJob: "followup" }),
     });
 
-    expect(html).toContain("OnboardingWizard.steps.handoff.title agent=Claude");
-    expect(html).toContain("OnboardingWizard.steps.handoff.subtitle");
+    expect(html).toContain('data-onboarding-step="playbook"');
+    expect(html).toContain("OnboardingWizard.steps.playbook.title");
+  });
+
+  it("opens the empty workspace for a self-hosted owner once the profile exists", () => {
+    const html = renderWizard({ profileCompleted: true, appMode: "self-hosted", jobChoice: choice(null) });
+
+    expect(html).toContain('data-onboarding-step="finish"');
+    expect(html).toContain("OnboardingWizard.steps.finish.title");
   });
 
   it("opens the invitations for a team once Mate built the workspace", () => {
@@ -231,7 +219,7 @@ describe("OnboardingWizard", () => {
 
     expect(html).toContain('data-step="invite"');
     expect(html).toContain("OnboardingWizard.steps.invite.title");
-    expect(html).toContain("OnboardingWizard.progress current=4 total=5");
+    expect(html).toContain("OnboardingWizard.progress current=3 total=4");
   });
 
   it("skips the invitations of a solo owner and opens the inbox", () => {

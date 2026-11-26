@@ -32,8 +32,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
     id: "setup-1",
     userId: owner.id,
     status: "interview",
-    websiteUrl: null,
-    crawlId: null,
     answers: {},
     interview: StoredSetupInterviewSchema.parse({}),
     plan: null,
@@ -42,8 +40,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
     artifacts: {},
     created: StoredSetupCreatedSchema.parse({}),
     results: StoredSetupResultsSchema.parse({}),
-    spreadsheetName: null,
-    hasSpreadsheet: false,
     startedAt: new Date(),
     confirmedAt: null,
     finishedAt: null,
@@ -56,8 +52,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
       if (patch) setup = { ...setup, ...patch } as WorkspaceSetupRecord;
       return Promise.resolve({ setup, changed: Boolean(patch) });
     }),
-    crawlSources: vi.fn(() => Promise.resolve([])),
-    readSpreadsheet: vi.fn(() => Promise.resolve(null)),
   };
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const planner = { attempt: vi.fn(), assemble: vi.fn() };
@@ -103,7 +97,7 @@ describe("workspace setup interview", () => {
   });
 
   it("drafts each plan part in its own step with the setup's answers, language and currency", async () => {
-    const { service, planner, run, setup, repo } = harness({
+    const { service, planner, run, setup } = harness({
       status: "planning",
       planRevision: 1,
       answers: {
@@ -131,7 +125,7 @@ describe("workspace setup interview", () => {
       { model: null, knowledge: null },
     );
     expect(planner.attempt.mock.calls[0][1]).not.toHaveProperty("sources");
-    expect(repo.crawlSources).not.toHaveBeenCalled();
+    expect(planner.attempt.mock.calls[0][1]).not.toHaveProperty("sheet");
     const plan = SetupPlanSchema.parse(agencyPlan);
     planner.assemble.mockResolvedValue({ ok: true, plan });
     expect(await run(() => service.finishPlan("setup-1", 1, false))).toBe("planned");

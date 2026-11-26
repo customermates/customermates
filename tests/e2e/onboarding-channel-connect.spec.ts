@@ -69,13 +69,12 @@ test("a mailbox connected in the onboarding channel step returns to that step an
     }),
   );
 
-  const goal = page.locator("#onboarding-goal-continue");
-  await expect(goal).toBeVisible({ timeout: 30_000 });
-  await clickHydrated(page.locator("#onboarding-goal-agent"));
-  await clickHydrated(goal);
-  await expect(heading(steps.connect.title)).toBeVisible();
-  await clickHydrated(page.locator("#onboarding-connect-later"));
-  await clickHydrated(page.locator("#onboarding-handoff-continue"));
+  const startEmpty = page.locator("#setup-start-empty");
+  await expect(startEmpty).toBeVisible({ timeout: 30_000 });
+  await clickHydrated(startEmpty);
+  const confirm = page.getByRole("alertdialog", { name: englishMessages.WorkspaceSetup.empty.title });
+  await confirm.getByRole("button", { name: englishMessages.WorkspaceSetup.empty.confirm, exact: true }).click();
+  await expect(heading(steps.invite.title)).toBeVisible();
   await clickHydrated(page.locator("#onboarding-next"));
 
   await expect(heading(steps.channel.title)).toBeVisible();

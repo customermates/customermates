@@ -1946,6 +1946,7 @@
       "bookingSlotTaken": "Ten termin nie jest już dostępny. Wybierz inny.",
       "bookingUnavailable": "Ta strona rezerwacji jest teraz niedostępna.",
       "botDetected": "Nie udało się zweryfikować tego żądania. Odśwież stronę i spróbuj ponownie.",
+      "calendarEventChangeUnsupported": "Ta zmiana nie pasuje do wydarzenia. Wydarzenia całodniowe przyjmują daty, wydarzenia z godziną przyjmują godziny, a dla wszystkich wystąpień można zmienić tylko wystąpienie wydarzenia cyklicznego.",
       "calendarEventNotFound": "Nie znaleziono ID wydarzenia w kalendarzu lub brak do niego dostępu.",
       "calendarExportIncomplete": "W tym okresie jest więcej wpisów, niż może zawierać jeden eksport. Wybierz krótszy okres lub węższe filtry źródeł.",
       "calendarNeedsReconnect": "Połącz ponownie konto Google lub Microsoft w sekcji Kanały i kalendarze, aby zezwolić na zmiany w kalendarzu, a potem spróbuj ponownie.",
@@ -4359,8 +4360,7 @@
       "toneOfVoice": "## Jak brzmię\nOsobiście, bezpośrednio i rzetelnie. Piszę jako ja, w pierwszej osobie.\n\n## Zasady\n- Krótkie wiadomości, jeden temat w każdej.\n- Zachowuj formalny ton, dopóki klient nie przejdzie na imiona, potem rób to samo.\n- Bądź konkretny w sprawie dostępności, ceny i kolejnych kroków.\n- Przyjaźnie, ale bez akapitów pogawędki przed przejściem do sedna.\n- Bez emoji w pierwszej wiadomości; potem dopasuj się do klienta."
     },
     "guide": {
-      "intro": "Ta przestrzeń robocza powstała na bazie playbooka „{playbook}”. Mate czyta te strony, zanim napisze szkic odpowiedzi lub zaproponuje kolejny krok. Edytuj je, aż zabrzmią jak Ty: Twoje usługi, Twoje ceny i Twój sposób pisania.",
-      "pagesHeading": "Strony Bazy wiedzy"
+      "intro": "Ta przestrzeń robocza powstała na bazie playbooka „{playbook}”. Mate czyta te strony, zanim napisze szkic odpowiedzi lub zaproponuje kolejny krok. Edytuj je, aż zabrzmią jak Ty: Twoje usługi, Twoje ceny i Twój sposób pisania."
     },
     "pages": {
       "followUps": "Zasady follow-upów",
@@ -4541,22 +4541,9 @@
       "title": "Potwierdź adres e-mail, aby zacząć",
       "waiting": "Czekamy na Twoje potwierdzenie"
     },
-    "connect": {
-      "checkAgain": "Sprawdź ponownie",
-      "connected": "Połączono. Twój agent dotarł do tej przestrzeni roboczej.",
-      "failed": "Nie udało się sprawdzić połączenia. Spróbuj za chwilę.",
-      "skip": "Połączę później",
-      "statusLabel": "Stan połączenia",
-      "waiting": "Czekamy na pierwsze wywołanie od {agent}. Znacznik pojawi się sam, gdy tylko {agent} zostanie połączony.",
-      "waitingGeneric": "Czekamy na pierwsze wywołanie od Twojego agenta. Znacznik pojawi się sam, gdy tylko agent zostanie połączony."
-    },
     "continue": "Kontynuuj",
     "finish": "Otwórz przestrzeń roboczą",
     "goal": {
-      "agent": {
-        "title": "Mój własny agent AI",
-        "worksWith": "Claude, ChatGPT, Gemini, Cursor lub dowolny klient MCP"
-      },
       "channelsHint": {
         "action": "Otwórz pulpit",
         "connectedDescription": "Mate będzie przygotowywać odpowiedzi w Twojej skrzynce, gdy będą napływać rozmowy. Kolejne kroki trafią na Twój pulpit.",
@@ -4574,36 +4561,7 @@
         "salesNavigator": "Używasz Sales Navigator? Połącz zamiast tego LinkedIn z Sales Navigator",
         "title": "Najpierw połącz LinkedIn"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate działa w Customermates Cloud. Pierwsza kwalifikująca się przestrzeń w chmurze dostaje {days} dni Pro, bez karty. Otwiera osobną przestrzeń w chmurze.",
-        "opened": "Otworzyliśmy Customermates Cloud w nowej karcie. Nic z tej instancji tam nie wysłano. Możesz dalej konfigurować tutaj.",
-        "title": "Wolisz Mate? Wypróbuj zarządzaną chmurę"
-      },
-      "fastest": "Najszybciej",
-      "followup": {
-        "description": "Wybierz playbook, połącz LinkedIn i zobacz, kto czeka na odpowiedź.",
-        "title": "Wracaj do rozmów z klientami"
-      },
-      "optionsLabel": "Pierwsze kroki",
-      "suggested": "Sugerowane",
-      "workspace": {
-        "description": "{count} krótkie pytania, a potem Mate go zbuduje.",
-        "title": "Mate, w około minutę"
-      }
-    },
-    "handoff": {
-      "changed": "Twój agent zaczął budować. Otwórz przestrzeń roboczą, aby śledzić postęp.",
-      "connected": "{agent} jest połączony",
-      "connectedGeneric": "Twój agent jest połączony",
-      "copied": "Skopiowano",
-      "copy": "Kopiuj",
-      "openIn": "Otwórz w {agent}",
-      "prompt": "Skonfiguruj moją przestrzeń roboczą Customermates {workspace}.",
-      "promptGeneric": "Skonfiguruj moją przestrzeń roboczą Customermates.",
-      "promptLabel": "Wiadomość dla Twojego agenta",
-      "watching": "Czekamy na pierwszą zmianę od {agent}",
-      "watchingGeneric": "Czekamy na pierwszą zmianę od Twojego agenta"
+      "suggested": "Sugerowane"
     },
     "invite": {
       "captions": {
@@ -4667,22 +4625,8 @@
         "subtitle": "Twoje rozmowy trafią wtedy do każdego klienta, gotowe do szkiców i dalszych kontaktów. Nic nie zostanie wysłane bez Ciebie, a ten krok możesz pominąć.",
         "title": "Połącz kanał, którym piszą do Ciebie klienci"
       },
-      "connect": {
-        "subtitle": "Wybierz go i wykonaj kroki. Zajmie to około minuty.",
-        "title": "Jakiego agenta używasz?"
-      },
       "finish": {
         "title": "Otwieramy Twoją przestrzeń roboczą"
-      },
-      "goal": {
-        "subtitleSelfHosted": "Twoje dane zostają na Twoim serwerze. Twój własny agent łączy się przez MCP i buduje przestrzeń roboczą z szablonu.",
-        "title": "Kto ma zbudować Twoją przestrzeń roboczą?",
-        "titleSelfHosted": "Jak skonfigurować tę instancję?"
-      },
-      "handoff": {
-        "subtitle": "Wyślij tę jedną linijkę. Twój agent wybierze z Tobą szablon i pokaże plan, zanim cokolwiek zmieni.",
-        "title": "Niech {agent} ją zbuduje",
-        "titleGeneric": "Niech Twój agent ją zbuduje"
       },
       "invite": {
         "subtitle": "Udostępnij link lub zaproś przez e-mail. Możesz to zrobić także później.",
@@ -5001,7 +4945,9 @@
     "entryCount": "{count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
     "event": "Wydarzenie",
     "eventMoved": "Wydarzenie przeniesione",
-    "eventMovedDescription": "Połączony kalendarz ma nowy termin. Uczestnicy otrzymają aktualizację od Google lub Microsoft.",
+    "eventMovedMicrosoft": "Microsoft wyśle uczestnikom nowy termin.",
+    "eventMovedNotified": "Google wyśle uczestnikom nowy termin.",
+    "eventMovedQuiet": "Uczestnicy nie zostali powiadomieni.",
     "filterCount": "{count, plural, one {# filtr} few {# filtry} many {# filtrów} other {# filtra}}",
     "filters": "Filtry",
     "includePersonal": "Uwzględnij też wybrane wydarzenia z połączonych kalendarzy (mogą powielać istniejący kalendarz).",
@@ -5009,6 +4955,15 @@
     "modes": {
       "quarter": "Kwartał",
       "timeline": "Oś czasu"
+    },
+    "moveDialog": {
+      "justMove": "Tylko przenieś",
+      "move": "Przenieś",
+      "notify": "Powiadom uczestników",
+      "notifyDescription": "Google może wysłać uczestnikom e-mail z nowym terminem.",
+      "notifyTitle": "Powiadomić uczestników?",
+      "scopeDescription": "Wybierz, czy przenieść tylko to wystąpienie, czy wszystkie.",
+      "scopeTitle": "Przenieś wydarzenie cykliczne"
     },
     "moveEventFailed": "Nie udało się przenieść wydarzenia. Zachowuje swój termin.",
     "moveEventUndone": "Przeniesienie cofnięte",
@@ -5023,6 +4978,7 @@
     "privateUrlDescription": "Każdy, kto ma ten link, może czytać te wydarzenia, dopóki masz dostęp. Skopiuj go teraz, bo jest pokazywany tylko raz. Unieważnij go poniżej, aby zatrzymać dalsze odświeżanie.",
     "quarterLabel": "Kwartał {number} · {year}",
     "readOnlyEvent": "To wydarzenie pochodzi z połączonego kalendarza. Edytuj je w oryginalnym kalendarzu.",
+    "readOnlySeries": "To wydarzenie cykliczne zostało zsynchronizowane jako seria bez pojedynczych wystąpień, dlatego można je zmienić tylko w Google Calendar lub Outlook.",
     "removeSource": "Usuń źródło dat",
     "revokeSubscription": "Unieważnij subskrypcję",
     "snapshot": "Pobierz migawkę",
@@ -6448,8 +6404,10 @@
       "date": "Data",
       "description": "Opis",
       "duration": "Czas trwania",
+      "firstDay": "Pierwszy dzień",
       "followUp": "Utwórz zadanie follow-up w",
       "followUpDate": "Zapisz początek spotkania w",
+      "lastDay": "Ostatni dzień",
       "location": "Miejsce",
       "sendInvites": "Wyślij zaproszenia do uczestników",
       "sendUpdates": "Wyślij zmiany do uczestników",
@@ -6461,9 +6419,15 @@
     "freeSlots": "Wolne terminy ({timeZone})",
     "keepMeeting": "Zachowaj spotkanie",
     "loadFailed": "Nie udało się wczytać opcji kalendarza. Zamknij to okno i spróbuj ponownie.",
+    "microsoftSendsUpdates": "Microsoft wyśle zmiany uczestnikom.",
     "newMeeting": "Nowe spotkanie",
     "noFreeSlots": "Brak wolnych terminów tego dnia. Nadal możesz wpisać godzinę rozpoczęcia.",
     "partial": "Spotkanie zostało utworzone, ale jego powiązanie lub utworzenie zadania follow-up nie zakończyło się powodzeniem.",
+    "scope": {
+      "label": "Które wydarzenia",
+      "occurrence": "To wydarzenie",
+      "series": "Wszystkie wydarzenia"
+    },
     "title": "Zaplanuj spotkanie",
     "unavailable": {
       "demo": "Planowanie spotkań wymaga połączonego kalendarza i nie jest dostępne w przestrzeni roboczej demo.",
@@ -7042,7 +7006,7 @@
     "signedOutBody": "Zaloguj się na swoje konto, aby poprosić o nowy e-mail weryfikacyjny.",
     "subtitle": "Zweryfikuj swój adres e-mail, aby kontynuować.",
     "title": "Weryfikacja adresu e-mail",
-    "verifiedSignIn": "Twój adres e-mail został zweryfikowany. Zaloguj się, aby kontynuować."
+    "verifiedSignIn": "Twój adres e-mail został zweryfikowany. Zaloguj się, aby kontynuować. Jeśli link został otwarty na innym urządzeniu, zaloguj się magicznym linkiem lub zresetuj hasło."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Próby dostarczenia pojawią się tutaj, gdy webhook zostanie uruchomiony.",
@@ -7106,31 +7070,18 @@
       "label": "Mapa Bazy wiedzy",
       "legend": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją otworzyć.",
       "legendEdit": "Większe kółka to strony, do których prowadzi więcej stron. Kliknij stronę, aby ją otworzyć, przeciągnij ją, aby przypiąć ją w miejscu.",
-      "linkedFrom": "Linki z",
-      "linkedFromCount": "{count, plural, one {Linki z # strony} few {Linki z # stron} many {Linki z # stron} other {Linki z # strony}}",
+      "linkedPages": "Powiązane strony",
       "linksFailed": "Nie udało się wczytać linków tej strony.",
-      "linksTo": "Prowadzi do",
+      "listsUsed": "Używane listy",
       "loadFailed": "Nie udało się wczytać stron Bazy wiedzy.",
       "missingLinks": "{count, plural, one {# link prowadzi do usuniętej strony} few {# linki prowadzą do usuniętych stron} many {# linków prowadzi do usuniętych stron} other {# linku prowadzi do usuniętych stron}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Brak stron",
       "noMatches": "Żadna strona nie pasuje do filtra.",
       "pin": "Przypnij na mapie",
-      "pinHelp": "Zatrzymuje tę stronę w jej miejscu na mapie. Możesz też przeciągnąć stronę, aby ją przypiąć.",
-      "pinned": "Przypięta",
-      "pinnedHelp": "Ta strona zachowuje swoje miejsce, gdy mapa układa się na nowo.",
-      "records": "Powiązane rekordy",
       "search": "Znajdź stronę",
-      "segments": {
-        "details": "Szczegóły",
-        "links": "Linki",
-        "page": "Strona"
-      },
-      "sheetSegments": "Sekcje strony",
       "syncing": "Linki są jeszcze wczytywane. Odśwież stronę, aby zobaczyć wszystkie.",
       "truncated": "Pokazano pierwsze {count} stron. Wyszukaj i naciśnij Enter, aby otworzyć dowolną inną stronę.",
-      "unpin": "Odepnij",
-      "unpinHelp": "Mapa znów sama ustawi tę stronę."
+      "unpin": "Odepnij"
     },
     "kind": {
       "guide": "Przewodnik operacyjny",
@@ -7146,6 +7097,7 @@
       "procedureHelp": "Użyj dla powtarzalnego zadania, np. wdrażania klienta. Napisz ponumerowane kroki i opisz pasujące zapytanie w polu „Kiedy używać”. Mate i połączone narzędzia AI będą je stosować, gdy takie zapytanie się pojawi."
     },
     "linkPage": "Link do strony Bazy wiedzy…",
+    "linksHere": "{count, plural, one {# strona prowadzi tutaj} few {# strony prowadzą tutaj} many {# stron prowadzi tutaj} other {# strony prowadzi tutaj}}",
     "loadFailed": "Nie udało się wczytać stron.",
     "newPage": "Nowa strona",
     "next": "Następna",
@@ -7187,11 +7139,14 @@
       "title": "Propozycje"
     },
     "reload": "Odśwież stronę",
+    "settings": {
+      "invalid": "Sprawdź ustawienia strony: jedno pole wymaga uwagi.",
+      "title": "Ustawienia strony"
+    },
     "unavailableBody": "Ta strona została usunięta lub nie masz do niej dostępu. Wybierz inną stronę.",
     "unavailableTitle": "Strona niedostępna",
     "untitled": "Strona bez tytułu",
     "verified": {
-      "help": "Zapisuje, że dziś sprawdzono tę stronę i nadal jest poprawna.",
       "label": "Ostatnio sprawdzona",
       "mark": "Oznacz jako sprawdzoną",
       "never": "Jeszcze nie sprawdzona",
@@ -7199,9 +7154,9 @@
       "saveFirst": "Zapisz zmiany, zanim oznaczysz stronę jako sprawdzoną."
     },
     "view": {
+      "fullPage": "Cała strona",
       "label": "Widok Bazy wiedzy",
       "map": "Mapa",
-      "openFullPage": "Otwórz jako całą stronę",
       "pages": "Strony",
       "showOnMap": "Pokaż na mapie"
     },
@@ -7256,6 +7211,13 @@
         "wins": "Gdzie klienci wybierają nas zamiast {competitor}"
       },
       "gapsHeading": "Luki do potwierdzenia",
+      "links": {
+        "guides": "Przewodniki",
+        "knowledge": "Wiedza",
+        "lists": "Listy",
+        "procedures": "Procedury",
+        "related": "Zobacz też"
+      },
       "pagesHeading": "Strony Bazy wiedzy",
       "roles": {
         "company_overview": "Przegląd firmy",
@@ -7460,7 +7422,6 @@
     "failures": {
       "aiUnavailable": "Usługa AI jest teraz niedostępna. Spróbuj ponownie za kilka minut.",
       "contactSupport": "Skontaktuj się z pomocą techniczną",
-      "crawlFailed": "Nie udało się odczytać Twojej strony internetowej.",
       "dependency": "Ta część czeka na wcześniejszą część, która się nie zakończyła.",
       "error": "W tej części coś poszło nie tak.",
       "generation": "Tym razem AI nie wygenerowała użytecznego wyniku.",
@@ -7468,7 +7429,6 @@
       "permission": "Twoja rola nie pozwala na tę zmianę.",
       "schemaChanged": "Twoja przestrzeń robocza zmieniła się, gdy ta część była w toku.",
       "spendCap": "Budżet konfiguracji tej przestrzeni roboczej został wykorzystany, dlatego ta część została zatrzymana. Wszystko, co zostało ukończone do tej pory, zostaje zachowane. Napisz do nas, a pomożemy ci dokończyć konfigurację.",
-      "spreadsheet": "Nie udało się zaimportować arkusza kalkulacyjnego.",
       "supportSubject": "Budżet konfiguracji przestrzeni roboczej"
     },
     "interview": {

@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
   getProgress: vi.fn(),
   listWorkspaces: vi.fn(),
   getJobChoice: vi.fn(),
-  getCompany: vi.fn(),
   env: {
     APP_MODE: "cloud" as "cloud" | "self-hosted" | "demo",
     RESEND_API_KEY: undefined as string | undefined,
@@ -33,7 +32,6 @@ vi.mock("@/core/di", () => ({
   getGetWorkspaceSetupStatusInteractor: () => ({ invoke: mocks.getSetupStatus }),
   getListMyWorkspacesInteractor: () => ({ invoke: mocks.listWorkspaces }),
   getGetOnboardingJobChoiceInteractor: () => ({ invoke: mocks.getJobChoice }),
-  getGetCompanyInteractor: () => ({ invoke: mocks.getCompany }),
 }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
@@ -58,11 +56,10 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
     mocks.env.APP_MODE = "cloud";
     mocks.env.RESEND_API_KEY = undefined;
-    mocks.getCompany.mockResolvedValue({ ok: true, data: { id: "company-a", name: "Acme Consulting" } });
   });
 
-  it("passes the saved AI setup and owner identity to a fresh wizard render", async () => {
-    const progress = { step: "ai", inviteTab: "email", ai: { route: { screen: "claude" }, claudeMethod: "account" } };
+  it("passes the saved progress and owner identity to a fresh wizard render", async () => {
+    const progress = { step: "channel", inviteTab: "email" };
     mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
     mocks.requireAccountState.mockResolvedValue({
       sessionUser: { id: "auth-a" },
@@ -216,7 +213,6 @@ describe("OnboardingWizardPage authentication detours", () => {
     const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
     expect(invited.props.children.props).not.toHaveProperty("templates");
     expect(mocks.getJobChoice).not.toHaveBeenCalled();
-    expect(mocks.getCompany).not.toHaveBeenCalled();
 
     mocks.env.APP_MODE = "demo";
     mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "demo", setup: null } });
@@ -227,15 +223,15 @@ describe("OnboardingWizardPage authentication detours", () => {
     expect(mocks.getJobChoice).not.toHaveBeenCalled();
   });
 
-  it("passes the workspace name to an owner, for the message the agent gets", async () => {
+  it("names no workspace for an owner, only for an invited member", async () => {
     registeredOwner(null);
 
     const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
-    expect(page.props.children.props).toMatchObject({ workspaceName: "Acme Consulting" });
+    expect(page.props.children.props.workspaceName).toBeUndefined();
   });
 
-  it("builds the flow context once for the wizard: choice, channel and team invites", async () => {
+  it("builds the flow context once for the wizard: owner flow, channel and team invites", async () => {
     registeredOwner(null);
     mocks.getJobChoice.mockResolvedValue({
       ok: true,
@@ -245,7 +241,7 @@ describe("OnboardingWizardPage authentication detours", () => {
     const owner = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
     expect(owner.props.children.props.flow).toEqual({
       setupAvailable: true,
-      chooseAvailable: true,
+      ownerFlow: true,
       channelAvailable: true,
       teamInvite: true,
     });
@@ -256,7 +252,7 @@ describe("OnboardingWizardPage authentication detours", () => {
     const selfHosted = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
     expect(selfHosted.props.children.props.flow).toEqual({
       setupAvailable: false,
-      chooseAvailable: true,
+      ownerFlow: true,
       channelAvailable: false,
       teamInvite: true,
     });
@@ -268,7 +264,7 @@ describe("OnboardingWizardPage authentication detours", () => {
     const demo = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
     expect(demo.props.children.props.flow).toEqual({
       setupAvailable: false,
-      chooseAvailable: false,
+      ownerFlow: false,
       channelAvailable: false,
       teamInvite: false,
     });

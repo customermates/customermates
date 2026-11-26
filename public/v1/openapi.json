@@ -173568,6 +173568,7 @@
                         "calendarSubscriptionNotFound",
                         "calendarWriteUnavailable",
                         "calendarNeedsReconnect",
+                        "calendarEventChangeUnsupported",
                         "bookingLinkNotFound",
                         "bookingLinkLimitReached",
                         "bookingLinkHasUpcomingBookings",

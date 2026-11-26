@@ -22,8 +22,7 @@ vi.mock("../../actions", () => ({
   saveOnboardingWizardProgressAction: vi.fn(),
   selectOnboardingJobAction: vi.fn().mockResolvedValue({ ok: true, data: { job: "followup", next: "playbook" } }),
 }));
-vi.mock("../../onboarding-agent-actions", () => ({
-  getOnboardingAgentStatusAction: vi.fn(),
+vi.mock("../../onboarding-channel-actions", () => ({
   recordChannelSkippedAction: vi.fn(),
   startOnboardingChannelConnectAction: vi.fn(),
 }));
@@ -43,19 +42,17 @@ function button(id: string) {
 }
 
 async function renderPlaybook(suggestedPlaybook: "consultants" | "agencies" | "freelancers" | "smb" | null) {
-  store = new OnboardingWizardStore({
-    stepAiStore: { reset: vi.fn(), restoreSelection: vi.fn() },
-    localeStore: { locale: "en" },
-  } as never);
+  store = new OnboardingWizardStore({ localeStore: { locale: "en" } } as never);
   store.initialize(
     1,
     undefined,
     undefined,
     true,
-    { selectedJob: "followup", suggestedJob: null, suggestedPlaybook },
-    { chooseAvailable: true },
+    { job: "followup", jobRecorded: true, suggestedPlaybook },
+    {
+      ownerFlow: true,
+    },
   );
-  await store.chooseJob();
   harness.rootStore = { onboardingWizardStore: store };
   await act(async () => {
     root.render(createElement(StepPlaybook));

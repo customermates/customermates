@@ -5,13 +5,14 @@ import {
   persistedWizardStep,
   resolveWizardResume,
   wizardBackFloor,
-  wizardChoiceAvailable,
+  wizardJob,
+  wizardOwnerFlow,
   wizardSteps,
 } from "../onboarding-wizard-flow";
 
-const CLOUD_TEAM = { setupAvailable: true, chooseAvailable: true, channelAvailable: true, teamInvite: true };
+const CLOUD_TEAM = { setupAvailable: true, ownerFlow: true, channelAvailable: true, teamInvite: true };
 const CLOUD_SOLO = { ...CLOUD_TEAM, teamInvite: false };
-const SELF_HOSTED = { setupAvailable: false, chooseAvailable: true, channelAvailable: false, teamInvite: false };
+const SELF_HOSTED = { setupAvailable: false, ownerFlow: true, channelAvailable: false, teamInvite: false };
 const INVITED = { setupAvailable: false };
 
 describe("the flow context", () => {
@@ -23,13 +24,8 @@ describe("the flow context", () => {
     teamSize: "small" as const,
   };
 
-  it("offers the choice, the channel and team invites to a cloud owner of a team", () => {
-    expect(buildWizardFlowContext(owner)).toEqual({
-      setupAvailable: true,
-      chooseAvailable: true,
-      channelAvailable: true,
-      teamInvite: true,
-    });
+  it("gives a cloud owner of a team the setup, the channel and team invites", () => {
+    expect(buildWizardFlowContext(owner)).toEqual(CLOUD_TEAM);
   });
 
   it("asks for no team invites from a solo owner or one who did not say", () => {
@@ -42,169 +38,128 @@ describe("the flow context", () => {
     expect(buildWizardFlowContext({ ...owner, profileCompleted: true, setupOffered: true }).setupAvailable).toBe(true);
   });
 
-  it("keeps the channel step away from a self-hosted owner", () => {
+  it("keeps the setup and the channel step away from a self-hosted owner", () => {
     expect(buildWizardFlowContext({ ...owner, appMode: "self-hosted", teamSize: null })).toEqual(SELF_HOSTED);
   });
 
-  it("offers nothing to an invited member and nothing to choose in the demo", () => {
-    const invited = buildWizardFlowContext({ ...owner, isInvited: true });
-    expect(invited).toEqual({
+  it("gives invited members and the demo no owner flow", () => {
+    expect(buildWizardFlowContext({ ...owner, isInvited: true })).toEqual({
       setupAvailable: false,
-      chooseAvailable: false,
+      ownerFlow: false,
       channelAvailable: false,
       teamInvite: false,
     });
-    expect(buildWizardFlowContext({ ...owner, appMode: "demo" }).chooseAvailable).toBe(false);
-    expect(wizardChoiceAvailable("demo", false)).toBe(false);
-    expect(wizardChoiceAvailable("cloud", true)).toBe(false);
-    expect(wizardChoiceAvailable("self-hosted", false)).toBe(true);
+    expect(buildWizardFlowContext({ ...owner, appMode: "demo" }).ownerFlow).toBe(false);
+    expect(wizardOwnerFlow("demo", false)).toBe(false);
+    expect(wizardOwnerFlow("cloud", true)).toBe(false);
+    expect(wizardOwnerFlow("self-hosted", false)).toBe(true);
   });
 });
 
-describe("the steps of each path", () => {
-  it("runs the Mate path through the setup, then the team and the inbox", () => {
-    expect(wizardSteps(CLOUD_TEAM, "workspace")).toEqual(["profile", "goal", "setup", "invite", "channel"]);
-  });
-
-  it("skips the invitations for a solo owner on every path", () => {
-    expect(wizardSteps(CLOUD_SOLO, "workspace")).toEqual(["profile", "goal", "setup", "channel"]);
-    expect(wizardSteps(CLOUD_SOLO, "agent")).toEqual(["profile", "goal", "ai", "handoff", "channel"]);
-    expect(wizardSteps(CLOUD_SOLO, "empty")).toEqual(["profile", "goal", "channel"]);
-  });
-
-  it("connects the agent, hands over to it, then asks for the team and the inbox", () => {
-    expect(wizardSteps(CLOUD_TEAM, "agent")).toEqual(["profile", "goal", "ai", "handoff", "invite", "channel"]);
-  });
-
-  it("starts empty straight with the team and the inbox", () => {
-    expect(wizardSteps(CLOUD_TEAM, "empty")).toEqual(["profile", "goal", "invite", "channel"]);
-  });
-
-  it("keeps the playbook path for the follow-up job", () => {
-    expect(wizardSteps(CLOUD_TEAM, "followup")).toEqual(["profile", "goal", "playbook"]);
-  });
-
-  it("falls back to the agent path when the setup is not available", () => {
-    expect(wizardSteps(SELF_HOSTED, "workspace")).toEqual(["profile", "goal", "ai", "handoff"]);
-    expect(wizardSteps(SELF_HOSTED, "followup")).toEqual(["profile", "goal", "ai", "handoff"]);
-    expect(wizardSteps(SELF_HOSTED, "empty")).toEqual(["profile", "goal"]);
-  });
-
-  it("gives an invited member only the profile before the workspace opens", () => {
-    expect(wizardSteps(INVITED, "workspace")).toEqual(["profile", "finish"]);
-    expect(wizardSteps(INVITED, "agent")).toEqual(["profile", "finish"]);
+describe("the job", () => {
+  it("follows up only when the owner picked or signed up for following up", () => {
+    expect(wizardJob({ selectedJob: null, signupJob: "followup" })).toBe("followup");
+    expect(wizardJob({ selectedJob: "followup", signupJob: null })).toBe("followup");
+    expect(wizardJob({ selectedJob: "workspace", signupJob: "followup" })).toBe("workspace");
+    expect(wizardJob({ selectedJob: null, signupJob: "agent" })).toBe("workspace");
+    expect(wizardJob({ selectedJob: null, signupJob: null })).toBe("workspace");
   });
 });
 
-describe("the saved step", () => {
-  it("keeps the agent steps, the channel and a pinned goal, and parks everything else on the invitations", () => {
-    expect(persistedWizardStep("ai")).toBe("ai");
-    expect(persistedWizardStep("handoff")).toBe("handoff");
+describe("the steps", () => {
+  it("leads a cloud team owner through the setup, invitations and the inbox", () => {
+    expect(wizardSteps(CLOUD_TEAM)).toEqual(["profile", "setup", "invite", "channel", "finish"]);
+  });
+
+  it("skips the invitations for a solo owner", () => {
+    expect(wizardSteps(CLOUD_SOLO)).toEqual(["profile", "setup", "channel", "finish"]);
+  });
+
+  it("drops the setup once the owner starts empty", () => {
+    expect(wizardSteps(CLOUD_TEAM, "empty")).toEqual(["profile", "invite", "channel", "finish"]);
+    expect(wizardSteps(CLOUD_SOLO, "empty")).toEqual(["profile", "channel", "finish"]);
+  });
+
+  it("writes a playbook for the follow-up job", () => {
+    expect(wizardSteps(CLOUD_TEAM, "followup")).toEqual(["profile", "playbook"]);
+  });
+
+  it("finishes right after the profile on self-hosted and for invited members", () => {
+    expect(wizardSteps(SELF_HOSTED)).toEqual(["profile", "finish"]);
+    expect(wizardSteps(SELF_HOSTED, "followup")).toEqual(["profile", "finish"]);
+    expect(wizardSteps(INVITED)).toEqual(["profile", "finish"]);
+  });
+
+  it("stores only the invite or the channel step", () => {
     expect(persistedWizardStep("channel")).toBe("channel");
-    expect(persistedWizardStep("goal")).toBe("goal");
-    expect(persistedWizardStep("goal", false)).toBe("invite");
+    expect(persistedWizardStep("invite")).toBe("invite");
     expect(persistedWizardStep("setup")).toBe("invite");
-    expect(persistedWizardStep("profile")).toBe("invite");
+    expect(persistedWizardStep("finish")).toBe("invite");
   });
 });
 
-describe("how far back the owner can go", () => {
-  it("stops at the goal once the profile is registered", () => {
-    const steps = wizardSteps(CLOUD_TEAM, "agent");
+describe("going back", () => {
+  const steps = wizardSteps(CLOUD_TEAM);
+
+  it("never goes back to the profile or into a setup that was built", () => {
     expect(wizardBackFloor(steps, "profile")).toBe(0);
-    expect(wizardBackFloor(steps, "goal")).toBe(1);
-    expect(wizardBackFloor(steps, "ai")).toBe(1);
-    expect(wizardBackFloor(steps, "handoff")).toBe(1);
-    expect(wizardBackFloor(steps, "channel")).toBe(1);
-  });
-
-  it("never returns to a setup that was already built", () => {
-    const steps = wizardSteps(CLOUD_TEAM, "workspace");
     expect(wizardBackFloor(steps, "setup")).toBe(1);
-    expect(wizardBackFloor(steps, "invite")).toBe(3);
-    expect(wizardBackFloor(steps, "channel")).toBe(3);
+    expect(wizardBackFloor(steps, "invite")).toBe(2);
+    expect(wizardBackFloor(steps, "channel")).toBe(2);
+    expect(wizardBackFloor(steps, "finish")).toBe(4);
   });
 
-  it("keeps the finish step where it is", () => {
-    expect(wizardBackFloor(["profile", "finish"], "finish")).toBe(1);
+  it("goes back between the invitations and the inbox after starting empty", () => {
+    const empty = wizardSteps(CLOUD_TEAM, "empty");
+    expect(wizardBackFloor(empty, "channel")).toBe(1);
+    expect(wizardBackFloor(empty, "invite")).toBe(1);
   });
 });
 
-describe("resuming the wizard", () => {
-  const owner = { ...CLOUD_TEAM, profileCompleted: true, isInvited: false, setupStepCompleted: false };
+describe("resuming", () => {
+  const owner = { ...CLOUD_TEAM, isInvited: false, profileCompleted: true, setupStepCompleted: false };
 
-  it("starts at the profile before it is registered", () => {
-    expect(resolveWizardResume({ ...owner, profileCompleted: false, job: "agent" })).toEqual({
-      steps: ["profile", "goal", "ai", "handoff", "invite", "channel"],
-      resumeStepIndex: 0,
-      flow: "agent",
-    });
+  it("starts with the profile until it is done", () => {
+    expect(resolveWizardResume({ ...owner, profileCompleted: false }).resumeStepIndex).toBe(0);
   });
 
-  it("asks for the goal while no job is chosen", () => {
-    const resume = resolveWizardResume({ ...owner, jobSelected: false, job: "agent" });
-    expect(resume.steps[resume.resumeStepIndex]).toBe("goal");
-  });
-
-  it("returns to a pinned goal", () => {
-    const resume = resolveWizardResume({ ...owner, job: "workspace", savedStep: "goal" });
-    expect(resume.steps[resume.resumeStepIndex]).toBe("goal");
-  });
-
-  it("returns to the setup while Mate's setup is open", () => {
-    const resume = resolveWizardResume({ ...owner, job: "workspace" });
-    expect(resume.flow).toBe("workspace");
+  it("opens the setup while it is not done", () => {
+    const resume = resolveWizardResume(owner);
     expect(resume.steps[resume.resumeStepIndex]).toBe("setup");
+    expect(resume.flow).toBe("workspace");
   });
 
-  it("returns to the playbook of the follow-up job", () => {
+  it("opens the playbook for the follow-up job", () => {
     const resume = resolveWizardResume({ ...owner, job: "followup" });
     expect(resume.steps[resume.resumeStepIndex]).toBe("playbook");
   });
 
-  it("returns to the saved agent step once the agent path is chosen", () => {
-    const handoff = resolveWizardResume({ ...owner, job: "agent", setupStepCompleted: true, savedStep: "handoff" });
-    expect(handoff.flow).toBe("agent");
-    expect(handoff.steps[handoff.resumeStepIndex]).toBe("handoff");
-    const fresh = resolveWizardResume({ ...owner, job: "agent", setupStepCompleted: true });
-    expect(fresh.steps[fresh.resumeStepIndex]).toBe("invite");
+  it("continues with the saved step after the setup", () => {
+    const resume = resolveWizardResume({ ...owner, setupStepCompleted: true, savedStep: "channel" });
+    expect(resume.steps[resume.resumeStepIndex]).toBe("channel");
   });
 
-  it("continues with the team after Mate built the workspace", () => {
-    const resume = resolveWizardResume({ ...owner, job: "workspace", setupStepCompleted: true });
-    expect(resume.flow).toBe("workspace");
-    expect(resume.steps[resume.resumeStepIndex]).toBe("invite");
-    const solo = resolveWizardResume({ ...owner, teamInvite: false, job: "workspace", setupStepCompleted: true });
+  it("falls back to the first step after the setup", () => {
+    expect(resolveWizardResume({ ...owner, setupStepCompleted: true }).resumeStepIndex).toBe(2);
+    const solo = resolveWizardResume({ ...owner, teamInvite: false, setupStepCompleted: true, savedStep: "invite" });
     expect(solo.steps[solo.resumeStepIndex]).toBe("channel");
   });
 
-  it("treats a completed setup without a chosen job as an empty start", () => {
-    const resume = resolveWizardResume({ ...owner, jobSelected: false, job: "agent", setupStepCompleted: true });
-    expect(resume.flow).toBe("empty");
-    expect(resume.steps).toEqual(["profile", "goal", "invite", "channel"]);
-    expect(resume.steps[resume.resumeStepIndex]).toBe("invite");
-  });
-
-  it("finishes right away for an invited member with a profile", () => {
-    const resume = resolveWizardResume({
-      ...INVITED,
-      profileCompleted: true,
-      isInvited: true,
-      setupStepCompleted: true,
-    });
-    expect(resume.steps).toEqual(["profile", "finish"]);
-    expect(resume.resumeStepIndex).toBe(1);
-  });
-
-  it("falls back to the goal when a self-hosted owner has nothing left", () => {
-    const resume = resolveWizardResume({
+  it("finishes a self-hosted owner and an invited member after the profile", () => {
+    const selfHosted = resolveWizardResume({
       ...SELF_HOSTED,
-      profileCompleted: true,
       isInvited: false,
-      setupStepCompleted: true,
-      jobSelected: false,
+      profileCompleted: true,
+      setupStepCompleted: false,
     });
-    expect(resume.steps).toEqual(["profile", "goal"]);
-    expect(resume.resumeStepIndex).toBe(1);
+    expect(selfHosted.steps[selfHosted.resumeStepIndex]).toBe("finish");
+    const invited = resolveWizardResume({
+      ...CLOUD_TEAM,
+      isInvited: true,
+      profileCompleted: true,
+      setupStepCompleted: false,
+    });
+    expect(invited.steps).toEqual(["profile", "finish"]);
+    expect(invited.resumeStepIndex).toBe(1);
   });
 });

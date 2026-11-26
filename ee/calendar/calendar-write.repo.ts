@@ -28,6 +28,17 @@ export abstract class CalendarWriteRepo {
     connectedAccountId: string;
     unipileEventId: string;
   }): Promise<{ id: string } | null>;
+  abstract applySeriesChangeUnscoped(args: {
+    connectedAccountId: string;
+    masterUnipileEventId: string;
+    exceptUnipileEventId: string;
+    fields: { title?: string; description?: string; location?: string };
+    shift: { byMs: number; durationMs: number } | null;
+  }): Promise<{ count: number }>;
+  abstract markSeriesCancelledUnscoped(args: {
+    connectedAccountId: string;
+    masterUnipileEventId: string;
+  }): Promise<{ count: number }>;
   abstract deleteCalendarEventUnscoped(args: {
     connectedAccountId: string;
     unipileEventId: string;

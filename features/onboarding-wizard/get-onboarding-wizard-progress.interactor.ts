@@ -1,5 +1,4 @@
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
-import type { AuthService } from "@/features/auth/auth.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { OnboardingWizardProgress } from "./onboarding-wizard-progress.schema";
 import type { GetOnboardingWizardProgressRepo } from "./get-onboarding-wizard-progress.repo";
@@ -17,26 +16,16 @@ export class GetOnboardingWizardProgressInteractor {
   constructor(
     private repo: GetOnboardingWizardProgressRepo,
     private routeGuardService: RouteGuardService,
-    private authService: AuthService,
   ) {}
 
   async invoke(): Promise<{ ok: true; data: OnboardingWizardProgress } | Redirect> {
     const resolution = await this.routeGuardService.resolveAccountState();
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
     if (!resolution.user || !resolution.sessionUser) return redirectTo("/auth/signin");
-    const ownerAuthUserId = resolution.sessionUser.id;
-    const ownerCompanyId = resolution.user.companyId;
 
-    return runWithTenant(resolution.user, async () => {
-      const progress = readOnboardingWizardProgress(await this.repo.findOnboardingWizardProgressOrThrow());
-      const references = Object.entries(progress.ai.apiKeyIds);
-      const { active } = await this.authService.resolveApiKeyReferences(
-        ownerAuthUserId,
-        references.map(([, id]) => id),
-        ownerCompanyId,
-      );
-      progress.ai.apiKeyIds = Object.fromEntries(references.filter(([, id]) => active.has(id)));
-      return { ok: true as const, data: progress };
-    });
+    return runWithTenant(resolution.user, async () => ({
+      ok: true as const,
+      data: readOnboardingWizardProgress(await this.repo.findOnboardingWizardProgressOrThrow()),
+    }));
   }
 }

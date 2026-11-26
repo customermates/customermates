@@ -58,7 +58,6 @@ import { SignInStore } from "@/app/[locale]/(entry)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
 import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
-import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 import { LayoutStore } from "@/components/layout/layout.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
 import { LoadingOverlayStore } from "@/components/shared/loading-overlay.store";
@@ -123,7 +122,6 @@ export class RootStore {
   private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
   private _inviteByEmailStore?: InviteByEmailStore;
-  private _stepAiStore?: AiConnectionStore;
   private _stepProfileStore?: StepProfileStore;
   private _onboardingWizardStore?: OnboardingWizardStore;
   private _workspaceSetupStore?: WorkspaceSetupStore;
@@ -289,10 +287,6 @@ export class RootStore {
 
   get stepProfileStore() {
     return (this._stepProfileStore ??= new StepProfileStore(this));
-  }
-
-  get stepAiStore() {
-    return (this._stepAiStore ??= new AiConnectionStore(this));
   }
 
   get inviteByEmailStore() {

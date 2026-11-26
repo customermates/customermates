@@ -20,22 +20,17 @@ import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
-import { resolveWizardResume } from "./onboarding-wizard-flow";
+import { resolveWizardResume, wizardJob } from "./onboarding-wizard-flow";
 import { WIZARD_FOOTER_CLASS } from "./wizard-footer";
 
 import { StepProfile } from "./step-profile";
-import { StepGoal, StepGoalFooter } from "./step-goal";
 import { StepPlaybook } from "./step-playbook";
-import { StepAi, StepAiFooter } from "./step-ai";
-import { StepHandoff, StepHandoffFooter } from "./step-handoff";
 import { StepInvite } from "./step-invite";
 import { StepChannel, StepChannelFooter } from "./step-channel";
 import { StepFinish } from "./step-finish";
 import { StepSetup, StepSetupFooter, useHydratedSetupStore } from "./setup/step-setup";
 import { useSetupHeading } from "./setup/use-setup-heading";
-import { useSelectedAgentName } from "./use-selected-agent-name";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { PRESELECTED_ONBOARDING_JOB } from "@/features/onboarding-funnel/onboarding-job";
 
 export { resolveWizardResume } from "./onboarding-wizard-flow";
 
@@ -61,24 +56,19 @@ type Props = {
 const UNAVAILABLE_SETUP: WorkspaceSetupStatusView = { available: false, reason: "selfHosted", setup: null };
 
 export function wizardJobChoice(
-  view: Pick<OnboardingJobChoiceView, "preselectedJob" | "signupJob" | "suggestedPlaybook"> | undefined,
-  fallbackJob: WizardJobChoice["selectedJob"] = PRESELECTED_ONBOARDING_JOB,
+  view: Pick<OnboardingJobChoiceView, "selectedJob" | "signupJob" | "suggestedPlaybook"> | undefined,
 ): WizardJobChoice {
   return {
-    selectedJob: view?.preselectedJob ?? fallbackJob,
-    suggestedJob: view?.signupJob ?? null,
+    job: view ? wizardJob(view) : "workspace",
+    jobRecorded: !view || view.selectedJob !== null,
     suggestedPlaybook: view?.suggestedPlaybook ?? null,
   };
 }
 
 type Heading = { title: string; subtitle: string | null; question?: { current: number; total: number } | null };
 
-function useStepHeading(
-  step: WizardStep,
-  context: { isInvited: boolean; selfHosted: boolean; workspace: string },
-): Heading {
+function useStepHeading(step: WizardStep, context: { isInvited: boolean; workspace: string }): Heading {
   const t = useTranslations();
-  const agent = useSelectedAgentName();
   const setup = useSetupHeading();
   switch (step) {
     case "profile":
@@ -90,13 +80,6 @@ function useStepHeading(
             : t("OnboardingWizard.steps.profile.invitedSubtitle")
           : null,
       };
-    case "goal":
-      return context.selfHosted
-        ? {
-            title: t("OnboardingWizard.steps.goal.titleSelfHosted"),
-            subtitle: t("OnboardingWizard.steps.goal.subtitleSelfHosted"),
-          }
-        : { title: t("OnboardingWizard.steps.goal.title"), subtitle: null };
     case "playbook":
       return {
         title: t("OnboardingWizard.steps.playbook.title"),
@@ -104,18 +87,6 @@ function useStepHeading(
       };
     case "setup":
       return setup;
-    case "ai":
-      return {
-        title: t("OnboardingWizard.steps.connect.title"),
-        subtitle: t("OnboardingWizard.steps.connect.subtitle"),
-      };
-    case "handoff":
-      return {
-        title: agent
-          ? t("OnboardingWizard.steps.handoff.title", { agent })
-          : t("OnboardingWizard.steps.handoff.titleGeneric"),
-        subtitle: t("OnboardingWizard.steps.handoff.subtitle"),
-      };
     case "invite":
       return { title: t("OnboardingWizard.steps.invite.title"), subtitle: t("OnboardingWizard.steps.invite.subtitle") };
     case "channel":
@@ -154,7 +125,7 @@ const InviteFooter = observer(() => {
         disabled={store.isBusy}
         id="onboarding-next"
         type="button"
-        onClick={() => runUserAction(store.advance)}
+        onClick={() => runUserAction(store.next)}
       >
         {store.isLastStep ? t("OnboardingWizard.finish") : t("OnboardingWizard.continue")}
 
@@ -185,37 +156,28 @@ const OnboardingWizardContent = observer(
   }: Props) => {
     const t = useTranslations();
     const workspace = workspaceName?.trim() ?? "";
-    const { onboardingWizardStore, appMode } = useRootStore();
-    const selfHosted = appMode === "self-hosted";
-    const chooseAvailable = flowContext.chooseAvailable ?? false;
+    const { onboardingWizardStore } = useRootStore();
     const { ready: setupReady } = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
-    const savedGoalJob = chooseAvailable && savedProgress?.step === "goal" ? savedProgress.job : null;
-    const { steps, resumeStepIndex, flow } = resolveWizardResume({
-      ...flowContext,
-      profileCompleted,
-      isInvited,
-      setupStepCompleted,
-      jobSelected: !jobChoice || jobChoice.selectedJob !== null,
-      job: savedGoalJob ?? jobChoice?.preselectedJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
-      savedStep: savedProgress?.step,
-    });
-    const preselectedJob = jobChoice?.preselectedJob;
+    const selectedJob = jobChoice?.selectedJob;
     const signupJob = jobChoice?.signupJob;
     const suggestedPlaybook = jobChoice?.suggestedPlaybook;
     const initialJobChoice = useMemo(
       () =>
         wizardJobChoice(
-          preselectedJob === undefined
+          selectedJob === undefined
             ? undefined
-            : {
-                preselectedJob: savedGoalJob ?? preselectedJob,
-                signupJob: signupJob ?? null,
-                suggestedPlaybook: suggestedPlaybook ?? null,
-              },
-          savedGoalJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
+            : { selectedJob, signupJob: signupJob ?? null, suggestedPlaybook: suggestedPlaybook ?? null },
         ),
-      [chooseAvailable, preselectedJob, savedGoalJob, signupJob, suggestedPlaybook],
+      [selectedJob, signupJob, suggestedPlaybook],
     );
+    const { steps, resumeStepIndex, flow } = resolveWizardResume({
+      ...flowContext,
+      profileCompleted,
+      isInvited,
+      setupStepCompleted,
+      job: initialJobChoice.job,
+      savedStep: savedProgress?.step,
+    });
     const emptyChosen = flow === "empty";
     const initializationKey = JSON.stringify([
       resumeStepIndex,
@@ -224,14 +186,13 @@ const OnboardingWizardContent = observer(
       flowContext,
       initialJobChoice,
       emptyChosen,
-      selfHosted,
     ]);
     const [initializedKey, setInitializedKey] = useState<string | null>(null);
     const isStepSynchronized = initializedKey === initializationKey;
     const currentStep: WizardStep = isStepSynchronized ? onboardingWizardStore.currentStep : steps[resumeStepIndex];
     const visibleSteps = isStepSynchronized ? onboardingWizardStore.steps : steps;
     const stepIndex = Math.max(visibleSteps.indexOf(currentStep), 0);
-    const heading = useStepHeading(currentStep, { isInvited, selfHosted, workspace });
+    const heading = useStepHeading(currentStep, { isInvited, workspace });
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousHeading = useRef(heading.title);
     const question = heading.question ?? null;
@@ -248,9 +209,9 @@ const OnboardingWizardContent = observer(
       onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable, initialJobChoice, {
         ...flags,
         emptyChosen,
-        selfHosted,
       });
       setInitializedKey(initializationKey);
+      if (resumeStepIndex > 0) void onboardingWizardStore.recordJob().catch(reportApplicationError);
       return reaction(
         () => onboardingWizardStore.progress,
         (progress) => {
@@ -266,7 +227,6 @@ const OnboardingWizardContent = observer(
       onboardingWizardStore,
       resumeStepIndex,
       savedProgress,
-      selfHosted,
       userId,
     ]);
 
@@ -293,16 +253,10 @@ const OnboardingWizardContent = observer(
       if (currentStep === "invite") return <StepInvite />;
       if (!isStepSynchronized) return pending;
       switch (currentStep) {
-        case "goal":
-          return <StepGoal />;
         case "playbook":
           return <StepPlaybook />;
         case "setup":
           return setupReady ? <StepSetup /> : pending;
-        case "ai":
-          return <StepAi />;
-        case "handoff":
-          return <StepHandoff workspaceName={workspace} />;
         case "channel":
           return <StepChannel email={sessionEmail} />;
         case "finish":
@@ -313,14 +267,8 @@ const OnboardingWizardContent = observer(
     const renderFooter = () => {
       if (!isStepSynchronized) return null;
       switch (currentStep) {
-        case "goal":
-          return <StepGoalFooter />;
         case "setup":
           return setupReady ? <StepSetupFooter /> : null;
-        case "ai":
-          return <StepAiFooter />;
-        case "handoff":
-          return <StepHandoffFooter />;
         case "invite":
           return <InviteFooter />;
         case "channel":

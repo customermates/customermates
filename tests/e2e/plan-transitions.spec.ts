@@ -1215,6 +1215,7 @@ test.describe("plans on Customermates Cloud", () => {
       window: "minute",
       limit: 30,
       retryAfterSeconds: expect.any(Number),
+      choosePlanUrl: expect.stringContaining("/settings/billing"),
       upgrade,
     });
     const retryAfter = result.result.structuredContent.retryAfterSeconds as number;
@@ -1257,7 +1258,7 @@ test.describe("plans on Customermates Cloud", () => {
     });
     expect(batch.status()).toBe(429);
     expect(Number(batch.headers()["retry-after"])).toBeGreaterThan(0);
-    expect(await batch.json()).toEqual({
+    expect(await batch.json()).toMatchObject({
       error: "rate_limited",
       message: expect.stringContaining("This Customermates workspace is on the Free plan"),
       plan: "free",

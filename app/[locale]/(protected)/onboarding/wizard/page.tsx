@@ -6,14 +6,13 @@ import { buildLocalePath } from "@/i18n/locale-registry";
 import { getLocale } from "next-intl/server";
 
 import { OnboardingWizard } from "./components/onboarding-wizard";
-import { buildWizardFlowContext, wizardChoiceAvailable } from "./components/onboarding-wizard-flow";
+import { buildWizardFlowContext, wizardOwnerFlow } from "./components/onboarding-wizard-flow";
 
 import { requireAccountState } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import {
-  getGetCompanyInteractor,
   getGetOnboardingJobChoiceInteractor,
   getGetOnboardingWizardProgressInteractor,
   getGetWorkspaceSetupStatusInteractor,
@@ -84,20 +83,17 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     );
   }
 
-  const choosing = wizardChoiceAvailable(env.APP_MODE, isInvited);
+  const ownerFlow = wizardOwnerFlow(env.APP_MODE, isInvited);
   let setupStatus: WorkspaceSetupStatusView | undefined;
   let setupStepCompleted = false;
   if (user?.role?.isSystemRole) {
     const status = await runWithTenant(user, () => getGetWorkspaceSetupStatusInteractor().invoke());
     if (status.ok) setupStatus = status.data;
-    setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || (!setupStatus?.available && !choosing);
+    setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || (!setupStatus?.available && !ownerFlow);
   }
   let jobChoice: OnboardingJobChoiceView | undefined;
-  let companyName: string | null = null;
-  if (user?.role?.isSystemRole && choosing) {
+  if (user?.role?.isSystemRole && ownerFlow)
     jobChoice = (await runWithTenant(user, () => getGetOnboardingJobChoiceInteractor().invoke())).data;
-    companyName = (await runWithTenant(user, () => getGetCompanyInteractor().invoke())).data.name;
-  }
 
   const sessionName = sessionUser.name ?? "";
   const isEmail = sessionName.includes("@");
@@ -137,7 +133,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         setupStatus={setupStatus}
         setupStepCompleted={setupStepCompleted}
         userId={user?.role?.isSystemRole ? user.id : undefined}
-        workspaceName={invitation?.companyName ?? companyName}
+        workspaceName={invitation?.companyName}
       />
     </CenteredCardPage>
   );

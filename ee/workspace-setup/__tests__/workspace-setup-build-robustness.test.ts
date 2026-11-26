@@ -18,6 +18,7 @@ import type {
 } from "../workspace-setup.schema";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { extractWikiLinkTargets } from "@/features/wiki/wiki-link-targets";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 
@@ -31,7 +32,7 @@ import {
   setupPhaseRetryable,
 } from "../workspace-setup-phases";
 import { SETUP_ANSWER_GUIDE_KEY, setupAnswerTopics } from "../workspace-setup-answer-pages";
-import { setupPageTitles } from "../workspace-setup-knowledge-brief";
+import { setupPageTitles } from "../workspace-setup-knowledge";
 import { workspaceSetupView } from "../workspace-setup-status";
 import { RetryWorkspaceSetupPhaseInteractor } from "../retry-workspace-setup-phase.interactor";
 
@@ -55,8 +56,6 @@ function setupRecord(overrides: Partial<WorkspaceSetupRecord> = {}): WorkspaceSe
     id: SETUP_ID,
     userId: "owner-1",
     status: "building",
-    websiteUrl: null,
-    crawlId: null,
     answers,
     interview: {} as WorkspaceSetupRecord["interview"],
     plan,
@@ -80,9 +79,7 @@ function setupRecord(overrides: Partial<WorkspaceSetupRecord> = {}): WorkspaceSe
       sampleRecords: [],
       importedRecords: [],
     },
-    results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [] },
-    spreadsheetName: null,
-    hasSpreadsheet: false,
+    results: { lists: [], views: [], records: [], widgets: [], pages: [] },
     startedAt: new Date(),
     confirmedAt: new Date(),
     finishedAt: null,
@@ -100,18 +97,21 @@ function memoryRepo(initial: WorkspaceSetupRecord) {
       if (patch) store.setup = { ...store.setup, ...patch };
       return Promise.resolve({ setup: store.setup, changed: Boolean(patch) });
     }),
-    crawlState: vi.fn(() => Promise.resolve<unknown>({ status: "synthesizing", failureReason: null })),
-    knowledgeBasePages: vi.fn(() => Promise.resolve([])),
-    stopCrawl: vi.fn(() => Promise.resolve()),
     findWikiPageCreatedSince: vi.fn((_title: string, _since: Date) => Promise.resolve<string | null>(null)),
-    reopenCrawlSynthesis: vi.fn(() => Promise.resolve(false)),
   };
   return repo;
+}
+
+async function writtenAnswerPages() {
+  const copy = await setupPageTitles("en");
+  const keys = [...setupAnswerTopics(plan, answers, copy.title).map((topic) => topic.key), SETUP_ANSWER_GUIDE_KEY];
+  return { planned: keys.length, pages: keys.map((key) => ({ key, title: `Page ${key}`, pageId: PAGE_ID })) };
 }
 
 function buildService(
   repo: ReturnType<typeof memoryRepo>,
   postalCodes = { lookup: vi.fn(() => Promise.resolve({ status: "unavailable" as const })) },
+  wiki: { readPage?: { invoke: ReturnType<typeof vi.fn> }; updatePage?: { invoke: ReturnType<typeof vi.fn> } } = {},
 ) {
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const records = {
@@ -130,12 +130,14 @@ function buildService(
     unused,
     unused,
     importSpreadsheet as never,
-    () => vi.fn() as never,
     unused,
     unused,
     createPages as never,
     unused,
     postalCodes as never,
+    undefined,
+    wiki.readPage as never,
+    wiki.updatePage as never,
   );
   return { service, models, records, createPages, importSpreadsheet };
 }
@@ -149,8 +151,8 @@ afterEach(() => {
 
 describe("claiming a build phase", () => {
   it("lets only the run that claimed a waiting Knowledge Base resume it until its claim goes stale", async () => {
-    const repo = memoryRepo(setupRecord({ crawlId: "crawl-1" }));
-    const { service } = buildService(repo);
+    const repo = memoryRepo(setupRecord({ artifacts: { answerPages: await writtenAnswerPages() } }));
+    const { service, models } = buildService(repo);
 
     expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"))).toBe("wait");
     expect(repo.store.setup.phases.knowledgeBase).toMatchObject({
@@ -160,7 +162,7 @@ describe("claiming a build phase", () => {
     });
     expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-b"))).toBe("busy");
     expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"))).toBe("wait");
-    expect(repo.crawlState).toHaveBeenCalledTimes(2);
+    expect(models.generate).not.toHaveBeenCalled();
 
     repo.store.setup = {
       ...repo.store.setup,
@@ -177,8 +179,9 @@ describe("claiming a build phase", () => {
   });
 
   it("does not settle a phase over the run that took it over while the work was running", async () => {
-    const repo = memoryRepo(setupRecord({ crawlId: "crawl-1" }));
-    repo.crawlState.mockImplementation(() => {
+    const repo = memoryRepo(setupRecord());
+    const { service, models } = buildService(repo);
+    models.generate.mockImplementation(() => {
       repo.store.setup = {
         ...repo.store.setup,
         phases: {
@@ -186,9 +189,8 @@ describe("claiming a build phase", () => {
           knowledgeBase: phase({ attempts: 1, claimedAt: new Date().toISOString() }),
         },
       };
-      return Promise.resolve({ status: "completed", failureReason: null });
+      return Promise.resolve({ ok: false, failure: "aiUnavailable" });
     });
-    const { service } = buildService(repo);
 
     expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"))).toBe("skip");
     expect(repo.store.setup.phases.knowledgeBase).toMatchObject({ status: "pending", attempts: 1 });
@@ -197,15 +199,15 @@ describe("claiming a build phase", () => {
 
   it("refreshes its claim while a long step works, so only a dead step goes stale", async () => {
     vi.useFakeTimers();
-    const repo = memoryRepo(setupRecord({ crawlId: "crawl-1" }));
-    let finishCrawl: (value: unknown) => void = () => undefined;
-    repo.crawlState.mockImplementation(
+    const repo = memoryRepo(setupRecord());
+    const { service, models } = buildService(repo);
+    let finishDraft: (value: unknown) => void = () => undefined;
+    models.generate.mockImplementation(
       () =>
         new Promise((resolve) => {
-          finishCrawl = resolve;
+          finishDraft = resolve;
         }),
     );
-    const { service } = buildService(repo);
     const started = Date.now();
 
     const result = run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"));
@@ -213,9 +215,13 @@ describe("claiming a build phase", () => {
     expect(new Date(repo.store.setup.phases.knowledgeBase?.claimedAt ?? 0).getTime()).toBe(
       started + SETUP_PHASE_HEARTBEAT_MS * 3,
     );
-    finishCrawl({ status: "completed", failureReason: null });
+    finishDraft({ ok: false, failure: "aiUnavailable" });
     expect(await result).toBe("settled");
-    expect(repo.store.setup.phases.knowledgeBase).toMatchObject({ status: "completed", claimedAt: null });
+    expect(repo.store.setup.phases.knowledgeBase).toMatchObject({
+      status: "failed",
+      error: "aiUnavailable",
+      claimedAt: null,
+    });
     expect(repo.store.setup.phases.knowledgeBase).not.toHaveProperty("claimToken");
     expect(SETUP_PHASE_STALE_MS).toBeGreaterThanOrEqual(SETUP_PHASE_HEARTBEAT_MS * 3);
   });
@@ -227,7 +233,7 @@ describe("waiting for the data model operation", () => {
     const operation = { operationId: "operation-1", since: new Date().toISOString() };
     const repo = memoryRepo(
       setupRecord({
-        artifacts: { dataModelOperation: operation, references: [], brand: null },
+        artifacts: { dataModelOperation: operation, references: [] },
         phases: {
           ...setupRecord().phases,
           dataModel: phase({ status: "running", attempts: 1, claimedAt: new Date().toISOString(), claimToken: RUN_ID }),
@@ -255,7 +261,6 @@ describe("waiting for the data model operation", () => {
         artifacts: {
           dataModelOperation: { operationId: "operation-1", since: ago(5 * 60 * 1_000) },
           references: [],
-          brand: null,
         },
         phases: {
           ...setupRecord().phases,
@@ -284,6 +289,7 @@ describe("writing the Knowledge Base from the answers", () => {
     const intendedAt = ago(30_000);
     const repo = memoryRepo(
       setupRecord({
+        phases: { ...setupRecord().phases, dataModel: phase({ status: "completed" }) },
         artifacts: {
           answerPages: {
             planned: keys.length,
@@ -322,6 +328,156 @@ describe("writing the Knowledge Base from the answers", () => {
     await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, RUN_ID));
     expect(repo.findWikiPageCreatedSince).toHaveBeenCalledWith("Lost page", expect.any(Date));
     expect(models.generate.mock.calls.some(([args]) => String(args.prompt).includes("Page title:"))).toBe(true);
+  });
+
+  const LIST_IDS: Record<string, string> = {
+    contact: "2a000000-0000-4000-8000-000000000001",
+    organization: "2a000000-0000-4000-8000-000000000002",
+    deal: "2a000000-0000-4000-8000-000000000003",
+    service: "2a000000-0000-4000-8000-000000000004",
+    task: "2a000000-0000-4000-8000-000000000005",
+    project: "2a000000-0000-4000-8000-000000000006",
+  };
+  const customerAnswers = {
+    ...answers,
+    workWith: { source: "user", confidence: 1, value: { format: "singleChoice", value: "clients" } },
+  } as unknown as WorkspaceSetupRecord["answers"];
+
+  function wikiWorld() {
+    const pages = new Map<string, { id: string; title: string; kind: string; markdown: string; updatedAt: Date }>();
+    let next = 0;
+    const createPages = {
+      invoke: vi.fn(({ pages: input }: { pages: Array<{ title: string; kind?: string; markdown: string }> }) => {
+        const created = input.map((page) => {
+          next += 1;
+          const id = `3b000000-0000-4000-8000-${String(next).padStart(12, "0")}`;
+          const stored = {
+            id,
+            title: page.title,
+            kind: page.kind ?? "knowledge",
+            markdown: page.markdown,
+            updatedAt: new Date(),
+          };
+          pages.set(id, stored);
+          return stored;
+        });
+        return Promise.resolve({ ok: true, data: created });
+      }),
+    };
+    const readPage = {
+      invoke: vi.fn(({ id }: { id: string }) => Promise.resolve({ ok: true, data: { ...pages.get(id) } })),
+    };
+    const updatePage = {
+      invoke: vi.fn(({ id, markdown }: { id: string; markdown: string }) => {
+        const page = pages.get(id);
+        if (page) pages.set(id, { ...page, markdown, updatedAt: new Date() });
+        return Promise.resolve({ ok: true, data: pages.get(id) });
+      }),
+    };
+    return { pages, createPages, readPage, updatePage };
+  }
+
+  function builtSetup(dataModel: StoredSetupPhase["status"]) {
+    return setupRecord({
+      answers: customerAnswers,
+      phases: { ...setupRecord().phases, dataModel: phase({ status: dataModel }) },
+      results: {
+        lists: plan.recordModel.lists.map((list) => ({
+          id: LIST_IDS[list.key],
+          key: list.key,
+          name: list.label,
+          pluralName: list.pluralLabel,
+          icon: list.icon,
+          color: null,
+          stages: [],
+        })),
+        views: [],
+        records: [],
+        widgets: [],
+        pages: [],
+      },
+    });
+  }
+
+  function draftingModels(models: { generate: ReturnType<typeof vi.fn> }) {
+    models.generate.mockResolvedValue({
+      ok: true,
+      value: {
+        whenToUse: "When a new inquiry arrives",
+        sections: [
+          {
+            heading: "Who we are",
+            evidence: [{ source: "answers", quote: "Studio Example" }],
+            content: "Studio Example.",
+          },
+        ],
+        gaps: [],
+      },
+    });
+  }
+
+  it("waits for the data model before it writes the guide and links the pages", async () => {
+    const world = wikiWorld();
+    const repo = memoryRepo(builtSetup("running"));
+    const built = buildService(repo, undefined, { readPage: world.readPage, updatePage: world.updatePage });
+    built.createPages.invoke.mockImplementation(world.createPages.invoke);
+    draftingModels(built.models);
+
+    expect(await run(() => built.service.runPhase(SETUP_ID, "knowledgeBase", false, RUN_ID))).toBe("wait");
+    expect([...world.pages.values()].some((page) => page.kind === "guide")).toBe(false);
+    expect(world.updatePage.invoke).not.toHaveBeenCalled();
+  });
+
+  it("weaves the written pages, the guide and the built lists into one web without orphans", async () => {
+    const world = wikiWorld();
+    const repo = memoryRepo(builtSetup("completed"));
+    const built = buildService(repo, undefined, { readPage: world.readPage, updatePage: world.updatePage });
+    built.createPages.invoke.mockImplementation(world.createPages.invoke);
+    draftingModels(built.models);
+
+    expect(await run(() => built.service.runPhase(SETUP_ID, "knowledgeBase", false, RUN_ID))).toBe("settled");
+    expect(repo.store.setup.phases.knowledgeBase?.status).toBe("completed");
+
+    const all = [...world.pages.values()];
+    const guide = all.find((page) => page.kind === "guide");
+    if (!guide) throw new Error("no guide written");
+    expect(all.length).toBeGreaterThan(4);
+    const pageIds = new Set(all.map((page) => page.id));
+    const listIds = new Set(Object.values(LIST_IDS));
+    const links = new Map(
+      all.map((page) => [
+        page.id,
+        extractWikiLinkTargets(page.markdown, {
+          baseUrl: "https://app.example.test",
+          workspaceSlug: null,
+          pageId: page.id,
+        }),
+      ]),
+    );
+    for (const page of all) {
+      const own = links.get(page.id);
+      expect(own?.pages.length).toBeGreaterThan(0);
+      expect(own?.pages.every((target) => pageIds.has(target))).toBe(true);
+      expect(own?.lists.every((target) => listIds.has(target))).toBe(true);
+      expect([...links].some(([source, targets]) => source !== page.id && targets.pages.includes(page.id))).toBe(true);
+    }
+    const fromGuide = links.get(guide.id);
+    expect(fromGuide?.pages.sort()).toEqual(
+      all
+        .filter((page) => page.id !== guide.id)
+        .map((page) => page.id)
+        .sort(),
+    );
+    expect(fromGuide?.lists.sort()).toEqual([...listIds].sort());
+    for (const page of all.filter((candidate) => candidate.id !== guide.id))
+      expect(links.get(page.id)?.pages).toContain(guide.id);
+    const dealLinked = all.filter((page) => links.get(page.id)?.lists.includes(LIST_IDS.deal));
+    expect(dealLinked.length).toBeGreaterThan(1);
+    expect(all.some((page) => page.id !== guide.id && links.get(page.id)?.lists.includes(LIST_IDS.contact))).toBe(true);
+
+    const updates = world.updatePage.invoke.mock.calls.length;
+    expect(await run(() => built.service.runPhase(SETUP_ID, "knowledgeBase", false, "run-b"))).not.toBe("wait");
+    expect(world.updatePage.invoke.mock.calls.length).toBe(updates);
   });
 });
 
@@ -403,7 +559,7 @@ describe("a build no run works on anymore", () => {
     expect(setupPhaseRetryable(setup, "knowledgeBase", now)).toBe(false);
     expect(setupPhaseRetryable(setupRecord(), "dataModel", now)).toBe(false);
 
-    const view = workspaceSetupView(setup, null, { usedMicrocents: 0, heldMicrocents: 0 }, 100, now);
+    const view = workspaceSetupView(setup, { usedMicrocents: 0, heldMicrocents: 0 }, 100, now);
     expect(view.status).toBe("failed");
     expect(view.currentPhase).toBeNull();
     expect(view.phases.map((entry) => [entry.key, entry.status, entry.error])).toEqual([
@@ -444,11 +600,10 @@ describe("finishing a build", () => {
     const done = phase({ status: "completed", attempts: 1, finishedAt: ago(1_000) });
     const repo = memoryRepo(
       setupRecord({
-        crawlId: "crawl-1",
+        artifacts: { answerPages: await writtenAnswerPages() },
         phases: { knowledgeBase: phase(), dataModel: done, views: done, records: done, dashboard: done },
       }),
     );
-    repo.crawlState.mockResolvedValue({ status: "completed", failureReason: null });
     const { service } = buildService(repo);
 
     expect(await run(() => service.finish(SETUP_ID))).toBe(true);
@@ -469,12 +624,11 @@ describe("finishing a build", () => {
       setupRecord({
         status: "completed",
         finishedAt: new Date(Date.now() - 1_000),
-        crawlId: "crawl-1",
         phases: { knowledgeBase: phase({ attempts: 3 }), dataModel: done, views: done, records: done, dashboard: done },
       }),
     );
-    repo.crawlState.mockResolvedValue({ status: "failed", failureReason: "aiUnavailable" });
-    const { service } = buildService(repo);
+    const { service, models } = buildService(repo);
+    models.generate.mockResolvedValue({ ok: false, failure: "aiUnavailable" });
 
     expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", true, "run-a"))).toBe("settled");
 
@@ -515,12 +669,8 @@ describe("finishing a build", () => {
     const settled = (records: StoredSetupPhase) =>
       setupRecord({ phases: { knowledgeBase: done, dataModel: done, views: done, records, dashboard: done } });
 
-    expect(workspaceSetupView(settled(done), null, { usedMicrocents: 0, heldMicrocents: 0 }, 1).status).toBe(
-      "completed",
-    );
-    expect(workspaceSetupView(settled(failed), null, { usedMicrocents: 0, heldMicrocents: 0 }, 1).status).toBe(
-      "failed",
-    );
+    expect(workspaceSetupView(settled(done), { usedMicrocents: 0, heldMicrocents: 0 }, 1).status).toBe("completed");
+    expect(workspaceSetupView(settled(failed), { usedMicrocents: 0, heldMicrocents: 0 }, 1).status).toBe("failed");
   });
 });
 

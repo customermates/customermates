@@ -113,10 +113,9 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
       followUpAnswers: [],
     },
     plan: { status: "idle", error: null, revision: 0, plan: null, ...PLAN_PROGRESS },
-    spreadsheet: null,
     phases: PHASES.map((key) => phaseView(key)),
     currentPhase: null,
-    results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [] },
+    results: { lists: [], views: [], records: [], widgets: [], pages: [] },
     spend: { usedMicrocents: 0, heldMicrocents: 0, capMicrocents: 1, capReached: false },
     ...overrides,
   };

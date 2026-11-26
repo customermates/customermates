@@ -44,13 +44,6 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
     if (!setup) return failNotFound(CustomErrorCode.workspaceSetupNotFound, ["setupId"]);
     if (!setupPhaseRetryable(setup, data.phase, new Date()))
       return failConflict(CustomErrorCode.workspaceSetupConflict);
-    let crawlId = setup.crawlId;
-    if (data.phase === "knowledgeBase" && crawlId && (await this.repo.reopenCrawlSynthesis(crawlId)))
-      await this.background.dispatch("crawl-wiki-website", { crawlId, userId: this.userId });
-    else if (data.phase === "knowledgeBase" && crawlId) {
-      const crawl = await this.repo.crawlState(crawlId);
-      if (!crawl || crawl.status === "failed" || crawl.status === "blocked") crawlId = null;
-    }
 
     const reset = await this.repo.mutate(data.setupId, (current) => {
       const now = new Date();
@@ -70,7 +63,6 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
       return {
         ...(reopened ? { status: "building" as const, finishedAt: null } : {}),
         phases,
-        crawlId,
       };
     });
     if (!reset?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);

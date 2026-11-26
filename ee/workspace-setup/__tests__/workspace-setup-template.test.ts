@@ -40,7 +40,6 @@ const input: SetupPlanInput = {
   currency: "EUR",
   answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Studio" } } },
   followUps: [],
-  sheet: null,
   templateSlug: "sales-pipeline",
 };
 
@@ -130,8 +129,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
     id: "setup-1",
     userId: owner.id,
     status: "planning",
-    websiteUrl: null,
-    crawlId: null,
     answers: {},
     interview: StoredSetupInterviewSchema.parse({ plan: "queued", templateSlug: "sales-pipeline" }),
     plan: null,
@@ -140,8 +137,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
     artifacts: {},
     created: StoredSetupCreatedSchema.parse({}),
     results: StoredSetupResultsSchema.parse({}),
-    spreadsheetName: null,
-    hasSpreadsheet: false,
     startedAt: new Date(),
     confirmedAt: null,
     finishedAt: null,
@@ -154,8 +149,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
       if (patch) setup = { ...setup, ...patch } as WorkspaceSetupRecord;
       return Promise.resolve({ setup, changed: Boolean(patch) });
     }),
-    crawlSources: vi.fn(() => Promise.resolve([])),
-    readSpreadsheet: vi.fn(() => Promise.resolve(null)),
   };
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const mate = { attempt: vi.fn(), assemble: vi.fn(), fromTemplate: vi.fn() };

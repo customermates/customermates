@@ -22,17 +22,7 @@ describeDatabase("durable onboarding progress on PostgreSQL", () => {
   const outsiderId = randomUUID();
   const tenant = (id = userId, company = companyId) =>
     createMockUser({ id, companyId: company, onboardingWizardCompletedAt: null });
-  const progress = {
-    ...readOnboardingWizardProgress(null),
-    step: "ai" as const,
-    inviteTab: "email" as const,
-    ai: {
-      ...readOnboardingWizardProgress(null).ai,
-      route: { screen: "claude" as const },
-      selectedProvider: "claude" as const,
-      claudeMethod: "account" as const,
-    },
-  };
+  const progress = { ...readOnboardingWizardProgress(null), step: "channel" as const, inviteTab: "email" as const };
 
   beforeAll(async () => {
     await client.connect();

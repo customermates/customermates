@@ -1,15 +1,12 @@
 import type { GridRect } from "@/features/widget/widget-grid";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
-import type { WikiWebsiteCrawlControlRepo } from "@/ee/wiki-crawl/wiki-website-crawl-control.repo";
-import type { SetupCrawlSource, SetupCrawlState, WorkspaceSetupRepo } from "./workspace-setup.repo";
+import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "./workspace-setup.schema";
 import type { GetSetupKnowledgeProgressRepo } from "@/features/wiki/get-setup-knowledge-progress.repo";
 import type { WikiSynthesisTopicProgress } from "@/features/wiki/wiki-crawl-progress.schema";
 import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 import { Prisma } from "@/generated/prisma";
-
-import { WIKI_CRAWL_MAX_PAGES } from "@/ee/wiki-crawl/website-discovery";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 
@@ -29,8 +26,6 @@ const SETUP_SELECT = {
   id: true,
   userId: true,
   status: true,
-  websiteUrl: true,
-  crawlId: true,
   answers: true,
   interview: true,
   plan: true,
@@ -39,16 +34,12 @@ const SETUP_SELECT = {
   artifacts: true,
   created: true,
   results: true,
-  spreadsheetName: true,
   startedAt: true,
   confirmedAt: true,
   finishedAt: true,
 } as const;
 
 type SetupRow = Prisma.WorkspaceSetupGetPayload<{ select: typeof SETUP_SELECT }>;
-
-const SOURCE_CHARACTERS = 6_000;
-const SOURCE_LIMIT = WIKI_CRAWL_MAX_PAGES;
 
 function json(value: unknown): Prisma.InputJsonValue {
   return value as Prisma.InputJsonValue;
@@ -64,8 +55,6 @@ function record(row: SetupRow): WorkspaceSetupRecord {
     id: row.id,
     userId: row.userId,
     status: row.status,
-    websiteUrl: row.websiteUrl,
-    crawlId: row.crawlId,
     answers: storedSetupAnswers(row.answers),
     interview: StoredSetupInterviewSchema.parse(objectOf(row.interview)),
     plan: plan?.success ? plan.data : null,
@@ -74,8 +63,6 @@ function record(row: SetupRow): WorkspaceSetupRecord {
     artifacts: objectOf(row.artifacts),
     created: StoredSetupCreatedSchema.parse(objectOf(row.created)),
     results: StoredSetupResultsSchema.parse(objectOf(row.results)),
-    spreadsheetName: row.spreadsheetName,
-    hasSpreadsheet: row.spreadsheetName !== null,
     startedAt: row.startedAt,
     confirmedAt: row.confirmedAt,
     finishedAt: row.finishedAt,
@@ -100,10 +87,7 @@ export class PrismaWorkspaceSetupRepo
   extends TenantRepository
   implements WorkspaceSetupRepo, GetSetupKnowledgeProgressRepo
 {
-  constructor(
-    private readonly crawls: WikiWebsiteCrawlControlRepo,
-    private readonly funnel: Pick<OnboardingFunnelRepo, "recordFunnelEvent">,
-  ) {
+  constructor(private readonly funnel: Pick<OnboardingFunnelRepo, "recordFunnelEvent">) {
     super();
   }
 
@@ -147,8 +131,6 @@ export class PrismaWorkspaceSetupRepo
       data: {
         userId: this.userId,
         status: "interview",
-        websiteUrl: null,
-        crawlId: null,
         answers: json(data.answers),
         interview: json(data.templateSlug ? { templateSlug: data.templateSlug } : {}),
         plan: Prisma.DbNull,
@@ -157,8 +139,6 @@ export class PrismaWorkspaceSetupRepo
         artifacts: json({}),
         created: json({}),
         results: json({}),
-        spreadsheetName: null,
-        spreadsheetBytes: null,
         startedAt: new Date(),
         confirmedAt: null,
         finishedAt: null,
@@ -186,55 +166,9 @@ export class PrismaWorkspaceSetupRepo
     });
   }
 
-  async readSpreadsheet(id: string) {
-    const row = await this.prisma.workspaceSetup.findFirst({
-      where: { id, companyId: this.companyId },
-      select: { spreadsheetName: true, spreadsheetBytes: true },
-    });
-    if (!row?.spreadsheetBytes || !row.spreadsheetName) return null;
-    return { fileName: row.spreadsheetName, bytes: new Uint8Array(row.spreadsheetBytes) };
-  }
-
-  async crawlState(crawlId: string): Promise<SetupCrawlState | null> {
-    const row = await this.prisma.wikiWebsiteCrawl.findFirst({
-      where: { id: crawlId, companyId: this.companyId },
-      select: {
-        status: true,
-        failureReason: true,
-        homepageUrl: true,
-        registrableDomain: true,
-        discovered: true,
-        fetched: true,
-        topics: true,
-      },
-    });
-    if (!row) return null;
-    const topics = Array.isArray(row.topics)
-      ? row.topics.flatMap((topic) => {
-          const entry = objectOf(topic);
-          return typeof entry.status === "string"
-            ? [{ status: entry.status, ...(typeof entry.pageId === "string" ? { pageId: entry.pageId } : {}) }]
-            : [];
-        })
-      : [];
-    return {
-      status: row.status,
-      failureReason: row.failureReason,
-      homepageUrl: row.homepageUrl,
-      registrableDomain: row.registrableDomain,
-      discovered: row.discovered,
-      fetched: row.fetched,
-      topics,
-    };
-  }
-
-  stopCrawl(crawlId: string) {
-    return this.crawls.stopCrawl(crawlId);
-  }
-
   async findSetupKnowledgeProgress(): Promise<WikiSynthesisTopicProgress[] | null> {
     const setup = await this.findCurrent();
-    if (!setup || setup.crawlId || !setupPhaseOpen(setup.status, "knowledgeBase")) return null;
+    if (!setup || !setupPhaseOpen(setup.status, "knowledgeBase")) return null;
     const phase = setup.phases.knowledgeBase ?? emptySetupPhase();
     if ((phase.status !== "pending" && phase.status !== "running") || setupPhaseStalled(phase, new Date())) return null;
     const stored = SetupAnswerPagesSchema.safeParse(setup.artifacts.answerPages);
@@ -247,48 +181,6 @@ export class PrismaWorkspaceSetupRepo
       title,
       status: written.has(title) ? "created" : title === writing ? "writing" : "pending",
     }));
-  }
-
-  async crawlSources(crawlId: string): Promise<SetupCrawlSource[]> {
-    const rows = await this.prisma.wikiSourceDocument.findMany({
-      where: { crawlId, companyId: this.companyId },
-      orderBy: [{ fetchedAt: "asc" }, { id: "asc" }],
-      take: SOURCE_LIMIT,
-      select: { url: true, title: true, text: true, category: true },
-    });
-    return rows.map((row) => ({
-      url: row.url,
-      title: row.title,
-      category: row.category,
-      text: row.text.slice(0, SOURCE_CHARACTERS),
-    }));
-  }
-
-  setCrawlLocale(crawlId: string, locale: string) {
-    return this.crawls.setCrawlLocale(crawlId, locale);
-  }
-
-  reopenCrawlSynthesis(crawlId: string) {
-    return this.crawls.reopenSynthesis(crawlId);
-  }
-
-  async knowledgeBasePages(crawlId: string) {
-    const crawl = await this.crawlState(crawlId);
-    if (!crawl) return [];
-    const sources = await this.prisma.wikiSourceDocument.findMany({
-      where: { crawlId, companyId: this.companyId },
-      select: { url: true },
-    });
-    const topicPages = crawl.topics.flatMap((topic) => (topic.pageId ? [topic.pageId] : []));
-    return this.prisma.wikiPage.findMany({
-      where: {
-        companyId: this.companyId,
-        deletedAt: null,
-        OR: [{ id: { in: topicPages } }, { sourceUrl: { in: sources.map((source) => source.url) } }],
-      },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      select: { id: true, title: true, updatedAt: true },
-    });
   }
 
   async findWikiPageCreatedSince(title: string, since: Date) {

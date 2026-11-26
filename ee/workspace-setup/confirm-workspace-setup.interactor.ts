@@ -21,7 +21,6 @@ import { WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
 import { ConfirmWorkspaceSetupSchema } from "./workspace-setup-input.schema";
 import { workspaceSetupUnavailability } from "./workspace-setup-availability";
 import { emptySetupPhase } from "./workspace-setup-phases";
-import { setupLanguage } from "./workspace-setup-inputs";
 
 @TenantInteractor({ resource: Resource.dataModel, manage: "update" })
 export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
@@ -59,12 +58,6 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
     }
 
     try {
-      const { crawlId, answers } = confirmed.setup;
-      if (crawlId) {
-        const reopened = await this.repo.reopenCrawlSynthesis(crawlId);
-        await this.repo.setCrawlLocale(crawlId, setupLanguage(answers));
-        if (reopened) await this.background.dispatch("crawl-wiki-website", { crawlId, userId: this.userId });
-      }
       await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
     } catch (error) {
       await this.repo.mutate(data.setupId, (setup) => {

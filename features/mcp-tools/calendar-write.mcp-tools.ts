@@ -34,7 +34,7 @@ const ScheduleMeetingToolSchema = z
     action: z
       .enum(SCHEDULE_ACTIONS)
       .describe(
-        "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update (move, resize or edit an existing event): id, startsAt with durationMinutes or endsAt, timeZone, title, description, location, attendees, sendInvites; cancel: id, comment.",
+        "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update (move, resize or edit an existing event): id, startsAt with durationMinutes or endsAt (timed events), startDate with endDate (all-day events), timeZone, title, description, location, attendees, sendInvites, scope; cancel: id, comment, scope.",
       ),
     record: RecordRefSchema.optional().describe(
       "options only: the record the meeting is for, to get attendee suggestions from its linked People.",
@@ -48,9 +48,14 @@ const ScheduleMeetingToolSchema = z
     durationMinutes: UpdateMeetingSchema.shape.durationMinutes,
     endsAt: UpdateMeetingSchema.shape.endsAt,
     timeZone: UpdateMeetingSchema.shape.timeZone,
+    startDate: UpdateMeetingSchema.shape.startDate,
+    endDate: UpdateMeetingSchema.shape.endDate,
     attendees: UpdateMeetingSchema.shape.attendees,
     videoLink: ScheduleMeetingSchema.shape.videoLink.optional(),
     sendInvites: UpdateMeetingSchema.shape.sendInvites.optional(),
+    scope: UpdateMeetingSchema.shape.scope.describe(
+      "update and cancel of a repeating event: occurrence changes or cancels only this occurrence, series every occurrence. Defaults to occurrence for an occurrence id and to series for a series synced without its occurrences.",
+    ),
     records: ScheduleMeetingSchema.shape.records.optional(),
     followUp: ScheduleMeetingSchema.shape.followUp,
     from: z.iso.datetime({ offset: true }).optional().describe("slots only: the first instant to consider."),
@@ -87,8 +92,9 @@ export const scheduleMeetingTool = {
     "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. " +
     "options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. " +
     "slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. " +
-    "SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. " +
-    "update moves, resizes or edits an existing event: the id returned by create, or the id of any synced event in the caller's own connected Google or Microsoft calendar, also when it was created outside Customermates. Send startsAt with durationMinutes or endsAt to move it; only the keys sent change. The result is the event as the provider returned it after the change. " +
+    "SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. Google follows sendInvites on update; Microsoft sends updates to the attendees either way." +
+    "update moves, resizes or edits an existing event: the id returned by create, or the id of any synced event in the caller's own connected Google or Microsoft calendar, also when it was created outside Customermates. Send startsAt with durationMinutes or endsAt to move a timed event, and startDate with endDate to move an all-day event; an event cannot be switched between timed and all-day. Only the keys sent change. The result is the event as the provider returned it after the change. " +
+    "For an occurrence of a repeating event, scope occurrence (the default) changes or cancels only that occurrence and series changes or cancels every occurrence; moving the series shifts every occurrence by the same amount. Changing this and the following occurrences is not offered, because Google cannot do it in one change. " +
     "cancel notifies the attendees and cancels the event permanently for them. Events in calendars that only someone else connected cannot be changed, and a change the provider refuses (for example an event organised by someone else) returns an error and leaves the event as it was.",
   annotations: {
     readOnlyHint: false,
@@ -132,8 +138,13 @@ export const scheduleMeetingTool = {
       );
     }
 
-    return runInteractor(getCancelMeetingInteractor().invoke({ id: fields.id, comment } as never), (cancelled) =>
-      toonResult({ action, cancelled }),
+    return runInteractor(
+      getCancelMeetingInteractor().invoke({
+        id: fields.id,
+        comment,
+        ...(fields.scope ? { scope: fields.scope } : {}),
+      } as never),
+      (cancelled) => toonResult({ action, cancelled }),
     );
   },
 } satisfies McpTool;
@@ -149,8 +160,11 @@ function updateFields(fields: Record<string, unknown>) {
       "durationMinutes",
       "endsAt",
       "timeZone",
+      "startDate",
+      "endDate",
       "attendees",
       "sendInvites",
+      "scope",
     ]
       .filter((key) => fields[key] !== undefined)
       .map((key) => [key, fields[key]]),

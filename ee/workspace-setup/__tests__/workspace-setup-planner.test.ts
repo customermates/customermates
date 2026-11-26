@@ -32,7 +32,6 @@ const input: SetupPlanInput = {
   currency: "EUR",
   answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Studio" } } },
   followUps: [],
-  sheet: null,
 };
 
 type Call = { label: string; purpose: string; prompt: string };

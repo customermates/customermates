@@ -37491,7 +37491,7 @@
     {
       "name": "schedule_meeting",
       "title": "Schedule, move and cancel meetings",
-      "description": "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. update moves, resizes or edits an existing event: the id returned by create, or the id of any synced event in the caller's own connected Google or Microsoft calendar, also when it was created outside Customermates. Send startsAt with durationMinutes or endsAt to move it; only the keys sent change. The result is the event as the provider returned it after the change. cancel notifies the attendees and cancels the event permanently for them. Events in calendars that only someone else connected cannot be changed, and a change the provider refuses (for example an event organised by someone else) returns an error and leaves the event as it was.",
+      "description": "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. Google follows sendInvites on update; Microsoft sends updates to the attendees either way.update moves, resizes or edits an existing event: the id returned by create, or the id of any synced event in the caller's own connected Google or Microsoft calendar, also when it was created outside Customermates. Send startsAt with durationMinutes or endsAt to move a timed event, and startDate with endDate to move an all-day event; an event cannot be switched between timed and all-day. Only the keys sent change. The result is the event as the provider returned it after the change. For an occurrence of a repeating event, scope occurrence (the default) changes or cancels only that occurrence and series changes or cancels every occurrence; moving the series shifts every occurrence by the same amount. Changing this and the following occurrences is not offered, because Google cannot do it in one change. cancel notifies the attendees and cancels the event permanently for them. Events in calendars that only someone else connected cannot be changed, and a change the provider refuses (for example an event organised by someone else) returns an error and leaves the event as it was.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -37508,7 +37508,7 @@
               "update",
               "cancel"
             ],
-            "description": "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update (move, resize or edit an existing event): id, startsAt with durationMinutes or endsAt, timeZone, title, description, location, attendees, sendInvites; cancel: id, comment."
+            "description": "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update (move, resize or edit an existing event): id, startsAt with durationMinutes or endsAt (timed events), startDate with endDate (all-day events), timeZone, title, description, location, attendees, sendInvites, scope; cancel: id, comment, scope."
           },
           "record": {
             "description": "options only: the record the meeting is for, to get attendee suggestions from its linked People.",
@@ -37579,6 +37579,18 @@
             "maxLength": 64,
             "description": "IANA time zone the event is shown in, for example Europe/Berlin."
           },
+          "startDate": {
+            "description": "All-day events only: the new first day as YYYY-MM-DD, sent together with endDate.",
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
+          "endDate": {
+            "description": "All-day events only: the new last day as YYYY-MM-DD, the same as startDate for a one-day event.",
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
           "attendees": {
             "maxItems": 50,
             "type": "array",
@@ -37609,7 +37621,16 @@
           },
           "sendInvites": {
             "default": true,
+            "description": "Let the provider send the change to the attendees. Google follows it; Microsoft sends the update to the attendees either way.",
             "type": "boolean"
+          },
+          "scope": {
+            "description": "update and cancel of a repeating event: occurrence changes or cancels only this occurrence, series every occurrence. Defaults to occurrence for an occurrence id and to series for a series synced without its occurrences.",
+            "type": "string",
+            "enum": [
+              "occurrence",
+              "series"
+            ]
           },
           "records": {
             "default": [],

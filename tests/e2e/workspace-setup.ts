@@ -58,10 +58,19 @@ export async function completeSetupStepInDatabase(page: Page) {
 }
 
 // A legacy workspace another administrator set up leaves the login its trial, so the new workspace opens its wizard.
-export async function openGoalOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
+export async function openQuestionsOfNewWorkspace(
+  page: Page,
+  database: Client,
+  workspace: BrowserWorkspace,
+  name: string,
+) {
   const companyId = await openWizardOfNewWorkspace(page, database, workspace, name);
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
+    page.getByRole("heading", {
+      level: 1,
+      name: englishMessages.WorkspaceSetup.questions.workWith.label,
+      exact: true,
+    }),
   ).toBeVisible();
   return companyId;
 }
@@ -94,18 +103,16 @@ export async function finishOnboarding(page: Page) {
   const steps = englishMessages.OnboardingWizard.steps;
   const invite = heading(steps.invite.title);
   const channel = heading(steps.channel.title);
-  const goal = heading(steps.goal.title).or(heading(steps.goal.titleSelfHosted));
-  await expect(goal.or(invite).or(channel)).toBeVisible();
-  await completeSetupStepInDatabase(page);
-  await page.reload();
-  await expect(goal.or(invite).or(channel)).toBeVisible();
-  if (await goal.isVisible()) {
-    await clickHydrated(page.locator("#onboarding-goal-empty"));
-    const setup = englishMessages.WorkspaceSetup;
-    const confirm = page.getByRole("alertdialog", { name: setup.empty.title });
-    await confirm.getByRole("button", { name: setup.empty.confirm, exact: true }).click();
-  }
+  const question = heading(englishMessages.WorkspaceSetup.questions.workWith.label);
   const dashboard = anyWorkspaceUrlPattern("/dashboard$");
+  await expect(async () => {
+    if (dashboard.test(page.url())) return;
+    await expect(question.or(invite).or(channel).or(heading(steps.finish.title))).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+  if (await question.isVisible()) {
+    await completeSetupStepInDatabase(page);
+    await page.reload();
+  }
   await expect(async () => {
     if (await invite.isVisible()) await clickHydrated(page.locator("#onboarding-next"));
     if (await channel.isVisible()) await clickHydrated(page.locator("#onboarding-channel-skip"));

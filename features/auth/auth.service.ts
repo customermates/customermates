@@ -585,29 +585,6 @@ export class AuthService {
     );
   }
 
-  async resolveApiKeyReferences(
-    ownerAuthUserId: string,
-    ids: string[],
-    companyId: string,
-  ): Promise<{ active: Set<string>; foreign: Set<string> }> {
-    const keys = ids.length
-      ? await prisma.apikey.findMany({
-          where: { id: { in: ids } },
-          select: { id: true, referenceId: true, companyId: true, enabled: true, expiresAt: true },
-        })
-      : [];
-    const now = Date.now();
-    const active = new Set<string>();
-    const foreign = new Set<string>();
-
-    for (const key of keys) {
-      if (key.referenceId !== ownerAuthUserId || key.companyId !== companyId) foreign.add(key.id);
-      else if (key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > now)) active.add(key.id);
-    }
-
-    return { active, foreign };
-  }
-
   async getMcpConsentPrompt(args: {
     consentCode: string;
     clientId: string;

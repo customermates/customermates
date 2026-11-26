@@ -145,7 +145,6 @@ export const StepChannel = observer(({ email }: { email: string }) => {
   const { onboardingWizardStore: store, connectedAccountsStore } = useRootStore();
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
   const connected = connectedAccountsStore.items.filter((account) => account.isOwner);
-  const linkedinFirst = store.steps.includes("handoff");
   const labels: Record<"google" | "outlook" | "imap", ChannelRow> = {
     google: {
       key: "google",
@@ -189,7 +188,7 @@ export const StepChannel = observer(({ email }: { email: string }) => {
     label: t("OnboardingWizard.goal.channelsHint.linkedinTitle"),
     caption: t("OnboardingWizard.channel.captions.linkedin"),
   };
-  rows.splice(linkedinFirst ? 0 : 2, 0, linkedinRow);
+  rows.splice(2, 0, linkedinRow);
 
   return (
     <div className="flex flex-col gap-3">

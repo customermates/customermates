@@ -115,7 +115,7 @@ describeDatabase("workspace setup plan against the record engine", () => {
       const setupId = randomUUID();
       const empty = await run(() => repo.getModel());
       expect(empty).toMatchObject({ revision: 0, types: [] });
-      const context = { setupId, model: empty, labels: SETUP_LABELS, brandChip: "info" as const };
+      const context = { setupId, model: empty, labels: SETUP_LABELS };
       const compiled = compileSetupRecordModel(plan, context);
       if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
 
@@ -157,7 +157,6 @@ describeDatabase("workspace setup plan against the record engine", () => {
       const dashboard = compileSetupDashboard(plan, resolver, applied, {
         setupId,
         expectedRevision: applied.revision,
-        brandChart: null,
       });
       if (!dashboard.ok) throw new Error(JSON.stringify(dashboard.issues));
       for (const widget of dashboard.data) {

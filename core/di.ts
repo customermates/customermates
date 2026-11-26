@@ -271,7 +271,6 @@ import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/rec
 import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
 import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
 import { RecordChannelSkippedInteractor } from "@/features/onboarding-funnel/record-channel-skipped.interactor";
-import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -594,6 +593,7 @@ import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
 import { WikiWebsiteSynthesisService } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
+import { NO_WIKI_SYNTHESIS_BRIEF } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { WikiSummaryService } from "@/ee/wiki-retrieval/wiki-summary.service";
@@ -1389,6 +1389,7 @@ export const getApplyOnboardingPlaybookInteractor = () =>
     getUserRepo(),
     getUserRepo(),
     getRouteGuardService(),
+    getUpdateWikiPageInteractor(),
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
 export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
@@ -1396,14 +1397,12 @@ export const getRecordChannelSkippedInteractor = () =>
   new RecordChannelSkippedInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getRecordDiscoveryAnswerInteractor = () =>
   new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
-export const getGetOnboardingAgentStatusInteractor = () =>
-  new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
-  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService());
 
 export const getSaveOnboardingWizardProgressInteractor = () =>
-  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -1713,7 +1712,7 @@ export const getWikiWebsiteSynthesisService = () =>
     getWikiWebsiteCrawlRepo(),
     getAgentUsageService(),
     getCreateWikiPagesInteractor(),
-    getWorkspaceSetupKnowledgeBrief(),
+    NO_WIKI_SYNTHESIS_BRIEF,
   );
 
 // --- Webhook ---
@@ -2902,8 +2901,6 @@ import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/wor
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
-import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
-import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
 import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
 import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
 import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
@@ -2914,9 +2911,7 @@ import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-work
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
 
-export const getWorkspaceSetupRepo = () =>
-  new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo(), getOnboardingFunnelRepo());
-export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
+export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getOnboardingFunnelRepo());
 export const getWorkspaceSetupModelService = (budget: WorkspaceSetupBudgetKind) =>
   new WorkspaceSetupModelService(getAgentUsageService(), WORKSPACE_SETUP_BUDGETS[budget]);
 export const getWorkspaceSetupInterviewService = () => {
@@ -2943,13 +2938,14 @@ export const getWorkspaceSetupBuildService = () =>
     getUpsertDataViewInteractor(),
     getSaveWidgetInteractor(),
     getImportSpreadsheetInteractor(),
-    websiteBrandFetch,
     getUpdateUserDetailsInteractor(),
     getMutateRecordInteractor(),
     getCreateWikiPagesInteractor(),
     getSavePlannerInteractor(),
     getPostalCodeService(),
     getShareDataViewInteractor(),
+    getGetWikiPageInteractor(),
+    getUpdateWikiPageInteractor(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(

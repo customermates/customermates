@@ -1946,6 +1946,7 @@
       "bookingSlotTaken": "Dit tijdstip is niet meer beschikbaar. Kies een ander tijdstip.",
       "bookingUnavailable": "Deze boekingspagina is op dit moment niet beschikbaar.",
       "botDetected": "We konden dit verzoek niet verifiëren. Laad de pagina opnieuw en probeer het nog eens.",
+      "calendarEventChangeUnsupported": "Deze wijziging past niet bij de afspraak. Afspraken voor de hele dag krijgen datums, afspraken met tijd krijgen tijden, en alleen een exemplaar van een terugkerende afspraak kan voor alle exemplaren worden gewijzigd.",
       "calendarEventNotFound": "ID van agenda-afspraak niet gevonden of niet toegankelijk.",
       "calendarExportIncomplete": "Deze periode heeft meer items dan in één export passen. Kies een kortere periode of strengere bronfilters.",
       "calendarNeedsReconnect": "Koppel je Google- of Microsoft-account opnieuw onder Kanalen & agenda's om agendawijzigingen toe te staan en probeer het daarna opnieuw.",
@@ -4359,8 +4360,7 @@
       "toneOfVoice": "## Hoe ik klink\nPersoonlijk, direct en betrouwbaar. Ik schrijf als mezelf, in de ik-vorm.\n\n## Regels\n- Korte berichten, elk over één onderwerp.\n- Blijf formeel tot de klant voornamen gebruikt en doe dan hetzelfde.\n- Wees concreet over beschikbaarheid, prijs en volgende stappen.\n- Vriendelijk, maar geen alinea's small talk voordat ik ter zake kom.\n- Geen emoji's in een eerste bericht; spiegel daarna de klant."
     },
     "guide": {
-      "intro": "Deze werkruimte is gestart vanuit het playbook {playbook}. Mate leest deze pagina's voordat Mate een antwoord opstelt of een volgende stap voorstelt. Pas ze aan tot ze klinken als jij: jouw diensten, jouw prijzen en jouw manier van schrijven.",
-      "pagesHeading": "Pagina's in de Kennisbank"
+      "intro": "Deze werkruimte is gestart vanuit het playbook {playbook}. Mate leest deze pagina's voordat Mate een antwoord opstelt of een volgende stap voorstelt. Pas ze aan tot ze klinken als jij: jouw diensten, jouw prijzen en jouw manier van schrijven."
     },
     "pages": {
       "followUps": "Opvolgregels",
@@ -4541,22 +4541,9 @@
       "title": "Bevestig je e-mailadres om te beginnen",
       "waiting": "We wachten op je bevestiging"
     },
-    "connect": {
-      "checkAgain": "Opnieuw controleren",
-      "connected": "Verbonden. Je agent heeft deze werkruimte bereikt.",
-      "failed": "We konden de verbinding niet controleren. Probeer het zo opnieuw.",
-      "skip": "Later verbinden",
-      "statusLabel": "Verbindingsstatus",
-      "waiting": "Wachten op de eerste aanroep van {agent}. Het vinkje verschijnt vanzelf zodra {agent} is verbonden.",
-      "waitingGeneric": "Wachten op de eerste aanroep van je agent. Het vinkje verschijnt vanzelf zodra je agent is verbonden."
-    },
     "continue": "Doorgaan",
     "finish": "Werkruimte openen",
     "goal": {
-      "agent": {
-        "title": "Mijn eigen AI-agent",
-        "worksWith": "Claude, ChatGPT, Gemini, Cursor of elke MCP-client"
-      },
       "channelsHint": {
         "action": "Dashboard openen",
         "connectedDescription": "Mate schrijft conceptantwoorden in je inbox zodra er gesprekken binnenkomen. De volgende stappen verschijnen op je dashboard.",
@@ -4574,36 +4561,7 @@
         "salesNavigator": "Gebruik je Sales Navigator? Koppel LinkedIn dan met Sales Navigator",
         "title": "Koppel eerst LinkedIn"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate draait in Customermates Cloud. Je eerste in aanmerking komende cloudwerkruimte krijgt {days} dagen Pro, zonder kaart. Opent een aparte cloudwerkruimte.",
-        "opened": "We hebben Customermates Cloud in een nieuw tabblad geopend. Er is niets van deze instantie naartoe gestuurd. Je kunt hier verder inrichten.",
-        "title": "Liever Mate? Probeer de beheerde cloud"
-      },
-      "fastest": "Snelst",
-      "followup": {
-        "description": "Kies een playbook, koppel LinkedIn en zie wie op een antwoord wacht.",
-        "title": "Klantgesprekken opvolgen"
-      },
-      "optionsLabel": "Eerste stappen",
-      "suggested": "Voorgesteld",
-      "workspace": {
-        "description": "{count} korte vragen, daarna bouwt Mate hem.",
-        "title": "Mate, in ongeveer een minuut"
-      }
-    },
-    "handoff": {
-      "changed": "Je agent is begonnen met bouwen. Open je workspace om mee te kijken.",
-      "connected": "{agent} is verbonden",
-      "connectedGeneric": "Je agent is verbonden",
-      "copied": "Gekopieerd",
-      "copy": "Kopiëren",
-      "openIn": "Openen in {agent}",
-      "prompt": "Richt mijn Customermates-workspace {workspace} in.",
-      "promptGeneric": "Richt mijn Customermates-workspace in.",
-      "promptLabel": "Bericht voor je agent",
-      "watching": "We wachten op de eerste wijziging van {agent}",
-      "watchingGeneric": "We wachten op de eerste wijziging van je agent"
+      "suggested": "Voorgesteld"
     },
     "invite": {
       "captions": {
@@ -4667,22 +4625,8 @@
         "subtitle": "Je gesprekken staan dan bij elke klant, klaar voor concepten en opvolging. Er wordt niets verstuurd zonder jou, en je kunt deze stap overslaan.",
         "title": "Koppel het kanaal waarop je klanten je schrijven"
       },
-      "connect": {
-        "subtitle": "Kies hem en volg de stappen. Het duurt ongeveer een minuut.",
-        "title": "Welke agent gebruik je?"
-      },
       "finish": {
         "title": "Je workspace wordt geopend"
-      },
-      "goal": {
-        "subtitleSelfHosted": "Je gegevens blijven op je eigen server. Je eigen agent koppelt via MCP en bouwt de werkruimte uit een sjabloon.",
-        "title": "Wie moet je workspace bouwen?",
-        "titleSelfHosted": "Hoe richten we deze instantie in?"
-      },
-      "handoff": {
-        "subtitle": "Stuur deze regel. Je agent kiest samen met jou een sjabloon en toont het plan voordat hij iets wijzigt.",
-        "title": "Laat {agent} hem bouwen",
-        "titleGeneric": "Laat je agent hem bouwen"
       },
       "invite": {
         "subtitle": "Deel de link of nodig uit per e-mail. Dat kan ook later.",
@@ -5001,7 +4945,9 @@
     "entryCount": "{count, plural, one {# item} other {# items}}",
     "event": "Afspraak",
     "eventMoved": "Afspraak verplaatst",
-    "eventMovedDescription": "De gekoppelde agenda heeft de nieuwe tijd. Deelnemers krijgen de update van Google of Microsoft.",
+    "eventMovedMicrosoft": "Microsoft stuurt de deelnemers de nieuwe tijd.",
+    "eventMovedNotified": "Google stuurt de deelnemers de nieuwe tijd.",
+    "eventMovedQuiet": "De deelnemers zijn niet op de hoogte gebracht.",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",
     "includePersonal": "Neem ook geselecteerde gekoppelde afspraken op (kan een bestaande agenda dupliceren).",
@@ -5009,6 +4955,15 @@
     "modes": {
       "quarter": "Kwartaal",
       "timeline": "Tijdlijn"
+    },
+    "moveDialog": {
+      "justMove": "Alleen verplaatsen",
+      "move": "Verplaatsen",
+      "notify": "Deelnemers informeren",
+      "notifyDescription": "Google kan de deelnemers de nieuwe tijd mailen.",
+      "notifyTitle": "Deelnemers op de hoogte brengen?",
+      "scopeDescription": "Kies of alleen dit exemplaar of alle exemplaren worden verplaatst.",
+      "scopeTitle": "Terugkerende afspraak verplaatsen"
     },
     "moveEventFailed": "De afspraak kon niet worden verplaatst. Hij houdt zijn tijd.",
     "moveEventUndone": "Verplaatsen ongedaan gemaakt",
@@ -5023,6 +4978,7 @@
     "privateUrlDescription": "Iedereen met deze link kan deze afspraken lezen zolang jij toegang hebt. Kopieer hem nu; hij wordt maar één keer getoond. Trek hem hieronder in om toekomstige vernieuwingen te stoppen.",
     "quarterLabel": "K{number} · {year}",
     "readOnlyEvent": "Deze afspraak komt uit een gekoppelde agenda. Bewerk hem in de oorspronkelijke agenda.",
+    "readOnlySeries": "Deze terugkerende afspraak is als reeks zonder losse exemplaren gesynchroniseerd en kan daarom alleen in Google Agenda of Outlook worden gewijzigd.",
     "removeSource": "Datumbron verwijderen",
     "revokeSubscription": "Abonnement intrekken",
     "snapshot": "Momentopname downloaden",
@@ -6448,8 +6404,10 @@
       "date": "Datum",
       "description": "Beschrijving",
       "duration": "Duur",
+      "firstDay": "Eerste dag",
       "followUp": "Een vervolgtaak aanmaken in",
       "followUpDate": "Begintijd van de afspraak opslaan in",
+      "lastDay": "Laatste dag",
       "location": "Locatie",
       "sendInvites": "Uitnodigingen naar de deelnemers sturen",
       "sendUpdates": "De wijzigingen naar de deelnemers sturen",
@@ -6461,9 +6419,15 @@
     "freeSlots": "Vrije tijden ({timeZone})",
     "keepMeeting": "Afspraak behouden",
     "loadFailed": "De agenda-opties konden niet worden geladen. Sluit dit venster en probeer het opnieuw.",
+    "microsoftSendsUpdates": "Microsoft stuurt de wijzigingen naar de deelnemers.",
     "newMeeting": "Nieuwe afspraak",
     "noFreeSlots": "Geen vrije tijden op deze dag. Je kunt nog steeds een begintijd invoeren.",
     "partial": "De afspraak is aangemaakt, maar het koppelen of het aanmaken van de vervolgtaak is niet gelukt.",
+    "scope": {
+      "label": "Welke afspraken",
+      "occurrence": "Deze afspraak",
+      "series": "Alle afspraken"
+    },
     "title": "Afspraak plannen",
     "unavailable": {
       "demo": "Afspraken plannen vereist een gekoppelde agenda en is niet beschikbaar in de demowerkruimte.",
@@ -7042,7 +7006,7 @@
     "signedOutBody": "Log in op je account om een nieuwe verificatiemail aan te vragen.",
     "subtitle": "Bevestig je e-mailadres om verder te gaan.",
     "title": "E-mailverificatie",
-    "verifiedSignIn": "Je e-mailadres is nu bevestigd. Log in om verder te gaan."
+    "verifiedSignIn": "Je e-mailadres is nu bevestigd. Log in om verder te gaan. Heb je de link op een ander apparaat geopend? Log dan in met een magic link of stel je wachtwoord opnieuw in."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Bezorgpogingen verschijnen hier zodra een webhook wordt geactiveerd.",
@@ -7106,31 +7070,18 @@
       "label": "Kaart van de Kennisbank",
       "legend": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen.",
       "legendEdit": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen, sleep haar om haar op haar plek vast te zetten.",
-      "linkedFrom": "Gekoppeld vanuit",
-      "linkedFromCount": "{count, plural, one {Gekoppeld vanuit # pagina} other {Gekoppeld vanuit # pagina's}}",
+      "linkedPages": "Gekoppelde pagina's",
       "linksFailed": "De koppelingen van deze pagina konden niet worden geladen.",
-      "linksTo": "Verwijst naar",
+      "listsUsed": "Gebruikte lijsten",
       "loadFailed": "De pagina's van de Kennisbank konden niet worden geladen.",
       "missingLinks": "{count, plural, one {# koppeling wijst naar een verwijderde pagina} other {# koppelingen wijzen naar verwijderde pagina's}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Geen pagina's",
       "noMatches": "Geen pagina past bij het filter.",
       "pin": "Vastzetten op de kaart",
-      "pinHelp": "Houdt deze pagina op haar plek op de kaart. Je kunt een pagina ook slepen om haar vast te zetten.",
-      "pinned": "Vastgezet",
-      "pinnedHelp": "Deze pagina houdt haar plek wanneer de kaart zich opnieuw ordent.",
-      "records": "Gekoppelde records",
       "search": "Pagina zoeken",
-      "segments": {
-        "details": "Details",
-        "links": "Koppelingen",
-        "page": "Pagina"
-      },
-      "sheetSegments": "Onderdelen van de pagina",
       "syncing": "Links worden nog ingelezen. Laad de pagina opnieuw om ze allemaal te zien.",
       "truncated": "De eerste {count} pagina's worden getoond. Zoek en druk op Enter om een andere pagina te openen.",
-      "unpin": "Losmaken",
-      "unpinHelp": "De kaart plaatst deze pagina weer zelf."
+      "unpin": "Losmaken"
     },
     "kind": {
       "guide": "Werkhandleiding",
@@ -7146,6 +7097,7 @@
       "procedureHelp": "Gebruik dit voor een terugkerende taak, zoals het onboarden van klanten. Schrijf genummerde stappen en beschrijf het bijbehorende verzoek bij “Wanneer gebruiken”. Mate en gekoppelde AI-tools volgen ze wanneer dat verzoek voorkomt."
     },
     "linkPage": "Link naar een Kennisbank-pagina…",
+    "linksHere": "{count, plural, one {# pagina verwijst hierheen} other {# pagina's verwijzen hierheen}}",
     "loadFailed": "Pagina's konden niet worden geladen.",
     "newPage": "Nieuwe pagina",
     "next": "Volgende",
@@ -7187,11 +7139,14 @@
       "title": "Voorstellen"
     },
     "reload": "Pagina opnieuw laden",
+    "settings": {
+      "invalid": "Controleer de pagina-instellingen: een veld vraagt aandacht.",
+      "title": "Pagina-instellingen"
+    },
     "unavailableBody": "Deze pagina is verwijderd of je hebt er geen toegang toe. Kies een andere pagina.",
     "unavailableTitle": "Pagina niet beschikbaar",
     "untitled": "Pagina zonder titel",
     "verified": {
-      "help": "Legt vast dat je deze pagina vandaag hebt gecontroleerd en dat ze nog klopt.",
       "label": "Laatst gecontroleerd",
       "mark": "Markeren als gecontroleerd",
       "never": "Nog niet gecontroleerd",
@@ -7199,9 +7154,9 @@
       "saveFirst": "Sla je wijzigingen op voordat je de pagina als gecontroleerd markeert."
     },
     "view": {
+      "fullPage": "Volledige pagina",
       "label": "Weergave van de kennisbank",
       "map": "Kaart",
-      "openFullPage": "Als volledige pagina openen",
       "pages": "Pagina's",
       "showOnMap": "Op de kaart tonen"
     },
@@ -7256,6 +7211,13 @@
         "wins": "Waar klanten voor ons kiezen in plaats van {competitor}"
       },
       "gapsHeading": "Nog te bevestigen",
+      "links": {
+        "guides": "Handleidingen",
+        "knowledge": "Kennis",
+        "lists": "Lijsten",
+        "procedures": "Procedures",
+        "related": "Zie ook"
+      },
       "pagesHeading": "Kennisbank-pagina's",
       "roles": {
         "company_overview": "Bedrijfsoverzicht",
@@ -7460,7 +7422,6 @@
     "failures": {
       "aiUnavailable": "De AI-service is op dit moment niet beschikbaar. Probeer het over een paar minuten opnieuw.",
       "contactSupport": "Contact opnemen met support",
-      "crawlFailed": "Je website kon niet worden gelezen.",
       "dependency": "Dit onderdeel wacht op een eerder onderdeel dat niet is afgerond.",
       "error": "Er is iets misgegaan in dit onderdeel.",
       "generation": "De AI kon deze keer geen bruikbaar resultaat maken.",
@@ -7468,7 +7429,6 @@
       "permission": "Met jouw rol mag je deze wijziging niet doorvoeren.",
       "schemaChanged": "Je werkruimte is gewijzigd terwijl dit onderdeel bezig was.",
       "spendCap": "Het installatiebudget van deze werkruimte is op, dus dit onderdeel is gestopt. Alles wat tot nu toe klaar is, blijft behouden. Neem contact met ons op, dan helpen we je de installatie af te maken.",
-      "spreadsheet": "De spreadsheet kon niet worden geïmporteerd.",
       "supportSubject": "Installatiebudget van de werkruimte"
     },
     "interview": {
