@@ -979,8 +979,12 @@
     "title": "Waar agentstappen draaien"
   },
   "AgentStart": {
+    "connect": {
+      "account": "Ingelogd als {email} · {count, plural, =0 {nog geen werkruimte} one {# werkruimte} other {# werkruimtes}}",
+      "subtitle": "Plak dit in Claude, ChatGPT of een andere MCP-client. Eén koppeling bereikt al je werkruimtes.",
+      "title": "Koppel je AI-agent"
+    },
     "copied": "Gekopieerd",
-    "copiedTip": "Gekopieerd. Plak het in je agent",
     "copy": "Kopiëren",
     "daysLeft": "{count, plural, one {Nog # dag} other {Nog # dagen}}",
     "failed": "Kopiëren mislukt",
@@ -989,8 +993,9 @@
     "label": "Richt je agent in",
     "openIn": "Openen in {app}",
     "progress": "{done} van {total} klaar",
-    "prompt": "Lees {url}, koppel Customermates en richt het voor mijn bedrijf in met het best passende sjabloon.",
+    "prompt": "Lees {url}, koppel Customermates via {mcp} en richt het in voor mijn bedrijf. Gebruik mijn bestaande werkruimte als ik er al een heb.",
     "sidebarDismiss": "Verbergen",
+    "stepAgent": "Koppel je AI-agent",
     "stepInbox": "Koppel je inbox",
     "stepPlan": "Kies een abonnement"
   },

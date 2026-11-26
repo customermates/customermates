@@ -979,8 +979,12 @@
     "title": "Dove vengono eseguiti i passaggi agente"
   },
   "AgentStart": {
+    "connect": {
+      "account": "Accesso effettuato come {email} · {count, plural, =0 {ancora nessuno spazio di lavoro} one {# spazio di lavoro} other {# spazi di lavoro}}",
+      "subtitle": "Incollalo in Claude, ChatGPT o in un altro client MCP. Un solo collegamento raggiunge tutti i tuoi spazi di lavoro.",
+      "title": "Collega il tuo agente IA"
+    },
     "copied": "Copiato",
-    "copiedTip": "Copiato. Incollalo nel tuo agente",
     "copy": "Copia",
     "daysLeft": "{count, plural, one {Manca # giorno} other {Mancano # giorni}}",
     "failed": "Copia non riuscita",
@@ -989,8 +993,9 @@
     "label": "Configura il tuo agente",
     "openIn": "Apri in {app}",
     "progress": "{done} di {total} completati",
-    "prompt": "Leggi {url}, collega Customermates e configuralo per la mia attività con il modello più adatto.",
+    "prompt": "Leggi {url}, collega Customermates all'indirizzo {mcp} e configuralo per la mia attività. Usa il mio spazio di lavoro esistente, se ne ho già uno.",
     "sidebarDismiss": "Nascondi",
+    "stepAgent": "Collega il tuo agente IA",
     "stepInbox": "Collega la tua casella di posta",
     "stepPlan": "Scegli un piano"
   },

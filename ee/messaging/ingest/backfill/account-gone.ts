@@ -3,11 +3,10 @@ import type { PageResult } from "./paginate";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
-export class BackfillAccountGoneError extends Error {
-  constructor(readonly connectedAccountId: string) {
-    super(`Connected account ${connectedAccountId} was removed during the backfill`);
-    this.name = "BackfillAccountGoneError";
-  }
+const ACCOUNT_GONE = Symbol("backfill-account-gone");
+
+function isAccountGone(error: unknown): boolean {
+  return error instanceof Error && error.cause === ACCOUNT_GONE;
 }
 
 function isMissingReference(error: unknown): boolean {
@@ -17,7 +16,7 @@ function isMissingReference(error: unknown): boolean {
 /**
  * A backfill step checks the account once at its start, then writes for minutes. When the account or its whole
  * workspace is deleted in between, every write fails on the connectedAccountId foreign key. That is the expected end
- * of the backfill, not an ingest bug: throw BackfillAccountGoneError so the page stops instead of reporting it.
+ * of the backfill, not an ingest bug: throw an account-gone error so the page stops instead of reporting it.
  */
 export async function throwIfAccountGone(
   repo: BackfillConnectedAccountRepo,
@@ -28,14 +27,14 @@ export async function throwIfAccountGone(
 
   const account = await repo.findAccountByIdUnscoped(connectedAccountId);
   if (!account || account.status === ConnectedAccountStatus.deleted)
-    throw new BackfillAccountGoneError(connectedAccountId);
+    throw new Error(`Connected account ${connectedAccountId} was removed during the backfill`, { cause: ACCOUNT_GONE });
 }
 
 export async function stopWhenAccountGone(run: () => Promise<PageResult>): Promise<PageResult> {
   try {
     return await run();
   } catch (error) {
-    if (error instanceof BackfillAccountGoneError) return { nextCursor: null, done: true, complete: false };
+    if (isAccountGone(error)) return { nextCursor: null, done: true, complete: false };
     throw error;
   }
 }

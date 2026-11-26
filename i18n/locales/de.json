@@ -979,8 +979,12 @@
     "title": "Wo Agent-Schritte laufen"
   },
   "AgentStart": {
+    "connect": {
+      "account": "Angemeldet als {email} · {count, plural, =0 {noch kein Workspace} one {# Workspace} other {# Workspaces}}",
+      "subtitle": "Fügen Sie das in Claude, ChatGPT oder einen anderen MCP-Client ein. Eine Verbindung erreicht alle Ihre Workspaces.",
+      "title": "Verbinden Sie Ihren KI-Agenten"
+    },
     "copied": "Kopiert",
-    "copiedTip": "Kopiert. Jetzt im Agenten einfügen",
     "copy": "Kopieren",
     "daysLeft": "{count, plural, one {Noch # Tag} other {Noch # Tage}}",
     "failed": "Kopieren fehlgeschlagen",
@@ -989,8 +993,9 @@
     "label": "Agent einrichten",
     "openIn": "In {app} öffnen",
     "progress": "{done} von {total} erledigt",
-    "prompt": "Lies {url}, verbinde Customermates und richte es mit der passendsten Vorlage für meine Firma ein.",
+    "prompt": "Lies {url}, verbinde Customermates unter {mcp} und richte es für meine Firma ein. Nutze meinen bestehenden Workspace, falls ich einen habe.",
     "sidebarDismiss": "Ausblenden",
+    "stepAgent": "KI-Agenten verbinden",
     "stepInbox": "Postfach verbinden",
     "stepPlan": "Tarif wählen"
   },

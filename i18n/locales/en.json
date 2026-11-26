@@ -979,8 +979,12 @@
     "title": "Where agent steps run"
   },
   "AgentStart": {
+    "connect": {
+      "account": "Signed in as {email} · {count, plural, =0 {no workspace yet} one {# workspace} other {# workspaces}}",
+      "subtitle": "Paste this into Claude, ChatGPT or any other MCP client. One connection reaches all your workspaces.",
+      "title": "Connect your AI agent"
+    },
     "copied": "Copied",
-    "copiedTip": "Copied. Paste it into your agent",
     "copy": "Copy",
     "daysLeft": "{count, plural, one {# day left} other {# days left}}",
     "failed": "Copy failed",
@@ -989,8 +993,9 @@
     "label": "Onboard your agent",
     "openIn": "Open in {app}",
     "progress": "{done} of {total} done",
-    "prompt": "Read {url}, connect Customermates and set it up for my business from the best-fitting template.",
+    "prompt": "Read {url}, connect Customermates at {mcp} and set it up for my business. Use my existing workspace if I have one.",
     "sidebarDismiss": "Hide",
+    "stepAgent": "Connect your AI agent",
     "stepInbox": "Connect your inbox",
     "stepPlan": "Pick a plan"
   },
