@@ -30,6 +30,8 @@ function form(overrides: Partial<ScheduleMeetingForm> = {}): ScheduleMeetingForm
     description: "",
     location: "Zoom",
     date: "2026-11-26",
+    endDate: "2026-11-26",
+    scope: "occurrence",
     time: "14:00",
     durationMinutes: 50,
     calendarId: "",
@@ -49,8 +51,26 @@ describe("eventForm", () => {
       description: "",
       location: "Zoom",
       date: "2026-11-26",
+      endDate: "2026-11-26",
       time: "14:00",
       durationMinutes: 50,
+      attendees: ["guest@example.com"],
+    });
+  });
+
+  it("fills an all-day event with its first and last day and no time", () => {
+    const allDay = {
+      ...EVENT,
+      allDay: true,
+      startsAt: "2026-11-26T00:00:00.000Z",
+      endsAt: "2026-11-29T00:00:00.000Z",
+    };
+    expect(eventForm(allDay, TIME_ZONE)).toEqual({
+      title: "Onboarding call",
+      description: "",
+      location: "Zoom",
+      date: "2026-11-26",
+      endDate: "2026-11-28",
       attendees: ["guest@example.com"],
     });
   });
@@ -95,6 +115,27 @@ describe("meetingChanges", () => {
       attendees: [{ email: "guest@example.com" }, { email: "new@example.com" }],
       sendInvites: false,
     });
+  });
+
+  it("sends the first and last day of an all-day event instead of a start time", () => {
+    const shape = { allDay: true, recurring: false };
+    expect(meetingChanges(form(), form(), startsAt, shape)).toEqual({ sendInvites: true });
+    expect(meetingChanges(form({ date: "2026-11-28", endDate: "2026-11-29" }), form(), startsAt, shape)).toEqual({
+      startDate: "2026-11-28",
+      endDate: "2026-11-29",
+      sendInvites: true,
+    });
+    expect(meetingChanges(form({ date: "2026-11-28" }), form(), startsAt, shape)).toMatchObject({
+      startDate: "2026-11-28",
+      endDate: "2026-11-28",
+    });
+  });
+
+  it("sends the chosen scope only for an occurrence of a repeating meeting", () => {
+    expect(
+      meetingChanges(form({ title: "Weekly", scope: "series" }), form(), startsAt, { allDay: false, recurring: true }),
+    ).toEqual({ title: "Weekly", sendInvites: true, scope: "series" });
+    expect(meetingChanges(form({ scope: "series" }), form(), startsAt)).toEqual({ sendInvites: true });
   });
 
   it("treats the same attendees in another order as unchanged", () => {

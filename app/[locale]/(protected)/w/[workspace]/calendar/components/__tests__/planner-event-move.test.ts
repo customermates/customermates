@@ -3,10 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 import type { PersonalCalendarEvent } from "@/features/planner/planner.repo";
 
 import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
-import { plannerEventEditable } from "@/ee/calendar/own-calendar-account";
+import {
+  plannerEventEditable,
+  plannerEventHasGuests,
+  plannerEventReadOnlyReason,
+} from "@/ee/calendar/own-calendar-account";
 import { plannerEntries } from "@/features/planner/planner-entries";
 
-import { eventMove, plannerCalendarAdapter } from "../planner-calendar-adapter";
+import { eventMove, plannerCalendarAdapter, plannerMoveQuestion } from "../planner-calendar-adapter";
 
 const TIME_ZONE = "Europe/Berlin";
 const WINDOW = { from: "2026-11-23", to: "2026-11-29", timeZone: TIME_ZONE };
@@ -54,29 +58,78 @@ function adapter(
 
 describe("plannerEventEditable", () => {
   const own = { userId: "me", status: ConnectedAccountStatus.ok, provider: MessagingProvider.google };
-  const timed = { allDay: false, recurrenceRule: null };
+  const single = { recurrenceRule: null };
 
-  it("allows timed single events in the viewer's own working Google or Outlook calendar", () => {
-    expect(plannerEventEditable(timed, own, "me")).toBe(true);
-    expect(plannerEventEditable(timed, { ...own, provider: MessagingProvider.outlook }, "me")).toBe(true);
+  it("allows timed, all-day and single occurrences in the viewer's own working Google or Outlook calendar", () => {
+    expect(plannerEventEditable(single, own, "me")).toBe(true);
+    expect(plannerEventEditable(single, { ...own, provider: MessagingProvider.outlook }, "me")).toBe(true);
   });
 
-  it("keeps shared calendars, broken connections, all-day events and recurring series read-only", () => {
-    expect(plannerEventEditable(timed, own, "someone-else")).toBe(false);
-    expect(plannerEventEditable(timed, { ...own, status: ConnectedAccountStatus.credentials }, "me")).toBe(false);
-    expect(plannerEventEditable({ ...timed, allDay: true }, own, "me")).toBe(false);
-    expect(plannerEventEditable({ ...timed, recurrenceRule: "RRULE:FREQ=WEEKLY" }, own, "me")).toBe(false);
+  it("keeps shared calendars, broken connections and series synced without occurrences read-only", () => {
+    expect(plannerEventEditable(single, own, "someone-else")).toBe(false);
+    expect(plannerEventEditable(single, { ...own, status: ConnectedAccountStatus.credentials }, "me")).toBe(false);
+    expect(plannerEventEditable({ recurrenceRule: "RRULE:FREQ=WEEKLY" }, own, "me")).toBe(false);
+  });
+
+  it("names the reason only for the viewer's own series, not for a teammate's calendar", () => {
+    expect(plannerEventReadOnlyReason({ recurrenceRule: "RRULE:FREQ=WEEKLY" }, own, "me")).toBe("series");
+    expect(plannerEventReadOnlyReason({ recurrenceRule: "RRULE:FREQ=WEEKLY" }, own, "someone-else")).toBeNull();
+    expect(plannerEventReadOnlyReason(single, own, "me")).toBeNull();
+  });
+});
+
+describe("plannerEventHasGuests", () => {
+  it("counts attendees other than the account owner and the organizer", () => {
+    const owner = "max@example.com";
+    expect(plannerEventHasGuests([{ email: "Max@Example.com", isOrganizer: true }], owner)).toBe(false);
+    expect(plannerEventHasGuests([{ email: "max@example.com", isOrganizer: false }], owner)).toBe(false);
+    expect(
+      plannerEventHasGuests(
+        [
+          { email: "max@example.com", isOrganizer: true },
+          { email: "sam@example.com", isOrganizer: false },
+        ],
+        owner,
+      ),
+    ).toBe(true);
+    expect(plannerEventHasGuests(null, owner)).toBe(false);
   });
 });
 
 describe("planner entries of connected events", () => {
-  it("carry the event id and whether the viewer may move them", () => {
+  it("carry the event id, whether the viewer may move them and what a move has to ask", () => {
     expect(entryOf()).toMatchObject({ eventId: "f028e950-af9d-4389-a72c-f497a0d79d8d", editable: true, record: null });
     expect(entryOf({ editable: false }).editable).toBe(false);
     expect(entryOf({ editable: undefined }).editable).toBe(false);
     expect(
-      entryOf({ allDay: true, startsAt: "2026-11-26T00:00:00.000Z", endsAt: "2026-11-27T00:00:00.000Z" }).editable,
-    ).toBe(false);
+      entryOf({ allDay: true, startsAt: "2026-11-26T00:00:00.000Z", endsAt: "2026-11-27T00:00:00.000Z" }),
+    ).toMatchObject({ editable: true, allDay: true });
+    expect(entryOf({ recurring: true, hasGuests: true })).toMatchObject({ recurring: true, hasGuests: true });
+    expect(entryOf({ editable: false, readOnlyReason: "series" }).readOnlyReason).toBe("series");
+  });
+});
+
+describe("plannerMoveQuestion", () => {
+  it("asks for the scope of a repeating meeting and whether Google should notify other attendees", () => {
+    expect(plannerMoveQuestion({ recurring: false, hasGuests: false, provider: "google" })).toEqual({
+      scope: false,
+      notify: false,
+    });
+    expect(plannerMoveQuestion({ recurring: false, hasGuests: true, provider: "google" })).toEqual({
+      scope: false,
+      notify: true,
+    });
+    expect(plannerMoveQuestion({ recurring: true, hasGuests: false, provider: "google" })).toEqual({
+      scope: true,
+      notify: false,
+    });
+  });
+
+  it("does not offer a quiet move on Microsoft, which always sends the update", () => {
+    expect(plannerMoveQuestion({ recurring: false, hasGuests: true, provider: "outlook" })).toEqual({
+      scope: false,
+      notify: false,
+    });
   });
 });
 
@@ -85,27 +138,40 @@ describe("eventMove", () => {
     expect(eventMove(entryOf(), { edge: "move", days: 1, minutes: 60 }, TIME_ZONE)).toEqual({
       entryId: "event:f028e950-af9d-4389-a72c-f497a0d79d8d",
       eventId: "f028e950-af9d-4389-a72c-f497a0d79d8d",
-      startsAt: "2026-11-27T14:00:00.000Z",
-      endsAt: "2026-11-27T14:45:00.000Z",
+      timing: { startsAt: "2026-11-27T14:00:00.000Z", endsAt: "2026-11-27T14:45:00.000Z" },
       previous: { startsAt: "2026-11-26T13:00:00.000Z", endsAt: "2026-11-26T13:45:00.000Z" },
     });
   });
 
   it("changes only the end when the bottom edge is dragged, and never below 15 minutes", () => {
-    expect(eventMove(entryOf(), { edge: "end", days: 0, minutes: 30 }, TIME_ZONE)).toMatchObject({
+    expect(eventMove(entryOf(), { edge: "end", days: 0, minutes: 30 }, TIME_ZONE)?.timing).toEqual({
       startsAt: "2026-11-26T13:00:00.000Z",
       endsAt: "2026-11-26T14:15:00.000Z",
     });
-    expect(eventMove(entryOf(), { edge: "end", days: 0, minutes: -60 }, TIME_ZONE)).toMatchObject({
+    expect(eventMove(entryOf(), { edge: "end", days: 0, minutes: -60 }, TIME_ZONE)?.timing).toEqual({
       startsAt: "2026-11-26T13:00:00.000Z",
       endsAt: "2026-11-26T13:15:00.000Z",
     });
   });
 
   it("changes only the start when the top edge is dragged", () => {
-    expect(eventMove(entryOf(), { edge: "start", days: 0, minutes: -30 }, TIME_ZONE)).toMatchObject({
+    expect(eventMove(entryOf(), { edge: "start", days: 0, minutes: -30 }, TIME_ZONE)?.timing).toEqual({
       startsAt: "2026-11-26T12:30:00.000Z",
       endsAt: "2026-11-26T13:45:00.000Z",
+    });
+  });
+
+  it("moves an all-day event by whole days and sends its first and last day", () => {
+    const allDay = entryOf({ allDay: true, startsAt: "2026-11-26T00:00:00.000Z", endsAt: "2026-11-28T00:00:00.000Z" });
+    expect(eventMove(allDay, { edge: "move", days: 2, minutes: 0 }, TIME_ZONE)).toEqual({
+      entryId: "event:f028e950-af9d-4389-a72c-f497a0d79d8d",
+      eventId: "f028e950-af9d-4389-a72c-f497a0d79d8d",
+      timing: { startDate: "2026-11-28", endDate: "2026-11-29" },
+      previous: { startDate: "2026-11-26", endDate: "2026-11-27" },
+    });
+    expect(eventMove(allDay, { edge: "end", days: 1, minutes: 0 }, TIME_ZONE)?.timing).toEqual({
+      startDate: "2026-11-26",
+      endDate: "2026-11-28",
     });
   });
 
@@ -129,8 +195,7 @@ describe("plannerCalendarAdapter with connected events", () => {
     expect(moveEvent).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         eventId: "f028e950-af9d-4389-a72c-f497a0d79d8d",
-        startsAt: "2026-11-26T15:00:00.000Z",
-        endsAt: "2026-11-26T15:45:00.000Z",
+        timing: { startsAt: "2026-11-26T15:00:00.000Z", endsAt: "2026-11-26T15:45:00.000Z" },
       }),
     );
   });

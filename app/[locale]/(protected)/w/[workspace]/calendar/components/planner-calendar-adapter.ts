@@ -14,24 +14,46 @@ import { calendarEntryColor } from "../../records/[typeId]/components/record-cal
 import { editCalendarEntry } from "@/features/record-calendar/calendar-entries";
 import { resolveCalendarFields } from "@/features/record-calendar/record-calendar-query";
 
+export type PlannerEventTiming = { startsAt: string; endsAt: string } | { startDate: string; endDate: string };
+
 export type PlannerEventMove = {
   entryId: string;
   eventId: string;
-  startsAt: string;
-  endsAt: string;
-  previous: { startsAt: string; endsAt: string };
+  timing: PlannerEventTiming;
+  previous: PlannerEventTiming;
 };
 
 export function eventMove(item: PlannerEntry, edit: CalendarEdit, timeZone: string): PlannerEventMove | null {
   const { time, endTime } = item.entry;
-  if (!item.eventId || !time || !endTime) return null;
+  if (!item.eventId) return null;
   const next = editCalendarEntry(item.entry, edit, timeZone);
-  if (!next.time || !next.endTime) return null;
+  if (item.allDay) {
+    if (time || next.time) return null;
+    if (next.start === item.entry.start && next.end === item.entry.end) return null;
+    return {
+      entryId: item.id,
+      eventId: item.eventId,
+      timing: { startDate: next.start, endDate: next.end },
+      previous: { startDate: item.entry.start, endDate: item.entry.end },
+    };
+  }
+  if (!time || !endTime || !next.time || !next.endTime) return null;
   const startsAt = new Date(next.time).toISOString();
   const endsAt = new Date(next.endTime).toISOString();
   const previous = { startsAt: new Date(time).toISOString(), endsAt: new Date(endTime).toISOString() };
   if (startsAt === previous.startsAt && endsAt === previous.endsAt) return null;
-  return { entryId: item.id, eventId: item.eventId, startsAt, endsAt, previous };
+  return { entryId: item.id, eventId: item.eventId, timing: { startsAt, endsAt }, previous };
+}
+
+export type PlannerMoveQuestion = { scope: boolean; notify: boolean };
+
+export function plannerMoveQuestion(
+  item: Partial<Pick<PlannerEntry, "recurring" | "hasGuests" | "provider">>,
+): PlannerMoveQuestion {
+  return {
+    scope: item.recurring === true,
+    notify: item.hasGuests === true && item.provider?.toLowerCase() === "google",
+  };
 }
 
 export function plannerEntryColors(config: PlannerConfig, result: PlannerResult): (item: PlannerEntry) => ChipColor {
