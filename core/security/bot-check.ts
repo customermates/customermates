@@ -22,7 +22,13 @@ export async function checkForBot(): Promise<BotCheckOutcome> {
     const verdict = await checkBotId();
     return verdict.isBot ? { ok: false, error: CustomErrorCode.botDetected } : { ok: true };
   } catch (error) {
-    ErrorReporter.captureException(error);
+    ErrorReporter.captureException(
+      new Error("Vercel BotID verification failed; the request was let through", { cause: error }),
+      {
+        level: "warning",
+        tags: { kind: "bot-check" },
+      },
+    );
     return { ok: true };
   }
 }

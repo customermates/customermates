@@ -33,12 +33,17 @@ import {
 } from "@/features/auth/mcp-authorization-code";
 import { MCP_ENDPOINT_PATH, mcpWorkspaceIdFromResource } from "@/features/auth/mcp-resource";
 import { refusesDisposableEmail } from "@/features/auth/disposable-email";
+import { DISPOSABLE_EMAIL_CODE, MAGIC_LINK_RATE_LIMITED_CODE } from "@/features/auth/magic-link-limit";
 
 const MAGIC_LINK_EXPIRES_IN_SECONDS = 15 * 60;
 
+const MAGIC_LINK_REQUEST_PATH = "/sign-in/magic-link";
+
+const MAGIC_LINK_VERIFY_PATH = "/magic-link/verify";
+
 function refuseDisposableEmail(email: string): void {
-  if (refusesDisposableEmail(email))
-    throw new APIError("BAD_REQUEST", { code: "DISPOSABLE_EMAIL", message: "Disposable email addresses are refused" });
+  if (!refusesDisposableEmail(email)) return;
+  throw new APIError("BAD_REQUEST", { code: DISPOSABLE_EMAIL_CODE, message: "Disposable email addresses are refused" });
 }
 
 const socialProviders = {
@@ -94,7 +99,7 @@ export const auth = betterAuth({
     useSecureCookies: baseUrlProtocol === "https",
   },
 
-  disabledPaths: [MCP_LIBRARY_CONSENT_PATH],
+  disabledPaths: [MCP_LIBRARY_CONSENT_PATH, MAGIC_LINK_REQUEST_PATH],
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
@@ -208,7 +213,6 @@ export const auth = betterAuth({
     customRules: {
       "/mcp/register": { window: 3600, max: 10 },
       "/send-verification-email": { window: 3600, max: 10 },
-      "/sign-in/magic-link": { window: 3600, max: 5 },
       "/magic-link/verify": { window: 60, max: 10 },
       "/sign-up/email": { window: 3600, max: 10 },
       "/sign-in/email": { window: 300, max: 10 },
@@ -235,6 +239,12 @@ export const auth = betterAuth({
               ...(campaign.success ? { signupCampaign: campaign.data } : {}),
             },
           };
+        },
+      },
+      update: {
+        after: async (user, context) => {
+          if (context?.path !== MAGIC_LINK_VERIFY_PATH || !user.emailVerified) return;
+          await revokeUnprovenIntegrations(user.id);
         },
       },
     },
@@ -401,7 +411,14 @@ export const auth = betterAuth({
       sendMagicLink: async ({ email, url }) => {
         refuseDisposableEmail(email);
         const { getAuthService } = await import("@/core/di");
-        await getAuthService().sendMagicLinkEmail({ to: email, url });
+        const authService = getAuthService();
+        if (!(await authService.recordMagicLinkIssued(email))) {
+          throw new APIError("TOO_MANY_REQUESTS", {
+            code: MAGIC_LINK_RATE_LIMITED_CODE,
+            message: "Too many sign-in links were requested for this email",
+          });
+        }
+        await authService.sendMagicLinkEmail({ to: email, url });
       },
     }),
     nextCookies(),
@@ -497,10 +514,15 @@ function changedPasswordUserId(returned: unknown): string | null {
 async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
   const accounts = options.removeAccounts ? await prisma.authAccount.deleteMany({ where: { userId } }) : { count: 0 };
   const sessions = await prisma.authSession.deleteMany({ where: { userId } });
+
+  return accounts.count + sessions.count + (await revokeUnprovenIntegrations(userId));
+}
+
+async function revokeUnprovenIntegrations(userId: string): Promise<number> {
   const apiKeys = await prisma.apikey.deleteMany({ where: { referenceId: userId } });
   const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
   const { getAuthService } = await import("@/core/di");
   const consents = await getAuthService().revokeOauthConsents(userId);
 
-  return accounts.count + sessions.count + apiKeys.count + tokens.count + consents;
+  return apiKeys.count + tokens.count + consents;
 }

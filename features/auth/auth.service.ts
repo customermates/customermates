@@ -49,6 +49,15 @@ import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { isCompanySignup, type NewWorkspaceSignup } from "@/features/acquisition/new-workspace-signup";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
+import {
+  DISPOSABLE_EMAIL_CODE,
+  MAGIC_LINK_LIMIT_WINDOW_MS,
+  MAGIC_LINK_RATE_LIMITED_CODE,
+  MAGIC_LINK_REQUESTS_PER_HOUR,
+  magicLinkIssuedIdentifier,
+} from "./magic-link-limit";
+
+type MagicLinkRefusal = CustomErrorCode.magicLinkRateLimited | CustomErrorCode.disposableEmail;
 
 type AuthUser = {
   id: string;
@@ -308,22 +317,44 @@ export class AuthService {
     });
   }
 
-  async requestMagicLink(args: { email: string; callbackURL?: string; errorCallbackURL?: string }): Promise<void> {
-    await auth.api.signInMagicLink({
-      headers: await headers(),
-      body: {
-        email: args.email,
-        name: args.email,
-        ...(args.callbackURL ? { callbackURL: args.callbackURL } : {}),
-        ...(args.errorCallbackURL ? { errorCallbackURL: args.errorCallbackURL } : {}),
-      },
-    });
+  async requestMagicLink(args: {
+    email: string;
+    callbackURL?: string;
+    errorCallbackURL?: string;
+  }): Promise<{ ok: true } | { ok: false; error: MagicLinkRefusal }> {
+    try {
+      await auth.api.signInMagicLink({
+        headers: await headers(),
+        body: {
+          email: args.email,
+          name: args.email,
+          ...(args.callbackURL ? { callbackURL: args.callbackURL } : {}),
+          ...(args.errorCallbackURL ? { errorCallbackURL: args.errorCallbackURL } : {}),
+        },
+      });
+      return { ok: true };
+    } catch (error) {
+      const code = error instanceof APIError ? error.body?.code : undefined;
+      if (code === MAGIC_LINK_RATE_LIMITED_CODE) return { ok: false, error: CustomErrorCode.magicLinkRateLimited };
+      if (code === DISPOSABLE_EMAIL_CODE) return { ok: false, error: CustomErrorCode.disposableEmail };
+      throw error;
+    }
   }
 
-  async countMagicLinksSince(email: string, since: Date): Promise<number> {
-    return prisma.authVerification.count({
-      where: { value: { startsWith: `${JSON.stringify({ email }).slice(0, -1)},` }, createdAt: { gte: since } },
+  async recordMagicLinkIssued(email: string, now = new Date()): Promise<boolean> {
+    const identifier = magicLinkIssuedIdentifier(email);
+    await prisma.authVerification.create({
+      data: {
+        id: crypto.randomUUID(),
+        identifier,
+        value: "",
+        expiresAt: new Date(now.getTime() + MAGIC_LINK_LIMIT_WINDOW_MS),
+      },
     });
+    const issued = await prisma.authVerification.count({
+      where: { identifier, createdAt: { gt: new Date(now.getTime() - MAGIC_LINK_LIMIT_WINDOW_MS) } },
+    });
+    return issued <= MAGIC_LINK_REQUESTS_PER_HOUR;
   }
 
   async sendMagicLinkEmail(args: { to: string; url: string }): Promise<void> {
