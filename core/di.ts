@@ -345,6 +345,7 @@ import { WorkspacePlanFactsService } from "@/ee/subscription/workspace-plan-fact
 import { ListAccountWorkspacesInteractor } from "@/features/workspace/list-account-workspaces.interactor";
 import { RequestPasswordResetInteractor } from "@/features/auth/request-password-reset.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
+import { VerifyEmailCodeInteractor } from "@/features/auth/verify-email-code.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
 import { SignInWithEmailInteractor } from "@/features/auth/sign-in-with-email.interactor";
 import { SignOutInteractor } from "@/features/auth/sign-out.interactor";
@@ -1544,8 +1545,9 @@ export const getResetPasswordInteractor = () =>
 export const getContinueWithSocialsInteractor = () =>
   new ContinueWithSocialsInteractor(getAuthService(), getUserRepo());
 
-export const getResendVerificationEmailInteractor = () =>
-  new ResendVerificationEmailInteractor(getAuthService(), getOnboardingIntentService());
+export const getResendVerificationEmailInteractor = () => new ResendVerificationEmailInteractor(getAuthService());
+
+export const getVerifyEmailCodeInteractor = () => new VerifyEmailCodeInteractor(getAuthService());
 
 export const getSignOutInteractor = () =>
   new SignOutInteractor(getAuthService(), getOnboardingIntentService(), getInviteTokenCookieRepo());

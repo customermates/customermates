@@ -31,7 +31,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => harnes
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/actions", () => ({ updatePreferencesAction: vi.fn() }));
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => ({
   updateUserAction: harness.updateUserAction,
-  resendVerificationEmailFromAppAction: vi.fn(),
 }));
 vi.mock("@/components/ui/sidebar", () => ({
   Sidebar: ({ children }: { children: unknown }) => children,

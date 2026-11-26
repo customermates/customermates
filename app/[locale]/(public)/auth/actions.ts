@@ -5,7 +5,8 @@ import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interac
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
 import type { RequestMagicLinkData } from "@/features/auth/request-magic-link.interactor";
-import type { ResendVerificationEmailData } from "@/features/auth/resend-verification-email.interactor";
+import type { VerifyEmailCodeData } from "@/features/auth/verify-email-code.interactor";
+import type { SendEmailCodeResult, VerifyEmailCodeResult } from "@/features/auth/email-code";
 import type { DecideMcpConsentData } from "@/features/auth/decide-mcp-consent.interactor";
 import type { JoinWorkspaceData } from "@/features/workspace/join-workspace.interactor";
 
@@ -17,6 +18,7 @@ import {
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
   getResendVerificationEmailInteractor,
+  getVerifyEmailCodeInteractor,
   getDecideMcpConsentInteractor,
   getJoinWorkspaceInteractor,
 } from "@/core/di";
@@ -121,10 +123,12 @@ export async function resetPasswordAction(data: ResetPasswordData) {
   return serializeResult(getResetPasswordInteractor().invoke(data));
 }
 
-export async function resendVerificationEmailFromAuthAction(data: ResendVerificationEmailData = {}): Promise<{
-  ok: boolean;
-}> {
-  return await getResendVerificationEmailInteractor().invoke(data);
+export async function resendVerificationEmailFromAuthAction(): Promise<SendEmailCodeResult> {
+  return await getResendVerificationEmailInteractor().invoke();
+}
+
+export async function verifyEmailCodeAction(data: VerifyEmailCodeData): Promise<VerifyEmailCodeResult> {
+  return await getVerifyEmailCodeInteractor().invoke(data);
 }
 
 export async function decideMcpConsentAction(data: DecideMcpConsentData) {

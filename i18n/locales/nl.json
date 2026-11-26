@@ -3460,14 +3460,30 @@
   "EditorTabs": {
     "invalid": "Bevat fouten"
   },
+  "EmailCode": {
+    "errors": {
+      "expired": "Die code is verlopen. Vraag een nieuwe aan.",
+      "invalid": "Die code klopt niet. Controleer de nieuwste e-mail en probeer het opnieuw.",
+      "signedOut": "Je sessie is verlopen. Log opnieuw in om je e-mailadres te bevestigen.",
+      "tooManyAttempts": "Te veel onjuiste pogingen. Vraag een nieuwe code aan."
+    },
+    "hint": "6 cijfers, {minutes} minuten geldig.",
+    "label": "Bevestigingscode",
+    "rateLimited": "Er zijn te veel codes aangevraagd voor dit adres. Wacht een uur en probeer het opnieuw.",
+    "resend": "Nieuwe code sturen",
+    "resendIn": "Nieuwe code over {seconds} s",
+    "sent": "We hebben een nieuwe code naar {email} gestuurd.",
+    "submit": "Bevestigen"
+  },
   "EmailLayout": {
     "tagline": "De source-available CRM voor het opvolgen van klanten"
   },
   "EmailVerification": {
+    "dialogBody": "We sturen een 6-cijferige code naar {email}. Voer hem hieronder in.",
+    "dialogTitle": "Bevestig je e-mailadres",
     "notVerified": "E-mailadres niet geverifieerd",
-    "resend": "Verificatie-e-mail opnieuw verzenden",
-    "resendSuccess": "Verificatie-e-mail verzonden.",
-    "verified": "E-mailadres geverifieerd"
+    "verified": "E-mailadres geverifieerd",
+    "verify": "E-mailadres bevestigen"
   },
   "EntityChannels": {
     "addChannel": {
@@ -4534,12 +4550,10 @@
       "skip": "Voorlopig overslaan"
     },
     "confirmEmail": {
-      "body": "Open de link die we naar <strong>{email}</strong> hebben gestuurd. Deze pagina gaat vanzelf verder.",
+      "body": "Voer de 6-cijferige code in die we naar <strong>{email}</strong> hebben gestuurd.",
       "open": "{inbox} openen",
-      "resend": "E-mail opnieuw sturen",
-      "resendIn": "Opnieuw sturen over {seconds} s",
       "title": "Bevestig je e-mailadres om te beginnen",
-      "waiting": "We wachten op je bevestiging"
+      "wrongEmail": "Verkeerd adres? <signOut>Log uit</signOut> en meld je opnieuw aan."
     },
     "continue": "Doorgaan",
     "finish": "Werkruimte openen",
@@ -6990,23 +7004,20 @@
     "formattingLocaleHint": "Bepaalt hoe getallen, datums en valuta worden opgemaakt."
   },
   "VerifyEmail": {
-    "cta": "E-mailadres bevestigen",
-    "fallback": "Werkt de knop hierboven niet? Kopieer dan deze link en plak hem in je browser: ",
-    "intro": "Bevestig je e-mailadres om verder te gaan.",
+    "expiry": "De code is {minutes} minuten geldig. Voer hem in de browser in waarin je je hebt aangemeld.",
+    "intro": "Voer deze code in Customermates in om je e-mailadres te bevestigen:",
     "securityNotice": "Als je dit verzoek niet zelf hebt gedaan, kun je dit bericht gerust negeren en verwijderen.",
-    "subject": "Bevestig je e-mailadres"
+    "subject": "{code} is je bevestigingscode voor Customermates",
+    "title": "Bevestig je e-mailadres"
   },
   "VerifyEmailCard": {
-    "body": "We hebben je een verificatiemail gestuurd. Controleer je inbox en klik op de link om je e-mailadres te bevestigen.",
-    "ctaLabel": "Verificatiemail opnieuw versturen",
+    "body": "Voer de 6-cijferige code in die we naar <strong>{email}</strong> hebben gestuurd. Geen geldige code bij de hand? Vraag een nieuwe aan.",
     "invitationFrom": "Uitnodiging van {inviterName}",
-    "linkExpired": "Deze verificatielink is verlopen.",
-    "linkInvalid": "Deze verificatielink is niet geldig.",
-    "resendSuccess": "Verificatiemail is verstuurd.",
-    "signedOutBody": "Log in op je account om een nieuwe verificatiemail aan te vragen.",
+    "retiredLink": "E-mailadressen worden nu bevestigd met een code in plaats van een link. Vraag een nieuwe code aan en voer hem hier in.",
+    "retiredLinkSignedOut": "E-mailadressen worden nu bevestigd met een code in plaats van een link. Log in en voer daarna de code in die we je sturen.",
+    "signedOutBody": "Log in op je account om een nieuwe bevestigingscode te ontvangen.",
     "subtitle": "Bevestig je e-mailadres om verder te gaan.",
-    "title": "E-mailverificatie",
-    "verifiedSignIn": "Je e-mailadres is nu bevestigd. Log in om verder te gaan. Heb je de link op een ander apparaat geopend? Log dan in met een magic link of stel je wachtwoord opnieuw in."
+    "title": "E-mailverificatie"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Bezorgpogingen verschijnen hier zodra een webhook wordt geactiveerd.",

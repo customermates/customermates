@@ -14,7 +14,7 @@ vi.mock("@/core/di", async () => {
     getAuthService: () => ({
       recordMagicLinkIssued: (email: string) => service.recordMagicLinkIssued(email),
       revokeOauthConsents: (userId: string) => service.revokeOauthConsents(userId),
-      sendVerificationEmail: () => Promise.resolve(),
+      sendVerificationCodeEmail: () => Promise.resolve(),
       sendMagicLinkEmail: (args: { to: string; url: string }) => {
         sent.links.push(args);
         return Promise.resolve();

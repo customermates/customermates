@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
@@ -352,7 +352,7 @@ test("an invited teammate whose profile is done skips every owner step and lands
   }
 });
 
-test("a password sign-up confirms the e-mail first, and the page moves on by itself once it is confirmed", async ({
+test("a password sign-up confirms the e-mail first with the 6-digit code, and the page moves on once it is entered", async ({
   browser,
   database,
 }, testInfo) => {
@@ -360,17 +360,31 @@ test("a password sign-up confirms the e-mail first, and the page moves on by its
   const login = await openOnboardingAsNewLogin(browser, database, { emailVerified: false, name: "Confirm Me" });
   const { page } = login;
   const card = page.locator("#onboarding-confirm-email");
+  const code = page.locator("#onboarding-confirm-email-code");
   await expect(card).toBeVisible();
   await expect(card.getByRole("heading", { level: 1, name: wizard.confirmEmail.title, exact: true })).toBeVisible();
   await expect(card).toContainText(login.email);
+  await expect(code).toHaveAttribute("autocomplete", "one-time-code");
+  await expect(code).toHaveAttribute("inputmode", "numeric");
   await expect(page.locator("#onboarding-confirm-email-resend")).toBeDisabled();
+  await expect(page.locator("#onboarding-confirm-email-sign-out")).toBeVisible();
   await expect(page.locator("#firstName")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("confirm-email.png"), fullPage: true });
 
-  await database.query('UPDATE "AuthUser" SET "emailVerified"=true WHERE id=$1', [login.authUserId]);
+  await database.query(
+    'INSERT INTO "AuthVerification" (id,identifier,value,"expiresAt","createdAt","updatedAt") VALUES ($1,$2,$3,NOW()+interval \'10 minutes\',NOW(),NOW())',
+    [randomUUID(), `email-verification-otp-${login.email}`, `${createHash("sha256").update("246810").digest("base64url")}:0`],
+  );
+  await expectHydrated(code);
+  await code.fill("246810");
   await expect(page.locator("#firstName")).toBeVisible({ timeout: 30_000 });
   await expect(heading(page, steps.profile.title)).toBeVisible();
   await expect(card).toHaveCount(0);
+  const { rows } = await database.query<{ emailVerified: boolean }>(
+    'SELECT "emailVerified" FROM "AuthUser" WHERE id=$1',
+    [login.authUserId],
+  );
+  expect(rows).toEqual([{ emailVerified: true }]);
   await login.context.close();
 });
 

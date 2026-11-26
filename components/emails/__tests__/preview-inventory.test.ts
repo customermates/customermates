@@ -148,13 +148,15 @@ const EMAIL_PREVIEW_CASES = [
     sourcePath: "features/auth/auth.service.ts",
     templatePath: "components/emails/verify-email.tsx",
     template: VerifyEmail,
-    expectedText: (locale) => catalog(locale).VerifyEmail.subject,
+    expectedText: (locale) => catalog(locale).VerifyEmail.title,
     render: (locale) => {
       const copy = catalog(locale).VerifyEmail;
       return createElement(VerifyEmail, {
         ...previewLayoutProps(locale),
-        url: `${PREVIEW_BASE_URL}/auth/verify-email?token=synthetic-preview-token`,
         ...copy,
+        code: "482913",
+        subject: copy.subject.replace("{code}", "482913"),
+        expiry: copy.expiry.replace("{minutes}", "15"),
       });
     },
   },

@@ -7,6 +7,7 @@ import { EmailLayout } from "../base/email-layout";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "../base/email-layout-copy";
 import LegalDocumentNoticeContract from "../legal-document-notice-contract";
 import LegalDocumentNoticeInformation from "../legal-document-notice-information";
+import MagicLinkEmail from "../magic-link";
 import VerifyEmail from "../verify-email";
 
 import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
@@ -23,10 +24,20 @@ const EXPECTED_LAYOUT_COPY = {
 } satisfies Record<AppLocale, { country: string; tagline: string }>;
 
 const verifyEmailCopy = {
-  url: "https://example.test/verify",
+  code: "482913",
+  subject: "subject",
+  title: "title",
+  intro: "intro",
+  expiry: "expiry",
+  securityNotice: "securityNotice",
+};
+
+const magicLinkCopy = {
+  url: "https://example.test/magic",
   subject: "subject",
   intro: "intro",
   cta: "cta",
+  expiry: "expiry",
   fallback: "fallback",
   securityNotice: "securityNotice",
 };
@@ -92,7 +103,13 @@ describe("email locale", () => {
 describe("email look", () => {
   it("keeps every email on white with one ink button and no violet", async () => {
     const layoutCopy = await getEmailLayoutCopy(DEFAULT_LOCALE);
-    const html = await render(createElement(VerifyEmail, { locale: DEFAULT_LOCALE, layoutCopy, ...verifyEmailCopy }));
+    const html = await render(createElement(MagicLinkEmail, { locale: DEFAULT_LOCALE, layoutCopy, ...magicLinkCopy }));
+    const confirmation = await render(
+      createElement(VerifyEmail, { locale: DEFAULT_LOCALE, layoutCopy, ...verifyEmailCopy }),
+    );
+
+    expect(confirmation).toContain(">482913<");
+    expect(confirmation).not.toMatch(/verify-email|token=/);
 
     expect(html).toContain("background-color:#ffffff");
     expect(html).toMatch(/background-color:#0a0a0b[^"]*color:#ffffff/);

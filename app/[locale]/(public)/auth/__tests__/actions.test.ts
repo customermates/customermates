@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   signIn: vi.fn(),
   signUp: vi.fn(),
   social: vi.fn(),
+  verifyEmailCode: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
@@ -24,6 +25,7 @@ vi.mock("@/core/di", () => ({
   getResetPasswordInteractor: () => ({ invoke: mocks.resetPassword }),
   getSignInWithEmailInteractor: () => ({ invoke: mocks.signIn }),
   getSignUpWithEmailInteractor: () => ({ invoke: mocks.signUp }),
+  getVerifyEmailCodeInteractor: () => ({ invoke: mocks.verifyEmailCode }),
 }));
 vi.mock("@/core/utils/action-result", () => ({ serializeResult: async (result: unknown) => await result }));
 vi.mock("@/core/security/bot-check", () => ({ refuseBots: mocks.refuseBots }));
@@ -38,6 +40,7 @@ import {
   resendVerificationEmailFromAuthAction,
   resetPasswordAction,
   signUpWithEmailAction,
+  verifyEmailCodeAction,
 } from "../actions";
 
 describe("authentication action adapters", () => {
@@ -114,11 +117,18 @@ describe("authentication action adapters", () => {
 
     await requestPasswordResetAction(request);
     await resetPasswordAction(reset);
-    await resendVerificationEmailFromAuthAction({ onboardingIntent: "signed.intent" });
+    await expect(resendVerificationEmailFromAuthAction()).resolves.toEqual({ ok: true });
 
     expect(mocks.requestPasswordReset).toHaveBeenCalledExactlyOnceWith(request);
     expect(mocks.resetPassword).toHaveBeenCalledExactlyOnceWith(reset);
-    expect(mocks.resendVerification).toHaveBeenCalledExactlyOnceWith({ onboardingIntent: "signed.intent" });
+    expect(mocks.resendVerification).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("hands an entered confirmation code to its interactor and returns its typed outcome", async () => {
+    mocks.verifyEmailCode.mockResolvedValue({ ok: false, error: "invalid" });
+
+    await expect(verifyEmailCodeAction({ code: "123456" })).resolves.toEqual({ ok: false, error: "invalid" });
+    expect(mocks.verifyEmailCode).toHaveBeenCalledExactlyOnceWith({ code: "123456" });
   });
 
   it("passes a sign-in link request to its interactor", async () => {

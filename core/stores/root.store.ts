@@ -56,7 +56,6 @@ import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-co
 import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
 import { SignInStore } from "@/app/[locale]/(entry)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
-import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
 import { LayoutStore } from "@/components/layout/layout.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
@@ -119,7 +118,6 @@ export class RootStore {
   private _viewPickerStore?: ViewPickerStore;
   private _keyboardShortcutsStore?: KeyboardShortcutsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
-  private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
   private _inviteByEmailStore?: InviteByEmailStore;
   private _stepProfileStore?: StepProfileStore;
@@ -291,10 +289,6 @@ export class RootStore {
 
   get inviteByEmailStore() {
     return (this._inviteByEmailStore ??= new InviteByEmailStore(this));
-  }
-
-  get verifyEmailStore() {
-    return (this._verifyEmailStore ??= new VerifyEmailStore(this));
   }
 
   get mcpConsentStore() {

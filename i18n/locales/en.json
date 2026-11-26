@@ -3460,14 +3460,30 @@
   "EditorTabs": {
     "invalid": "Contains errors"
   },
+  "EmailCode": {
+    "errors": {
+      "expired": "That code has expired. Send a new one.",
+      "invalid": "That code is not correct. Check the latest email and try again.",
+      "signedOut": "Your session has ended. Sign in again to confirm your email address.",
+      "tooManyAttempts": "Too many wrong tries. Send a new code."
+    },
+    "hint": "6 digits, valid for {minutes} minutes.",
+    "label": "Confirmation code",
+    "rateLimited": "Too many codes were requested for this address. Wait an hour and try again.",
+    "resend": "Send a new code",
+    "resendIn": "New code in {seconds} s",
+    "sent": "We sent a new code to {email}.",
+    "submit": "Confirm"
+  },
   "EmailLayout": {
     "tagline": "The source-available CRM for client follow-up"
   },
   "EmailVerification": {
+    "dialogBody": "We are emailing a 6-digit code to {email}. Enter it below.",
+    "dialogTitle": "Confirm your email address",
     "notVerified": "Email not verified",
-    "resend": "Resend verification email",
-    "resendSuccess": "Verification email sent.",
-    "verified": "Email verified"
+    "verified": "Email verified",
+    "verify": "Verify email address"
   },
   "EntityChannels": {
     "addChannel": {
@@ -4534,12 +4550,10 @@
       "skip": "Skip for now"
     },
     "confirmEmail": {
-      "body": "Open the link we sent to <strong>{email}</strong>. This page moves on by itself.",
+      "body": "Enter the 6-digit code we sent to <strong>{email}</strong>.",
       "open": "Open {inbox}",
-      "resend": "Resend email",
-      "resendIn": "Resend in {seconds} s",
       "title": "Confirm your email to start",
-      "waiting": "Waiting for your confirmation"
+      "wrongEmail": "Wrong address? <signOut>Sign out</signOut> and sign up again."
     },
     "continue": "Continue",
     "finish": "Open workspace",
@@ -6990,23 +7004,20 @@
     "formattingLocaleHint": "Controls how numbers, dates, and currencies are formatted."
   },
   "VerifyEmail": {
-    "cta": "Verify email",
-    "fallback": "If the button above does not work, copy and paste this link into your browser: ",
-    "intro": "Confirm your email to continue.",
+    "expiry": "The code is valid for {minutes} minutes. Enter it in the browser where you signed up.",
+    "intro": "Enter this code in Customermates to confirm your email address:",
     "securityNotice": "If you did not initiate this request, you may safely ignore and delete this message.",
-    "subject": "Verify your email"
+    "subject": "{code} is your Customermates confirmation code",
+    "title": "Confirm your email address"
   },
   "VerifyEmailCard": {
-    "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
-    "ctaLabel": "Resend verification email",
+    "body": "Enter the 6-digit code we emailed to <strong>{email}</strong>. No valid code at hand? Send a new one.",
     "invitationFrom": "Invitation from {inviterName}",
-    "linkExpired": "That verification link has expired.",
-    "linkInvalid": "That verification link is not valid.",
-    "resendSuccess": "Verification email sent successfully.",
-    "signedOutBody": "Sign in to your account to request a new verification email.",
+    "retiredLink": "Email addresses are now confirmed with a code instead of a link. Send a new code and enter it here.",
+    "retiredLinkSignedOut": "Email addresses are now confirmed with a code instead of a link. Sign in, then enter the code we email you.",
+    "signedOutBody": "Sign in to your account to get a new confirmation code.",
     "subtitle": "Verify your email address to continue.",
-    "title": "Email Verification",
-    "verifiedSignIn": "Your email address is now verified. Sign in to continue. If you opened the link on another device, sign in with a magic link or reset your password."
+    "title": "Email Verification"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",
