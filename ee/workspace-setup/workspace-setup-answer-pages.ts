@@ -126,7 +126,13 @@ export const SETUP_PAGE_RELATIONS: Record<SetupPageKind, readonly SetupPageKind[
   faq: ["overview"],
 };
 
-export type SetupLinkedPage = { key: string; title: string; pageId: string; kind: SetupPageKind | null; wikiKind: WikiPageKind };
+export type SetupLinkedPage = {
+  key: string;
+  title: string;
+  pageId: string;
+  kind: SetupPageKind | null;
+  wikiKind: WikiPageKind;
+};
 export type SetupLinkedList = { key: string; id: string; label: string };
 
 function linkList(links: string[]): string {
@@ -151,7 +157,9 @@ export function setupAnswerGuide(args: {
       : [];
   });
   const lists = args.lists.length
-    ? [`## ${args.copy.listsHeading}\n\n${linkList(args.lists.map(({ label, id }) => recordListMarkdownLink(label, id)))}`]
+    ? [
+        `## ${args.copy.listsHeading}\n\n${linkList(args.lists.map(({ label, id }) => recordListMarkdownLink(label, id)))}`,
+      ]
     : [];
   return { title: args.copy.operatingGuide, kind: "guide", markdown: [...sections, ...lists].join("\n\n") };
 }

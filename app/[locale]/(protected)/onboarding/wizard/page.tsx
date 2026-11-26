@@ -92,9 +92,8 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || (!setupStatus?.available && !ownerFlow);
   }
   let jobChoice: OnboardingJobChoiceView | undefined;
-  if (user?.role?.isSystemRole && ownerFlow) {
+  if (user?.role?.isSystemRole && ownerFlow)
     jobChoice = (await runWithTenant(user, () => getGetOnboardingJobChoiceInteractor().invoke())).data;
-  }
 
   const sessionName = sessionUser.name ?? "";
   const isEmail = sessionName.includes("@");

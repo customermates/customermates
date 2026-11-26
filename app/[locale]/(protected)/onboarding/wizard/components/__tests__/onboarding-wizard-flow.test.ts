@@ -146,9 +146,19 @@ describe("resuming", () => {
   });
 
   it("finishes a self-hosted owner and an invited member after the profile", () => {
-    const selfHosted = resolveWizardResume({ ...SELF_HOSTED, isInvited: false, profileCompleted: true, setupStepCompleted: false });
+    const selfHosted = resolveWizardResume({
+      ...SELF_HOSTED,
+      isInvited: false,
+      profileCompleted: true,
+      setupStepCompleted: false,
+    });
     expect(selfHosted.steps[selfHosted.resumeStepIndex]).toBe("finish");
-    const invited = resolveWizardResume({ ...CLOUD_TEAM, isInvited: true, profileCompleted: true, setupStepCompleted: false });
+    const invited = resolveWizardResume({
+      ...CLOUD_TEAM,
+      isInvited: true,
+      profileCompleted: true,
+      setupStepCompleted: false,
+    });
     expect(invited.steps).toEqual(["profile", "finish"]);
     expect(invited.resumeStepIndex).toBe(1);
   });

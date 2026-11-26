@@ -43,9 +43,16 @@ function button(id: string) {
 
 async function renderPlaybook(suggestedPlaybook: "consultants" | "agencies" | "freelancers" | "smb" | null) {
   store = new OnboardingWizardStore({ localeStore: { locale: "en" } } as never);
-  store.initialize(1, undefined, undefined, true, { job: "followup", jobRecorded: true, suggestedPlaybook }, {
-    ownerFlow: true,
-  });
+  store.initialize(
+    1,
+    undefined,
+    undefined,
+    true,
+    { job: "followup", jobRecorded: true, suggestedPlaybook },
+    {
+      ownerFlow: true,
+    },
+  );
   harness.rootStore = { onboardingWizardStore: store };
   await act(async () => {
     root.render(createElement(StepPlaybook));

@@ -351,7 +351,13 @@ describe("writing the Knowledge Base from the answers", () => {
         const created = input.map((page) => {
           next += 1;
           const id = `3b000000-0000-4000-8000-${String(next).padStart(12, "0")}`;
-          const stored = { id, title: page.title, kind: page.kind ?? "knowledge", markdown: page.markdown, updatedAt: new Date() };
+          const stored = {
+            id,
+            title: page.title,
+            kind: page.kind ?? "knowledge",
+            markdown: page.markdown,
+            updatedAt: new Date(),
+          };
           pages.set(id, stored);
           return stored;
         });
@@ -400,7 +406,11 @@ describe("writing the Knowledge Base from the answers", () => {
       value: {
         whenToUse: "When a new inquiry arrives",
         sections: [
-          { heading: "Who we are", evidence: [{ source: "answers", quote: "Studio Example" }], content: "Studio Example." },
+          {
+            heading: "Who we are",
+            evidence: [{ source: "answers", quote: "Studio Example" }],
+            content: "Studio Example.",
+          },
         ],
         gaps: [],
       },
@@ -453,7 +463,12 @@ describe("writing the Knowledge Base from the answers", () => {
       expect([...links].some(([source, targets]) => source !== page.id && targets.pages.includes(page.id))).toBe(true);
     }
     const fromGuide = links.get(guide.id);
-    expect(fromGuide?.pages.sort()).toEqual(all.filter((page) => page.id !== guide.id).map((page) => page.id).sort());
+    expect(fromGuide?.pages.sort()).toEqual(
+      all
+        .filter((page) => page.id !== guide.id)
+        .map((page) => page.id)
+        .sort(),
+    );
     expect(fromGuide?.lists.sort()).toEqual([...listIds].sort());
     for (const page of all.filter((candidate) => candidate.id !== guide.id))
       expect(links.get(page.id)?.pages).toContain(guide.id);

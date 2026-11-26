@@ -95,7 +95,8 @@ describe("ApplyOnboardingPlaybookInteractor", () => {
     const outbound = new Map(
       [...markdownById].map(([id, markdown]) => [
         id,
-        extractWikiLinkTargets(markdown, { baseUrl: "https://app.example.test", workspaceSlug: null, pageId: id }).pages,
+        extractWikiLinkTargets(markdown, { baseUrl: "https://app.example.test", workspaceSlug: null, pageId: id })
+          .pages,
       ]),
     );
     const known = new Set([...pageIds, guideId]);

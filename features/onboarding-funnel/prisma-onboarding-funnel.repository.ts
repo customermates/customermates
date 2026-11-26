@@ -5,10 +5,7 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { parseTeamSize } from "./team-size";
 
-export class PrismaOnboardingFunnelRepo
-  extends TenantRepository
-  implements OnboardingFunnelRepo
-{
+export class PrismaOnboardingFunnelRepo extends TenantRepository implements OnboardingFunnelRepo {
   recordFunnelEvent(event: FunnelEventInput) {
     return this.insertOnce(this.user.companyId, event);
   }
