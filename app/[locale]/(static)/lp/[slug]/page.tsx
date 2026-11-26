@@ -4,15 +4,13 @@ import { notFound } from "next/navigation";
 
 import { Footer } from "@/app/components/footer";
 import { AdLandingPageView } from "@/components/marketing/ad-landing-page";
-import { resolveCommercialTokensDeep } from "@/core/commercial/commercial-tokens";
+import { adLandingMetadata } from "@/core/marketing/ad-landing-metadata";
 import {
   AD_LANDING_LOCALE,
-  AD_LANDING_PAGES,
   AD_LANDING_ROUTE,
   AD_LANDING_SLUGS,
   isAdLandingSlug,
 } from "@/core/marketing/ad-landing-pages";
-import { buildPageMetadata } from "@/core/seo/page-metadata";
 import { enableMarketingLocale } from "@/i18n/static-locale";
 
 type Props = {
@@ -26,15 +24,8 @@ export function generateStaticParams({ params }: { params: { locale: string } })
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   if (locale !== AD_LANDING_LOCALE || !isAdLandingSlug(slug)) return {};
-  const page = resolveCommercialTokensDeep(AD_LANDING_PAGES[slug], locale);
 
-  return buildPageMetadata({
-    description: page.description,
-    locale,
-    noindex: true,
-    publicPath: `${AD_LANDING_ROUTE}/${slug}`,
-    title: page.title,
-  });
+  return adLandingMetadata(slug);
 }
 
 export default async function AdLandingPage({ params }: Props) {

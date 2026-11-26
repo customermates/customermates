@@ -91,7 +91,7 @@ const CODE_BACKED_ROUTE_FILES = {
   "/book/:token": "app/[locale]/(public)/book/[token]/page.tsx",
   "/book/manage/:token": "app/[locale]/(public)/book/manage/[token]/page.tsx",
   "/f/:token": "app/[locale]/(public)/f/[token]/page.tsx",
-  "/start/:slug": "app/[locale]/(static)/start/[slug]/page.tsx",
+  "/lp/:slug": "app/[locale]/(static)/lp/[slug]/page.tsx",
   "/notification-emails/turn-off": "app/[locale]/(public)/notification-emails/turn-off/page.tsx",
   "/blog/page/:page": "app/[locale]/(static)/blog/page/[page]/page.tsx",
   "/compare/page/:page": "app/[locale]/(static)/compare/page/[page]/page.tsx",

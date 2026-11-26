@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { campaignParams, withCampaignParams } from "../campaign-link";
 
 const PAGE =
-  "https://customermates.com/de/start/crm-system?utm_source=google&utm_medium=cpc&utm_campaign=test&utm_content=test&utm_term=test&gclid=x";
+  "https://customermates.com/de/lp/crm-system?utm_source=google&utm_medium=cpc&utm_campaign=test&utm_content=test&utm_term=test&gclid=x";
 
 describe("campaign links", () => {
   it("reads the five utm parameters and nothing else", () => {
