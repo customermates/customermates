@@ -444,11 +444,13 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
       consentCode: secondCode,
       accept: true,
       companyId: companies.atlas,
+      accountWide: false,
     });
     const unbound = await getAuthService().decideMcpConsent({
       consentCode: (await authorize(workspaceUrl("bergmann"))).location.searchParams.get("consent_code") ?? "",
       accept: true,
-      companyId: null,
+      companyId: companies.bergmann,
+      accountWide: true,
     });
     expect(new URL(unbound?.redirectURI ?? "https://invalid.example").searchParams.get("error")).toBe("access_denied");
     const callback = new URL(forced?.redirectURI ?? "https://invalid.example");
@@ -576,6 +578,60 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
       accessToken: issued.body.access_token ?? "",
     };
   }
+
+  async function accountWideOf(accessToken: string | undefined) {
+    const { rows } = await client.query<{ accountWide: boolean }>(
+      'SELECT "accountWide" FROM "OauthAccessToken" WHERE "accessToken" = $1',
+      [accessToken ?? ""],
+    );
+    return rows[0]?.accountWide;
+  }
+
+  it("marks only tokens of the account-wide consent as account-wide and keeps the mark on refresh", async () => {
+    const accountGrant = await connect(`${BASE_URL}/api/v1/mcp`);
+    const account = await exchange(accountGrant, `${BASE_URL}/api/v1/mcp`);
+    const workspace = await exchange(await connect(workspaceUrl("bergmann")), workspaceUrl("bergmann"));
+    const refresh = (refreshToken: string | undefined) =>
+      token({ grant_type: "refresh_token", refresh_token: refreshToken ?? "", client_id: clientId });
+
+    expect(await accountWideOf(account.body.access_token)).toBe(true);
+    expect(await accountWideOf(workspace.body.access_token)).toBe(false);
+
+    const accountRefreshed = await refresh(account.body.refresh_token);
+    const workspaceRefreshed = await refresh(workspace.body.refresh_token);
+    expect(await accountWideOf(accountRefreshed.body.access_token)).toBe(true);
+    expect(await tokenWorkspace(accountRefreshed.body.access_token)).toBeNull();
+    expect(await accountWideOf(workspaceRefreshed.body.access_token)).toBe(false);
+    expect(await tokenWorkspace(workspaceRefreshed.body.access_token)).toBe(companies.bergmann);
+  });
+
+  it("keeps a per-workspace URL token locked to its workspace at the account URL", async () => {
+    const issued = await exchange(await connect(workspaceUrl("bergmann")), workspaceUrl("bergmann"));
+    const bearer = { authorization: `Bearer ${issued.body.access_token}` };
+
+    expect(await mcp(bearer, null)).toMatchObject({ companyId: companies.bergmann });
+    expect(await mcp(bearer, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: companies.bergmann,
+    });
+    expect(await mcp(bearer, null, { workspace: companies.atlas })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("approved for one workspace only"),
+    });
+  });
+
+  it("keeps a token issued before account-wide connections locked to the workspace chosen back then", async () => {
+    const { accessToken, bearer } = await accountToken();
+    await client.query('UPDATE "OauthAccessToken" SET "companyId"=$2, "accountWide"=FALSE WHERE "accessToken"=$1', [
+      accessToken,
+      companies.atlas,
+    ]);
+
+    expect(await mcp(bearer, null)).toMatchObject({ companyId: companies.atlas });
+    expect(await mcp(bearer, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("connect again"),
+    });
+  });
 
   it("lets an account-wide token choose the workspace per call and never picks one silently", async () => {
     const { bearer } = await accountToken();

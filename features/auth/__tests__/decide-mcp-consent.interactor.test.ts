@@ -69,7 +69,7 @@ describe("DecideMcpConsentInteractor", () => {
       data: { redirectURI: "https://client.example/callback" },
     });
 
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_A });
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_A, accountWide: true });
   });
 
   it("approves the whole account without a default when several workspaces are usable", async () => {
@@ -77,7 +77,7 @@ describe("DecideMcpConsentInteractor", () => {
 
     await createInteractor().invoke(consent);
 
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: null });
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: null, accountWide: true });
   });
 
   it("lets an account without any workspace authorize once it accepted the terms, and records the acceptance", async () => {
@@ -87,7 +87,7 @@ describe("DecideMcpConsentInteractor", () => {
     await createInteractor().invoke({ ...consent, acceptTerms: true });
 
     expect(legal.recordAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1", currentLegalDocumentVersions());
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: null });
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: null, accountWide: true });
   });
 
   it("refuses an approval without the required terms and records nothing", async () => {
@@ -107,7 +107,12 @@ describe("DecideMcpConsentInteractor", () => {
 
     await createInteractor().invoke({ ...consent, accept: false });
 
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({
+      ...consent,
+      accept: false,
+      companyId: null,
+      accountWide: true,
+    });
     expect(legal.recordAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
   });
 
@@ -116,7 +121,12 @@ describe("DecideMcpConsentInteractor", () => {
 
     await createInteractor().invoke(consent);
 
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({
+      ...consent,
+      accept: false,
+      companyId: null,
+      accountWide: true,
+    });
   });
 
   it.each(ACCOUNT_STATES.filter((state) => ["unauthenticated", "overdueVerification"].includes(state)))(
@@ -143,7 +153,11 @@ describe("DecideMcpConsentInteractor", () => {
       await createInteractor().invoke(consent);
 
       expect(routeGuardService.resolveMembershipForConsent).toHaveBeenCalledWith(COMPANY_B);
-      expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_B });
+      expect(authService.decideMcpConsent).toHaveBeenCalledWith({
+        ...consent,
+        companyId: COMPANY_B,
+        accountWide: false,
+      });
       expect(consentAccount.invoke).not.toHaveBeenCalled();
     });
 
@@ -155,7 +169,12 @@ describe("DecideMcpConsentInteractor", () => {
 
       await createInteractor().invoke(consent);
 
-      expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false, companyId: null });
+      expect(authService.decideMcpConsent).toHaveBeenCalledWith({
+        ...consent,
+        accept: false,
+        companyId: null,
+        accountWide: false,
+      });
     });
   });
 });

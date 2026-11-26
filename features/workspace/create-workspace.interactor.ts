@@ -99,6 +99,8 @@ export class CreateWorkspaceInteractor {
     const session = await this.authService.getAccountSession();
     if (!session) return failAuthorization(CustomErrorCode.permissionDenied);
     if (env.APP_MODE !== "cloud") return fail(CustomErrorCode.workspaceCreationUnavailable);
+    if (!(await this.authService.getMcpCredential())?.accountWide)
+      return failAuthorization(CustomErrorCode.workspaceCreationUnavailable);
     if (!(await this.hasAcceptedTerms(session.user))) return fail(CustomErrorCode.workspaceTermsNotAccepted);
 
     return this.invoke({ ...data, agreeToTerms: true });
@@ -120,7 +122,7 @@ export class CreateWorkspaceInteractor {
     if ((await this.repo.findAuthUserCompanyIdForUpdateUnscoped(login.authUserId)) === undefined)
       return failAuthorization(CustomErrorCode.permissionDenied);
 
-    const refused = await workspaceCreationRefusal(login, this.repo, { requireVerifiedEmail: true });
+    const refused = await workspaceCreationRefusal(login, this.repo);
     if (refused) return refused;
 
     const profile = existingProfile ?? profileFromLogin(login, data.displayLanguage);

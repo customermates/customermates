@@ -58,6 +58,7 @@ export class DecideMcpConsentInteractor {
         consentCode: data.consentCode,
         accept,
         companyId: usable.length === 1 ? usable[0].companyId : null,
+        accountWide: true,
       }),
     };
   }
@@ -74,6 +75,7 @@ export class DecideMcpConsentInteractor {
         consentCode: data.consentCode,
         accept,
         companyId: accept ? companyId : null,
+        accountWide: false,
       }),
     };
   }
