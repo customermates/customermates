@@ -220,20 +220,19 @@ describeDatabase("unverified account access against the database", { timeout: 12
     expect((await snapshot(seeded.id)).providers).toEqual(["credential", "microsoft"]);
   });
 
-  it("verifies an address opened away from the account's session by stripping the password and standing access, without signing the visitor in", async () => {
+  it("no longer verifies an address by link, and leaves everything the account holds in place", async () => {
     const seeded = await seedUser({ emailVerified: false });
 
-    const result = await verifyByLink(seeded.email);
+    await expect(verifyByLink(seeded.email)).rejects.toMatchObject({ body: { code: "VERIFICATION_LINK_RETIRED" } });
 
-    expect(result).toEqual({ status: true, user: null });
     expect(await snapshot(seeded.id)).toEqual({
-      providers: ["microsoft"],
-      password: undefined,
-      sessionIds: [],
-      apiKeys: 0,
-      tokens: 0,
-      consents: 0,
-      emailVerified: true,
+      providers: ["credential", "microsoft"],
+      password: "hashed-password",
+      sessionIds: [seeded.sessionId],
+      apiKeys: 1,
+      tokens: 1,
+      consents: 1,
+      emailVerified: false,
     });
   });
 

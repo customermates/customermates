@@ -137,7 +137,8 @@ export const CONTROL_PAGES: ControlPage[] = [
     controls: [
       {
         control: "verify-email",
-        description: "Top bar button that resends the email verification link (only while your email is unverified)",
+        description:
+          "Top bar button that emails a 6-digit confirmation code and opens the field to enter it (only while your email is unverified)",
       },
       { control: "first-name", description: "Your first name input" },
       { control: "last-name", description: "Your last name input" },

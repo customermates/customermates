@@ -13,7 +13,6 @@ import {
   getDisconnectConnectedAppInteractor,
   getGetApiKeysInteractor,
   getGetConnectedAppsInteractor,
-  getResendVerificationEmailInteractor,
 } from "@/core/di";
 import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 
@@ -39,8 +38,4 @@ export async function disconnectConnectedAppAction(data: DisconnectConnectedAppD
 
 export async function refreshConnectedAppsAction() {
   return serializeTypedResult(getGetConnectedAppsInteractor().invoke());
-}
-
-export async function resendVerificationEmailFromAppAction(): Promise<{ ok: boolean }> {
-  return await getResendVerificationEmailInteractor().invoke();
 }

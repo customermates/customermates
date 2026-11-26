@@ -3461,14 +3461,30 @@
   "EditorTabs": {
     "invalid": "Enthält Fehler"
   },
+  "EmailCode": {
+    "errors": {
+      "expired": "Dieser Code ist abgelaufen. Fordere einen neuen an.",
+      "invalid": "Dieser Code stimmt nicht. Prüfe die neueste E-Mail und versuche es erneut.",
+      "signedOut": "Deine Sitzung ist abgelaufen. Melde dich erneut an, um deine E-Mail-Adresse zu bestätigen.",
+      "tooManyAttempts": "Zu viele falsche Versuche. Fordere einen neuen Code an."
+    },
+    "hint": "6 Ziffern, {minutes} Minuten gültig.",
+    "label": "Bestätigungscode",
+    "rateLimited": "Für diese Adresse wurden zu viele Codes angefordert. Warte eine Stunde und versuche es dann erneut.",
+    "resend": "Neuen Code senden",
+    "resendIn": "Neuer Code in {seconds} s",
+    "sent": "Wir haben einen neuen Code an {email} geschickt.",
+    "submit": "Bestätigen"
+  },
   "EmailLayout": {
     "tagline": "Das CRM zum Nachfassen mit einsehbarem Quellcode"
   },
   "EmailVerification": {
+    "dialogBody": "Wir schicken einen 6-stelligen Code an {email}. Gib ihn unten ein.",
+    "dialogTitle": "Bestätige deine E-Mail-Adresse",
     "notVerified": "E-Mail nicht verifiziert",
-    "resend": "Verifizierungs-E-Mail erneut senden",
-    "resendSuccess": "Verifizierungs-E-Mail wurde gesendet.",
-    "verified": "E-Mail verifiziert"
+    "verified": "E-Mail verifiziert",
+    "verify": "E-Mail-Adresse bestätigen"
   },
   "EntityChannels": {
     "addChannel": {
@@ -4535,12 +4551,10 @@
       "skip": "Vorerst überspringen"
     },
     "confirmEmail": {
-      "body": "Öffne den Link, den wir an <strong>{email}</strong> gesendet haben. Diese Seite geht danach von selbst weiter.",
+      "body": "Gib den 6-stelligen Code ein, den wir an <strong>{email}</strong> geschickt haben.",
       "open": "{inbox} öffnen",
-      "resend": "E-Mail erneut senden",
-      "resendIn": "Erneut senden in {seconds} s",
       "title": "Bestätige deine E-Mail-Adresse, um loszulegen",
-      "waiting": "Wir warten auf deine Bestätigung"
+      "wrongEmail": "Falsche Adresse? <signOut>Melde dich ab</signOut> und registriere dich neu."
     },
     "continue": "Weiter",
     "finish": "Workspace öffnen",
@@ -6990,23 +7004,20 @@
     "formattingLocaleHint": "Steuert, wie Zahlen, Daten und Währungen formatiert werden."
   },
   "VerifyEmail": {
-    "cta": "E-Mail bestätigen",
-    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
-    "intro": "Bestätige deine E-Mail, um fortzufahren.",
+    "expiry": "Der Code gilt {minutes} Minuten. Gib ihn in dem Browser ein, in dem du dich registriert hast.",
+    "intro": "Gib diesen Code in Customermates ein, um deine E-Mail-Adresse zu bestätigen:",
     "securityNotice": "Solltest du diese E-Mail nicht angefordert haben, kannst du diese Nachricht ignorieren und löschen.",
-    "subject": "E-Mail bestätigen"
+    "subject": "{code} ist dein Customermates-Bestätigungscode",
+    "title": "Bestätige deine E-Mail-Adresse"
   },
   "VerifyEmailCard": {
-    "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
-    "ctaLabel": "Verifizierungs-E-Mail erneut senden",
+    "body": "Gib den 6-stelligen Code ein, den wir an <strong>{email}</strong> geschickt haben. Kein gültiger Code zur Hand? Fordere einen neuen an.",
     "invitationFrom": "Einladung von {inviterName}",
-    "linkExpired": "Dieser Bestätigungslink ist abgelaufen.",
-    "linkInvalid": "Dieser Bestätigungslink ist ungültig.",
-    "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
-    "signedOutBody": "Melde dich in deinem Konto an, um eine neue Bestätigungs-E-Mail anzufordern.",
+    "retiredLink": "E-Mail-Adressen werden jetzt mit einem Code statt mit einem Link bestätigt. Fordere einen neuen Code an und gib ihn hier ein.",
+    "retiredLinkSignedOut": "E-Mail-Adressen werden jetzt mit einem Code statt mit einem Link bestätigt. Melde dich an und gib dann den Code ein, den wir dir schicken.",
+    "signedOutBody": "Melde dich in deinem Konto an, um einen neuen Bestätigungscode zu erhalten.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
-    "title": "E-Mail-Verifizierung",
-    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren. Wenn du den Link auf einem anderen Gerät geöffnet hast, melde dich mit einem Magic Link an oder setze dein Passwort zurück."
+    "title": "E-Mail-Verifizierung"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",

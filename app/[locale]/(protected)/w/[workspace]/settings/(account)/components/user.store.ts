@@ -9,7 +9,6 @@ import { action, observable } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
 
 import { updatePreferencesAction } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/actions";
-import { resendVerificationEmailFromAppAction } from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { normalizeStoredDisplayLanguage, normalizeStoredFormattingLocale } from "@/i18n/user-locale";
 import { appLocaleCookie, displayLanguageNavigationTarget, expiredAppLocaleCookie } from "@/i18n/locale-preference";
@@ -34,13 +33,6 @@ export class UserStore extends BaseStore {
       updateDisplayLanguage: action,
     });
   }
-
-  resendVerificationEmail = async (): Promise<void> => {
-    await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const result = await resendVerificationEmailFromAppAction();
-      if (result.ok) this.toastSuccess("EmailVerification.resendSuccess");
-    });
-  };
 
   updateTheme = async (theme: Theme): Promise<void> => {
     if (!this.user) return;

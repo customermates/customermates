@@ -13,6 +13,7 @@ import {
 } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
+import { RETIRED_VERIFICATION_LINK_PARAM, RETIRED_VERIFICATION_LINK_VALUE } from "@/features/auth/email-code";
 
 export const metadata = NOINDEX_METADATA;
 
@@ -47,17 +48,15 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     redirect(buildLocalePath(locale, destination));
   }
 
-  const linkProblem = params.error === undefined ? undefined : params.error === "TOKEN_EXPIRED" ? "expired" : "invalid";
-  const justVerified = !resolution.sessionUser && params.verified === "1" && linkProblem === undefined;
+  const retiredLink = params[RETIRED_VERIFICATION_LINK_PARAM] === RETIRED_VERIFICATION_LINK_VALUE;
 
   return (
     <CenteredCardPage>
       <VerifyEmailCard
         email={resolution.sessionUser?.email}
         inviterName={invitation?.inviterName}
-        justVerified={justVerified}
-        linkProblem={linkProblem}
         onboardingIntent={activeIntent?.intent}
+        retiredLink={retiredLink}
       />
     </CenteredCardPage>
   );

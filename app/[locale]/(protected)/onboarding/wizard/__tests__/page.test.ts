@@ -290,7 +290,7 @@ describe("OnboardingWizardPage authentication detours", () => {
     const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
 
     expect(page.props.children.type).toBe("confirm-email-card");
-    expect(page.props.children.props).toEqual({ email: "owner@example.com", onboardingIntent: "signed.create" });
+    expect(page.props.children.props).toEqual({ email: "owner@example.com" });
     expect(mocks.getSetupStatus).not.toHaveBeenCalled();
   });
 

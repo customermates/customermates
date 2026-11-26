@@ -78,7 +78,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   if (!user && !isInvited && emailConfirmationRequired(resolution.emailVerified)) {
     return (
       <CenteredCardPage>
-        <ConfirmEmailCard email={sessionUser.email} onboardingIntent={effectiveIntent?.intent} />
+        <ConfirmEmailCard email={sessionUser.email} />
       </CenteredCardPage>
     );
   }

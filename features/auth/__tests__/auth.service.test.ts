@@ -13,6 +13,10 @@ const mocks = vi.hoisted(() => ({
   signUpEmail: vi.fn(),
   signOut: vi.fn(),
   deleteCookie: vi.fn(),
+  verifyEmailOTP: vi.fn(),
+  sendVerificationOTP: vi.fn(),
+  verificationCreate: vi.fn(),
+  verificationCount: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -38,10 +42,14 @@ vi.mock("@/core/auth/better-auth", () => ({
       signOut: mocks.signOut,
       createApiKey: mocks.createApiKey,
       deleteApiKey: mocks.deleteApiKey,
+      verifyEmailOTP: mocks.verifyEmailOTP,
+      sendVerificationOTP: mocks.sendVerificationOTP,
     },
   },
 }));
-vi.mock("@/prisma/db", () => ({ prisma: {} }));
+vi.mock("@/prisma/db", () => ({
+  prisma: { authVerification: { create: mocks.verificationCreate, count: mocks.verificationCount } },
+}));
 vi.mock("@/core/decorators/tenant-context", () => ({
   runWithoutTenant: vi.fn(),
 }));
@@ -157,20 +165,71 @@ describe("AuthService", () => {
     );
   });
 
-  it("constructs verification email content in the request application locale", async () => {
+  it("constructs the confirmation code email in the request application locale, without a link", async () => {
     mocks.locale = "it";
 
-    await service.sendVerificationEmail({ to: "max@example.com", url: "http://localhost:4000/verify" });
+    await service.sendVerificationCodeEmail({ to: "max@example.com", code: "482913" });
 
     const message = mocks.send.mock.calls[0][0];
     expect(message.subject).toBe("it:VerifyEmail.subject");
+    expect(message.react.props).not.toHaveProperty("url");
     expect(message.react.props).toMatchObject({
+      code: "482913",
       locale: "it",
       layoutCopy: {
         country: "Germania",
         tagline: "Il CRM source-available per seguire ogni cliente",
       },
     });
+  });
+
+  it("checks a confirmation code with the caller's session headers, so better-auth sees the signed-in browser", async () => {
+    mocks.verifyEmailOTP.mockResolvedValue({ status: true, token: null, user: {} });
+
+    await expect(service.verifyEmailCode("max@example.com", "482913")).resolves.toEqual({ ok: true });
+
+    expect(mocks.verifyEmailOTP).toHaveBeenCalledExactlyOnceWith({
+      headers: expect.any(Headers),
+      body: { email: "max@example.com", otp: "482913" },
+    });
+  });
+
+  it.each([
+    ["INVALID_OTP", "BAD_REQUEST", "invalid"],
+    ["OTP_EXPIRED", "BAD_REQUEST", "expired"],
+    ["TOO_MANY_ATTEMPTS", "FORBIDDEN", "tooManyAttempts"],
+  ] as const)("maps better-auth's %s refusal to %s", async (code, status, error) => {
+    mocks.verifyEmailOTP.mockRejectedValue(new APIError(status, { code, message: code }));
+
+    await expect(service.verifyEmailCode("max@example.com", "482913")).resolves.toEqual({ ok: false, error });
+  });
+
+  it("rethrows an unexpected failure instead of calling it a wrong code", async () => {
+    const failure = new Error("database down");
+    mocks.verifyEmailOTP.mockRejectedValue(failure);
+
+    await expect(service.verifyEmailCode("max@example.com", "482913")).rejects.toBe(failure);
+  });
+
+  it("sends a confirmation code while the address is under its hourly limit", async () => {
+    mocks.verificationCount.mockResolvedValue(5);
+
+    await expect(service.sendVerificationCode("Max@Example.com")).resolves.toBe("sent");
+
+    expect(mocks.verificationCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({ identifier: "email-code-sent:max@example.com" }),
+    });
+    expect(mocks.sendVerificationOTP).toHaveBeenCalledExactlyOnceWith({
+      body: { email: "Max@Example.com", type: "email-verification" },
+    });
+  });
+
+  it("stops after five codes per address in an hour and does not replace the code already sent", async () => {
+    mocks.verificationCount.mockResolvedValue(6);
+
+    await expect(service.sendVerificationCode("max@example.com")).resolves.toBe("rateLimited");
+
+    expect(mocks.sendVerificationOTP).not.toHaveBeenCalled();
   });
 
   it("constructs reset email content in the request application locale", async () => {

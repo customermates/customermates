@@ -70,7 +70,7 @@ describe("VerifyEmailPage onboarding intent", () => {
     expect(card.props.onboardingIntent).toBeUndefined();
   });
 
-  it("lets an unverified account still inside onboarding request a verification email", async () => {
+  it("lets an unverified account still inside onboarding request a confirmation code", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({
       emailVerified: false,
@@ -94,55 +94,39 @@ describe("VerifyEmailPage onboarding intent", () => {
     await expect(VerifyEmailPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("REDIRECT:/en/onboarding");
   });
 
-  it("tells a signed-out visitor when the link they followed had expired", async () => {
+  it("tells a signed-out visitor who opened an old confirmation link to sign in for a code", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
 
-    const result = await VerifyEmailPage({
-      searchParams: Promise.resolve({ error: "TOKEN_EXPIRED", verified: "1" }),
-    });
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ link: "retired" }) });
 
-    expect(result.props.children.props).toMatchObject({
-      email: undefined,
-      justVerified: false,
-      linkProblem: "expired",
-    });
+    expect(result.props.children.props).toMatchObject({ email: undefined, retiredLink: true });
   });
 
-  it("never claims success for a link the server rejected for any other reason", async () => {
-    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
-
-    const result = await VerifyEmailPage({
-      searchParams: Promise.resolve({ error: "USER_NOT_FOUND", verified: "1" }),
-    });
-
-    expect(result.props.children.props).toMatchObject({
-      email: undefined,
-      justVerified: false,
-      linkProblem: "invalid",
-    });
-  });
-
-  it("tells a signed-out visitor to sign in once their link has verified the address", async () => {
-    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
-
-    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ verified: "1" }) });
-
-    expect(result.props.children.props).toMatchObject({ email: undefined, justVerified: true, linkProblem: undefined });
-  });
-
-  it("never reports a signed-in account as just verified", async () => {
+  it("offers the code field to a signed-in account that opened an old confirmation link", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({
       sessionUser: { email: "overdue@example.com", id: "auth-user" },
       state: "overdueVerification",
     });
 
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ link: "retired" }) });
+
+    expect(result.props.children.props).toMatchObject({ email: "overdue@example.com", retiredLink: true });
+  });
+
+  it("ignores the success flag an old link used to add, so nothing claims the address was confirmed", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
     const result = await VerifyEmailPage({ searchParams: Promise.resolve({ verified: "1" }) });
 
-    expect(result.props.children.props).toMatchObject({ email: "overdue@example.com", justVerified: false });
+    expect(result.props.children.props).toEqual({
+      email: undefined,
+      inviterName: undefined,
+      onboardingIntent: undefined,
+      retiredLink: false,
+    });
   });
 
   it("shows a signed-out visitor how to continue when no intent is in play", async () => {
@@ -157,6 +141,6 @@ describe("VerifyEmailPage onboarding intent", () => {
       "/",
       undefined,
     );
-    expect(card.props).toMatchObject({ email: undefined, justVerified: false });
+    expect(card.props).toMatchObject({ email: undefined, retiredLink: false });
   });
 });

@@ -1,5 +1,5 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { oAuthProxy, mcp, magicLink } from "better-auth/plugins";
+import { oAuthProxy, mcp, magicLink, emailOTP } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
@@ -34,12 +34,46 @@ import {
 import { MCP_ENDPOINT_PATH, mcpWorkspaceIdFromResource } from "@/features/auth/mcp-resource";
 import { refusesDisposableEmail } from "@/features/auth/disposable-email";
 import { DISPOSABLE_EMAIL_CODE, MAGIC_LINK_RATE_LIMITED_CODE } from "@/features/auth/magic-link-limit";
+import {
+  EMAIL_CODE_ALLOWED_ATTEMPTS,
+  EMAIL_CODE_EXPIRES_IN_SECONDS,
+  EMAIL_CODE_LENGTH,
+  RETIRED_VERIFICATION_LINK_PARAM,
+  RETIRED_VERIFICATION_LINK_VALUE,
+} from "@/features/auth/email-code";
 
 const MAGIC_LINK_EXPIRES_IN_SECONDS = 15 * 60;
 
 const MAGIC_LINK_REQUEST_PATH = "/sign-in/magic-link";
 
 const MAGIC_LINK_VERIFY_PATH = "/magic-link/verify";
+
+const VERIFICATION_LINK_PATH = "/verify-email";
+
+const EMAIL_CODE_HTTP_PATHS = [
+  "/send-verification-email",
+  "/email-otp/send-verification-otp",
+  "/email-otp/check-verification-otp",
+  "/email-otp/verify-email",
+  "/sign-in/email-otp",
+  "/email-otp/request-password-reset",
+  "/forget-password/email-otp",
+  "/email-otp/reset-password",
+  "/email-otp/request-email-change",
+  "/email-otp/change-email",
+];
+
+const RETIRED_VERIFICATION_LINK_LANDING = `/auth/verify-email?${RETIRED_VERIFICATION_LINK_PARAM}=${RETIRED_VERIFICATION_LINK_VALUE}`;
+
+function retiredVerificationLinkLanding(callbackURL: unknown): string {
+  const requested = typeof callbackURL === "string" ? callbackURL : undefined;
+  const onboardingIntent = onboardingIntentFromPath(
+    requested && callbackUrlSchema.safeParse(requested).success ? requested : undefined,
+  );
+  return onboardingIntent.status === "valid"
+    ? pathWithOnboardingIntent(RETIRED_VERIFICATION_LINK_LANDING, onboardingIntent.intent)
+    : RETIRED_VERIFICATION_LINK_LANDING;
+}
 
 function refuseDisposableEmail(email: string): void {
   if (!refusesDisposableEmail(email)) return;
@@ -81,8 +115,6 @@ const oauthProxy =
 
 const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : "http";
 
-const VERIFIED_LANDING_PATH = "/auth/verify-email?verified=1";
-
 const CHANGE_PASSWORD_PATH = "/change-password";
 
 const API_KEY_HEADER = "x-api-key";
@@ -99,7 +131,7 @@ export const auth = betterAuth({
     useSecureCookies: baseUrlProtocol === "https",
   },
 
-  disabledPaths: [MCP_LIBRARY_CONSENT_PATH, MAGIC_LINK_REQUEST_PATH],
+  disabledPaths: [MCP_LIBRARY_CONSENT_PATH, MAGIC_LINK_REQUEST_PATH, ...EMAIL_CODE_HTTP_PATHS],
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
@@ -107,6 +139,14 @@ export const auth = betterAuth({
         throw new APIError("FORBIDDEN", {
           code: "API_KEY_NOT_ACCEPTED",
           message: "API keys are not accepted on the auth endpoints",
+        });
+      }
+
+      if (ctx.path === VERIFICATION_LINK_PATH) {
+        if (ctx.request) throw ctx.redirect(retiredVerificationLinkLanding(ctx.query?.callbackURL));
+        throw new APIError("GONE", {
+          code: "VERIFICATION_LINK_RETIRED",
+          message: "Email addresses are confirmed by code",
         });
       }
 
@@ -212,7 +252,6 @@ export const auth = betterAuth({
   rateLimit: {
     customRules: {
       "/mcp/register": { window: 3600, max: 10 },
-      "/send-verification-email": { window: 3600, max: 10 },
       "/magic-link/verify": { window: 60, max: 10 },
       "/sign-up/email": { window: 3600, max: 10 },
       "/sign-in/email": { window: 300, max: 10 },
@@ -356,26 +395,6 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: false,
-    expiresIn: 24 * 60 * 60,
-    beforeEmailVerification: async (user, request) => {
-      await revokeAccessBeforeVerification(user.id, request);
-    },
-    sendVerificationEmail: async ({ user, url }) => {
-      const verificationUrl = new URL(url);
-      const requested = verificationUrl.searchParams.get("callbackURL") ?? undefined;
-      const onboardingIntent = onboardingIntentFromPath(
-        requested && callbackUrlSchema.safeParse(requested).success ? requested : undefined,
-      );
-      verificationUrl.searchParams.set(
-        "callbackURL",
-        onboardingIntent.status === "valid"
-          ? pathWithOnboardingIntent(VERIFIED_LANDING_PATH, onboardingIntent.intent)
-          : VERIFIED_LANDING_PATH,
-      );
-
-      const { getAuthService } = await import("@/core/di");
-      await getAuthService().sendVerificationEmail({ to: user.email, url: verificationUrl.toString() });
-    },
   },
 
   socialProviders,
@@ -422,6 +441,25 @@ export const auth = betterAuth({
           });
         }
         await authService.sendMagicLinkEmail({ to: email, url });
+      },
+    }),
+    emailOTP({
+      overrideDefaultEmailVerification: true,
+      otpLength: EMAIL_CODE_LENGTH,
+      expiresIn: EMAIL_CODE_EXPIRES_IN_SECONDS,
+      allowedAttempts: EMAIL_CODE_ALLOWED_ATTEMPTS,
+      storeOTP: "hashed",
+      disableSignUp: true,
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        if (type !== "email-verification") {
+          throw new APIError("BAD_REQUEST", {
+            code: "EMAIL_CODE_TYPE_REFUSED",
+            message: "Only email confirmation codes are sent",
+          });
+        }
+        refuseDisposableEmail(email);
+        const { getAuthService } = await import("@/core/di");
+        await getAuthService().sendVerificationCodeEmail({ to: email, code: otp });
       },
     }),
     nextCookies(),
@@ -519,19 +557,6 @@ async function revokeUnprovenAccess(userId: string, options: { removeAccounts: b
   const sessions = await prisma.authSession.deleteMany({ where: { userId } });
 
   return accounts.count + sessions.count + (await revokeUnprovenIntegrations(userId));
-}
-
-async function revokeAccessBeforeVerification(userId: string, request?: Request): Promise<void> {
-  const current = request
-    ? await auth.api.getSession({ headers: request.headers, query: { disableCookieCache: true } }).catch(() => null)
-    : null;
-  const keptSessionId = current?.user.id === userId ? current.session.id : null;
-
-  await prisma.authSession.deleteMany({
-    where: { userId, ...(keptSessionId ? { id: { not: keptSessionId } } : {}) },
-  });
-  if (!keptSessionId) await prisma.authAccount.deleteMany({ where: { userId, providerId: "credential" } });
-  await revokeUnprovenIntegrations(userId);
 }
 
 async function revokeUnprovenIntegrations(userId: string): Promise<number> {

@@ -49,7 +49,10 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
 
   useEffect(() => setMounted(true), []);
 
-  const topBarActions = useMemo(() => (emailVerified ? null : <VerifyEmailAction />), [emailVerified]);
+  const topBarActions = useMemo(
+    () => (emailVerified ? null : <VerifyEmailAction email={userDetails.email} />),
+    [emailVerified, userDetails.email],
+  );
   useSetTopBarActions(topBarActions);
 
   useState(() =>

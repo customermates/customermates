@@ -3461,14 +3461,30 @@
   "EditorTabs": {
     "invalid": "Zawiera błędy"
   },
+  "EmailCode": {
+    "errors": {
+      "expired": "Ten kod wygasł. Wyślij nowy.",
+      "invalid": "Ten kod jest nieprawidłowy. Sprawdź najnowszą wiadomość i spróbuj ponownie.",
+      "signedOut": "Twoja sesja wygasła. Zaloguj się ponownie, aby potwierdzić adres e-mail.",
+      "tooManyAttempts": "Zbyt wiele błędnych prób. Wyślij nowy kod."
+    },
+    "hint": "6 cyfr, ważny przez {minutes} minut.",
+    "label": "Kod potwierdzający",
+    "rateLimited": "Dla tego adresu zażądano zbyt wielu kodów. Odczekaj godzinę i spróbuj ponownie.",
+    "resend": "Wyślij nowy kod",
+    "resendIn": "Nowy kod za {seconds} s",
+    "sent": "Wysłaliśmy nowy kod na {email}.",
+    "submit": "Potwierdź"
+  },
   "EmailLayout": {
     "tagline": "CRM source-available do pilnowania kontaktu z klientami"
   },
   "EmailVerification": {
+    "dialogBody": "Wysyłamy 6-cyfrowy kod na {email}. Wpisz go poniżej.",
+    "dialogTitle": "Potwierdź swój adres e-mail",
     "notVerified": "Adres e-mail niezweryfikowany",
-    "resend": "Wyślij ponownie e-mail weryfikacyjny",
-    "resendSuccess": "E-mail weryfikacyjny wysłany.",
-    "verified": "Adres e-mail zweryfikowany"
+    "verified": "Adres e-mail zweryfikowany",
+    "verify": "Potwierdź adres e-mail"
   },
   "EntityChannels": {
     "addChannel": {
@@ -4535,12 +4551,10 @@
       "skip": "Pomiń na razie"
     },
     "confirmEmail": {
-      "body": "Otwórz link, który wysłaliśmy na <strong>{email}</strong>. Ta strona przejdzie dalej sama.",
+      "body": "Wpisz 6-cyfrowy kod, który wysłaliśmy na <strong>{email}</strong>.",
       "open": "Otwórz {inbox}",
-      "resend": "Wyślij e-mail ponownie",
-      "resendIn": "Wyślij ponownie za {seconds} s",
       "title": "Potwierdź adres e-mail, aby zacząć",
-      "waiting": "Czekamy na Twoje potwierdzenie"
+      "wrongEmail": "Błędny adres? <signOut>Wyloguj się</signOut> i zarejestruj ponownie."
     },
     "continue": "Kontynuuj",
     "finish": "Otwórz przestrzeń roboczą",
@@ -6990,23 +7004,20 @@
     "formattingLocaleHint": "Określa format liczb, dat i walut."
   },
   "VerifyEmail": {
-    "cta": "Zweryfikuj e-mail",
-    "fallback": "Jeśli powyższy przycisk nie działa, skopiuj i wklej ten link do przeglądarki: ",
-    "intro": "Potwierdź swój adres e-mail, aby kontynuować.",
+    "expiry": "Kod jest ważny przez {minutes} minut. Wpisz go w przeglądarce, w której się zarejestrowałeś.",
+    "intro": "Wpisz ten kod w Customermates, aby potwierdzić swój adres e-mail:",
     "securityNotice": "Jeśli ta prośba nie pochodzi od ciebie, możesz bezpiecznie zignorować i usunąć tę wiadomość.",
-    "subject": "Zweryfikuj swój adres e-mail"
+    "subject": "{code} to twój kod potwierdzający Customermates",
+    "title": "Potwierdź swój adres e-mail"
   },
   "VerifyEmailCard": {
-    "body": "Wysłaliśmy ci wiadomość weryfikacyjną. Sprawdź skrzynkę odbiorczą i kliknij link, aby zweryfikować swój adres e-mail.",
-    "ctaLabel": "Wyślij ponownie e-mail weryfikacyjny",
+    "body": "Wpisz 6-cyfrowy kod, który wysłaliśmy na <strong>{email}</strong>. Nie masz ważnego kodu? Wyślij nowy.",
     "invitationFrom": "Zaproszenie od {inviterName}",
-    "linkExpired": "Ten link weryfikacyjny wygasł.",
-    "linkInvalid": "Ten link weryfikacyjny jest nieprawidłowy.",
-    "resendSuccess": "E-mail weryfikacyjny został wysłany.",
-    "signedOutBody": "Zaloguj się na swoje konto, aby poprosić o nowy e-mail weryfikacyjny.",
+    "retiredLink": "Adresy e-mail potwierdza się teraz kodem zamiast linkiem. Wyślij nowy kod i wpisz go tutaj.",
+    "retiredLinkSignedOut": "Adresy e-mail potwierdza się teraz kodem zamiast linkiem. Zaloguj się, a potem wpisz kod, który ci wyślemy.",
+    "signedOutBody": "Zaloguj się na swoje konto, aby otrzymać nowy kod potwierdzający.",
     "subtitle": "Zweryfikuj swój adres e-mail, aby kontynuować.",
-    "title": "Weryfikacja adresu e-mail",
-    "verifiedSignIn": "Twój adres e-mail został zweryfikowany. Zaloguj się, aby kontynuować. Jeśli link został otwarty na innym urządzeniu, zaloguj się magicznym linkiem lub zresetuj hasło."
+    "title": "Weryfikacja adresu e-mail"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Próby dostarczenia pojawią się tutaj, gdy webhook zostanie uruchomiony.",

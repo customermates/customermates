@@ -56,6 +56,20 @@ import {
   MAGIC_LINK_REQUESTS_PER_HOUR,
   magicLinkIssuedIdentifier,
 } from "./magic-link-limit";
+import {
+  EMAIL_CODE_EXPIRES_IN_MINUTES,
+  EMAIL_CODE_LIMIT_WINDOW_MS,
+  EMAIL_CODE_SENDS_PER_HOUR,
+  emailCodeSentIdentifier,
+  type EmailCodeFailure,
+  type VerifyEmailCodeResult,
+} from "./email-code";
+
+const EMAIL_CODE_FAILURES: Record<string, EmailCodeFailure> = {
+  INVALID_OTP: "invalid",
+  OTP_EXPIRED: "expired",
+  TOO_MANY_ATTEMPTS: "tooManyAttempts",
+};
 
 type MagicLinkRefusal = CustomErrorCode.magicLinkRateLimited | CustomErrorCode.disposableEmail;
 
@@ -385,16 +399,38 @@ export class AuthService {
     await auth.api.resetPassword({ headers: await headers(), body: args });
   }
 
-  async resendVerificationEmail(
-    email: string,
-    options?: { callbackURL?: string; keepSession?: boolean },
-  ): Promise<void> {
-    await auth.api.sendVerificationEmail({
-      headers: await headers(),
-      body: { email, callbackURL: options?.callbackURL ?? "/" },
-    });
+  async sendVerificationCode(email: string): Promise<"sent" | "rateLimited"> {
+    if (!(await this.recordVerificationCodeSent(email))) return "rateLimited";
 
-    if (!options?.keepSession) await auth.api.signOut({ headers: await headers() });
+    await auth.api.sendVerificationOTP({ body: { email, type: "email-verification" } });
+    return "sent";
+  }
+
+  async recordVerificationCodeSent(email: string, now = new Date()): Promise<boolean> {
+    const identifier = emailCodeSentIdentifier(email);
+    await prisma.authVerification.create({
+      data: {
+        id: crypto.randomUUID(),
+        identifier,
+        value: "",
+        expiresAt: new Date(now.getTime() + EMAIL_CODE_LIMIT_WINDOW_MS),
+      },
+    });
+    const sent = await prisma.authVerification.count({
+      where: { identifier, createdAt: { gt: new Date(now.getTime() - EMAIL_CODE_LIMIT_WINDOW_MS) } },
+    });
+    return sent <= EMAIL_CODE_SENDS_PER_HOUR;
+  }
+
+  async verifyEmailCode(email: string, code: string): Promise<VerifyEmailCodeResult> {
+    try {
+      await auth.api.verifyEmailOTP({ headers: await headers(), body: { email, otp: code } });
+      return { ok: true };
+    } catch (error) {
+      const failure = error instanceof APIError ? EMAIL_CODE_FAILURES[String(error.body?.code)] : undefined;
+      if (failure) return { ok: false, error: failure };
+      throw error;
+    }
   }
 
   async isEmailPendingVerification(email: string): Promise<boolean> {
@@ -405,22 +441,23 @@ export class AuthService {
     return authUser !== null && !authUser.emailVerified;
   }
 
-  async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
+  async sendVerificationCodeEmail(args: { to: string; code: string }): Promise<void> {
     const t = await getTranslations();
     const locale = await getRequestAppLocale();
     const layoutCopy = await getEmailLayoutCopy(locale);
+    const subject = t("VerifyEmail.subject", { code: args.code });
 
     const sent = await this.emailService.send({
       to: args.to,
-      subject: t("VerifyEmail.subject"),
+      subject,
       react: React.createElement(VerifyEmail, {
         locale,
         layoutCopy,
-        url: args.url,
-        subject: t("VerifyEmail.subject"),
+        code: args.code,
+        subject,
+        title: t("VerifyEmail.title"),
         intro: t("VerifyEmail.intro"),
-        cta: t("VerifyEmail.cta"),
-        fallback: t("VerifyEmail.fallback"),
+        expiry: t("VerifyEmail.expiry", { minutes: EMAIL_CODE_EXPIRES_IN_MINUTES }),
         securityNotice: t("VerifyEmail.securityNotice"),
       }),
     });
