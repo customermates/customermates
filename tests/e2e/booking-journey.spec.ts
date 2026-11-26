@@ -19,7 +19,7 @@ test.skip(
 const EVERY_DAY = Object.fromEntries(
   ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => [
     day,
-    [{ start: "08:00", end: "18:00" }],
+    [{ start: "00:00", end: "23:59" }],
   ]),
 );
 
