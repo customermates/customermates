@@ -116,9 +116,6 @@ export async function GET(req: Request) {
 
   const failures = await failedSteps(concurrentSteps());
   if (env.APP_MODE === "cloud") {
-    // Runs after the concurrent steps, so expireAdAttribution has already deleted expired clicks; the
-    // uploader also drops any conversion past the provider's reporting deadline by itself. It is a no-op
-    // until GOOGLE_ADS_CONVERSION_UPLOAD_ENABLED is set and reports its own failures instead of throwing.
     const sequential: LifecycleStep[] = [
       ["uploadAdConversions", () => getUploadAdConversionsSystemInteractor().invoke()],
     ];
