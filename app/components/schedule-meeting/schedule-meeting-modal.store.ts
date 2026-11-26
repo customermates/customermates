@@ -8,9 +8,12 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { Resource } from "@/generated/prisma";
 
 import {
+  cancelMeetingAction,
   freeSlotsAction,
+  meetingEventAction,
   meetingOptionsAction,
   scheduleMeetingAction,
+  updateMeetingAction,
 } from "@/app/[locale]/(protected)/w/[workspace]/calendar/schedule-actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
@@ -43,6 +46,19 @@ export type ScheduleMeetingStart = {
   timeZone?: string;
 };
 
+export type EditMeetingStart = { eventId: string; timeZone?: string };
+
+export type EditableMeetingEvent = {
+  title: string;
+  description: string | null;
+  location: string | null;
+  startsAt: Date | string;
+  endsAt: Date | string;
+  attendees: { email: string; isOrganizer?: boolean }[];
+};
+
+const MINUTE_MS = 60_000;
+
 const DEFAULT_MINUTES = 9 * 60;
 const DEFAULT_DURATION = 30;
 
@@ -71,6 +87,35 @@ function emptyForm(date: string, time: string): ScheduleMeetingForm {
   };
 }
 
+export function eventForm(event: EditableMeetingEvent, timeZone: string): Partial<ScheduleMeetingForm> {
+  const startsAt = new Date(event.startsAt);
+  const parts = zonedParts(startsAt, timeZone);
+  return {
+    title: event.title,
+    description: event.description ?? "",
+    location: event.location ?? "",
+    date: zonedDate(startsAt, timeZone),
+    time: clock(parts.hour * 60 + parts.minute),
+    durationMinutes: Math.round((new Date(event.endsAt).getTime() - startsAt.getTime()) / MINUTE_MS),
+    attendees: event.attendees.filter((attendee) => !attendee.isOrganizer).map((attendee) => attendee.email),
+  };
+}
+
+export function meetingChanges(form: ScheduleMeetingForm, saved: ScheduleMeetingForm, startsAt: string) {
+  const timing = form.date !== saved.date || form.time !== saved.time || form.durationMinutes !== saved.durationMinutes;
+  const sameAttendees =
+    form.attendees.length === saved.attendees.length &&
+    form.attendees.every((email) => saved.attendees.includes(email));
+  return {
+    ...(form.title !== saved.title ? { title: form.title } : {}),
+    ...(form.description !== saved.description ? { description: form.description } : {}),
+    ...(form.location !== saved.location ? { location: form.location } : {}),
+    ...(timing ? { startsAt, durationMinutes: form.durationMinutes } : {}),
+    ...(sameAttendees ? {} : { attendees: form.attendees.map((email) => ({ email })) }),
+    sendInvites: form.sendInvites,
+  };
+}
+
 export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingForm> {
   options: MeetingOptions | null = null;
   optionsFailed = false;
@@ -78,6 +123,9 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
   slotsLoading = false;
   timeZone = "UTC";
   record: RecordRef | null = null;
+  editingId: string | null = null;
+  eventLoaded = false;
+  cancelConfirmOpen = false;
   private slotRequest = 0;
 
   constructor(rootStore: RootStore) {
@@ -90,7 +138,12 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       slotsLoading: observable,
       timeZone: observable,
       record: observable.ref,
+      editingId: observable,
+      eventLoaded: observable,
+      cancelConfirmOpen: observable,
       start: action,
+      edit: action,
+      setCancelConfirm: action,
     });
   }
 
@@ -119,6 +172,8 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
 
     this.timeZone = timeZone;
     this.record = input.record ?? null;
+    this.editingId = null;
+    this.eventLoaded = false;
     this.options = null;
     this.optionsFailed = false;
     this.slots = [];
@@ -131,6 +186,39 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     if (this.unavailable) return;
     void this.loadOptions().catch(reportApplicationError);
     void this.loadSlots().catch(reportApplicationError);
+  };
+
+  edit = (input: EditMeetingStart, invoker?: HTMLElement | null) => {
+    const timeZone = input.timeZone ?? browserTimeZone();
+
+    this.timeZone = timeZone;
+    this.record = null;
+    this.editingId = input.eventId;
+    this.eventLoaded = false;
+    this.cancelConfirmOpen = false;
+    this.options = null;
+    this.optionsFailed = false;
+    this.slots = [];
+    this.onInitOrRefresh(emptyForm(zonedDate(new Date(), timeZone), clock(DEFAULT_MINUTES)));
+    if (invoker) this.openFrom(invoker);
+    else this.open();
+    if (this.unavailable) return;
+    void this.loadEvent(input.eventId).catch(reportApplicationError);
+  };
+
+  private loadEvent = async (id: string) => {
+    try {
+      const event = await actionData(meetingEventAction({ id }));
+      if (this.editingId !== id) return;
+      runInAction(() => {
+        this.onInitOrRefresh({ ...this.form, ...eventForm(event, this.timeZone) });
+        this.eventLoaded = true;
+      });
+      await this.loadSlots();
+    } catch (error) {
+      runInAction(() => (this.optionsFailed = true));
+      throw error;
+    }
   };
 
   private loadOptions = async () => {
@@ -213,6 +301,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     event?.preventDefault();
     const startsAt = this.startsAt;
     if (this.isLoading || !startsAt) return;
+    if (this.editingId) return this.saveChanges(this.editingId, startsAt);
 
     this.setIsLoading(true);
     let created = false;
@@ -246,6 +335,52 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
       await this.rootStore.recordWorkspaceStore.invalidate();
     } finally {
       if (!created) this.setIsLoading(false);
+    }
+  };
+
+  setCancelConfirm = (open: boolean) => {
+    this.cancelConfirmOpen = open;
+  };
+
+  cancelMeeting = async () => {
+    const id = this.editingId;
+    if (!id || this.isLoading) return;
+
+    this.setIsLoading(true);
+    let cancelled = false;
+    try {
+      const result = await cancelMeetingAction({ id });
+      this.setCancelConfirm(false);
+      if (!result.ok) {
+        this.setError(result.error as never);
+        return;
+      }
+
+      cancelled = true;
+      this.toastSuccess("ScheduleMeeting.cancelDone");
+      this.close();
+      await this.rootStore.recordWorkspaceStore.invalidate();
+    } finally {
+      if (!cancelled) this.setIsLoading(false);
+    }
+  };
+
+  private saveChanges = async (id: string, startsAt: string) => {
+    this.setIsLoading(true);
+    let saved = false;
+    try {
+      const result = await updateMeetingAction({ id, ...meetingChanges(this.form, this.savedState, startsAt) });
+      if (!result.ok) {
+        this.setError(result.error as never);
+        return;
+      }
+
+      saved = true;
+      this.toastSuccess("ScheduleMeeting.updated");
+      this.close();
+      await this.rootStore.recordWorkspaceStore.invalidate();
+    } finally {
+      if (!saved) this.setIsLoading(false);
     }
   };
 }

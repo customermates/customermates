@@ -16,6 +16,7 @@ export type PersonalCalendarEvent = {
   provider: string;
   timezone?: string | null;
   transparency?: string | null;
+  editable?: boolean;
 };
 export type PersonalCalendarWindow = { events: PersonalCalendarEvent[]; truncated: boolean };
 export interface PlannerPersonalEventsRepo {

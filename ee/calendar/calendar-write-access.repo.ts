@@ -21,6 +21,7 @@ export type WritableEventRow = {
   provider: MessagingProvider;
   accountStatus: ConnectedAccountStatus;
   connectedAccountId: string;
+  timezone?: string | null;
 };
 
 export type CalendarWriteAccounts = {

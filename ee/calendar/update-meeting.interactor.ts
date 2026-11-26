@@ -8,6 +8,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { isIanaTimeZone } from "@/core/utils/time-zone";
 
 import type { BookingEventSync } from "./booking-event-sync";
 import type { CalendarEventLinkRepo } from "./calendar-event-link.repo";
@@ -48,9 +49,15 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
       location: data.location,
       attendeeEmails: data.attendees ? [...new Set(data.attendees.map((attendee) => attendee.email))] : undefined,
       startsAt,
-      endsAt:
-        startsAt && data.durationMinutes ? new Date(startsAt.getTime() + data.durationMinutes * MINUTE_MS) : undefined,
-      timeZone: data.timeZone,
+      endsAt: !startsAt
+        ? undefined
+        : data.endsAt
+          ? new Date(data.endsAt)
+          : data.durationMinutes
+            ? new Date(startsAt.getTime() + data.durationMinutes * MINUTE_MS)
+            : undefined,
+      timeZone:
+        data.timeZone ?? (startsAt && event.timezone && isIanaTimeZone(event.timezone) ? event.timezone : undefined),
       notifyAttendees: data.sendInvites,
     };
     const written = await this.writer.update(this.companyId, event, patch);

@@ -5028,6 +5028,8 @@
     "endDate": "Date de fin",
     "entryCount": "{count, plural, one {# entrée} other {# entrées}}",
     "event": "Évènement",
+    "eventMoved": "Évènement déplacé",
+    "eventMovedDescription": "Le calendrier connecté a le nouvel horaire. Les participants reçoivent la mise à jour de Google ou Microsoft.",
     "filterCount": "{count, plural, one {# filtre} other {# filtres}}",
     "filters": "Filtres",
     "includePersonal": "Inclure les évènements connectés sélectionnés (peut créer des doublons).",
@@ -5036,6 +5038,8 @@
       "quarter": "Trimestre",
       "timeline": "Chronologie"
     },
+    "moveEventFailed": "Impossible de déplacer l’évènement. Il garde son horaire.",
+    "moveEventUndone": "Déplacement annulé",
     "next": "Période suivante",
     "noEndDate": "Date unique",
     "noSources": "Choisissez des dates dans vos listes pour créer votre calendrier.",
@@ -5064,7 +5068,8 @@
     "timeZone": "Fuseau horaire",
     "title": "Calendrier",
     "truncated": "Certains évènements dépassent la limite. Réduisez la période ou filtrez une source. Les exports exigent des résultats complets.",
-    "unavailableSource": "Source indisponible"
+    "unavailableSource": "Source indisponible",
+    "undoMove": "Annuler"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# personne est en pause} other {# personnes sont en pause}}. Choisissez {plan} pour les faire revenir.",
@@ -6456,9 +6461,15 @@
       "needsReconnect": "Votre compte Google ou Microsoft doit être reconnecté sous Canaux et agendas avant de pouvoir créer des réunions.",
       "noCalendar": "Connectez un agenda Google ou Microsoft sous Canaux et agendas pour planifier des réunions."
     },
+    "cancelAction": "Annuler la réunion",
+    "cancelConfirmDescription": "Google ou Outlook annule la réunion pour tous les participants et les prévient. Cette action est irréversible.",
+    "cancelConfirmTitle": "Annuler cette réunion ?",
+    "cancelDone": "Réunion annulée",
     "created": "Réunion planifiée",
     "defaultTitle": "Réunion avec {name}",
     "duration": "{minutes} min",
+    "editTitle": "Modifier la réunion",
+    "eventLoadFailed": "La réunion n’a pas pu être chargée. Fermez cette fenêtre et réessayez.",
     "fields": {
       "attendees": "Participants",
       "calendar": "Agenda",
@@ -6469,12 +6480,14 @@
       "followUpDate": "Enregistrer le début de la réunion dans",
       "location": "Lieu",
       "sendInvites": "Envoyer des invitations aux participants",
+      "sendUpdates": "Envoyer les modifications aux participants",
       "time": "Début",
       "title": "Titre",
       "videoLink": "Ajouter un lien de visioconférence"
     },
     "followUpNone": "Aucun suivi",
     "freeSlots": "Créneaux libres ({timeZone})",
+    "keepMeeting": "Garder la réunion",
     "loadFailed": "Les options d’agenda n’ont pas pu être chargées. Fermez cette fenêtre et réessayez.",
     "newMeeting": "Nouvelle réunion",
     "noFreeSlots": "Aucun créneau libre ce jour-là. Vous pouvez tout de même saisir une heure de début.",
@@ -6484,6 +6497,7 @@
       "demo": "La planification de réunions nécessite un agenda connecté et n’est pas disponible dans l’espace de travail de démo.",
       "selfHosted": "La planification de réunions nécessite la connexion d’agenda hébergée et n’est pas disponible en auto-hébergement."
     },
+    "updated": "Réunion mise à jour",
     "upsell": {
       "detail": "Créez des évènements dans votre agenda Google ou Microsoft depuis n’importe quel enregistrement.",
       "title": "Planifier des réunions à partir de {plan}"

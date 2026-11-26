@@ -5028,6 +5028,8 @@
     "endDate": "Enddatum",
     "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
     "event": "Ereignis",
+    "eventMoved": "Termin verschoben",
+    "eventMovedDescription": "Der verbundene Kalender hat die neue Zeit. Teilnehmende bekommen die Änderung von Google oder Microsoft.",
     "filterCount": "{count, plural, one {# Filter} other {# Filter}}",
     "filters": "Filter",
     "includePersonal": "Auch ausgewählte verbundene Termine aufnehmen (kann vorhandene Termine verdoppeln).",
@@ -5036,6 +5038,8 @@
       "quarter": "Quartal",
       "timeline": "Zeitachse"
     },
+    "moveEventFailed": "Der Termin konnte nicht verschoben werden. Er behält seine Zeit.",
+    "moveEventUndone": "Verschieben rückgängig gemacht",
     "next": "Nächster Zeitraum",
     "noEndDate": "Einzelnes Datum",
     "noSources": "Wähle Datumsfelder aus deinen Listen für deinen Kalender.",
@@ -5064,7 +5068,8 @@
     "timeZone": "Zeitzone",
     "title": "Kalender",
     "truncated": "Einige Termine überschreiten das Anzeigelimit. Wähle einen kürzeren Zeitraum oder zusätzliche Filter. Exporte erfordern vollständige Ergebnisse.",
-    "unavailableSource": "Datumsquelle nicht verfügbar"
+    "unavailableSource": "Datumsquelle nicht verfügbar",
+    "undoMove": "Rückgängig"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# Person ist pausiert} other {# Personen sind pausiert}}. Wähle {plan}, um sie zurückzuholen.",
@@ -6456,9 +6461,15 @@
       "needsReconnect": "Dein Google- oder Microsoft-Konto muss unter Kanäle & Kalender neu verbunden werden, bevor Termine angelegt werden können.",
       "noCalendar": "Verbinde unter Kanäle & Kalender einen Google- oder Microsoft-Kalender, um Termine zu planen."
     },
+    "cancelAction": "Termin absagen",
+    "cancelConfirmDescription": "Google oder Outlook sagt den Termin für alle Teilnehmenden ab und benachrichtigt sie. Das lässt sich nicht rückgängig machen.",
+    "cancelConfirmTitle": "Diesen Termin absagen?",
+    "cancelDone": "Termin abgesagt",
     "created": "Termin geplant",
     "defaultTitle": "Termin mit {name}",
     "duration": "{minutes} Min.",
+    "editTitle": "Termin bearbeiten",
+    "eventLoadFailed": "Der Termin konnte nicht geladen werden. Schließe dieses Fenster und versuche es erneut.",
     "fields": {
       "attendees": "Teilnehmer",
       "calendar": "Kalender",
@@ -6469,12 +6480,14 @@
       "followUpDate": "Terminbeginn speichern in",
       "location": "Standort",
       "sendInvites": "Einladungen an die Teilnehmer senden",
+      "sendUpdates": "Änderungen an die Teilnehmer senden",
       "time": "Beginn",
       "title": "Titel",
       "videoLink": "Videolink hinzufügen"
     },
     "followUpNone": "Keine Folgeaufgabe",
     "freeSlots": "Freie Zeiten ({timeZone})",
+    "keepMeeting": "Termin behalten",
     "loadFailed": "Die Kalenderoptionen konnten nicht geladen werden. Schließe dieses Fenster und versuche es erneut.",
     "newMeeting": "Neuer Termin",
     "noFreeSlots": "Keine freien Zeiten an diesem Tag. Du kannst trotzdem eine Startzeit eingeben.",
@@ -6484,6 +6497,7 @@
       "demo": "Das Planen von Terminen braucht einen verbundenen Kalender und ist im Demo-Workspace nicht verfügbar.",
       "selfHosted": "Das Planen von Terminen braucht die gehostete Kalenderverbindung und ist bei selbst gehosteten Instanzen nicht verfügbar."
     },
+    "updated": "Termin aktualisiert",
     "upsell": {
       "detail": "Lege aus jedem Datensatz Termine in deinem Google- oder Microsoft-Kalender an.",
       "title": "Termine planen ab {plan}"

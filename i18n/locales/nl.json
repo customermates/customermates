@@ -5028,6 +5028,8 @@
     "endDate": "Einddatum",
     "entryCount": "{count, plural, one {# item} other {# items}}",
     "event": "Afspraak",
+    "eventMoved": "Afspraak verplaatst",
+    "eventMovedDescription": "De gekoppelde agenda heeft de nieuwe tijd. Deelnemers krijgen de update van Google of Microsoft.",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",
     "includePersonal": "Neem ook geselecteerde gekoppelde afspraken op (kan een bestaande agenda dupliceren).",
@@ -5036,6 +5038,8 @@
       "quarter": "Kwartaal",
       "timeline": "Tijdlijn"
     },
+    "moveEventFailed": "De afspraak kon niet worden verplaatst. Hij houdt zijn tijd.",
+    "moveEventUndone": "Verplaatsen ongedaan gemaakt",
     "next": "Volgende periode",
     "noEndDate": "Enkele datum",
     "noSources": "Kies datums uit je lijsten om je agenda samen te stellen.",
@@ -5064,7 +5068,8 @@
     "timeZone": "Tijdzone",
     "title": "Agenda",
     "truncated": "Sommige afspraken vallen buiten de weergavelimiet. Kies een kortere periode of filter een datumbron. Voor exports is een volledig resultaat nodig.",
-    "unavailableSource": "Datumbron niet beschikbaar"
+    "unavailableSource": "Datumbron niet beschikbaar",
+    "undoMove": "Ongedaan maken"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# persoon is gepauzeerd} other {# personen zijn gepauzeerd}}. Kies {plan} om ze terug te halen.",
@@ -6456,9 +6461,15 @@
       "needsReconnect": "Je Google- of Microsoft-account moet opnieuw worden gekoppeld onder Kanalen & agenda's voordat er afspraken kunnen worden gemaakt.",
       "noCalendar": "Koppel een Google- of Microsoft-agenda onder Kanalen & agenda's om afspraken te plannen."
     },
+    "cancelAction": "Afspraak annuleren",
+    "cancelConfirmDescription": "Google of Outlook annuleert de afspraak voor alle deelnemers en brengt hen op de hoogte. Dit kan niet ongedaan worden gemaakt.",
+    "cancelConfirmTitle": "Deze afspraak annuleren?",
+    "cancelDone": "Afspraak geannuleerd",
     "created": "Afspraak gepland",
     "defaultTitle": "Afspraak met {name}",
     "duration": "{minutes} min",
+    "editTitle": "Afspraak bewerken",
+    "eventLoadFailed": "De afspraak kon niet worden geladen. Sluit dit venster en probeer het opnieuw.",
     "fields": {
       "attendees": "Deelnemers",
       "calendar": "Agenda",
@@ -6469,12 +6480,14 @@
       "followUpDate": "Begintijd van de afspraak opslaan in",
       "location": "Locatie",
       "sendInvites": "Uitnodigingen naar de deelnemers sturen",
+      "sendUpdates": "De wijzigingen naar de deelnemers sturen",
       "time": "Begintijd",
       "title": "Titel",
       "videoLink": "Videolink toevoegen"
     },
     "followUpNone": "Geen vervolgtaak",
     "freeSlots": "Vrije tijden ({timeZone})",
+    "keepMeeting": "Afspraak behouden",
     "loadFailed": "De agenda-opties konden niet worden geladen. Sluit dit venster en probeer het opnieuw.",
     "newMeeting": "Nieuwe afspraak",
     "noFreeSlots": "Geen vrije tijden op deze dag. Je kunt nog steeds een begintijd invoeren.",
@@ -6484,6 +6497,7 @@
       "demo": "Afspraken plannen vereist een gekoppelde agenda en is niet beschikbaar in de demowerkruimte.",
       "selfHosted": "Afspraken plannen vereist de gehoste agendakoppeling en is niet beschikbaar bij zelf hosten."
     },
+    "updated": "Afspraak bijgewerkt",
     "upsell": {
       "detail": "Maak vanuit elk record afspraken in je Google- of Microsoft-agenda.",
       "title": "Afspraken plannen vanaf {plan}"

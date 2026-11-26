@@ -12,7 +12,7 @@ import type { BusyCalendarEvent, BusyEventSource } from "./busy-time.reader";
 
 import { FREE_TRANSPARENCY } from "./busy-time.reader";
 import { expandPlannerEvents } from "./expand-planner-events";
-import { ownCalendarAccountWhere } from "./own-calendar-account";
+import { ownCalendarAccountWhere, plannerEventEditable } from "./own-calendar-account";
 
 export type PersonalEventsScope = "accessible" | "own";
 
@@ -89,7 +89,7 @@ export class PrismaPlannerPersonalEventsRepo
         timezone: true,
         transparency: true,
         calendar: { select: { name: true } },
-        connectedAccount: { select: { provider: true } },
+        connectedAccount: { select: { provider: true, userId: true, status: true } },
       },
     });
     const expanded = expandPlannerEvents(
@@ -99,6 +99,7 @@ export class PrismaPlannerPersonalEventsRepo
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),
         provider: connectedAccount.provider,
+        editable: plannerEventEditable(event, connectedAccount, this.userId),
       })),
       window,
     );

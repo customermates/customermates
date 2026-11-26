@@ -132,6 +132,7 @@ export class PrismaCalendarWriteAccessRepo extends TenantRepository implements C
         unipileEventId: true,
         calendarId: true,
         connectedAccountId: true,
+        timezone: true,
         calendar: { select: { unipileCalendarId: true } },
         connectedAccount: { select: { provider: true, status: true, unipileAccountId: true } },
       },
@@ -147,6 +148,7 @@ export class PrismaCalendarWriteAccessRepo extends TenantRepository implements C
       provider: row.connectedAccount.provider,
       accountStatus: row.connectedAccount.status,
       connectedAccountId: row.connectedAccountId,
+      timezone: row.timezone,
     };
   }
 }

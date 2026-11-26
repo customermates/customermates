@@ -334,6 +334,79 @@ describe("UpdateMeetingInteractor", () => {
       CustomErrorCode.calendarEventNotFound,
     );
   });
+
+  it("moves a synced event to an explicit end and keeps the event's own time zone when none is sent", async () => {
+    const moved = {
+      ...EVENT,
+      startsAt: new Date("2026-11-26T14:00:00.000Z"),
+      endsAt: new Date("2026-11-26T15:15:00.000Z"),
+    };
+    const { update, writer } = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, timezone: "Europe/Berlin" }) },
+      writer: { update: vi.fn().mockResolvedValue({ ok: true, eventId: EVENT_ID, event: moved }) },
+    });
+
+    const result = await run(() =>
+      update.invoke({
+        id: EVENT_ID,
+        startsAt: "2026-11-26T15:00:00+01:00",
+        endsAt: "2026-11-26T16:15:00+01:00",
+      } as never),
+    );
+
+    expect(result.ok && [result.data.startsAt, result.data.endsAt]).toEqual([
+      "2026-11-26T14:00:00.000Z",
+      "2026-11-26T15:15:00.000Z",
+    ]);
+    expect(writer.update).toHaveBeenCalledWith(
+      mockUser.companyId,
+      expect.objectContaining({ id: EVENT_ID }),
+      expect.objectContaining({
+        startsAt: new Date("2026-11-26T14:00:00.000Z"),
+        endsAt: new Date("2026-11-26T15:15:00.000Z"),
+        timeZone: "Europe/Berlin",
+        notifyAttendees: true,
+      }),
+    );
+  });
+
+  it("does not pass a provider-specific time zone name and leaves the time zone alone for a title change", async () => {
+    const outlook = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, timezone: "W. Europe Standard Time" }) },
+    });
+    const renamed = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, timezone: "Europe/Berlin" }) },
+    });
+
+    await run(() =>
+      outlook.update.invoke({
+        id: EVENT_ID,
+        startsAt: "2026-11-26T14:00:00.000Z",
+        endsAt: "2026-11-26T15:00:00.000Z",
+      } as never),
+    );
+    await run(() => renamed.update.invoke({ id: EVENT_ID, title: "Renamed" } as never));
+
+    expect(outlook.writer.update.mock.calls[0]?.[2]).toMatchObject({ timeZone: undefined });
+    expect(renamed.writer.update.mock.calls[0]?.[2]).toMatchObject({
+      title: "Renamed",
+      startsAt: undefined,
+      endsAt: undefined,
+      timeZone: undefined,
+    });
+  });
+
+  it("rejects an end without a start, both a length and an end, and an end before the start", async () => {
+    const { update, writer } = build({ access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) } });
+    const invalid = [
+      { id: EVENT_ID, endsAt: "2026-11-26T15:00:00.000Z" },
+      { id: EVENT_ID, startsAt: "2026-11-26T14:00:00.000Z", durationMinutes: 30, endsAt: "2026-11-26T15:00:00.000Z" },
+      { id: EVENT_ID, startsAt: "2026-11-26T14:00:00.000Z", endsAt: "2026-11-26T13:00:00.000Z" },
+    ];
+
+    for (const input of invalid) expect((await run(() => update.invoke(input as never))).ok).toBe(false);
+    expect(writer.update).not.toHaveBeenCalled();
+  });
 });
 
 describe("CancelMeetingInteractor", () => {

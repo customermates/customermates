@@ -5028,6 +5028,8 @@
     "endDate": "End date",
     "entryCount": "{count, plural, one {# entry} other {# entries}}",
     "event": "Event",
+    "eventMoved": "Event moved",
+    "eventMovedDescription": "The connected calendar has the new time. Attendees get the update from Google or Microsoft.",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",
     "includePersonal": "Also include selected connected events (may duplicate an existing calendar).",
@@ -5036,6 +5038,8 @@
       "quarter": "Quarter",
       "timeline": "Timeline"
     },
+    "moveEventFailed": "The event could not be moved. It keeps its time.",
+    "moveEventUndone": "Move undone",
     "next": "Next period",
     "noEndDate": "Single date",
     "noSources": "Choose dates from your lists to build your calendar.",
@@ -5064,7 +5068,8 @@
     "timeZone": "Time zone",
     "title": "Calendar",
     "truncated": "Some events are outside the display limit. Choose a shorter period or filter a date source. Exports require a complete result.",
-    "unavailableSource": "Unavailable date source"
+    "unavailableSource": "Unavailable date source",
+    "undoMove": "Undo"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# person is paused} other {# people are paused}}. Choose {plan} to bring them back.",
@@ -6456,9 +6461,15 @@
       "needsReconnect": "Your Google or Microsoft account needs to be reconnected under Channels & calendars before meetings can be created.",
       "noCalendar": "Connect a Google or Microsoft calendar under Channels & calendars to schedule meetings."
     },
+    "cancelAction": "Cancel meeting",
+    "cancelConfirmDescription": "Google or Outlook cancels the meeting for every attendee and tells them. This cannot be undone.",
+    "cancelConfirmTitle": "Cancel this meeting?",
+    "cancelDone": "Meeting cancelled",
     "created": "Meeting scheduled",
     "defaultTitle": "Meeting with {name}",
     "duration": "{minutes} min",
+    "editTitle": "Edit meeting",
+    "eventLoadFailed": "The meeting could not be loaded. Close this window and try again.",
     "fields": {
       "attendees": "Attendees",
       "calendar": "Calendar",
@@ -6469,12 +6480,14 @@
       "followUpDate": "Set the meeting start in",
       "location": "Location",
       "sendInvites": "Send invitations to the attendees",
+      "sendUpdates": "Send the changes to the attendees",
       "time": "Start",
       "title": "Title",
       "videoLink": "Add a video link"
     },
     "followUpNone": "No follow-up",
     "freeSlots": "Free times ({timeZone})",
+    "keepMeeting": "Keep meeting",
     "loadFailed": "The calendar options could not be loaded. Close this window and try again.",
     "newMeeting": "New meeting",
     "noFreeSlots": "No free times on this day. You can still enter a start time.",
@@ -6484,6 +6497,7 @@
       "demo": "Scheduling meetings needs a connected calendar and is not available in the demo workspace.",
       "selfHosted": "Scheduling meetings needs the hosted calendar connection and is not available when self-hosting."
     },
+    "updated": "Meeting updated",
     "upsell": {
       "detail": "Create events in your Google or Microsoft calendar from any record.",
       "title": "Schedule meetings from {plan}"

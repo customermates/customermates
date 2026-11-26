@@ -34,7 +34,7 @@ const ScheduleMeetingToolSchema = z
     action: z
       .enum(SCHEDULE_ACTIONS)
       .describe(
-        "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update: id, title, startsAt, durationMinutes, timeZone, description, location, attendees, sendInvites; cancel: id, comment.",
+        "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update (move, resize or edit an existing event): id, startsAt with durationMinutes or endsAt, timeZone, title, description, location, attendees, sendInvites; cancel: id, comment.",
       ),
     record: RecordRefSchema.optional().describe(
       "options only: the record the meeting is for, to get attendee suggestions from its linked People.",
@@ -46,6 +46,7 @@ const ScheduleMeetingToolSchema = z
     location: ScheduleMeetingSchema.shape.location,
     startsAt: UpdateMeetingSchema.shape.startsAt,
     durationMinutes: UpdateMeetingSchema.shape.durationMinutes,
+    endsAt: UpdateMeetingSchema.shape.endsAt,
     timeZone: UpdateMeetingSchema.shape.timeZone,
     attendees: UpdateMeetingSchema.shape.attendees,
     videoLink: ScheduleMeetingSchema.shape.videoLink.optional(),
@@ -87,7 +88,8 @@ export const scheduleMeetingTool = {
     "options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. " +
     "slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. " +
     "SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. " +
-    "cancel notifies the attendees and cancels the event permanently for them. Only events created through this tool or the app and owned by the caller can be changed; an event id is the id returned by create or the id of a synced calendar event.",
+    "update moves, resizes or edits an existing event: the id returned by create, or the id of any synced event in the caller's own connected Google or Microsoft calendar, also when it was created outside Customermates. Send startsAt with durationMinutes or endsAt to move it; only the keys sent change. The result is the event as the provider returned it after the change. " +
+    "cancel notifies the attendees and cancels the event permanently for them. Events in calendars that only someone else connected cannot be changed, and a change the provider refuses (for example an event organised by someone else) returns an error and leaves the event as it was.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: false,
@@ -138,7 +140,18 @@ export const scheduleMeetingTool = {
 
 function updateFields(fields: Record<string, unknown>) {
   return Object.fromEntries(
-    ["id", "title", "description", "location", "startsAt", "durationMinutes", "timeZone", "attendees", "sendInvites"]
+    [
+      "id",
+      "title",
+      "description",
+      "location",
+      "startsAt",
+      "durationMinutes",
+      "endsAt",
+      "timeZone",
+      "attendees",
+      "sendInvites",
+    ]
       .filter((key) => fields[key] !== undefined)
       .map((key) => [key, fields[key]]),
   );
