@@ -30,11 +30,10 @@ const AiConnectionSelectionSchema = z.strictObject({
 export type AiConnectionSelection = z.infer<typeof AiConnectionSelectionSchema>;
 
 export const OnboardingWizardProgressSchema = z.strictObject({
-  step: z.enum(["goal", "invite", "channel", "ai", "template", "prompt"]),
+  step: z.enum(["goal", "invite", "channel", "ai", "handoff"]),
   inviteTab: z.enum(["link", "email"]),
   ai: AiConnectionSelectionSchema,
   job: OnboardingJobSchema.nullable().default(null),
-  template: z.string().max(64).nullable().default(null),
   schemaBaseline: z.number().int().nonnegative().nullable().default(null),
 });
 
@@ -60,7 +59,6 @@ export function readOnboardingWizardProgress(value: unknown): OnboardingWizardPr
         inviteTab: "link",
         ai: initialAiConnectionSelection(),
         job: null,
-        template: null,
         schemaBaseline: null,
       };
 }

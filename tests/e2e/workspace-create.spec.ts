@@ -114,13 +114,9 @@ test("a legacy workspace another administrator set up leaves the login its trial
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  // A new cloud workspace first asks how the owner found us (optional), then what to do first, or continues at the invite step when AI setup is not configured.
+  // A new cloud workspace asks who builds it first; the profile was already filled in for the first workspace.
   const stepHeading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
-  await expect(
-    stepHeading(englishMessages.OnboardingWizard.steps.source.title)
-      .or(stepHeading(englishMessages.OnboardingWizard.steps.goal.title))
-      .or(stepHeading(englishMessages.OnboardingWizard.steps.invite.title)),
-  ).toBeVisible();
+  await expect(stepHeading(englishMessages.OnboardingWizard.steps.goal.title)).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
     createdByAuthUserId: workspace.authUserId,

@@ -4,7 +4,7 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ChartColor } from "@/features/widget/widget-display.schema";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
-import { SetupAnswerValueSchema, StoredSetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
+import { SetupAnswerValueSchema } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import { SETUP_WIDGET_SKETCHES } from "@/features/workspace-setup/setup-plan.schema";
 
@@ -136,10 +136,6 @@ const GenerationStateSchema = z.enum(["idle", "queued", "running", "completed", 
 export type SetupGenerationState = z.infer<typeof GenerationStateSchema>;
 
 export const StoredSetupInterviewSchema = z.object({
-  prefill: GenerationStateSchema.default("idle"),
-  prefillClaimedAt: IsoDateSchema.nullable().default(null),
-  prefillError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
-  prefillDraft: StoredSetupAnswersSchema.nullable().default(null),
   followUps: GenerationStateSchema.default("idle"),
   followUpQuestions: z.array(SetupFollowUpQuestionSchema).max(SETUP_FOLLOW_UP_IDS.length).default([]),
   followUpAnswers: z.array(SetupFollowUpAnswerSchema).max(SETUP_FOLLOW_UP_IDS.length).default([]),

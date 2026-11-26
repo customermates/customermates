@@ -1,16 +1,16 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 import type { SetupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
-import type { SpreadsheetReadFailureCode } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { SetupStage } from "./setup-interview-state";
 
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 
-import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
-import { touchAnswer, websitePrefillFills } from "@/features/workspace-setup/setup-prefill";
+import { touchAnswer } from "@/features/workspace-setup/setup-answers.schema";
+import { SETUP_QUESTIONS, setupQuestionVisible } from "@/features/workspace-setup/setup-interview";
 import { setupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -24,47 +24,33 @@ import {
   planWorkspaceSetupAction,
   retryWorkspaceSetupPhaseAction,
   saveWorkspaceSetupAnswersAction,
-  setWorkspaceSetupWebsiteAction,
   startWorkspaceSetupAction,
-  uploadWorkspaceSetupSpreadsheetAction,
 } from "../../workspace-setup-actions";
 
 import {
-  answerComplete,
   answersPayload,
   displayedFollowUpValue,
   mergeServerAnswers,
   missingParts,
+  answerComplete,
   resolveSetupStage,
   sanitizeAnswerValue,
   unansweredFollowUps,
 } from "./setup-interview-state";
 
-type SetupCommand = "start" | "website" | "save" | "plan" | "followUps" | "build" | "retry" | "upload";
-
-type SpreadsheetRejection = { fileName: string; failure: SpreadsheetReadFailureCode };
+type SetupCommand = "start" | "save" | "plan" | "followUps" | "build" | "retry";
 
 const POLLED_GENERATION = new Set(["queued", "running"]);
-const PENDING_PREFILL = new Set(["idle", "queued", "running"]);
 const ADJUSTABLE_STAGES = new Set<SetupStage>(["plan", "planFailed"]);
-const FINDING_CRAWL = new Set(["queued", "discovering"]);
-
-type WebsiteReading = {
-  stage: "finding" | "reading" | "suggesting";
-  read: number;
-  total: number;
-};
 
 export class WorkspaceSetupStore {
   view: WorkspaceSetupStatusView | null = null;
   answers: SetupAnswers = {};
   touched = observable.set<string>();
   followUpDrafts: Record<string, SetupAnswerValue> = {};
-  heldAnswer: { id: string; value: SetupAnswerValue } | null = null;
-  answerDuringPrefillAsked = false;
+  questionIndex = 0;
   adjusting = false;
   missingShown = false;
-  spreadsheetRejection: SpreadsheetRejection | null = null;
   pending: SetupCommand | null = null;
   private hydratedSetupId: string | null | undefined = undefined;
   private refreshGeneration = 0;
@@ -95,17 +81,28 @@ export class WorkspaceSetupStore {
     return this.adjusting && ADJUSTABLE_STAGES.has(stage) ? "interview" : stage;
   }
 
+  get questions(): SetupQuestion[] {
+    return SETUP_QUESTIONS.filter((question) => setupQuestionVisible(question, this.answers));
+  }
+
+  get currentQuestion(): SetupQuestion {
+    return this.questions[Math.min(this.questionIndex, this.questions.length - 1)];
+  }
+
+  get questionNumber(): number {
+    return Math.min(this.questionIndex, this.questions.length - 1) + 1;
+  }
+
+  get isLastQuestion(): boolean {
+    return this.questionNumber >= this.questions.length;
+  }
+
   get stepSuggestion(): SetupStepSuggestion | null {
     return this.answers.mainSteps ? null : setupStepSuggestion(this.answers);
   }
 
   get isBusy(): boolean {
     return this.pending !== null;
-  }
-
-  get needsSpreadsheet(): boolean {
-    const value = this.answers.existingData?.value;
-    return value?.format === "singleChoice" && value.value === "spreadsheet" && !this.setup?.spreadsheet;
   }
 
   get missingAnswers(): string[] {
@@ -115,12 +112,17 @@ export class WorkspaceSetupStore {
         .filter((question) => !answerComplete(question, displayedFollowUpValue(question, setup, this.followUpDrafts)))
         .map((question) => question.id);
     }
-    const missing = missingParts(this.answers, this.locale);
-    return this.needsSpreadsheet ? [...missing, "existingData"] : missing;
+    return missingParts(this.answers);
   }
 
-  get canConfirmScreen(): boolean {
-    return this.missingAnswers.length === 0;
+  get currentMissing(): string[] {
+    if (this.stage === "followUps") return this.missingAnswers;
+    const ids = new Set(this.currentQuestion.parts.map((part) => part.id));
+    return this.missingAnswers.filter((id) => ids.has(id));
+  }
+
+  get canContinue(): boolean {
+    return this.currentMissing.length === 0;
   }
 
   get pendingFollowUps() {
@@ -134,7 +136,7 @@ export class WorkspaceSetupStore {
   answerMissing = (id: string): boolean => this.missingShown && this.missingAnswers.includes(id);
 
   showMissingAnswers = (message: string): boolean => {
-    this.missingShown = this.missingAnswers.length > 0;
+    this.missingShown = this.currentMissing.length > 0;
     if (this.missingShown) toastZodErrorTree({ errors: [message] });
     return this.missingShown;
   };
@@ -143,26 +145,7 @@ export class WorkspaceSetupStore {
     const setup = this.setup;
     if (!setup) return false;
     if (setup.status === "planning" || setup.status === "building") return true;
-    if (setup.status !== "interview") return false;
-    return this.prefillRunning || POLLED_GENERATION.has(setup.plan.status);
-  }
-
-  get prefillRunning(): boolean {
-    const setup = this.setup;
-    return Boolean(setup?.websiteUrl) && PENDING_PREFILL.has(setup?.interview.prefill ?? "skipped");
-  }
-
-  get websiteReading(): WebsiteReading | null {
-    const setup = this.setup;
-    if (!setup || !this.prefillRunning) return null;
-    const { crawlStatus, sourcesFound, sourcesRead } = setup.knowledgeBase;
-    if (crawlStatus === null || FINDING_CRAWL.has(crawlStatus) || (crawlStatus === "fetching" && sourcesFound === 0))
-      return { stage: "finding", read: 0, total: 0 };
-    if (crawlStatus === "fetching") {
-      const read = Math.min(sourcesRead, sourcesFound);
-      return { stage: "reading", read, total: sourcesFound };
-    }
-    return { stage: "suggesting", read: sourcesRead, total: sourcesFound };
+    return setup.status === "interview" && POLLED_GENERATION.has(setup.plan.status);
   }
 
   hydrate = (view: WorkspaceSetupStatusView) => {
@@ -174,44 +157,51 @@ export class WorkspaceSetupStore {
       this.answers = setup?.interview.answers ?? {};
       this.touched.clear();
       this.followUpDrafts = {};
-      this.heldAnswer = null;
-      this.answerDuringPrefillAsked = false;
+      this.questionIndex = 0;
       this.adjusting = false;
       this.missingShown = false;
-      this.spreadsheetRejection = null;
       return;
     }
     if (setup) this.answers = mergeServerAnswers(this.answers, this.touched, setup.interview.answers);
   };
 
   setAnswer = (id: string, value: SetupAnswerValue) => {
-    if (!this.answerDuringPrefillAsked && this.prefillRunning && websitePrefillFills(id)) {
-      this.heldAnswer = { id, value };
-      return;
-    }
     this.answers = touchAnswer(this.answers, id, value);
     this.touched.add(id);
-  };
-
-  answerDuringPrefill = () => {
-    const held = this.heldAnswer;
-    this.answerDuringPrefillAsked = true;
-    this.heldAnswer = null;
-    if (held) this.setAnswer(held.id, held.value);
-  };
-
-  waitForPrefill = () => {
-    this.answerDuringPrefillAsked = true;
-    this.heldAnswer = null;
   };
 
   setFollowUpAnswer = (id: string, value: SetupAnswerValue) => {
     this.followUpDrafts = { ...this.followUpDrafts, [id]: value };
   };
 
-  adjust = () => {
-    if (this.isBusy) return;
+  nextQuestion = (message: string, suggestedSteps: readonly string[] = []): boolean => {
+    if (this.isBusy || this.showMissingAnswers(message)) return false;
+    if (this.currentQuestion.id === "mainSteps" && !this.answers.mainSteps && suggestedSteps.length)
+      this.setAnswer("mainSteps", { format: "orderedList", items: suggestedSteps.map((label) => ({ label })) });
+    this.missingShown = false;
+    if (this.isLastQuestion) return true;
+    this.questionIndex = this.questionNumber;
+    return false;
+  };
+
+  previousQuestion = (): boolean => {
+    if (this.isBusy || this.questionNumber <= 1) return false;
+    this.missingShown = false;
+    this.questionIndex = this.questionNumber - 2;
+    return true;
+  };
+
+  get canChangeAnswers(): boolean {
+    return !this.isBusy && ADJUSTABLE_STAGES.has(resolveSetupStage(this.view));
+  }
+
+  changeAnswer = (questionId: string) => {
+    if (!this.canChangeAnswers) return;
+    const index = this.questions.findIndex((question) => question.id === questionId);
+    if (index === -1) return;
     this.adjusting = true;
+    this.missingShown = false;
+    this.questionIndex = index;
   };
 
   discardAdjustment = () => {
@@ -242,33 +232,23 @@ export class WorkspaceSetupStore {
 
   poll = () => (this.isBusy ? Promise.resolve(false) : this.refresh());
 
-  setWebsite = (websiteUrl: string) =>
-    this.run("website", async () => {
-      const setup = this.setup;
-      if (!setup) return null;
-      const result = await setWorkspaceSetupWebsiteAction({ setupId: setup.id, websiteUrl, locale: this.appLocale });
-      if (result.ok) await this.refresh();
-      return result;
-    });
-
-  start = (websiteUrl: string | null) =>
+  start = () =>
     this.run("start", async () => {
-      const templateSlug = this.rootStore.onboardingWizardStore.selectedTemplate;
-      const result = await startWorkspaceSetupAction({
-        websiteUrl,
-        locale: this.appLocale,
-        ...(templateSlug === null ? {} : { templateSlug }),
-      });
+      const result = await startWorkspaceSetupAction({ locale: this.appLocale });
       if (result.ok) await this.refresh();
       return result;
     });
 
-  confirmScreen = () =>
+  showPlan = () =>
     this.run("save", async () => {
       const setup = this.setup;
-      if (!setup || !this.canConfirmScreen) return null;
-      if (this.adjusting) return this.submitAdjustment(setup);
-      const answers = toJS(answersPayload(toJS(this.answers), this.locale));
+      if (!setup || this.missingAnswers.length) return null;
+      const answers = toJS(answersPayload(toJS(this.answers)));
+      if (this.adjusting && setup.status === "planned") {
+        const adjusted = await adjustWorkspaceSetupAction({ setupId: setup.id, answers, followUpAnswers: [] });
+        if (adjusted.ok) await this.planRequested();
+        return adjusted;
+      }
       const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
       return saved.ok ? this.requestPlan(setup.id) : saved;
     });
@@ -300,60 +280,23 @@ export class WorkspaceSetupStore {
   build = () =>
     this.run("build", async () => {
       const setup = this.setup;
-      if (!setup) return null;
+      if (!setup || setup.status !== "planned") return null;
       const confirmed = await confirmWorkspaceSetupAction({ setupId: setup.id, planRevision: setup.plan.revision });
       if (confirmed.ok) await this.refresh();
       return confirmed;
     });
 
-  retryPhase = (phase: WorkspaceSetupPhase, withoutWebsite = false) =>
+  retryPhase = (phase: WorkspaceSetupPhase) =>
     this.run("retry", async () => {
       const setup = this.setup;
       if (!setup) return null;
-      const retried = await retryWorkspaceSetupPhaseAction({
-        setupId: setup.id,
-        phase,
-        ...(withoutWebsite ? { withoutWebsite } : {}),
-      });
+      const retried = await retryWorkspaceSetupPhaseAction({ setupId: setup.id, phase });
       if (retried.ok) await this.refresh();
       return retried;
     });
 
-  uploadSpreadsheet = (file: File) =>
-    this.run("upload", async () => {
-      const setup = this.setup;
-      if (!setup) return null;
-      if (file.size > SPREADSHEET_MAX_FILE_BYTES) {
-        this.spreadsheetRejection = { fileName: file.name, failure: "fileTooLarge" };
-        return null;
-      }
-      const formData = new FormData();
-      formData.set("setupId", setup.id);
-      formData.set("file", file);
-      const uploaded = await uploadWorkspaceSetupSpreadsheetAction(formData);
-      if (!uploaded.ok) return uploaded;
-      runInAction(() => {
-        this.spreadsheetRejection = uploaded.data.accepted
-          ? null
-          : { fileName: file.name, failure: uploaded.data.failure };
-      });
-      if (uploaded.data.accepted) await this.refresh();
-      return uploaded;
-    });
-
   private get appLocale() {
     return isAppLocale(this.locale) ? this.locale : undefined;
-  }
-
-  private async submitAdjustment(setup: WorkspaceSetupView) {
-    const answers = toJS(answersPayload(toJS(this.answers), this.locale));
-    if (setup.status !== "planned") {
-      const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
-      return saved.ok ? this.requestPlan(setup.id) : saved;
-    }
-    const adjusted = await adjustWorkspaceSetupAction({ setupId: setup.id, answers, followUpAnswers: [] });
-    if (adjusted.ok) await this.planRequested();
-    return adjusted;
   }
 
   private async requestPlan(setupId: string) {

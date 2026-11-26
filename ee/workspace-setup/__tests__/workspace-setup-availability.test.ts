@@ -21,6 +21,8 @@ vi.mock("next-intl/server", () => ({
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
+import { countryCodeFor, localeDefaultCurrency } from "@/i18n/locale-registry";
+import type { TeamSize } from "@/features/onboarding-funnel/team-size";
 
 import { GetWorkspaceSetupStatusInteractor } from "../get-workspace-setup-status.interactor";
 import { StartWorkspaceSetupInteractor } from "../start-workspace-setup.interactor";
@@ -29,8 +31,8 @@ const owner = createMockUser();
 
 function interactors() {
   const repo = { findCurrent: vi.fn(), create: vi.fn() };
-  const crawls = { start: vi.fn() };
-  const background = { dispatch: vi.fn() };
+  const funnel = { findOnboardingJobChoice: vi.fn(() => Promise.resolve({ teamSize: null as TeamSize | null })) };
+  const company = { name: null as string | null };
   const usage = { workspacePlatformSpend: vi.fn() };
   const records = {
     getModel: vi.fn(() =>
@@ -41,16 +43,15 @@ function interactors() {
   return {
     repo,
     records,
-    crawls,
-    background,
+    funnel,
+    company,
     start: new StartWorkspaceSetupInteractor(
       repo as never,
-      crawls,
-      background,
       {
         findCompanyOrThrow: () =>
-          Promise.resolve({ id: "company-1", name: null, createdAt: new Date(0), updatedAt: new Date(0) }),
+          Promise.resolve({ id: "company-1", name: company.name, createdAt: new Date(0), updatedAt: new Date(0) }),
       },
+      funnel as never,
       entitlements,
     ),
     entitlements,
@@ -64,8 +65,8 @@ describe("workspace setup availability", () => {
   });
 
   it("is unavailable on a self-hosted instance and starts nothing", async () => {
-    const { start, status, repo, crawls, background } = interactors();
-    const started = await runWithTenant(owner, () => start.invoke({ websiteUrl: "https://studio.example" }));
+    const { start, status, repo } = interactors();
+    const started = await runWithTenant(owner, () => start.invoke({}));
     expect(started.ok).toBe(false);
     if (!started.ok) expect(interactorFailureCodes(started.error)).toEqual([CustomErrorCode.workspaceSetupUnavailable]);
     expect(await runWithTenant(owner, () => status.invoke())).toEqual({
@@ -73,14 +74,12 @@ describe("workspace setup availability", () => {
       data: { available: false, reason: "selfHosted", setup: null },
     });
     expect(repo.findCurrent).not.toHaveBeenCalled();
-    expect(crawls.start).not.toHaveBeenCalled();
-    expect(background.dispatch).not.toHaveBeenCalled();
   });
 
   it("refuses to start in demo mode but still reports itself unavailable", async () => {
     env.APP_MODE = "demo";
     const { start, status } = interactors();
-    await expect(runWithTenant(owner, () => start.invoke({ websiteUrl: null }))).rejects.toThrow();
+    await expect(runWithTenant(owner, () => start.invoke({}))).rejects.toThrow();
     expect(await runWithTenant(owner, () => status.invoke())).toEqual({
       ok: true,
       data: { available: false, reason: "demo", setup: null },
@@ -109,29 +108,62 @@ describe("workspace setup availability", () => {
     });
   });
 
-  it("rejects a website that is not a public homepage before creating anything", async () => {
+  it("seeds the answers the profile already gave without asking again", async () => {
     env.APP_MODE = "cloud";
-    const { start, repo } = interactors();
-    const started = await runWithTenant(owner, () => start.invoke({ websiteUrl: "http://127.0.0.1/admin" }));
-    expect(started.ok).toBe(false);
-    if (!started.ok) expect(interactorFailureCodes(started.error)).toEqual([CustomErrorCode.invalidUrl]);
-    expect(repo.create).not.toHaveBeenCalled();
+    const { start, repo, funnel, company } = interactors();
+    repo.findCurrent.mockResolvedValue(null);
+    repo.create.mockResolvedValue({ id: "setup-1" });
+    company.name = " Acme Studio ";
+    funnel.findOnboardingJobChoice.mockResolvedValue({ teamSize: "medium" });
+    const choice = (value: string) => ({ source: "user", confidence: 1, value: { format: "singleChoice", value } });
+    expect(await runWithTenant(owner, () => start.invoke({ locale: "de" }))).toEqual({
+      ok: true,
+      data: { setupId: "setup-1" },
+    });
+    expect(repo.create).toHaveBeenCalledWith({
+      templateSlug: null,
+      answers: {
+        language: choice("de"),
+        currency: choice(localeDefaultCurrency("de")),
+        country: choice(countryCodeFor("de")),
+        teamSize: choice("large"),
+        companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Acme Studio" } },
+      },
+    });
+  });
+
+  it("maps the profile team size and leaves out what the profile did not give", async () => {
+    env.APP_MODE = "cloud";
+    const { start, repo, funnel } = interactors();
+    repo.findCurrent.mockResolvedValue(null);
+    repo.create.mockResolvedValue({ id: "setup-1" });
+    for (const [teamSize, expected] of [
+      ["solo", "solo"],
+      ["small", "small"],
+      ["large", "large"],
+      [null, undefined],
+    ] as const) {
+      funnel.findOnboardingJobChoice.mockResolvedValue({ teamSize });
+      await runWithTenant(owner, () => start.invoke({}));
+      const answers = repo.create.mock.lastCall?.[0].answers;
+      expect(answers.teamSize?.value.value).toBe(expected);
+      expect(answers.companyName).toBeUndefined();
+      expect(answers.language.value.value).toBe("en");
+    }
   });
 
   it("refuses a workspace without a usable subscription before creating or spending anything", async () => {
     env.APP_MODE = "cloud";
-    const { start, repo, crawls, background, entitlements } = interactors();
+    const { start, repo, entitlements } = interactors();
     const denial = {
       ok: false as const,
       error: new Error("paid subscription required"),
       code: "paidSubscriptionRequired",
     };
     entitlements.require.mockResolvedValueOnce(denial as never);
-    const started = await runWithTenant(owner, () => start.invoke({ websiteUrl: "https://studio.example" }));
+    const started = await runWithTenant(owner, () => start.invoke({}));
     expect(started).toBe(denial);
     expect(entitlements.require).toHaveBeenCalledWith("agentChat");
     expect(repo.create).not.toHaveBeenCalled();
-    expect(crawls.start).not.toHaveBeenCalled();
-    expect(background.dispatch).not.toHaveBeenCalled();
   });
 });

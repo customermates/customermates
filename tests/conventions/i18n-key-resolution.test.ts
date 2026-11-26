@@ -50,7 +50,6 @@ import {
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { PLAN_IDS } from "@/core/commercial/plan-catalog";
-import { TEMPLATE_FAMILIES } from "@/core/templates/template-spec.schema";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
 import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
@@ -393,30 +392,6 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = [
-  "profile",
-  "goal",
-  "playbook",
-  "setup",
-  "invite",
-  "channel",
-  "ai",
-  "template",
-  "prompt",
-  "source",
-].map((step) => `OnboardingWizard.steps.${step}.title`);
-const ONBOARDING_STEP_SUBTITLE_KEYS = [
-  "profile",
-  "goal",
-  "playbook",
-  "setup",
-  "invite",
-  "channel",
-  "ai",
-  "template",
-  "prompt",
-  "source",
-].map((step) => `OnboardingWizard.steps.${step}.subtitle`);
 const ONBOARDING_CHOICE_KEYS = [
   "chatgpt",
   "claude",
@@ -434,9 +409,6 @@ const onboardingAppKeys = (field: string) =>
   ONBOARDING_APP_PROVIDERS.map((provider) => `OnboardingWizard.ai.app.${provider}.${field}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
-const ONBOARDING_TEMPLATE_FAMILY_KEYS = TEMPLATE_FAMILIES.map(
-  (family) => `OnboardingWizard.template.families.${family}`,
-);
 const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
   ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
@@ -550,9 +522,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "webhookPaused",
       "bindingAvatar",
       "bindingCalendar",
-    ].map(
-      (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
-    ),
+    ].map((key) => `RecordModel.configurationDeletion.cleaned.${key}`),
   ],
   [
     "RecordModel.configurationDeletion.issues.${*}",
@@ -565,9 +535,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "readAll",
       "dependency",
       "recordNameField",
-    ].map(
-      (key) => `RecordModel.configurationDeletion.issues.${key}`,
-    ),
+    ].map((key) => `RecordModel.configurationDeletion.issues.${key}`),
   ],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
@@ -652,9 +620,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.openai.methods.${*}.meta", onboardingOpenAiMethodKeys("meta")],
   ["OnboardingWizard.ai.openai.methods.${*}.note", onboardingOpenAiMethodKeys("note")],
   ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
-  ["OnboardingWizard.template.families.${*}", ONBOARDING_TEMPLATE_FAMILY_KEYS],
-  ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
-  ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["WorkspaceSetup.suggestedSteps.${*}", SETUP_STEP_SUGGESTION_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
@@ -701,7 +666,10 @@ const AUTOMATION_TRIGGER_KINDS = [
 ] as const;
 const NOTIFICATION_KIND_NAMES = ["dueToday", "replyReceived", "ruleAlert"] as const;
 const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string[]]> = [
-  [`${AUTOMATIONS_DIRECTORY}/automation-builder-fields.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-builder-fields.tsx :: t :: builder.boolean.\${option}`,
+    AUTOMATION_KEYS("builder.boolean", ["false", "true"]),
+  ],
   [
     `${AUTOMATIONS_DIRECTORY}/automation-agent-fields.tsx :: t :: agent.reason.\${reason}`,
     AUTOMATIONS_KEYS("agent.reason", ["noKey", "noRunner", "notConfigured", "plan", "selfHosted"]),
@@ -746,17 +714,38 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
     `${AUTOMATIONS_DIRECTORY}/automation-trigger-editor.tsx :: t :: trigger.\${kind}`,
     AUTOMATION_KEYS("trigger", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived", "bookingChanged"]),
   ],
-  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
-  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
-  [`${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
-  [`${AUTOMATIONS_DIRECTORY}/automation-rule-panel.tsx :: t :: status.\${replay.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: effect.\${effect.kind}`,
+    AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: outcome.\${effect.status}`,
+    AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-runs-pane.tsx :: t :: status.\${run.status}`,
+    AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-rule-panel.tsx :: t :: status.\${replay.status}`,
+    AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES),
+  ],
   [
     `${AUTOMATIONS_DIRECTORY}/automation-builder-modal.tsx :: t :: disabledReason.\${disabledReason}`,
     AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing", "planPaused"]),
   ],
-  [`${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`, NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"])],
-  [`${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`, NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES)],
-  [`${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  [
+    `${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`,
+    NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"]),
+  ],
+  [
+    `${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`,
+    NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES),
+  ],
+  [
+    `${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`,
+    NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES),
+  ],
   [
     `${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: pageFilters.\${option}`,
     NOTIFICATION_KEYS("pageFilters", ["all", "unread", ...NOTIFICATION_KIND_NAMES]),
@@ -883,9 +872,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${s}",
-  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-copy.ts :: t :: OnboardingWizard.template.families.${family}",
-  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.subtitle",
-  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.title",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
@@ -1004,8 +990,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
   "components/public-form/public-form-settings.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
-  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t.raw :: WorkspaceSetup.suggestedSteps.${suggestion}",
-  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-questions.tsx :: t.raw :: WorkspaceSetup.suggestedSteps.${suggestion}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
@@ -1049,9 +1034,15 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: option.labelKey", 1],
+  [
+    "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: option.labelKey",
+    1,
+  ],
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.labelKey", 1],
-  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.placeholderKey", 1],
+  [
+    "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.placeholderKey",
+    1,
+  ],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
   ["app/components/global-search-modal.tsx :: t :: key", 1],
@@ -1083,16 +1074,16 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["components/records/record-file-meta.ts :: t :: fileTypeLabelKey(kind)", 1],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/email-message-header.tsx :: t :: labelKey", 1],
-  ["app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
+  [
+    "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]",
+    1,
+  ],
   [
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',
     1,
   ],
   ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
-  [
-    "components/channels/connect-channel-menu.tsx :: t :: option.labelKey",
-    1,
-  ],
+  ["components/channels/connect-channel-menu.tsx :: t :: option.labelKey", 1],
   [
     "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey",
     1,

@@ -979,13 +979,9 @@
     "title": "Dónde se ejecutan los pasos de agente"
   },
   "AgentStart": {
-    "copied": "Copiado",
     "copiedTip": "Copiado. Pégalo en tu agente",
-    "copy": "Copiar",
     "daysLeft": "{count, plural, one {Queda # día} other {Quedan # días}}",
-    "failed": "No se pudo copiar",
     "getStarted": "Primeros pasos",
-    "hint": "Pega esto en cualquier agente de IA y configurará Customermates contigo",
     "label": "Configura tu agente",
     "openIn": "Abrir en {app}",
     "progress": "{done} de {total} hechos",
@@ -2438,8 +2434,7 @@
       "triggerFilters": "Filtros de registro",
       "triggerKind": "Disparador",
       "unavailableSelection": "Selección no disponible",
-      "url": "URL",
-      "websiteUrl": "Sitio web de la empresa"
+      "url": "URL"
     },
     "language": "Idioma",
     "legacyEvents": {
@@ -4469,6 +4464,7 @@
         }
       }
     },
+    "change": "Cambiar",
     "channel": {
       "addAnother": "Añade otro canal si tus clientes también te escriben por otro medio.",
       "captions": {
@@ -4494,6 +4490,14 @@
       "optionsLabel": "Canales para conectar",
       "skip": "Omitir por ahora"
     },
+    "confirmEmail": {
+      "body": "Abre el enlace que enviamos a <strong>{email}</strong>. Esta página avanza sola.",
+      "open": "Abrir {inbox}",
+      "resend": "Reenviar correo",
+      "resendIn": "Reenviar en {seconds} s",
+      "title": "Confirma tu correo para empezar",
+      "waiting": "Esperando tu confirmación"
+    },
     "connect": {
       "checkAgain": "Comprobar de nuevo",
       "connected": "Conectado. Tu agente ha llegado a este espacio de trabajo.",
@@ -4507,10 +4511,8 @@
     "finish": "Abrir el espacio de trabajo",
     "goal": {
       "agent": {
-        "description": "Conéctalo a Customermates, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
-        "descriptionSelfHosted": "Conéctalo a esta instancia, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
-        "title": "Usa el agente de IA que ya tienes",
-        "worksWith": "Funciona con Claude, ChatGPT, Cursor, Gemini y cualquier otro cliente MCP."
+        "title": "Mi propio agente de IA",
+        "worksWith": "Claude, ChatGPT, Gemini, Cursor o cualquier cliente MCP"
       },
       "channelsHint": {
         "action": "Abrir el panel",
@@ -4535,17 +4537,30 @@
         "opened": "Hemos abierto Customermates Cloud en una pestaña nueva. No se envió nada de esta instancia. Puedes seguir configurando aquí.",
         "title": "¿Prefieres Mate? Prueba la nube gestionada"
       },
+      "fastest": "Lo más rápido",
       "followup": {
         "description": "Elige un playbook, conecta LinkedIn y mira quién espera una respuesta.",
         "title": "Dar seguimiento a conversaciones con clientes"
       },
       "optionsLabel": "Primeros pasos",
-      "recommended": "Recomendado",
       "suggested": "Sugerido",
       "workspace": {
-        "description": "Elige una plantilla y nuestro agente integrado construye el espacio aquí. Nada que conectar.",
-        "title": "Que Mate lo configure por mí"
+        "description": "{count} preguntas rápidas y Mate lo construye.",
+        "title": "Mate, en un minuto aproximadamente"
       }
+    },
+    "handoff": {
+      "changed": "Tu agente empezó a construir. Abre tu espacio de trabajo para seguirlo.",
+      "connected": "{agent} está conectado",
+      "connectedGeneric": "Tu agente está conectado",
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "openIn": "Abrir en {agent}",
+      "prompt": "Configura mi espacio de trabajo de Customermates {workspace}.",
+      "promptGeneric": "Configura mi espacio de trabajo de Customermates.",
+      "promptLabel": "Mensaje para tu agente",
+      "watching": "Esperando el primer cambio de {agent}",
+      "watchingGeneric": "Esperando el primer cambio de tu agente"
     },
     "invite": {
       "captions": {
@@ -4567,17 +4582,6 @@
         "link": "Compartir el enlace"
       }
     },
-    "milestones": {
-      "ai": "Herramientas IA",
-      "channel": "Canal",
-      "connect": "Conectar",
-      "goal": "Configuración",
-      "invite": "Equipo",
-      "playbook": "Playbook",
-      "profile": "Tú",
-      "setup": "Espacio",
-      "template": "Plantilla"
-    },
     "playbook": {
       "continue": "Usar este playbook",
       "optionsLabel": "Playbooks",
@@ -4586,8 +4590,8 @@
       "writesTitle": "Tres páginas de la base de conocimiento, listas para editar"
     },
     "profile": {
-      "previewName": "Tu nombre",
-      "previewRole": "Propietario",
+      "discovery": "¿Cómo nos encontraste? (opcional)",
+      "languageFromBrowser": "{language} · de tu navegador",
       "teamSize": {
         "label": "¿Cuántas personas usarán este espacio de trabajo?",
         "large": "Más de 20",
@@ -4595,32 +4599,11 @@
         "required": "Elige una opción para continuar.",
         "small": "De 2 a 5",
         "solo": "Solo yo"
-      },
-      "websitePlaceholder": "ejemplo.es"
+      }
     },
     "progress": "Paso {current} de {total}",
     "progressLabel": "Progreso de la configuración inicial",
-    "progressOpen": "Paso {current}",
-    "prompt": {
-      "changed": "Tu agente empezó a construir. Abre tu espacio para seguirlo.",
-      "copied": "Copiado",
-      "copy": "Copiar prompt",
-      "copyFailed": "La copia no funcionó aquí. El prompt está seleccionado: pulsa Ctrl+C o Cmd+C para copiarlo.",
-      "failed": "No pudimos cargar el prompt.",
-      "go": "Ir a mi espacio",
-      "loading": "Preparando tu prompt…",
-      "openIn": "Abrir en {agent}",
-      "promptLabel": "Prompt de la plantilla",
-      "retry": "Reintentar",
-      "steps": {
-        "approve": "Aprueba el plan que te muestra",
-        "copy": "Copia el prompt",
-        "paste": "Pégalo en un chat nuevo de {agent}",
-        "pasteGeneric": "Pégalo en un chat nuevo con tu agente"
-      },
-      "stepsLabel": "Próximos pasos",
-      "watching": "Estamos atentos al primer cambio de tu agente. Aquí ves enseguida cuándo empieza a construir."
-    },
+    "questionProgress": "Pregunta {current} de {total}",
     "source": {
       "choices": {
         "advertisement": "Un anuncio",
@@ -4634,31 +4617,33 @@
       },
       "detailLabel": "¿Dónde nos encontraste?",
       "detailPlaceholder": "¿Dónde fue? (opcional)",
-      "optionsLabel": "Cómo conociste Customermates",
-      "skip": "Omitir"
+      "optionsLabel": "Cómo conociste Customermates"
     },
     "steps": {
-      "ai": {
-        "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y a su conocimiento. Conecta una ahora, añade otras más adelante o salta este paso.",
-        "title": "Conecta la IA que ya utilizas"
-      },
       "channel": {
         "subtitle": "Tus conversaciones quedan junto a cada cliente, listas para borradores y seguimientos. Nada se envía sin ti, y puedes omitir este paso.",
         "title": "Conecta el canal por el que te escriben tus clientes"
       },
       "connect": {
-        "subtitle": "¿Qué agente usas? Te mostramos los pasos exactos para él.",
-        "title": "Conecta tu agente"
+        "subtitle": "Elígelo y sigue los pasos. Tarda alrededor de un minuto.",
+        "title": "¿Qué agente usas?"
+      },
+      "finish": {
+        "title": "Abriendo tu espacio de trabajo"
       },
       "goal": {
-        "subtitle": "Elige quién lo crea. Revisas cada cambio antes de que se aplique.",
         "subtitleSelfHosted": "Tus datos se quedan en tu servidor. Tu propio agente se conecta por MCP y construye el espacio de trabajo a partir de una plantilla.",
-        "title": "¿Cómo configuramos tu espacio de trabajo?",
+        "title": "¿Quién debe construir tu espacio de trabajo?",
         "titleSelfHosted": "¿Cómo configuramos esta instancia?"
       },
+      "handoff": {
+        "subtitle": "Envía esta línea. Tu agente elige una plantilla contigo y te muestra el plan antes de cambiar nada.",
+        "title": "Deja que {agent} lo construya",
+        "titleGeneric": "Deja que tu agente lo construya"
+      },
       "invite": {
-        "subtitle": "Invita a tus compañeros con un enlace compartido o invitaciones individuales por correo. También puedes continuar por tu cuenta e invitarlos más adelante.",
-        "title": "Incorpora a tu equipo"
+        "subtitle": "Comparte el enlace o invita por correo. También puedes hacerlo más tarde.",
+        "title": "Suma a tu equipo"
       },
       "playbook": {
         "subtitle": "Mate redacta tus respuestas a partir de él. Lo guardamos en tu base de conocimiento y puedes editarlo cuando quieras.",
@@ -4667,64 +4652,8 @@
       "profile": {
         "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo al que te han invitado.",
         "invitedSubtitleNamed": "Completa tu perfil para solicitar acceso a {workspace}.",
-        "subtitle": "Añade tu nombre para que tu equipo te reconozca y elige el idioma que quieres usar. Podrás cambiar ambos más adelante en tu perfil.",
-        "title": "Haz tuyo este espacio de trabajo"
-      },
-      "prompt": {
-        "subtitle": "{template}: tu agente hace unas preguntas y luego te muestra el plan para que lo apruebes.",
-        "title": "Pega esto en {agent}",
-        "titleGeneric": "Pega esto en tu agente"
-      },
-      "setup": {
-        "planningSubtitle": "Tus respuestas están guardadas. Mate las convierte en un plan para tu espacio de trabajo que revisas antes de crear nada.",
-        "startSubtitle": "Creamos tus listas, pasos, panel y algunas páginas de la base de conocimiento. Podrás cambiarlo todo más adelante.",
-        "startTitle": "¿A partir de qué debe crear Mate tu espacio de trabajo?",
-        "subtitle": "Lo que leímos en tu sitio web ya está rellenado. Revísalo y cambia lo que no encaje.",
-        "title": "Configura tu espacio de trabajo",
-        "withoutWebsiteSubtitle": "Unas preguntas rápidas sobre lo que quieres seguir. La mayoría se responden con un clic."
-      },
-      "source": {
-        "subtitle": "Una pregunta opcional. Solo nos ayuda a ver qué canales funcionan, y puedes omitirla.",
-        "title": "¿Cómo nos encontraste?"
-      },
-      "template": {
-        "subtitle": "Tu agente la adapta a ti y muestra el plan antes de cambiar nada.",
-        "subtitleMate": "Mate la adapta a ti y muestra el plan antes de construir nada.",
-        "title": "Elige una plantilla"
+        "title": "Te damos la bienvenida a Customermates"
       }
-    },
-    "template": {
-      "browseAll": "Ver las {count} plantillas",
-      "connected": "{agent} conectado",
-      "connectedGeneric": "Agente conectado",
-      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}} · {rules, plural, one {# automatización} other {# automatizaciones}}",
-      "countsNoRules": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}}",
-      "empty": "Ninguna plantilla coincide con tu búsqueda.",
-      "families": {
-        "clients": "Clientes",
-        "community": "Comunidad",
-        "content": "Contenido",
-        "custom": "A medida",
-        "intake": "Solicitudes",
-        "investing": "Inversión",
-        "operations": "Operaciones",
-        "professional-services": "Servicios profesionales",
-        "property": "Inmobiliaria",
-        "recruiting": "Reclutamiento",
-        "sales": "Ventas",
-        "trades": "Oficios"
-      },
-      "filterAll": "Todas",
-      "filtersLabel": "Tipos de plantilla",
-      "none": "Sin plantilla",
-      "optionsLabel": "Plantillas",
-      "pickOne": "Elige una plantilla para ver lo que configura.",
-      "recommended": "Recomendada",
-      "searchLabel": "Buscar plantillas",
-      "searchPlaceholder": "Buscar plantillas",
-      "showFewer": "Mostrar menos",
-      "suggested": "Sugerida para ti",
-      "use": "Usar {name}"
     }
   },
   "OperatorAudit": {
@@ -7358,7 +7287,6 @@
     "pendingMembers": "{count, plural, one {# miembro esperando aprobación} other {# miembros esperando aprobación}}"
   },
   "WorkspaceOnboarding": {
-    "workspaceNameDescription": "Opcional. Te ayuda a distinguir tus espacios de trabajo; puedes cambiarlo más tarde.",
     "workspaceNamePlaceholder": "p. ej., Acme Ventas"
   },
   "WorkspaceRemovalNotice": {
@@ -7451,34 +7379,19 @@
   "WorkspaceSetup": {
     "actions": {
       "addOwn": "Otra cosa",
-      "continueAnyway": "Continuar de todos modos",
-      "fromWebsite": "Sugerido a partir de tu sitio web",
-      "upload": "Subir una hoja de cálculo"
+      "continueAnyway": "Continuar de todos modos"
     },
     "anchors": {
       "price": "Precio",
       "value": "Valor"
     },
     "build": {
-      "actions": {
-        "dashboard": "Creando tu panel",
-        "dataModel": "Creando tus listas y campos",
-        "importing": "Importando {fileName}",
-        "knowledgeBase": "Escribiendo tus páginas de la base de conocimiento ({written} de {planned})",
-        "pipeline": "Creando tu pipeline de {list}: {stages}",
-        "preparing": "Preparando la siguiente parte",
-        "readingWebsite": "Leyendo {website}",
-        "records": "Añadiendo registros de ejemplo",
-        "views": "Organizando tus listas"
-      },
-      "completedBody": "Todo está listo. Ahora, invita a tu equipo.",
+      "completedBody": "Todo está listo.",
       "completedTitle": "Tu espacio de trabajo está listo",
-      "continue": "Continuar con las invitaciones",
+      "eyebrow": "Mate está construyendo",
       "failedBody": "Todo lo terminado se conserva. Reintenta la parte que no terminó para completar tu espacio.",
       "failedTitle": "Una parte de la configuración no terminó",
-      "frameTitle": "Tu espacio de trabajo",
-      "keepsRunning": "Esto sigue en marcha aunque cierres la pestaña.",
-      "nameColumn": "Nombre",
+      "keepsRunning": "Puedes continuar. La construcción termina en segundo plano.",
       "phases": {
         "dashboard": "Panel",
         "dataModel": "Listas y campos",
@@ -7486,15 +7399,8 @@
         "records": "Registros",
         "views": "Vistas de listas"
       },
-      "previewLabel": "Vista previa de tu espacio de trabajo",
-      "records": "Registros",
+      "progressLabel": "Progreso de la construcción",
       "retry": "Reintentar",
-      "sidebarLabel": "Vista previa de la navegación",
-      "states": {
-        "background": "Continúa en segundo plano",
-        "failed": "Sin terminar",
-        "skipped": "Omitido"
-      },
       "summaries": {
         "dashboard": "{count, plural, =0 {Ningún widget añadido} one {# widget añadido} other {# widgets añadidos}}",
         "dataModel": "{count, plural, =0 {No se crearon listas} one {# lista lista} other {# listas listas}}",
@@ -7502,7 +7408,7 @@
         "records": "{count, plural, =0 {Ningún registro añadido} one {# registro añadido} other {# registros añadidos}}",
         "views": "{count, plural, =0 {No se organizaron vistas} one {# vista organizada} other {# vistas organizadas}}"
       },
-      "title": "Configurando tu espacio de trabajo"
+      "title": "Construyendo tu espacio de trabajo"
     },
     "empty": {
       "action": "Empezar con un espacio de trabajo vacío",
@@ -7526,51 +7432,24 @@
     },
     "interview": {
       "addEntry": "Añadir una entrada",
-      "adjusting": "Cambia las respuestas que quieras y vuelve a ver el plan.",
-      "answerYourself": {
-        "cancel": "Esperar al sitio web",
-        "confirm": "Responder yo mismo",
-        "description": "Estamos rellenando estas respuestas a partir de tu sitio web ahora mismo. Solo tendrás que revisarlas cuando terminemos.",
-        "title": "¿Responder tú mismo?"
-      },
       "customPlaceholder": "Descríbelo en pocas palabras",
       "days": "días",
       "entryLabel": "Entrada {index}",
       "followUpsSubtitle": "Algunas respuestas pueden entenderse de varias formas. Estas preguntas lo aclaran.",
       "followUpsTitle": "Unos detalles más",
       "optionalPlaceholder": "Déjalo vacío si no se te ocurre nada",
-      "planHint": "Revisas el plan antes de que se cree nada",
-      "prefillFailed": "No pudimos leer tu sitio web, así que no hay nada rellenado. Las preguntas solo llevan unos minutos.",
-      "prefillPending": "Las respuestas de abajo se rellenan automáticamente a partir de tu sitio web. Puedes esperar y revisarlas cuando terminemos.",
+      "pickOne": "Elige una opción para continuar",
       "rangeFrom": "Desde",
       "rangeTo": "Hasta",
       "rankedHint": "{count} de {max} elegidos, por orden de importancia",
       "rankedOption": "Puesto {rank}: {label}",
-      "showPlan": "Ver el plan de mi espacio",
-      "stepsLabel": "Preguntas de configuración",
-      "uploadChoose": "Elegir archivo",
-      "uploadFailures": {
-        "cellTooLong": "Una celda tiene más de {maxCharacters, number} caracteres.",
-        "fileTooLarge": "Supera los {maxMegabytes} MB.",
-        "macroWorkbook": "Contiene macros. Guárdalo como libro de Excel sin macros (.xlsx) y vuelve a elegirlo.",
-        "noHeader": "No contiene datos. La primera fila lleva los nombres de las columnas y las siguientes, los registros.",
-        "sheetNotFound": "El libro no tiene ninguna hoja que importar.",
-        "tooManyColumns": "Tiene más de {maxColumns, number} columnas.",
-        "tooManyRows": "Tiene más de {maxRows, number} filas.",
-        "unreadableFile": "No se pudo leer el archivo. Puede que esté dañado.",
-        "unsupportedFormat": "Guárdalo como CSV o como libro de Excel (.xlsx) y vuelve a elegirlo."
-      },
-      "uploadHint": "CSV o Excel, hasta {maxMegabytes} MB y {maxRows, number} filas.",
-      "uploadKept": "La configuración sigue usando {fileName}.",
-      "uploadReady": "Listo para importar en tus nuevas listas.",
-      "uploadRejected": "No se puede importar {fileName}. {reason}",
-      "uploadReplace": "Elegir otro archivo"
+      "showMore": "Mostrar {count} más",
+      "showPlan": "Ver mi plan"
     },
     "options": {
       "existingData": {
         "empty": "No, empezar sin registros",
-        "sampleData": "Sí, añadir ejemplos",
-        "spreadsheet": "Importar mi hoja de cálculo"
+        "sampleData": "Sí, añadir ejemplos"
       },
       "pricing": {
         "fixedPrice": "Un precio fijo por encargo",
@@ -7604,45 +7483,29 @@
       }
     },
     "plan": {
-      "adjust": "Ajustar respuestas",
       "build": "Construir mi espacio",
-      "calendarSources": "Calendario: {sources}",
-      "dashboard": "Panel",
+      "changeNamed": "Cambiar {item}",
+      "eyebrow": "Plan de Mate",
       "failedTitle": "No se pudo preparar el plan",
-      "importSummary": "Importa {fileName} en {list}.",
-      "keyFields": "Campos clave de {list}",
-      "knowledgeBase": "Base de conocimiento",
       "lists": "Listas",
-      "morePages": "{count, plural, one {y # página más} other {y # páginas más}}",
-      "noDashboard": "No hay widgets de panel previstos.",
-      "noPages": "No hay páginas de la base de conocimiento previstas.",
-      "noPipeline": "No hay ningún pipeline previsto.",
       "pipeline": "Pipeline",
-      "planningTitle": "Preparando tu plan",
+      "planningTitle": "Mate está preparando tu plan",
       "progress": {
-        "done": {
-          "answers": "Respuestas leídas",
-          "knowledge": "Páginas de la base de conocimientos esbozadas",
-          "model": "Listas, campos y pipeline diseñados",
-          "views": "Vistas, panel y registros de ejemplo planificados"
-        },
         "minutesLeft": "{minutes, plural, one {Queda aproximadamente # minuto} other {Quedan aproximadamente # minutos}}",
         "overdue": "Está tardando un poco más de lo habitual. Ya casi está.",
-        "steps": {
-          "answers": "Leyendo tus respuestas",
-          "knowledge": "Estructurando las páginas de tu base de conocimientos",
-          "model": "Diseñando tus listas, campos y pipeline",
-          "views": "Planificando vistas, el panel y registros de ejemplo"
-        },
-        "typical": "Mate está diseñando tu espacio de trabajo a partir de tus respuestas. Suele tardar entre 1 y 2 minutos.",
         "underMinute": "Queda menos de un minuto"
       },
-      "reviewHint": "Revisa el plan y luego crea tu espacio de trabajo.",
-      "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
-      "subtitle": "Esto es lo que construiremos en cuanto confirmes.",
-      "title": "El plan de tu espacio de trabajo",
-      "tryAgain": "Reintentar",
-      "winChanceValue": "{value} %"
+      "rows": {
+        "examples": "Registros de ejemplo",
+        "no": "No",
+        "pricing": "Cómo cobras",
+        "steps": "{count, plural, one {# paso} other {# pasos}}",
+        "workWith": "Trabajas con",
+        "yes": "Sí"
+      },
+      "subtitle": "No se construye nada hasta que confirmes.",
+      "title": "Tu espacio de trabajo, listo para construir",
+      "tryAgain": "Reintentar"
     },
     "questions": {
       "companyName": {
@@ -7655,23 +7518,23 @@
         "label": "Moneda"
       },
       "existingData": {
-        "label": "¿Añadir registros de ejemplo para probarlo todo?"
+        "description": "Para que puedas probarlo todo de inmediato.",
+        "label": "Añadir registros de ejemplo",
+        "title": "¿Debe Mate añadir registros de ejemplo?"
       },
       "language": {
         "label": "Idioma"
       },
       "mainSteps": {
-        "label": "¿Por qué pasos pasa este trabajo? Te sugerimos los más habituales: cámbiales el nombre, añade o quita."
+        "hint": "Te sugerimos pasos habituales. Cámbiales el nombre, añade o quita los que quieras.",
+        "label": "¿Por qué pasos pasa este trabajo?"
       },
       "pricing": {
         "label": "¿Cómo cobras?"
       },
       "purpose": {
-        "label": "¿Qué quieres seguir? Los contactos y las tareas siempre están incluidos."
-      },
-      "purposeDetails": {
-        "label": "¿Algo más que debamos saber?",
-        "placeholder": "Por ejemplo: fabricamos cocinas y seguimos cada encargo desde la primera visita hasta el montaje"
+        "hint": "Los contactos y las tareas siempre están incluidos.",
+        "label": "¿Qué quieres seguir?"
       },
       "teamSize": {
         "label": "¿Solo tú o un equipo?"
@@ -7679,23 +7542,6 @@
       "workWith": {
         "label": "¿Con quién trabajas?"
       }
-    },
-    "start": {
-      "emptyPrompt": "¿Prefieres configurarlo todo tú?",
-      "optionsLabel": "Formas de configurar tu espacio de trabajo",
-      "questions": {
-        "description": "Hasta seis preguntas rápidas sobre lo que quieres seguir.",
-        "note": "Alrededor de 1 minuto",
-        "title": "Responder unas preguntas"
-      },
-      "website": {
-        "action": "Leer mi sitio web",
-        "description": "Leemos tu sitio web público y rellenamos las respuestas por ti. Solo tienes que revisarlas.",
-        "note": "Unos 2 minutos",
-        "recommended": "Recomendado",
-        "title": "Usar mi sitio web"
-      },
-      "withoutWebsite": "Continuar sin sitio web"
     },
     "suggestedSteps": {
       "contracts": ["Incorporación", "Activo", "Pendiente de renovación", "Renovado", "Finalizado"],
@@ -7708,20 +7554,6 @@
       "partners": ["Contactado", "En conversaciones", "Activo", "En pausa"],
       "projects": ["Planificado", "En curso", "Revisión", "Hecho"],
       "support": ["Nueva", "En curso", "Esperando al cliente", "Resuelta"]
-    },
-    "website": {
-      "change": "Cambiar",
-      "eta": "Suele tardar de 1 a 2 minutos.",
-      "finding": "Buscando páginas en {website}",
-      "found": "{count, plural, =0 {No se encontraron páginas en {website}} one {# página encontrada en {website}} other {# páginas encontradas en {website}}}",
-      "hint": "Opcional. Leemos tu sitio web público y sugerimos respuestas, así que casi solo tienes que confirmarlas.",
-      "read": "Leer el sitio web",
-      "reading": "Leyendo {website}: {read} de {total} páginas",
-      "readPages": "{count, plural, =0 {Ninguna página leída} one {# página leída} other {# páginas leídas}}",
-      "suggested": "Respuestas sugeridas",
-      "suggestedHint": "Revisa las respuestas marcadas y cambia lo que no encaje.",
-      "suggesting": "Sugiriendo respuestas a partir de {website}",
-      "title": "Rellena las respuestas desde tu sitio web"
     }
   }
 }

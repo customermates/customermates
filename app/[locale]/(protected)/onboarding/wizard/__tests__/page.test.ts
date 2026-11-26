@@ -7,17 +7,15 @@ const mocks = vi.hoisted(() => ({
   getProgress: vi.fn(),
   listWorkspaces: vi.fn(),
   getJobChoice: vi.fn(),
-  getTemplateChoice: vi.fn(),
-  offeredTemplateCards: vi.fn(),
-  preselectOnboardingTemplate: vi.fn(),
-  env: { APP_MODE: "cloud" as "cloud" | "self-hosted" | "demo" },
+  getCompany: vi.fn(),
+  env: {
+    APP_MODE: "cloud" as "cloud" | "self-hosted" | "demo",
+    RESEND_API_KEY: undefined as string | undefined,
+  },
 }));
 
 vi.mock("@/env", () => ({ env: mocks.env }));
-vi.mock("@/features/onboarding-templates/onboarding-template-offer", () => ({
-  offeredTemplateCards: mocks.offeredTemplateCards,
-  preselectOnboardingTemplate: mocks.preselectOnboardingTemplate,
-}));
+vi.mock("../components/confirm-email-card", () => ({ ConfirmEmailCard: "confirm-email-card" }));
 
 vi.mock("next/navigation", () => ({
   redirect: (path: string) => {
@@ -35,7 +33,7 @@ vi.mock("@/core/di", () => ({
   getGetWorkspaceSetupStatusInteractor: () => ({ invoke: mocks.getSetupStatus }),
   getListMyWorkspacesInteractor: () => ({ invoke: mocks.listWorkspaces }),
   getGetOnboardingJobChoiceInteractor: () => ({ invoke: mocks.getJobChoice }),
-  getGetOnboardingTemplateChoiceInteractor: () => ({ invoke: mocks.getTemplateChoice }),
+  getGetCompanyInteractor: () => ({ invoke: mocks.getCompany }),
 }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
@@ -59,12 +57,8 @@ describe("OnboardingWizardPage authentication detours", () => {
       data: { selectedJob: null, signupJob: "agent", preselectedJob: "agent" },
     });
     mocks.env.APP_MODE = "cloud";
-    mocks.getTemplateChoice.mockResolvedValue({
-      ok: true,
-      data: { signupTemplate: null, signupLandingPath: null },
-    });
-    mocks.offeredTemplateCards.mockReturnValue([]);
-    mocks.preselectOnboardingTemplate.mockReturnValue({ slug: null, reason: null });
+    mocks.env.RESEND_API_KEY = undefined;
+    mocks.getCompany.mockResolvedValue({ ok: true, data: { id: "company-a", name: "Acme Consulting" } });
   });
 
   it("passes the saved AI setup and owner identity to a fresh wizard render", async () => {
@@ -220,42 +214,29 @@ describe("OnboardingWizardPage authentication detours", () => {
       user: { companyId: "company-a", role: { isSystemRole: false }, onboardingWikiStepCompletedAt: null },
     });
     const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(invited.props.children.props).toMatchObject({ templates: [] });
+    expect(invited.props.children.props).not.toHaveProperty("templates");
     expect(mocks.getJobChoice).not.toHaveBeenCalled();
-    expect(mocks.offeredTemplateCards).not.toHaveBeenCalled();
+    expect(mocks.getCompany).not.toHaveBeenCalled();
 
     mocks.env.APP_MODE = "demo";
     mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "demo", setup: null } });
     registeredOwner(null);
     const demo = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
     expect(demo.props.children.props.jobChoice).toBeUndefined();
-    expect(demo.props.children.props).toMatchObject({ setupStepCompleted: true, templates: [] });
+    expect(demo.props.children.props).toMatchObject({ setupStepCompleted: true });
     expect(mocks.getJobChoice).not.toHaveBeenCalled();
   });
 
-  it("offers the optional source question to a cloud owner only", async () => {
+  it("passes the workspace name to an owner, for the message the agent gets", async () => {
     registeredOwner(null);
-    const cloud = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(cloud.props.children.props).toMatchObject({ flow: { sourceAvailable: true } });
 
-    mocks.env.APP_MODE = "self-hosted";
-    registeredOwner(null);
-    const selfHosted = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(selfHosted.props.children.props).toMatchObject({ flow: { sourceAvailable: false } });
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
-    mocks.env.APP_MODE = "cloud";
-    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({
-      sessionUser: { id: "user-a", email: "member@example.com", companyId: "company-a" },
-      user: { companyId: "company-a", role: { isSystemRole: false }, onboardingWikiStepCompletedAt: null },
-    });
-    const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-    expect(invited.props.children.props).toMatchObject({ flow: { sourceAvailable: false } });
+    expect(page.props.children.props).toMatchObject({ workspaceName: "Acme Consulting" });
   });
 
-  it("builds the flow context once for the wizard: choice, templates, source, channel and team invites", async () => {
+  it("builds the flow context once for the wizard: choice, channel and team invites", async () => {
     registeredOwner(null);
-    mocks.offeredTemplateCards.mockReturnValue([{ slug: "client-tracker", name: "Client tracker" }]);
     mocks.getJobChoice.mockResolvedValue({
       ok: true,
       data: { selectedJob: null, signupJob: "agent", preselectedJob: "agent", teamSize: "small" },
@@ -265,11 +246,21 @@ describe("OnboardingWizardPage authentication detours", () => {
     expect(owner.props.children.props.flow).toEqual({
       setupAvailable: true,
       chooseAvailable: true,
-      templatesAvailable: true,
-      sourceAvailable: true,
       channelAvailable: true,
       teamInvite: true,
     });
+
+    mocks.env.APP_MODE = "self-hosted";
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "selfHosted", setup: null } });
+    registeredOwner(null);
+    const selfHosted = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(selfHosted.props.children.props.flow).toEqual({
+      setupAvailable: false,
+      chooseAvailable: true,
+      channelAvailable: false,
+      teamInvite: true,
+    });
+    expect(selfHosted.props.children.props).toMatchObject({ setupStepCompleted: false });
 
     mocks.env.APP_MODE = "demo";
     mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "demo", setup: null } });
@@ -278,50 +269,12 @@ describe("OnboardingWizardPage authentication detours", () => {
     expect(demo.props.children.props.flow).toEqual({
       setupAvailable: false,
       chooseAvailable: false,
-      templatesAvailable: false,
-      sourceAvailable: false,
       channelAvailable: false,
       teamInvite: false,
     });
   });
 
-  it("offers the templates of the language and the cloud, and preselects from the signup", async () => {
-    registeredOwner(null);
-    const cards = [{ slug: "client-tracker", name: "Client tracker" }];
-    mocks.offeredTemplateCards.mockReturnValue(cards);
-    mocks.getTemplateChoice.mockResolvedValue({
-      ok: true,
-      data: { signupTemplate: "client-tracker", signupLandingPath: "/en/for/consultants" },
-    });
-    mocks.preselectOnboardingTemplate.mockReturnValue({ slug: "client-tracker", reason: "signup" });
-
-    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-
-    expect(mocks.offeredTemplateCards).toHaveBeenCalledExactlyOnceWith({ locale: "en", deployment: "cloud" });
-    expect(mocks.preselectOnboardingTemplate).toHaveBeenCalledExactlyOnceWith({
-      cards,
-      signupTemplate: "client-tracker",
-      landingPath: "/en/for/consultants",
-    });
-    expect(page.props.children.props).toMatchObject({
-      templates: cards,
-      templatePreselection: { slug: "client-tracker", reason: "signup" },
-    });
-  });
-
-  it("offers a self-hosted owner the choice with the templates a self-hosted instance can run", async () => {
-    mocks.env.APP_MODE = "self-hosted";
-    registeredOwner(null);
-    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "selfHosted", setup: null } });
-
-    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
-
-    expect(mocks.offeredTemplateCards).toHaveBeenCalledWith({ locale: "en", deployment: "self-hosted" });
-    expect(page.props.children.props).toMatchObject({ setupStepCompleted: false });
-    expect(page.props.children.props.jobChoice).toBeDefined();
-  });
-
-  it("offers the templates before the profile exists, without a stored choice", async () => {
+  function newOwner(emailVerified: boolean | null) {
     mocks.resolveOnboardingIntent.mockResolvedValue({
       type: "createCompany",
       authUserId: "user-a",
@@ -331,16 +284,59 @@ describe("OnboardingWizardPage authentication detours", () => {
     mocks.requireAccountState.mockResolvedValue({
       sessionUser: { id: "user-a", email: "owner@example.com", companyId: null },
       user: null,
+      emailVerified,
     });
-    mocks.offeredTemplateCards.mockReturnValue([{ slug: "client-tracker" }]);
+  }
+
+  it("asks a cloud owner who signed up with a password to confirm the email before the profile", async () => {
+    newOwner(false);
 
     const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
 
-    expect(page.props.children.props).toMatchObject({
-      templates: [{ slug: "client-tracker" }],
-      profileCompleted: false,
+    expect(page.props.children.type).toBe("confirm-email-card");
+    expect(page.props.children.props).toEqual({ email: "owner@example.com", onboardingIntent: "signed.create" });
+    expect(mocks.getSetupStatus).not.toHaveBeenCalled();
+  });
+
+  it("opens the profile right away for a verified owner, such as one who signed in with Google", async () => {
+    newOwner(true);
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
+
+    expect(page.props.children.type).toBe("onboarding-wizard");
+    expect(page.props.children.props).toMatchObject({ profileCompleted: false });
+  });
+
+  it("keeps a self-hosted instance without email delivery free of the email gate", async () => {
+    mocks.env.APP_MODE = "self-hosted";
+    newOwner(false);
+    const withoutMail = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
+    expect(withoutMail.props.children.type).toBe("onboarding-wizard");
+
+    mocks.env.RESEND_API_KEY = "configured";
+    newOwner(false);
+    const withMail = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
+    expect(withMail.props.children.type).toBe("confirm-email-card");
+  });
+
+  it("never asks an invited member to confirm the email here", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({
+      companyId: "company-a",
+      companyName: "Bergmann Steuern",
+      intent: "signed.invite",
+      inviterName: "Invite Admin",
+      status: "valid",
+      type: "invitation",
     });
-    expect(mocks.getTemplateChoice).not.toHaveBeenCalled();
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "new@example.com", companyId: null },
+      user: null,
+      emailVerified: false,
+    });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.invite" }) });
+
+    expect(page.props.children.type).toBe("onboarding-wizard");
   });
 
   it("skips the setup step only after the owner completed it", async () => {

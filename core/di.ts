@@ -272,9 +272,6 @@ import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/rec
 import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
 import { RecordChannelSkippedInteractor } from "@/features/onboarding-funnel/record-channel-skipped.interactor";
 import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
-import { GetOnboardingTemplatePromptInteractor } from "@/features/onboarding-templates/get-onboarding-template-prompt.interactor";
-import { GetOnboardingTemplateChoiceInteractor } from "@/features/onboarding-templates/get-onboarding-template-choice.interactor";
-import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -1397,15 +1394,6 @@ export const getRecordDiscoveryAnswerInteractor = () =>
   new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
 export const getGetOnboardingAgentStatusInteractor = () =>
   new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
-export const getGetOnboardingTemplatePromptInteractor = () =>
-  new GetOnboardingTemplatePromptInteractor(
-    loadTemplateBundle,
-    getRouteGuardService(),
-    getOnboardingFunnelRepo(),
-    getCompanyRepo(),
-  );
-export const getGetOnboardingTemplateChoiceInteractor = () =>
-  new GetOnboardingTemplateChoiceInteractor(getOnboardingFunnelRepo());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
   new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
@@ -2884,14 +2872,11 @@ import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/wor
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
-import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
 import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
 import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
-import { SetWorkspaceSetupWebsiteInteractor } from "@/ee/workspace-setup/set-workspace-setup-website.interactor";
 import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
 import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
 import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
-import { UploadWorkspaceSetupSpreadsheetInteractor } from "@/ee/workspace-setup/upload-workspace-setup-spreadsheet.interactor";
 import { PlanWorkspaceSetupInteractor } from "@/ee/workspace-setup/plan-workspace-setup.interactor";
 import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-workspace-setup.interactor";
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
@@ -2902,8 +2887,6 @@ export const getWorkspaceSetupRepo = () =>
 export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
 export const getWorkspaceSetupModelService = (budget: WorkspaceSetupBudgetKind) =>
   new WorkspaceSetupModelService(getAgentUsageService(), WORKSPACE_SETUP_BUDGETS[budget]);
-export const getWorkspaceSetupCrawlStarter = () =>
-  new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
 export const getWorkspaceSetupInterviewService = () => {
   const models = getWorkspaceSetupModelService("plan");
   return new WorkspaceSetupInterviewService(
@@ -2939,24 +2922,14 @@ export const getWorkspaceSetupBuildService = () =>
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(
     getWorkspaceSetupRepo(),
-    getWorkspaceSetupCrawlStarter(),
-    getBackgroundTaskService(),
     getCompanyRepo(),
-    getEntitlementService(),
-  );
-export const getSetWorkspaceSetupWebsiteInteractor = () =>
-  new SetWorkspaceSetupWebsiteInteractor(
-    getWorkspaceSetupRepo(),
-    getWorkspaceSetupCrawlStarter(),
-    getBackgroundTaskService(),
+    getOnboardingFunnelRepo(),
     getEntitlementService(),
   );
 export const getGetWorkspaceSetupStatusInteractor = () =>
   new GetWorkspaceSetupStatusInteractor(getWorkspaceSetupRepo(), getAgentUsageService(), getRecordRepo());
 export const getSaveWorkspaceSetupAnswersInteractor = () =>
   new SaveWorkspaceSetupAnswersInteractor(getWorkspaceSetupRepo());
-export const getUploadWorkspaceSetupSpreadsheetInteractor = () =>
-  new UploadWorkspaceSetupSpreadsheetInteractor(getWorkspaceSetupRepo());
 export const getPlanWorkspaceSetupInteractor = () =>
   new PlanWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService(), getEntitlementService());
 export const getAdjustWorkspaceSetupInteractor = () =>
@@ -2974,12 +2947,7 @@ export const getConfirmWorkspaceSetupInteractor = () =>
     getEntitlementService(),
   );
 export const getRetryWorkspaceSetupPhaseInteractor = () =>
-  new RetryWorkspaceSetupPhaseInteractor(
-    getWorkspaceSetupRepo(),
-    getWorkspaceSetupCrawlStarter(),
-    getBackgroundTaskService(),
-    getEntitlementService(),
-  );
+  new RetryWorkspaceSetupPhaseInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService(), getEntitlementService());
 
 import { PrismaPlannerPersonalEventsRepo } from "@/ee/calendar/prisma-planner-personal-events.repository";
 import { ReadPlannerInteractor } from "@/features/planner/read-planner.interactor";

@@ -58,7 +58,12 @@ function renderStep(store: AiConnectionStore, isSubmitting = false): string {
   testContext.rootStore = {
     onboardingWizardStore: {
       back: vi.fn(),
-      complete: vi.fn(),
+      continueFromConnect: vi.fn(),
+      refreshAgentStatus: vi.fn(),
+      agentConnected: false,
+      agentStatusFailed: false,
+      isFirstStep: false,
+      isBusy: isSubmitting,
       isSubmitting,
     },
     stepAiStore: store,
@@ -101,7 +106,7 @@ beforeEach(() => {
 });
 
 describe("StepAi provider chooser", () => {
-  it("renders six provider-first buttons with Back and Finish", () => {
+  it("renders six provider-first buttons with Back, a later option and a disabled Continue", () => {
     const html = renderStep(makeStore());
     const providerButtons = buttons(html).filter((button) => button.includes("data-provider="));
 
@@ -115,17 +120,20 @@ describe("StepAi provider chooser", () => {
       "langdock",
     ]);
     expect(providerButtons.join(" ")).not.toMatch(/connector|api.?key|mcp/i);
-    const finishButton = buttonContaining(html, "OnboardingWizard.finish");
+    const continueButton = buttonContaining(html, "OnboardingWizard.continue");
 
-    expect(finishButton).not.toContain("data-provider=");
-    expect(finishButton).toContain('data-variant="default"');
-    expectButtonDisabled(finishButton, false);
-    expect(html).not.toContain("OnboardingWizard.ai.choices.skip");
+    expect(continueButton).not.toContain("data-provider=");
+    expect(continueButton).toContain('data-variant="default"');
+    expectButtonDisabled(continueButton, true);
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.connect.skip"), false);
+    expect(html).not.toContain("OnboardingWizard.finish");
+    expect(html).not.toContain("AgentStart");
     expect(buttonContaining(html, "Common.actions.back")).toContain('data-variant="ghost"');
     const footer = html.match(/<div[^>]*data-slot="card-footer"[^>]*>/)?.[0];
 
     expect(footer).toContain("justify-between");
-    expect(html.indexOf("Common.actions.back")).toBeLessThan(html.indexOf("OnboardingWizard.finish"));
+    expect(html).toContain('id="onboarding-agent-status"');
+    expect(html.indexOf("Common.actions.back")).toBeLessThan(html.indexOf("OnboardingWizard.continue"));
   });
 
   it("does not leave a provider looking selected when returning to the chooser", () => {
@@ -170,7 +178,7 @@ describe("StepAi Claude setup", () => {
     expect(html).not.toContain("OnboardingWizard.ai.createKey");
     expect(html).not.toContain("OnboardingWizard.ai.screen.back");
     expect(buttonContaining(html, "Common.actions.back")).toContain('data-variant="ghost"');
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.continue"), true);
   });
 
   it("expands the Claude account connector without showing ChatGPT-only instructions", () => {
@@ -203,7 +211,7 @@ describe("StepAi Claude setup", () => {
     expect(connectButton).toContain("self-start");
     expect(connectButton).not.toContain("w-full");
     expect(connectButton).not.toContain("h-auto");
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.continue"), true);
   });
 
   it("asks for Claude Code or Desktop before exposing key creation", () => {
@@ -226,7 +234,7 @@ describe("StepAi Claude setup", () => {
     expect(buttonContaining(selectedHtml, "OnboardingWizard.ai.createKey")).toContain(
       'data-api-key-setup="claudeDesktop"',
     );
-    expectButtonDisabled(buttonContaining(selectedHtml, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(selectedHtml, "OnboardingWizard.continue"), true);
   });
 });
 
@@ -244,7 +252,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
     expect(html).toContain("OnboardingWizard.ai.openai.methods.codex.description");
     expect(html).not.toContain("OnboardingWizard.ai.connector.chatgptTitle");
     expect(html).not.toContain("OnboardingWizard.ai.createKey");
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.continue"), true);
   });
 
   it("renders current ChatGPT desktop MCP instructions without the Claude deep link", () => {
@@ -270,7 +278,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
     expect(paragraphContaining(html, "OnboardingWizard.ai.connector.externalNote")).toContain(">guide</a>");
     expect(html).toContain("https://learn.chatgpt.com/docs/extend/mcp");
     expect(html).toContain('class="inline-link');
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.continue"), true);
   });
 
   it("shows only the selected Codex key flow and snippet", () => {
@@ -295,7 +303,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
       'id="openai-codex-details" class="flex flex-col gap-3 rounded-xl border bg-muted p-4"',
     );
     expect(beforeKey).not.toContain("OnboardingWizard.ai.install.instruction.codex");
-    expectButtonDisabled(buttonContaining(beforeKey, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(beforeKey, "OnboardingWizard.continue"), true);
 
     runInAction(() => {
       store.credentials = {
@@ -312,7 +320,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
       "date=short-date-time(2027-09-24T10:00:00.000Z) tool=OnboardingWizard.ai.choices.codex",
     );
     expect(afterKey).not.toContain('data-api-key-setup="codex"');
-    expectButtonDisabled(buttonContaining(afterKey, "OnboardingWizard.finish"), false);
+    expectButtonDisabled(buttonContaining(afterKey, "OnboardingWizard.continue"), true);
   });
 
   it("renders failures as alerts with a retry action", () => {
@@ -330,10 +338,10 @@ describe("StepAi ChatGPT and Codex setup", () => {
     expect(retryCard).toContain("border-destructive");
     expect(retryCard).toContain('data-api-key-setup="cursor"');
     expect(html).toContain("OnboardingWizard.ai.errors.createFailed");
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.continue"), true);
   });
 
-  it("keeps Finish disabled while key creation or onboarding submission is pending", () => {
+  it("keeps Continue disabled while key creation or onboarding submission is pending", () => {
     const store = makeStore();
     store.selectProvider("gemini");
     store.pendingTool = "gemini";
@@ -344,7 +352,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
     expect(creatingCard).toContain('aria-busy="true"');
     expect(creatingCard).toContain("lucide-loader-circle");
     expectButtonDisabled(creatingCard, true);
-    expectButtonDisabled(buttonContaining(creatingHtml, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(creatingHtml, "OnboardingWizard.continue"), true);
 
     runInAction(() => {
       store.pendingTool = null;
@@ -354,7 +362,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
     });
     const submittingHtml = renderStep(store, true);
 
-    expectButtonDisabled(buttonContaining(submittingHtml, "OnboardingWizard.finish"), true);
+    expectButtonDisabled(buttonContaining(submittingHtml, "OnboardingWizard.continue"), true);
     expect(submittingHtml).not.toContain("OnboardingWizard.ai.install.expiryNote");
   });
 });

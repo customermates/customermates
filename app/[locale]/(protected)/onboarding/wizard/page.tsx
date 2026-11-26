@@ -13,8 +13,8 @@ import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import {
+  getGetCompanyInteractor,
   getGetOnboardingJobChoiceInteractor,
-  getGetOnboardingTemplateChoiceInteractor,
   getGetOnboardingWizardProgressInteractor,
   getGetWorkspaceSetupStatusInteractor,
   getListMyWorkspacesInteractor,
@@ -24,18 +24,14 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { OnboardingJobChoiceView } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
-import type {
-  OnboardingTemplateCard,
-  OnboardingTemplatePreselection,
-} from "@/features/onboarding-templates/onboarding-template-offer";
 
-import { templateDeployment } from "@/core/templates/template-deployment";
 import { env } from "@/env";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
-import {
-  offeredTemplateCards,
-  preselectOnboardingTemplate,
-} from "@/features/onboarding-templates/onboarding-template-offer";
+import { ConfirmEmailCard } from "./components/confirm-email-card";
+
+function emailConfirmationRequired(emailVerified: boolean | null): boolean {
+  if (emailVerified !== false) return false;
+  return env.APP_MODE === "cloud" || (env.APP_MODE === "self-hosted" && Boolean(env.RESEND_API_KEY));
+}
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -80,6 +76,14 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   );
   if (!user && !isInvited && !canCreateCompany) redirect(await appRedirectHref("/onboarding"));
 
+  if (!user && !isInvited && emailConfirmationRequired(resolution.emailVerified)) {
+    return (
+      <CenteredCardPage align="top">
+        <ConfirmEmailCard email={sessionUser.email} onboardingIntent={effectiveIntent?.intent} />
+      </CenteredCardPage>
+    );
+  }
+
   const choosing = wizardChoiceAvailable(env.APP_MODE, isInvited);
   let setupStatus: WorkspaceSetupStatusView | undefined;
   let setupStepCompleted = false;
@@ -88,22 +92,11 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     if (status.ok) setupStatus = status.data;
     setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || (!setupStatus?.available && !choosing);
   }
-  const templates: OnboardingTemplateCard[] = choosing
-    ? offeredTemplateCards({
-        locale: appLocaleOrDefault(await getLocale()),
-        deployment: templateDeployment(),
-      })
-    : [];
   let jobChoice: OnboardingJobChoiceView | undefined;
-  let templatePreselection: OnboardingTemplatePreselection = { slug: null, reason: null };
+  let companyName: string | null = null;
   if (user?.role?.isSystemRole && choosing) {
     jobChoice = (await runWithTenant(user, () => getGetOnboardingJobChoiceInteractor().invoke())).data;
-    const templateChoice = (await runWithTenant(user, () => getGetOnboardingTemplateChoiceInteractor().invoke())).data;
-    templatePreselection = preselectOnboardingTemplate({
-      cards: templates,
-      signupTemplate: templateChoice.signupTemplate,
-      landingPath: templateChoice.signupLandingPath,
-    });
+    companyName = (await runWithTenant(user, () => getGetCompanyInteractor().invoke())).data.name;
   }
 
   const sessionName = sessionUser.name ?? "";
@@ -123,7 +116,6 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     isInvited,
     profileCompleted: Boolean(user),
     setupOffered: Boolean(setupStatus?.available),
-    templateCount: templates.length,
     teamSize: jobChoice?.teamSize,
   });
 
@@ -144,10 +136,8 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionLastName={sessionLastName}
         setupStatus={setupStatus}
         setupStepCompleted={setupStepCompleted}
-        templatePreselection={templatePreselection}
-        templates={templates}
         userId={user?.role?.isSystemRole ? user.id : undefined}
-        workspaceName={invitation?.companyName}
+        workspaceName={invitation?.companyName ?? companyName}
       />
     </CenteredCardPage>
   );

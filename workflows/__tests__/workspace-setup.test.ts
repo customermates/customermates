@@ -4,7 +4,6 @@ const state = vi.hoisted(() => ({
   calls: [] as string[],
   sleeps: 0,
   kbWaits: 2,
-  prefill: vi.fn(),
   followUps: vi.fn(),
   claimPlan: vi.fn(),
   planPart: vi.fn(),
@@ -29,7 +28,6 @@ vi.mock("@/core/decorators/background-tenant", () => ({
 }));
 vi.mock("@/core/di", () => ({
   getWorkspaceSetupInterviewService: () => ({
-    prefill: state.prefill,
     followUps: state.followUps,
     claimPlan: state.claimPlan,
     planPart: state.planPart,
@@ -50,7 +48,7 @@ vi.mock("../capture-failure", () => ({
   reportWarning: state.reportWarning,
 }));
 
-import { buildWorkspaceSetup, planWorkspaceSetup, prepareWorkspaceSetup } from "../workspace-setup";
+import { buildWorkspaceSetup, planWorkspaceSetup } from "../workspace-setup";
 import { SETUP_PHASE_STALE_MS } from "@/ee/workspace-setup/workspace-setup-phases";
 
 const WAIT_MS = 10_000;
@@ -76,21 +74,6 @@ beforeEach(() => {
 });
 
 describe("workspace setup workflows", () => {
-  it("waits for crawled text before pre-filling, then forces the pre-fill on the last round", async () => {
-    state.prefill.mockResolvedValueOnce("wait").mockResolvedValueOnce("wait").mockResolvedValueOnce("done");
-    await prepareWorkspaceSetup(payload);
-    expect(state.prefill.mock.calls).toEqual([
-      ["setup-1", false],
-      ["setup-1", false],
-      ["setup-1", false],
-    ]);
-    expect(state.sleeps).toBe(2);
-
-    state.prefill.mockReset().mockResolvedValue("wait");
-    await prepareWorkspaceSetup(payload);
-    expect(state.prefill.mock.calls.at(-1)).toEqual(["setup-1", true]);
-  });
-
   it("plans only when no follow-up question was asked, one durable step per plan part", async () => {
     state.followUps.mockReset().mockResolvedValueOnce("asked").mockResolvedValueOnce("none");
     await planWorkspaceSetup(payload);

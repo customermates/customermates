@@ -123,13 +123,12 @@ export class PrismaWorkspaceSetupRepo
     return this.load({ id });
   }
 
-  async create(data: { websiteUrl: string | null; answers: SetupAnswers; templateSlug: string | null }) {
+  async create(data: { answers: SetupAnswers; templateSlug: string | null }) {
     try {
       const row = await this.prisma.workspaceSetup.create({
         data: {
           companyId: this.companyId,
           userId: this.userId,
-          websiteUrl: data.websiteUrl,
           answers: json(data.answers),
           interview: json(data.templateSlug ? { templateSlug: data.templateSlug } : {}),
         },
@@ -142,13 +141,13 @@ export class PrismaWorkspaceSetupRepo
     }
   }
 
-  async restart(id: string, data: { websiteUrl: string | null; answers: SetupAnswers; templateSlug: string | null }) {
+  async restart(id: string, data: { answers: SetupAnswers; templateSlug: string | null }) {
     const { count } = await this.prisma.workspaceSetup.updateMany({
       where: { id, companyId: this.companyId, status: { in: ["interview", "planned", "failed"] } },
       data: {
         userId: this.userId,
         status: "interview",
-        websiteUrl: data.websiteUrl,
+        websiteUrl: null,
         crawlId: null,
         answers: json(data.answers),
         interview: json(data.templateSlug ? { templateSlug: data.templateSlug } : {}),
@@ -185,14 +184,6 @@ export class PrismaWorkspaceSetupRepo
         await this.funnel.recordFunnelEvent({ type: "setupCompleted", occurredAt: next.finishedAt ?? new Date() });
       return { setup: next, changed: true };
     });
-  }
-
-  async storeSpreadsheet(id: string, fileName: string, bytes: Uint8Array) {
-    const { count } = await this.prisma.workspaceSetup.updateMany({
-      where: { id, companyId: this.companyId, status: { in: ["interview", "planned"] } },
-      data: { status: "interview", spreadsheetName: fileName, spreadsheetBytes: Buffer.from(bytes) },
-    });
-    return count === 1;
   }
 
   async readSpreadsheet(id: string) {

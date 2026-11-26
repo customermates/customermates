@@ -17,20 +17,12 @@ export type SetupCrawlSource = { url: string; title: string; text: string; categ
 export abstract class WorkspaceSetupRepo {
   abstract findCurrent(): Promise<WorkspaceSetupRecord | null>;
   abstract get(id: string): Promise<WorkspaceSetupRecord | null>;
-  abstract create(data: {
-    websiteUrl: string | null;
-    answers: SetupAnswers;
-    templateSlug: string | null;
-  }): Promise<WorkspaceSetupRecord | null>;
-  abstract restart(
-    id: string,
-    data: { websiteUrl: string | null; answers: SetupAnswers; templateSlug: string | null },
-  ): Promise<boolean>;
+  abstract create(data: { answers: SetupAnswers; templateSlug: string | null }): Promise<WorkspaceSetupRecord | null>;
+  abstract restart(id: string, data: { answers: SetupAnswers; templateSlug: string | null }): Promise<boolean>;
   abstract mutate(
     id: string,
     change: (setup: WorkspaceSetupRecord) => WorkspaceSetupPatch | null,
   ): Promise<{ setup: WorkspaceSetupRecord; changed: boolean } | null>;
-  abstract storeSpreadsheet(id: string, fileName: string, bytes: Uint8Array): Promise<boolean>;
   abstract readSpreadsheet(id: string): Promise<{ fileName: string; bytes: Uint8Array } | null>;
   abstract crawlState(crawlId: string): Promise<SetupCrawlState | null>;
   abstract stopCrawl(crawlId: string): Promise<void>;

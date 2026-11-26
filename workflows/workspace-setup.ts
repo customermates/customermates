@@ -18,22 +18,12 @@ export type WorkspaceSetupWorkflowPayload = {
   tenant?: WorkflowTenant;
 };
 
-const PREFILL_WAIT_ROUNDS = 18;
 const KNOWLEDGE_BASE_WAIT_ROUNDS = 180;
 const PLAN_BUSY_ROUNDS = 100;
 const PHASE_BUSY_ROUNDS = 60;
 const FINISH_WAIT_ROUNDS = 30;
 const WAIT = "10s";
 const PLAN_RETRY_WAIT = "30s";
-async function prefillWorkspaceSetupStep(
-  payload: WorkspaceSetupWorkflowPayload,
-  force: boolean,
-): Promise<{ result: "done" | "wait"; warnings: string[] }> {
-  "use step";
-  const service = getWorkspaceSetupInterviewService();
-  const result = await asBackgroundOwner(payload.userId, () => service.prefill(payload.setupId, force));
-  return { result: present(result, "done" as const), warnings: service.drainWarnings() };
-}
 
 async function followUpWorkspaceSetupStep(
   payload: WorkspaceSetupWorkflowPayload,
@@ -124,21 +114,6 @@ buildWorkspaceSetupPhaseStep.maxRetries = 1;
 
 async function warn(name: string, warnings: string[], tenant?: WorkflowTenant) {
   for (const warning of warnings) await reportWarning(name, warning, tenant);
-}
-
-export async function prepareWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload): Promise<void> {
-  "use workflow";
-  try {
-    for (let round = 0; round <= PREFILL_WAIT_ROUNDS; round += 1) {
-      const step = await prefillWorkspaceSetupStep(payload, round === PREFILL_WAIT_ROUNDS);
-      await warn("prepare-workspace-setup", step.warnings, payload.tenant);
-      if (step.result === "done") return;
-      await sleep(WAIT);
-    }
-  } catch (error) {
-    await reportFailure("prepare-workspace-setup", toWorkflowFailure(error), payload.tenant);
-    throw error;
-  }
 }
 
 async function draftPlanPart(payload: WorkspaceSetupWorkflowPayload, revision: number, part: SetupPlanPart) {

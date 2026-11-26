@@ -102,22 +102,12 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
   return {
     id: SETUP_ID,
     status: "interview",
-    websiteUrl: "https://example.com/",
     startedAt: "2026-10-11T10:00:00.000Z",
     confirmedAt: null,
     finishedAt: null,
-    knowledgeBase: {
-      crawlStatus: null,
-      failureReason: null,
-      pagesPlanned: 0,
-      pagesWritten: 0,
-      sourcesFound: 0,
-      sourcesRead: 0,
-    },
+    knowledgeBase: { pagesPlanned: 0, pagesWritten: 0 },
     interview: {
       answers: {},
-      prefill: "completed",
-      prefillError: null,
       followUps: "idle",
       followUpQuestions: [],
       followUpAnswers: [],

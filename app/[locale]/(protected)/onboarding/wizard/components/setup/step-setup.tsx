@@ -10,15 +10,14 @@ import { useTranslations } from "next-intl";
 import { GenericPageLoading } from "@/components/page-state/generic-page-loading";
 
 import { isClientTransportError } from "@/core/errors/client-transport-error";
-import { reportApplicationError } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
 
-import { SetupBuildView } from "./setup-build-view";
-import { SetupFollowUps } from "./setup-follow-ups";
-import { SetupInterview } from "./setup-interview";
-import { SetupPlanFailed, SetupPlanPending, SetupPlanPreview } from "./setup-plan-preview";
-import { SetupStart } from "./setup-start";
+import { SetupBuildFooter, SetupBuildView } from "./setup-build-view";
+import { SetupFollowUps, SetupFollowUpsFooter } from "./setup-follow-ups";
+import { SetupPlanReview, SetupPlanReviewFooter } from "./setup-plan-review";
+import { SetupQuestions, SetupQuestionsFooter } from "./setup-questions";
 
 const SETUP_POLL_INTERVAL_MS = 2_500;
 
@@ -51,31 +50,55 @@ export function useHydratedSetupStore(initialStatus: WorkspaceSetupStatusView) {
   return { store, ready: hydratedSignature === signature };
 }
 
-export const StepSetup = observer(function StepSetup() {
+function SetupLoading() {
   const t = useTranslations();
-  const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
+  return (
+    <div aria-busy="true" className="flex min-h-36">
+      <GenericPageLoading label={t("Loading.text")} />
+    </div>
+  );
+}
+
+export const StepSetup = observer(function StepSetup() {
+  const { workspaceSetupStore: store } = useRootStore();
   const stage = store.stage;
 
+  useEffect(() => {
+    if (stage === "start") runUserAction(store.start);
+  }, [stage, store]);
+
   switch (stage) {
-    case "start":
-      return <SetupStart />;
     case "interview":
-      return <SetupInterview />;
+      return <SetupQuestions />;
     case "followUps":
       return <SetupFollowUps />;
     case "planning":
-      return <SetupPlanPending />;
     case "planFailed":
-      return <SetupPlanFailed continuing={wizard.isSubmitting} onContinue={wizard.completeSetupStep} />;
     case "plan":
-      return <SetupPlanPreview />;
+      return <SetupPlanReview />;
     case "build":
-      return <SetupBuildView continuing={wizard.isSubmitting} onContinue={wizard.completeSetupStep} />;
+      return <SetupBuildView />;
+    case "start":
     case "unavailable":
-      return (
-        <div aria-busy="true" className="flex min-h-36">
-          <GenericPageLoading label={t("Loading.text")} />
-        </div>
-      );
+      return <SetupLoading />;
+  }
+});
+
+export const StepSetupFooter = observer(function StepSetupFooter() {
+  const { workspaceSetupStore: store } = useRootStore();
+  switch (store.stage) {
+    case "interview":
+      return <SetupQuestionsFooter />;
+    case "followUps":
+      return <SetupFollowUpsFooter />;
+    case "planning":
+    case "planFailed":
+    case "plan":
+      return <SetupPlanReviewFooter />;
+    case "build":
+      return <SetupBuildFooter />;
+    case "start":
+    case "unavailable":
+      return null;
   }
 });

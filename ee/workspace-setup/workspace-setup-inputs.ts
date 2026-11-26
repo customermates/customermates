@@ -6,6 +6,7 @@ import type {
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
+import type { TeamSize } from "@/features/onboarding-funnel/team-size";
 
 import { readSpreadsheet } from "@/features/data-transfer/spreadsheet/read-spreadsheet";
 import { profileSpreadsheet, spreadsheetPreview } from "@/features/data-transfer/spreadsheet/spreadsheet-profile";
@@ -30,6 +31,11 @@ export function setupCompanySettings(answers: SetupAnswers): Pick<UpdateUserDeta
       ? { formattingLocale: language.value }
       : {}),
   };
+}
+
+export function setupTeamSize(teamSize: TeamSize | null): "solo" | "small" | "large" | null {
+  if (teamSize === null || teamSize === "solo" || teamSize === "small") return teamSize;
+  return "large";
 }
 
 export function setupDataChoice(answers: SetupAnswers): SetupDataChoice {

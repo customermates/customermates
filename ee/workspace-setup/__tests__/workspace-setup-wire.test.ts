@@ -16,65 +16,15 @@ import {
   PlanKnowledgeWireSchema,
   PlanModelWireSchema,
   PlanViewsWireSchema,
-  PrefillWireSchema,
   followUpAnswerIssue,
   followUpQuestions,
   lowerCamelKey,
   planFromWire,
   planPartPath,
   planWireFromParts,
-  prefillAnswers,
   sampleRecordsWireSchema,
 } from "../workspace-setup-wire";
 import { planToWire, planToWireParts } from "./setup-wire-fixtures";
-
-const blank = { choice: null, choices: [], custom: [], items: [], min: null, max: null, text: null };
-
-describe("pre-fill answers from the website", () => {
-  it("keeps valid answers in the question's format and marks them as from the website", () => {
-    const answers = prefillAnswers({
-      answers: [
-        { ...blank, part: "companyName", confidence: 0.95, text: "Example GmbH" },
-        { ...blank, part: "country", confidence: 0.9, choice: "DE" },
-        { ...blank, part: "currency", confidence: 0.9, choice: "EUR" },
-        { ...blank, part: "language", confidence: 0.9, choice: "de" },
-        { ...blank, part: "purpose", confidence: 0.8, choices: ["projects"], custom: ["Site visits"] },
-        { ...blank, part: "mainSteps", confidence: 0.6, items: [{ label: "Erstgespräch" }, { label: "Angebot" }] },
-      ],
-    });
-    expect(answers.companyName).toEqual({
-      source: "website",
-      confidence: 0.95,
-      value: { format: "shortText", value: "Example GmbH" },
-    });
-    expect(answers.country?.value).toEqual({ format: "singleChoice", value: "DE" });
-    expect(answers.purpose?.value).toEqual({
-      format: "multipleChoice",
-      values: ["projects"],
-      custom: ["Site visits"],
-    });
-    expect(answers.mainSteps?.value).toEqual({
-      format: "orderedList",
-      items: [{ label: "Erstgespräch" }, { label: "Angebot" }],
-    });
-  });
-
-  it("drops never-prefilled parts, unknown options, invalid codes, unknown parts and clamps confidence", () => {
-    const answers = prefillAnswers({
-      answers: [
-        { ...blank, part: "existingData", confidence: 1, choice: "sampleData" },
-        { ...blank, part: "workWith", confidence: 1, choice: "aliens" },
-        { ...blank, part: "country", confidence: 1, choice: "Germany" },
-        { ...blank, part: "currency", confidence: 1, choice: "euro" },
-        { ...blank, part: "language", confidence: 1, choice: "xx" },
-        { ...blank, part: "notAPart", confidence: 1, text: "x" },
-        { ...blank, part: "companyName", confidence: 3, text: "Clamp AG" },
-      ],
-    });
-    expect(Object.keys(answers)).toEqual(["companyName"]);
-    expect(answers.companyName?.confidence).toBe(1);
-  });
-});
 
 describe("follow-up questions", () => {
   const wire = (overrides: Record<string, unknown>) => ({
@@ -167,7 +117,6 @@ describe("plan wire format", () => {
 describe("model-facing setup schemas", () => {
   it("keeps every schema a setup model call sends under the union budget of constrained decoding", () => {
     const schemas = {
-      PrefillWireSchema,
       FollowUpWireSchema,
       PlanModelWireSchema,
       PlanViewsWireSchema,

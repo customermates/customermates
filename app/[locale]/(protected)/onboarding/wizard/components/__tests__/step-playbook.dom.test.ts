@@ -24,7 +24,8 @@ vi.mock("../../actions", () => ({
 }));
 vi.mock("../../onboarding-agent-actions", () => ({
   getOnboardingAgentStatusAction: vi.fn(),
-  getOnboardingTemplatePromptAction: vi.fn(),
+  recordChannelSkippedAction: vi.fn(),
+  startOnboardingChannelConnectAction: vi.fn(),
 }));
 
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
@@ -46,7 +47,14 @@ async function renderPlaybook(suggestedPlaybook: "consultants" | "agencies" | "f
     stepAiStore: { reset: vi.fn(), restoreSelection: vi.fn() },
     localeStore: { locale: "en" },
   } as never);
-  store.initialize(1, undefined, undefined, true, { selectedJob: "followup", suggestedJob: null, suggestedPlaybook });
+  store.initialize(
+    1,
+    undefined,
+    undefined,
+    true,
+    { selectedJob: "followup", suggestedJob: null, suggestedPlaybook },
+    { chooseAvailable: true },
+  );
   await store.chooseJob();
   harness.rootStore = { onboardingWizardStore: store };
   await act(async () => {

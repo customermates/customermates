@@ -145,7 +145,7 @@ export const StepChannel = observer(({ email }: { email: string }) => {
   const { onboardingWizardStore: store, connectedAccountsStore } = useRootStore();
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
   const connected = connectedAccountsStore.items.filter((account) => account.isOwner);
-  const linkedinFirst = store.connectsAgent;
+  const linkedinFirst = store.steps.includes("handoff");
   const labels: Record<"google" | "outlook" | "imap", ChannelRow> = {
     google: {
       key: "google",
@@ -271,15 +271,20 @@ export const StepChannelFooter = observer(() => {
 
   return (
     <AppCardFooter className={WIZARD_FOOTER_CLASS}>
-      <Button
-        disabled={disabled || store.isFirstStep}
-        id="onboarding-channel-back"
-        type="button"
-        variant="ghost"
-        onClick={() => runUserAction(store.back)}
-      >
-        {t("Common.actions.back")}
-      </Button>
+      {store.isFirstStep ? (
+        <span />
+      ) : (
+        <Button
+          className="min-h-11"
+          disabled={disabled}
+          id="onboarding-channel-back"
+          type="button"
+          variant="ghost"
+          onClick={() => runUserAction(store.back)}
+        >
+          {t("Common.actions.back")}
+        </Button>
+      )}
 
       <div className={`${WIZARD_FOOTER_GROUP_CLASS} justify-end`}>
         {hasChannel ? null : (
@@ -301,7 +306,7 @@ export const StepChannelFooter = observer(() => {
           type="button"
           onClick={() => runUserAction(() => store.leaveChannelStep(false))}
         >
-          {t("OnboardingWizard.continue")}
+          {store.isLastStep ? t("OnboardingWizard.finish") : t("OnboardingWizard.continue")}
 
           <ArrowRight aria-hidden="true" className="size-4" />
         </Button>

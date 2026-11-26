@@ -1,11 +1,6 @@
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
-import type {
-  StoredSetupInterview,
-  WorkspaceSetupFailure,
-  WorkspaceSetupPatch,
-  WorkspaceSetupRecord,
-} from "./workspace-setup.schema";
+import type { WorkspaceSetupFailure, WorkspaceSetupPatch, WorkspaceSetupRecord } from "./workspace-setup.schema";
 import type { WorkspaceSetupModelService } from "./workspace-setup-model.service";
 import type {
   SetupPlanInput,
@@ -16,9 +11,6 @@ import type {
 } from "./workspace-setup-planner";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { setupVisibleAnswers } from "@/features/workspace-setup/setup-interview";
-import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
-import { APP_LOCALES } from "@/i18n/locale-registry";
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
 
 import {
@@ -26,29 +18,20 @@ import {
   PlanKnowledgeWireSchema,
   PlanModelWireSchema,
   PlanViewsWireSchema,
-  PrefillWireSchema,
   followUpQuestions,
-  prefillAnswers,
 } from "./workspace-setup-wire";
 import { SETUP_PLAN_PARTS, SetupPlanPartStateSchema, emptySetupPlanPart } from "./workspace-setup-planner";
 import {
   SETUP_FOLLOW_UP_INSTRUCTION,
-  SETUP_REPAIR_INSTRUCTION,
-  SETUP_PREFILL_INSTRUCTION,
   encodePromptJson,
   setupInterviewCatalog,
   setupLanguageName,
 } from "./workspace-setup-prompts";
 import { answersForPrompt, loadSetupSpreadsheet, setupCurrency, setupLanguage } from "./workspace-setup-inputs";
-import { setupWebsiteText } from "./workspace-setup-website";
 
 export const SETUP_GENERATION_STALE_MS = 15 * 60 * 1_000;
 export const SETUP_PLAN_QUEUE_STALE_MS = 5 * 60 * 1_000;
-const SETUP_PREFILL_STALE_MS = 5 * 60 * 1_000;
-const PREFILL_WEBSITE = { characters: 36_000, perSource: 3_000 };
-const CRAWL_READING = new Set(["queued", "discovering", "fetching"]);
 
-type Claimable = "prefill" | "plan";
 export type PlanClaim = { status: "claimed"; revision: number } | { status: "planned" | "busy" | "skip" };
 
 function planPartKey(part: SetupPlanPart): string {
@@ -103,10 +86,6 @@ function stale(claimedAt: string | null, now: Date, limitMs = SETUP_GENERATION_S
   return !claimedAt || new Date(claimedAt).getTime() < now.getTime() - limitMs;
 }
 
-export function setupPrefillStalled(setup: Pick<WorkspaceSetupRecord, "interview">, now: Date): boolean {
-  return setup.interview.prefill === "running" && stale(setup.interview.prefillClaimedAt, now, SETUP_PREFILL_STALE_MS);
-}
-
 export function setupPlanStalled(setup: Pick<WorkspaceSetupRecord, "status" | "interview">, now: Date): boolean {
   if (setup.status !== "planning") return false;
   const { plan, planClaimedAt, planQueuedAt } = setup.interview;
@@ -140,97 +119,15 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     return this.models.drainWarnings();
   }
 
-  private async claim(setupId: string, kind: Claimable, from: StoredSetupInterview["prefill"][]) {
+  private async claimPlanRun(setupId: string) {
     const now = new Date();
     const claimed = await this.repo.mutate(setupId, (setup) => {
-      const state = setup.interview[kind];
-      const claimedAt = kind === "prefill" ? setup.interview.prefillClaimedAt : setup.interview.planClaimedAt;
-      if (kind === "plan" && setup.status !== "planning") return null;
-      const limitMs = kind === "prefill" ? SETUP_PREFILL_STALE_MS : SETUP_GENERATION_STALE_MS;
-      if (!from.includes(state) && !(state === "running" && stale(claimedAt, now, limitMs))) return null;
-      return {
-        interview: {
-          ...setup.interview,
-          [kind]: "running",
-          ...(kind === "prefill" ? { prefillClaimedAt: now.toISOString() } : { planClaimedAt: now.toISOString() }),
-        },
-      };
+      if (setup.status !== "planning") return null;
+      const state = setup.interview.plan;
+      if (state !== "queued" && !(state === "running" && stale(setup.interview.planClaimedAt, now))) return null;
+      return { interview: { ...setup.interview, plan: "running", planClaimedAt: now.toISOString() } };
     });
     return claimed?.changed ? claimed.setup : null;
-  }
-
-  async prefill(setupId: string, force: boolean): Promise<"done" | "wait"> {
-    const setup = await this.repo.get(setupId);
-    if (!setup || (setup.interview.prefill !== "idle" && !setupPrefillStalled(setup, new Date()))) return "done";
-    const owner = { crawlId: setup.crawlId, claimedAt: setup.interview.prefillClaimedAt };
-    if (!setup.crawlId) {
-      await this.finishPrefill(setupId, owner, "skipped", null, null);
-      return "done";
-    }
-    const crawl = await this.repo.crawlState(setup.crawlId);
-    if (crawl && CRAWL_READING.has(crawl.status) && !force) return "wait";
-    const sources = await this.repo.crawlSources(setup.crawlId);
-    if (sources.length === 0) {
-      await this.finishPrefill(setupId, owner, "skipped", null, null);
-      return "done";
-    }
-    const claimed = await this.claim(setupId, "prefill", ["idle"]);
-    if (!claimed) return "done";
-    const claim = { crawlId: claimed.crawlId, claimedAt: claimed.interview.prefillClaimedAt };
-    const text = setupWebsiteText(sources, PREFILL_WEBSITE);
-    const catalog = await setupInterviewCatalog((part) => part.prefill !== "no", true);
-    const prompt = [
-      `Locale codes for language: ${APP_LOCALES.join(", ")}.`,
-      `Interview parts: ${encodePromptJson(catalog)}`,
-      "Website:",
-      untrustedText(text),
-    ].join("\n");
-    let result = await this.models.generate({
-      label: "Workspace setup pre-fill",
-      purpose: "setupDrafting",
-      schema: PrefillWireSchema,
-      salvageArrays: true,
-      system: SETUP_PREFILL_INSTRUCTION,
-      prompt,
-    });
-    if (!result.ok && result.failure === "generation") {
-      result = await this.models.generate({
-        label: "Workspace setup pre-fill",
-        purpose: "setupDrafting",
-        schema: PrefillWireSchema,
-        salvageArrays: true,
-        system: SETUP_PREFILL_INSTRUCTION,
-        prompt: [
-          prompt,
-          SETUP_REPAIR_INSTRUCTION,
-          encodePromptJson([result.rejection ?? "The answer could not be read."]),
-        ].join("\n"),
-      });
-    }
-    if (!result.ok) {
-      await this.finishPrefill(setupId, claim, "failed", result.failure, null);
-      return "done";
-    }
-    await this.finishPrefill(setupId, claim, "completed", null, prefillAnswers(result.value));
-    return "done";
-  }
-
-  private async finishPrefill(
-    setupId: string,
-    owner: { crawlId: string | null; claimedAt: string | null },
-    state: "completed" | "failed" | "skipped",
-    error: StoredSetupInterview["prefillError"],
-    draft: StoredSetupInterview["prefillDraft"],
-  ) {
-    await this.repo.mutate(setupId, (setup) => {
-      if (setup.crawlId !== owner.crawlId || setup.interview.prefillClaimedAt !== owner.claimedAt) return null;
-      return {
-        interview: { ...setup.interview, prefill: state, prefillError: error, prefillDraft: draft },
-        ...(draft && setup.status === "interview"
-          ? { answers: setupVisibleAnswers(mergeWebsitePrefill(setup.answers, draft)) }
-          : {}),
-      };
-    });
   }
 
   async followUps(setupId: string): Promise<"asked" | "none" | "skip"> {
@@ -281,7 +178,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
   }
 
   async claimPlan(setupId: string): Promise<PlanClaim> {
-    const claimed = await this.claim(setupId, "plan", ["queued"]);
+    const claimed = await this.claimPlanRun(setupId);
     if (!claimed) {
       const setup = await this.repo.get(setupId);
       return setup?.status === "planning" && setup.interview.plan === "running"
@@ -385,11 +282,9 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
       setup.hasSpreadsheet ? await this.repo.readSpreadsheet(setup.id) : null,
       language,
     );
-    const drafted = setup.interview.prefillDraft?.language?.value;
     return {
       setupId: setup.id,
       language,
-      answersLanguage: drafted?.format === "singleChoice" ? drafted.value : null,
       currency: setupCurrency(setup.answers) ?? "EUR",
       answers: setup.answers,
       followUps: setup.interview.followUpQuestions.map((question) => ({
@@ -398,8 +293,6 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
         ...("options" in question ? { options: question.options } : {}),
         answer: setup.interview.followUpAnswers.find((answer) => answer.id === question.id)?.value ?? null,
       })),
-      sources: setup.crawlId ? await this.repo.crawlSources(setup.crawlId) : [],
-      website: setup.crawlId !== null,
       sheet,
       templateSlug: setup.interview.templateSlug,
     };

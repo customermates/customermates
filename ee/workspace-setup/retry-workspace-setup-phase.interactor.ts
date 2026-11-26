@@ -3,7 +3,6 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { WorkspaceSetupPhase } from "./workspace-setup.schema";
-import type { WorkspaceSetupCrawlStarter } from "./workspace-setup-crawl-starter";
 import type { RetryWorkspaceSetupPhaseData } from "./workspace-setup-input.schema";
 
 import { Resource } from "@/generated/prisma";
@@ -18,7 +17,6 @@ import { WORKSPACE_SETUP_PHASES, WORKSPACE_SETUP_PHASE_DEPENDENCIES } from "./wo
 import { RetryWorkspaceSetupPhaseSchema } from "./workspace-setup-input.schema";
 import { workspaceSetupUnavailability } from "./workspace-setup-availability";
 import { abandonedSetupPatch, emptySetupPhase, setupPhaseOpen, setupPhaseRetryable } from "./workspace-setup-phases";
-import { setupLanguage } from "./workspace-setup-inputs";
 
 function dependents(phase: WorkspaceSetupPhase): WorkspaceSetupPhase[] {
   return WORKSPACE_SETUP_PHASES.filter((candidate) => WORKSPACE_SETUP_PHASE_DEPENDENCIES[candidate].includes(phase));
@@ -31,7 +29,6 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
 > {
   constructor(
     private repo: WorkspaceSetupRepo,
-    private crawls: Pick<WorkspaceSetupCrawlStarter, "start">,
     private background: Pick<BackgroundTaskService, "dispatch">,
     private entitlements: Pick<EntitlementService, "require">,
   ) {
@@ -47,26 +44,12 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
     if (!setup) return failNotFound(CustomErrorCode.workspaceSetupNotFound, ["setupId"]);
     if (!setupPhaseRetryable(setup, data.phase, new Date()))
       return failConflict(CustomErrorCode.workspaceSetupConflict);
-    const attempts = setup.phases[data.phase]?.attempts ?? 0;
-
-    const withoutWebsite = data.withoutWebsite === true;
     let crawlId = setup.crawlId;
-    if (withoutWebsite) {
-      if (crawlId) await this.repo.stopCrawl(crawlId);
-      crawlId = null;
-    } else if (data.phase === "knowledgeBase" && crawlId && (await this.repo.reopenCrawlSynthesis(crawlId)))
+    if (data.phase === "knowledgeBase" && crawlId && (await this.repo.reopenCrawlSynthesis(crawlId)))
       await this.background.dispatch("crawl-wiki-website", { crawlId, userId: this.userId });
-    else if (data.phase === "knowledgeBase" && setup.websiteUrl) {
-      const crawl = crawlId ? await this.repo.crawlState(crawlId) : null;
-      if (!crawl || crawl.status === "failed" || crawl.status === "blocked") {
-        const started = await this.crawls.start({
-          setupId: setup.id,
-          attempt: setup.startedAt.getTime() + attempts,
-          homepage: setup.websiteUrl,
-          locale: setupLanguage(setup.answers),
-        });
-        if (started.status === "started") crawlId = started.crawlId;
-      }
+    else if (data.phase === "knowledgeBase" && crawlId) {
+      const crawl = await this.repo.crawlState(crawlId);
+      if (!crawl || crawl.status === "failed" || crawl.status === "blocked") crawlId = null;
     }
 
     const reset = await this.repo.mutate(data.setupId, (current) => {
@@ -88,7 +71,6 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
         ...(reopened ? { status: "building" as const, finishedAt: null } : {}),
         phases,
         crawlId,
-        ...(withoutWebsite ? { websiteUrl: null } : {}),
       };
     });
     if (!reset?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);

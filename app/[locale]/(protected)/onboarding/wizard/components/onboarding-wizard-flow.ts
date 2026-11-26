@@ -10,27 +10,19 @@ export const WIZARD_STEPS = [
   "goal",
   "playbook",
   "setup",
+  "ai",
+  "handoff",
   "invite",
   "channel",
-  "ai",
-  "template",
-  "prompt",
-  "source",
+  "finish",
 ] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number];
-export type MilestoneStep = Exclude<WizardStep, "source">;
-
-export function isMilestoneStep(step: WizardStep): step is MilestoneStep {
-  return step !== "source";
-}
 
 export type WizardFlowKey = OnboardingJob | "empty";
 
 export type WizardFlowContext = {
   setupAvailable: boolean;
   chooseAvailable?: boolean;
-  templatesAvailable?: boolean;
-  sourceAvailable?: boolean;
   channelAvailable?: boolean;
   teamInvite?: boolean;
 };
@@ -46,73 +38,36 @@ export function buildWizardFlowContext(input: {
   isInvited: boolean;
   profileCompleted: boolean;
   setupOffered: boolean;
-  templateCount: number;
   teamSize: TeamSize | null | undefined;
 }): WizardFlowContext {
   const chooseAvailable = wizardChoiceAvailable(input.appMode, input.isInvited);
-  const cloudOwner = chooseAvailable && input.appMode === "cloud";
   return {
     setupAvailable: !input.isInvited && (input.profileCompleted ? input.setupOffered : input.appMode === "cloud"),
     chooseAvailable,
-    templatesAvailable: chooseAvailable && input.templateCount > 0,
-    sourceAvailable: cloudOwner,
-    channelAvailable: cloudOwner,
+    channelAvailable: chooseAvailable && input.appMode === "cloud",
     teamInvite: chooseAvailable && isTeam(input.teamSize),
   };
 }
 
-const PLAIN_STEPS: readonly WizardStep[] = ["profile", "invite", "ai"];
-const FOLLOWUP_STEPS: readonly WizardStep[] = ["profile", "goal", "playbook"];
-const AGENT_STEPS: readonly WizardStep[] = ["profile", "goal", "invite", "channel", "ai"];
-const AGENT_TEMPLATE_STEPS: readonly WizardStep[] = [
-  "profile",
-  "goal",
-  "invite",
-  "channel",
-  "ai",
-  "template",
-  "prompt",
-];
-const SETUP_STEPS: readonly WizardStep[] = ["profile", "goal", "setup", "invite", "channel", "ai"];
-const SETUP_TEMPLATE_STEPS: readonly WizardStep[] = ["profile", "goal", "template", "setup", "invite", "channel", "ai"];
-
-function coreWizardSteps(context: WizardFlowContext, flow: WizardFlowKey): readonly WizardStep[] {
-  const choose = context.chooseAvailable ?? false;
-  const templates = context.templatesAvailable ?? false;
-  if (!context.setupAvailable && !choose) return PLAIN_STEPS;
-  if (flow === "empty") return AGENT_STEPS;
-  const agentSteps = choose && templates ? AGENT_TEMPLATE_STEPS : AGENT_STEPS;
-  if (!context.setupAvailable || flow === "agent") return agentSteps;
-  if (flow === "followup") return FOLLOWUP_STEPS;
-  return choose && templates ? SETUP_TEMPLATE_STEPS : SETUP_STEPS;
-}
-
-function agentPath(context: WizardFlowContext, flow: WizardFlowKey): boolean {
-  if (!context.setupAvailable && !(context.chooseAvailable ?? false)) return false;
-  return flow === "agent" || (!context.setupAvailable && flow !== "empty");
-}
+const PLAIN_STEPS: readonly WizardStep[] = ["profile", "finish"];
 
 export function wizardSteps(context: WizardFlowContext, flow: WizardFlowKey = DEFAULT_ONBOARDING_JOB): WizardStep[] {
-  const invitesOnAgentPath = context.teamInvite ?? false;
-  const steps = coreWizardSteps(context, flow).filter((step) => {
-    if (step === "channel") return context.channelAvailable ?? false;
-    if (step === "invite" && agentPath(context, flow)) return invitesOnAgentPath;
-    return true;
-  });
-  if (context.sourceAvailable && (context.chooseAvailable ?? false) && steps[0] === "profile")
-    steps.splice(1, 0, "source");
-  return steps;
-}
-
-export function connectsAgentWithVerification(context: WizardFlowContext, flow: WizardFlowKey): boolean {
-  return (context.chooseAvailable ?? false) && flow === "agent";
+  if (!(context.chooseAvailable ?? false)) return [...PLAIN_STEPS];
+  const tail: WizardStep[] = [
+    ...(context.teamInvite ? (["invite"] as const) : []),
+    ...(context.channelAvailable ? (["channel"] as const) : []),
+  ];
+  if (flow === "empty") return ["profile", "goal", ...tail];
+  if (context.setupAvailable && flow === "followup") return ["profile", "goal", "playbook"];
+  if (context.setupAvailable && flow === "workspace") return ["profile", "goal", "setup", ...tail];
+  return ["profile", "goal", "ai", "handoff", ...tail];
 }
 
 type PersistedStep = OnboardingWizardProgress["step"];
 
 export function persistedWizardStep(step: WizardStep, goalSaved = true): PersistedStep {
   if (step === "goal") return goalSaved ? "goal" : "invite";
-  return step === "ai" || step === "template" || step === "prompt" || step === "channel" ? step : "invite";
+  return step === "ai" || step === "handoff" || step === "channel" ? step : "invite";
 }
 
 export type WizardResumeInput = WizardFlowContext & {
@@ -121,68 +76,53 @@ export type WizardResumeInput = WizardFlowContext & {
   setupStepCompleted: boolean;
   jobSelected?: boolean;
   job?: OnboardingJob;
-  setupStarted?: boolean;
   savedStep?: PersistedStep;
-  sourceResolved?: boolean;
 };
 
 export type WizardResume = { steps: WizardStep[]; resumeStepIndex: number; flow: WizardFlowKey };
 
-function firstAfterGoal(steps: readonly WizardStep[]): WizardStep {
-  return steps[steps.indexOf("goal") + 1] ?? "ai";
+function flowAfterSetup(input: WizardResumeInput, job: OnboardingJob): WizardFlowKey {
+  if (!(input.jobSelected ?? true)) return "empty";
+  if (job === "agent" || !input.setupAvailable) return "agent";
+  return job === "followup" ? "followup" : "workspace";
 }
 
 function resumeStepOpen(input: WizardResumeInput, steps: readonly WizardStep[], job: OnboardingJob): WizardStep {
   if (!(input.jobSelected ?? true)) return "goal";
-  if (job === "followup") return "playbook";
-  if (job === "agent")
-    return input.savedStep && steps.includes(input.savedStep) ? input.savedStep : firstAfterGoal(steps);
-  return (input.templatesAvailable ?? false) && !input.setupStarted ? "template" : "setup";
+  if (job === "followup" && steps.includes("playbook")) return "playbook";
+  if (steps.includes("setup")) return "setup";
+  return input.savedStep && steps.includes(input.savedStep) ? input.savedStep : "ai";
 }
 
-function resumeStepAfterSetup(
-  steps: readonly WizardStep[],
-  flow: WizardFlowKey,
-  savedStep?: PersistedStep,
-): WizardStep {
-  if (flow === "agent" && savedStep !== undefined && steps.includes(savedStep)) return savedStep;
-  if (flow !== "agent" && (savedStep === "ai" || savedStep === "channel") && steps.includes(savedStep))
-    return savedStep;
-  if (steps.includes("invite")) return "invite";
-  return steps.includes("channel") ? "channel" : "ai";
-}
-
-function flowAfterSetup(input: WizardResumeInput, job: OnboardingJob): WizardFlowKey {
-  if (!(input.jobSelected ?? true) && (input.chooseAvailable ?? false)) return "empty";
-  if (job === "agent") return "agent";
-  return input.setupAvailable ? "workspace" : "empty";
+function resumeStepAfterSetup(steps: readonly WizardStep[], savedStep?: PersistedStep): WizardStep {
+  if (savedStep !== undefined && savedStep !== "goal" && steps.includes(savedStep)) return savedStep;
+  return steps.find((step) => step === "invite" || step === "channel") ?? "goal";
 }
 
 export function resolveWizardResume(input: WizardResumeInput): WizardResume {
-  const owner = !input.isInvited && ((input.chooseAvailable ?? false) || input.setupAvailable);
+  const owner = !input.isInvited && (input.chooseAvailable ?? false);
   const context: WizardFlowContext = input.isInvited ? { setupAvailable: false } : input;
   const job = input.job ?? DEFAULT_ONBOARDING_JOB;
   const open = owner && !input.setupStepCompleted;
   const flow: WizardFlowKey = open || !owner ? job : flowAfterSetup(input, job);
   const steps = wizardSteps(context, flow);
   if (!input.profileCompleted) return { steps, resumeStepIndex: 0, flow };
+  if (!owner) return { steps, resumeStepIndex: steps.indexOf("finish"), flow };
 
-  const awaitingSource =
-    open &&
-    steps.includes("source") &&
-    !(input.sourceResolved ?? true) &&
-    !(input.jobSelected ?? true) &&
-    !input.setupStarted;
-  const resumesGoal = owner && input.savedStep === "goal" && steps.includes("goal");
-  const resumeStep: WizardStep = !owner
-    ? "invite"
-    : awaitingSource
-      ? "source"
-      : resumesGoal
-        ? "goal"
-        : open
-          ? resumeStepOpen(input, steps, job)
-          : resumeStepAfterSetup(steps, flow, input.savedStep);
-  const positions = [resumeStep, "invite", "goal", "profile"].map((step) => steps.indexOf(step as WizardStep));
-  return { steps, resumeStepIndex: positions.find((position) => position !== -1) ?? 0, flow };
+  const resumeStep: WizardStep =
+    input.savedStep === "goal" && steps.includes("goal")
+      ? "goal"
+      : open
+        ? resumeStepOpen(input, steps, job)
+        : resumeStepAfterSetup(steps, input.savedStep);
+  const index = steps.indexOf(resumeStep);
+  return { steps, resumeStepIndex: index === -1 ? steps.indexOf("goal") : index, flow };
+}
+
+export function wizardBackFloor(steps: readonly WizardStep[], step: WizardStep): number {
+  const index = steps.indexOf(step);
+  const built = steps.indexOf("setup");
+  if ((step === "invite" || step === "channel") && built !== -1) return built + 1;
+  const goal = steps.indexOf("goal");
+  return step === "finish" || goal === -1 ? index : Math.min(goal, index);
 }

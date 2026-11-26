@@ -1,28 +1,20 @@
 import type { Root } from "react-dom/client";
 import type { WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 
-import { act, createElement } from "react";
+import { act, createElement, Fragment } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   rootStore: null as unknown,
   retry: vi.fn(),
-  requestRefresh: vi.fn(),
-  router: { refresh: vi.fn() },
+  completeSetupStep: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) =>
     values ? `${key} ${Object.values(values).join(" ")}` : key,
 }));
-vi.mock("@/components/ui/tooltip", () => ({
-  TooltipProvider: ({ children }: { children: unknown }) => children,
-  Tooltip: ({ children }: { children: unknown }) => children,
-  TooltipTrigger: ({ children }: { children: unknown }) => children,
-  TooltipContent: () => null,
-}));
-vi.mock("@/i18n/navigation", () => ({ useRouter: () => harness.router }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => harness.rootStore }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
@@ -33,17 +25,12 @@ vi.mock("../../../workspace-setup-actions", () => ({
   getWorkspaceSetupStatusAction: vi.fn().mockResolvedValue({ ok: false, failure: { kind: "conflict", issues: [] } }),
 }));
 
-import { DisplayType } from "@/features/widget/widget-display.schema";
-
 import { WorkspaceSetupStore } from "../workspace-setup.store";
-import { SetupBuildView } from "../setup-build-view";
+import { SetupBuildFooter, SetupBuildView } from "../setup-build-view";
 import { PLAN_PROGRESS, phaseView, setupPlan, setupView } from "./setup-view-fixture";
 
 let container: HTMLDivElement;
 let root: Root;
-let onContinue: ReturnType<typeof vi.fn<() => Promise<void>>>;
-
-const LIST_ID = "4a1c4b8f-4f75-4d0b-9a3e-1b5f0a2c6d71";
 
 function building(overrides: Partial<WorkspaceSetupView>): WorkspaceSetupView {
   return setupView({
@@ -53,14 +40,14 @@ function building(overrides: Partial<WorkspaceSetupView>): WorkspaceSetupView {
   });
 }
 
-function render(setup: WorkspaceSetupView, continuing = false) {
+function render(setup: WorkspaceSetupView, isSubmitting = false) {
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
   store.hydrate({ available: true, setup });
   harness.rootStore = {
     workspaceSetupStore: store,
-    navigationGuard: { requestRouteRefreshWhenSafe: harness.requestRefresh },
+    onboardingWizardStore: { isSubmitting, completeSetupStep: harness.completeSetupStep },
   };
-  act(() => root.render(createElement(SetupBuildView, { onContinue, continuing })));
+  act(() => root.render(createElement(Fragment, null, createElement(SetupBuildView), createElement(SetupBuildFooter))));
   return store;
 }
 
@@ -70,8 +57,8 @@ function button(label: string) {
   );
 }
 
-function region(label: string) {
-  return container.querySelector<HTMLElement>(`[role="region"][aria-label="${label}"]`);
+function phaseState(key: string) {
+  return container.querySelector(`[data-phase="${key}"]`)?.getAttribute("data-state");
 }
 
 beforeEach(() => {
@@ -80,7 +67,7 @@ beforeEach(() => {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
-  onContinue = vi.fn().mockResolvedValue(undefined);
+  harness.completeSetupStep.mockResolvedValue(undefined);
   harness.retry.mockResolvedValue({ ok: true, data: { setupId: "x" } });
 });
 
@@ -90,337 +77,80 @@ afterEach(() => {
 });
 
 describe("SetupBuildView", () => {
-  it("names the running phase in plain words and offers no way out while it runs", () => {
+  it("lists every phase with its state, lists first and the Knowledge Base last", () => {
     render(
       building({
-        currentPhase: "dataModel",
         phases: [
           phaseView("knowledgeBase", "running"),
-          phaseView("dataModel", "running"),
-          phaseView("views"),
+          phaseView("dataModel", "completed"),
+          phaseView("views", "running"),
           phaseView("records"),
           phaseView("dashboard"),
         ],
-      }),
-    );
-
-    const status = container.querySelector('[role="status"]');
-    expect(status?.textContent).toContain("WorkspaceSetup.build.actions.pipeline");
-    expect(status?.textContent).toContain("Lead → Demo → Won");
-    expect(container.querySelector("h1")?.textContent).toBe("WorkspaceSetup.build.title");
-    const buttons = [...container.querySelectorAll("button")];
-    expect(buttons.every((candidate) => candidate.hasAttribute("aria-expanded"))).toBe(true);
-    const timeline = container.querySelector('[data-testid="setup-timeline"]');
-    expect(timeline?.textContent).toContain("WorkspaceSetup.build.actions.pipeline");
-    expect(timeline?.textContent).not.toContain("WorkspaceSetup.build.actions.views");
-    expect(harness.requestRefresh).not.toHaveBeenCalled();
-  });
-
-  it("draws the real lists, sample records, widgets and pages as phases land", () => {
-    render(
-      building({
-        status: "completed",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "completed"),
-          phaseView("dashboard", "completed"),
-        ],
-        results: {
-          colors: { hex: "#336699", chip: "info", chart: "primary1" as never },
-          lists: [
-            {
-              id: LIST_ID,
-              key: "deal",
-              name: "Deal",
-              pluralName: "Opportunities",
-              icon: "handshake",
-              color: null,
-              stages: ["Lead", "Demo", "Won"],
-            },
-          ],
-          views: [],
-          records: [
-            { listId: LIST_ID, kind: "sample", count: 2, titles: ["Rollout Nord", "Pilot Süd"], skippedRows: 0 },
-          ],
-          widgets: [
-            { id: "8c1b9a9e-2f43-4a77-9d38-7b9e6c2b4f10", title: "Pipeline value", display: DisplayType.number },
-          ],
-          pages: [{ id: "1b2f6d0e-7f5a-4c2d-8e3b-9a1c4d5e6f70", title: "Company overview" }],
-        },
-      }),
-    );
-
-    expect(container.querySelector("h1")?.textContent).toBe("WorkspaceSetup.build.completedTitle");
-    for (const text of ["Opportunities", "Rollout Nord", "Pilot Süd", "Pipeline value", "Company overview"])
-      expect(container.textContent).toContain(text);
-    expect(onContinue).toHaveBeenCalledOnce();
-    expect(harness.requestRefresh).toHaveBeenCalledOnce();
-  });
-
-  it("moves on to the invitations by itself once the workspace is built, while the Knowledge Base keeps writing", async () => {
-    const store = render(
-      building({
-        status: "completed",
-        phases: [
-          phaseView("knowledgeBase", "running"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "completed"),
-          phaseView("dashboard", "completed"),
-        ],
-      }),
-    );
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(onContinue).toHaveBeenCalledOnce();
-    expect(container.textContent).toContain("WorkspaceSetup.build.states.background");
-
-    const setup = store.setup;
-    if (!setup) throw new Error("the setup is not loaded");
-    act(() => store.hydrate({ available: true, setup: { ...setup } }));
-    act(() => root.render(createElement(SetupBuildView, { onContinue, continuing: false })));
-    expect(onContinue).toHaveBeenCalledOnce();
-    expect(button("WorkspaceSetup.build.continue")).toBeDefined();
-    act(() => button("WorkspaceSetup.build.continue")?.click());
-    expect(onContinue).toHaveBeenCalledTimes(2);
-  });
-
-  it("does not move on while the workspace is still being built", () => {
-    render(
-      building({
-        currentPhase: "records",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "running"),
-          phaseView("dashboard", "completed"),
-        ],
-      }),
-    );
-
-    expect(onContinue).not.toHaveBeenCalled();
-    expect(container.textContent).not.toContain("WorkspaceSetup.build.states.background");
-  });
-
-  it("keeps finished phases, states a failure and retries only that phase", async () => {
-    render(
-      building({
-        status: "failed",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "failed", "generation"),
-          phaseView("dashboard", "failed", "dependency"),
-        ],
-      }),
-    );
-
-    expect(container.querySelector("h1")?.textContent).toBe("WorkspaceSetup.build.failedTitle");
-    expect(container.textContent).toContain("WorkspaceSetup.failures.generation");
-    expect(container.textContent).toContain("WorkspaceSetup.failures.dependency");
-    const retries = [...container.querySelectorAll("button")].filter((candidate) =>
-      candidate.textContent?.includes("WorkspaceSetup.build.retry"),
-    );
-    expect(retries).toHaveLength(1);
-
-    await act(async () => {
-      retries[0].click();
-      await Promise.resolve();
-    });
-    expect(harness.retry).toHaveBeenCalledWith({ setupId: expect.any(String), phase: "records" });
-    expect(button("WorkspaceSetup.build.continue")).toBeUndefined();
-  });
-
-  it("lets the owner continue past a build that failed for good", () => {
-    render(
-      building({
-        status: "failed",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "failed", "dependency"),
-          phaseView("views", "failed", "dependency"),
-          phaseView("records", "failed", "dependency"),
-          phaseView("dashboard", "failed", "dependency"),
-        ],
-      }),
-    );
-
-    expect(button("WorkspaceSetup.build.retry")).toBeUndefined();
-    const onward = button("WorkspaceSetup.actions.continueAnyway");
-    expect(onward?.getAttribute("data-variant")).toBe("secondary");
-    act(() => onward?.click());
-    expect(onContinue).toHaveBeenCalledOnce();
-  });
-
-  it("shows no Continue while the wizard moves on and spins only the retried phase", async () => {
-    render(
-      building({
-        status: "completed",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "completed"),
-          phaseView("dashboard", "completed"),
-        ],
-      }),
-      true,
-    );
-    expect(button("WorkspaceSetup.build.continue")).toBeUndefined();
-
-    harness.retry.mockReturnValueOnce(new Promise(() => undefined));
-    render(
-      building({
-        status: "failed",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "failed", "generation"),
-          phaseView("dashboard", "failed", "generation"),
-        ],
-      }),
-    );
-    const retries = [...container.querySelectorAll("button")].filter((candidate) =>
-      candidate.textContent?.includes("WorkspaceSetup.build.retry"),
-    );
-    expect(retries).toHaveLength(2);
-    await act(async () => {
-      retries[1].click();
-      await Promise.resolve();
-    });
-    expect(retries[0].querySelector(".animate-spin")).toBeNull();
-    expect(retries[1].querySelector(".animate-spin")).not.toBeNull();
-  });
-
-  it("offers to continue without the website when it could not be read, and support when the budget is gone", async () => {
-    render(
-      building({
-        status: "failed",
-        phases: [
-          phaseView("knowledgeBase", "failed", "crawlFailed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "stopped", "spendCap"),
-          phaseView("dashboard", "completed"),
-        ],
-      }),
-    );
-    expect(button("WorkspaceSetup.failures.contactSupport")).toBeDefined();
-    await act(async () => {
-      button("WorkspaceSetup.start.withoutWebsite")?.click();
-      await Promise.resolve();
-    });
-    expect(harness.retry).toHaveBeenCalledWith({
-      setupId: expect.any(String),
-      phase: "knowledgeBase",
-      withoutWebsite: true,
-    });
-  });
-
-  it("shows the reached parts as one timeline, with the retry inside the failed row", () => {
-    render(
-      building({
-        status: "failed",
-        phases: [
-          phaseView("knowledgeBase", "completed"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "failed", "generation"),
-          phaseView("dashboard"),
-        ],
-      }),
-    );
-
-    const timeline = container.querySelector('[data-testid="setup-timeline"]');
-    const rows = timeline?.querySelectorAll('[data-slot="collapsible-content"] > div') ?? [];
-    expect(rows).toHaveLength(4);
-    const failed = rows[3];
-    expect(failed?.className).toContain("text-destructive");
-    expect(failed?.textContent).toContain("WorkspaceSetup.failures.generation");
-    expect(failed?.querySelector("button")?.textContent).toContain("WorkspaceSetup.build.retry");
-    expect(container.querySelector('[aria-label="WorkspaceSetup.build.previewLabel"]')).not.toBeNull();
-  });
-
-  it("states what a finished or skipped part added instead of leaving placeholders", () => {
-    render(
-      building({
-        status: "completed",
-        phases: [
-          phaseView("knowledgeBase", "skipped"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "skipped"),
-          phaseView("dashboard", "completed"),
-        ],
         results: {
           colors: null,
-          lists: [
-            {
-              id: LIST_ID,
-              key: "deal",
-              name: "Deal",
-              pluralName: "Deals",
-              icon: "handshake",
-              color: null,
-              stages: ["Lead", "Demo", "Won"],
-            },
-          ],
+          lists: [{ key: "deal", id: "1", pluralName: "Deals", icon: "handshake", color: null, stages: [] }],
           views: [],
           records: [],
           widgets: [],
           pages: [],
-        },
+        } as unknown as WorkspaceSetupView["results"],
       }),
     );
 
-    const frame = container.querySelector('[aria-label="WorkspaceSetup.build.previewLabel"]');
-    expect(frame?.querySelector('[data-slot="skeleton"]')).toBeNull();
-    expect(region("WorkspaceSetup.plan.knowledgeBase")?.textContent).toContain(
-      "WorkspaceSetup.build.summaries.knowledgeBase 0",
-    );
-    expect(region("WorkspaceSetup.build.records")?.textContent).toContain("WorkspaceSetup.build.summaries.records 0");
-    expect(region("WorkspaceSetup.build.records")?.querySelector("table")).toBeNull();
-    expect(region("WorkspaceSetup.plan.dashboard")?.textContent).toContain(
-      "WorkspaceSetup.build.summaries.dashboard 0",
-    );
-    const board = region("Deals");
-    expect(board?.textContent).toContain("Lead");
-    expect(board?.querySelectorAll('[data-slot="card"]')).toHaveLength(0);
-  });
-
-  it("keeps placeholders for the parts that are still to come", () => {
-    render(
-      building({
-        currentPhase: "records",
-        phases: [
-          phaseView("knowledgeBase", "running"),
-          phaseView("dataModel", "completed"),
-          phaseView("views", "completed"),
-          phaseView("records", "running"),
-          phaseView("dashboard"),
-        ],
-      }),
-    );
-
-    for (const label of [
-      "Deals",
-      "WorkspaceSetup.build.records",
-      "WorkspaceSetup.plan.dashboard",
-      "WorkspaceSetup.plan.knowledgeBase",
-    ])
-      expect(region(label)?.querySelector('[data-slot="skeleton"]')).not.toBeNull();
-  });
-
-  it("names no finish time while it runs", () => {
-    render(building({ currentPhase: "records", phases: [phaseView("records", "running")] }));
-    expect(container.textContent).not.toMatch(/minute|second|ETA/i);
+    const phases = [...container.querySelectorAll("[data-phase]")].map((item) => item.getAttribute("data-phase"));
+    expect(phases).toEqual(["dataModel", "views", "records", "dashboard", "knowledgeBase"]);
+    expect(phaseState("dataModel")).toBe("done");
+    expect(phaseState("views")).toBe("active");
+    expect(phaseState("records")).toBe("waiting");
+    expect(container.textContent).toContain("WorkspaceSetup.build.summaries.dataModel 1");
     expect(container.textContent).toContain("WorkspaceSetup.build.keepsRunning");
+    expect(container.textContent).toContain("WorkspaceSetup.build.eyebrow");
+  });
+
+  it("lets the owner continue while the build still runs", () => {
+    render(building({ phases: [phaseView("dataModel", "running")] }));
+
+    act(() => button("OnboardingWizard.continue")?.click());
+
+    expect(harness.completeSetupStep).toHaveBeenCalledOnce();
+  });
+
+  it("disables Continue while the wizard is already moving on", () => {
+    render(building({}), true);
+
+    expect(button("OnboardingWizard.continue")?.disabled).toBe(true);
+  });
+
+  it("offers a retry on a failed phase and sends it", async () => {
+    render(
+      setupView({
+        status: "failed",
+        phases: [phaseView("dataModel", "completed"), phaseView("records", "failed", "generation")],
+      }),
+    );
+
+    expect(phaseState("records")).toBe("failed");
+    expect(container.textContent).toContain("WorkspaceSetup.failures.generation");
+    await act(() => {
+      button("WorkspaceSetup.build.retry")?.click();
+      return Promise.resolve();
+    });
+
+    expect(harness.retry).toHaveBeenCalledWith({ setupId: expect.any(String), phase: "records" });
+    expect(container.textContent).toContain("WorkspaceSetup.build.failedTitle");
+  });
+
+  it("offers no retry for a phase that waits on another one", () => {
+    render(setupView({ status: "failed", phases: [phaseView("views", "failed", "dependency")] }));
+
+    expect(button("WorkspaceSetup.build.retry")).toBeUndefined();
+  });
+
+  it("reports a finished workspace", () => {
+    render(setupView({ status: "completed", phases: [phaseView("dataModel", "completed")] }));
+
+    expect(container.textContent).toContain("WorkspaceSetup.build.completedTitle");
+    expect(container.textContent).toContain("WorkspaceSetup.build.completedBody");
   });
 });

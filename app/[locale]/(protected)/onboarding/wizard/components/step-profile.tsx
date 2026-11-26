@@ -13,6 +13,8 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormInput } from "@/components/forms/form-input";
 import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Alert } from "@/components/shared/alert";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
@@ -22,6 +24,11 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { TEAM_SIZES, type TeamSize } from "@/features/onboarding-funnel/team-size";
+import {
+  DISCOVERY_CHOICES,
+  DISCOVERY_DETAIL_MAX_LENGTH,
+  type DiscoveryChoice,
+} from "@/features/onboarding-funnel/discovery-answer";
 
 type Props = {
   email: string;
@@ -53,15 +60,25 @@ export const StepProfile = observer(
       store.setWithUnsavedChangesGuard(false);
     });
     const { isLoading } = store;
-    const asksTeamSize = appMode === "cloud" && !isInvited;
+    const asksOwnerQuestions = appMode === "cloud" && !isInvited;
     const teamSizeLabels: Record<TeamSize, string> = {
       solo: t("OnboardingWizard.profile.teamSize.solo"),
       small: t("OnboardingWizard.profile.teamSize.small"),
       medium: t("OnboardingWizard.profile.teamSize.medium"),
       large: t("OnboardingWizard.profile.teamSize.large"),
     };
+    const discoveryLabels: Record<DiscoveryChoice, string> = {
+      searchEngine: t("OnboardingWizard.source.choices.searchEngine"),
+      advertisement: t("OnboardingWizard.source.choices.advertisement"),
+      aiAssistant: t("OnboardingWizard.source.choices.aiAssistant"),
+      directory: t("OnboardingWizard.source.choices.directory"),
+      socialMedia: t("OnboardingWizard.source.choices.socialMedia"),
+      recommendation: t("OnboardingWizard.source.choices.recommendation"),
+      articleOrVideo: t("OnboardingWizard.source.choices.articleOrVideo"),
+      other: t("OnboardingWizard.source.choices.other"),
+    };
 
-    useEffect(() => store.setRequiresTeamSize(asksTeamSize), [asksTeamSize, store]);
+    useEffect(() => store.setOwnerQuestions(asksOwnerQuestions), [asksOwnerQuestions, store]);
 
     useEffect(
       () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent, displayLanguage }),
@@ -72,6 +89,9 @@ export const StepProfile = observer(
       value: key,
       label: key === Locale.system ? t("Common.locales.system") : t(`Common.locales.${key}`),
     }));
+    const languageLabel =
+      displayLanguageItems.find((item) => item.value === store.form.displayLanguage)?.label ??
+      t("Common.locales.system");
 
     const legalDocumentLinks = {
       dataPrivacyLink: (chunks: ReactNode) => (
@@ -93,7 +113,7 @@ export const StepProfile = observer(
 
     return (
       <AppForm store={store}>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {isInvited && inviterName ? (
             <Alert role="note">
               <p className="text-x-sm">{t("OnboardingForm.invitationFrom", { inviterName })}</p>
@@ -106,17 +126,9 @@ export const StepProfile = observer(
             <FormInput required autoComplete="family-name" id="lastName" name="family-name" />
           </div>
 
-          <FormSelect
-            required
-            id="displayLanguage"
-            items={displayLanguageItems}
-            label={t("Common.inputs.displayLanguage")}
-          />
-
           {canNameWorkspace ? (
             <FormInput
               autoComplete="organization"
-              description={t("WorkspaceOnboarding.workspaceNameDescription")}
               id="workspaceName"
               label={t("Workspaces.nameLabel")}
               maxLength={WORKSPACE_NAME_MAX_LENGTH}
@@ -125,7 +137,7 @@ export const StepProfile = observer(
             />
           ) : null}
 
-          {asksTeamSize ? (
+          {asksOwnerQuestions ? (
             <fieldset className="flex flex-col gap-2" id="onboarding-team-size">
               <legend className="mb-2 text-sm font-medium">
                 {t("OnboardingWizard.profile.teamSize.label")}
@@ -149,6 +161,7 @@ export const StepProfile = observer(
                     disabled={isLoading}
                     id={`onboarding-team-size-${size}`}
                     label={teamSizeLabels[size]}
+                    labelClassName="min-h-11 justify-center"
                     selectionMode="single"
                     value={size}
                   />
@@ -163,6 +176,49 @@ export const StepProfile = observer(
             </fieldset>
           ) : null}
 
+          {asksOwnerQuestions ? (
+            <div className="flex flex-col gap-2">
+              <Select disabled={isLoading} value={store.discovery ?? ""} onValueChange={store.setDiscovery}>
+                <SelectTrigger
+                  aria-label={t("OnboardingWizard.source.optionsLabel")}
+                  className="h-11 w-full"
+                  id="onboarding-source"
+                >
+                  <SelectValue placeholder={t("OnboardingWizard.profile.discovery")} />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {DISCOVERY_CHOICES.map((choice) => (
+                    <SelectItem key={choice} id={`onboarding-source-${choice}`} value={choice}>
+                      {discoveryLabels[choice]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {store.discovery === "other" ? (
+                <Input
+                  aria-label={t("OnboardingWizard.source.detailLabel")}
+                  disabled={isLoading}
+                  id="onboarding-source-detail"
+                  maxLength={DISCOVERY_DETAIL_MAX_LENGTH}
+                  placeholder={t("OnboardingWizard.source.detailPlaceholder")}
+                  value={store.discoveryDetail}
+                  onChange={(event) => store.setDiscoveryDetail(event.target.value)}
+                />
+              ) : null}
+            </div>
+          ) : null}
+
+          {store.languageOpen ? (
+            <FormSelect
+              required
+              id="displayLanguage"
+              items={displayLanguageItems}
+              label={t("Common.inputs.displayLanguage")}
+            />
+          ) : null}
+
           {appMode === "cloud" ? (
             <FormCheckbox
               required
@@ -174,13 +230,35 @@ export const StepProfile = observer(
             />
           ) : null}
 
-          <Button className="mt-2 self-end max-sm:self-stretch" disabled={isLoading} type="submit">
-            {isLoading && <Loader2 className="size-4 animate-spin" />}
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-3 max-sm:flex-col-reverse max-sm:items-stretch">
+            {store.languageOpen ? (
+              <span />
+            ) : (
+              <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span>{t("OnboardingWizard.profile.languageFromBrowser", { language: languageLabel })}</span>
 
-            {t("OnboardingWizard.continue")}
+                <Button
+                  className="h-auto px-1 py-0.5 text-xs"
+                  disabled={isLoading}
+                  id="onboarding-language-change"
+                  size="sm"
+                  type="button"
+                  variant="link"
+                  onClick={store.openLanguage}
+                >
+                  {t("OnboardingWizard.change")}
+                </Button>
+              </p>
+            )}
 
-            {isLoading ? null : <ArrowRight aria-hidden="true" className="size-4" />}
-          </Button>
+            <Button className="min-h-11" disabled={isLoading} id="onboarding-profile-continue" type="submit">
+              {isLoading && <Loader2 className="size-4 animate-spin" />}
+
+              {t("OnboardingWizard.continue")}
+
+              {isLoading ? null : <ArrowRight aria-hidden="true" className="size-4" />}
+            </Button>
+          </div>
         </div>
       </AppForm>
     );

@@ -5,11 +5,7 @@ import type { TemplateIndex } from "@/core/templates/template-index.types";
 import { getTemplateIndex } from "@/core/templates/template-index";
 import { listOfferedTemplates } from "@/core/templates/template-registry";
 
-import {
-  DEFAULT_ONBOARDING_TEMPLATE,
-  offeredTemplateCards,
-  preselectOnboardingTemplate,
-} from "../onboarding-template-offer";
+import { offeredTemplateCards } from "../onboarding-template-offer";
 
 function entry(slug: string, over: Partial<TemplateIndex[number]> = {}): TemplateIndex[number] {
   return {
@@ -102,67 +98,5 @@ describe("offered template cards", () => {
       expect(card.name.length).toBeGreaterThan(0);
       expect(card.summary.length).toBeGreaterThan(0);
     }
-  });
-});
-
-describe("template preselection", () => {
-  const index = [
-    entry("sales-pipeline"),
-    entry("client-tracker", { family: "clients", pairedPages: { en: "/for/consultants", de: "/for/berater" } }),
-    entry("real-estate-pipeline", { family: "property", pairedPages: { en: "/for/real-estate" } }),
-  ] satisfies TemplateIndex;
-  const cards = offeredTemplateCards({ locale: "en", deployment: "cloud", index });
-
-  it("prefers the template chosen on the website sign-up link", () => {
-    expect(
-      preselectOnboardingTemplate({
-        cards,
-        signupTemplate: "real-estate-pipeline",
-        landingPath: "/en/for/consultants",
-        index,
-      }),
-    ).toEqual({ slug: "real-estate-pipeline", reason: "signup" });
-  });
-
-  it("falls back to the template paired with the page the sign-up started from, in that page's language", () => {
-    expect(
-      preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: "/en/for/consultants", index }),
-    ).toEqual({ slug: "client-tracker", reason: "page" });
-    expect(preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: "/de/for/berater", index })).toEqual(
-      { slug: "client-tracker", reason: "page" },
-    );
-  });
-
-  it("recommends the default template when nothing points at another one", () => {
-    expect(preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: "/en/pricing", index })).toEqual({
-      slug: DEFAULT_ONBOARDING_TEMPLATE,
-      reason: "default",
-    });
-    expect(preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: null, index }).reason).toBe(
-      "default",
-    );
-  });
-
-  it("ignores a signup template that is not offered and a page that pairs with a template that is not offered", () => {
-    const some = cards.filter((card) => card.slug === "client-tracker");
-
-    expect(
-      preselectOnboardingTemplate({ cards: some, signupTemplate: "real-estate-pipeline", landingPath: null, index }),
-    ).toEqual({ slug: "client-tracker", reason: "default" });
-    expect(
-      preselectOnboardingTemplate({ cards: some, signupTemplate: null, landingPath: "/en/for/real-estate", index }),
-    ).toEqual({ slug: "client-tracker", reason: "default" });
-  });
-
-  it("preselects nothing when no template is offered", () => {
-    expect(
-      preselectOnboardingTemplate({ cards: [], signupTemplate: "client-tracker", landingPath: null, index }),
-    ).toEqual({ slug: null, reason: null });
-  });
-
-  it("ignores a forged signup template value", () => {
-    expect(
-      preselectOnboardingTemplate({ cards, signupTemplate: "../../etc/passwd", landingPath: null, index }).reason,
-    ).toBe("default");
   });
 });

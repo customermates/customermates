@@ -418,7 +418,7 @@ describe("a build no run works on anymore", () => {
   it("restarts a stalled pending phase once and starts a new build run", async () => {
     const repo = memoryRepo(setupRecord({ confirmedAt: idle }));
     const background = { dispatch: vi.fn(() => Promise.resolve()) };
-    const retry = new RetryWorkspaceSetupPhaseInteractor(repo as never, { start: vi.fn() }, background, {
+    const retry = new RetryWorkspaceSetupPhaseInteractor(repo as never, background, {
       require: vi.fn(() => Promise.resolve(null)),
     });
 

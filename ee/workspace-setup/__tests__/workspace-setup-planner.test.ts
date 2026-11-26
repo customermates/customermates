@@ -29,12 +29,9 @@ const owner = createMockUser({ companyId: SETUP_COMPANY_ID });
 const input: SetupPlanInput = {
   setupId: "0f8f6c1e-7b52-4f0a-a7a4-1d3c2b9e8f70",
   language: "en",
-  answersLanguage: null,
   currency: "EUR",
   answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Studio" } } },
   followUps: [],
-  sources: [{ url: "https://studio.example/", title: "Studio", text: "We design websites.", category: "about" }],
-  website: true,
   sheet: null,
 };
 
@@ -107,10 +104,10 @@ describe("workspace setup planner", () => {
       'Automatic fields: ["contact.name","organization.name","deal.name","service.name","task.name","project.name","contact.channels","contact.avatar","deal.value","service.price"]',
     );
     expect(calls()[0].prompt).toContain("Workspace language: English (en).");
-    expect(calls()[0].prompt).not.toContain("Answers drafted from the website");
+    for (const call of calls()) expect(call.prompt).not.toContain("Website:");
   });
 
-  it("plans Knowledge Base pages from the answers alone without a website, but no FAQ page", async () => {
+  it("plans Knowledge Base pages from the answers alone, but no FAQ page", async () => {
     const { answer, calls, plan } = harness();
     const knowledge = planPartFor(PLAN_PART_LABELS.knowledge, agencyDashboardPlan) as PlanKnowledgeWire;
     answer({
@@ -118,21 +115,13 @@ describe("workspace setup planner", () => {
         pages: [...knowledge.pages, { key: "faq", kind: "faq", title: "Questions", sections: ["Prices"] }],
       },
     });
-    const planned = await plan({ ...input, sources: [], website: false });
+    const planned = await plan();
     expect(planned.ok && planned.plan.knowledgeBase.pages.map((page) => page.kind)).toEqual(
       knowledge.pages.map((page) => page.kind),
     );
     const prompt = calls().find(({ label }) => label === PLAN_PART_LABELS.knowledge)?.prompt;
     expect(prompt).toContain(SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE);
     expect(prompt).not.toContain("Website:");
-  });
-
-  it("names the website language when the answers were drafted in another language", async () => {
-    const { answer, calls, plan } = harness();
-    answer();
-    await plan({ ...input, answersLanguage: "de" });
-    for (const call of calls())
-      expect(call.prompt).toContain("Answers drafted from the website are written in German (de).");
   });
 
   it("stores the attempt so a later step can repair a part that came back as JSON text", async () => {

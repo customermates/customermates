@@ -14,7 +14,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Plus, Sparkles, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -27,7 +27,6 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getCurrencyLabel } from "@/constants/currencies";
 import { cn } from "@/core/utils/cn";
 import { APP_LOCALES } from "@/i18n/locale-registry";
@@ -496,12 +495,12 @@ type Props = {
   value: SetupAnswerValue | null;
   onChange: (value: SetupAnswerValue) => void;
   disabled?: boolean;
-  fromWebsite?: boolean;
+  hideLabel?: boolean;
   currency?: string | null;
   invalid?: boolean;
 };
 
-function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }: Omit<Props, "fromWebsite">) {
+function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }: Omit<Props, "hideLabel">) {
   switch (descriptor.format) {
     case "singleChoice":
       return (
@@ -566,37 +565,23 @@ function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }:
   }
 }
 
-export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }: Props) {
-  const t = useTranslations();
+export function SetupQuestionField({ descriptor, hideLabel = false, ...props }: Props) {
   const labelId = `setup-question-${descriptor.id}`;
   return (
     <div
-      aria-labelledby={labelId}
+      aria-label={hideLabel ? descriptor.label : undefined}
+      aria-labelledby={hideLabel ? undefined : labelId}
       className="flex flex-col gap-1.5"
       data-invalid={props.invalid || undefined}
       role="group"
     >
-      <div className="flex flex-wrap items-center gap-1.5">
+      {hideLabel ? null : (
         <FormLabel className={cn(props.invalid && "text-destructive")} id={labelId}>
           {descriptor.label}
 
           {descriptor.optional ? null : <span className="text-destructive"> *</span>}
         </FormLabel>
-
-        {fromWebsite ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="inline-flex animate-page-result-in text-muted-foreground motion-reduce:animate-none">
-                <Sparkles aria-hidden className="size-3.5" />
-
-                <span className="sr-only">{t("WorkspaceSetup.actions.fromWebsite")}</span>
-              </span>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("WorkspaceSetup.actions.fromWebsite")}</TooltipContent>
-          </Tooltip>
-        ) : null}
-      </div>
+      )}
 
       <FieldBody descriptor={descriptor} {...props} />
     </div>

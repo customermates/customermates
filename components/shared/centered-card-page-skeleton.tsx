@@ -7,7 +7,7 @@ type Props = {
   align?: "center" | "top";
   animated?: boolean;
   children?: ReactNode;
-  maxWidth?: "lg" | "2xl" | "3xl";
+  maxWidth?: "lg" | "xl" | "2xl" | "3xl";
 };
 
 export function CenteredCardPageSkeleton({ align = "center", animated = true, children, maxWidth = "2xl" }: Props) {
@@ -28,7 +28,13 @@ export function CenteredCardPageSkeleton({ align = "center", animated = true, ch
         <div
           className={cn(
             "flex w-full flex-col gap-0 rounded-xl border border-border bg-background py-0 shadow-xs",
-            maxWidth === "3xl" ? "max-w-3xl" : maxWidth === "lg" ? "max-w-lg" : "max-w-2xl",
+            maxWidth === "3xl"
+              ? "max-w-3xl"
+              : maxWidth === "lg"
+                ? "max-w-lg"
+                : maxWidth === "xl"
+                  ? "max-w-xl"
+                  : "max-w-2xl",
           )}
           data-skeleton-group="0"
         >
