@@ -1011,6 +1011,24 @@
   "ApiKeysCard": {
     "unnamed": "Naamloos"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "We mailen je een link waarmee je inlogt. Die werkt één keer en verloopt na 15 minuten.",
+      "resend": "Link opnieuw sturen",
+      "resendIn": "Opnieuw sturen over {seconds} s",
+      "sentBody": "We hebben een link gestuurd naar {email}. Open hem op dit apparaat om verder te gaan.",
+      "sentTitle": "Check je inbox",
+      "signInCta": "Stuur me een inloglink",
+      "signUpCta": "Stuur me een registratielink",
+      "useAnotherEmail": "Ander e-mailadres gebruiken"
+    },
+    "tabs": {
+      "magicLink": "Magic link",
+      "password": "Wachtwoord",
+      "sso": "Eenmalige aanmelding"
+    },
+    "tabsLabel": "Inlogmethode"
+  },
   "AuthSocialErrors": {
     "accessDenied": "De aanmelding is bij de aanbieder geannuleerd.",
     "accountAlreadyLinkedToDifferentUser": "Dit socialemedia-account is al gekoppeld aan een andere gebruiker.",
@@ -1028,6 +1046,7 @@
     "invalidProfile": "Het profiel van de aanbieder was ongeldig. Probeer het opnieuw.",
     "issuerMismatch": "Het antwoord van de aanbieder kon niet worden vertrouwd. Probeer het opnieuw.",
     "issuerMissing": "Het antwoord van de aanbieder kon niet worden geverifieerd. Probeer het opnieuw.",
+    "magicLinkInvalid": "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.",
     "missingProfile": "De aanbieder heeft geen profielgegevens teruggegeven. Probeer het opnieuw.",
     "nameIsMissing": "De aanbieder heeft geen naam teruggegeven. Probeer het opnieuw.",
     "noCallbackUrl": "Het aanmeldverzoek was onvolledig. Probeer het opnieuw.",
@@ -1921,6 +1940,7 @@
       "bookingRateLimited": "Te veel boekingspogingen. Probeer het later opnieuw.",
       "bookingSlotTaken": "Dit tijdstip is niet meer beschikbaar. Kies een ander tijdstip.",
       "bookingUnavailable": "Deze boekingspagina is op dit moment niet beschikbaar.",
+      "botDetected": "We konden dit verzoek niet verifiëren. Laad de pagina opnieuw en probeer het nog eens.",
       "calendarEventNotFound": "ID van agenda-afspraak niet gevonden of niet toegankelijk.",
       "calendarExportIncomplete": "Deze periode heeft meer items dan in één export passen. Kies een kortere periode of strengere bronfilters.",
       "calendarNeedsReconnect": "Koppel je Google- of Microsoft-account opnieuw onder Kanalen & agenda's om agendawijzigingen toe te staan en probeer het daarna opnieuw.",
@@ -1938,6 +1958,7 @@
       "dataViewNotFound": "Deze opgeslagen weergave is niet gevonden.",
       "dataViewUpdateEmpty": "Geef een naam of minstens één weergave-instelling op om bij te werken.",
       "demoMode": "Deze actie is niet beschikbaar in de demomodus. Log in voor toegang tot alle functies.",
+      "disposableEmail": "Met tijdelijke e-mailadressen kun je geen proefperiode starten. Gebruik je zakelijke of persoonlijke e-mailadres.",
       "draftAlreadySent": "Dit concept is al verzonden.",
       "draftChanged": "Dit concept is gewijzigd nadat je het opende.",
       "draftFilesEmailOnly": "Alleen e-mailconcepten kunnen bijlagen bevatten.",
@@ -1983,6 +2004,7 @@
       "linkedinInboxUnavailable": "Dit LinkedIn-account heeft geen {product}-inbox. Verbind het account met gekoppeld {product} om deze te gebruiken.",
       "linkedinProductRequiresLinkedin": "InMail en LinkedIn-productopties vereisen een LinkedIn-account.",
       "linkedinProductUnavailable": "Bij dit LinkedIn-account is dat product niet verbonden.",
+      "magicLinkRateLimited": "Er zijn te veel inloglinks aangevraagd voor dit e-mailadres. Wacht een uur of log op een andere manier in.",
       "memberReferenceRequired": "Noem het lid met userId of e-mailadres.",
       "messageContentRequired": "Voeg een bericht of een bijlage toe.",
       "messageNotFound": "Dit bericht is niet meer beschikbaar.",
@@ -4024,6 +4046,14 @@
   },
   "Loading": {
     "text": "Laden..."
+  },
+  "MagicLinkEmail": {
+    "cta": "Inloggen bij Customermates",
+    "expiry": "De link werkt één keer en verloopt over 15 minuten.",
+    "fallback": "Werkt de knop hierboven niet? Kopieer dan deze link en plak hem in je browser: ",
+    "intro": "Gebruik de knop hieronder om in te loggen bij Customermates.",
+    "securityNotice": "Heb je deze link niet aangevraagd? Dan kun je deze e-mail gerust negeren.",
+    "subject": "Je inloglink voor Customermates"
   },
   "MassActions": {
     "clearField": "Veld leegmaken",
@@ -6553,11 +6583,10 @@
     "forgotPassword": "Wachtwoord vergeten?",
     "inviteSubtitle": "{inviterName} heeft je uitgenodigd om lid te worden van een werkruimte. Log in om de uitnodiging te bekijken.",
     "inviteSubtitleNamed": "{inviterName} heeft je uitgenodigd om lid te worden van {workspace}. Log in om de uitnodiging te bekijken.",
-    "or": "OF",
     "rememberMe": "Onthoud mij",
     "signInCta": "Inloggen",
     "signInTitle": "Log in op je account",
-    "switchToSignUp": "Nog geen account? <registerLink>Registreren</registerLink>"
+    "switchToSignUp": "Nieuw bij Customermates? <registerLink>Account aanmaken →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Doorgaan",
@@ -6567,9 +6596,8 @@
     "inviteSubtitle": "{inviterName} heeft je uitgenodigd om lid te worden van een werkruimte in Customermates. Kies hoe je je account wilt aanmaken.",
     "inviteSubtitleNamed": "{inviterName} heeft je uitgenodigd om lid te worden van {workspace} in Customermates. Kies hoe je je account wilt aanmaken.",
     "inviteTitle": "Bedrijfsuitnodiging accepteren",
-    "or": "OF",
     "signUpCta": "Account aanmaken",
-    "switchToSignIn": "Heb je al een account? <signInLink>Inloggen</signInLink>",
+    "switchToSignIn": "Heb je al een account? <signInLink>Inloggen →</signInLink>",
     "title": "Maak een Customermates-account aan"
   },
   "SolutionStage": {

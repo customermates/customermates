@@ -2,11 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 
-import SignInProviderButton from "@/app/[locale]/(entry)/auth/signin/sign-in-provider-button";
+import { AuthMethodActions, AuthMethodTabs } from "@/app/[locale]/(entry)/auth/signin/auth-method-tabs";
 import { SocialErrorToast } from "../social-error-toast";
 
 import { AppLink } from "@/components/shared/app-link";
@@ -20,7 +18,6 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
-import { runUserAction } from "@/core/errors/report-application-error";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import type { SignupRequest } from "@/features/acquisition/signup-source";
@@ -84,61 +81,43 @@ const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProvi
             </Alert>
           ) : null}
 
-          {(socialProviders.google || socialProviders.microsoft) && (
-            <>
-              <div className="flex flex-col items-center gap-4">
-                {socialProviders.google && (
-                  <SignInProviderButton
-                    isLoading={isLoading}
-                    label={t("SignUpForm.buttonLabel", { provider: "Google" })}
-                    providerId="google"
-                    onClick={() => runUserAction(() => signUpStore.continueWithProvider("google"))}
-                  />
-                )}
+          <AuthMethodTabs
+            isLoading={isLoading}
+            password={
+              <>
+                <FormInput required id="email" type="email" />
 
-                {socialProviders.microsoft && (
-                  <SignInProviderButton
-                    isLoading={isLoading}
-                    label={t("SignUpForm.buttonLabel", {
-                      provider: "Microsoft",
-                    })}
-                    providerId="microsoft"
-                    onClick={() => runUserAction(() => signUpStore.continueWithProvider("microsoft"))}
-                  />
-                )}
-              </div>
+                <Reveal show={Boolean(form.email?.trim())}>
+                  <FormInput required id="confirmEmail" type="email" />
+                </Reveal>
 
-              <div className="my-3 flex items-center">
-                <Separator aria-hidden="true" className="h-px flex-1" />
+                <PasswordInput
+                  required
+                  id="password"
+                  showPassword={signUpStore.showPassword}
+                  onToggleVisibility={signUpStore.toggleShowPassword}
+                />
 
-                <span className="text-x-sm text-subdued mx-4">{t("SignUpForm.or")}</span>
-
-                <Separator aria-hidden="true" className="h-px flex-1" />
-              </div>
-            </>
-          )}
-
-          <FormInput required id="email" type="email" />
-
-          <Reveal show={Boolean(form.email?.trim())}>
-            <FormInput required id="confirmEmail" type="email" />
-          </Reveal>
-
-          <PasswordInput
-            required
-            id="password"
-            showPassword={signUpStore.showPassword}
-            onToggleVisibility={signUpStore.toggleShowPassword}
+                <FormInput required id="confirmPassword" type={signUpStore.showPassword ? "text" : "password"} />
+              </>
+            }
+            providerLabel={(provider) => t("SignUpForm.buttonLabel", { provider })}
+            socialProviders={socialProviders}
+            state={signUpStore.methods}
+            onContinueWithProvider={signUpStore.continueWithProvider}
           />
-
-          <FormInput required id="confirmPassword" type={signUpStore.showPassword ? "text" : "password"} />
         </AppCardBody>
 
         <AppCardFooter>
           <div className="flex w-full flex-col space-y-3 items-center">
-            <Button className="w-full" disabled={isLoading} type="submit">
-              {isInvited ? t("SignUpForm.acceptInviteCta") : t("SignUpForm.signUpCta")}
-            </Button>
+            <AuthMethodActions
+              isLoading={isLoading}
+              magicLinkCta={t("AuthMethods.magicLink.signUpCta")}
+              passwordCta={isInvited ? t("SignUpForm.acceptInviteCta") : t("SignUpForm.signUpCta")}
+              socialProviders={socialProviders}
+              state={signUpStore.methods}
+              onResendMagicLink={signUpStore.requestMagicLink}
+            />
 
             {appMode === "cloud" && !isInvited ? (
               <p className="text-x-xs text-subdued text-center mt-2 max-w-sm">

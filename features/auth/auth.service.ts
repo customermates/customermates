@@ -11,6 +11,7 @@ import { getTranslations } from "next-intl/server";
 import AccountAccessRevoked from "@/components/emails/account-access-revoked";
 import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
+import MagicLinkEmail from "@/components/emails/magic-link";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import {
@@ -294,6 +295,48 @@ export class AuthService {
       headers: await headers(),
       body: { email, redirectTo },
     });
+  }
+
+  async requestMagicLink(args: { email: string; callbackURL?: string; errorCallbackURL?: string }): Promise<void> {
+    await auth.api.signInMagicLink({
+      headers: await headers(),
+      body: {
+        email: args.email,
+        name: args.email,
+        ...(args.callbackURL ? { callbackURL: args.callbackURL } : {}),
+        ...(args.errorCallbackURL ? { errorCallbackURL: args.errorCallbackURL } : {}),
+      },
+    });
+  }
+
+  async countMagicLinksSince(email: string, since: Date): Promise<number> {
+    return prisma.authVerification.count({
+      where: { value: { startsWith: `${JSON.stringify({ email }).slice(0, -1)},` }, createdAt: { gte: since } },
+    });
+  }
+
+  async sendMagicLinkEmail(args: { to: string; url: string }): Promise<void> {
+    const t = await getTranslations();
+    const locale = await getRequestAppLocale();
+    const layoutCopy = await getEmailLayoutCopy(locale);
+
+    const sent = await this.emailService.send({
+      to: args.to,
+      subject: t("MagicLinkEmail.subject"),
+      react: React.createElement(MagicLinkEmail, {
+        locale,
+        layoutCopy,
+        url: args.url,
+        subject: t("MagicLinkEmail.subject"),
+        intro: t("MagicLinkEmail.intro"),
+        cta: t("MagicLinkEmail.cta"),
+        expiry: t("MagicLinkEmail.expiry"),
+        fallback: t("MagicLinkEmail.fallback"),
+        securityNotice: t("MagicLinkEmail.securityNotice"),
+      }),
+    });
+
+    if (!sent) throw new Error("The sign-in link email was rejected by the mail provider");
   }
 
   async resetPassword(args: { newPassword: string; token: string }): Promise<void> {

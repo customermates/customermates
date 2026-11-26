@@ -1011,6 +1011,24 @@
   "ApiKeysCard": {
     "unnamed": "Senza nome"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "Ti invieremo via e-mail un link per accedere. Funziona una sola volta e scade dopo 15 minuti.",
+      "resend": "Invia di nuovo il link",
+      "resendIn": "Invia di nuovo tra {seconds} s",
+      "sentBody": "Abbiamo inviato un link a {email}. Aprilo su questo dispositivo per continuare.",
+      "sentTitle": "Controlla la tua casella di posta",
+      "signInCta": "Inviami un link di accesso",
+      "signUpCta": "Inviami un link di registrazione",
+      "useAnotherEmail": "Usa un’altra e-mail"
+    },
+    "tabs": {
+      "magicLink": "Magic link",
+      "password": "Password",
+      "sso": "Accesso SSO"
+    },
+    "tabsLabel": "Metodo di accesso"
+  },
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
     "accountAlreadyLinkedToDifferentUser": "Questo account social è già collegato a un altro utente.",
@@ -1028,6 +1046,7 @@
     "invalidProfile": "Il profilo restituito dal provider non era valido. Riprova.",
     "issuerMismatch": "Non è stato possibile considerare attendibile la risposta del provider. Riprova.",
     "issuerMissing": "Non è stato possibile verificare la risposta del provider. Riprova.",
+    "magicLinkInvalid": "Questo link di accesso è scaduto o è già stato usato. Richiedine uno nuovo.",
     "missingProfile": "Il provider non ha restituito alcun dato di profilo. Riprova.",
     "nameIsMissing": "Il provider non ha restituito alcun nome. Riprova.",
     "noCallbackUrl": "La richiesta di accesso era incompleta. Riprova.",
@@ -1921,6 +1940,7 @@
       "bookingRateLimited": "Troppi tentativi di prenotazione. Riprova più tardi.",
       "bookingSlotTaken": "Questo orario non è più disponibile. Scegline un altro.",
       "bookingUnavailable": "Questa pagina di prenotazione al momento non è disponibile.",
+      "botDetected": "Non siamo riusciti a verificare questa richiesta. Ricarica la pagina e riprova.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
       "calendarExportIncomplete": "Questo periodo contiene più voci di quante un'esportazione possa includerne. Scegli un periodo più breve o filtri delle origini più restrittivi.",
       "calendarNeedsReconnect": "Ricollega il tuo account Google o Microsoft in Canali e calendari per consentire le modifiche al calendario, poi riprova.",
@@ -1938,6 +1958,7 @@
       "dataViewNotFound": "Questa vista salvata non è stata trovata.",
       "dataViewUpdateEmpty": "Indica un nome o almeno un'impostazione della vista da aggiornare.",
       "demoMode": "Questa azione non è disponibile in modalità demo. Accedi per usare tutte le funzionalità.",
+      "disposableEmail": "Gli indirizzi e-mail temporanei non possono avviare una prova. Usa la tua e-mail di lavoro o personale.",
       "draftAlreadySent": "Questa bozza è già stata inviata.",
       "draftChanged": "Questa bozza è cambiata dopo che l'hai aperta.",
       "draftFilesEmailOnly": "Solo le bozze email possono contenere allegati.",
@@ -1983,6 +2004,7 @@
       "linkedinInboxUnavailable": "Questo account LinkedIn non ha una posta in arrivo {product}. Collega l'account con {product} associato per usarla.",
       "linkedinProductRequiresLinkedin": "Le opzioni InMail e prodotto LinkedIn richiedono un account LinkedIn.",
       "linkedinProductUnavailable": "Questo account LinkedIn non ha quel prodotto collegato.",
+      "magicLinkRateLimited": "Sono stati richiesti troppi link di accesso per questa e-mail. Attendi un’ora o accedi in un altro modo.",
       "memberReferenceRequired": "Indica il membro con userId o email.",
       "messageContentRequired": "Aggiungi un messaggio o un allegato.",
       "messageNotFound": "Questo messaggio non è più disponibile.",
@@ -4024,6 +4046,14 @@
   },
   "Loading": {
     "text": "Caricamento..."
+  },
+  "MagicLinkEmail": {
+    "cta": "Accedi a Customermates",
+    "expiry": "Il link funziona una sola volta e scade tra 15 minuti.",
+    "fallback": "Se il pulsante qui sopra non funziona, copia e incolla questo link nel tuo browser: ",
+    "intro": "Usa il pulsante qui sotto per accedere a Customermates.",
+    "securityNotice": "Se non hai richiesto questo link, puoi ignorare questa e-mail.",
+    "subject": "Il tuo link di accesso a Customermates"
   },
   "MassActions": {
     "clearField": "Svuota campo",
@@ -6553,11 +6583,10 @@
     "forgotPassword": "Password dimenticata?",
     "inviteSubtitle": "{inviterName} ti ha invitato a entrare in uno spazio di lavoro. Accedi per controllare l'invito.",
     "inviteSubtitleNamed": "{inviterName} ti ha invitato a entrare in {workspace}. Accedi per controllare l'invito.",
-    "or": "OPPURE",
     "rememberMe": "Ricordami",
     "signInCta": "Accedi",
     "signInTitle": "Accedi al tuo account",
-    "switchToSignUp": "Non hai un account? <registerLink>Registrati</registerLink>"
+    "switchToSignUp": "Nuovo su Customermates? <registerLink>Crea un account →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continua",
@@ -6567,9 +6596,8 @@
     "inviteSubtitle": "{inviterName} ti ha invitato a entrare in uno spazio di lavoro su Customermates. Scegli come creare il tuo account.",
     "inviteSubtitleNamed": "{inviterName} ti ha invitato a entrare in {workspace} su Customermates. Scegli come creare il tuo account.",
     "inviteTitle": "Accetta l'invito aziendale",
-    "or": "OPPURE",
     "signUpCta": "Crea un account",
-    "switchToSignIn": "Hai già un account? <signInLink>Accedi</signInLink>",
+    "switchToSignIn": "Hai già un account? <signInLink>Accedi →</signInLink>",
     "title": "Crea un account Customermates"
   },
   "SolutionStage": {

@@ -1011,6 +1011,24 @@
   "ApiKeysCard": {
     "unnamed": "Unnamed"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "We'll email you a link that signs you in. It works once and expires after 15 minutes.",
+      "resend": "Resend link",
+      "resendIn": "Resend link in {seconds}s",
+      "sentBody": "We sent a link to {email}. Open it on this device to continue.",
+      "sentTitle": "Check your inbox",
+      "signInCta": "Email me a sign-in link",
+      "signUpCta": "Email me a sign-up link",
+      "useAnotherEmail": "Use another email"
+    },
+    "tabs": {
+      "magicLink": "Magic link",
+      "password": "Password",
+      "sso": "Single sign-on"
+    },
+    "tabsLabel": "Sign-in method"
+  },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
     "accountAlreadyLinkedToDifferentUser": "This social account is already linked to a different user.",
@@ -1028,6 +1046,7 @@
     "invalidProfile": "The profile returned by the provider was invalid. Please try again.",
     "issuerMismatch": "The provider response could not be trusted. Please try again.",
     "issuerMissing": "The provider response could not be verified. Please try again.",
+    "magicLinkInvalid": "This sign-in link has expired or was already used. Request a new one.",
     "missingProfile": "The provider did not return any profile data. Please try again.",
     "nameIsMissing": "The provider did not return a name. Please try again.",
     "noCallbackUrl": "The sign-in request was incomplete. Please try again.",
@@ -1921,6 +1940,7 @@
       "bookingRateLimited": "Too many booking attempts. Try again later.",
       "bookingSlotTaken": "This time is no longer available. Choose another time.",
       "bookingUnavailable": "This booking page is not available right now.",
+      "botDetected": "We couldn't verify this request. Reload the page and try again.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "calendarExportIncomplete": "This period has more entries than one export can include. Choose a shorter period or narrower source filters.",
       "calendarNeedsReconnect": "Reconnect your Google or Microsoft account under Channels & calendars to allow calendar changes, then try again.",
@@ -1938,6 +1958,7 @@
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
+      "disposableEmail": "Temporary email addresses can't start a trial. Please use your work or personal email.",
       "draftAlreadySent": "This draft was already sent.",
       "draftChanged": "This draft changed after you opened it.",
       "draftFilesEmailOnly": "Only email drafts can hold attachments.",
@@ -1983,6 +2004,7 @@
       "linkedinInboxUnavailable": "This LinkedIn account has no {product} inbox. Connect the account with {product} linked to use it.",
       "linkedinProductRequiresLinkedin": "InMail and LinkedIn product options require a LinkedIn account.",
       "linkedinProductUnavailable": "This LinkedIn account does not have that product connected.",
+      "magicLinkRateLimited": "Too many sign-in links were requested for this email. Wait an hour or sign in another way.",
       "memberReferenceRequired": "Name the member by userId or email.",
       "messageContentRequired": "Add a message or an attachment.",
       "messageNotFound": "This message is no longer available.",
@@ -4024,6 +4046,14 @@
   },
   "Loading": {
     "text": "Loading..."
+  },
+  "MagicLinkEmail": {
+    "cta": "Sign in to Customermates",
+    "expiry": "The link works once and expires in 15 minutes.",
+    "fallback": "If the button above does not work, copy and paste this link into your browser: ",
+    "intro": "Use the button below to sign in to Customermates.",
+    "securityNotice": "If you did not request this link, you can safely ignore this email.",
+    "subject": "Your Customermates sign-in link"
   },
   "MassActions": {
     "clearField": "Clear field",
@@ -6553,11 +6583,10 @@
     "forgotPassword": "Forgot password?",
     "inviteSubtitle": "{inviterName} invited you to join a workspace. Sign in to review the invitation.",
     "inviteSubtitleNamed": "{inviterName} invited you to join {workspace}. Sign in to review the invitation.",
-    "or": "OR",
     "rememberMe": "Remember me",
     "signInCta": "Sign In",
     "signInTitle": "Sign in to your account",
-    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
+    "switchToSignUp": "New to Customermates? <registerLink>Create an account →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continue",
@@ -6567,9 +6596,8 @@
     "inviteSubtitle": "{inviterName} invited you to join a workspace on Customermates. Choose how you want to create your account.",
     "inviteSubtitleNamed": "{inviterName} invited you to join {workspace} on Customermates. Choose how you want to create your account.",
     "inviteTitle": "Accept Company Invitation",
-    "or": "OR",
     "signUpCta": "Create account",
-    "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
+    "switchToSignIn": "Already have an account? <signInLink>Sign in →</signInLink>",
     "title": "Create a Customermates Account"
   },
   "SolutionStage": {

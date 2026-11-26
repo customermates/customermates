@@ -1,6 +1,7 @@
 export const SOCIAL_ERROR_FALLBACK_KEY = "generic";
 
 export const SOCIAL_ERROR_KEYS: Record<string, string> = {
+  INVALID_TOKEN: "magicLinkInvalid",
   access_denied: "accessDenied",
   account_already_linked_to_different_user: "accountAlreadyLinkedToDifferentUser",
   account_not_linked: "accountNotLinked",

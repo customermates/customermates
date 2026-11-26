@@ -1011,6 +1011,24 @@
   "ApiKeysCard": {
     "unnamed": "Bez nazwy"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "Wyślemy ci e-mailem link, który cię zaloguje. Działa jeden raz i wygasa po 15 minutach.",
+      "resend": "Wyślij link ponownie",
+      "resendIn": "Wyślij ponownie za {seconds} s",
+      "sentBody": "Wysłaliśmy link na adres {email}. Otwórz go na tym urządzeniu, aby kontynuować.",
+      "sentTitle": "Sprawdź skrzynkę odbiorczą",
+      "signInCta": "Wyślij mi link do logowania",
+      "signUpCta": "Wyślij mi link do rejestracji",
+      "useAnotherEmail": "Użyj innego adresu e-mail"
+    },
+    "tabs": {
+      "magicLink": "Magiczny link",
+      "password": "Hasło",
+      "sso": "Logowanie jednokrotne"
+    },
+    "tabsLabel": "Metoda logowania"
+  },
   "AuthSocialErrors": {
     "accessDenied": "Logowanie zostało anulowane u dostawcy.",
     "accountAlreadyLinkedToDifferentUser": "To konto społecznościowe jest już połączone z innym użytkownikiem.",
@@ -1028,6 +1046,7 @@
     "invalidProfile": "Profil zwrócony przez dostawcę był nieprawidłowy. Spróbuj ponownie.",
     "issuerMismatch": "Odpowiedź dostawcy nie wzbudziła zaufania. Spróbuj ponownie.",
     "issuerMissing": "Nie udało się zweryfikować odpowiedzi dostawcy. Spróbuj ponownie.",
+    "magicLinkInvalid": "Ten link do logowania wygasł lub został już użyty. Poproś o nowy.",
     "missingProfile": "Dostawca nie zwrócił żadnych danych profilu. Spróbuj ponownie.",
     "nameIsMissing": "Dostawca nie zwrócił imienia i nazwiska. Spróbuj ponownie.",
     "noCallbackUrl": "Żądanie logowania było niepełne. Spróbuj ponownie.",
@@ -1921,6 +1940,7 @@
       "bookingRateLimited": "Zbyt wiele prób rezerwacji. Spróbuj ponownie później.",
       "bookingSlotTaken": "Ten termin nie jest już dostępny. Wybierz inny.",
       "bookingUnavailable": "Ta strona rezerwacji jest teraz niedostępna.",
+      "botDetected": "Nie udało się zweryfikować tego żądania. Odśwież stronę i spróbuj ponownie.",
       "calendarEventNotFound": "Nie znaleziono ID wydarzenia w kalendarzu lub brak do niego dostępu.",
       "calendarExportIncomplete": "W tym okresie jest więcej wpisów, niż może zawierać jeden eksport. Wybierz krótszy okres lub węższe filtry źródeł.",
       "calendarNeedsReconnect": "Połącz ponownie konto Google lub Microsoft w sekcji Kanały i kalendarze, aby zezwolić na zmiany w kalendarzu, a potem spróbuj ponownie.",
@@ -1938,6 +1958,7 @@
       "dataViewNotFound": "Nie znaleziono tego zapisanego widoku.",
       "dataViewUpdateEmpty": "Podaj nazwę lub co najmniej jedno ustawienie widoku do zaktualizowania.",
       "demoMode": "Ta czynność nie jest dostępna w trybie demo. Zaloguj się, aby korzystać ze wszystkich funkcji.",
+      "disposableEmail": "Tymczasowe adresy e-mail nie pozwalają rozpocząć okresu próbnego. Użyj służbowego lub prywatnego adresu e-mail.",
       "draftAlreadySent": "Ten szkic został już wysłany.",
       "draftChanged": "Ten szkic zmienił się po jego otwarciu.",
       "draftFilesEmailOnly": "Załączniki mogą mieć tylko szkice e-maili.",
@@ -1983,6 +2004,7 @@
       "linkedinInboxUnavailable": "To konto LinkedIn nie ma skrzynki {product}. Aby z niej korzystać, połącz konto z podłączonym produktem {product}.",
       "linkedinProductRequiresLinkedin": "Opcje InMail i produktów LinkedIn wymagają konta LinkedIn.",
       "linkedinProductUnavailable": "To konto LinkedIn nie ma podłączonego tego produktu.",
+      "magicLinkRateLimited": "Dla tego adresu e-mail zażądano zbyt wielu linków do logowania. Odczekaj godzinę lub zaloguj się w inny sposób.",
       "memberReferenceRequired": "Wskaż członka przez userId lub e-mail.",
       "messageContentRequired": "Dodaj wiadomość lub załącznik.",
       "messageNotFound": "Ta wiadomość nie jest już dostępna.",
@@ -4024,6 +4046,14 @@
   },
   "Loading": {
     "text": "Wczytywanie..."
+  },
+  "MagicLinkEmail": {
+    "cta": "Zaloguj się do Customermates",
+    "expiry": "Link działa jeden raz i wygasa za 15 minut.",
+    "fallback": "Jeśli powyższy przycisk nie działa, skopiuj i wklej ten link do przeglądarki: ",
+    "intro": "Użyj przycisku poniżej, aby zalogować się do Customermates.",
+    "securityNotice": "Jeśli ta prośba nie pochodzi od ciebie, możesz bezpiecznie zignorować tę wiadomość.",
+    "subject": "Twój link do logowania w Customermates"
   },
   "MassActions": {
     "clearField": "Wyczyść pole",
@@ -6553,11 +6583,10 @@
     "forgotPassword": "Nie pamiętasz hasła?",
     "inviteSubtitle": "{inviterName} zaprasza Cię do dołączenia do przestrzeni roboczej. Zaloguj się, aby przejrzeć zaproszenie.",
     "inviteSubtitleNamed": "{inviterName} zaprasza Cię do dołączenia do przestrzeni roboczej {workspace}. Zaloguj się, aby przejrzeć zaproszenie.",
-    "or": "LUB",
     "rememberMe": "Zapamiętaj mnie",
     "signInCta": "Zaloguj się",
     "signInTitle": "Zaloguj się na swoje konto",
-    "switchToSignUp": "Nie masz konta? <registerLink>Zarejestruj się</registerLink>"
+    "switchToSignUp": "Pierwszy raz w Customermates? <registerLink>Utwórz konto →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Kontynuuj",
@@ -6567,9 +6596,8 @@
     "inviteSubtitle": "{inviterName} zaprasza Cię do dołączenia do przestrzeni roboczej w Customermates. Wybierz, jak chcesz utworzyć konto.",
     "inviteSubtitleNamed": "{inviterName} zaprasza Cię do dołączenia do przestrzeni roboczej {workspace} w Customermates. Wybierz, jak chcesz utworzyć konto.",
     "inviteTitle": "Zaakceptuj zaproszenie do firmy",
-    "or": "LUB",
     "signUpCta": "Utwórz konto",
-    "switchToSignIn": "Masz już konto? <signInLink>Zaloguj się</signInLink>",
+    "switchToSignIn": "Masz już konto? <signInLink>Zaloguj się →</signInLink>",
     "title": "Utwórz konto w Customermates"
   },
   "SolutionStage": {

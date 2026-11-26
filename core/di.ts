@@ -343,6 +343,7 @@ import { WithdrawWorkspaceRequestInteractor } from "@/features/workspace/withdra
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
 import { DecideMcpConsentInteractor } from "@/features/auth/decide-mcp-consent.interactor";
 import { ListMcpConsentWorkspacesInteractor } from "@/features/auth/list-mcp-consent-workspaces.interactor";
+import { RequestMagicLinkInteractor } from "@/features/auth/request-magic-link.interactor";
 import { RequestPasswordResetInteractor } from "@/features/auth/request-password-reset.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
@@ -1541,6 +1542,8 @@ export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(
 
 export const getSignUpWithEmailInteractor = () =>
   new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService(), getUserRepo());
+
+export const getRequestMagicLinkInteractor = () => new RequestMagicLinkInteractor(getAuthService());
 
 export const getRequestPasswordResetInteractor = () =>
   new RequestPasswordResetInteractor(getAuthService(), getOnboardingIntentService());
