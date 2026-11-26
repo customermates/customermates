@@ -1,6 +1,5 @@
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
-import type { SetupCrawlState } from "./workspace-setup.repo";
 import type { SetupPlanPartProgress } from "./workspace-setup-interview.service";
 import type { SetupPlanPart } from "./workspace-setup-planner";
 import type {
@@ -53,7 +52,6 @@ export type WorkspaceSetupView = {
     queuedAt: string | null;
     parts: Record<SetupPlanPart, SetupPlanPartProgress>;
   };
-  spreadsheet: { fileName: string } | null;
   phases: WorkspaceSetupPhaseView[];
   currentPhase: WorkspaceSetupPhase | null;
   results: StoredSetupResults;
@@ -62,7 +60,6 @@ export type WorkspaceSetupView = {
 
 export function workspaceSetupView(
   setup: WorkspaceSetupRecord,
-  crawl: SetupCrawlState | null,
   spend: { usedMicrocents: number; heldMicrocents: number },
   capMicrocents: number,
   now = new Date(),
@@ -96,10 +93,8 @@ export function workspaceSetupView(
     confirmedAt: setup.confirmedAt?.toISOString() ?? null,
     finishedAt: setup.finishedAt?.toISOString() ?? null,
     knowledgeBase: {
-      pagesPlanned: crawl ? crawl.topics.length : (answerPages?.planned ?? 0),
-      pagesWritten: crawl
-        ? crawl.topics.filter((topic) => topic.status === "created").length
-        : (answerPages?.pages.filter((page) => page.pageId).length ?? 0),
+      pagesPlanned: answerPages?.planned ?? 0,
+      pagesWritten: answerPages?.pages.filter((page) => page.pageId).length ?? 0,
     },
     interview: {
       answers: setup.answers,
@@ -115,7 +110,6 @@ export function workspaceSetupView(
       queuedAt: setup.interview.planQueuedAt,
       parts: setupPlanProgress(setup),
     },
-    spreadsheet: setup.hasSpreadsheet && setup.spreadsheetName ? { fileName: setup.spreadsheetName } : null,
     phases,
     currentPhase:
       setup.status === "building" && !buildStalled

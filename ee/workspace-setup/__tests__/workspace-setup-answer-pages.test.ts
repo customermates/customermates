@@ -204,7 +204,6 @@ describe("Knowledge Base pages from the setup answers", () => {
   it("names the built lists by their plural name", () => {
     expect(
       setupBuiltLists({
-        colors: null,
         lists: [{ id: ids.deals, key: "deal", name: "Deal", pluralName: "Deals", icon: null, color: null, stages: [] }],
         views: [],
         records: [],

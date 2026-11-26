@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "De AI-service is op dit moment niet beschikbaar. Probeer het over een paar minuten opnieuw.",
       "contactSupport": "Contact opnemen met support",
-      "crawlFailed": "Je website kon niet worden gelezen.",
       "dependency": "Dit onderdeel wacht op een eerder onderdeel dat niet is afgerond.",
       "error": "Er is iets misgegaan in dit onderdeel.",
       "generation": "De AI kon deze keer geen bruikbaar resultaat maken.",
@@ -7409,7 +7408,6 @@
       "permission": "Met jouw rol mag je deze wijziging niet doorvoeren.",
       "schemaChanged": "Je werkruimte is gewijzigd terwijl dit onderdeel bezig was.",
       "spendCap": "Het installatiebudget van deze werkruimte is op, dus dit onderdeel is gestopt. Alles wat tot nu toe klaar is, blijft behouden. Neem contact met ons op, dan helpen we je de installatie af te maken.",
-      "spreadsheet": "De spreadsheet kon niet worden geïmporteerd.",
       "supportSubject": "Installatiebudget van de werkruimte"
     },
     "interview": {

@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "Der KI-Dienst ist gerade nicht erreichbar. Versuch es in ein paar Minuten noch einmal.",
       "contactSupport": "Support kontaktieren",
-      "crawlFailed": "Deine Website konnte nicht gelesen werden.",
       "dependency": "Dieser Teil wartet auf einen früheren Teil, der nicht fertig wurde.",
       "error": "In diesem Teil ist etwas schiefgegangen.",
       "generation": "Die KI konnte diesmal kein brauchbares Ergebnis liefern.",
@@ -7409,7 +7408,6 @@
       "permission": "Deine Rolle erlaubt diese Änderung nicht.",
       "schemaChanged": "Dein Workspace hat sich geändert, während dieser Teil lief.",
       "spendCap": "Das Budget für die Einrichtung dieses Workspace ist aufgebraucht, deshalb wurde dieser Teil angehalten. Alles bisher Fertige bleibt erhalten. Schreib uns, dann helfen wir dir, die Einrichtung abzuschließen.",
-      "spreadsheet": "Die Tabelle konnte nicht importiert werden.",
       "supportSubject": "Budget für die Workspace-Einrichtung"
     },
     "interview": {

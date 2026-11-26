@@ -3,7 +3,6 @@ import type { PreviewRecordConfigurationInteractor } from "@/features/records/pr
 import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
-import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import type { ShareDataViewInteractor } from "@/features/data-view/share-data-view.interactor";
 import type { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
@@ -12,10 +11,8 @@ import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-
 import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import type { RecordScalar } from "@/features/records/record-model.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
-import type { BrandFetch } from "./workspace-setup-brand";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type {
-  BrandMapping,
   StoredSetupPhase,
   StoredSetupPhases,
   StoredSetupResults,
@@ -41,10 +38,7 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { PublicConfigurationChangeSchema } from "@/features/records/configuration.schema";
-import {
-  ImportSpreadsheetSchema,
-  SpreadsheetMappingSchema,
-} from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
+import { ImportSpreadsheetSchema } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { spreadsheetRecordId } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 import {
   SETUP_LINE_ITEM_DEAL,
@@ -57,11 +51,6 @@ import {
 import { compileSetupCalendar } from "@/features/workspace-setup/setup-calendar-compiler";
 import { compileSetupDashboard, setupWidgetCreationOrder } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema";
-import {
-  compileSetupImportMapping,
-  setupImportList,
-  withOptionalImportFields,
-} from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
 import { addressFromImportText } from "@/features/addresses/address-text";
 import {
@@ -77,7 +66,6 @@ import { compileSetupListDefaults } from "@/features/workspace-setup/setup-view-
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
 
 import {
-  BrandMappingSchema,
   SetupReferencesSchema,
   WORKSPACE_SETUP_PHASES,
   WORKSPACE_SETUP_PHASE_DEPENDENCIES,
@@ -91,9 +79,8 @@ import {
   setupPhaseStalled,
   withoutClaimToken,
 } from "./workspace-setup-phases";
-import { readWebsiteBrand } from "./workspace-setup-brand";
-import { loadSetupSpreadsheet, setupCompanySettings, setupDataChoice, setupLanguage } from "./workspace-setup-inputs";
-import { MappingWireSchema, sampleRecordsWireSchema } from "./workspace-setup-wire";
+import { setupCompanySettings, setupDataChoice, setupLanguage } from "./workspace-setup-inputs";
+import { sampleRecordsWireSchema } from "./workspace-setup-wire";
 import { WikiSynthesisDraftSchema } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 import {
   SETUP_ANSWERS_SOURCE_KEY,
@@ -109,13 +96,11 @@ import {
   setupRelatedSection,
   type SetupLinkedPage,
 } from "./workspace-setup-answer-pages";
-import { setupPageKindOfRole } from "./workspace-setup-knowledge";
+import { setupPageKindOfRole, setupPageTitles } from "./workspace-setup-knowledge";
 import { withRelatedSection } from "@/features/wiki/wiki-links";
-import { setupPageTitles } from "./workspace-setup-knowledge-brief";
 import {
   SETUP_ANSWER_PAGE_GUIDANCE,
   SETUP_ANSWER_PAGE_INSTRUCTION,
-  SETUP_MAPPING_INSTRUCTION,
   SETUP_REPAIR_INSTRUCTION,
   SETUP_SAMPLE_RECORDS_INSTRUCTION,
   encodePromptJson,
@@ -126,7 +111,6 @@ import {
 import { setupModelLabels } from "./workspace-setup-labels";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
 import { sampleLineItemPlans } from "./workspace-setup-line-items";
-import { settleSetupImportMapping, setupLinkTargetImports, usableSetupImportMapping } from "./workspace-setup-import";
 import { phaseFailure, phaseFailureOf } from "./workspace-setup-phase-failure";
 import { retriesAutomatically } from "./workspace-setup-attempts";
 import {
@@ -145,7 +129,6 @@ const OPERATION_STEP_WAIT_MS = 60 * 1_000;
 const ANSWER_PAGES_STEP_MS = 90 * 1_000;
 const PAGE_LOOKUP_SKEW_MS = 60 * 1_000;
 const DATA_MODEL_OPERATION = "dataModelOperation";
-const CRAWL_ACTIVE = new Set(["queued", "discovering", "fetching", "importing", "synthesizing"]);
 
 const DataModelOperationSchema = z.object({ operationId: z.string().min(1), since: z.iso.datetime() }).strict();
 
@@ -213,7 +196,6 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private upsertView: Pick<UpsertDataViewInteractor, "invoke">,
     private saveWidget: Pick<SaveWidgetInteractor, "invoke">,
     private importSpreadsheet: Pick<ImportSpreadsheetInteractor, "invoke">,
-    private brandFetch: (scope: { registrableDomain: string }) => BrandFetch,
     private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
     private mutateRecord: Pick<MutateRecordInteractor, "invoke">,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
@@ -399,7 +381,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     if (!plan) throw phaseFailure("invalidPlan");
     switch (phase) {
       case "knowledgeBase":
-        return this.knowledgeBase(setup, giveUp);
+        return this.answerPages(setup);
       case "dataModel":
         return this.dataModel(setup, plan);
       case "views":
@@ -426,26 +408,6 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       if (!(key in setup.artifacts)) return null;
       return { artifacts: Object.fromEntries(Object.entries(setup.artifacts).filter(([name]) => name !== key)) };
     });
-  }
-
-  private async knowledgeBase(setup: WorkspaceSetupRecord, giveUp: boolean): Promise<PhaseOutcome> {
-    if (!setup.crawlId) return this.answerPages(setup);
-    let crawl = await this.repo.crawlState(setup.crawlId);
-    if (!crawl) return { status: "failed", error: "crawlFailed" };
-    if (CRAWL_ACTIVE.has(crawl.status)) {
-      if (!giveUp) return { status: "wait" };
-      await this.repo.stopCrawl(setup.crawlId);
-      crawl = (await this.repo.crawlState(setup.crawlId)) ?? crawl;
-    }
-    const pages = await this.repo.knowledgeBasePages(setup.crawlId);
-    const patch = (current: WorkspaceSetupRecord): WorkspaceSetupPatch => ({
-      created: { ...current.created, pages: pages.map((page) => page.id) },
-      results: { ...current.results, pages: pages.map((page) => ({ id: page.id, title: page.title })) },
-    });
-    if (crawl.status === "completed") return { status: "completed", patch };
-    if (crawl.failureReason === "credits") return { status: "stopped", error: "spendCap", patch };
-    if (crawl.failureReason === "aiUnavailable") return { status: "failed", error: "aiUnavailable", patch };
-    return { status: "failed", error: "crawlFailed", patch };
   }
 
   private async answerPages(setup: WorkspaceSetupRecord): Promise<PhaseOutcome> {
@@ -596,24 +558,6 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     return null;
   }
 
-  private async brand(setup: WorkspaceSetupRecord): Promise<BrandMapping | null> {
-    const stored = artifact(setup, "brand", BrandMappingSchema.nullable());
-    if (stored !== undefined) return stored;
-    let mapping: BrandMapping | null = null;
-    const crawl = setup.crawlId ? await this.repo.crawlState(setup.crawlId) : null;
-    if (crawl) {
-      try {
-        mapping = await readWebsiteBrand(
-          crawl.homepageUrl,
-          this.brandFetch({ registrableDomain: crawl.registrableDomain }),
-        );
-      } catch {
-        mapping = null;
-      }
-    }
-    return this.storeArtifact(setup.id, "brand", mapping, BrandMappingSchema.nullable());
-  }
-
   private async companySettings(setup: WorkspaceSetupRecord) {
     const settings = setupCompanySettings(setup.answers);
     if (settings.formattingLocale === undefined) return;
@@ -624,27 +568,23 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   private async dataModel(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
     const waiting = artifact(setup, DATA_MODEL_OPERATION, DataModelOperationSchema);
     if (waiting) {
-      const brand = artifact(setup, "brand", BrandMappingSchema.nullable()) ?? null;
       const references = artifact(setup, "references", SetupReferencesSchema);
       if (!references) {
         await this.clearArtifact(setup.id, DATA_MODEL_OPERATION);
         throw phaseFailure("error");
       }
       if ((await this.waitForOperation(setup.id, waiting)) === "wait") return { status: "wait" };
-      return this.dataModelCompleted(plan, brand, references);
+      return this.dataModelCompleted(plan, references);
     }
     await this.companySettings(setup);
-    const brand = await this.brand(setup);
     let bundle = artifact(setup, "bundle", PublicConfigurationChangeSchema);
     let references = artifact(setup, "references", SetupReferencesSchema);
     if (!bundle || !references) {
       const model = await this.records.getModel();
-      const planned = setupDataChoice(setup.answers) === "spreadsheet" ? withOptionalImportFields(plan) : plan;
-      const compiled = compileSetupRecordModel(planned, {
+      const compiled = compileSetupRecordModel(plan, {
         setupId: setup.id,
         model,
         labels: await setupModelLabels(setupLanguage(setup.answers)),
-        brandChip: brand?.chip ?? null,
       });
       if (!compiled.ok) throw phaseFailure("invalidPlan");
       const previewed = await this.previewConfiguration.invoke(compiled.data);
@@ -669,12 +609,11 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       }));
       if ((await this.waitForOperation(setup.id, operation)) === "wait") return { status: "wait" };
     }
-    return this.dataModelCompleted(plan, brand, references);
+    return this.dataModelCompleted(plan, references);
   }
 
   private async dataModelCompleted(
     plan: SetupPlan,
-    brand: BrandMapping | null,
     known: z.infer<typeof SetupReferencesSchema>,
   ): Promise<PhaseOutcome> {
     const model = await this.records.getModel();
@@ -688,7 +627,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           fields: createdIdsOf(known, model, "field"),
           relationships: createdIdsOf(known, model, "relationship"),
         },
-        results: { ...current.results, colors: brand, lists: setupResultLists(plan, model, known) },
+        results: { ...current.results, lists: setupResultLists(plan, model, known) },
       }),
     };
   }
@@ -771,11 +710,9 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     let widgets = artifact(setup, "widgets", SetupWidgetInputsSchema);
     if (!widgets) {
       const { model, resolver } = await this.resolver(setup, plan);
-      const brand = artifact(setup, "brand", BrandMappingSchema.nullable()) ?? null;
       const compiled = compileSetupDashboard(plan, resolver, model, {
         setupId: setup.id,
         expectedRevision: model.revision,
-        brandChart: brand?.chart ?? null,
         occupied: await this.repo.ownedWidgetLayouts(),
         timeZone: "UTC",
       });
@@ -828,7 +765,6 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   private async recordsPhase(setup: WorkspaceSetupRecord, plan: SetupPlan, giveUp: boolean): Promise<PhaseOutcome> {
     const choice = setupDataChoice(setup.answers);
     if (choice === "empty") return { status: "skipped" };
-    if (choice === "spreadsheet") return this.importRecords(setup, plan);
     return this.sampleRecords(setup, plan, giveUp);
   }
 
@@ -1037,150 +973,5 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       rejection = result.rejection;
     }
     return null;
-  }
-
-  private async importRecords(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
-    const sheet = await loadSetupSpreadsheet(await this.repo.readSpreadsheet(setup.id), setupLanguage(setup.answers));
-    if (!sheet) throw phaseFailure("spreadsheet");
-    const { model, resolver } = await this.resolver(setup, plan);
-    let mapping = artifact(setup, "importMapping", SpreadsheetMappingSchema);
-    if (!mapping) {
-      const compiled = compileSetupImportMapping(plan, resolver, model);
-      const typeId = compiled.ok && compiled.data ? compiled.data.typeId : resolver.list(setupImportList(plan) ?? "");
-      if (!typeId) throw phaseFailure("invalidPlan");
-      const proposed = await this.proposeMapping(setup, plan, sheet, model, typeId, compiled.ok ? compiled.data : null);
-      mapping = await this.storeArtifact(setup.id, "importMapping", proposed, SpreadsheetMappingSchema);
-    }
-    const refused = async (error: z.ZodError) => {
-      if (error.issues.some((issue) => issue.path[0] === "mapping"))
-        await this.clearArtifact(setup.id, "importMapping");
-      return phaseFailure(failureOf(error));
-    };
-    const links = setupLinkTargetImports(sheet.table, mapping, model);
-    const linked: RecordRef[] = [];
-    const linkResults: StoredSetupResults["records"] = [];
-    for (const target of links.targets) {
-      const created = await this.importSpreadsheet.invoke(
-        ImportSpreadsheetSchema.parse({
-          table: target.table,
-          mapping: target.mapping,
-          idempotencyKey: setupIdempotencyKey(setup.id, `import:${target.typeId}`),
-        }),
-      );
-      if (!created.ok) throw await refused(created.error);
-      linked.push(...created.data.records);
-      linkResults.push({
-        listId: target.typeId,
-        kind: "imported",
-        count: created.data.created,
-        titles: target.table.rows.slice(0, 10).map((row) => String(row.cells[0] ?? "")),
-        skippedRows: created.data.errorCount,
-      });
-    }
-    const idempotencyKey = setupIdempotencyKey(setup.id, "import");
-    const imported = await this.importSpreadsheet.invoke(
-      ImportSpreadsheetSchema.parse({ table: sheet.table, mapping: links.mapping, idempotencyKey }),
-    );
-    if (!imported.ok) throw await refused(imported.error);
-    const primary = model.types.find((type) => type.id === mapping.typeId)?.primaryFieldId;
-    const titleColumn =
-      mapping.columns.find((column) => column.fieldId === primary)?.column ?? mapping.columns[0]?.column;
-    const titleIndex = titleColumn ? sheet.table.headers.indexOf(titleColumn) : -1;
-    const kept = new Set(imported.data.records.map((ref) => ref.recordId));
-    const results: StoredSetupResults["records"] = [
-      {
-        listId: mapping.typeId,
-        kind: "imported",
-        count: imported.data.created,
-        titles: sheet.table.rows
-          .filter((row) => kept.has(spreadsheetRecordId(idempotencyKey, `record:${row.rowNumber}`)))
-          .slice(0, 10)
-          .map((row) => (titleIndex >= 0 ? String(row.cells[titleIndex] ?? "") : ""))
-          .filter(Boolean),
-        skippedRows: imported.data.errorCount,
-      },
-      ...linkResults,
-    ];
-    return {
-      status: "completed",
-      patch: (current) => ({
-        created: { ...current.created, importedRecords: [...linked, ...imported.data.records] },
-        results: { ...current.results, records: results },
-      }),
-    };
-  }
-
-  private async proposeMapping(
-    setup: WorkspaceSetupRecord,
-    plan: SetupPlan,
-    sheet: NonNullable<Awaited<ReturnType<typeof loadSetupSpreadsheet>>>,
-    model: RecordModel,
-    typeId: string,
-    planned: { columns: Array<{ column: string; fieldId: string | null }> } | null,
-  ): Promise<SpreadsheetMapping> {
-    const fields = model.fields.filter(
-      (field) => field.typeId === typeId && !field.archived && field.behavior.kind === "input",
-    );
-    const keys = new Map(fields.map((field, index) => [`f${index + 1}`, field.id]));
-    const relations = model.relationships.filter((relation) => !relation.archived && relation.sourceTypeId === typeId);
-    const relationKeys = new Map(relations.map((relation, index) => [`l${index + 1}`, relation.id]));
-    const locale = setupLanguage(setup.answers);
-    const fallback: SpreadsheetMapping = {
-      typeId,
-      locale,
-      timeZone: "UTC",
-      columns: (planned?.columns ?? []).flatMap((column) =>
-        column.fieldId ? [{ column: column.column, fieldId: column.fieldId }] : [],
-      ),
-      relationships: [],
-    };
-    const result = await this.models.generate({
-      label: "Workspace setup column mapping",
-      purpose: "setupDrafting",
-      schema: MappingWireSchema,
-      system: SETUP_MAPPING_INSTRUCTION,
-      prompt: [
-        `Workspace currency: ${plan.workspace.currency}.`,
-        `Fields: ${encodePromptJson(fields.map((field, index) => ({ key: `f${index + 1}`, label: field.label, valueType: field.valueType, required: field.required, options: field.options.map((option) => option.label) })))}`,
-        `Relationships: ${encodePromptJson(relations.map((relation, index) => ({ key: `l${index + 1}`, label: relation.sourceLabel })))}`,
-        `Suggested mapping: ${encodePromptJson((planned?.columns ?? []).map((column) => ({ column: column.column, field: [...keys].find(([, id]) => id === column.fieldId)?.[0] ?? null })))}`,
-        "Spreadsheet:",
-        untrustedText(encodePromptJson({ profile: sheet.profile, preview: sheet.preview })),
-      ].join("\n"),
-    });
-    if (!result.ok) throw phaseFailure(result.failure, result.failure === "spendCap");
-    const used = new Set<string>();
-    const proposal: SpreadsheetMapping = {
-      typeId,
-      locale,
-      timeZone: "UTC",
-      ...(result.value.phoneCountryCode && /^[1-9]\d{0,2}$/.test(result.value.phoneCountryCode)
-        ? { phoneCountryCode: result.value.phoneCountryCode }
-        : {}),
-      columns: result.value.columns.flatMap((entry) => {
-        const fieldId = entry.field ? keys.get(entry.field) : undefined;
-        if (!fieldId || used.has(fieldId) || !sheet.table.headers.includes(entry.column)) return [];
-        used.add(fieldId);
-        return [
-          {
-            column: entry.column,
-            fieldId,
-            ...(entry.dateOrder ? { dateOrder: entry.dateOrder } : {}),
-            ...(entry.currency && /^[A-Z]{3}$/.test(entry.currency) ? { currency: entry.currency } : {}),
-            ...(entry.namePart ? { namePart: entry.namePart } : {}),
-          },
-        ];
-      }),
-      relationships: result.value.relationships.flatMap((entry) => {
-        const relationId = relationKeys.get(entry.relationship);
-        return relationId && sheet.table.headers.includes(entry.column) ? [{ column: entry.column, relationId }] : [];
-      }),
-    };
-    const parsed = SpreadsheetMappingSchema.safeParse(proposal);
-    for (const candidate of parsed.success ? [parsed.data, fallback] : [fallback]) {
-      const settled = settleSetupImportMapping(candidate, sheet.table, model);
-      if (usableSetupImportMapping(settled, sheet, model)) return settled;
-    }
-    throw phaseFailure("generation");
   }
 }

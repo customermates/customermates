@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "The AI service is not available right now. Try again in a few minutes.",
       "contactSupport": "Contact support",
-      "crawlFailed": "Your website could not be read.",
       "dependency": "This part waits for an earlier part that did not finish.",
       "error": "Something went wrong in this part.",
       "generation": "The AI could not produce a usable result this time.",
@@ -7409,7 +7408,6 @@
       "permission": "Your role does not allow this change.",
       "schemaChanged": "Your workspace changed while this part was running.",
       "spendCap": "The setup budget for this workspace is used up, so this part stopped. Everything finished so far stays. Contact us and we will help you finish the setup.",
-      "spreadsheet": "The spreadsheet could not be imported.",
       "supportSubject": "Workspace setup budget"
     },
     "interview": {

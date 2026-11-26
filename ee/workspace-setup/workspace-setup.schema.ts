@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { CHIP_COLORS } from "@/constants/chip-colors";
-import { ChartColor } from "@/features/widget/widget-display.schema";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupAnswerValueSchema } from "@/features/workspace-setup/setup-answers.schema";
@@ -45,8 +43,6 @@ export const WORKSPACE_SETUP_FAILURES = [
   "invalidPlan",
   "schemaChanged",
   "permission",
-  "crawlFailed",
-  "spreadsheet",
   "dependency",
   "error",
 ] as const;
@@ -147,13 +143,6 @@ export const StoredSetupInterviewSchema = z.object({
 });
 export type StoredSetupInterview = z.infer<typeof StoredSetupInterviewSchema>;
 
-export const BrandMappingSchema = z.object({
-  hex: z.string().regex(/^#[0-9a-f]{6}$/),
-  chip: z.enum(CHIP_COLORS),
-  chart: z.enum(ChartColor),
-});
-export type BrandMapping = z.infer<typeof BrandMappingSchema>;
-
 export const SetupReferencesSchema = z.array(z.object({ reference: z.string(), id: z.uuid() }));
 export type SetupReferences = z.infer<typeof SetupReferencesSchema>;
 
@@ -181,7 +170,6 @@ const SetupResultListSchema = z.object({
 });
 
 export const StoredSetupResultsSchema = z.object({
-  colors: BrandMappingSchema.nullable().default(null),
   lists: z.array(SetupResultListSchema).default([]),
   views: z
     .array(z.object({ id: z.uuid(), listId: z.uuid(), name: z.string(), layout: z.enum(["table", "board"]) }))
@@ -207,8 +195,6 @@ export type WorkspaceSetupRecord = {
   id: string;
   userId: string;
   status: WorkspaceSetupStatus;
-  websiteUrl: string | null;
-  crawlId: string | null;
   answers: SetupAnswers;
   interview: StoredSetupInterview;
   plan: SetupPlan | null;
@@ -217,8 +203,6 @@ export type WorkspaceSetupRecord = {
   artifacts: Record<string, unknown>;
   created: StoredSetupCreated;
   results: StoredSetupResults;
-  spreadsheetName: string | null;
-  hasSpreadsheet: boolean;
   startedAt: Date;
   confirmedAt: Date | null;
   finishedAt: Date | null;
@@ -238,7 +222,5 @@ export type WorkspaceSetupPatch = Partial<
     | "results"
     | "confirmedAt"
     | "finishedAt"
-    | "crawlId"
-    | "websiteUrl"
   >
 >;

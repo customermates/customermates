@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "Usługa AI jest teraz niedostępna. Spróbuj ponownie za kilka minut.",
       "contactSupport": "Skontaktuj się z pomocą techniczną",
-      "crawlFailed": "Nie udało się odczytać Twojej strony internetowej.",
       "dependency": "Ta część czeka na wcześniejszą część, która się nie zakończyła.",
       "error": "W tej części coś poszło nie tak.",
       "generation": "Tym razem AI nie wygenerowała użytecznego wyniku.",
@@ -7409,7 +7408,6 @@
       "permission": "Twoja rola nie pozwala na tę zmianę.",
       "schemaChanged": "Twoja przestrzeń robocza zmieniła się, gdy ta część była w toku.",
       "spendCap": "Budżet konfiguracji tej przestrzeni roboczej został wykorzystany, dlatego ta część została zatrzymana. Wszystko, co zostało ukończone do tej pory, zostaje zachowane. Napisz do nas, a pomożemy ci dokończyć konfigurację.",
-      "spreadsheet": "Nie udało się zaimportować arkusza kalkulacyjnego.",
       "supportSubject": "Budżet konfiguracji przestrzeni roboczej"
     },
     "interview": {

@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "Il servizio di IA non è disponibile al momento. Riprova tra qualche minuto.",
       "contactSupport": "Contatta il supporto",
-      "crawlFailed": "Non è stato possibile leggere il tuo sito web.",
       "dependency": "Questa parte attende una parte precedente che non è stata completata.",
       "error": "Qualcosa è andato storto in questa parte.",
       "generation": "Questa volta l’IA non è riuscita a produrre un risultato utilizzabile.",
@@ -7409,7 +7408,6 @@
       "permission": "Il tuo ruolo non consente questa modifica.",
       "schemaChanged": "Il tuo spazio di lavoro è cambiato mentre questa parte era in corso.",
       "spendCap": "Il budget di configurazione di questo spazio di lavoro è esaurito, quindi questa parte si è fermata. Tutto ciò che è già finito resta. Scrivici e ti aiuteremo a completare la configurazione.",
-      "spreadsheet": "Non è stato possibile importare il foglio di calcolo.",
       "supportSubject": "Budget di configurazione dello spazio di lavoro"
     },
     "interview": {

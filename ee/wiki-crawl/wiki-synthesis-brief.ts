@@ -29,3 +29,7 @@ export abstract class WikiSynthesisBriefSource {
     giveUp: boolean,
   ): Promise<WikiSynthesisBriefState>;
 }
+
+export const NO_WIKI_SYNTHESIS_BRIEF: Pick<WikiSynthesisBriefSource, "brief"> = {
+  brief: () => Promise.resolve({ status: "none" }),
+};

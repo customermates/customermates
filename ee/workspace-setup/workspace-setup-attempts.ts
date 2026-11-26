@@ -9,7 +9,6 @@ const AUTOMATIC_RETRY_FAILURES: ReadonlySet<WorkspaceSetupFailure> = new Set([
   "generation",
   "schemaChanged",
   "error",
-  "spreadsheet",
 ]);
 
 export function retriesAutomatically(

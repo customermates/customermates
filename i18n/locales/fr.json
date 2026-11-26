@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "Le service d’IA n’est pas disponible pour le moment. Réessayez dans quelques minutes.",
       "contactSupport": "Contacter le support",
-      "crawlFailed": "Votre site web n’a pas pu être lu.",
       "dependency": "Cette partie attend une partie précédente qui ne s’est pas terminée.",
       "error": "Un problème est survenu dans cette partie.",
       "generation": "L’IA n’a pas pu produire de résultat exploitable cette fois-ci.",
@@ -7409,7 +7408,6 @@
       "permission": "Votre rôle ne permet pas cette modification.",
       "schemaChanged": "Votre espace de travail a changé pendant cette partie.",
       "spendCap": "Le budget de configuration de cet espace est épuisé, cette partie s’est donc arrêtée. Tout ce qui est terminé est conservé. Contactez-nous et nous vous aiderons à terminer la configuration.",
-      "spreadsheet": "Le tableur n’a pas pu être importé.",
       "supportSubject": "Budget de configuration de l’espace"
     },
     "interview": {

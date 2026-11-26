@@ -27,7 +27,7 @@ import {
   setupInterviewCatalog,
   setupLanguageName,
 } from "./workspace-setup-prompts";
-import { answersForPrompt, loadSetupSpreadsheet, setupCurrency, setupLanguage } from "./workspace-setup-inputs";
+import { answersForPrompt, setupCurrency, setupLanguage } from "./workspace-setup-inputs";
 
 export const SETUP_GENERATION_STALE_MS = 15 * 60 * 1_000;
 export const SETUP_PLAN_QUEUE_STALE_MS = 5 * 60 * 1_000;
@@ -186,9 +186,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
         : { status: "skip" };
     }
     const revision = claimed.planRevision;
-    const templated = claimed.interview.templateSlug
-      ? await this.planner.fromTemplate(await this.planInput(claimed))
-      : null;
+    const templated = claimed.interview.templateSlug ? await this.planner.fromTemplate(this.planInput(claimed)) : null;
     if (!templated?.ok) return { status: "claimed", revision };
     const stored = await this.repo.mutate(setupId, (current) =>
       planning(current, revision) ? plannedPatch(current, templated.plan) : null,
@@ -208,7 +206,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     if (state.failure) return "failed";
     const { model, knowledge } = planDrafts(setup);
     if (!(await this.heartbeatPlan(setupId, revision))) return "skip";
-    const next = await this.planner.attempt(part, await this.planInput(setup), state, { model, knowledge });
+    const next = await this.planner.attempt(part, this.planInput(setup), state, { model, knowledge });
     const stored = await this.repo.mutate(setupId, (current) =>
       planning(current, revision)
         ? {
@@ -241,7 +239,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const drafts = planDrafts(setup);
     const outcome: SetupPlanOutcome =
       drafts.model && drafts.knowledge && drafts.views
-        ? await this.planner.assemble(await this.planInput(setup), {
+        ? await this.planner.assemble(this.planInput(setup), {
             model: drafts.model,
             knowledge: drafts.knowledge,
             views: drafts.views,
@@ -276,15 +274,10 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     return outcome.ok ? "planned" : retry ? "retry" : "failed";
   }
 
-  private async planInput(setup: WorkspaceSetupRecord): Promise<SetupPlanInput> {
-    const language = setupLanguage(setup.answers);
-    const sheet = await loadSetupSpreadsheet(
-      setup.hasSpreadsheet ? await this.repo.readSpreadsheet(setup.id) : null,
-      language,
-    );
+  private planInput(setup: WorkspaceSetupRecord): SetupPlanInput {
     return {
       setupId: setup.id,
-      language,
+      language: setupLanguage(setup.answers),
       currency: setupCurrency(setup.answers) ?? "EUR",
       answers: setup.answers,
       followUps: setup.interview.followUpQuestions.map((question) => ({
@@ -293,7 +286,6 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
         ...("options" in question ? { options: question.options } : {}),
         answer: setup.interview.followUpAnswers.find((answer) => answer.id === question.id)?.value ?? null,
       })),
-      sheet,
       templateSlug: setup.interview.templateSlug,
     };
   }

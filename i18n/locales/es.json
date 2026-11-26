@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "El servicio de IA no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.",
       "contactSupport": "Contactar con soporte",
-      "crawlFailed": "No se pudo leer tu sitio web.",
       "dependency": "Esta parte espera a una parte anterior que no terminó.",
       "error": "Algo salió mal en esta parte.",
       "generation": "Esta vez la IA no pudo generar un resultado útil.",
@@ -7409,7 +7408,6 @@
       "permission": "Tu rol no permite este cambio.",
       "schemaChanged": "Tu espacio de trabajo cambió mientras se ejecutaba esta parte.",
       "spendCap": "Se agotó el presupuesto de configuración de este espacio, así que esta parte se detuvo. Todo lo terminado se conserva. Escríbenos y te ayudaremos a terminar la configuración.",
-      "spreadsheet": "No se pudo importar la hoja de cálculo.",
       "supportSubject": "Presupuesto de configuración del espacio"
     },
     "interview": {

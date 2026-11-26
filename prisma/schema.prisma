@@ -704,27 +704,23 @@ enum WorkspaceSetupStatus {
 }
 
 model WorkspaceSetup {
-  id               String               @id @default(uuid())
-  companyId        String               @unique
-  userId           String
-  status           WorkspaceSetupStatus @default(interview)
-  websiteUrl       String?
-  crawlId          String?
-  answers          Json                 @default("{}")
-  interview        Json                 @default("{}")
-  plan             Json?
-  planRevision     Int                  @default(0)
-  phases           Json                 @default("{}")
-  artifacts        Json                 @default("{}")
-  created          Json                 @default("{}")
-  results          Json                 @default("{}")
-  spreadsheetName  String?
-  spreadsheetBytes Bytes?
-  startedAt        DateTime             @default(now())
-  confirmedAt      DateTime?
-  finishedAt       DateTime?
-  updatedAt        DateTime             @updatedAt
-  company          Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id           String               @id @default(uuid())
+  companyId    String               @unique
+  userId       String
+  status       WorkspaceSetupStatus @default(interview)
+  answers      Json                 @default("{}")
+  interview    Json                 @default("{}")
+  plan         Json?
+  planRevision Int                  @default(0)
+  phases       Json                 @default("{}")
+  artifacts    Json                 @default("{}")
+  created      Json                 @default("{}")
+  results      Json                 @default("{}")
+  startedAt    DateTime             @default(now())
+  confirmedAt  DateTime?
+  finishedAt   DateTime?
+  updatedAt    DateTime             @updatedAt
+  company      Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model P13n {

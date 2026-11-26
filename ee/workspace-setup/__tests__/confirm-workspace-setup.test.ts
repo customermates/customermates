@@ -28,14 +28,11 @@ function plannedSetup(answers: Record<string, unknown>) {
     status: "planned",
     planRevision: 2,
     plan: {},
-    crawlId: "crawl-1",
     answers,
     phases: {},
   } as unknown as WorkspaceSetupRecord;
   return {
     get: vi.fn(() => Promise.resolve(setup)),
-    reopenCrawlSynthesis: vi.fn(() => Promise.resolve(true)),
-    setCrawlLocale: vi.fn(() => Promise.resolve()),
     mutate: vi.fn((_id: string, change: (current: WorkspaceSetupRecord) => WorkspaceSetupPatch | null) => {
       const patch = change(setup);
       if (patch) setup = { ...setup, ...patch };
@@ -56,24 +53,18 @@ async function confirmWith(answers: Record<string, unknown>, workspaceName: stri
 }
 
 describe("confirming the workspace setup", () => {
-  it("switches the website import to the workspace language before the build can plan its pages", async () => {
+  it("marks the setup as building before it starts the build", async () => {
     const order: string[] = [];
     let setup = {
       id: SETUP_ID,
       status: "planned",
       planRevision: 2,
       plan: {},
-      crawlId: "crawl-1",
       answers: { language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "de" } } },
       phases: {},
     } as unknown as WorkspaceSetupRecord;
     const repo = {
       get: vi.fn(() => Promise.resolve(setup)),
-      reopenCrawlSynthesis: vi.fn(() => Promise.resolve(false)),
-      setCrawlLocale: vi.fn((crawlId: string, locale: string) => {
-        order.push(`locale ${crawlId} ${locale}`);
-        return Promise.resolve();
-      }),
       mutate: vi.fn((_id: string, change: (current: WorkspaceSetupRecord) => WorkspaceSetupPatch | null) => {
         const patch = change(setup);
         if (patch) setup = { ...setup, ...patch };
@@ -94,14 +85,14 @@ describe("confirming the workspace setup", () => {
     });
     const result = await runWithTenant(createMockUser(), () => confirm.invoke({ setupId: SETUP_ID, planRevision: 2 }));
     expect(result).toEqual({ ok: true, data: { setupId: SETUP_ID } });
-    expect(order).toEqual(["mutate building", "locale crawl-1 de", "dispatch build-workspace-setup"]);
+    expect(order).toEqual(["mutate building", "dispatch build-workspace-setup"]);
     expect(background.dispatch).toHaveBeenCalledWith(
       "build-workspace-setup",
       expect.objectContaining({ setupId: SETUP_ID }),
     );
   });
 
-  it("leaves the website import alone when a stale tab confirms an older plan", async () => {
+  it("starts nothing when a stale tab confirms an older plan", async () => {
     const repo = plannedSetup({});
     const background = { dispatch: vi.fn(() => Promise.resolve()) };
     const companies = { findCompanyOrThrow: vi.fn(() => Promise.resolve(company(null))) };
@@ -111,7 +102,6 @@ describe("confirming the workspace setup", () => {
     });
     const result = await runWithTenant(createMockUser(), () => confirm.invoke({ setupId: SETUP_ID, planRevision: 1 }));
     expect(result.ok).toBe(false);
-    expect(repo.reopenCrawlSynthesis).not.toHaveBeenCalled();
     expect(background.dispatch).not.toHaveBeenCalled();
   });
 

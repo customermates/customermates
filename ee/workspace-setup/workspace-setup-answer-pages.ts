@@ -4,8 +4,7 @@ import type { WikiSynthesisBriefTopic } from "@/ee/wiki-crawl/wiki-synthesis-bri
 import type { WikiSynthesisDraft } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 import type { WikiPageInput, WikiPageKind } from "@/features/wiki/wiki.schema";
 import type { SetupCatalogPart } from "./workspace-setup-prompts";
-import type { SetupPageKind, SetupPageTitle } from "./workspace-setup-knowledge";
-import type { SetupPageCopy } from "./workspace-setup-knowledge-brief";
+import type { SetupPageCopy, SetupPageKind, SetupPageTitle } from "./workspace-setup-knowledge";
 import type { StoredSetupResults } from "./workspace-setup.schema";
 
 import { z } from "zod";

@@ -7401,7 +7401,6 @@
     "failures": {
       "aiUnavailable": "O serviço de IA não está disponível no momento. Tente novamente em alguns minutos.",
       "contactSupport": "Falar com o suporte",
-      "crawlFailed": "Não foi possível ler seu site.",
       "dependency": "Esta parte aguarda uma parte anterior que não foi concluída.",
       "error": "Algo deu errado nesta parte.",
       "generation": "Desta vez a IA não conseguiu produzir um resultado utilizável.",
@@ -7409,7 +7408,6 @@
       "permission": "Sua função não permite esta alteração.",
       "schemaChanged": "Seu espaço de trabalho mudou enquanto esta parte estava em execução.",
       "spendCap": "O orçamento de configuração deste espaço de trabalho acabou, então esta parte foi interrompida. Tudo o que foi concluído até agora é mantido. Entre em contato conosco e vamos ajudar você a terminar a configuração.",
-      "spreadsheet": "Não foi possível importar a planilha.",
       "supportSubject": "Orçamento de configuração do espaço de trabalho"
     },
     "interview": {

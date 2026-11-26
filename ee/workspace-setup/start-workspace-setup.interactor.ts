@@ -53,7 +53,6 @@ export class StartWorkspaceSetupInteractor extends AuthenticatedInteractor<
     if (existing) {
       if (!(await this.repo.restart(existing.id, { answers, templateSlug })))
         return failConflict(CustomErrorCode.workspaceSetupConflict);
-      if (existing.crawlId) await this.repo.stopCrawl(existing.crawlId);
       setupId = existing.id;
     } else {
       const created = await this.repo.create({ answers, templateSlug });
