@@ -25,6 +25,7 @@ export type McpConsentWorkspace = z.infer<typeof McpConsentWorkspaceSchema>;
 
 const OutputSchema = z.object({
   workspaces: z.array(McpConsentWorkspaceSchema),
+  termsOffered: z.boolean(),
   termsRequired: z.boolean(),
 });
 export type McpConsentAccount = z.infer<typeof OutputSchema>;
@@ -55,11 +56,12 @@ export class ListMcpConsentWorkspacesInteractor {
       })),
     );
 
-    return { ok: true, data: { workspaces, termsRequired: await this.termsRequired(workspaces.length) } };
+    const termsOffered = await this.termsOffered();
+    return { ok: true, data: { workspaces, termsOffered, termsRequired: termsOffered && workspaces.length === 0 } };
   }
 
-  private async termsRequired(workspaceCount: number): Promise<boolean> {
-    if (env.APP_MODE !== "cloud" || workspaceCount > 0) return false;
+  private async termsOffered(): Promise<boolean> {
+    if (env.APP_MODE !== "cloud") return false;
     const session = await this.authService.getInteractiveSession();
     if (!session) return false;
 

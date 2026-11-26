@@ -4107,6 +4107,7 @@
     },
     "newWorkspaces": "New workspaces it creates for you",
     "noneAvailable": "None of your workspaces can be used through MCP right now. The reason is shown next to each workspace.",
+    "termsForNewWorkspaces": "To let {client} create new workspaces for you, accept the terms. You can approve without them; {client} then works only in your existing workspaces.",
     "title": "Connect {client} to this workspace",
     "titleNamed": "Connect {client} to {workspace}",
     "unavailable": {

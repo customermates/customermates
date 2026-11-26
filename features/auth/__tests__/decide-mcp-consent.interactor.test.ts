@@ -34,8 +34,8 @@ describe("DecideMcpConsentInteractor", () => {
   let consentAccount: { invoke: ReturnType<typeof vi.fn> };
   let legal: { recordAccountLegalVersionsUnscoped: ReturnType<typeof vi.fn> };
 
-  function account(workspaces: ReturnType<typeof workspace>[], termsRequired = false) {
-    consentAccount.invoke.mockResolvedValue({ ok: true, data: { workspaces, termsRequired } });
+  function account(workspaces: ReturnType<typeof workspace>[], termsRequired = false, termsOffered = termsRequired) {
+    consentAccount.invoke.mockResolvedValue({ ok: true, data: { workspaces, termsOffered, termsRequired } });
   }
 
   beforeEach(() => {
@@ -100,6 +100,17 @@ describe("DecideMcpConsentInteractor", () => {
     if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.termsNotAgreed]);
     expect(legal.recordAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
     expect(authService.decideMcpConsent).not.toHaveBeenCalled();
+  });
+
+  it("records optional terms of an account with workspaces only when they were ticked", async () => {
+    account([workspace(COMPANY_A)], false, true);
+
+    await createInteractor().invoke(consent);
+    expect(legal.recordAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, companyId: COMPANY_A, accountWide: true });
+
+    await createInteractor().invoke({ ...consent, acceptTerms: true });
+    expect(legal.recordAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1", currentLegalDocumentVersions());
   });
 
   it("lets a denial through without the terms", async () => {

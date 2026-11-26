@@ -6,7 +6,7 @@ import type { WorkspaceRegistrationService } from "@/features/user/register/work
 import type { MembershipProfile, WorkspaceMembershipRepo } from "./workspace-membership.repo";
 
 import { z } from "zod";
-import { Locale, Status, Theme } from "@/generated/prisma";
+import { Locale, Theme } from "@/generated/prisma";
 
 import {
   CONTRACT_LEGAL_DOCUMENTS,
@@ -106,12 +106,9 @@ export class CreateWorkspaceInteractor {
     return this.invoke({ ...data, agreeToTerms: true });
   }
 
-  private async hasAcceptedTerms(login: { id: string; email: string }): Promise<boolean> {
+  private async hasAcceptedTerms(login: { id: string }): Promise<boolean> {
     const accepted = await this.repo.findAccountLegalVersionsUnscoped(login.id);
-    if (hasCurrentLegalDocumentVersions(accepted, CONTRACT_LEGAL_DOCUMENTS)) return true;
-
-    const memberships = await this.repo.listWorkspaceMembershipsUnscoped(login.email);
-    return memberships.some((membership) => membership.status === Status.active);
+    return hasCurrentLegalDocumentVersions(accepted, CONTRACT_LEGAL_DOCUMENTS);
   }
 
   private async createLocked(
@@ -146,6 +143,8 @@ export class CreateWorkspaceInteractor {
       },
     });
     await this.repo.setLastUsedCompanyUnscoped(login.authUserId, owner.companyId);
+    if (env.APP_MODE === "cloud" && data.agreeToTerms)
+      await this.repo.recordAccountLegalVersionsUnscoped(login.authUserId, currentLegalDocumentVersions());
 
     await runWithTenant(owner, async () => {
       if (env.APP_MODE === "cloud") {

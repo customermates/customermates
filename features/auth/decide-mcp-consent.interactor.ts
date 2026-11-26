@@ -44,13 +44,13 @@ export class DecideMcpConsentInteractor {
     const resourceCompanyId = await this.authService.getMcpConsentWorkspace(data.consentCode);
     if (resourceCompanyId) return this.decideForResourceWorkspace(data, resourceCompanyId);
 
-    const { workspaces, termsRequired } = (await this.consentAccount.invoke()).data;
+    const { workspaces, termsOffered, termsRequired } = (await this.consentAccount.invoke()).data;
     const usable = workspaces.filter((workspace) => workspace.unavailableReason === null);
     const accept = data.accept && (usable.length > 0 || workspaces.length === 0);
-    if (accept && termsRequired) {
-      if (data.acceptTerms !== true) return fail(CustomErrorCode.termsNotAgreed, ["acceptTerms"]);
+    if (accept && termsRequired && data.acceptTerms !== true)
+      return fail(CustomErrorCode.termsNotAgreed, ["acceptTerms"]);
+    if (accept && termsOffered && data.acceptTerms === true)
       await this.legal.recordAccountLegalVersionsUnscoped(resolution.sessionUser.id, currentLegalDocumentVersions());
-    }
 
     return {
       ok: true,

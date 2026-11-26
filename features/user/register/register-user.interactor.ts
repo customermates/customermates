@@ -244,6 +244,8 @@ export class RegisterUserInteractor {
       authUserId: sessionUserId,
       companyId: tenantUser.companyId,
     });
+    if (isNewCloudCompany && registrationData.agreeToTerms)
+      await this.repo.recordAccountLegalVersionsUnscoped(sessionUserId, currentLegalDocumentVersions());
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {

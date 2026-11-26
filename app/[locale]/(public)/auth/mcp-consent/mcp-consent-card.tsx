@@ -28,6 +28,7 @@ type Props = {
   fixedWorkspace: boolean;
   redirectHost: string;
   scopes: string[];
+  termsOffered: boolean;
   termsRequired: boolean;
   workspaces: McpConsentWorkspace[];
 };
@@ -54,13 +55,14 @@ const ROW_CLASS =
   "grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 rounded-md border border-input bg-input-background px-3 py-2.5 shadow-xs";
 
 const McpConsentCardContent = observer((props: Props) => {
-  const { clientName, consentCode, fixedWorkspace, redirectHost, scopes, termsRequired, workspaces } = props;
+  const { clientName, consentCode, fixedWorkspace, redirectHost, scopes, termsOffered, termsRequired, workspaces } =
+    props;
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
-  useState(() => mcpConsentStore.initialize(workspaces, { fixedWorkspace, termsRequired }));
+  useState(() => mcpConsentStore.initialize(workspaces, { fixedWorkspace, termsOffered, termsRequired }));
   useEffect(
-    () => mcpConsentStore.initialize(workspaces, { fixedWorkspace, termsRequired }),
-    [mcpConsentStore, workspaces, fixedWorkspace, termsRequired],
+    () => mcpConsentStore.initialize(workspaces, { fixedWorkspace, termsOffered, termsRequired }),
+    [mcpConsentStore, workspaces, fixedWorkspace, termsOffered, termsRequired],
   );
   const { canApprove, canSubmitApproval, isSubmitting } = mcpConsentStore;
 
@@ -226,10 +228,16 @@ const McpConsentCardContent = observer((props: Props) => {
           ))}
         </ul>
 
-        {mcpConsentStore.termsRequired ? (
+        {mcpConsentStore.termsOffered && !mcpConsentStore.termsRequired ? (
+          <p className="text-x-xs text-subdued">
+            {t("McpConsentWorkspace.termsForNewWorkspaces", { client: clientName })}
+          </p>
+        ) : null}
+
+        {mcpConsentStore.termsOffered ? (
           <div className="flex items-center gap-2">
             <Checkbox
-              aria-required
+              aria-required={mcpConsentStore.termsRequired}
               checked={mcpConsentStore.termsAccepted}
               disabled={isSubmitting}
               id="mcp-consent-terms"

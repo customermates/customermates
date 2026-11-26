@@ -4107,6 +4107,7 @@
     },
     "newWorkspaces": "Novos espaços de trabalho que ele criar para você",
     "noneAvailable": "Nenhum dos seus espaços de trabalho pode ser usado por MCP no momento. O motivo aparece ao lado de cada um.",
+    "termsForNewWorkspaces": "Para que {client} possa criar novos espaços de trabalho para você, aceite os termos. Você pode aprovar sem eles; {client} trabalhará então apenas nos seus espaços de trabalho existentes.",
     "title": "Conectar {client} a este espaço de trabalho",
     "titleNamed": "Conectar {client} a {workspace}",
     "unavailable": {

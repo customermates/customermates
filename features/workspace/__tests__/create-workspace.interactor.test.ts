@@ -100,7 +100,8 @@ describe("CreateWorkspaceInteractor", () => {
       hasConsumedTrialUnscoped: track("checkTrialConsumed", false),
       hasCreatedWorkspaceUnscoped: track("evaluateTrial", true),
       setLastUsedCompanyUnscoped: track("rememberLastUsed", undefined),
-      findAccountLegalVersionsUnscoped: vi.fn().mockResolvedValue(null),
+      findAccountLegalVersionsUnscoped: vi.fn().mockResolvedValue(currentLegalDocumentVersions()),
+      recordAccountLegalVersionsUnscoped: vi.fn().mockResolvedValue(undefined),
       listWorkspaceMembershipsUnscoped: vi.fn().mockResolvedValue([{ status: "active" }]),
     };
     registration = { createCompanyAndUser: track("createCompany", owner) };
@@ -126,6 +127,7 @@ describe("CreateWorkspaceInteractor", () => {
       "commit",
     ]);
     expect(repo.findAuthUserCompanyIdForUpdateUnscoped).toHaveBeenCalledWith("login-1");
+    expect(repo.recordAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1", currentLegalDocumentVersions());
     expect(registration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: { name: "Taxes", createdByAuthUserId: "login-1", trial: false } }),
     );
@@ -217,15 +219,26 @@ describe("CreateWorkspaceInteractor", () => {
       expect(calls.afterResponse).toHaveLength(1);
     });
 
-    it("accepts the terms through an active membership of the login", async () => {
+    it("creates with the terms the login accepted for its account", async () => {
       await expect(interactor().invokeForAgent({ name: "Second", teamSize: "solo" })).resolves.toMatchObject({
         ok: true,
       });
       expect(registration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     });
 
-    it("refuses when the login never accepted the terms", async () => {
-      repo.listWorkspaceMembershipsUnscoped.mockResolvedValue([]);
+    it("does not take an active membership, such as an invitation, as accepted terms", async () => {
+      repo.findAccountLegalVersionsUnscoped.mockResolvedValue(null);
+      repo.listWorkspaceMembershipsUnscoped.mockResolvedValue([{ status: "active" }]);
+
+      const result = await interactor().invokeForAgent({ name: "Acme", teamSize: "solo" });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceTermsNotAccepted]);
+      expect(registration.createCompanyAndUser).not.toHaveBeenCalled();
+    });
+
+    it("refuses terms the login accepted in an older version", async () => {
+      repo.findAccountLegalVersionsUnscoped.mockResolvedValue({ terms: "outdated", dpa: "outdated" });
 
       const result = await interactor().invokeForAgent({ name: "Acme", teamSize: "solo" });
 

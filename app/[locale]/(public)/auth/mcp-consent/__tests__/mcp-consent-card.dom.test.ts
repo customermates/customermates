@@ -61,7 +61,7 @@ let store: McpConsentStore;
 
 function render(
   workspaces: McpConsentWorkspace[],
-  options: { fixedWorkspace?: boolean; termsRequired?: boolean } = {},
+  options: { fixedWorkspace?: boolean; termsOffered?: boolean; termsRequired?: boolean } = {},
 ) {
   act(() =>
     root.render(
@@ -71,6 +71,7 @@ function render(
         fixedWorkspace: options.fixedWorkspace ?? false,
         redirectHost: "claude.ai",
         scopes: ["openid"],
+        termsOffered: options.termsOffered ?? options.termsRequired ?? false,
         termsRequired: options.termsRequired ?? false,
         workspaces,
       }),
@@ -171,6 +172,25 @@ describe("McpConsentCard", () => {
     await click(container.querySelector<HTMLButtonElement>("#mcp-consent-terms"));
     expect(button("McpConsentCard.approve")?.disabled).toBe(false);
 
+    await click(button("McpConsentCard.approve"));
+
+    expect(harness.decideMcpConsentAction).toHaveBeenCalledWith({
+      consentCode: "consent-code",
+      accept: true,
+      acceptTerms: true,
+    });
+  });
+
+  it("offers the terms for new workspaces to an account with workspaces without blocking the approval", async () => {
+    render([crm], { termsOffered: true });
+
+    expect(container.textContent).toContain(
+      `McpConsentWorkspace.termsForNewWorkspaces ${JSON.stringify({ client: "Claude" })}`,
+    );
+    expect(container.querySelector("#mcp-consent-terms")).not.toBeNull();
+    expect(button("McpConsentCard.approve")?.disabled).toBe(false);
+
+    await click(container.querySelector<HTMLButtonElement>("#mcp-consent-terms"));
     await click(button("McpConsentCard.approve"));
 
     expect(harness.decideMcpConsentAction).toHaveBeenCalledWith({

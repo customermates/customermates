@@ -40,7 +40,7 @@ const current = { companyId: "company-a", name: "CRM", roleName: "Admin", isCurr
 const taxes = { companyId: "company-b", name: "Taxes", roleName: "Sales", isCurrent: false, unavailableReason: null };
 
 function account(workspaces: object[], termsRequired = false) {
-  return { ok: true, data: { workspaces, termsRequired } };
+  return { ok: true, data: { workspaces, termsOffered: termsRequired, termsRequired } };
 }
 
 describe("McpConsentPage", () => {
@@ -63,6 +63,7 @@ describe("McpConsentPage", () => {
       ...card,
       consentCode: params.consent_code,
       fixedWorkspace: false,
+      termsOffered: false,
       termsRequired: false,
       workspaces: [current, taxes],
     });
@@ -150,6 +151,7 @@ describe("McpConsentPage", () => {
       ...card,
       consentCode: params.consent_code,
       fixedWorkspace: true,
+      termsOffered: false,
       termsRequired: false,
       workspaces: [taxes],
     });

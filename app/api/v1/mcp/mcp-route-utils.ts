@@ -204,6 +204,32 @@ function registerPrompts(server: McpServer, tools: McpTool[]) {
 
 export const ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE = 120;
 
+export const ACCOUNT_TOOL_CALLS_PER_MINUTE = 30;
+
+function accountToolsRateLimited(retryAfterSeconds: number, toolCall: McpToolCallInfo) {
+  const message = `Too many workspace listing or creation calls for this account. Retry in ${retryAfterSeconds} seconds.`;
+  const headers = {
+    "Content-Type": "application/json",
+    "Retry-After": String(retryAfterSeconds),
+    "Access-Control-Expose-Headers": "Retry-After",
+    "Access-Control-Allow-Origin": "*",
+  };
+  if (toolCall.singleToolCallId !== null) {
+    return new Response(
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: toolCall.singleToolCallId,
+        result: {
+          ...createTextContent(message, true),
+          structuredContent: { error: "rate_limited", retryAfterSeconds },
+        },
+      }),
+      { status: 200, headers },
+    );
+  }
+  return new Response(JSON.stringify({ error: "rate_limited", message, retryAfterSeconds }), { status: 429, headers });
+}
+
 function discoveryRateLimited(retryAfterSeconds: number) {
   return new Response(
     JSON.stringify({
@@ -326,6 +352,7 @@ export type McpToolCallInfo = {
   singleToolCallId: string | number | null;
   calls: McpToolCallTarget[];
   promptWorkspace: string | null;
+  methods: string[];
 };
 
 function toolCallTarget(call: McpRpcCall): McpToolCallTarget {
@@ -372,7 +399,7 @@ export async function isPublicDiscoveryRequest(request: Request): Promise<boolea
 
 export async function readMcpToolCall(request: Request): Promise<McpToolCallInfo> {
   const messages = await readRpcMessages(request);
-  if (!messages) return { toolCall: false, singleToolCallId: null, calls: [], promptWorkspace: null };
+  if (!messages) return { toolCall: false, singleToolCallId: null, calls: [], promptWorkspace: null, methods: [] };
   const calls = messages.filter(isRpcCall);
   const toolCalls = calls.filter((call) => call.method === "tools/call");
   const only = calls.length === 1 ? toolCalls[0] : undefined;
@@ -383,6 +410,9 @@ export async function readMcpToolCall(request: Request): Promise<McpToolCallInfo
     singleToolCallId: id,
     calls: toolCalls.map(toolCallTarget),
     promptWorkspace: promptCall ? toolCallTarget(promptCall).workspace : null,
+    methods: messages.map((message) =>
+      isRpcCall(message) && typeof message.method === "string" ? message.method : "",
+    ),
   };
 }
 
@@ -575,6 +605,7 @@ export function createMcpRoute(
   }
 
   const discoveryLimiter = new TokenBucketRateLimiter(ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE, 60_000);
+  const accountToolLimiter = new TokenBucketRateLimiter(ACCOUNT_TOOL_CALLS_PER_MINUTE, 60_000);
 
   function anonymousDiscovery(request: Request) {
     const admission = discoveryLimiter.admit(requestAddress(request));
@@ -592,10 +623,17 @@ export function createMcpRoute(
 
   function requestedWorkspaces(toolCall: McpToolCallInfo) {
     const workspaceCalls = toolCall.calls.filter((call) => call.name === null || !accountToolNames.has(call.name));
-    const requested = [
-      ...new Set(workspaceCalls.map((call) => call.workspace).filter((value): value is string => value !== null)),
-    ];
-    return { accountOnly: toolCall.toolCall && workspaceCalls.length === 0, requested };
+    const named = new Set(workspaceCalls.map((call) => call.workspace));
+    const requested = [...named].filter((value): value is string => value !== null);
+    const accountOnly =
+      toolCall.methods.length > 0 &&
+      toolCall.methods.length === toolCall.calls.length &&
+      toolCall.toolCall &&
+      workspaceCalls.length === 0;
+    const readsWorkspace =
+      workspaceCalls.length > 0 ||
+      toolCall.methods.some((method) => method.startsWith("resources/") || method.startsWith("prompts/"));
+    return { accountOnly, requested, mixed: named.size > 1, readsWorkspace };
   }
 
   async function accountScope(
@@ -603,13 +641,18 @@ export function createMcpRoute(
     toolCall: McpToolCallInfo,
     resourceMetadataUrl: string,
   ): Promise<{ refusal: Response } | { scope: RequestScope; agentJobKey: AgentJobApiKey | null }> {
-    const { accountOnly, requested } = requestedWorkspaces(toolCall);
-    if (requested.length > 1) return { refusal: toolCallRefusal(MIXED_WORKSPACES_MESSAGE, toolCall) };
-    if (accountOnly) return { scope: ACCOUNT_SCOPE, agentJobKey: null };
+    const { accountOnly, requested, mixed, readsWorkspace } = requestedWorkspaces(toolCall);
+    if (mixed) return { refusal: toolCallRefusal(MIXED_WORKSPACES_MESSAGE, toolCall) };
 
     const di = await import("@/core/di");
     const bound = await di.getAuthService().resolveMcpCredentialWorkspace(request.headers);
     if (!bound) return { refusal: unauthorizedChallenge(resourceMetadataUrl) };
+
+    if (accountOnly) {
+      const admission = accountToolLimiter.admit(bound.email.toLowerCase());
+      if (!admission.allowed) return { refusal: accountToolsRateLimited(admission.retryAfterSeconds, toolCall) };
+      return { scope: ACCOUNT_SCOPE, agentJobKey: null };
+    }
 
     if (bound.credential === "apiKey" || !bound.accountWide) {
       const own =
@@ -624,9 +667,17 @@ export function createMcpRoute(
 
     const access = di.getMcpWorkspaceAccessService();
     if (!toolCall.toolCall) {
-      const prompted = toolCall.promptWorkspace ? await access.resolve(bound.email, toolCall.promptWorkspace) : null;
-      const workspace = prompted?.ok ? prompted.workspace : await access.defaultWorkspace(bound.email, bound.companyId);
-      return { scope: workspace ? { workspace, checkAccess: true } : ACCOUNT_SCOPE, agentJobKey: null };
+      if (toolCall.promptWorkspace) {
+        const prompted = await access.resolve(bound.email, toolCall.promptWorkspace);
+        if (!prompted.ok) return { refusal: toolCallRefusal(prompted.message, toolCall) };
+        return { scope: { workspace: prompted.workspace, checkAccess: true }, agentJobKey: null };
+      }
+      const workspace = await access.defaultWorkspace(bound.email, bound.companyId);
+      if (workspace) return { scope: { workspace, checkAccess: true }, agentJobKey: null };
+      if (!readsWorkspace) return { scope: ACCOUNT_SCOPE, agentJobKey: null };
+      const unresolved = await access.resolve(bound.email, null);
+      if (unresolved.ok) return { scope: { workspace: unresolved.workspace, checkAccess: true }, agentJobKey: null };
+      return { refusal: toolCallRefusal(unresolved.message, toolCall) };
     }
 
     const resolution = await access.resolve(bound.email, requested[0] ?? null);

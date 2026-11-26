@@ -4107,6 +4107,7 @@
     },
     "newWorkspaces": "Nieuwe werkruimtes die het voor je aanmaakt",
     "noneAvailable": "Geen van je werkruimtes kan nu via MCP worden gebruikt. De reden staat bij elke werkruimte.",
+    "termsForNewWorkspaces": "Accepteer de voorwaarden zodat {client} nieuwe werkruimtes voor je kan aanmaken. Je kunt ook zonder goedkeuren; {client} werkt dan alleen in je bestaande werkruimtes.",
     "title": "{client} koppelen aan deze werkruimte",
     "titleNamed": "{client} koppelen aan {workspace}",
     "unavailable": {

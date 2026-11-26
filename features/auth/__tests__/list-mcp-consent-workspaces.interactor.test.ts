@@ -93,6 +93,7 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
     expect(result).toEqual({
       ok: true,
       data: {
+        termsOffered: true,
         termsRequired: false,
         workspaces: [
           { companyId: "current", name: "Workspace current", isCurrent: true, ...role, ...reason(null) },
@@ -111,7 +112,7 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
         ],
       },
     });
-    expect(legal.findAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
+    expect(legal.findAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1");
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalledWith("waiting");
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalledWith("deactivated");
   });
@@ -141,26 +142,32 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
     listMyWorkspaces.invoke.mockResolvedValue({ ok: true, data: [] });
     authService.getInteractiveSession.mockResolvedValue(null);
 
-    await expect(interactor().invoke()).resolves.toEqual({ ok: true, data: { workspaces: [], termsRequired: false } });
+    await expect(interactor().invoke()).resolves.toEqual({
+      ok: true,
+      data: { workspaces: [], termsOffered: false, termsRequired: false },
+    });
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
   });
 
   it("asks a Cloud login without any workspace to accept the terms until it accepted the current ones", async () => {
     listMyWorkspaces.invoke.mockResolvedValue({ ok: true, data: [] });
 
-    await expect(interactor().invoke()).resolves.toEqual({ ok: true, data: { workspaces: [], termsRequired: true } });
+    await expect(interactor().invoke()).resolves.toEqual({
+      ok: true,
+      data: { workspaces: [], termsOffered: true, termsRequired: true },
+    });
     expect(legal.findAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1");
 
     const { currentLegalDocumentVersions } = await import("@/constants/legal-documents");
     legal.findAccountLegalVersionsUnscoped.mockResolvedValue(currentLegalDocumentVersions());
-    await expect(interactor().invoke()).resolves.toMatchObject({ data: { termsRequired: false } });
+    await expect(interactor().invoke()).resolves.toMatchObject({ data: { termsOffered: false, termsRequired: false } });
   });
 
   it("never asks for terms outside Cloud", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "self-hosted";
     listMyWorkspaces.invoke.mockResolvedValue({ ok: true, data: [] });
 
-    await expect(interactor().invoke()).resolves.toMatchObject({ data: { termsRequired: false } });
+    await expect(interactor().invoke()).resolves.toMatchObject({ data: { termsOffered: false, termsRequired: false } });
   });
 
   it("stays available in demo mode", async () => {

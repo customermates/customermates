@@ -63,7 +63,12 @@ vi.mock("@/core/di", () => ({
 
 import { currentMcpWorkspace } from "@/features/auth/mcp-workspace-context";
 
-import { ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE, createMcpRoute, readMcpToolCall } from "../mcp-route-utils";
+import {
+  ACCOUNT_TOOL_CALLS_PER_MINUTE,
+  ANONYMOUS_DISCOVERY_REQUESTS_PER_MINUTE,
+  createMcpRoute,
+  readMcpToolCall,
+} from "../mcp-route-utils";
 
 const expectedFailureTool: McpTool = {
   name: "expected_failure",
@@ -378,6 +383,7 @@ describe("public MCP execution boundary", () => {
       singleToolCallId: 1,
       calls: [{ name: "query_crm_records", workspace: "acme" }],
       promptWorkspace: null,
+      methods: ["tools/call"],
     });
     expect(
       await readMcpToolCall(post([call(2, "list_workspaces", {}), call(3, "read_crm_record", { workspace: 7 })])),
@@ -941,6 +947,72 @@ describe("account-wide MCP connection", () => {
     expect(JSON.parse(text(same.data))).toMatchObject({ workspace: null, input: {} });
     expect(text(other.data)).toContain("locked to that workspace");
     expect(access.resolve).not.toHaveBeenCalled();
+  });
+
+  const readResource = (id: number) => ({
+    jsonrpc: "2.0",
+    id,
+    method: "resources/read",
+    params: { uri: "customermates://wiki/page/00000000-0000-4000-8000-000000000001" },
+  });
+
+  it("never lets an account tool carry a resource read past the workspace checks in a batch", async () => {
+    access.resolve.mockResolvedValue({ ok: false, message: "This account has several workspaces." });
+
+    const refused = await rpc(handler(), [call("account_echo", {}, 1), readResource(2)] as never, undefined, {
+      credential: bearer,
+    });
+
+    expect(refused.response.status).toBe(400);
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+
+    access.resolve.mockResolvedValue({ ok: true, workspace: { companyId: WORKSPACE, slug: "acme" } });
+    await rpc(handler(), [call("account_echo", {}, 3), readResource(4)] as never, undefined, { credential: bearer });
+
+    expect(apiKeys.authorize).toHaveBeenCalledOnce();
+  });
+
+  it("refuses a resource read of an account-wide token without a usable default workspace", async () => {
+    access.resolve.mockResolvedValue({ ok: false, message: "This account has several workspaces." });
+
+    const refused = await rpc(handler(), readResource(1), undefined, { credential: bearer });
+
+    expect(refused.response.status).toBe(400);
+    expect(await refused.data).toMatchObject({ error: "workspace_required" });
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+
+    access.defaultWorkspace.mockResolvedValue({ companyId: WORKSPACE, slug: "acme" });
+    await rpc(handler(), readResource(2), undefined, { credential: bearer });
+
+    expect(apiKeys.authorize).toHaveBeenCalledOnce();
+  });
+
+  it("refuses a batch where one call names a workspace and another leaves it out", async () => {
+    const result = await rpc(
+      handler(),
+      [call("workspace_echo", { workspace: "acme" }, 1), call("workspace_echo", {}, 2)] as never,
+      undefined,
+      { credential: bearer },
+    );
+
+    expect(result.response.status).toBe(400);
+    expect(access.resolve).not.toHaveBeenCalled();
+  });
+
+  it("limits workspace listing and creation calls per account", async () => {
+    const route = handler();
+    for (let attempt = 0; attempt < ACCOUNT_TOOL_CALLS_PER_MINUTE; attempt += 1) {
+      const allowed = await rpc(route, call("account_echo", {}, attempt + 1), undefined, { credential: bearer });
+      expect(text(allowed.data)).not.toContain("Too many");
+    }
+
+    const limited = await rpc(route, call("account_echo", {}, 99), undefined, { credential: bearer });
+
+    expect(limited.data).toMatchObject({
+      id: 99,
+      result: { isError: true, structuredContent: { error: "rate_limited" } },
+    });
+    expect(limited.response.headers.get("retry-after")).toBeTruthy();
   });
 
   it("refuses calls for two workspaces in one request", async () => {

@@ -4107,6 +4107,7 @@
     },
     "newWorkspaces": "Nowe przestrzenie robocze, które dla Ciebie utworzy",
     "noneAvailable": "Żadnej z Twoich przestrzeni roboczych nie można teraz używać przez MCP. Powód widać przy każdej z nich.",
+    "termsForNewWorkspaces": "Aby {client} mógł tworzyć dla Ciebie nowe przestrzenie robocze, zaakceptuj regulamin. Możesz zatwierdzić bez tego; {client} będzie wtedy działać tylko w Twoich istniejących przestrzeniach roboczych.",
     "title": "Połącz {client} z tą przestrzenią roboczą",
     "titleNamed": "Połącz {client} z {workspace}",
     "unavailable": {

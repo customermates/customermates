@@ -26,7 +26,7 @@ import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/
 import { AdminUpdateUserDetailsSchema } from "../upsert/admin-update-user-details.interactor";
 import { GetUserDetailsInteractor } from "../get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "../get/get-user-by-id.interactor";
-import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { LEGAL_DOCUMENT_VERSIONS, currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -71,6 +71,7 @@ describe("RegisterUserInteractor", () => {
       hasCreatedWorkspaceUnscoped: vi.fn().mockResolvedValue(false),
       countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
       countWorkspacesCreatedSinceUnscoped: vi.fn().mockResolvedValue(0),
+      recordAccountLegalVersionsUnscoped: vi.fn().mockResolvedValue(undefined),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
       takeSignupAttributionUnscoped: vi.fn().mockResolvedValue({ lastPage: null, campaign: null }),
@@ -156,6 +157,7 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockRepo.recordAccountLegalVersionsUnscoped).toHaveBeenCalledWith(USER_ID, currentLegalDocumentVersions());
     expect(mockEventService.publish).toHaveBeenNthCalledWith(
       1,
       DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,

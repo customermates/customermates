@@ -90,6 +90,23 @@ describe("McpConsentStore", () => {
     });
   });
 
+  it("offers the terms to an account with workspaces without requiring them, and sends the answer", async () => {
+    authActions.decideMcpConsentAction.mockResolvedValue(redirect);
+    const store = new McpConsentStore(rootStore);
+    store.initialize([crm], { fixedWorkspace: false, termsOffered: true, termsRequired: false });
+
+    expect(store.termsOffered).toBe(true);
+    expect(store.canSubmitApproval).toBe(true);
+
+    await store.decide("consent-code", true);
+
+    expect(authActions.decideMcpConsentAction).toHaveBeenCalledWith({
+      consentCode: "consent-code",
+      accept: true,
+      acceptTerms: false,
+    });
+  });
+
   it("does not send a terms answer with a denial", async () => {
     authActions.decideMcpConsentAction.mockResolvedValue(redirect);
     const store = new McpConsentStore(rootStore);

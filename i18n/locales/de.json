@@ -4107,6 +4107,7 @@
     },
     "newWorkspaces": "Neue Workspaces, die es für dich erstellt",
     "noneAvailable": "Keiner deiner Workspaces kann gerade über MCP genutzt werden. Den Grund siehst du neben jedem Workspace.",
+    "termsForNewWorkspaces": "Damit {client} neue Workspaces für dich erstellen kann, akzeptiere die Bedingungen. Du kannst auch ohne sie zustimmen; {client} arbeitet dann nur in deinen bestehenden Workspaces.",
     "title": "{client} mit diesem Workspace verbinden",
     "titleNamed": "{client} mit {workspace} verbinden",
     "unavailable": {

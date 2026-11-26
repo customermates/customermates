@@ -8,12 +8,13 @@ import { decideMcpConsentAction } from "../actions";
 import { BaseStore } from "@/core/base/base.store";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
-type ConsentOptions = { fixedWorkspace: boolean; termsRequired: boolean };
+type ConsentOptions = { fixedWorkspace: boolean; termsOffered?: boolean; termsRequired: boolean };
 
 export class McpConsentStore extends BaseStore {
   isSubmitting = false;
   workspaces: McpConsentWorkspace[] = [];
   fixedWorkspace = false;
+  termsOffered = false;
   termsRequired = false;
   termsAccepted = false;
 
@@ -24,6 +25,7 @@ export class McpConsentStore extends BaseStore {
       isSubmitting: observable,
       workspaces: observable.ref,
       fixedWorkspace: observable,
+      termsOffered: observable,
       termsRequired: observable,
       termsAccepted: observable,
       usableWorkspaces: computed,
@@ -51,8 +53,9 @@ export class McpConsentStore extends BaseStore {
   initialize = (workspaces: McpConsentWorkspace[], options: ConsentOptions) => {
     this.workspaces = workspaces;
     this.fixedWorkspace = options.fixedWorkspace;
-    this.termsRequired = !options.fixedWorkspace && options.termsRequired;
-    if (!this.termsRequired) this.termsAccepted = false;
+    this.termsOffered = !options.fixedWorkspace && (options.termsOffered === true || options.termsRequired);
+    this.termsRequired = this.termsOffered && options.termsRequired;
+    if (!this.termsOffered) this.termsAccepted = false;
   };
 
   setTermsAccepted = (accepted: boolean) => {
@@ -61,7 +64,7 @@ export class McpConsentStore extends BaseStore {
   };
 
   decide = async (consentCode: string, accept: boolean): Promise<string | null> => {
-    const acceptTerms = accept && this.termsRequired ? this.termsAccepted : undefined;
+    const acceptTerms = accept && this.termsOffered ? this.termsAccepted : undefined;
     runInAction(() => {
       this.isSubmitting = true;
     });
