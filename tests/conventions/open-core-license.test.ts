@@ -158,14 +158,15 @@ describe("source-available licence boundary", () => {
     expect(existsSync(join(REPO_ROOT, "THIRD_PARTY_LICENSES.md"))).toBe(true);
   });
 
-  it("binds the CLA check to the pull request and comment events with a pinned action and a signatures branch", () => {
+  it("binds the CLA check to the pull request and comment events with a pinned GitHub-owned action and a signatures branch", () => {
     const workflow = source(".github/workflows/cla-check.yml");
 
     expect(workflow).toContain("pull_request_target:");
     expect(workflow).toContain("issue_comment:");
     expect(workflow).toContain("github.event.comment.body == 'recheck'");
-    expect(workflow).toContain("path-to-document: https://github.com/customermates/customermates/blob/main/.github/CLA.md");
-    expect(workflow).toContain("branch: cla-signatures");
-    expect(workflow).toMatch(/uses: contributor-assistant\/github-action@[0-9a-f]{40} #/);
+    expect(workflow).toContain("/blob/main/.github/CLA.md");
+    expect(workflow).toContain('const BRANCH = "cla-signatures";');
+    expect(workflow).toMatch(/uses: actions\/github-script@[0-9a-f]{40} #/);
+    expect(workflow).not.toContain("contributor-assistant");
   });
 });
