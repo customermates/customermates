@@ -205,6 +205,9 @@ test("after the build a team is asked to invite, then to connect the inbox, and 
   const errors = collectPageErrors(page);
   const companyId = await openQuestionsOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Built Team"));
   await database.query('UPDATE "Company" SET "teamSize"=$1 WHERE id=$2', ["small", companyId]);
+  await expect
+    .poll(async () => (await funnelEvents(database, companyId)).some((event) => event.type === "jobSelected"))
+    .toBe(true);
   await completeSetupStepInDatabase(page);
   await page.reload();
 

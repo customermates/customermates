@@ -166,6 +166,8 @@ test("opens the Knowledge Base as a map and a page in the side sheet records ope
     await moreActions.click();
     await page.getByRole("menuitem", { name: englishMessages.Wiki.graph.unpin, exact: true }).click();
     await expect(onboardingNode.locator("[data-wiki-graph-pin]")).toHaveCount(0);
+    await expect(page.getByRole("menu")).toHaveCount(0);
+    await expect(onboardingSheet).toBeVisible();
 
     // Escape closes the sheet and returns the address to the map.
     await page.keyboard.press("Escape");

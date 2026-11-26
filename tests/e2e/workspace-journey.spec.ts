@@ -24,7 +24,7 @@ import { localLemonSqueezyVariants } from "./local-lemonsqueezy-provider.mjs";
 import { runRowAction } from "./record-rows";
 import { expectedAuthorization, routeSocialProvider } from "./social-sign-in";
 import { emailLanguage, emailLinks, emailText, sentEmailsTo } from "./transactional-mail";
-import { removeBrowserWorkspace } from "./workspace";
+import { insertStarterModel, removeBrowserWorkspace } from "./workspace";
 import { mcpWorkspaceName, restPost } from "./workspace-credentials";
 import {
   addOrganization,
@@ -146,6 +146,15 @@ async function createSecondWorkspace(page: Page, request: APIRequestContext, dat
   }
   await finishOnboarding(page);
   await expectCurrentWorkspace(page, SECOND);
+  // A self-hosted workspace opens empty (no Mate build), so the journey gives it the starter lists it works with.
+  const lists = await database.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1 LIMIT 1', [companyId]);
+  if (lists.rowCount === 0) {
+    const { rows } = await database.query<{ id: string }>(
+      'SELECT id FROM "User" WHERE "companyId"=$1 AND email=$2 AND "leftAt" IS NULL',
+      [companyId, email],
+    );
+    await insertStarterModel(database, companyId, rows[0].id);
+  }
   return companyId;
 }
 

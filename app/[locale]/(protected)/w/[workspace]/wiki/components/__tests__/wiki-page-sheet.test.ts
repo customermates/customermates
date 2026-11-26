@@ -293,7 +293,9 @@ const select = (container: HTMLElement, id: string) =>
     await Promise.resolve();
   });
 const metaParts = (container: HTMLElement) =>
-  [...(container.querySelector("[data-wiki-page-meta]")?.children ?? [])].map((part) => part.textContent);
+  [...(container.querySelector("[data-wiki-page-meta]")?.children ?? [])]
+    .filter((part) => part.getAttribute("aria-hidden") !== "true")
+    .map((part) => part.textContent);
 const settings = (container: HTMLElement) => container.querySelector("[data-wiki-page-settings]");
 
 beforeEach(() => {
@@ -418,6 +420,8 @@ describe("Knowledge Base page sheet", () => {
         "Wiki.verified.on:2026-11-10",
         "Wiki.linksHere:2",
       ]);
+      expect(container.querySelectorAll('[data-wiki-page-meta] > [aria-hidden="true"]')).toHaveLength(3);
+      expect(container.querySelector("[data-wiki-links-here]")?.className).not.toContain("before:");
 
       harness.getLinks.mockResolvedValue({ ok: true, data: { ...links, linkedFrom: [] } });
       await holds(() => {

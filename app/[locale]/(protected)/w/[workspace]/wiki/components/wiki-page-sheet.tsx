@@ -211,6 +211,7 @@ function WikiPageControls({
           className={VISIBLE_MENU_TRIGGER_CLASS}
           label={t("DataView.moreActions")}
           menu={menu}
+          tooltip={false}
           trigger={<Button className="text-muted-foreground" size="icon-sm" type="button" variant="ghost" />}
           onCloseAutoFocus={onMenuCloseAutoFocus}
         />
@@ -469,13 +470,19 @@ const WikiPageSurface = observer(function WikiPageSurface({
             </AppCardHeader>
 
             <div
-              className={cn(
-                "flex flex-wrap items-center gap-x-2 gap-y-1 px-6 text-sm text-muted-foreground [&>*+*]:before:me-2 [&>*+*]:before:content-['·']",
-                column,
-              )}
+              className={cn("flex flex-wrap items-center gap-x-2 gap-y-1 px-6 text-sm text-muted-foreground", column)}
               data-wiki-page-meta=""
             >
-              {meta}
+              {meta.flatMap((item, index) =>
+                index === 0
+                  ? [item]
+                  : [
+                      <span key={`separator-${index}`} aria-hidden="true">
+                        ·
+                      </span>,
+                      item,
+                    ],
+              )}
             </div>
 
             {settingsInvalid && (

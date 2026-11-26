@@ -181,7 +181,13 @@ test("a self-hosted workspace is ready to use at once and its onboarding opens t
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   // Self-hosted workspaces have no guided Mate setup: the wizard finishes on its own into the empty workspace.
+  await expect
+    .poll(async () => (await createdWorkspace(database, name))[0]?.onboardingWizardCompletedAt ?? null, {
+      timeout: 30_000,
+    })
+    .toBeInstanceOf(Date);
   await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"), { timeout: 30_000 });
+  await expect(page.locator("#onboarding-finish")).toHaveCount(0);
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
     createdByAuthUserId: workspace.authUserId,
