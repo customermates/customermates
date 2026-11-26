@@ -979,14 +979,23 @@
     "title": "Where agent steps run"
   },
   "AgentStart": {
-    "copiedTip": "Copied. Paste it into your agent",
+    "connect": {
+      "account": "Signed in as {email} · {count, plural, =0 {no workspace yet} one {# workspace} other {# workspaces}}",
+      "subtitle": "Paste this into Claude, ChatGPT or any other MCP client. One connection reaches all your workspaces.",
+      "title": "Connect your AI agent"
+    },
+    "copied": "Copied",
+    "copy": "Copy",
     "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "failed": "Copy failed",
     "getStarted": "Get started",
+    "hint": "Paste this into any AI agent and it sets Customermates up with you",
     "label": "Onboard your agent",
     "openIn": "Open in {app}",
     "progress": "{done} of {total} done",
-    "prompt": "Read {url}, connect Customermates and set it up for my business from the best-fitting template.",
+    "prompt": "Read {url}, connect Customermates at {mcp} and set it up for my business. Use my existing workspace if I have one.",
     "sidebarDismiss": "Hide",
+    "stepAgent": "Connect your AI agent",
     "stepInbox": "Connect your inbox",
     "stepPlan": "Pick a plan"
   },
@@ -1007,6 +1016,24 @@
   "ApiKeysCard": {
     "unnamed": "Unnamed"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "We'll email you a link that signs you in. It works once and expires after 15 minutes.",
+      "resend": "Resend link",
+      "resendIn": "Resend link in {seconds}s",
+      "sentBody": "We sent a link to {email}. Open it on this device to continue.",
+      "sentTitle": "Check your inbox",
+      "signInCta": "Email me a sign-in link",
+      "signUpCta": "Email me a sign-up link",
+      "useAnotherEmail": "Use another email"
+    },
+    "tabs": {
+      "magicLink": "Magic link",
+      "password": "Password",
+      "sso": "Single sign-on"
+    },
+    "tabsLabel": "Sign-in method"
+  },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
     "accountAlreadyLinkedToDifferentUser": "This social account is already linked to a different user.",
@@ -1024,6 +1051,7 @@
     "invalidProfile": "The profile returned by the provider was invalid. Please try again.",
     "issuerMismatch": "The provider response could not be trusted. Please try again.",
     "issuerMissing": "The provider response could not be verified. Please try again.",
+    "magicLinkInvalid": "This sign-in link has expired or was already used. Request a new one.",
     "missingProfile": "The provider did not return any profile data. Please try again.",
     "nameIsMissing": "The provider did not return a name. Please try again.",
     "noCallbackUrl": "The sign-in request was incomplete. Please try again.",
@@ -1917,6 +1945,7 @@
       "bookingRateLimited": "Too many booking attempts. Try again later.",
       "bookingSlotTaken": "This time is no longer available. Choose another time.",
       "bookingUnavailable": "This booking page is not available right now.",
+      "botDetected": "We couldn't verify this request. Reload the page and try again.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "calendarExportIncomplete": "This period has more entries than one export can include. Choose a shorter period or narrower source filters.",
       "calendarNeedsReconnect": "Reconnect your Google or Microsoft account under Channels & calendars to allow calendar changes, then try again.",
@@ -1934,6 +1963,7 @@
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
+      "disposableEmail": "Temporary email addresses can't start a trial. Please use your work or personal email.",
       "draftAlreadySent": "This draft was already sent.",
       "draftChanged": "This draft changed after you opened it.",
       "draftFilesEmailOnly": "Only email drafts can hold attachments.",
@@ -1979,6 +2009,7 @@
       "linkedinInboxUnavailable": "This LinkedIn account has no {product} inbox. Connect the account with {product} linked to use it.",
       "linkedinProductRequiresLinkedin": "InMail and LinkedIn product options require a LinkedIn account.",
       "linkedinProductUnavailable": "This LinkedIn account does not have that product connected.",
+      "magicLinkRateLimited": "Too many sign-in links were requested for this email. Wait an hour or sign in another way.",
       "memberReferenceRequired": "Name the member by userId or email.",
       "messageContentRequired": "Add a message or an attachment.",
       "messageNotFound": "This message is no longer available.",
@@ -2151,6 +2182,7 @@
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
       "workspaceChanged": "This workspace is not available any more. It was deleted, its URL changed or your access was removed.",
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
+      "workspaceDailyLimitReached": "You can create up to {limit} workspaces in 24 hours. Try again tomorrow, or use one of your existing workspaces.",
       "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
       "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
       "workspaceDeleteBillingUnverified": "We couldn't verify this workspace's billing with Lemon Squeezy, so nothing was deleted. Try again in a few minutes.",
@@ -2172,7 +2204,8 @@
       "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
       "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
       "workspaceSetupUnavailable": "The AI workspace setup is not available here.",
-      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one."
+      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one.",
+      "workspaceTermsNotAccepted": "New workspaces need accepted terms. Connect again and accept the terms on the consent screen, or create the workspace in Customermates."
     },
     "events": {
       "automation": {
@@ -4020,6 +4053,14 @@
   "Loading": {
     "text": "Loading..."
   },
+  "MagicLinkEmail": {
+    "cta": "Sign in to Customermates",
+    "expiry": "The link works once and expires in 15 minutes.",
+    "fallback": "If the button above does not work, copy and paste this link into your browser: ",
+    "intro": "Use the button below to sign in to Customermates.",
+    "securityNotice": "If you did not request this link, you can safely ignore this email.",
+    "subject": "Your Customermates sign-in link"
+  },
   "MassActions": {
     "clearField": "Clear field",
     "delete": "Delete selected",
@@ -4042,7 +4083,6 @@
     "deny": "Deny",
     "destination": "Connection destination: {host}",
     "error": "Something went wrong. Please try again, or restart the connection from your client.",
-    "permissionRequired": "Your role does not allow MCP connections. Connecting through MCP requires Read access All on API & Webhooks. Ask a workspace administrator to grant it.",
     "scopes": {
       "email": "Read your email address",
       "offlineAccess": "Stay connected while you are away",
@@ -4052,10 +4092,11 @@
     "subtitle": "{client} wants to connect to your account."
   },
   "McpConsentWorkspace": {
-    "current": "Current workspace",
+    "accountHint": "{client} chooses the workspace for each request. If you leave a workspace or are removed from it, {client} loses access to it.",
+    "accountTitle": "Allow {client} to use your Customermates account",
     "fixed": {
-      "hint": "{client} only reaches {workspace}. Every workspace has its own MCP URL, so you can connect others as separate connections.",
-      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or copy your own workspace's MCP URL from Settings → API keys & connectors.",
+      "hint": "This older connection URL only reaches {workspace}. Connections added from Settings → API keys & connectors reach all your workspaces.",
+      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or connect again with the URL from Settings → API keys & connectors.",
       "unavailable": {
         "inactive": "Your access to {workspace} is deactivated. Ask a workspace administrator to reactivate it.",
         "pending": "Your request to join {workspace} is still waiting for approval. Connect again once an administrator has approved it.",
@@ -4064,8 +4105,8 @@
         "terms": "Updated terms need to be accepted before you can connect {workspace}. Open Customermates, accept them, then connect again."
       }
     },
-    "pickerLabel": "Choose a workspace",
-    "scopeHint": "{client} only reaches the workspace you choose. To use another workspace, connect again.",
+    "newWorkspaces": "New workspaces it creates for you",
+    "noneAvailable": "None of your workspaces can be used through MCP right now. The reason is shown next to each workspace.",
     "title": "Connect {client} to this workspace",
     "titleNamed": "Connect {client} to {workspace}",
     "unavailable": {
@@ -4073,7 +4114,8 @@
       "permission": "Your role has no API access",
       "plan": "No active subscription",
       "terms": "Updated terms need to be accepted"
-    }
+    },
+    "workspacesLabel": "Workspaces it can use"
   },
   "MemberRemoval": {
     "action": "Remove from workspace",
@@ -4379,7 +4421,7 @@
         "claudeTitle": "Connect your Claude account",
         "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection. <guide>Read the full setup guide</guide>.",
         "urlLabel": "MCP server URL",
-        "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL, so you can connect several workspaces to {client} at the same time."
+        "workspaceNote": "One connection covers all your workspaces: {client} chooses the workspace for each request and can create a new one when you ask for it."
       },
       "createKey": "Create API key",
       "createKeyIntro": "Generate an API key for this agent. The key is shown once and embedded in the install snippet below.",
@@ -4442,7 +4484,7 @@
         "stepsTitle": "Add Customermates as a remote MCP server",
         "subtitle": "Any client that can add a remote MCP server works with this URL.",
         "title": "Other MCP client",
-        "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL."
+        "workspaceNote": "The same URL serves all your workspaces. An API key always works in the workspace it was created in."
       },
       "providers": {
         "ariaLabel": "AI clients"
@@ -6482,11 +6524,10 @@
     "forgotPassword": "Forgot password?",
     "inviteSubtitle": "{inviterName} invited you to join a workspace. Sign in to review the invitation.",
     "inviteSubtitleNamed": "{inviterName} invited you to join {workspace}. Sign in to review the invitation.",
-    "or": "OR",
     "rememberMe": "Remember me",
     "signInCta": "Sign In",
     "signInTitle": "Sign in to your account",
-    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
+    "switchToSignUp": "New to Customermates? <registerLink>Create an account →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continue",
@@ -6496,9 +6537,8 @@
     "inviteSubtitle": "{inviterName} invited you to join a workspace on Customermates. Choose how you want to create your account.",
     "inviteSubtitleNamed": "{inviterName} invited you to join {workspace} on Customermates. Choose how you want to create your account.",
     "inviteTitle": "Accept Company Invitation",
-    "or": "OR",
     "signUpCta": "Create account",
-    "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
+    "switchToSignIn": "Already have an account? <signInLink>Sign in →</signInLink>",
     "title": "Create a Customermates Account"
   },
   "SolutionStage": {

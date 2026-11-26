@@ -377,11 +377,14 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       [people.ben.loginId],
     );
     expect(remainingKeys.rows).toEqual([{ id: keys.benOwn.id }]);
-    const remainingTokens = await client.query<{ companyId: string }>(
+    const remainingTokens = await client.query<{ companyId: string | null }>(
       'SELECT "companyId" FROM "OauthAccessToken" WHERE "userId" = $1',
       [people.ben.loginId],
     );
-    expect(remainingTokens.rows).toEqual([{ companyId: companies.bensOwn }]);
+    expect(remainingTokens.rows).toEqual(
+      expect.arrayContaining([{ companyId: companies.bensOwn }, { companyId: null }]),
+    );
+    expect(remainingTokens.rows).toHaveLength(2);
     expect(await lastUsed("ben")).toBe(companies.bensOwn);
     expect(seats.updates).toEqual([[lemonSqueezyId, 2]]);
     expect(mails.sent).toEqual([

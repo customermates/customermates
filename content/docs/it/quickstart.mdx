@@ -21,7 +21,7 @@ Aggiungi un connettore personalizzato:
 - **Claude** (web, desktop, mobile): **Customize → Connectors → Add → Add custom connector**.
 - **ChatGPT**: **Plugins → + → Add custom MCP server**, con **Authentication** impostato su OAuth.
 
-Incolla l’URL MCP dello spazio di lavoro, che Customermates mostra con un pulsante di copia nel passaggio iniziale **Collega l’IA che usi già** e in [Chiavi API e connettori](app:settings/api-keys), accedi e fai clic su **Approva** nella schermata di consenso. Funziona anche l’indirizzo con cui apri Customermates seguito da `/api/v1/mcp`, e lo spazio di lavoro viene richiesto nella schermata di consenso. Passaggi completi: [Collegati con un connettore personalizzato](/docs/connect-custom-connector#the-url).
+Incolla l’URL MCP, che Customermates mostra con un pulsante di copia nel passaggio iniziale **Collega l’IA che usi già** e in [Chiavi API e connettori](app:settings/api-keys), accedi e fai clic su **Approva** nella schermata di consenso. È l’indirizzo con cui apri Customermates seguito da `/api/v1/mcp`, e un solo connettore copre tutti i tuoi spazi di lavoro: la tua IA indica lo spazio di lavoro a ogni chiamata. Passaggi completi: [Collegati con un connettore personalizzato](/docs/connect-custom-connector#the-url).
 
 Al collegamento il server presenta al client i propri strumenti e il tuo spazio di lavoro. Nei client che supportano i prompt MCP, come Claude, il prompt integrato `get-started` aggiunge un avvio personalizzato: il tuo nome, il tuo ruolo e un primo riepilogo del tuo spazio di lavoro.
 

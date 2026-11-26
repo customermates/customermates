@@ -4,7 +4,7 @@ heading: "KI-Clients per MCP mit dem CRM verbinden"
 description: "Customermates bietet einen MCP-Endpoint unter /api/v1/mcp, über den Claude, ChatGPT, Cursor und weitere Agent-Clients das CRM direkt lesen und schreiben."
 ---
 
-Customermates bietet einen MCP-Endpoint unter `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen, und jeder Workspace hat zusätzlich eine eigene URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, mit denselben Tools, fest an diesen Workspace gebunden. Ein verbundener Client entdeckt die CRM-Tools automatisch. Zwei Wege zu verbinden:
+Customermates bietet einen MCP-Endpoint unter `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen. Eine Verbindung deckt Ihr ganzes Konto ab: Jedes Tool nimmt ein optionales Argument `workspace` entgegen, sodass dieselbe URL jeden Workspace bedient, dem Sie angehören ([den Workspace wählen](#choosing-the-workspace)). Ein verbundener Client entdeckt die CRM-Tools automatisch. Zwei Wege zu verbinden:
 
 - **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben; kein Key zu verwalten. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder in einer Konfigurationsdatei senden.
@@ -26,11 +26,11 @@ x-api-key: <ihr-64-zeichen-key>
 
 Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/list` liefert jedes Tool mit JSON Schema, `tools/call` ruft ein Tool per Name auf. Jede Anfrage muss `Accept: application/json, text/event-stream` senden, sonst liefert der Endpoint `406 Not Acceptable`. Die Client-Anleitungen richten das ein; rohe HTTP-Aufrufe mit curl oder Skripten ergänzen den Header selbst.
 
-Ein API-Key besteht aus 64 Buchstaben (a-z, A-Z) und trägt die Rechte des Users, der ihn erstellt hat; ein Scoping pro Key gibt es nicht. Custom-Connector-Clients (Claude, ChatGPT) nutzen stattdessen OAuth und holen und erneuern ein Bearer-Token für Sie, siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector). Beide handeln in genau einem Workspace: ein Key in dem Workspace, in dem er erstellt wurde, eine OAuth-Verbindung im Workspace ihrer URL oder in dem, der auf dem Zustimmungsbildschirm gewählt wurde ([welchen Workspace eine Verbindung nutzt](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use)).
+Ein API-Key besteht aus 64 Buchstaben (a-z, A-Z) und trägt die Rechte des Users, der ihn erstellt hat; ein Scoping pro Key gibt es nicht. Custom-Connector-Clients (Claude, ChatGPT) nutzen stattdessen OAuth und holen und erneuern ein Bearer-Token für Sie, siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector). Ein Key handelt in dem Workspace, in dem er erstellt wurde. Eine OAuth-Verbindung handelt für Ihr ganzes Konto, in dem Workspace, den jeder Aufruf nennt ([den Workspace wählen](#choosing-the-workspace), [welchen Workspace eine Verbindung nutzt](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use)).
 
-Die URL eines Workspace nimmt nur Zugangsdaten dieses Workspace an. Ein OAuth-Token eines anderen Workspace erhält HTTP `401` mit `error="invalid_token"` im `WWW-Authenticate`-Header, dessen `resource_metadata` auf `/.well-known/oauth-protected-resource/api/v1/mcp/w/<WORKSPACE_ID>` zeigt, sodass sich der Client für diesen Workspace neu autorisiert. Die Token-Anfrage darf die URL in `resource` nennen; ein `resource` eines anderen als des freigegebenen Workspace erhält `400` mit `error: invalid_target`. Ein API-Key eines anderen Workspace erhält `403` mit `error: workspace_mismatch`. Alle übrigen Prüfungen bleiben dieselben wie unter `<BASE_URL>/api/v1/mcp`.
+Connectoren, die früher mit der eigenen URL eines Workspace, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, hinzugefügt wurden, funktionieren weiter und bleiben auf diesen Workspace beschränkt: Ein OAuth-Token eines anderen Workspace erhält HTTP `401` mit `error="invalid_token"`, und ein API-Key eines anderen Workspace erhält `403` mit `error: workspace_mismatch`.
 
-Eine Anfrage ohne gültige Zugangsdaten erhält HTTP `401` mit einem `WWW-Authenticate`-Header, der OAuth-Clients auf `/.well-known/oauth-protected-resource` verweist, sodass sich der Client neu anmeldet: kein `x-api-key`-Header und kein Bearer-Token, ein falscher, abgeschnittener, abgelaufener oder gelöschter Key oder ein fehlendes, abgelaufenes oder widerrufenes Token. Die Verbindung über MCP braucht außerdem **Lesen** **Alle** in der Zeile **API & Webhooks** der Rolle des Users, dieselbe Berechtigung wie die Seite API-Schlüssel & Konnektoren; die eingebaute Rolle **Admin** hat sie. Ein gültiger Key oder ein OAuth-Token eines Users, dessen Rolle sie fehlt, erhält HTTP `403` mit `error: insufficient_permissions`, bevor ein Tool läuft, und der OAuth-Zustimmungsbildschirm lehnt einen solchen User ab. Ein Key oder Token eines Cloud-Workspace, der noch auf seinen ersten Tarif wartet, erhält `403` mit `error: plan_required`. Der Assistent in der App braucht sie nicht.
+Eine Anfrage ohne gültige Zugangsdaten erhält HTTP `401` mit einem `WWW-Authenticate`-Header, der OAuth-Clients auf `/.well-known/oauth-protected-resource` verweist, sodass sich der Client neu anmeldet: kein `x-api-key`-Header und kein Bearer-Token, ein falscher, abgeschnittener, abgelaufener oder gelöschter Key oder ein fehlendes, abgelaufenes oder widerrufenes Token. Dieselben Metadaten liegen auch unter dem RFC-9728-Pfad `/.well-known/oauth-protected-resource/api/v1/mcp`. Die Verbindung über MCP braucht außerdem **Lesen** **Alle** in der Zeile **API & Webhooks** der Rolle des Users im genutzten Workspace, dieselbe Berechtigung wie die Seite API-Schlüssel & Konnektoren; die eingebaute Rolle **Admin** hat sie. Ein gültiger Key eines Users, dessen Rolle sie fehlt, erhält HTTP `403` mit `error: insufficient_permissions`, bevor ein Tool läuft. Bei einer OAuth-Verbindung listet der Zustimmungsbildschirm einen Workspace, in dem der Rolle sie fehlt, als einen, den die App nicht nutzen kann, und ein Aufruf, der ihn nennt, wird abgelehnt. Ein Key eines Cloud-Workspace, der noch auf seinen ersten Tarif wartet, erhält `403` mit `error: plan_required`; eine OAuth-Verbindung behandelt einen solchen Workspace als einen, den sie nicht nutzen kann. Der Assistent in der App braucht sie nicht.
 
 Der Endpoint und API-Keys stehen in jedem Tarif und auf selbst gehosteten Instanzen zur Verfügung. Nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging (ab Pro, nur Cloud); siehe [Messaging](/docs/mcp#messaging).
 
@@ -48,7 +48,7 @@ Um einen Client mit API-Key zu verbinden, beginnen Sie bei [API-Schlüssel & Kon
 Dem Client `POST <BASE_URL>/api/v1/mcp` mit dem `x-api-key`-Header geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides in der Tabelle unten enthalten die genaue Konfiguration.
 </Step>
 <Step title="Prüfen, ob die Tools ankommen">
-Den Client nach seinen Tools fragen; `get_workspace_context` sollte darunter sein. Es ist der natürliche erste Aufruf: Er liefert User, Unternehmen, Rollen, verbundene Accounts und die Wissensdatenbank auf einmal; die Bezeichnungen der Datensatztypen liefert `discover_record_types`.
+Den Client nach seinen Tools fragen; `get_workspace_context` sollte darunter sein. Es ist der natürliche erste Aufruf: Er liefert User, Unternehmen, Rollen, verbundene Accounts und die Wissensdatenbank auf einmal (bei mehreren Workspaces `workspace` angeben); die Bezeichnungen der Datensatztypen liefert `discover_record_types`.
 </Step>
 </Steps>
 
@@ -63,6 +63,23 @@ Den Client nach seinen Tools fragen; `get_workspace_context` sollte darunter sei
 | Cursor | API-Key | [Cursor verbinden](/docs/connect-cli#cursor) |
 | Gemini CLI | API-Key | [Gemini verbinden](/docs/connect-cli#gemini-cli) |
 | Beliebiger MCP-Client | Key-Header | Endpoint und Header aus [Wie lautet die URL des MCP-Server-Endpoints?](#the-endpoint) nutzen |
+
+## Wie wählt ein Agent den Workspace? [#choosing-the-workspace]
+
+Eine OAuth-Verbindung deckt jeden Workspace ab, dem Sie angehören, daher sagt jeder Aufruf, welchen er meint. Jedes Tool nimmt ein optionales Argument `workspace` entgegen: den Slug oder die ID des Workspace. `list_workspaces` liefert beides für jeden Workspace, und `get_workspace_context` liefert den Workspace des Aufrufs als `company`.
+
+- **Ein nutzbarer Workspace:** Ein Aufruf ohne `workspace` verwendet ihn.
+- **Mehrere nutzbare Workspaces:** Ein Aufruf ohne `workspace` wird mit einem Tool-Fehler abgelehnt, der die Workspaces (Name und Slug) auflistet und den Agenten bittet, `workspace` anzugeben. Es gibt nie einen stillen Standard, sodass ein Schreibzugriff nicht im falschen Workspace landen kann. Sagt die Anfrage nicht, welcher gemeint ist, fragt der Agent den User.
+- **Ein Workspace, den der Login nicht nutzen kann:** Einer, in dem der User kein aktives Mitglied ist oder den MCP nicht nutzen kann, wird abgelehnt. MCP kann einen Workspace nicht nutzen, wenn die Anfrage des Users zum Beitritt auf Genehmigung wartet, der Zugriff deaktiviert ist, die Rolle kein **Lesen** **Alle** auf **API & Webhooks** hat, der Workspace kein aktives Abonnement hat oder neue Bedingungen akzeptiert werden müssen. `list_workspaces` zeigt für jeden Workspace die Rolle und ob MCP ihn nutzen kann, bei Nein mit dem Grund.
+- **API-Keys:** Ein Key bleibt an den Workspace gebunden, in dem er erstellt wurde, und ein anderer `workspace` mit einem Key wird abgelehnt.
+
+Jeder Aufruf läuft als der freigebende User, mit den Rechten seiner Rolle in dem Workspace, den er nennt, sodass sich unterscheidet, was ein Aufruf darf, je nach Workspace.
+
+`create_workspace` legt für das Konto einen neuen Workspace an, aus einem Namen, einer Teamgröße (`solo`, `small` für 2 bis 5 Personen, `medium` für 6 bis 20, `large` für mehr als 20) und einer Anzeigesprache, und liefert dessen Slug. Der Agent übergibt diesen Slug von da an als `workspace`, typischerweise gefolgt vom Prompt `setup-from-template`. Es funktioniert nur in Customermates Cloud, braucht eine bestätigte E-Mail-Adresse und legt höchstens drei neue Workspaces pro Konto in beliebigen 24 Stunden an, zusätzlich zur Gesamtgrenze von [[commercial.workspaces.creationLimit]] Workspaces, die ein Login anlegen kann. Eine abgelehnte Anlage nennt den Grund in `customCode`: `emailNotVerified` (Art `authorization`), `workspaceDailyLimitReached` (Art `rate_limit`) oder `workspaceLimitReached` (Art `conflict`). Wie im Web erhält nur der erste Workspace, den ein Login anlegt, die kostenlose Testphase ([welcher Workspace die kostenlose Testphase erhält](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Ein Agent sollte nie einen zweiten Workspace anlegen, wenn ein vorhandener passt; er fragt zuerst den User.
+
+### Tarifangaben [#plan-facts]
+
+`get_workspace_context` und `list_workspaces` liefern ein Objekt `plan` für den Workspace: den aktuellen `plan`, `onFreePlan`, `trialDaysLeft` (`null` außerhalb einer Testphase), `lostOnFree` (was im Free-Plan nicht mehr funktionieren würde, nach Art mit Anzahl), `keepsItRunning` (der Tarif, der alles am Laufen hält) und `choosePlanUrl` (ein absoluter Link zur Seite [Abrechnung](app:settings/billing) des Workspace). Ein Tool-Aufruf, der wegen einer Tarifgrenze abgelehnt wird, trägt denselben `choosePlanUrl`, sodass der Agent dem User den Link geben kann.
 
 ## Server-Instructions, Prompts und Toolsets [#server-instructions-prompts-and-toolsets]
 
@@ -176,7 +193,7 @@ Customermates bietet bis zu [[derived.mcp.tools.total]] MCP-Tools, standardmäß
 **Nur lesend** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet ein Tool mit destruktiven Aktionen; nicht jede seiner Aktionen löscht (eine Konfigurationsvorschau schreibt zum Beispiel nichts). Tools, die Nachrichten, Einladungen oder Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern, haben auch ohne destruktives Kennzeichen reale Auswirkungen. Stellen Sie die Client-Freigabe für die konkrete Aktion ein: Das Backend prüft Berechtigungen und Eingaben, aber ein externer MCP-Aufruf öffnet keinen Freigabedialog des gehosteten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `list_workspaces`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `schedule_meeting`, `manage_booking_links`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_rules`, `manage_webhooks`, `manage_incoming_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
@@ -391,10 +408,12 @@ Ein Token gilt 24 Stunden und nur in dem Workspace, der gesucht hat; sonst wird 
 
 ### Workspace [#workspace]
 
+`list_workspaces` und `create_workspace` arbeiten über das ganze Konto, und jedes andere Tool nimmt das optionale Argument `workspace` entgegen; siehe [wie ein Agent den Workspace wählt](#choosing-the-workspace).
+
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Aktuellen Nutzer, Unternehmen (den Workspace mit seinem Namen), Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session; die Verbindung gilt für genau einen Workspace. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
+Aktuellen Nutzer, Unternehmen (den Workspace mit seinem Namen), Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten, die Tarifangaben des Workspace (`plan`: aktueller Tarif, Free-Plan oder verbleibende Testtage, was im Free-Plan nicht mehr funktionieren würde, der Tarif, der alles am Laufen hält, und der Link zur Tarifwahl) sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Der Workspace wird pro Call mit dem optionalen Argument `workspace` (Slug oder ID) gewählt: Ohne es nutzt der Call Ihren einzigen Workspace, bei mehreren wird er abgelehnt und listet sie auf. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
 
 **Nur lesend.** Optional: `wikiPage`.
 
@@ -403,6 +422,18 @@ Aktuellen Nutzer, Unternehmen (den Workspace mit seinem Namen), Rollenkatalog mi
 Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufrufers bei Benutzer & Rollen die Leseberechtigung Zugewiesen, kommt nur der Aufrufer selbst zurück.
 
 **Nur lesend.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `list_workspaces`
+
+Listet die Workspaces des Kontos: je Workspace Name, Slug, Ihre Rolle, ob er eingerichtet oder noch leer ist, die Tarifangaben (`plan`) und ob MCP ihn nutzen kann, bei Nein mit dem Grund. Aufrufen, wenn das Konto mehrere Workspaces haben kann, dann den Slug in den anderen Tools als `workspace` übergeben.
+
+**Nur lesend.** Keine Argumente.
+
+#### `create_workspace`
+
+Legt für das Konto einen neuen Workspace an, aus Name, Teamgröße (solo, small für 2 bis 5 Personen, medium für 6 bis 20, large für mehr als 20) und Anzeigesprache. Liefert den Slug des neuen Workspace: Er wird in den folgenden Calls als `workspace` übergeben, typischerweise gefolgt vom Prompt `setup-from-template`. Nur Customermates Cloud, braucht eine bestätigte E-Mail-Adresse und legt höchstens drei neue Workspaces pro Konto in beliebigen 24 Stunden an, innerhalb der Gesamtgrenze pro Login. Nur der erste Workspace, den ein Login anlegt, erhält die kostenlose Testphase. Nie einen zweiten Workspace anlegen, wenn ein vorhandener passt; zuerst den Nutzer fragen.
+
+Pflicht: `name`, `teamSize`. Optional: `displayLanguage`.
 {/* /mcp-catalog */}
 
 ### Gespeicherte Ansichten [#saved-views]
@@ -737,7 +768,7 @@ Optional: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `for
 
 #### `manage_team`
 
-Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link), Rolle und Status eines Mitglieds ändern (update_member) oder ein Mitglied aus dem Workspace entfernen (remove_member). Bei update_member und remove_member nennen Sie das Mitglied per userId oder email; wenn Sie beide angeben, müssen sie übereinstimmen. remove_member beendet den Zugriff, widerruft API-Keys und MCP-Verbindungen des Mitglieds für diesen Workspace, trennt die dort verbundenen Kanäle und lehnt eine offene Beitrittsanfrage ab; es schickt dem entfernten Mitglied eine echte E-Mail (keine bei einer abgelehnten Anfrage), und seine Datensätze bleiben. invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member und remove_member Bearbeiten, wie REST.
+Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link), Rolle und Status eines Mitglieds ändern (update_member) oder ein Mitglied aus dem Workspace entfernen (remove_member). Bei update_member und remove_member nennen Sie das Mitglied per userId oder email; wenn Sie beide angeben, müssen sie übereinstimmen. remove_member beendet den Zugriff, widerruft API-Keys des Mitglieds für diesen Workspace, lässt seine MCP-Verbindungen dort nicht mehr funktionieren, trennt die dort verbundenen Kanäle und lehnt eine offene Beitrittsanfrage ab; es schickt dem entfernten Mitglied eine echte E-Mail (keine bei einer abgelehnten Anfrage), und seine Datensätze bleiben. invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member und remove_member Bearbeiten, wie REST.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 
@@ -748,7 +779,7 @@ Rollen mit Systemberechtigungen und Zugriff auf beliebige konfigurierte Datensat
 **Kann Daten löschen.** Pflicht: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-Kein Tool liest das Abonnement, den Tarif, die Nutzerplätze oder die Abrechnung oder ändert den Tarif, und keines legt API-Keys an oder löscht sie; auch `get_workspace_context` liefert keine Tarif- oder Testphasendaten. Rollen verwalten Sie mit `manage_roles` oder unter [Rollen](app:settings/roles). Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Eine Statusänderung oder eine Entfernung mit `manage_team` ändert also wie in der App die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Das Abonnement verwalten Sie unter [Abrechnung](app:settings/billing) (nur Cloud), Keys unter [API-Schlüssel & Konnektoren](app:settings/api-keys).
+Kein Tool ändert das Abonnement, den Tarif oder die Nutzerplätze, liest Rechnungen oder Zahlungsdaten oder legt API-Keys an oder löscht sie; die schreibgeschützten `plan`-Angaben ([Tarifangaben](#plan-facts)) beschreiben nur den aktuellen Tarif und verweisen auf die Abrechnungsseite. Rollen verwalten Sie mit `manage_roles` oder unter [Rollen](app:settings/roles). Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Eine Statusänderung oder eine Entfernung mit `manage_team` ändert also wie in der App die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Das Abonnement verwalten Sie unter [Abrechnung](app:settings/billing) (nur Cloud), Keys unter [API-Schlüssel & Konnektoren](app:settings/api-keys).
 
 ### Support [#support]
 
@@ -770,7 +801,7 @@ Alle Tools sind standardmäßig an. Um nur einen Teil der Oberfläche anzubieten
 
 Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; ein unbekannter Key liefert HTTP `400` mit `error: invalid_toolsets`, den unbekannten und den gültigen Keys. `records` enthält auch die Operations-Tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) und die Papierkorb-Tools; `record-model` enthält nur `configure_record_model`. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
-`widgets`, `routines` und `webhooks` enthalten auch `discover_record_types` und `get_record_model`, die ihre Tools für Typ- und Feld-IDs und die aktuelle Schema-Revision brauchen; `record-model` enthält beide und dazu `read_crm_operation` für noch laufende Änderungen. API-Keys und Abrechnung bleiben bewusst in der Web-App; kein Tool liest oder ändert sie.
+`widgets`, `routines` und `webhooks` enthalten auch `discover_record_types` und `get_record_model`, die ihre Tools für Typ- und Feld-IDs und die aktuelle Schema-Revision brauchen; `record-model` enthält beide und dazu `read_crm_operation` für noch laufende Änderungen. API-Keys und Abrechnung bleiben bewusst in der Web-App; kein Tool ändert sie, und die `plan`-Angaben lesen nur den aktuellen Tarif.
 
 ### Wenn ein Aufruf abgelehnt wird [#when-a-call-is-refused]
 

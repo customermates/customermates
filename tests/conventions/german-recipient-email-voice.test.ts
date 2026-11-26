@@ -7,6 +7,7 @@ const INFORMAL_RECIPIENT_EMAIL_NAMESPACES = [
   "AccountsRemovedNotice",
   "BookingEmail",
   "CompanyInvite",
+  "MagicLinkEmail",
   "PlanPauseNotice",
   "ResetPassword",
   "SubscriptionInactivationNotice",

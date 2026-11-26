@@ -18,7 +18,7 @@ export class FakeAgentJobCredentials extends AgentJobCredentials {
         ? { ok: false, reason: this.refusal }
         : {
             ok: true,
-            credentials: { url: `https://app.example.test/api/v1/mcp/w/${args.companyId}`, token: "job-key" },
+            credentials: { url: "https://app.example.test/api/v1/mcp", token: "job-key" },
           },
     );
   }

@@ -35,7 +35,7 @@ import {
 import { RegistrationSignupSourceSchema, type RegistrationSignupSource } from "@/features/acquisition/signup-source";
 import { TEMPLATE_SLUGS, type TemplateSlug } from "@/core/templates/template-slugs";
 import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
-import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
+import { workspaceCreationRefusal } from "@/features/workspace/workspace-creation-limit";
 import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
 import { decodeSignupCampaign } from "@/features/acquisition/signup-campaign";
 import { TeamSizeSchema } from "@/features/onboarding-funnel/team-size";
@@ -181,9 +181,12 @@ export class RegisterUserInteractor {
           ? authUserCompanyId
           : null;
     if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
-    const limit = workspaceCreationLimit();
-    if (!companyId && limit !== null && (await this.repo.countCreatedWorkspacesUnscoped(sessionUserId)) >= limit)
-      return failConflict(CustomErrorCode.workspaceLimitReached, [], { limit });
+    const creationRefused = companyId
+      ? null
+      : await workspaceCreationRefusal({ authUserId: sessionUserId, emailVerified: null }, this.repo, {
+          requireVerifiedEmail: false,
+        });
+    if (creationRefused) return creationRefused;
     if (
       companyId &&
       target.type === "existingAuthUserCompanyBinding" &&

@@ -31,6 +31,7 @@ import type { LeaveWorkspaceRepo } from "@/features/workspace/leave-workspace.re
 import type { JoinWorkspaceRepo } from "@/features/workspace/join-workspace.repo";
 import type { RemoveWorkspaceMemberRepo } from "@/features/workspace/remove-workspace-member.repo";
 import type { FreePlanMemberRepo } from "@/ee/subscription/free-plan-member.repo";
+import type { LegalDocumentVersions } from "@/constants/legal-documents";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
@@ -773,6 +774,25 @@ export class PrismaUserRepo
       },
     });
     return created + unattributed.filter((company) => company.users[0]?.email === login.email).length;
+  }
+
+  @BypassTenantGuard
+  async countWorkspacesCreatedSinceUnscoped(authUserId: string, since: Date) {
+    return this.prisma.company.count({ where: { createdByAuthUserId: authUserId, createdAt: { gte: since } } });
+  }
+
+  @BypassTenantGuard
+  async findAccountLegalVersionsUnscoped(authUserId: string): Promise<Partial<LegalDocumentVersions> | null> {
+    const login = await this.prisma.authUser.findUnique({ where: { id: authUserId }, select: { legalVersions: true } });
+    const versions = login?.legalVersions;
+    return versions && typeof versions === "object" && !Array.isArray(versions)
+      ? (versions as Partial<LegalDocumentVersions>)
+      : null;
+  }
+
+  @BypassTenantGuard
+  async recordAccountLegalVersionsUnscoped(authUserId: string, versions: LegalDocumentVersions) {
+    await this.prisma.authUser.update({ where: { id: authUserId }, data: { legalVersions: versions } });
   }
 
   @BypassTenantGuard

@@ -340,6 +340,10 @@ import { WithdrawWorkspaceRequestInteractor } from "@/features/workspace/withdra
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
 import { DecideMcpConsentInteractor } from "@/features/auth/decide-mcp-consent.interactor";
 import { ListMcpConsentWorkspacesInteractor } from "@/features/auth/list-mcp-consent-workspaces.interactor";
+import { RequestMagicLinkInteractor } from "@/features/auth/request-magic-link.interactor";
+import { McpWorkspaceAccessService } from "@/features/auth/mcp-workspace-access.service";
+import { WorkspacePlanFactsService } from "@/ee/subscription/workspace-plan-facts.service";
+import { ListAccountWorkspacesInteractor } from "@/features/workspace/list-account-workspaces.interactor";
 import { RequestPasswordResetInteractor } from "@/features/auth/request-password-reset.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
@@ -1530,6 +1534,8 @@ export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(
 export const getSignUpWithEmailInteractor = () =>
   new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService(), getUserRepo());
 
+export const getRequestMagicLinkInteractor = () => new RequestMagicLinkInteractor(getAuthService());
+
 export const getRequestPasswordResetInteractor = () =>
   new RequestPasswordResetInteractor(getAuthService(), getOnboardingIntentService());
 
@@ -1545,11 +1551,35 @@ export const getResendVerificationEmailInteractor = () =>
 export const getSignOutInteractor = () =>
   new SignOutInteractor(getAuthService(), getOnboardingIntentService(), getInviteTokenCookieRepo());
 
-export const getDecideMcpConsentInteractor = () =>
-  new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
-
 export const getListMcpConsentWorkspacesInteractor = () =>
-  new ListMcpConsentWorkspacesInteractor(getListMyWorkspacesInteractor(), getRouteGuardService());
+  new ListMcpConsentWorkspacesInteractor(
+    getAuthService(),
+    getListMyWorkspacesInteractor(),
+    getRouteGuardService(),
+    getUserRepo(),
+  );
+
+export const getDecideMcpConsentInteractor = () =>
+  new DecideMcpConsentInteractor(
+    getAuthService(),
+    getRouteGuardService(),
+    getListMcpConsentWorkspacesInteractor(),
+    getUserRepo(),
+  );
+
+export const getMcpWorkspaceAccessService = () =>
+  new McpWorkspaceAccessService(getUserRepo(), getRouteGuardService(), getWorkspaceSlugResolver());
+
+export const getWorkspacePlanFactsService = () =>
+  new WorkspacePlanFactsService(getCompanyRepo(), getPlanLimitsService(), env.APP_MODE, env.BASE_URL);
+
+export const getListAccountWorkspacesInteractor = () =>
+  new ListAccountWorkspacesInteractor(
+    getAuthService(),
+    getMcpWorkspaceAccessService(),
+    getWorkspacePlanFactsService(),
+    new PrismaPlanUsageRepo(),
+  );
 
 // --- Company ---
 

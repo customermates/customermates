@@ -979,14 +979,23 @@
     "title": "Dónde se ejecutan los pasos de agente"
   },
   "AgentStart": {
-    "copiedTip": "Copiado. Pégalo en tu agente",
+    "connect": {
+      "account": "Sesión iniciada como {email} · {count, plural, =0 {aún sin espacio de trabajo} one {# espacio de trabajo} other {# espacios de trabajo}}",
+      "subtitle": "Pega esto en Claude, ChatGPT o cualquier otro cliente MCP. Una sola conexión llega a todos tus espacios de trabajo.",
+      "title": "Conecta tu agente de IA"
+    },
+    "copied": "Copiado",
+    "copy": "Copiar",
     "daysLeft": "{count, plural, one {Queda # día} other {Quedan # días}}",
+    "failed": "No se pudo copiar",
     "getStarted": "Primeros pasos",
+    "hint": "Pega esto en cualquier agente de IA y configurará Customermates contigo",
     "label": "Configura tu agente",
     "openIn": "Abrir en {app}",
     "progress": "{done} de {total} hechos",
-    "prompt": "Lee {url}, conecta Customermates y configúralo para mi negocio con la plantilla que mejor encaje.",
+    "prompt": "Lee {url}, conecta Customermates en {mcp} y configúralo para mi negocio. Usa mi espacio de trabajo existente si ya tengo uno.",
     "sidebarDismiss": "Ocultar",
+    "stepAgent": "Conecta tu agente de IA",
     "stepInbox": "Conecta tu bandeja de entrada",
     "stepPlan": "Elige un plan"
   },
@@ -1007,6 +1016,24 @@
   "ApiKeysCard": {
     "unnamed": "Sin nombre"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "Te enviaremos por correo un enlace para iniciar sesión. Funciona una sola vez y caduca a los 15 minutos.",
+      "resend": "Reenviar enlace",
+      "resendIn": "Reenviar enlace en {seconds} s",
+      "sentBody": "Hemos enviado un enlace a {email}. Ábrelo en este dispositivo para continuar.",
+      "sentTitle": "Revisa tu bandeja de entrada",
+      "signInCta": "Envíame un enlace de inicio de sesión",
+      "signUpCta": "Envíame un enlace de registro",
+      "useAnotherEmail": "Usar otro correo"
+    },
+    "tabs": {
+      "magicLink": "Enlace mágico",
+      "password": "Contraseña",
+      "sso": "Inicio de sesión único"
+    },
+    "tabsLabel": "Método de inicio de sesión"
+  },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
     "accountAlreadyLinkedToDifferentUser": "Esta cuenta social ya está vinculada a otro usuario.",
@@ -1024,6 +1051,7 @@
     "invalidProfile": "El perfil devuelto por el proveedor no era válido. Inténtalo de nuevo.",
     "issuerMismatch": "No se pudo confiar en la respuesta del proveedor. Inténtalo de nuevo.",
     "issuerMissing": "No se pudo verificar la respuesta del proveedor. Inténtalo de nuevo.",
+    "magicLinkInvalid": "Este enlace de inicio de sesión ha caducado o ya se ha usado. Solicita uno nuevo.",
     "missingProfile": "El proveedor no devolvió ningún dato de perfil. Inténtalo de nuevo.",
     "nameIsMissing": "El proveedor no devolvió ningún nombre. Inténtalo de nuevo.",
     "noCallbackUrl": "La solicitud de acceso estaba incompleta. Inténtalo de nuevo.",
@@ -1917,6 +1945,7 @@
       "bookingRateLimited": "Demasiados intentos de reserva. Inténtalo de nuevo más tarde.",
       "bookingSlotTaken": "Este horario ya no está disponible. Elige otro.",
       "bookingUnavailable": "Esta página de reservas no está disponible en este momento.",
+      "botDetected": "No pudimos verificar esta solicitud. Recarga la página e inténtalo de nuevo.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "calendarExportIncomplete": "Este periodo tiene más entradas de las que puede incluir una exportación. Elige un periodo más corto o filtros de origen más específicos.",
       "calendarNeedsReconnect": "Vuelve a conectar tu cuenta de Google o Microsoft en Canales y calendarios para permitir cambios en el calendario y inténtalo de nuevo.",
@@ -1934,6 +1963,7 @@
       "dataViewNotFound": "No se encontró esta vista guardada.",
       "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
+      "disposableEmail": "Las direcciones de correo temporales no pueden iniciar una prueba. Usa tu correo del trabajo o personal.",
       "draftAlreadySent": "Este borrador ya se envió.",
       "draftChanged": "Este borrador cambió después de que lo abrieras.",
       "draftFilesEmailOnly": "Solo los borradores de correo pueden contener archivos adjuntos.",
@@ -1979,6 +2009,7 @@
       "linkedinInboxUnavailable": "Esta cuenta de LinkedIn no tiene bandeja de entrada {product}. Conecta la cuenta con {product} asociado para usarla.",
       "linkedinProductRequiresLinkedin": "Las opciones de InMail y producto de LinkedIn requieren una cuenta de LinkedIn.",
       "linkedinProductUnavailable": "Esta cuenta de LinkedIn no tiene ese producto conectado.",
+      "magicLinkRateLimited": "Se han solicitado demasiados enlaces de inicio de sesión para este correo. Espera una hora o inicia sesión de otra forma.",
       "memberReferenceRequired": "Indica el miembro con userId o email.",
       "messageContentRequired": "Añade un mensaje o un archivo adjunto.",
       "messageNotFound": "Este mensaje ya no está disponible.",
@@ -2151,6 +2182,7 @@
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo.",
       "workspaceChanged": "Este espacio de trabajo ya no está disponible. Se eliminó, su URL cambió o se retiró tu acceso.",
       "workspaceCreationUnavailable": "Aquí no se pueden crear nuevos espacios de trabajo.",
+      "workspaceDailyLimitReached": "Puedes crear hasta {limit} espacios de trabajo en 24 horas. Vuelve a intentarlo mañana o usa uno de tus espacios de trabajo actuales.",
       "workspaceDeleteAdminRequired": "Solo un administrador puede eliminar este espacio de trabajo.",
       "workspaceDeleteBillingActive": "Este espacio de trabajo aún tiene una suscripción que se puede cobrar o reanudar. Cancélala y espera a que termine, o contacta con el soporte.",
       "workspaceDeleteBillingUnverified": "No pudimos verificar la facturación de este espacio de trabajo con Lemon Squeezy, así que no se eliminó nada. Inténtalo de nuevo en unos minutos.",
@@ -2172,7 +2204,8 @@
       "workspaceSetupConflict": "La configuración del espacio de trabajo está ocupada con otro paso. Vuelve a cargarla e inténtalo de nuevo.",
       "workspaceSetupNotFound": "No se encontró ninguna configuración para este espacio de trabajo.",
       "workspaceSetupUnavailable": "La configuración del espacio de trabajo con IA no está disponible aquí.",
-      "workspaceSlugTaken": "Otro espacio de trabajo ya usa esta URL. Elige otra."
+      "workspaceSlugTaken": "Otro espacio de trabajo ya usa esta URL. Elige otra.",
+      "workspaceTermsNotAccepted": "Los nuevos espacios de trabajo requieren aceptar las condiciones. Vuelve a conectar y acepta las condiciones en la pantalla de consentimiento, o crea el espacio de trabajo en Customermates."
     },
     "events": {
       "automation": {
@@ -4020,6 +4053,14 @@
   "Loading": {
     "text": "Cargando..."
   },
+  "MagicLinkEmail": {
+    "cta": "Iniciar sesión en Customermates",
+    "expiry": "El enlace funciona una sola vez y caduca en 15 minutos.",
+    "fallback": "Si el botón de arriba no funciona, copia y pega este enlace en tu navegador: ",
+    "intro": "Usa el botón de abajo para iniciar sesión en Customermates.",
+    "securityNotice": "Si no has solicitado este enlace, puedes ignorar este correo con total tranquilidad.",
+    "subject": "Tu enlace de inicio de sesión de Customermates"
+  },
   "MassActions": {
     "clearField": "Vaciar campo",
     "delete": "Eliminar la selección",
@@ -4042,7 +4083,6 @@
     "deny": "Denegar",
     "destination": "Destino de la conexión: {host}",
     "error": "Algo ha salido mal. Inténtalo de nuevo o reinicia la conexión desde tu cliente.",
-    "permissionRequired": "Tu rol no permite conexiones MCP. Conectar mediante MCP requiere acceso de lectura Todos en API y webhooks. Pide a un administrador del espacio de trabajo que te lo conceda.",
     "scopes": {
       "email": "Leer tu dirección de correo",
       "offlineAccess": "Mantener la conexión mientras estás ausente",
@@ -4052,10 +4092,11 @@
     "subtitle": "{client} quiere conectarse a tu cuenta."
   },
   "McpConsentWorkspace": {
-    "current": "Espacio de trabajo actual",
+    "accountHint": "{client} elige el espacio de trabajo en cada solicitud. Si sales de un espacio de trabajo o te eliminan de él, {client} pierde el acceso a ese espacio.",
+    "accountTitle": "Permitir que {client} use tu cuenta de Customermates",
     "fixed": {
-      "hint": "{client} solo accede a {workspace}. Cada espacio de trabajo tiene su propia URL de MCP, así que puedes conectar otros como conexiones independientes.",
-      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o copia la URL de MCP de tu propio espacio de trabajo en Ajustes → Claves de API y conectores.",
+      "hint": "Esta URL de conexión antigua solo accede a {workspace}. Las conexiones que añades desde Ajustes → Claves de API y conectores acceden a todos tus espacios de trabajo.",
+      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o vuelve a conectar con la URL de Ajustes → Claves de API y conectores.",
       "unavailable": {
         "inactive": "Tu acceso a {workspace} está desactivado. Pide a un administrador del espacio de trabajo que lo reactive.",
         "pending": "Tu solicitud para unirte a {workspace} sigue esperando aprobación. Vuelve a conectar cuando un administrador la haya aprobado.",
@@ -4064,8 +4105,8 @@
         "terms": "Antes de conectar {workspace} hay que aceptar las nuevas condiciones. Abre Customermates, acéptalas y vuelve a conectar."
       }
     },
-    "pickerLabel": "Elige un espacio de trabajo",
-    "scopeHint": "{client} solo accede al espacio de trabajo que elijas. Para usar otro, vuelve a conectarlo.",
+    "newWorkspaces": "Nuevos espacios de trabajo que cree para ti",
+    "noneAvailable": "Ninguno de tus espacios de trabajo se puede usar por MCP en este momento. El motivo aparece junto a cada uno.",
     "title": "Conectar {client} con este espacio de trabajo",
     "titleNamed": "Conectar {client} con {workspace}",
     "unavailable": {
@@ -4073,7 +4114,8 @@
       "permission": "Tu rol no tiene acceso a la API",
       "plan": "Sin suscripción activa",
       "terms": "Hay que aceptar las nuevas condiciones"
-    }
+    },
+    "workspacesLabel": "Espacios de trabajo que puede usar"
   },
   "MemberRemoval": {
     "action": "Quitar del espacio de trabajo",
@@ -4379,7 +4421,7 @@
         "claudeTitle": "Conecta tu cuenta de Claude",
         "externalNote": "Esta configuración se realiza en una pestaña nueva o en tu IA. Customermates no verifica automáticamente la conexión externa. <guide>Lee la guía de configuración completa</guide>.",
         "urlLabel": "URL del servidor MCP",
-        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL, así que puedes conectar varios espacios de trabajo a {client} a la vez."
+        "workspaceNote": "Una conexión cubre todos tus espacios de trabajo: {client} elige el espacio de trabajo en cada solicitud y puede crear uno nuevo cuando se lo pidas."
       },
       "createKey": "Crear una clave de API",
       "createKeyIntro": "Genera una clave de API para este agente. La clave se muestra una sola vez y se incluye en el fragmento de instalación de abajo.",
@@ -4442,7 +4484,7 @@
         "stepsTitle": "Añade Customermates como servidor MCP remoto",
         "subtitle": "Cualquier cliente que pueda añadir un servidor MCP remoto funciona con esta URL.",
         "title": "Otro cliente MCP",
-        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL."
+        "workspaceNote": "La misma URL sirve para todos tus espacios de trabajo. Una clave de API siempre trabaja en el espacio de trabajo donde se creó."
       },
       "providers": {
         "ariaLabel": "Clientes de IA"
@@ -6482,11 +6524,10 @@
     "forgotPassword": "¿Has olvidado tu contraseña?",
     "inviteSubtitle": "{inviterName} te ha invitado a unirte a un espacio de trabajo. Inicia sesión para revisar la invitación.",
     "inviteSubtitleNamed": "{inviterName} te ha invitado a unirte a {workspace}. Inicia sesión para revisar la invitación.",
-    "or": "O",
     "rememberMe": "Recordarme",
     "signInCta": "Iniciar sesión",
     "signInTitle": "Inicia sesión en tu cuenta",
-    "switchToSignUp": "¿No tienes cuenta? <registerLink>Regístrate</registerLink>"
+    "switchToSignUp": "¿Eres nuevo en Customermates? <registerLink>Crea una cuenta →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continuar",
@@ -6496,9 +6537,8 @@
     "inviteSubtitle": "{inviterName} te ha invitado a unirte a un espacio de trabajo en Customermates. Elige cómo quieres crear tu cuenta.",
     "inviteSubtitleNamed": "{inviterName} te ha invitado a unirte a {workspace} en Customermates. Elige cómo quieres crear tu cuenta.",
     "inviteTitle": "Aceptar la invitación de la empresa",
-    "or": "O",
     "signUpCta": "Crear una cuenta",
-    "switchToSignIn": "¿Ya tienes una cuenta? <signInLink>Inicia sesión</signInLink>",
+    "switchToSignIn": "¿Ya tienes una cuenta? <signInLink>Inicia sesión →</signInLink>",
     "title": "Crea una cuenta de Customermates"
   },
   "SolutionStage": {

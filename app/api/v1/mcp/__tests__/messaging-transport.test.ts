@@ -28,6 +28,8 @@ vi.mock("@/core/di", () => ({
   getAuthService: () => ({
     isMcpBearerValid: interactors.isMcpBearerValid,
     isMcpApiKeyValid: interactors.isMcpApiKeyValid,
+    resolveMcpCredentialWorkspace: () =>
+      Promise.resolve({ credential: "apiKey", email: "member@example.com", companyId: null, agentJobKey: null }),
   }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
   getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),

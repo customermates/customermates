@@ -86,12 +86,13 @@ async function signInFromInvitation(page: Page, database: Client, link: string, 
   await page.context().clearCookies();
   await page.goto(link);
   await expect(page).toHaveURL(/\/en\/auth\/signup\?intent=/);
-  await page.getByRole("link", { name: "Sign in", exact: true }).click();
+  await page.getByRole("link", { name: "Sign in →", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/auth\/signin\?intent=/);
   if (e2eAppMode() === "cloud") {
     const google = await routeSocialProvider(page, "google");
     const sub = String(randomInt(100_000_000, 999_999_999));
     google.signInAs({ sub, email: login.email, name: MEMBER, givenName: "Jonas", familyName: "Keller" });
+    await clickHydrated(page.getByRole("tab", { name: englishMessages.AuthMethods.tabs.sso, exact: true }));
     await clickHydrated(page.getByRole("button", { name: "Continue with Google", exact: true }));
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     expect(google.authorizations).toEqual([{ ...expectedAuthorization("google", baseUrl), state: expect.any(String) }]);

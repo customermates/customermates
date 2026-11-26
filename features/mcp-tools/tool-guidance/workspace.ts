@@ -1,4 +1,8 @@
 export const WORKSPACE_TOOL_GUIDANCE: Record<string, string> = {
+  list_workspaces:
+    "Call it at the start when you do not know which workspace the user means. Pass the chosen workspace's slug as workspace on every other tool call. When several workspaces are usable and the user has not named one, ask which one to use; a workspace with setUp true is already set up, so never set it up a second time.",
+  create_workspace:
+    "Only when list_workspaces shows no workspace that fits and the user agreed to a new one: ask for the workspace name and team size first, never create a second workspace when an existing one fits, and report a refusal in plain words. Pass the returned slug as workspace from then on, then pick a template with the user and run the setup-from-template prompt with that workspace.",
   get_workspace_context:
     "Discover accessible record types with discover_record_types and read their current fields and permissions with get_record_model. Match roleId values from list_users against roles. Use a connected account's id as connectedAccountId for send_email and send_chat_message, check its status before sending, and pass only a linkedinProduct listed in that account's linkedinProducts.",
   list_users:

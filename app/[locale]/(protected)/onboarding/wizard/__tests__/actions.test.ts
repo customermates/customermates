@@ -33,6 +33,7 @@ vi.mock("@/core/utils/action-result", () => ({
   serializeTypedResult: async (result: unknown) => await result,
   settleActionResult: async (result: unknown) => await result,
 }));
+vi.mock("@/core/security/bot-check", () => ({ refuseBots: () => Promise.resolve(null) }));
 vi.mock("@/features/acquisition/next/ad-attribution-cookie", () => ({
   clearRegisteredAdClicksFromCookie: mocks.clearRegisteredClick,
   readRegistrationAdAttribution: mocks.readAttribution,

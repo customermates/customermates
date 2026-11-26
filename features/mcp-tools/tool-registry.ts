@@ -20,6 +20,7 @@ import {
 } from "@/features/mcp-tools/record-model.mcp-tools";
 import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { getWorkspaceContextTool, listUsersTool } from "@/features/mcp-tools/workspace.mcp-tools";
+import { createWorkspaceTool, listWorkspacesTool } from "@/features/mcp-tools/account-workspace.mcp-tools";
 import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-tools";
 import { checkAddressTool, lookupAddressTool } from "@/features/mcp-tools/address.mcp-tools";
 import { manageTeamTool, updateMyProfileTool } from "@/features/mcp-tools/admin.mcp-tools";
@@ -131,7 +132,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   support: [requestSupportTool],
 };
 
-export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool];
+export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool, listWorkspacesTool, createWorkspaceTool];
 
 export const MCP_OPERATOR_TOOLS: McpTool[] = [getOperatorUsageTool];
 
@@ -139,6 +140,7 @@ const CLOUD_ONLY_MCP_TOOLS: ReadonlySet<McpTool> = new Set([
   ...MCP_TOOL_GROUPS.messaging.filter((tool) => tool !== getActivitiesTool),
   ...MCP_TOOL_GROUPS.social,
   ...MCP_TOOL_GROUPS.routines.filter((tool) => tool !== manageRulesTool),
+  createWorkspaceTool,
 ]);
 
 function isMcpToolOffered(tool: McpTool, appMode: AppMode): boolean {
@@ -153,6 +155,10 @@ export function mcpToolGroupsForAppMode(appMode: AppMode): Record<string, McpToo
       tools.filter((tool) => isMcpToolOffered(tool, appMode)),
     ]),
   );
+}
+
+export function mcpAlwaysOnToolsForAppMode(appMode: AppMode): McpTool[] {
+  return MCP_ALWAYS_ON_TOOLS.filter((tool) => isMcpToolOffered(tool, appMode));
 }
 
 export const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
@@ -172,7 +178,10 @@ export function countMcpTools(tools: readonly Pick<McpTool, "name">[] = ALL_MCP_
 export const MCP_TOOL_COUNT = countMcpTools();
 
 export function offeredMcpToolCount(appMode: AppMode): number {
-  return countMcpTools([...Object.values(mcpToolGroupsForAppMode(appMode)).flat(), ...MCP_ALWAYS_ON_TOOLS]);
+  return countMcpTools([
+    ...Object.values(mcpToolGroupsForAppMode(appMode)).flat(),
+    ...mcpAlwaysOnToolsForAppMode(appMode),
+  ]);
 }
 export const MCP_GROUPED_TOOL_COUNT = Object.values(MCP_TOOL_GROUPS).flat().length;
 export const MCP_TOOLSET_COUNT = Object.keys(MCP_TOOL_GROUPS).length;

@@ -42,14 +42,23 @@ function reason(unavailableReason: string | null) {
 describe("ListMcpConsentWorkspacesInteractor", () => {
   const listMyWorkspaces = { invoke: vi.fn() };
   const routeGuardService = { resolveMembershipForConsent: vi.fn() };
+  const authService = { getInteractiveSession: vi.fn() };
+  const legal = { findAccountLegalVersionsUnscoped: vi.fn() };
 
   function interactor() {
-    return new ListMcpConsentWorkspacesInteractor(listMyWorkspaces as never, routeGuardService);
+    return new ListMcpConsentWorkspacesInteractor(
+      authService as never,
+      listMyWorkspaces as never,
+      routeGuardService,
+      legal,
+    );
   }
 
   beforeEach(() => {
     vi.clearAllMocks();
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
+    authService.getInteractiveSession.mockResolvedValue({ user: { id: "login-1" } });
+    legal.findAccountLegalVersionsUnscoped.mockResolvedValue(null);
   });
 
   it("lists every workspace of the login with the reason it cannot be connected", async () => {
@@ -80,18 +89,29 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
 
     const result = await interactor().invoke();
 
+    const role = { roleName: "Admin" };
     expect(result).toEqual({
       ok: true,
-      data: [
-        { companyId: "current", name: "Workspace current", isCurrent: true, ...reason(null) },
-        { companyId: "api-reader", name: null, isCurrent: false, ...reason(null) },
-        { companyId: "viewer", name: "Workspace viewer", isCurrent: false, ...reason("permission") },
-        { companyId: "waiting", name: "Workspace waiting", isCurrent: false, ...reason("pending") },
-        { companyId: "deactivated", name: "Workspace deactivated", isCurrent: false, ...reason("inactive") },
-        { companyId: "expired", name: "Workspace expired", isCurrent: false, ...reason("plan") },
-        { companyId: "legal", name: "Workspace legal", isCurrent: false, ...reason("terms") },
-      ],
+      data: {
+        termsRequired: false,
+        workspaces: [
+          { companyId: "current", name: "Workspace current", isCurrent: true, ...role, ...reason(null) },
+          { companyId: "api-reader", name: null, isCurrent: false, ...role, ...reason(null) },
+          { companyId: "viewer", name: "Workspace viewer", isCurrent: false, ...role, ...reason("permission") },
+          { companyId: "waiting", name: "Workspace waiting", isCurrent: false, ...role, ...reason("pending") },
+          {
+            companyId: "deactivated",
+            name: "Workspace deactivated",
+            isCurrent: false,
+            ...role,
+            ...reason("inactive"),
+          },
+          { companyId: "expired", name: "Workspace expired", isCurrent: false, ...role, ...reason("plan") },
+          { companyId: "legal", name: "Workspace legal", isCurrent: false, ...role, ...reason("terms") },
+        ],
+      },
     });
+    expect(legal.findAccountLegalVersionsUnscoped).not.toHaveBeenCalled();
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalledWith("waiting");
     expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalledWith("deactivated");
   });
@@ -108,18 +128,39 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
 
     const result = await interactor().invoke();
 
-    expect(result.data.map((item) => [item.companyId, item.unavailableReason, item.inactiveReason])).toEqual([
-      ["deactivated", "inactive", "deactivated"],
-      ["paused", "inactive", "pausedByPlan"],
-      ["orphaned", "inactive", "noActiveAdmin"],
-    ]);
+    expect(result.data.workspaces.map((item) => [item.companyId, item.unavailableReason, item.inactiveReason])).toEqual(
+      [
+        ["deactivated", "inactive", "deactivated"],
+        ["paused", "inactive", "pausedByPlan"],
+        ["orphaned", "inactive", "noActiveAdmin"],
+      ],
+    );
   });
 
-  it("returns no workspaces without an interactive session", async () => {
+  it("returns no workspaces and no terms requirement without an interactive session", async () => {
+    listMyWorkspaces.invoke.mockResolvedValue({ ok: true, data: [] });
+    authService.getInteractiveSession.mockResolvedValue(null);
+
+    await expect(interactor().invoke()).resolves.toEqual({ ok: true, data: { workspaces: [], termsRequired: false } });
+    expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
+  });
+
+  it("asks a Cloud login without any workspace to accept the terms until it accepted the current ones", async () => {
     listMyWorkspaces.invoke.mockResolvedValue({ ok: true, data: [] });
 
-    await expect(interactor().invoke()).resolves.toEqual({ ok: true, data: [] });
-    expect(routeGuardService.resolveMembershipForConsent).not.toHaveBeenCalled();
+    await expect(interactor().invoke()).resolves.toEqual({ ok: true, data: { workspaces: [], termsRequired: true } });
+    expect(legal.findAccountLegalVersionsUnscoped).toHaveBeenCalledWith("login-1");
+
+    const { currentLegalDocumentVersions } = await import("@/constants/legal-documents");
+    legal.findAccountLegalVersionsUnscoped.mockResolvedValue(currentLegalDocumentVersions());
+    await expect(interactor().invoke()).resolves.toMatchObject({ data: { termsRequired: false } });
+  });
+
+  it("never asks for terms outside Cloud", async () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "self-hosted";
+    listMyWorkspaces.invoke.mockResolvedValue({ ok: true, data: [] });
+
+    await expect(interactor().invoke()).resolves.toMatchObject({ data: { termsRequired: false } });
   });
 
   it("stays available in demo mode", async () => {
@@ -129,7 +170,7 @@ describe("ListMcpConsentWorkspacesInteractor", () => {
 
     await expect(interactor().invoke()).resolves.toMatchObject({
       ok: true,
-      data: [{ companyId: "demo", unavailableReason: null }],
+      data: { workspaces: [{ companyId: "demo", unavailableReason: null }] },
     });
   });
 });

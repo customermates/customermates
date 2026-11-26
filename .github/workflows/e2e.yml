@@ -130,8 +130,12 @@ jobs:
           CACHE_HIT: ${{ steps.browsers.outputs.cache-hit }}
           BROWSER: ${{ steps.target.outputs.browser }}
         run: |
-          if [ "$CACHE_HIT" = true ]; then npx --no-install playwright install-deps "$BROWSER";
-          else npx --no-install playwright install --with-deps "$BROWSER"; fi
+          install() {
+            if [ "$CACHE_HIT" = true ]; then npx --no-install playwright install-deps "$BROWSER";
+            else npx --no-install playwright install --with-deps "$BROWSER"; fi
+          }
+          sudo apt-get update -qq
+          install || { sleep 20; sudo apt-get update -qq; install; }
       - name: Run the shard
         env:
           CI: "true"

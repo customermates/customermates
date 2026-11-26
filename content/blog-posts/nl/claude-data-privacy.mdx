@@ -153,7 +153,7 @@ De checklist volgt de volgorde waarin je haar doorloopt. Ze steunt op de [AVG](h
 
 *Openheid: Customermates is ons product.* Customermates is een source-available CRM uit Duitsland. In Customermates Cloud is de primaire productiedatabase geconfigureerd in de AWS-regio Frankfurt (`eu-central-1`). Dat is een gekozen instelling en geen contractuele toezegging over de datalocatie; de applicatie draait bij Vercel in de VS, en de [lijst van subverwerkers](/subprocessors) noemt elke aanbieder met locatie en doorgiftegrondslag. Het idee: het CRM blijft het leidende systeem, en Claude benadert via de [MCP-server](/docs/mcp) alleen wat een taak nodig heeft, begrensd door rol, toolsets en goedkeuringen. Wat een MCP-server is, legt de gids over de [MCP-server](/blog/what-is-an-mcp-server) uit.
 
-De MCP-server beantwoordt aanroepen: Claude roept een tool aan (zoeken, lezen, wijzigen), Customermates controleert gebruiker, werkruimte en rol, en geeft terug wat de rol mag zien. Hij stuurt uit zichzelf niets naar Claude. MCP werkt in elk abonnement, Free inbegrepen, en zelf gehost; elke werkruimte heeft een eigen URL.
+De MCP-server beantwoordt aanroepen: Claude roept een tool aan (zoeken, lezen, wijzigen), Customermates controleert gebruiker, werkruimte en rol, en geeft terug wat de rol mag zien. Hij stuurt uit zichzelf niets naar Claude. MCP werkt in elk abonnement, Free inbegrepen, en zelf gehost; één URL dekt je hele account.
 
 ### Wat bereikt Anthropic wanneer Claude een record leest?
 
@@ -186,7 +186,7 @@ De stappen volgen de [connectorgids](/docs/connect-custom-connector), de [docume
   <Step title="Een aparte gebruiker voor Claude aanmaken">
     Nodig onder **Instellingen › Leden** een gebruiker uit met die rol; die neemt een plek in. Een verbinding draagt de rechten van de gebruiker die haar heeft goedgekeurd, zonder bereik per sleutel: met je eigen gebruiker zou Claude alles zien wat jij ziet. Een lid op **Inactief** zetten blokkeert ook zijn MCP-verbindingen.
   </Step>
-  <Step title="De werkruimte-URL kopiëren en toolsets instellen">
+  <Step title="De URL kopiëren en toolsets instellen">
     Open **Instellingen › API-sleutels & connectoren**, klik op **Toevoegen**, kies **Claude** onder **Snelle koppelingen** en dan **Claude-account**. Kopieer de URL en voeg `?toolsets=records` toe. De server biedt dan alleen de recordtools aan (plus Prullenbak en bewerkingsstatus): berichten, rollen- en ledenbeheer, webhooks en routines vallen weg. `search` en `fetch` blijven altijd aan. Moet Claude ook de kennisbank lezen, voeg dan `wiki` toe: `?toolsets=records,wiki`. De [MCP-referentie](/docs/mcp#narrowing-with-toolsets) noemt alle toolsets.
   </Step>
   <Step title="De connector in Claude toevoegen">

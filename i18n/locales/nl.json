@@ -979,14 +979,23 @@
     "title": "Waar agentstappen draaien"
   },
   "AgentStart": {
-    "copiedTip": "Gekopieerd. Plak het in je agent",
+    "connect": {
+      "account": "Ingelogd als {email} · {count, plural, =0 {nog geen werkruimte} one {# werkruimte} other {# werkruimtes}}",
+      "subtitle": "Plak dit in Claude, ChatGPT of een andere MCP-client. Eén koppeling bereikt al je werkruimtes.",
+      "title": "Koppel je AI-agent"
+    },
+    "copied": "Gekopieerd",
+    "copy": "Kopiëren",
     "daysLeft": "{count, plural, one {Nog # dag} other {Nog # dagen}}",
+    "failed": "Kopiëren mislukt",
     "getStarted": "Aan de slag",
+    "hint": "Plak dit in een willekeurige AI-agent en die richt Customermates samen met je in",
     "label": "Richt je agent in",
     "openIn": "Openen in {app}",
     "progress": "{done} van {total} klaar",
-    "prompt": "Lees {url}, koppel Customermates en richt het voor mijn bedrijf in met het best passende sjabloon.",
+    "prompt": "Lees {url}, koppel Customermates via {mcp} en richt het in voor mijn bedrijf. Gebruik mijn bestaande werkruimte als ik er al een heb.",
     "sidebarDismiss": "Verbergen",
+    "stepAgent": "Koppel je AI-agent",
     "stepInbox": "Koppel je inbox",
     "stepPlan": "Kies een abonnement"
   },
@@ -1007,6 +1016,24 @@
   "ApiKeysCard": {
     "unnamed": "Naamloos"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "We mailen je een link waarmee je inlogt. Die werkt één keer en verloopt na 15 minuten.",
+      "resend": "Link opnieuw sturen",
+      "resendIn": "Opnieuw sturen over {seconds} s",
+      "sentBody": "We hebben een link gestuurd naar {email}. Open hem op dit apparaat om verder te gaan.",
+      "sentTitle": "Check je inbox",
+      "signInCta": "Stuur me een inloglink",
+      "signUpCta": "Stuur me een registratielink",
+      "useAnotherEmail": "Ander e-mailadres gebruiken"
+    },
+    "tabs": {
+      "magicLink": "Magic link",
+      "password": "Wachtwoord",
+      "sso": "Eenmalige aanmelding"
+    },
+    "tabsLabel": "Inlogmethode"
+  },
   "AuthSocialErrors": {
     "accessDenied": "De aanmelding is bij de aanbieder geannuleerd.",
     "accountAlreadyLinkedToDifferentUser": "Dit socialemedia-account is al gekoppeld aan een andere gebruiker.",
@@ -1024,6 +1051,7 @@
     "invalidProfile": "Het profiel van de aanbieder was ongeldig. Probeer het opnieuw.",
     "issuerMismatch": "Het antwoord van de aanbieder kon niet worden vertrouwd. Probeer het opnieuw.",
     "issuerMissing": "Het antwoord van de aanbieder kon niet worden geverifieerd. Probeer het opnieuw.",
+    "magicLinkInvalid": "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.",
     "missingProfile": "De aanbieder heeft geen profielgegevens teruggegeven. Probeer het opnieuw.",
     "nameIsMissing": "De aanbieder heeft geen naam teruggegeven. Probeer het opnieuw.",
     "noCallbackUrl": "Het aanmeldverzoek was onvolledig. Probeer het opnieuw.",
@@ -1917,6 +1945,7 @@
       "bookingRateLimited": "Te veel boekingspogingen. Probeer het later opnieuw.",
       "bookingSlotTaken": "Dit tijdstip is niet meer beschikbaar. Kies een ander tijdstip.",
       "bookingUnavailable": "Deze boekingspagina is op dit moment niet beschikbaar.",
+      "botDetected": "We konden dit verzoek niet verifiëren. Laad de pagina opnieuw en probeer het nog eens.",
       "calendarEventNotFound": "ID van agenda-afspraak niet gevonden of niet toegankelijk.",
       "calendarExportIncomplete": "Deze periode heeft meer items dan in één export passen. Kies een kortere periode of strengere bronfilters.",
       "calendarNeedsReconnect": "Koppel je Google- of Microsoft-account opnieuw onder Kanalen & agenda's om agendawijzigingen toe te staan en probeer het daarna opnieuw.",
@@ -1934,6 +1963,7 @@
       "dataViewNotFound": "Deze opgeslagen weergave is niet gevonden.",
       "dataViewUpdateEmpty": "Geef een naam of minstens één weergave-instelling op om bij te werken.",
       "demoMode": "Deze actie is niet beschikbaar in de demomodus. Log in voor toegang tot alle functies.",
+      "disposableEmail": "Met tijdelijke e-mailadressen kun je geen proefperiode starten. Gebruik je zakelijke of persoonlijke e-mailadres.",
       "draftAlreadySent": "Dit concept is al verzonden.",
       "draftChanged": "Dit concept is gewijzigd nadat je het opende.",
       "draftFilesEmailOnly": "Alleen e-mailconcepten kunnen bijlagen bevatten.",
@@ -1979,6 +2009,7 @@
       "linkedinInboxUnavailable": "Dit LinkedIn-account heeft geen {product}-inbox. Verbind het account met gekoppeld {product} om deze te gebruiken.",
       "linkedinProductRequiresLinkedin": "InMail en LinkedIn-productopties vereisen een LinkedIn-account.",
       "linkedinProductUnavailable": "Bij dit LinkedIn-account is dat product niet verbonden.",
+      "magicLinkRateLimited": "Er zijn te veel inloglinks aangevraagd voor dit e-mailadres. Wacht een uur of log op een andere manier in.",
       "memberReferenceRequired": "Noem het lid met userId of e-mailadres.",
       "messageContentRequired": "Voeg een bericht of een bijlage toe.",
       "messageNotFound": "Dit bericht is niet meer beschikbaar.",
@@ -2151,6 +2182,7 @@
       "wikiWhenToUseRequired": "Een procedure heeft een korte beschrijving nodig van wanneer je die gebruikt.",
       "workspaceChanged": "Deze werkruimte is niet meer beschikbaar. Ze is verwijderd, de URL is gewijzigd of je toegang is ingetrokken.",
       "workspaceCreationUnavailable": "Hier kunnen geen nieuwe werkruimtes worden aangemaakt.",
+      "workspaceDailyLimitReached": "Je kunt binnen 24 uur maximaal {limit} werkruimtes aanmaken. Probeer het morgen opnieuw of gebruik een van je bestaande werkruimtes.",
       "workspaceDeleteAdminRequired": "Alleen een beheerder kan deze werkruimte verwijderen.",
       "workspaceDeleteBillingActive": "Deze werkruimte heeft nog een abonnement dat kan worden gefactureerd of hervat. Zeg het op en wacht tot het afloopt, of neem contact op met support.",
       "workspaceDeleteBillingUnverified": "We konden de facturering van deze werkruimte niet verifiëren bij Lemon Squeezy, dus er is niets verwijderd. Probeer het over een paar minuten opnieuw.",
@@ -2172,7 +2204,8 @@
       "workspaceSetupConflict": "De werkruimte-instelling is bezig met een andere stap. Laad opnieuw en probeer het nogmaals.",
       "workspaceSetupNotFound": "Er is geen werkruimte-instelling gevonden voor deze werkruimte.",
       "workspaceSetupUnavailable": "De AI-werkruimte-instelling is hier niet beschikbaar.",
-      "workspaceSlugTaken": "Een andere werkruimte gebruikt deze URL al. Kies een andere."
+      "workspaceSlugTaken": "Een andere werkruimte gebruikt deze URL al. Kies een andere.",
+      "workspaceTermsNotAccepted": "Voor nieuwe werkruimtes moeten de voorwaarden geaccepteerd zijn. Maak opnieuw verbinding en accepteer de voorwaarden op het toestemmingsscherm, of maak de werkruimte aan in Customermates."
     },
     "events": {
       "automation": {
@@ -4020,6 +4053,14 @@
   "Loading": {
     "text": "Laden..."
   },
+  "MagicLinkEmail": {
+    "cta": "Inloggen bij Customermates",
+    "expiry": "De link werkt één keer en verloopt over 15 minuten.",
+    "fallback": "Werkt de knop hierboven niet? Kopieer dan deze link en plak hem in je browser: ",
+    "intro": "Gebruik de knop hieronder om in te loggen bij Customermates.",
+    "securityNotice": "Heb je deze link niet aangevraagd? Dan kun je deze e-mail gerust negeren.",
+    "subject": "Je inloglink voor Customermates"
+  },
   "MassActions": {
     "clearField": "Veld leegmaken",
     "delete": "Geselecteerde verwijderen",
@@ -4042,7 +4083,6 @@
     "deny": "Weigeren",
     "destination": "Verbindingsbestemming: {host}",
     "error": "Er is iets misgegaan. Probeer het opnieuw of start de verbinding opnieuw vanuit je client.",
-    "permissionRequired": "Je rol staat geen MCP-verbindingen toe. Verbinden via MCP vereist Leestoegang Alles bij API & webhooks. Vraag een werkruimtebeheerder om deze toe te kennen.",
     "scopes": {
       "email": "Je e-mailadres lezen",
       "offlineAccess": "Verbonden blijven terwijl je weg bent",
@@ -4052,10 +4092,11 @@
     "subtitle": "{client} wil verbinding maken met je account."
   },
   "McpConsentWorkspace": {
-    "current": "Huidige werkruimte",
+    "accountHint": "{client} kiest per verzoek de werkruimte. Als je een werkruimte verlaat of eruit wordt verwijderd, verliest {client} de toegang ertoe.",
+    "accountTitle": "{client} toegang geven tot je Customermates-account",
     "fixed": {
-      "hint": "{client} heeft alleen toegang tot {workspace}. Elke werkruimte heeft een eigen MCP-URL, dus je kunt andere werkruimtes als aparte verbindingen koppelen.",
-      "notMember": "Deze MCP-URL hoort bij een werkruimte waarvan je geen lid bent. Log in met het account dat je daar gebruikt, of kopieer de MCP-URL van je eigen werkruimte via Instellingen → API-sleutels & connectors.",
+      "hint": "Deze oudere verbindings-URL heeft alleen toegang tot {workspace}. Verbindingen die je toevoegt via Instellingen → API-sleutels & connectors hebben toegang tot al je werkruimtes.",
+      "notMember": "Deze MCP-URL hoort bij een werkruimte waarvan je geen lid bent. Log in met het account dat je daar gebruikt, of maak opnieuw verbinding met de URL uit Instellingen → API-sleutels & connectors.",
       "unavailable": {
         "inactive": "Je toegang tot {workspace} is gedeactiveerd. Vraag een werkruimtebeheerder om die opnieuw te activeren.",
         "pending": "Je verzoek om deel te nemen aan {workspace} wacht nog op goedkeuring. Maak opnieuw verbinding zodra een beheerder het heeft goedgekeurd.",
@@ -4064,8 +4105,8 @@
         "terms": "Bijgewerkte voorwaarden moeten worden geaccepteerd voordat je {workspace} kunt koppelen. Open Customermates, accepteer ze en maak daarna opnieuw verbinding."
       }
     },
-    "pickerLabel": "Kies een werkruimte",
-    "scopeHint": "{client} heeft alleen toegang tot de werkruimte die je kiest. Maak opnieuw verbinding om een andere werkruimte te gebruiken.",
+    "newWorkspaces": "Nieuwe werkruimtes die het voor je aanmaakt",
+    "noneAvailable": "Geen van je werkruimtes kan nu via MCP worden gebruikt. De reden staat bij elke werkruimte.",
     "title": "{client} koppelen aan deze werkruimte",
     "titleNamed": "{client} koppelen aan {workspace}",
     "unavailable": {
@@ -4073,7 +4114,8 @@
       "permission": "Je rol heeft geen API-toegang",
       "plan": "Geen actief abonnement",
       "terms": "Bijgewerkte voorwaarden moeten worden geaccepteerd"
-    }
+    },
+    "workspacesLabel": "Werkruimtes die het kan gebruiken"
   },
   "MemberRemoval": {
     "action": "Uit werkruimte verwijderen",
@@ -4379,7 +4421,7 @@
         "claudeTitle": "Koppel je Claude-account",
         "externalNote": "Deze installatie gebeurt in een nieuw tabblad of in je AI. Customermates controleert de externe koppeling niet automatisch. <guide>Lees de volledige installatiehandleiding</guide>.",
         "urlLabel": "URL van de MCP-server",
-        "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL, dus je kunt meerdere werkruimtes tegelijk aan {client} koppelen."
+        "workspaceNote": "Eén verbinding dekt al je werkruimtes: {client} kiest per verzoek de werkruimte en kan op jouw verzoek een nieuwe aanmaken."
       },
       "createKey": "API-sleutel maken",
       "createKeyIntro": "Genereer een API-sleutel voor deze agent. De sleutel wordt één keer getoond en is verwerkt in het installatiefragment hieronder.",
@@ -4442,7 +4484,7 @@
         "stepsTitle": "Voeg Customermates toe als externe MCP-server",
         "subtitle": "Elke client die een externe MCP-server kan toevoegen, werkt met deze URL.",
         "title": "Andere MCP-client",
-        "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL."
+        "workspaceNote": "Dezelfde URL werkt voor al je werkruimtes. Een API-sleutel werkt altijd in de werkruimte waarin hij is aangemaakt."
       },
       "providers": {
         "ariaLabel": "AI-clients"
@@ -6482,11 +6524,10 @@
     "forgotPassword": "Wachtwoord vergeten?",
     "inviteSubtitle": "{inviterName} heeft je uitgenodigd om lid te worden van een werkruimte. Log in om de uitnodiging te bekijken.",
     "inviteSubtitleNamed": "{inviterName} heeft je uitgenodigd om lid te worden van {workspace}. Log in om de uitnodiging te bekijken.",
-    "or": "OF",
     "rememberMe": "Onthoud mij",
     "signInCta": "Inloggen",
     "signInTitle": "Log in op je account",
-    "switchToSignUp": "Nog geen account? <registerLink>Registreren</registerLink>"
+    "switchToSignUp": "Nieuw bij Customermates? <registerLink>Account aanmaken →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Doorgaan",
@@ -6496,9 +6537,8 @@
     "inviteSubtitle": "{inviterName} heeft je uitgenodigd om lid te worden van een werkruimte in Customermates. Kies hoe je je account wilt aanmaken.",
     "inviteSubtitleNamed": "{inviterName} heeft je uitgenodigd om lid te worden van {workspace} in Customermates. Kies hoe je je account wilt aanmaken.",
     "inviteTitle": "Bedrijfsuitnodiging accepteren",
-    "or": "OF",
     "signUpCta": "Account aanmaken",
-    "switchToSignIn": "Heb je al een account? <signInLink>Inloggen</signInLink>",
+    "switchToSignIn": "Heb je al een account? <signInLink>Inloggen →</signInLink>",
     "title": "Maak een Customermates-account aan"
   },
   "SolutionStage": {

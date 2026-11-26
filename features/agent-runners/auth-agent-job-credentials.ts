@@ -4,7 +4,7 @@ import type { AuthService } from "@/features/auth/auth.service";
 import type { AgentJobAttemptRef, AgentJobCredentialIssue } from "./agent-job-credentials";
 
 import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
-import { mcpWorkspaceUrl } from "@/features/auth/mcp-resource";
+import { MCP_ENDPOINT_PATH } from "@/features/auth/mcp-resource";
 
 import { AgentJobCredentials } from "./agent-job-credentials";
 import { agentJobCredentialMetadata, agentJobKeyName } from "./agent-job-credential-marker";
@@ -39,7 +39,7 @@ export class AuthAgentJobCredentials extends AgentJobCredentials {
       metadata: agentJobCredentialMetadata({ jobId: args.jobId, attempt: args.attempt, runnerId: args.runnerId }),
     });
     if (!key) return { ok: false, reason: "ownerInactive" };
-    return { ok: true, credentials: { token: key.key, url: mcpWorkspaceUrl(this.baseUrl, args.companyId) } };
+    return { ok: true, credentials: { token: key.key, url: `${this.baseUrl}${MCP_ENDPOINT_PATH}` } };
   }
 
   toolCalls(args: AgentJobAttemptRef): Promise<number> {

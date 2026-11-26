@@ -16,9 +16,6 @@ vi.mock("@/i18n/navigation", () => ({
     </a>
   ),
 }));
-vi.mock("@/components/agent-start/agent-start-pill", () => ({
-  AgentStartPill: ({ labels }: { labels: { label: string } }) => <button type="button">{labels.label}</button>,
-}));
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => ({
   refreshConnectedAppsAction: vi.fn(),
 }));
@@ -77,6 +74,16 @@ describe("get started sidebar card", () => {
     expect(checklist()?.textContent).toContain("AgentStart.stepPlan");
     expect(checklist()?.textContent).toContain("AgentStart.daysLeft(12)");
     expect(reminder()).toBeNull();
+  });
+
+  it("links the agent step to Settings, Connections instead of handing out a setup prompt", () => {
+    render(12);
+
+    const agentStep = [...(checklist()?.querySelectorAll("a") ?? [])].find((link) =>
+      link.textContent?.includes("AgentStart.stepAgent"),
+    );
+    expect(agentStep?.getAttribute("href")).toBe("/settings/connections");
+    expect(checklist()?.querySelector("button[data-agent-start-pill]")).toBeNull();
   });
 
   it("leaves the plan step to the trial card in the last days of the trial", () => {

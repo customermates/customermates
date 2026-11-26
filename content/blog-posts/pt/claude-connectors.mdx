@@ -119,11 +119,11 @@ Para um servidor que usa uma chave de API em vez de OAuth, o Claude Code aceita 
 
 ## Como conecto o Claude ao Customermates como conector personalizado? [#connect-customermates]
 
-O Customermates inclui um servidor MCP remoto, então se conecta pelo caminho do conector personalizado. Cada espaço de trabalho tem a própria URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, em que `<BASE_URL>` é o endereço pelo qual você abre o Customermates, na nuvem ou na sua própria instância. Você não precisa montá-la: o aplicativo a mostra com um botão para copiar. São os passos do [guia do conector](/docs/connect-custom-connector); os passos dentro do Claude correspondem ao artigo da Anthropic acima.
+O Customermates inclui um servidor MCP remoto, então se conecta pelo caminho do conector personalizado. Uma única URL cobre toda a sua conta, `<BASE_URL>/api/v1/mcp`, em que `<BASE_URL>` é o endereço pelo qual você abre o Customermates, na nuvem ou na sua própria instância. Você não precisa montá-la: o aplicativo a mostra com um botão para copiar. São os passos do [guia do conector](/docs/connect-custom-connector); os passos dentro do Claude correspondem ao artigo da Anthropic acima.
 
 <Steps>
-  <Step title="Copiar a URL do espaço de trabalho">
-    No Customermates, abra **Configurações › Chaves de API e conectores**, clique em **Adicionar**, escolha **Claude** em **Conexões rápidas** e depois **Conta do Claude**. A janela mostra a URL do seu espaço de trabalho atual. Para conectar é preciso ter **Acesso de leitura** **Todos** na linha **API e webhooks** da sua função; a função Administrador integrada tem esse acesso.
+  <Step title="Copiar a URL">
+    No Customermates, abra **Configurações › Chaves de API e conectores**, clique em **Adicionar**, escolha **Claude** em **Conexões rápidas** e depois **Conta do Claude**. A janela mostra a URL. Para conectar é preciso ter **Acesso de leitura** **Todos** na linha **API e webhooks** da sua função; a função Administrador integrada tem esse acesso.
   </Step>
   <Step title="Adicionar o conector no Claude">
     Abra **Customize › Connectors**, clique em **+ Add**, escolha **Add custom connector**, dê um nome e cole a URL. Deixe a autenticação em OAuth: não há chave para copiar. O botão **Adicionar ao Claude** na mesma janela abre o formulário do Claude com a URL preenchida (só Claude na web e Team).
@@ -142,7 +142,7 @@ Cada espaço de trabalho define as próprias listas e campos, então peça ao Cl
 2. “No negócio da Acme, coloque o campo Status em Ganho e acrescente nas notas que o contrato foi assinado hoje.” (alteração)
 3. “Quais conversas de clientes aguardam a minha resposta? Escreva uma resposta para a mais antiga e salve como rascunho.” (exige um plano com mensagens, na nuvem a partir do Pro)
 
-Adicione um conector por espaço de trabalho; o Claude recusa um segundo conector com uma URL que já conhece. No plano Free, com o seu único conector personalizado, você consegue portanto conectar um espaço de trabalho. Para dar menos ferramentas ao Claude, acrescente `?toolsets=records,messaging` à URL, como explica a [referência de MCP](/docs/mcp#narrowing-with-toolsets). Para experimentar com a sua própria conta do Claude, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
+Um conector cobre todos os espaços de trabalho dos quais você faz parte, então o único conector personalizado do plano Free basta: o Claude indica o espaço de trabalho em cada chamada e pergunta qual você quer dizer quando há vários. Para dar menos ferramentas ao Claude, acrescente `?toolsets=records,messaging` à URL, como explica a [referência de MCP](/docs/mcp#narrowing-with-toolsets). Para experimentar com a sua própria conta do Claude, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
 
 ## Que permissões um conector do Claude recebe, e como as limito? [#permissions]
 
@@ -169,8 +169,7 @@ Um conector dá acesso ao Claude, mas não diz a ele como o trabalho se faz. Par
 | “Access blocked: your institution’s admin needs to review Claude for Google Drive” | Um administrador do Google Workspace não marcou o Claude como app confiável | O administrador abre admin.google.com, depois **Security › Access and data control › API controls › Manage third-party app access** (o caminho do artigo da Anthropic), procura o Claude, define como Trusted e espera cerca de 15 minutos |
 | Sem a opção **Add custom connector**, ou um segundo é recusado | O Free permite um conector personalizado | Remover o conector personalizado existente, ou escolher um plano pago |
 | “Couldn’t register with the sign-in service” | A URL está errada, ou os servidores da Anthropic não conseguem alcançá-la | Copiar a URL de novo no aplicativo; um servidor em rede privada precisa de liberação |
-| “A connector with this URL already exists in your organization” | Essa URL já está conectada, talvez para outro espaço de trabalho | Adicionar o outro espaço de trabalho com a própria URL, copiada com esse espaço aberto |
-| O Customermates responde HTTP 401 com `invalid_token` | A conexão foi aprovada para outro espaço de trabalho | Reconectar; o Claude entra de novo para o espaço de trabalho da URL |
+| O Claude diz que precisa de um espaço de trabalho | Você faz parte de vários espaços de trabalho e o pedido não indicou nenhum | Cite o espaço de trabalho na sua mensagem, ou peça ao Claude que liste os seus espaços de trabalho e escolha um |
 | “Tool not found” | Um cache do conector desatualizado | Remover o conector e adicioná-lo de novo |
 
 O [guia do conector](/docs/connect-custom-connector#troubleshooting) traz a tabela completa para o Customermates.

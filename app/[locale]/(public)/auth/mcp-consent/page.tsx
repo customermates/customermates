@@ -21,7 +21,8 @@ export default async function McpConsentPage({ searchParams }: Props) {
   const resolution = await requireAccountState(MCP_CONSENT_MEMBER_STATES);
   const consentState = await getRouteGuardService().resolveMcpConsentState(resolution);
   const currentCanConsent =
-    consentState === resolution.state && (consentState === "allowed" || consentState === "onboarding");
+    consentState === resolution.state &&
+    (consentState === "allowed" || consentState === "onboarding" || consentState === "unregistered");
 
   const params = await searchParams;
   const consentCode = typeof params.consent_code === "string" ? params.consent_code : undefined;
@@ -29,7 +30,9 @@ export default async function McpConsentPage({ searchParams }: Props) {
 
   if (!consentCode || !clientId) redirect("/");
 
-  const { data: workspaces } = await getListMcpConsentWorkspacesInteractor().invoke();
+  const {
+    data: { workspaces, termsRequired },
+  } = await getListMcpConsentWorkspacesInteractor().invoke();
   const prompt = await getAuthService().getMcpConsentPrompt({
     consentCode,
     clientId,
@@ -47,6 +50,7 @@ export default async function McpConsentPage({ searchParams }: Props) {
         fixedWorkspace={fixedWorkspaceId !== null}
         redirectHost={prompt.redirectHost}
         scopes={prompt.scopes}
+        termsRequired={termsRequired}
         workspaces={
           fixedWorkspaceId ? workspaces.filter((workspace) => workspace.companyId === fixedWorkspaceId) : workspaces
         }

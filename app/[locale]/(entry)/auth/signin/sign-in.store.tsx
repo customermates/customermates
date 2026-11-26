@@ -7,10 +7,12 @@ import { action, makeObservable, observable, runInAction, toJS } from "mobx";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 import { resolveSignInEntryAction } from "./actions";
+import { AuthMethodState } from "./auth-method-state";
 
 import {
   continueWithGoogleAction,
   continueWithMicrosoftAction,
+  requestMagicLinkAction,
   signInWithEmailAction,
 } from "@/app/[locale]/(public)/auth/actions";
 import { BaseFormStore } from "@/core/base/base-form.store";
@@ -20,6 +22,7 @@ import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/c
 
 export class SignInStore extends BaseFormStore<EmailSignInData> {
   showPassword = false;
+  readonly methods = new AuthMethodState();
   entry: SignInEntry | null = null;
   entrySettled = false;
   private entryRequest: Promise<void> = Promise.resolve();
@@ -33,6 +36,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
       entrySettled: observable,
 
       onSubmit: action,
+      requestMagicLink: action,
       continueWithProvider: action,
       toggleShowPassword: action,
       resolveEntry: action,
@@ -66,8 +70,27 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
     this.entryRequest = request;
   };
 
+  requestMagicLink = async () => {
+    if (this.isLoading) return;
+
+    this.setIsLoading(true);
+
+    try {
+      await this.entryRequest;
+      const res = await requestMagicLinkAction({ email: this.form.email, callbackURL: this.form.callbackURL });
+
+      if (res.ok) {
+        this.setError(undefined);
+        this.methods.markMagicLinkSent(res.data.email);
+      } else this.setError(res.error);
+    } finally {
+      this.setIsLoading(false);
+    }
+  };
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (this.methods.method === "magicLink") return this.requestMagicLink();
     if (this.isLoading) return;
 
     this.setIsLoading(true);

@@ -70,6 +70,7 @@ describe("RegisterUserInteractor", () => {
       hasConsumedTrialUnscoped: vi.fn().mockResolvedValue(false),
       hasCreatedWorkspaceUnscoped: vi.fn().mockResolvedValue(false),
       countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
+      countWorkspacesCreatedSinceUnscoped: vi.fn().mockResolvedValue(0),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
       takeSignupAttributionUnscoped: vi.fn().mockResolvedValue({ lastPage: null, campaign: null }),
@@ -896,6 +897,30 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.countCreatedWorkspacesUnscoped).toHaveBeenCalledWith(USER_ID);
     expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("refuses a fourth cloud workspace on onboarding within 24 hours", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.countWorkspacesCreatedSinceUnscoped.mockResolvedValue(3);
+
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "Fourth today",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect("ok" in result && !result.ok && interactorFailureCodes(result.error)).toEqual([
+      CustomErrorCode.workspaceDailyLimitReached,
+    ]);
+    const since = mockRepo.countWorkspacesCreatedSinceUnscoped.mock.calls[0]?.[1] as Date;
+    expect(Date.now() - since.getTime()).toBeGreaterThanOrEqual(24 * 60 * 60 * 1000 - 1000);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
   });
 
   it("does not count created workspaces when the profile joins an invited workspace", async () => {

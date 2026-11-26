@@ -18,6 +18,8 @@ model AuthUser {
   trialConsumedAt    DateTime?
   signupLastPage     String?            @db.VarChar(512)
   signupCampaign     String?            @db.VarChar(1024)
+  /// Legal document versions the login accepted before it had a workspace, for example on the MCP consent screen.
+  legalVersions      Json?
   /// Platform operator access belongs to the login, not to one of its workspace memberships.
   isPlatformOperator Boolean            @default(false)
   createdAt          DateTime           @default(now())
@@ -142,7 +144,7 @@ model OauthAccessToken {
   authuser              AuthUser?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   scopes                String
   companyId             String?
-  company               Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company               Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
 

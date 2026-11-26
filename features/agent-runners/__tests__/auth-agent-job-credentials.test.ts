@@ -47,7 +47,7 @@ describe("AuthAgentJobCredentials", () => {
 
     expect(issued).toEqual({
       ok: true,
-      credentials: { token: "secret-key", url: `https://app.example.test/api/v1/mcp/w/${COMPANY_ID}` },
+      credentials: { token: "secret-key", url: "https://app.example.test/api/v1/mcp" },
     });
     const created = auth.createExpiringApiKey.mock.calls[0][0];
     expect(created).toMatchObject({

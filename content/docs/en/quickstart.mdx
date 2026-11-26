@@ -21,7 +21,7 @@ Add a custom connector:
 - **Claude** (web, desktop, mobile): **Customize → Connectors → Add → Add custom connector**.
 - **ChatGPT**: **Plugins → + → Add custom MCP server**, with **Authentication** set to OAuth.
 
-Paste your workspace's MCP URL, which Customermates shows with a copy button in the onboarding step **Connect the AI you already use** and under [API keys & connectors](app:settings/api-keys), sign in, and click **Approve** on the consent screen. The address you open Customermates at followed by `/api/v1/mcp` works too and asks for the workspace on the consent screen. Full steps: [Connect with a custom connector](/docs/connect-custom-connector#the-url).
+Paste the MCP URL, which Customermates shows with a copy button in the onboarding step **Connect the AI you already use** and under [API keys & connectors](app:settings/api-keys), sign in, and click **Approve** on the consent screen. It is the address you open Customermates at followed by `/api/v1/mcp`, and one connector covers all your workspaces: your AI names the workspace on each call. Full steps: [Connect with a custom connector](/docs/connect-custom-connector#the-url).
 
 On connect the server briefs the client on its tools and your workspace. In clients that support MCP prompts, such as Claude, the built-in `get-started` prompt adds a personal start: your name, your role and a first summary of your workspace.
 

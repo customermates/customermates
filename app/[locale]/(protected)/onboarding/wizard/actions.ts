@@ -22,6 +22,7 @@ import {
 } from "@/core/di";
 import { serializeResult, serializeTypedResult, settleActionResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
+import { refuseBots } from "@/core/security/bot-check";
 import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
@@ -44,6 +45,9 @@ export async function registerProfileAction(
   data: RegisterOnboardingProfileData,
   discovery?: RecordDiscoveryAnswerData,
 ) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
   const adAttribution = await readRegistrationAdAttribution();
   const signupSource = await readRegistrationSignupSource();
   const signupTemplate = await readRegistrationSignupTemplate();

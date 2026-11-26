@@ -5,12 +5,10 @@ import type { ReactNode } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
-import { AgentStartPill } from "@/components/agent-start/agent-start-pill";
 import { Button } from "@/components/ui/button";
-import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
 import { TRIAL_END_WINDOW_DAYS } from "@/core/commercial/plan-fit";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -23,8 +21,6 @@ import { IntlLink } from "@/i18n/navigation";
 import { billingHref, settingsHref } from "./settings-routes";
 
 const DISMISS_KEY_PREFIX = "customermates:get-started-dismissed:";
-
-const noSubscription = () => () => undefined;
 
 function readDismissed(key: string): boolean {
   try {
@@ -89,11 +85,6 @@ type Props = {
 export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, canOpenBilling, onNavigate }: Props) => {
   const t = useTranslations();
   const { connectedAppsStore: apps, connectedAccountsStore: accounts, userStore } = useRootStore();
-  const origin = useSyncExternalStore(
-    noSubscription,
-    () => window.location?.origin ?? null,
-    () => null,
-  );
   const dismissKey = `${DISMISS_KEY_PREFIX}${workspaceKey}`;
   const [dismissed, setDismissed] = useState<boolean | null>(null);
   const canConnectAgent = apps.canManage;
@@ -146,7 +137,7 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
   const setupSteps = [canConnectAgent, canConnectInbox].filter(Boolean).length;
   const setupDone = [agentDone, inboxDone].filter(Boolean).length;
 
-  if (dismissed === null || origin === null) return null;
+  if (dismissed === null) return null;
   if (dismissed || setupSteps === 0 || (agentLoaded && inboxLoaded && setupDone === setupSteps)) {
     return showPlan ? (
       <IntlLink
@@ -203,25 +194,9 @@ export const GetStartedSidebarCard = observer(({ workspaceKey, trialDaysLeft, ca
       </div>
 
       {canConnectAgent ? (
-        agentDone ? (
-          <StepLink done href={settingsHref("connections")} onNavigate={onNavigate}>
-            {t("AgentStart.label")}
-          </StepLink>
-        ) : (
-          <AgentStartPill
-            className="get-started-pill"
-            labels={{
-              copied: t("AgentStart.copiedTip"),
-              failed: t("Common.notifications.copyFailed"),
-              label: t("AgentStart.label"),
-              openInClaude: t("AgentStart.openIn", { app: "Claude" }),
-              openInChatgpt: t("AgentStart.openIn", { app: "ChatGPT" }),
-            }}
-            leading={<StepMark done={false} />}
-            prompt={t("AgentStart.prompt", { url: agentStartUrl(origin) })}
-            size="sm"
-          />
-        )
+        <StepLink done={agentDone} href={settingsHref("connections")} onNavigate={onNavigate}>
+          {t("AgentStart.stepAgent")}
+        </StepLink>
       ) : null}
 
       {canConnectInbox ? (

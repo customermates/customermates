@@ -119,11 +119,11 @@ Voor een server die een API-sleutel gebruikt in plaats van OAuth, accepteert Cla
 
 ## Hoe verbind ik Claude met Customermates als eigen connector? [#connect-customermates]
 
-Customermates bevat een remote MCP-server en koppelt daarom via de route van de eigen connector. Elke werkruimte heeft een eigen URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, waarbij `<BASE_URL>` het adres is waarop je Customermates opent, in de cloud of op je eigen instantie. Je hoeft hem niet zelf samen te stellen: de app toont hem met een kopieerknop. Dit zijn de stappen uit de [connectorgids](/docs/connect-custom-connector); de stappen in Claude komen overeen met het artikel van Anthropic hierboven.
+Customermates bevat een remote MCP-server en koppelt daarom via de route van de eigen connector. Eén URL dekt je hele account, `<BASE_URL>/api/v1/mcp`, waarbij `<BASE_URL>` het adres is waarop je Customermates opent, in de cloud of op je eigen instantie. Je hoeft hem niet zelf samen te stellen: de app toont hem met een kopieerknop. Dit zijn de stappen uit de [connectorgids](/docs/connect-custom-connector); de stappen in Claude komen overeen met het artikel van Anthropic hierboven.
 
 <Steps>
-  <Step title="De URL van de werkruimte kopiëren">
-    Open in Customermates **Instellingen › API-sleutels & connectoren**, klik op **Toevoegen**, kies **Claude** onder **Snelle koppelingen** en dan **Claude-account**. Het venster toont de URL van je huidige werkruimte. Koppelen vraagt **Leestoegang** **Alle** op de rij **API en webhooks** van je rol; de ingebouwde Admin-rol heeft die.
+  <Step title="De URL kopiëren">
+    Open in Customermates **Instellingen › API-sleutels & connectoren**, klik op **Toevoegen**, kies **Claude** onder **Snelle koppelingen** en dan **Claude-account**. Het venster toont de URL. Koppelen vraagt **Leestoegang** **Alle** op de rij **API en webhooks** van je rol; de ingebouwde Admin-rol heeft die.
   </Step>
   <Step title="De connector in Claude toevoegen">
     Open **Customize › Connectors**, klik op **+ Add**, kies **Add custom connector**, geef hem een naam en plak de URL. Laat de authenticatie op OAuth staan: er is geen sleutel om te kopiëren. De knop **Toevoegen aan Claude** in hetzelfde venster opent het formulier van Claude met de URL al ingevuld (alleen Claude op het web en Team).
@@ -142,7 +142,7 @@ Elke werkruimte bepaalt haar eigen lijsten en velden, dus vraag Claude om `disco
 2. “Zet bij de deal van Acme het veld Status op Gewonnen en voeg aan de notities toe dat het contract vandaag is getekend.” (wijzigen)
 3. “Welke klantgesprekken wachten op mijn antwoord? Schrijf een antwoord op het oudste en bewaar het als concept.” (vraagt een abonnement met berichten, in de cloud vanaf Pro)
 
-Voeg één connector per werkruimte toe; Claude weigert een tweede connector met een URL die het al kent. In het Free-abonnement, met zijn ene eigen connector, kun je dus één werkruimte koppelen. Om Claude minder tools te geven, voeg je `?toolsets=records,messaging` aan de URL toe, zoals de [MCP-referentie](/docs/mcp#narrowing-with-toolsets) uitlegt. Om het met je eigen Claude-account te proberen, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Zonder creditcard.
+Eén connector dekt elke werkruimte waar je lid van bent, dus de ene eigen connector van het Free-abonnement is genoeg: Claude noemt bij elke aanroep de werkruimte en vraagt je welke je bedoelt als je er meerdere hebt. Om Claude minder tools te geven, voeg je `?toolsets=records,messaging` aan de URL toe, zoals de [MCP-referentie](/docs/mcp#narrowing-with-toolsets) uitlegt. Om het met je eigen Claude-account te proberen, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Zonder creditcard.
 
 ## Welke rechten krijgt een Claude connector, en hoe beperk ik ze? [#permissions]
 
@@ -169,8 +169,7 @@ Een connector geeft Claude toegang, maar vertelt hem niet hoe het werk verloopt.
 | “Access blocked: your institution’s admin needs to review Claude for Google Drive” | Een Google Workspace-beheerder heeft Claude niet als vertrouwde app gemarkeerd | De beheerder opent admin.google.com, daar **Security › Access and data control › API controls › Manage third-party app access** (het pad uit het artikel van Anthropic), zoekt Claude, zet het op Trusted en wacht ongeveer 15 minuten |
 | Geen optie **Add custom connector**, of een tweede wordt geweigerd | Free staat één eigen connector toe | De bestaande eigen connector verwijderen, of een betaald abonnement kiezen |
 | “Couldn’t register with the sign-in service” | De URL klopt niet, of de servers van Anthropic kunnen hem niet bereiken | De URL opnieuw uit de app kopiëren; een server op een privénetwerk heeft een allowlist nodig |
-| “A connector with this URL already exists in your organization” | Die URL is al gekoppeld, misschien voor een andere werkruimte | De andere werkruimte toevoegen met haar eigen URL, gekopieerd terwijl die werkruimte openstaat |
-| Customermates antwoordt met HTTP 401 en `invalid_token` | De verbinding is voor een andere werkruimte goedgekeurd | Opnieuw verbinden; Claude meldt zich opnieuw aan voor de werkruimte van de URL |
+| Claude zegt dat het een werkruimte nodig heeft | Je bent lid van meerdere werkruimtes en het verzoek noemde er geen | Noem de werkruimte in je bericht, of vraag Claude je werkruimtes op te sommen en er een te kiezen |
 | “Tool not found” | Een verouderde connectorcache | De connector verwijderen en opnieuw toevoegen |
 
 De [connectorgids](/docs/connect-custom-connector#troubleshooting) bevat de volledige tabel voor Customermates.

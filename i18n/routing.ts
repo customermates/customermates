@@ -94,6 +94,7 @@ export const PUBLIC_ROUTES = [
 
 export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
+  "/connect-agent",
   "/dashboard",
   "/legal-update",
   "/onboarding",

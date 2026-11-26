@@ -158,9 +158,9 @@ Wil je geen code schrijven? Dan is de server van de leverancier van het systeem 
 
 De meeste uitleg stopt bij een weertool. Zo ziet een productieserver voor klantdata eruit, met Customermates als voorbeeld. Alle details hieronder komen uit de openbare [MCP-referentie](/docs/mcp).
 
-**Het endpoint.** Customermates draait een remote server op `/api/v1/mcp` op het adres dat je voor de app gebruikt, plus een werkruimtespecifieke URL met dezelfde tools, vergrendeld op die werkruimte. Hij spreekt Streamable HTTP. Het endpoint hoort bij elk Cloud-pakket en bij zelf gehoste installaties; host je de Community Edition zelf, dan is het nog steeds een remote server, alleen op je eigen infrastructuur.
+**Het endpoint.** Customermates draait een remote server op `/api/v1/mcp` op het adres dat je voor de app gebruikt. Eén URL dekt je hele account en elke tool heeft een optioneel argument `workspace`, dus één verbinding bedient al je werkruimtes. Hij spreekt Streamable HTTP. Het endpoint hoort bij elk Cloud-pakket en bij zelf gehoste installaties; host je de Community Edition zelf, dan is het nog steeds een remote server, alleen op je eigen infrastructuur.
 
-**Verbinden.** In Claude en ChatGPT voeg je de URL toe als aangepaste connector, log je in en geef je toegang ([instellen van een aangepaste connector](/docs/connect-custom-connector)). Claude Code, Codex, Cursor en Gemini CLI verbinden met een API-sleutel in de `x-api-key`-header ([CLI-installatie](/docs/connect-cli)). In beide gevallen handelt de client als precies één gebruiker in precies één werkruimte, en voor verbinden is leestoegang tot API en webhooks nodig in de rol van die gebruiker.
+**Verbinden.** In Claude en ChatGPT voeg je de URL toe als aangepaste connector, log je in en geef je toegang ([instellen van een aangepaste connector](/docs/connect-custom-connector)). Claude Code, Codex, Cursor en Gemini CLI verbinden met een API-sleutel in de `x-api-key`-header ([CLI-installatie](/docs/connect-cli)). In beide gevallen handelt de client als precies één gebruiker: een API-sleutel in de werkruimte waarin hij is aangemaakt, een OAuth-verbinding in de werkruimte die elke aanroep noemt, en voor verbinden is leestoegang tot API en webhooks nodig in de rol van die gebruiker.
 
 **Wat hij aanbiedt.** Alle drie de primitieven:
 

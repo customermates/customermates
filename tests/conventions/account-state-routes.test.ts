@@ -125,13 +125,11 @@ describe("guarded account-state route contract", () => {
     expect(authActions).toContain("serializeResult(getDecideMcpConsentInteractor().invoke(data))");
     expect(authActions).not.toContain("resolveRequestAccountState");
     expect(authActions).not.toContain("getAuthService");
-    expect(consentInteractor).toContain("this.routeGuardService.resolveMcpConsentState(resolution)");
-    expect(consentInteractor).toContain('state === "allowed" || state === "onboarding" ? resolution.user : null');
-    expect(consentInteractor).toContain("choosesOther && isMcpConsentMemberState(resolution.state)");
+    expect(consentInteractor).toContain("isMcpConsentMemberState(resolution.state)");
+    expect(consentInteractor).toContain("this.consentAccount.invoke()");
     expect(consentInteractor).toContain("this.routeGuardService.resolveMembershipForConsent(companyId)");
     const mcpAccess = source("features/auth/mcp-access.ts");
-    for (const state of ["unauthenticated", "overdueVerification", "unregistered"])
-      expect(mcpAccess, state).not.toContain(`"${state}"`);
+    for (const state of ["unauthenticated", "overdueVerification"]) expect(mcpAccess, state).not.toContain(`"${state}"`);
     const consentPage = source("app/[locale]/(public)/auth/mcp-consent/page.tsx");
     expect(consentPage).toContain("getRouteGuardService().resolveMcpConsentState(resolution)");
     expect(consentPage).toContain("workspaces.some((workspace) => workspace.unavailableReason === null)");
