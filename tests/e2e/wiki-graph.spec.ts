@@ -164,8 +164,15 @@ test("opens the Knowledge Base as a map and a page in the side sheet records ope
     const onboardingNode = canvas.locator(`[data-wiki-graph-node="${onboarding.id}"]`);
     await expect(onboardingNode.locator("[data-wiki-graph-pin]")).toHaveCount(1);
     await moreActions.click();
+    const released = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.request().headers()["next-action"] !== undefined &&
+        (response.request().postData() ?? "").includes('"pinned":false'),
+    );
     await page.getByRole("menuitem", { name: englishMessages.Wiki.graph.unpin, exact: true }).click();
     await expect(onboardingNode.locator("[data-wiki-graph-pin]")).toHaveCount(0);
+    await released;
 
     // Escape closes the sheet and returns the address to the map.
     await page.keyboard.press("Escape");

@@ -128,8 +128,8 @@ test("a visitor books a time, moves it and cancels it through the private link",
   await expect(page.locator('[data-booking-manage="upcoming"]')).toContainText("Intro call");
 
   await clickHydrated(page.locator("[data-booking-reschedule]"));
-  const otherTime = page.locator("[data-booking-slots] button").nth(2);
-  await otherTime.click();
+  await pickLaterDay(page.locator("[data-booking-calendar]"));
+  await page.locator("[data-booking-slots] button").last().click();
   await page.locator("[data-booking-reschedule-confirm]").click();
   await expect(page.locator('[data-booking-manage="upcoming"]')).toContainText("The booking is moved");
   const moved = await bookingOf(database, link.id);
