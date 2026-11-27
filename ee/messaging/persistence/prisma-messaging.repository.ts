@@ -107,6 +107,7 @@ type ConvertDraftToSentArgs = {
 };
 
 const REVIEW_DRAFT_SCAN_LIMIT = 500;
+const EMAIL_PRESENCE_WRITE_CHUNK = 1000;
 const REVIEW_DRAFT_HISTORY_SLACK = 4;
 const REVIEW_DRAFT_HISTORY_READS = 4;
 
@@ -2743,6 +2744,96 @@ export class PrismaMessagingRepo
     }
 
     return stale.length;
+  }
+
+  private emailPresenceCandidateWhere(args: {
+    companyId: string;
+    connectedAccountId: string;
+    startedAt: Date;
+  }): Prisma.MessagingMessageWhereInput {
+    return {
+      companyId: args.companyId,
+      connectedAccountId: args.connectedAccountId,
+      isDraft: false,
+      isHidden: false,
+      createdAt: { lt: args.startedAt },
+      updatedAt: { lt: args.startedAt },
+      NOT: [
+        { folderIds: { isEmpty: true } },
+        { direction: MessagingMessageDirection.outbound, origin: MessagingMessageOrigin.unipile },
+      ],
+    };
+  }
+
+  @BypassTenantGuard
+  async findEmailPresenceHorizonUnscoped(args: RepoArgs<MessagingIngestRepo, "findEmailPresenceHorizonUnscoped">) {
+    const oldest = await this.prisma.messagingMessage.findFirst({
+      where: this.emailPresenceCandidateWhere(args),
+      orderBy: { sentAt: "asc" },
+      select: { sentAt: true },
+    });
+
+    return oldest?.sentAt ?? null;
+  }
+
+  @BypassTenantGuard
+  async reconcileEmailPresenceUnscoped(args: RepoArgs<MessagingIngestRepo, "reconcileEmailPresenceUnscoped">) {
+    const byUnipileId = new Map<string, Set<string>>();
+    const byProviderId = new Map<string, Set<string>>();
+    const note = (index: Map<string, Set<string>>, key: string, folderId: string) => {
+      const folders = index.get(key) ?? new Set<string>();
+      folders.add(folderId);
+      index.set(key, folders);
+    };
+    for (const sighting of args.sightings) {
+      note(byUnipileId, sighting.unipileMessageId, sighting.folderId);
+      const providerId = sighting.providerMessageId?.trim();
+      if (providerId) note(byProviderId, providerId, sighting.folderId);
+    }
+
+    const candidates = await this.prisma.messagingMessage.findMany({
+      where: this.emailPresenceCandidateWhere(args),
+      select: { id: true, unipileMessageId: true, providerMessageId: true, folderIds: true },
+    });
+
+    const gone: string[] = [];
+    const relocated: { id: string; folderIds: string[] }[] = [];
+    for (const row of candidates) {
+      const providerId = row.providerMessageId?.trim();
+      const observed = new Set([
+        ...(byUnipileId.get(row.unipileMessageId) ?? []),
+        ...((providerId && byProviderId.get(providerId)) || []),
+      ]);
+      if (observed.size === 0) gone.push(row.id);
+      else if (!row.folderIds.some((id) => observed.has(id)))
+        relocated.push({ id: row.id, folderIds: [...observed].sort() });
+    }
+
+    const untouchedSince = {
+      companyId: args.companyId,
+      connectedAccountId: args.connectedAccountId,
+      isHidden: false,
+      updatedAt: { lt: args.startedAt },
+    };
+    let hidden = 0;
+    for (let index = 0; index < gone.length; index += EMAIL_PRESENCE_WRITE_CHUNK) {
+      const { count } = await this.prisma.messagingMessage.updateMany({
+        where: { ...untouchedSince, id: { in: gone.slice(index, index + EMAIL_PRESENCE_WRITE_CHUNK) } },
+        data: { folderIds: [], isHidden: true },
+      });
+      hidden += count;
+    }
+
+    let moved = 0;
+    for (const row of relocated) {
+      const { count } = await this.prisma.messagingMessage.updateMany({
+        where: { ...untouchedSince, id: row.id },
+        data: { folderIds: row.folderIds },
+      });
+      moved += count;
+    }
+
+    return { hidden, relocated: moved };
   }
 
   @BypassTenantGuard

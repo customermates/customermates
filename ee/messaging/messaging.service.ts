@@ -569,10 +569,11 @@ export class MessagingService {
     );
   }
 
-  async listFolders(input: { accountId: string; timeoutMs?: number }) {
+  async listFolders(input: { accountId: string; cursor?: string; timeoutMs?: number }) {
     return requestData(
       this.sdk.emails.getFoldersList({
         path: { account_id: input.accountId },
+        ...(input.cursor != null ? { query: { cursor: input.cursor } } : {}),
         ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );

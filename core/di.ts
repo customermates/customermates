@@ -400,6 +400,8 @@ import { BackfillCalendarsInteractor } from "@/ee/messaging/ingest/backfill/back
 import { BackfillChatsInteractor } from "@/ee/messaging/ingest/backfill/backfill-chats.interactor";
 import { BackfillEmailsInteractor } from "@/ee/messaging/ingest/backfill/backfill-emails.interactor";
 import { PrepareBackfillInteractor } from "@/ee/messaging/ingest/backfill/prepare-backfill.interactor";
+import { SweepEmailPresenceInteractor } from "@/ee/messaging/ingest/backfill/sweep-email-presence.interactor";
+import { DispatchEmailPresenceSweepsInteractor } from "@/ee/messaging/ingest/dispatch-email-presence-sweeps.interactor";
 import { ClaimBackfillInteractor } from "@/ee/messaging/ingest/claim-backfill.interactor";
 import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
 import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
@@ -1831,6 +1833,12 @@ export const getBackfillEmailsInteractor = () =>
     getMessagingRepo(),
     getProviderAvatarService,
   );
+
+export const getSweepEmailPresenceInteractor = () =>
+  new SweepEmailPresenceInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
+
+export const getDispatchEmailPresenceSweepsInteractor = () =>
+  new DispatchEmailPresenceSweepsInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
 
 export const getBackfillChatsInteractor = () =>
   new BackfillChatsInteractor(

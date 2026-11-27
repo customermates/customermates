@@ -1,5 +1,5 @@
 import { runAgentTurn } from "./agent-turn";
-import { backfillConnectedAccount } from "./backfill-connected-account";
+import { backfillConnectedAccount, sweepEmailPresence } from "./backfill-connected-account";
 import { crawlWikiWebsite } from "./crawl-wiki-website";
 import { deliverWebhook } from "./deliver-webhook";
 import { indexDocsChunks } from "./index-docs-chunks";
@@ -44,6 +44,7 @@ export const WORKFLOW_REGISTRY = {
   "purge-record-files": purgeRecordFiles,
   "purge-company-files": purgeCompanyFiles,
   "reconcile-billing-usage": reconcileBillingUsage,
+  "sweep-email-presence": sweepEmailPresence,
   "trigger-test-error": triggerTestError,
   "plan-workspace-setup": planWorkspaceSetup,
   "build-workspace-setup": buildWorkspaceSetup,
