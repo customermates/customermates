@@ -85,6 +85,15 @@ describe("EntitlementService without a subscription row", () => {
     for (const feature of ["messaging", "sharedAccounts", "agentChat"] as const)
       expect(denialCode(await service.require(feature))).toBe("paidSubscriptionRequired");
   });
+
+  it("explains a missing subscription for Mate with Mate's message instead of the channel message", async () => {
+    const findSubscription = vi.fn().mockResolvedValue(null);
+    const service = new EntitlementService({ findSubscription } as never);
+    const mate = await service.require("agentChat");
+    const channels = await service.require("messaging");
+    expect(mate?.error.issues[0]?.message).toBe("ConnectedAccountsCard.agentChatRequiresSubscription");
+    expect(channels?.error.issues[0]?.message).toBe("ConnectedAccountsCard.paidSubscriptionRequired");
+  });
 });
 
 describe('EntitlementService.require("sharedAccounts")', () => {

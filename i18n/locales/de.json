@@ -2668,6 +2668,7 @@
     "agentChatDisabled": "Der Assistent ist vorübergehend nicht verfügbar.",
     "agentChatRequiresCloud": "Der Assistent ist in Customermates Cloud verfügbar.",
     "agentChatRequiresPlan": "Der Assistent ist in deinem aktuellen Tarif nicht verfügbar.",
+    "agentChatRequiresSubscription": "Mate braucht ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
     "channels": {

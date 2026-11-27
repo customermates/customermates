@@ -38,12 +38,26 @@ async function resolveEntitlementTranslator(locale?: AppLocale): Promise<Transla
   }
 }
 
-const FEATURE_DENIALS: Record<EntitlementFeature, { cloud: EntitlementDenialCode; plan: EntitlementDenialCode }> = {
-  agentChat: { cloud: "agentChatRequiresCloud", plan: "agentChatRequiresPlan" },
-  messaging: { cloud: "messagingRequiresCloud", plan: "messagingRequiresPro" },
+type DenialMessageKey = EntitlementDenialCode | "agentChatRequiresSubscription";
+
+const FEATURE_DENIALS: Record<
+  EntitlementFeature,
+  { cloud: EntitlementDenialCode; plan: EntitlementDenialCode; subscription: DenialMessageKey }
+> = {
+  agentChat: {
+    cloud: "agentChatRequiresCloud",
+    plan: "agentChatRequiresPlan",
+    subscription: "agentChatRequiresSubscription",
+  },
+  messaging: {
+    cloud: "messagingRequiresCloud",
+    plan: "messagingRequiresPro",
+    subscription: "paidSubscriptionRequired",
+  },
   sharedAccounts: {
     cloud: "sharedAccountsRequiresCloud",
     plan: "sharedAccountsRequiresBusiness",
+    subscription: "paidSubscriptionRequired",
   },
 };
 
@@ -58,21 +72,21 @@ export class EntitlementService {
 
     const subscription = await this.repo.findSubscription();
 
-    if (!subscription) return this.denial(t, "paidSubscriptionRequired");
+    const unpaid = FEATURE_DENIALS[feature].subscription;
+    if (!subscription) return this.denial(t, "paidSubscriptionRequired", unpaid);
     const free = isOnFreePlan(subscription);
-    if (!free && !isSubscriptionUsable(subscription)) return this.denial(t, "paidSubscriptionRequired");
+    if (!free && !isSubscriptionUsable(subscription)) return this.denial(t, "paidSubscriptionRequired", unpaid);
     if (!getEntitlements(effectivePlanId(subscription))[feature]) return this.denial(t, FEATURE_DENIALS[feature].plan);
 
     return null;
   }
 
-  private denial(t: Translator, code: EntitlementDenialCode): EntitlementDenial {
-    return {
+  private denial(t: Translator, entitlement: EntitlementDenialCode, code: DenialMessageKey = entitlement) {
+    const denial: EntitlementDenial = {
       ok: false,
-      error: createZodError(t(`ConnectedAccountsCard.${code}`), [], {
-        entitlement: code,
-      }),
-      code,
+      error: createZodError(t(`ConnectedAccountsCard.${code}`), [], { entitlement }),
+      code: entitlement,
     };
+    return denial;
   }
 }

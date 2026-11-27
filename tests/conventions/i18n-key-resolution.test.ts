@@ -176,6 +176,7 @@ const ENTITLEMENT_DENIAL_KEYS = [
   "ConnectedAccountsCard.agentChatDisabled",
   "ConnectedAccountsCard.agentChatRequiresCloud",
   "ConnectedAccountsCard.agentChatRequiresPlan",
+  "ConnectedAccountsCard.agentChatRequiresSubscription",
   "ConnectedAccountsCard.messagingRequiresCloud",
   "ConnectedAccountsCard.messagingRequiresPro",
   "ConnectedAccountsCard.paidSubscriptionRequired",

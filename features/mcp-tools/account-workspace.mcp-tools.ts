@@ -22,6 +22,8 @@ import { isAppLocale } from "@/i18n/locale-registry";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 import { TEAM_SIZES } from "@/features/onboarding-funnel/team-size";
 import { WorkspacePlanFactsSchema } from "@/features/workspace/workspace-plan-facts.schema";
+import { choosePlanUrl } from "@/core/commercial/workspace-plan-facts";
+import { env } from "@/env";
 
 export const PLAN_FACTS_DESCRIPTION =
   "plan holds the workspace's plan facts on Cloud (null elsewhere): plan is the current plan id, onFreePlan whether it runs on the free plan, trialDaysLeft the days left in the free trial (null when not in a trial), lostOnFree what stops working on the free plan as { kind, count } entries, keepsItRunning the cheapest plan that keeps all of it running (null when nothing would be lost) and choosePlanUrl the absolute link to the workspace's billing settings where a plan is chosen.";
@@ -51,7 +53,7 @@ export const listWorkspacesTool = {
   description:
     "Returns every workspace of the signed-in account: name, slug (the value of the workspace argument of the other tools), companyId, the account's role there, setUp (true once the workspace holds records, false while it is still empty; null when it cannot be used), records (the record count), usable with the unavailableReason and a plain unavailableExplanation when the workspace cannot be used through this connection, and plan. " +
     PLAN_FACTS_DESCRIPTION +
-    " canCreateWorkspace tells whether this connection may create another workspace. With an API key only the key's own workspace is listed.",
+    " canCreateWorkspace tells whether this connection may create another workspace; only the first workspace a login creates starts with the free trial, so a later one cannot be used and Mate cannot build it until a plan is chosen at the choosePlanUrl returned when it is created. With an API key only the key's own workspace is listed.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   scope: "account" as const,
   inputSchema: z.object({}),
@@ -111,6 +113,7 @@ const CreateWorkspaceOutputSchema = z.object({
   companyId: z.string(),
   slug: z.string().nullable(),
   trial: z.boolean(),
+  choosePlanUrl: z.string().nullable(),
   setup: SetupStartSchema,
 });
 
@@ -120,7 +123,26 @@ function setupLocale(displayLanguage: CreateWorkspaceParams["displayLanguage"]) 
   return displayLanguage && isAppLocale(displayLanguage) ? displayLanguage : undefined;
 }
 
-async function startSetup(companyId: string, params: CreateWorkspaceParams, description: string) {
+const SETUP_PLAN_REFUSALS: Record<string, (choosePlanUrl: string | null) => string> = {
+  paidSubscriptionRequired: (url) =>
+    `This workspace has no active plan and no trial, so Mate cannot build it. Only the first workspace a login creates starts with the free trial.${url ? ` Choose a plan at ${url}; Mate's setup then starts when the workspace is opened in the app.` : ""}`,
+  agentChatRequiresPlan: (url) =>
+    `This workspace's plan does not include Mate, so Mate cannot build it.${url ? ` Choose a plan that includes Mate at ${url}.` : ""}`,
+};
+
+function setupRefusal(error: z.ZodError, choosePlanUrl: string | null): string {
+  const { failure } = mcpInteractorFailure(error);
+  const entitlement = failure.issues.find((issue) => issue.entitlement && SETUP_PLAN_REFUSALS[issue.entitlement]);
+  if (entitlement?.entitlement) return SETUP_PLAN_REFUSALS[entitlement.entitlement](choosePlanUrl);
+  return failure.issues.map((issue) => issue.message).join(" ");
+}
+
+async function startSetup(
+  companyId: string,
+  params: CreateWorkspaceParams,
+  description: string,
+  choosePlanUrl: string | null,
+) {
   const locale = setupLocale(params.displayLanguage);
   const started = await getStartAgentWorkspaceSetupInteractor().invoke({
     companyId,
@@ -135,7 +157,7 @@ async function startSetup(companyId: string, params: CreateWorkspaceParams, desc
   });
   return started.ok
     ? { status: "planning" as const, setupId: started.data.setupId, reason: null }
-    : { status: "notStarted" as const, setupId: null, reason: mcpInteractorFailure(started.error).text };
+    : { status: "notStarted" as const, setupId: null, reason: setupRefusal(started.error, choosePlanUrl) };
 }
 
 async function createWorkspace(params: CreateWorkspaceParams): Promise<McpToolResult> {
@@ -145,17 +167,19 @@ async function createWorkspace(params: CreateWorkspaceParams): Promise<McpToolRe
     ...(params.displayLanguage ? { displayLanguage: params.displayLanguage } : {}),
   });
   if (!created.ok) return mcpInteractorFailure(created.error);
+  const { slug, trial } = created.data;
+  const planUrl = slug ? choosePlanUrl(env.BASE_URL, slug) : null;
   const description = params.description?.trim();
-  const setup = description ? await startSetup(created.data.companyId, params, description) : null;
-  return toonResult({ ...created.data, setup });
+  const setup = description ? await startSetup(created.data.companyId, params, description, planUrl) : null;
+  return toonResult({ ...created.data, choosePlanUrl: trial ? null : planUrl, setup });
 }
 
 export const createWorkspaceTool = {
   name: "create_workspace",
   title: "Create workspace",
   description:
-    "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial, setup }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). " +
-    "With a description, Mate plans and builds the whole workspace on the server, the same setup the app's onboarding runs: setup.status planning means it started and the workspace setup status reports its progress; notStarted carries the reason, for example a plan without Mate, and leaves an empty workspace. Without a description the workspace starts empty and setup is null. " +
+    "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial, choosePlanUrl, setup }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). Without a trial the workspace cannot be used until a plan is chosen, and choosePlanUrl is the link where the user chooses it (null with a trial). " +
+    "With a description, Mate plans and builds the whole workspace on the server, the same setup the app's onboarding runs: setup.status planning means it started and the workspace setup status reports its progress; notStarted carries the reason, for example a workspace without a plan or a plan without Mate, and leaves an empty workspace. Without a description the workspace starts empty and setup is null. " +
     "Cloud only; needs a verified email address and an OAuth connection approved for the whole account, allows at most 3 new workspaces per account in any 24 hours, and follows the terms the account accepted.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   scope: "account" as const,

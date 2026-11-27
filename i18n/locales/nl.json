@@ -2668,6 +2668,7 @@
     "agentChatDisabled": "De Assistent is tijdelijk niet beschikbaar.",
     "agentChatRequiresCloud": "De Assistent is beschikbaar in Customermates Cloud.",
     "agentChatRequiresPlan": "De Assistent is niet beschikbaar in je huidige abonnement.",
+    "agentChatRequiresSubscription": "Mate heeft een actief abonnement nodig of een proefperiode die nog niet is verlopen.",
     "alreadyExistsToastDescription": "Dit account is al gekoppeld door een lid van je werkruimte. Vraag die persoon om het met de werkruimte te delen, zodat de inbox geen dubbele berichten toont.",
     "alreadyExistsToastTitle": "Account al gekoppeld",
     "channels": {

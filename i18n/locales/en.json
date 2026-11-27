@@ -2668,6 +2668,7 @@
     "agentChatDisabled": "The Assistant is temporarily unavailable.",
     "agentChatRequiresCloud": "The Assistant is available on Customermates Cloud.",
     "agentChatRequiresPlan": "The Assistant is not available on your current plan.",
+    "agentChatRequiresSubscription": "Mate needs an active subscription or a trial that hasn't expired.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {
