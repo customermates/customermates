@@ -141,6 +141,39 @@ describe("MessagingService calendar write", () => {
     expect(Object.keys(sent.body ?? {}).sort()).toEqual(["end", "start", "title"]);
   });
 
+  it("moves an all-day event with date-only start and end and the notify choice", async () => {
+    stubFetch(EVENT);
+
+    await new MessagingService().updateCalendarEvent({
+      accountId: "acc_1",
+      calendarId: "cal_1",
+      eventId: "evt_1",
+      startDate: "2026-11-20",
+      endDate: "2026-11-22",
+      notifyAttendees: false,
+    });
+
+    expect(request().body).toEqual({
+      start: { type: "date", date: "2026-11-20" },
+      end: { type: "date", date: "2026-11-22" },
+      notify: "none",
+    });
+  });
+
+  it("reads a single event, such as the series of an occurrence", async () => {
+    stubFetch({ ...EVENT, id: "evt_master", recurrence: ["RRULE:FREQ=WEEKLY"] });
+
+    const result = await new MessagingService().getCalendarEvent({
+      accountId: "acc_1",
+      calendarId: "cal_1",
+      eventId: "evt_master",
+    });
+
+    expect(result).toMatchObject({ ok: true, data: { id: "evt_master", recurrence: ["RRULE:FREQ=WEEKLY"] } });
+    expect(request().method).toBe("GET");
+    expect(request().url.pathname).toBe("/v2/acc_1/calendars/cal_1/events/evt_master");
+  });
+
   it("cancels an event through the cancel endpoint and tells the attendees", async () => {
     stubFetch({ object: "CalendarEventCancelled" });
 

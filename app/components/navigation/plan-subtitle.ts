@@ -9,7 +9,6 @@ type PlanChipModel = {
 };
 
 const URGENT_TRIAL_DAYS = 3;
-const DAY_MS = 86_400_000;
 
 const LOCALIZED_PLANS = [
   "starter",
@@ -38,9 +37,7 @@ function statusText(status: SubscriptionStatus, trialDaysLeft: number | null, t:
   return t(`Subscription.status.${status}`);
 }
 
-export function trialDaysLeft(trialEndDate: Date | null, now = Date.now()): number | null {
-  return trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - now) / DAY_MS)) : null;
-}
+export { trialDaysLeft } from "@/core/commercial/plan-fit";
 
 export function resolvePlanChip(
   params: { status: SubscriptionStatus | null; plan: PlanId | null; trialDaysLeft: number | null },

@@ -195,8 +195,6 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C01: data graphic or illustration, not an icon",
   "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker.tsx":
     "unresolved C01: data graphic or illustration, not an icon",
-  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx":
-    "unresolved C01: data graphic or illustration, not an icon",
   "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/components/agent-chat/usage-ring.tsx":
     "unresolved C01: data graphic or illustration, not an icon",
   "design-system.test.ts#INLINE_SVG_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx":

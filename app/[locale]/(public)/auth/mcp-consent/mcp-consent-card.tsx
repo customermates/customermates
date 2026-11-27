@@ -1,20 +1,23 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { McpConsentWorkspace } from "@/features/auth/list-mcp-consent-workspaces.interactor";
 
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { Button } from "@/components/ui/button";
-import { RadioGroup } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
-import { SelectableCard } from "@/components/forms/selectable-card";
+import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -25,16 +28,43 @@ type Props = {
   fixedWorkspace: boolean;
   redirectHost: string;
   scopes: string[];
+  termsOffered: boolean;
+  termsRequired: boolean;
   workspaces: McpConsentWorkspace[];
 };
 
+const legalDocumentLinks = {
+  dataPrivacyLink: (chunks: ReactNode) => (
+    <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
+      {chunks}
+    </AppLink>
+  ),
+  dpaLink: (chunks: ReactNode) => (
+    <AppLink inheritSize appearance="inline" href="/dpa" target="_blank">
+      {chunks}
+    </AppLink>
+  ),
+  termsOfServiceLink: (chunks: ReactNode) => (
+    <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
+      {chunks}
+    </AppLink>
+  ),
+};
+
+const ROW_CLASS =
+  "grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 rounded-md border border-input bg-input-background px-3 py-2.5 shadow-xs";
+
 const McpConsentCardContent = observer((props: Props) => {
-  const { clientName, consentCode, fixedWorkspace, redirectHost, scopes, workspaces } = props;
+  const { clientName, consentCode, fixedWorkspace, redirectHost, scopes, termsOffered, termsRequired, workspaces } =
+    props;
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
-  useState(() => mcpConsentStore.initialize(workspaces));
-  useEffect(() => mcpConsentStore.initialize(workspaces), [mcpConsentStore, workspaces]);
-  const { canApprove, isSubmitting, selectedCompanyId, selectedWorkspace } = mcpConsentStore;
+  useState(() => mcpConsentStore.initialize(workspaces, { fixedWorkspace, termsOffered, termsRequired }));
+  useEffect(
+    () => mcpConsentStore.initialize(workspaces, { fixedWorkspace, termsOffered, termsRequired }),
+    [mcpConsentStore, workspaces, fixedWorkspace, termsOffered, termsRequired],
+  );
+  const { canApprove, canSubmitApproval, isSubmitting } = mcpConsentStore;
 
   const decide = async (accept: boolean) => {
     const redirectURI = await mcpConsentStore.decide(consentCode, accept);
@@ -105,15 +135,16 @@ const McpConsentCardContent = observer((props: Props) => {
     }
   };
 
-  const selectedName = selectedWorkspace?.name?.trim();
-  const title = selectedName
-    ? t("McpConsentWorkspace.titleNamed", { client: clientName, workspace: selectedName })
-    : t("McpConsentWorkspace.title", { client: clientName });
   const fixedChoice = fixedWorkspace ? (mcpConsentStore.workspaces[0] ?? null) : null;
   const fixedName = fixedChoice ? workspaceDisplayName(fixedChoice.name, t("Workspaces.fallbackName")) : "";
   const fixedRefusal = fixedChoice
     ? fixedUnavailableMessage(fixedChoice, fixedName)
     : t("McpConsentWorkspace.fixed.notMember");
+  const title = fixedWorkspace
+    ? fixedChoice?.name?.trim()
+      ? t("McpConsentWorkspace.titleNamed", { client: clientName, workspace: fixedChoice.name.trim() })
+      : t("McpConsentWorkspace.title", { client: clientName })
+    : t("McpConsentWorkspace.accountTitle", { client: clientName });
 
   return (
     <AppCard className="max-w-md">
@@ -123,10 +154,7 @@ const McpConsentCardContent = observer((props: Props) => {
         <p className="text-x-sm">{t("McpConsentCard.body", { client: clientName })}</p>
 
         {fixedChoice ? (
-          <div
-            className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 rounded-md border border-input bg-input-background px-3 py-2.5 shadow-xs"
-            id={`mcp-consent-fixed-workspace-${fixedChoice.companyId}`}
-          >
+          <div className={ROW_CLASS} id={`mcp-consent-fixed-workspace-${fixedChoice.companyId}`}>
             <WorkspaceAvatar companyId={fixedChoice.companyId} name={fixedName} size="sm" />
 
             <span className="truncate text-sm font-medium text-foreground">{fixedName}</span>
@@ -139,44 +167,56 @@ const McpConsentCardContent = observer((props: Props) => {
           </div>
         ) : null}
 
-        {!fixedWorkspace && mcpConsentStore.workspaces.length > 1 ? (
-          <fieldset className="min-w-0">
-            <legend className="text-muted-foreground mb-1.5 text-xs leading-none font-normal">
-              {t("McpConsentWorkspace.pickerLabel")}
-            </legend>
+        {fixedWorkspace ? null : (
+          <section aria-labelledby="mcp-consent-workspaces-label" className="flex min-w-0 flex-col gap-2">
+            <h2 className="text-muted-foreground text-xs leading-none font-normal" id="mcp-consent-workspaces-label">
+              {t("McpConsentWorkspace.workspacesLabel")}
+            </h2>
 
-            <RadioGroup
-              className="grid gap-2"
-              disabled={isSubmitting}
-              value={selectedCompanyId ?? ""}
-              onValueChange={mcpConsentStore.select}
-            >
+            <ul className="m-0 grid list-none gap-2 p-0">
               {mcpConsentStore.workspaces.map((workspace) => {
                 const name = workspaceDisplayName(workspace.name, t("Workspaces.fallbackName"));
+                const detail = unavailableLabel(workspace.unavailableReason) ?? workspace.roleName;
 
                 return (
-                  <SelectableCard
+                  <li
                     key={workspace.companyId}
-                    description={
-                      unavailableLabel(workspace.unavailableReason) ??
-                      (workspace.isCurrent ? t("McpConsentWorkspace.current") : undefined)
-                    }
-                    disabled={isSubmitting || workspace.unavailableReason !== null}
+                    className={ROW_CLASS}
+                    data-unavailable={workspace.unavailableReason ?? undefined}
                     id={`mcp-consent-workspace-${workspace.companyId}`}
-                    label={name}
-                    leading={<WorkspaceAvatar companyId={workspace.companyId} name={name} size="sm" />}
-                    selectionMode="single"
-                    value={workspace.companyId}
-                  />
+                  >
+                    <WorkspaceAvatar companyId={workspace.companyId} name={name} size="sm" />
+
+                    <span className="truncate text-sm font-medium text-foreground">{name}</span>
+
+                    {detail ? (
+                      <span className="col-start-2 text-xs font-normal leading-relaxed text-muted-foreground">
+                        {detail}
+                      </span>
+                    ) : null}
+                  </li>
                 );
               })}
-            </RadioGroup>
-          </fieldset>
-        ) : null}
+
+              <li className={ROW_CLASS} id="mcp-consent-new-workspaces">
+                <span
+                  aria-hidden
+                  className="grid size-6 place-content-center rounded-full border border-dashed border-input text-muted-foreground"
+                >
+                  <Plus className="size-3.5" />
+                </span>
+
+                <span className="truncate text-sm font-medium text-foreground">
+                  {t("McpConsentWorkspace.newWorkspaces")}
+                </span>
+              </li>
+            </ul>
+          </section>
+        )}
 
         {fixedWorkspace
           ? fixedRefusal && <p className="text-x-sm text-destructive">{fixedRefusal}</p>
-          : !canApprove && <p className="text-x-sm text-destructive">{t("McpConsentCard.permissionRequired")}</p>}
+          : !canApprove && <p className="text-x-sm text-destructive">{t("McpConsentWorkspace.noneAvailable")}</p>}
 
         <ul className="text-x-sm text-subdued list-disc space-y-1 pl-5">
           <li>{t("McpConsentCard.access.crmData")}</li>
@@ -188,6 +228,28 @@ const McpConsentCardContent = observer((props: Props) => {
           ))}
         </ul>
 
+        {mcpConsentStore.termsOffered && !mcpConsentStore.termsRequired ? (
+          <p className="text-x-xs text-subdued">
+            {t("McpConsentWorkspace.termsForNewWorkspaces", { client: clientName })}
+          </p>
+        ) : null}
+
+        {mcpConsentStore.termsOffered ? (
+          <div className="flex items-center gap-2">
+            <Checkbox
+              aria-required={mcpConsentStore.termsRequired}
+              checked={mcpConsentStore.termsAccepted}
+              disabled={isSubmitting}
+              id="mcp-consent-terms"
+              onCheckedChange={(next) => mcpConsentStore.setTermsAccepted(next === true)}
+            />
+
+            <Label className="text-x-sm font-normal" htmlFor="mcp-consent-terms">
+              <span>{t.rich("OnboardingForm.agreeToTerms", legalDocumentLinks)}</span>
+            </Label>
+          </div>
+        ) : null}
+
         {fixedWorkspace ? (
           canApprove && (
             <p className="text-x-xs text-subdued">
@@ -195,7 +257,7 @@ const McpConsentCardContent = observer((props: Props) => {
             </p>
           )
         ) : (
-          <p className="text-x-xs text-subdued">{t("McpConsentWorkspace.scopeHint", { client: clientName })}</p>
+          <p className="text-x-xs text-subdued">{t("McpConsentWorkspace.accountHint", { client: clientName })}</p>
         )}
 
         <p className="text-x-xs text-subdued">{t("McpConsentCard.destination", { host: redirectHost })}</p>
@@ -207,7 +269,7 @@ const McpConsentCardContent = observer((props: Props) => {
         </Button>
 
         {canApprove && (
-          <Button disabled={isSubmitting} onClick={() => runUserAction(() => decide(true))}>
+          <Button disabled={!canSubmitApproval} onClick={() => runUserAction(() => decide(true))}>
             {t("McpConsentCard.approve")}
           </Button>
         )}

@@ -11,6 +11,7 @@ import { getTranslations } from "next-intl/server";
 import AccountAccessRevoked from "@/components/emails/account-access-revoked";
 import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
+import MagicLinkEmail from "@/components/emails/magic-link";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import {
@@ -31,11 +32,13 @@ import { redirectTo } from "./auth-outcome";
 import {
   approveMcpAuthorizationCodeValue,
   mcpAuthorizationCodeWorkspaceIdentifier,
+  parseMcpCodeBinding,
   mcpResourceWorkspaceOf,
   withMcpResourceWorkspace,
 } from "./mcp-authorization-code";
 import { requestedWorkspaceSlug } from "@/core/navigation/workspace-request-header";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
+import { currentMcpWorkspace } from "./mcp-workspace-context";
 import { eventVia, type EventVia } from "@/features/event/event-via";
 import {
   parseAgentJobCredentialMetadata,
@@ -46,6 +49,29 @@ import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { isCompanySignup, type NewWorkspaceSignup } from "@/features/acquisition/new-workspace-signup";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
+import {
+  DISPOSABLE_EMAIL_CODE,
+  MAGIC_LINK_LIMIT_WINDOW_MS,
+  MAGIC_LINK_RATE_LIMITED_CODE,
+  MAGIC_LINK_REQUESTS_PER_HOUR,
+  magicLinkIssuedIdentifier,
+} from "./magic-link-limit";
+import {
+  EMAIL_CODE_EXPIRES_IN_MINUTES,
+  EMAIL_CODE_LIMIT_WINDOW_MS,
+  EMAIL_CODE_SENDS_PER_HOUR,
+  emailCodeSentIdentifier,
+  type EmailCodeFailure,
+  type VerifyEmailCodeResult,
+} from "./email-code";
+
+const EMAIL_CODE_FAILURES: Record<string, EmailCodeFailure> = {
+  INVALID_OTP: "invalid",
+  OTP_EXPIRED: "expired",
+  TOO_MANY_ATTEMPTS: "tooManyAttempts",
+};
+
+type MagicLinkRefusal = CustomErrorCode.magicLinkRateLimited | CustomErrorCode.disposableEmail;
 
 type AuthUser = {
   id: string;
@@ -59,12 +85,14 @@ type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 export type InteractiveSession = Session;
 export type AuthenticatedSession = Pick<Session, "session" | "user">;
 export type CredentialWorkspace =
-  | { kind: "integration"; companyId: string | null }
+  | { kind: "integration"; companyId: string | null; accountWide?: true }
   | { kind: "session"; sessionId: string; workspaceSlug: string | null };
 export type AgentJobApiKey = AgentJobCredentialMarker & { keyId: string; companyId: string | null };
 export type McpCredentialWorkspace = {
   credential: "apiKey" | "bearer";
+  email: string;
   companyId: string | null;
+  accountWide: boolean;
   agentJobKey: AgentJobApiKey | null;
 };
 type CreateApiKeyError =
@@ -103,13 +131,9 @@ export class AuthService {
     return consents.count;
   }
 
-  async revokeOauthClientAccess(args: { authUserId: string; companyId: string; clientId: string }): Promise<number> {
+  async revokeOauthClientAccess(args: { authUserId: string; clientId: string }): Promise<number> {
     const tokens = await revokeOauthClientTokens(args);
-    const elsewhere = await prisma.oauthAccessToken.count({
-      where: { userId: args.authUserId, clientId: args.clientId },
-    });
-    if (elsewhere === 0)
-      await prisma.oauthConsent.deleteMany({ where: { userId: args.authUserId, clientId: args.clientId } });
+    await prisma.oauthConsent.deleteMany({ where: { userId: args.authUserId, clientId: args.clientId } });
 
     return tokens;
   }
@@ -148,6 +172,11 @@ export class AuthService {
     }
   }
 
+  async getAccountSession(): Promise<AuthenticatedSession | null> {
+    if ((await headers()).has("x-api-key")) return null;
+    return this.getSession();
+  }
+
   async getCredentialWorkspace(session: AuthenticatedSession, headersList?: Headers): Promise<CredentialWorkspace> {
     const requestHeaders = headersList ?? (await headers());
 
@@ -162,9 +191,15 @@ export class AuthService {
     if (this.hasBearerToken(requestHeaders)) {
       const token = await prisma.oauthAccessToken.findUnique({
         where: { accessToken: session.session.token },
-        select: { userId: true, companyId: true },
+        select: { userId: true, companyId: true, accountWide: true },
       });
-      return { kind: "integration", companyId: token?.userId === session.user.id ? token.companyId : null };
+      if (token?.userId !== session.user.id) return { kind: "integration", companyId: null };
+      if (!token.accountWide) return { kind: "integration", companyId: token.companyId };
+      return {
+        kind: "integration",
+        companyId: currentMcpWorkspace()?.companyId ?? token.companyId,
+        accountWide: true,
+      };
     }
 
     return {
@@ -296,20 +331,106 @@ export class AuthService {
     });
   }
 
+  async requestMagicLink(args: {
+    email: string;
+    callbackURL?: string;
+    errorCallbackURL?: string;
+  }): Promise<{ ok: true } | { ok: false; error: MagicLinkRefusal }> {
+    try {
+      await auth.api.signInMagicLink({
+        headers: await headers(),
+        body: {
+          email: args.email,
+          name: args.email,
+          ...(args.callbackURL ? { callbackURL: args.callbackURL } : {}),
+          ...(args.errorCallbackURL ? { errorCallbackURL: args.errorCallbackURL } : {}),
+        },
+      });
+      return { ok: true };
+    } catch (error) {
+      const code = error instanceof APIError ? error.body?.code : undefined;
+      if (code === MAGIC_LINK_RATE_LIMITED_CODE) return { ok: false, error: CustomErrorCode.magicLinkRateLimited };
+      if (code === DISPOSABLE_EMAIL_CODE) return { ok: false, error: CustomErrorCode.disposableEmail };
+      throw error;
+    }
+  }
+
+  async recordMagicLinkIssued(email: string, now = new Date()): Promise<boolean> {
+    const identifier = magicLinkIssuedIdentifier(email);
+    await prisma.authVerification.create({
+      data: {
+        id: crypto.randomUUID(),
+        identifier,
+        value: "",
+        expiresAt: new Date(now.getTime() + MAGIC_LINK_LIMIT_WINDOW_MS),
+      },
+    });
+    const issued = await prisma.authVerification.count({
+      where: { identifier, createdAt: { gt: new Date(now.getTime() - MAGIC_LINK_LIMIT_WINDOW_MS) } },
+    });
+    return issued <= MAGIC_LINK_REQUESTS_PER_HOUR;
+  }
+
+  async sendMagicLinkEmail(args: { to: string; url: string }): Promise<void> {
+    const t = await getTranslations();
+    const locale = await getRequestAppLocale();
+    const layoutCopy = await getEmailLayoutCopy(locale);
+
+    const sent = await this.emailService.send({
+      to: args.to,
+      subject: t("MagicLinkEmail.subject"),
+      react: React.createElement(MagicLinkEmail, {
+        locale,
+        layoutCopy,
+        url: args.url,
+        subject: t("MagicLinkEmail.subject"),
+        intro: t("MagicLinkEmail.intro"),
+        cta: t("MagicLinkEmail.cta"),
+        expiry: t("MagicLinkEmail.expiry"),
+        fallback: t("MagicLinkEmail.fallback"),
+        securityNotice: t("MagicLinkEmail.securityNotice"),
+      }),
+    });
+
+    if (!sent) throw new Error("The sign-in link email was rejected by the mail provider");
+  }
+
   async resetPassword(args: { newPassword: string; token: string }): Promise<void> {
     await auth.api.resetPassword({ headers: await headers(), body: args });
   }
 
-  async resendVerificationEmail(
-    email: string,
-    options?: { callbackURL?: string; keepSession?: boolean },
-  ): Promise<void> {
-    await auth.api.sendVerificationEmail({
-      headers: await headers(),
-      body: { email, callbackURL: options?.callbackURL ?? "/" },
-    });
+  async sendVerificationCode(email: string): Promise<"sent" | "rateLimited"> {
+    if (!(await this.recordVerificationCodeSent(email))) return "rateLimited";
 
-    if (!options?.keepSession) await auth.api.signOut({ headers: await headers() });
+    await auth.api.sendVerificationOTP({ body: { email, type: "email-verification" } });
+    return "sent";
+  }
+
+  async recordVerificationCodeSent(email: string, now = new Date()): Promise<boolean> {
+    const identifier = emailCodeSentIdentifier(email);
+    await prisma.authVerification.create({
+      data: {
+        id: crypto.randomUUID(),
+        identifier,
+        value: "",
+        expiresAt: new Date(now.getTime() + EMAIL_CODE_LIMIT_WINDOW_MS),
+      },
+    });
+    const sent = await prisma.authVerification.count({
+      where: { identifier, createdAt: { gt: new Date(now.getTime() - EMAIL_CODE_LIMIT_WINDOW_MS) } },
+    });
+    return sent <= EMAIL_CODE_SENDS_PER_HOUR;
+  }
+
+  async verifyEmailCode(email: string, code: string): Promise<VerifyEmailCodeResult> {
+    try {
+      await auth.api.verifyEmailOTP({ headers: await headers(), body: { email, otp: code } });
+      return { ok: true };
+    } catch (error) {
+      const failure = error instanceof APIError ? EMAIL_CODE_FAILURES[String(error.body?.code)] : undefined;
+      if (failure) return { ok: false, error: failure };
+      throw error;
+    }
   }
 
   async isEmailPendingVerification(email: string): Promise<boolean> {
@@ -320,22 +441,23 @@ export class AuthService {
     return authUser !== null && !authUser.emailVerified;
   }
 
-  async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
+  async sendVerificationCodeEmail(args: { to: string; code: string }): Promise<void> {
     const t = await getTranslations();
     const locale = await getRequestAppLocale();
     const layoutCopy = await getEmailLayoutCopy(locale);
+    const subject = t("VerifyEmail.subject", { code: args.code });
 
     const sent = await this.emailService.send({
       to: args.to,
-      subject: t("VerifyEmail.subject"),
+      subject,
       react: React.createElement(VerifyEmail, {
         locale,
         layoutCopy,
-        url: args.url,
-        subject: t("VerifyEmail.subject"),
+        code: args.code,
+        subject,
+        title: t("VerifyEmail.title"),
         intro: t("VerifyEmail.intro"),
-        cta: t("VerifyEmail.cta"),
-        fallback: t("VerifyEmail.fallback"),
+        expiry: t("VerifyEmail.expiry", { minutes: EMAIL_CODE_EXPIRES_IN_MINUTES }),
         securityNotice: t("VerifyEmail.securityNotice"),
       }),
     });
@@ -500,29 +622,6 @@ export class AuthService {
     );
   }
 
-  async resolveApiKeyReferences(
-    ownerAuthUserId: string,
-    ids: string[],
-    companyId: string,
-  ): Promise<{ active: Set<string>; foreign: Set<string> }> {
-    const keys = ids.length
-      ? await prisma.apikey.findMany({
-          where: { id: { in: ids } },
-          select: { id: true, referenceId: true, companyId: true, enabled: true, expiresAt: true },
-        })
-      : [];
-    const now = Date.now();
-    const active = new Set<string>();
-    const foreign = new Set<string>();
-
-    for (const key of keys) {
-      if (key.referenceId !== ownerAuthUserId || key.companyId !== companyId) foreign.add(key.id);
-      else if (key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > now)) active.add(key.id);
-    }
-
-    return { active, foreign };
-  }
-
   async getMcpConsentPrompt(args: {
     consentCode: string;
     clientId: string;
@@ -562,6 +661,7 @@ export class AuthService {
     consentCode: string;
     accept: boolean;
     companyId: string | null;
+    accountWide: boolean;
   }): Promise<{ redirectURI: string } | null> {
     const resolved = await this.resolvePendingConsent(args.consentCode);
     if (!resolved) return null;
@@ -569,8 +669,9 @@ export class AuthService {
     const { verification, value } = resolved;
     const redirectUrl = new URL(value.redirectURI);
     const resourceCompanyId = mcpResourceWorkspaceOf(value);
+    const bindable = args.accountWide ? resourceCompanyId === null : args.companyId !== null;
 
-    if (!args.accept || !args.companyId || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
+    if (!args.accept || !bindable || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
       await prisma.authVerification.delete({ where: { id: verification.id } });
       redirectUrl.searchParams.set("error", "access_denied");
       if (value.state) redirectUrl.searchParams.set("state", value.state);
@@ -589,7 +690,7 @@ export class AuthService {
       data: {
         id: crypto.randomUUID(),
         identifier: mcpAuthorizationCodeWorkspaceIdentifier(code),
-        value: args.companyId,
+        value: JSON.stringify({ companyId: args.companyId, accountWide: args.accountWide }),
         expiresAt: new Date(Date.now() + MCP_CODE_WORKSPACE_TTL_MS),
       },
     });
@@ -606,13 +707,16 @@ export class AuthService {
     return { redirectURI: redirectUrl.toString() };
   }
 
-  async consumeMcpAuthorizationCodeWorkspace(code: string): Promise<string | null> {
+  async consumeMcpAuthorizationCodeWorkspace(
+    code: string,
+  ): Promise<{ companyId: string | null; accountWide: boolean } | null> {
     const identifier = mcpAuthorizationCodeWorkspaceIdentifier(code);
     const binding = await prisma.authVerification.findFirst({ where: { identifier } });
     if (!binding) return null;
 
     await prisma.authVerification.deleteMany({ where: { identifier } });
-    return binding.expiresAt.getTime() > Date.now() ? binding.value : null;
+    if (binding.expiresAt.getTime() <= Date.now()) return null;
+    return parseMcpCodeBinding(binding.value);
   }
 
   private handleError(source: unknown): AuthResult {
@@ -676,6 +780,10 @@ export class AuthService {
     }
   }
 
+  async getMcpCredential(): Promise<McpCredentialWorkspace | null> {
+    return this.resolveMcpCredentialWorkspace(await headers());
+  }
+
   async resolveMcpCredentialWorkspace(headersList: Headers): Promise<McpCredentialWorkspace | null> {
     const key = headersList.get("x-api-key");
     try {
@@ -687,7 +795,9 @@ export class AuthService {
       const binding = await this.getCredentialWorkspace(session, headersList);
       return {
         credential: key ? "apiKey" : "bearer",
+        email: session.user.email,
         companyId: binding.kind === "integration" ? binding.companyId : null,
+        accountWide: binding.kind === "integration" && binding.accountWide === true,
         agentJobKey: key ? await this.getAgentJobApiKey(session, headersList) : null,
       };
     } catch {

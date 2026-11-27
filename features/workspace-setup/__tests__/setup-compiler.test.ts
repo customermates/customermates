@@ -7,11 +7,11 @@ import { describe, expect, it } from "vitest";
 import { PublicConfigurationChangeSchema } from "@/features/records/configuration.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/widget-grid";
-import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import { compileSetupCalendar } from "../setup-calendar-compiler";
 import { compileSetupDashboard, setupDashboardLayouts, setupDashboardShapeIssues } from "../setup-dashboard-compiler";
-import { compileSetupImportMapping, setupImportList, withOptionalImportFields } from "../setup-import-compiler";
+import { compileSetupImportMapping } from "../setup-import-compiler";
 import { compileSetupRecordModel } from "../setup-model-compiler";
 import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
 import { createSetupResolver, setupIdempotencyKey } from "../setup-references";
@@ -21,17 +21,12 @@ import { agencyDashboardPlan, agencyPlan, fieldServicePlan, saasPlan } from "./s
 
 const agencyCharts = agencyPlan.dashboard.widgets as SetupChartWidget[];
 
-async function build(
-  input: SetupPlanInput,
-  brand: { chip?: "info"; chart?: ChartColor } = {},
-  model: RecordModel = emptyWorkspaceModel(),
-) {
+async function build(input: SetupPlanInput, model: RecordModel = emptyWorkspaceModel()) {
   const plan = SetupPlanSchema.parse(input);
   const compiled = compileSetupRecordModel(plan, {
     setupId: SETUP_ID,
     model,
     labels: SETUP_LABELS,
-    brandChip: brand.chip,
   });
   if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
   const prepared = await prepareConfiguration(compiled.data, model);
@@ -334,17 +329,6 @@ describe("workspace setup compiler", () => {
     expect(ordered("contact").slice(0, 3)).toEqual(["Contact", "Channels", "Job title"]);
   });
 
-  it("colours lists with the brand chip unless the plan names one", async () => {
-    const agency = await build(agencyPlan, { chip: "info" });
-    expect(agency.prepared.model.types.find((type) => type.id === agency.reference("$list.project"))?.color).toBe(
-      "info",
-    );
-    const saas = await build(saasPlan, { chip: "info" });
-    expect(saas.prepared.model.types.find((type) => type.id === saas.reference("$list.subscription"))?.color).toBe(
-      "success",
-    );
-  });
-
   it.each([
     ["agency", agencyPlan, 3],
     ["subscription business", saasPlan, 2],
@@ -393,7 +377,6 @@ describe("workspace setup compiler", () => {
     const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
       setupId: SETUP_ID,
       expectedRevision: prepared.model.revision,
-      brandChart: ChartColor.secondary2,
     });
     if (!widgets.ok) throw new Error(JSON.stringify(widgets.issues));
     expect(widgets.data).toHaveLength(plan.dashboard.widgets.length);
@@ -404,7 +387,6 @@ describe("workspace setup compiler", () => {
     }
     expect(new Set(widgets.data.map((widget) => widget.idempotencyKey)).size).toBe(widgets.data.length);
     for (const widget of widgets.data) {
-      expect((widget as RecordWidgetInput).displayOptions?.barColors).toEqual([ChartColor.secondary2]);
       expect(widget.isTemplate).toBe(plan.workspace.dashboardAudience !== "me");
       expect(JSON.stringify(widget)).not.toContain("$");
     }
@@ -723,33 +705,6 @@ describe("workspace setup compiler", () => {
         ],
       },
     });
-  });
-
-  it("makes the fields of the list a spreadsheet fills optional, so missing cells and columns do not block rows", () => {
-    const input = structuredClone(agencyPlan);
-    input.importMapping = null;
-    input.recordModel.fields = input.recordModel.fields.map((field) => ({
-      ...field,
-      required: true,
-    }));
-    const plan = SetupPlanSchema.parse(input);
-    expect(setupImportList(plan)).toBe("contact");
-    const relaxed = withOptionalImportFields(plan);
-    expect(
-      relaxed.recordModel.fields.filter((field) => field.required).map((field) => field.key.split(".")[0]),
-    ).not.toContain("contact");
-    expect(
-      relaxed.recordModel.fields.filter((field) => field.key.startsWith("deal.")).every((field) => field.required),
-    ).toBe(true);
-    expect(
-      setupImportList({
-        ...plan,
-        importMapping: {
-          list: "organization",
-          columns: [{ column: "Name", field: null }],
-        },
-      }),
-    ).toBe("organization");
   });
 
   it("refuses a list default column of another list", () => {

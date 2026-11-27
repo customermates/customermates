@@ -6,6 +6,7 @@ import {
   consentCodeFromAuthorizeRedirect,
   isApprovedMcpAuthorizationCodeValue,
   mcpResourceWorkspaceOf,
+  parseMcpCodeBinding,
   resourceFromTokenRequest,
   withMcpResourceWorkspace,
 } from "@/features/auth/mcp-authorization-code";
@@ -77,5 +78,24 @@ describe("MCP authorization code approval", () => {
     expect(resourceFromTokenRequest({ grant_type: "authorization_code", resource: "r" })).toBe("r");
     expect(resourceFromTokenRequest({ grant_type: "authorization_code" })).toBeUndefined();
     expect(resourceFromTokenRequest(undefined)).toBeUndefined();
+  });
+
+  it("reads the workspace binding of an approved code and never widens a code bound the old way", () => {
+    const companyId = "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
+
+    expect(parseMcpCodeBinding(JSON.stringify({ companyId: null, accountWide: true }))).toEqual({
+      companyId: null,
+      accountWide: true,
+    });
+    expect(parseMcpCodeBinding(JSON.stringify({ companyId, accountWide: false }))).toEqual({
+      companyId,
+      accountWide: false,
+    });
+    expect(parseMcpCodeBinding(companyId)).toEqual({ companyId, accountWide: false });
+    expect(parseMcpCodeBinding("")).toEqual({ companyId: null, accountWide: false });
+    expect(parseMcpCodeBinding(JSON.stringify({ accountWide: "yes" }))).toEqual({
+      companyId: null,
+      accountWide: false,
+    });
   });
 });

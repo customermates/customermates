@@ -144,6 +144,10 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
       [companyId, foreignCompanyId, companySlug],
     );
     await client.query(
+      'INSERT INTO "Subscription" ("id", "companyId", "status", "updatedAt") VALUES ($1, $2, \'active\', CURRENT_TIMESTAMP), ($3, $4, \'active\', CURRENT_TIMESTAMP)',
+      [randomUUID(), companyId, randomUUID(), foreignCompanyId],
+    );
+    await client.query(
       'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, TRUE, $3, CURRENT_TIMESTAMP), ($4, $5, FALSE, $3, CURRENT_TIMESTAMP)',
       [managerRoleId, "MCP Wiki manager", companyId, readerRoleId, "MCP Wiki reader"],
     );
@@ -263,32 +267,41 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     await client.end();
   });
 
-  it("refuses API key and OAuth connections without Read access All on API & Webhooks with a 403", async () => {
-    const connect = async (credential: Record<string, string>) => {
+  it("refuses API keys without Read access All on API & Webhooks with a 403 and refuses that workspace to OAuth calls", async () => {
+    const send = async (credential: Record<string, string>, body: Record<string, unknown>) => {
       const headers = new Headers({
         accept: "application/json, text/event-stream",
         "content-type": "application/json",
         ...credential,
       });
       requestContext.headers = headers;
-      const response = await POST(
-        new Request(MCP_URL, { method: "POST", headers, body: JSON.stringify(mcpBody("initialize", 50)) }),
-      );
+      const response = await POST(new Request(MCP_URL, { method: "POST", headers, body: JSON.stringify(body) }));
       return { status: response.status, body: await response.text() };
     };
+    const connect = (credential: Record<string, string>) => send(credential, mcpBody("initialize", 50));
 
-    const refusedCredentials: Array<Record<string, string>> = [
-      { "x-api-key": outsiderApiKey },
-      { authorization: `Bearer ${outsiderBearer}` },
-    ];
-    for (const credential of refusedCredentials) {
-      const refused = await connect(credential);
-      expect(refused.status, Object.keys(credential)[0]).toBe(403);
-      expect(JSON.parse(refused.body)).toMatchObject({
-        error: "insufficient_permissions",
-        requiredPermission: { resource: "api", action: "readAll" },
-      });
-    }
+    const refused = await connect({ "x-api-key": outsiderApiKey });
+    expect(refused.status).toBe(403);
+    expect(JSON.parse(refused.body)).toMatchObject({
+      error: "insufficient_permissions",
+      requiredPermission: { resource: "api", action: "readAll" },
+    });
+
+    const outsider = { authorization: `Bearer ${outsiderBearer}` };
+    const locked = await connect(outsider);
+    expect(locked.status).toBe(403);
+    expect(JSON.parse(locked.body)).toMatchObject({ error: "insufficient_permissions" });
+
+    await client.query('UPDATE "OauthAccessToken" SET "accountWide"=TRUE WHERE "accessToken"=$1', [outsiderBearer]);
+    expect((await connect(outsider)).status).toBe(200);
+    const called = await send(outsider, {
+      jsonrpc: "2.0",
+      id: 51,
+      method: "tools/call",
+      params: { name: "manage_wiki_pages", arguments: { action: "list" } },
+    });
+    expect(called.status).toBe(200);
+    expect(called.body).toContain("no workspace the agent can use yet");
     const permittedCredentials: Array<Record<string, string>> = [
       { "x-api-key": readerApiKey },
       { "x-api-key": managerApiKey },
@@ -349,7 +362,12 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     );
 
     const listedTools = await rpc(managerApiKey, mcpBody("tools/list", 2), initialized.sessionId);
-    expect(listedTools.data?.result?.tools?.map(({ name }) => name)).toEqual(["manage_wiki_pages", "search", "fetch"]);
+    expect(listedTools.data?.result?.tools?.map(({ name }) => name)).toEqual([
+      "manage_wiki_pages",
+      "search",
+      "fetch",
+      "list_workspaces",
+    ]);
 
     const listedResources = await rpc(managerApiKey, mcpBody("resources/list", 3), initialized.sessionId);
     expect(listedResources.data?.result?.resources).toEqual([

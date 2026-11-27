@@ -1,5 +1,5 @@
 import { runAgentTurn } from "./agent-turn";
-import { backfillConnectedAccount } from "./backfill-connected-account";
+import { backfillConnectedAccount, sweepEmailPresence } from "./backfill-connected-account";
 import { crawlWikiWebsite } from "./crawl-wiki-website";
 import { deliverWebhook } from "./deliver-webhook";
 import { indexDocsChunks } from "./index-docs-chunks";
@@ -20,7 +20,7 @@ import { purgeRecordFiles } from "./purge-record-files";
 import { purgeCompanyFiles } from "./purge-company-files";
 import { reconcileBillingUsage } from "./reconcile-billing-usage";
 import { triggerTestError } from "./trigger-test-error";
-import { buildWorkspaceSetup, planWorkspaceSetup, prepareWorkspaceSetup } from "./workspace-setup";
+import { buildWorkspaceSetup, planWorkspaceSetup } from "./workspace-setup";
 
 export const WORKFLOW_REGISTRY = {
   "agent-turn": runAgentTurn,
@@ -44,8 +44,8 @@ export const WORKFLOW_REGISTRY = {
   "purge-record-files": purgeRecordFiles,
   "purge-company-files": purgeCompanyFiles,
   "reconcile-billing-usage": reconcileBillingUsage,
+  "sweep-email-presence": sweepEmailPresence,
   "trigger-test-error": triggerTestError,
-  "prepare-workspace-setup": prepareWorkspaceSetup,
   "plan-workspace-setup": planWorkspaceSetup,
   "build-workspace-setup": buildWorkspaceSetup,
 } as const;

@@ -9,10 +9,19 @@ import { registerProfileAction } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { parseTeamSize } from "@/features/onboarding-funnel/team-size";
+import {
+  DISCOVERY_DETAIL_MAX_LENGTH,
+  parseDiscoveryChoice,
+  type DiscoveryChoice,
+} from "@/features/onboarding-funnel/discovery-answer";
 
 export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileData> {
   requiresTeamSize = false;
   teamSizeMissing = false;
+  asksDiscovery = false;
+  discovery: DiscoveryChoice | null = null;
+  discoveryDetail = "";
+  languageOpen = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -30,15 +39,23 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
     makeObservable(this, {
       requiresTeamSize: observable,
       teamSizeMissing: observable,
-      setRequiresTeamSize: action,
+      asksDiscovery: observable,
+      discovery: observable,
+      discoveryDetail: observable,
+      languageOpen: observable,
+      setOwnerQuestions: action,
       setTeamSize: action,
+      setDiscovery: action,
+      setDiscoveryDetail: action,
+      openLanguage: action,
       onSubmit: action,
     });
   }
 
-  setRequiresTeamSize = (required: boolean) => {
-    this.requiresTeamSize = required;
-    if (!required) this.teamSizeMissing = false;
+  setOwnerQuestions = (asked: boolean) => {
+    this.requiresTeamSize = asked;
+    this.asksDiscovery = asked;
+    if (!asked) this.teamSizeMissing = false;
   };
 
   setTeamSize = (value: string) => {
@@ -46,6 +63,18 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
     if (!teamSize) return;
     this.onChange("teamSize", teamSize);
     this.teamSizeMissing = false;
+  };
+
+  setDiscovery = (value: string) => {
+    this.discovery = parseDiscoveryChoice(value);
+  };
+
+  setDiscoveryDetail = (value: string) => {
+    this.discoveryDetail = value.slice(0, DISCOVERY_DETAIL_MAX_LENGTH);
+  };
+
+  openLanguage = () => {
+    this.languageOpen = true;
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
@@ -58,7 +87,10 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
 
     try {
       const form = toJS(this.form);
-      const res = await registerProfileAction(this.requiresTeamSize ? form : { ...form, teamSize: null });
+      const discovery = this.asksDiscovery
+        ? { choice: this.discovery, ...(this.discovery === "other" ? { detail: this.discoveryDetail } : {}) }
+        : undefined;
+      const res = await registerProfileAction(this.requiresTeamSize ? form : { ...form, teamSize: null }, discovery);
 
       if (!res.ok) this.setError(res.error);
       else this.setError(undefined);

@@ -4,6 +4,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { CompleteOnboardingSetupStepRepo } from "@/features/onboarding-wizard/complete-onboarding-setup-step.repo";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
+import type { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import type { OnboardingPlaybook } from "./onboarding-playbook";
 
 import { z } from "zod";
@@ -21,6 +22,7 @@ import { APP_LOCALES } from "@/i18n/locale-registry";
 import { ONBOARDING_ORIGIN_QUERY_PARAM, ONBOARDING_ORIGIN_VALUE } from "./onboarding-job";
 import { OnboardingPlaybookSchema } from "./onboarding-playbook";
 import { onboardingPlaybookPages } from "./onboarding-playbook-pages";
+import { withRelatedSection } from "@/features/wiki/wiki-links";
 
 const Schema = z.strictObject({ playbook: OnboardingPlaybookSchema.nullable(), locale: z.enum(APP_LOCALES) });
 export type ApplyOnboardingPlaybookData = z.infer<typeof Schema>;
@@ -43,6 +45,7 @@ export class ApplyOnboardingPlaybookInteractor {
     private setupStep: CompleteOnboardingSetupStepRepo,
     private wizard: CompleteOnboardingWizardRepo,
     private routeGuardService: RouteGuardService,
+    private updatePage?: Pick<UpdateWikiPageInteractor, "invoke">,
   ) {}
 
   @Validate(Schema)
@@ -75,17 +78,27 @@ export class ApplyOnboardingPlaybookInteractor {
   }
 
   private async writePages(playbook: OnboardingPlaybook, locale: ApplyOnboardingPlaybookData["locale"]) {
-    const { pages, guide } = await onboardingPlaybookPages(locale, playbook);
+    const { pages, guide, related, relatedHeading } = await onboardingPlaybookPages(locale, playbook);
     const created = await this.createPages.invoke({ pages, requireEmpty: true });
     if (!created.ok) {
       if (interactorFailureCodes(created.error).includes(CustomErrorCode.wikiNotEmpty))
         return { ok: true as const, count: 0 };
       return { ok: false as const, failure: created };
     }
-    const linked = await this.createPages.invoke({
-      pages: [guide(created.data.map(({ id, title }) => ({ id, title })))],
-      requireEmpty: false,
-    });
+    const written = created.data.map(({ id, title }) => ({ id, title }));
+    const linked = await this.createPages.invoke({ pages: [guide(written)], requireEmpty: false });
+    const guidePage = linked.ok ? linked.data[0] : undefined;
+    if (guidePage && this.updatePage) {
+      for (const { id, section } of related(written, { id: guidePage.id, title: guidePage.title })) {
+        const page = created.data.find((candidate) => candidate.id === id);
+        if (!page) continue;
+        await this.updatePage.invoke({
+          id,
+          expectedUpdatedAt: page.updatedAt,
+          markdown: withRelatedSection(page.markdown, section, relatedHeading),
+        });
+      }
+    }
     return { ok: true as const, count: created.data.length + (linked.ok ? linked.data.length : 0) };
   }
 }

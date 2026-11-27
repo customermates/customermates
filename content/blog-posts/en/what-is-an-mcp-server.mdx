@@ -128,9 +128,9 @@ Before you connect a vendor's server, check three things: whether it is the vend
 
 Most explanations stop at a weather tool. Here is what a production server for customer data looks like, using Customermates as the example. All details below come from the public [MCP reference](/docs/mcp).
 
-**The endpoint.** Customermates runs a remote server at `/api/v1/mcp` on the address you use for the app, plus a workspace-specific URL with the same tools locked to that workspace. It speaks Streamable HTTP. The endpoint is part of every Cloud plan and of self-hosted installations; when you self-host the Community Edition, it is still a remote server, just on your own infrastructure.
+**The endpoint.** Customermates runs a remote server at `/api/v1/mcp` on the address you use for the app. One URL covers your whole account, and every tool takes an optional `workspace` argument, so one connection serves all your workspaces. It speaks Streamable HTTP. The endpoint is part of every Cloud plan and of self-hosted installations; when you self-host the Community Edition, it is still a remote server, just on your own infrastructure.
 
-**Connecting.** In Claude and ChatGPT you add the URL as a custom connector, sign in and approve ([custom connector setup](/docs/connect-custom-connector)). Claude Code, Codex, Cursor and Gemini CLI connect with an API key in the `x-api-key` header ([CLI setup](/docs/connect-cli)). Either way, the client acts as exactly one user in exactly one workspace, and connecting needs read access to API & Webhooks in that user's role.
+**Connecting.** In Claude and ChatGPT you add the URL as a custom connector, sign in and approve ([custom connector setup](/docs/connect-custom-connector)). Claude Code, Codex, Cursor and Gemini CLI connect with an API key in the `x-api-key` header ([CLI setup](/docs/connect-cli)). Either way, the client acts as exactly one user: an API key in the workspace it was created in, an OAuth connection in the workspace each call names, and connecting needs read access to API & Webhooks in that user's role.
 
 **What it exposes.** All three primitives:
 

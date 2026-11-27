@@ -26,7 +26,7 @@ import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/
 import { AdminUpdateUserDetailsSchema } from "../upsert/admin-update-user-details.interactor";
 import { GetUserDetailsInteractor } from "../get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "../get/get-user-by-id.interactor";
-import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { LEGAL_DOCUMENT_VERSIONS, currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -70,6 +70,8 @@ describe("RegisterUserInteractor", () => {
       hasConsumedTrialUnscoped: vi.fn().mockResolvedValue(false),
       hasCreatedWorkspaceUnscoped: vi.fn().mockResolvedValue(false),
       countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
+      countWorkspacesCreatedSinceUnscoped: vi.fn().mockResolvedValue(0),
+      recordAccountLegalVersionsUnscoped: vi.fn().mockResolvedValue(undefined),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
       takeSignupAttributionUnscoped: vi.fn().mockResolvedValue({ lastPage: null, campaign: null }),
@@ -155,6 +157,7 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockRepo.recordAccountLegalVersionsUnscoped).toHaveBeenCalledWith(USER_ID, currentLegalDocumentVersions());
     expect(mockEventService.publish).toHaveBeenNthCalledWith(
       1,
       DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
@@ -896,6 +899,54 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.countCreatedWorkspacesUnscoped).toHaveBeenCalledWith(USER_ID);
     expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("refuses a fourth cloud workspace on onboarding within 24 hours", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.countWorkspacesCreatedSinceUnscoped.mockResolvedValue(3);
+
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "Fourth today",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect("ok" in result && !result.ok && interactorFailureCodes(result.error)).toEqual([
+      CustomErrorCode.workspaceDailyLimitReached,
+    ]);
+    const since = mockRepo.countWorkspacesCreatedSinceUnscoped.mock.calls[0]?.[1] as Date;
+    expect(Date.now() - since.getTime()).toBeGreaterThanOrEqual(24 * 60 * 60 * 1000 - 1000);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+  });
+
+  it("starts no first cloud workspace before the email is confirmed, but lets an unconfirmed login join an invitation", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    const unverified = await mockRouteGuardService.resolveAccountState();
+    mockRouteGuardService.resolveAccountState.mockResolvedValue({ ...unverified, emailVerified: false });
+    const profile = {
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      avatarUrl: null,
+      agreeToTerms: true,
+    };
+
+    const created = await createInteractor().invoke(profile, { target: { type: "createCompany" } });
+    const joined = await createInteractor().invoke(profile, {
+      target: { type: "invitation", companyId: "invited-company-id" },
+    });
+
+    expect("ok" in created && !created.ok && interactorFailureCodes(created.error)).toEqual([
+      CustomErrorCode.emailNotVerified,
+    ]);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(joined).toMatchObject({ ok: true });
   });
 
   it("does not count created workspaces when the profile joins an invited workspace", async () => {

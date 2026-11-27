@@ -26,6 +26,8 @@ vi.mock("@/core/di", async () => {
     isIntegrationCredentialRequest: () => Promise.resolve(true),
     getSession: () => Promise.resolve(session),
     getInteractiveSession: () => Promise.resolve(null),
+    resolveMcpCredentialWorkspace: () =>
+      Promise.resolve({ credential: "apiKey", email: session.user.email, companyId: null, agentJobKey: null }),
   };
   const accessService = new OperatorAccessService(authService as never, {
     findAuthorizedActorUnscoped: state.interactiveActor,

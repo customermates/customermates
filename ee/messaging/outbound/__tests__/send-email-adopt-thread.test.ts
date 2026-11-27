@@ -273,4 +273,75 @@ describe("SendEmailInteractor new-thread adoption", () => {
     expect(service.getEmail).toHaveBeenCalledTimes(1);
     expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
   });
+
+  it("records an adopted new email as sent by the workspace and places it in Sent when the copy has no folder", async () => {
+    const service = {
+      sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
+      getEmail: vi.fn().mockResolvedValue(sentEmail),
+    };
+    const repo = makeRepo();
+    const interactor = new SendEmailInteractor(
+      repo as never,
+      {
+        findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue({
+          ...(account as object),
+          provider: MessagingProvider.mail,
+          sentFolderIds: ["F_SENT"],
+        }),
+      } as never,
+      service as never,
+      mockEntitlementService(),
+      new DraftSendGate(repo as never),
+      {} as never,
+    );
+
+    await interactor.invoke(input);
+
+    const call = repo.persistOutboundMessageOrThrow.mock.calls[0][0];
+    expect(call.message.origin).toBe("unipile");
+    expect(call.message.folderIds).toEqual(["F_SENT"]);
+  });
+
+  it("places a reply on an IMAP thread in the account's Sent folder", async () => {
+    const service = {
+      sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
+      getEmail: vi.fn(),
+    };
+    const repo = makeRepo();
+    repo.findThreadByIdOrThrow.mockResolvedValue({
+      id: PERSISTED_THREAD_ID,
+      connectedAccountId: ACCOUNT_ID,
+      unipileThreadId: "t-imap",
+      provider: MessagingProvider.mail,
+      type: "single",
+    });
+    repo.findLatestEmailReplyReferenceForThread.mockResolvedValue("<in@example.com>");
+    repo.findRecentOutboundDuplicate.mockResolvedValue(null);
+    const interactor = new SendEmailInteractor(
+      repo as never,
+      {
+        findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue({
+          ...(account as object),
+          provider: MessagingProvider.mail,
+          sentFolderIds: ["F_SENT"],
+        }),
+      } as never,
+      service as never,
+      mockEntitlementService(),
+      new DraftSendGate(repo as never),
+      {} as never,
+    );
+
+    const result: any = await interactor.invoke({ ...input, threadId: PERSISTED_THREAD_ID });
+
+    expect(result.ok).toBe(true);
+    const call = repo.persistOutboundMessageOrThrow.mock.calls[0][0];
+    expect(call.message).toMatchObject({
+      unipileMessageId: "u-1",
+      unipileThreadId: "t-imap",
+      direction: MessagingMessageDirection.outbound,
+      origin: "unipile",
+      folderIds: ["F_SENT"],
+    });
+  });
 });

@@ -979,8 +979,12 @@
     "title": "Waar agentstappen draaien"
   },
   "AgentStart": {
+    "connect": {
+      "account": "Ingelogd als {email} · {count, plural, =0 {nog geen werkruimte} one {# werkruimte} other {# werkruimtes}}",
+      "subtitle": "Werkt met Claude, ChatGPT en elke andere MCP-client. Eén koppeling bereikt al je werkruimtes.",
+      "title": "Koppel je AI-agent"
+    },
     "copied": "Gekopieerd",
-    "copiedTip": "Gekopieerd. Plak het in je agent",
     "copy": "Kopiëren",
     "daysLeft": "{count, plural, one {Nog # dag} other {Nog # dagen}}",
     "failed": "Kopiëren mislukt",
@@ -989,8 +993,9 @@
     "label": "Richt je agent in",
     "openIn": "Openen in {app}",
     "progress": "{done} van {total} klaar",
-    "prompt": "Lees {url}, koppel Customermates en richt het voor mijn bedrijf in met het best passende sjabloon.",
+    "prompt": "Lees {url}, koppel Customermates via {mcp} en richt het in voor mijn bedrijf. Gebruik mijn bestaande werkruimte als ik er al een heb.",
     "sidebarDismiss": "Verbergen",
+    "stepAgent": "Koppel je AI-agent",
     "stepInbox": "Koppel je inbox",
     "stepPlan": "Kies een abonnement"
   },
@@ -1011,6 +1016,25 @@
   "ApiKeysCard": {
     "unnamed": "Naamloos"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "We mailen je een link waarmee je inlogt. Die werkt één keer en verloopt na 15 minuten.",
+      "resend": "Link opnieuw sturen",
+      "resendIn": "Opnieuw sturen over {seconds} s",
+      "sentBody": "We hebben een link gestuurd naar {email}. Open hem op dit apparaat om verder te gaan.",
+      "sentTitle": "Check je inbox",
+      "signInCta": "Stuur me een inloglink",
+      "signUpCta": "Stuur me een registratielink",
+      "useAnotherEmail": "Ander e-mailadres gebruiken"
+    },
+    "tabs": {
+      "magicLink": "Magic link",
+      "password": "Wachtwoord",
+      "sso": "SSO-aanmelding",
+      "ssoShort": "SSO"
+    },
+    "tabsLabel": "Inlogmethode"
+  },
   "AuthSocialErrors": {
     "accessDenied": "De aanmelding is bij de aanbieder geannuleerd.",
     "accountAlreadyLinkedToDifferentUser": "Dit socialemedia-account is al gekoppeld aan een andere gebruiker.",
@@ -1028,6 +1052,7 @@
     "invalidProfile": "Het profiel van de aanbieder was ongeldig. Probeer het opnieuw.",
     "issuerMismatch": "Het antwoord van de aanbieder kon niet worden vertrouwd. Probeer het opnieuw.",
     "issuerMissing": "Het antwoord van de aanbieder kon niet worden geverifieerd. Probeer het opnieuw.",
+    "magicLinkInvalid": "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.",
     "missingProfile": "De aanbieder heeft geen profielgegevens teruggegeven. Probeer het opnieuw.",
     "nameIsMissing": "De aanbieder heeft geen naam teruggegeven. Probeer het opnieuw.",
     "noCallbackUrl": "Het aanmeldverzoek was onvolledig. Probeer het opnieuw.",
@@ -1921,6 +1946,8 @@
       "bookingRateLimited": "Te veel boekingspogingen. Probeer het later opnieuw.",
       "bookingSlotTaken": "Dit tijdstip is niet meer beschikbaar. Kies een ander tijdstip.",
       "bookingUnavailable": "Deze boekingspagina is op dit moment niet beschikbaar.",
+      "botDetected": "We konden dit verzoek niet verifiëren. Laad de pagina opnieuw en probeer het nog eens.",
+      "calendarEventChangeUnsupported": "Deze wijziging past niet bij de afspraak. Afspraken voor de hele dag krijgen datums, afspraken met tijd krijgen tijden, en alleen een exemplaar van een terugkerende afspraak kan voor alle exemplaren worden gewijzigd.",
       "calendarEventNotFound": "ID van agenda-afspraak niet gevonden of niet toegankelijk.",
       "calendarExportIncomplete": "Deze periode heeft meer items dan in één export passen. Kies een kortere periode of strengere bronfilters.",
       "calendarNeedsReconnect": "Koppel je Google- of Microsoft-account opnieuw onder Kanalen & agenda's om agendawijzigingen toe te staan en probeer het daarna opnieuw.",
@@ -1938,6 +1965,7 @@
       "dataViewNotFound": "Deze opgeslagen weergave is niet gevonden.",
       "dataViewUpdateEmpty": "Geef een naam of minstens één weergave-instelling op om bij te werken.",
       "demoMode": "Deze actie is niet beschikbaar in de demomodus. Log in voor toegang tot alle functies.",
+      "disposableEmail": "Met tijdelijke e-mailadressen kun je geen proefperiode starten. Gebruik je zakelijke of persoonlijke e-mailadres.",
       "draftAlreadySent": "Dit concept is al verzonden.",
       "draftChanged": "Dit concept is gewijzigd nadat je het opende.",
       "draftFilesEmailOnly": "Alleen e-mailconcepten kunnen bijlagen bevatten.",
@@ -1983,6 +2011,7 @@
       "linkedinInboxUnavailable": "Dit LinkedIn-account heeft geen {product}-inbox. Verbind het account met gekoppeld {product} om deze te gebruiken.",
       "linkedinProductRequiresLinkedin": "InMail en LinkedIn-productopties vereisen een LinkedIn-account.",
       "linkedinProductUnavailable": "Bij dit LinkedIn-account is dat product niet verbonden.",
+      "magicLinkRateLimited": "Er zijn te veel inloglinks aangevraagd voor dit e-mailadres. Wacht een uur of log op een andere manier in.",
       "memberReferenceRequired": "Noem het lid met userId of e-mailadres.",
       "messageContentRequired": "Voeg een bericht of een bijlage toe.",
       "messageNotFound": "Dit bericht is niet meer beschikbaar.",
@@ -2155,6 +2184,7 @@
       "wikiWhenToUseRequired": "Een procedure heeft een korte beschrijving nodig van wanneer je die gebruikt.",
       "workspaceChanged": "Deze werkruimte is niet meer beschikbaar. Ze is verwijderd, de URL is gewijzigd of je toegang is ingetrokken.",
       "workspaceCreationUnavailable": "Hier kunnen geen nieuwe werkruimtes worden aangemaakt.",
+      "workspaceDailyLimitReached": "Je kunt binnen 24 uur maximaal {limit} werkruimtes aanmaken. Probeer het morgen opnieuw of gebruik een van je bestaande werkruimtes.",
       "workspaceDeleteAdminRequired": "Alleen een beheerder kan deze werkruimte verwijderen.",
       "workspaceDeleteBillingActive": "Deze werkruimte heeft nog een abonnement dat kan worden gefactureerd of hervat. Zeg het op en wacht tot het afloopt, of neem contact op met support.",
       "workspaceDeleteBillingUnverified": "We konden de facturering van deze werkruimte niet verifiëren bij Lemon Squeezy, dus er is niets verwijderd. Probeer het over een paar minuten opnieuw.",
@@ -2176,7 +2206,8 @@
       "workspaceSetupConflict": "De werkruimte-instelling is bezig met een andere stap. Laad opnieuw en probeer het nogmaals.",
       "workspaceSetupNotFound": "Er is geen werkruimte-instelling gevonden voor deze werkruimte.",
       "workspaceSetupUnavailable": "De AI-werkruimte-instelling is hier niet beschikbaar.",
-      "workspaceSlugTaken": "Een andere werkruimte gebruikt deze URL al. Kies een andere."
+      "workspaceSlugTaken": "Een andere werkruimte gebruikt deze URL al. Kies een andere.",
+      "workspaceTermsNotAccepted": "Voor nieuwe werkruimtes moeten de voorwaarden geaccepteerd zijn. Maak opnieuw verbinding en accepteer de voorwaarden op het toestemmingsscherm, of maak de werkruimte aan in Customermates."
     },
     "events": {
       "automation": {
@@ -2438,8 +2469,7 @@
       "triggerFilters": "Recordfilters",
       "triggerKind": "Trigger",
       "unavailableSelection": "Selectie niet beschikbaar",
-      "url": "URL",
-      "websiteUrl": "Bedrijfswebsite"
+      "url": "URL"
     },
     "language": "Taal",
     "legacyEvents": {
@@ -3431,14 +3461,30 @@
   "EditorTabs": {
     "invalid": "Bevat fouten"
   },
+  "EmailCode": {
+    "errors": {
+      "expired": "Die code is verlopen. Vraag een nieuwe aan.",
+      "invalid": "Die code klopt niet. Controleer de nieuwste e-mail en probeer het opnieuw.",
+      "signedOut": "Je sessie is verlopen. Log opnieuw in om je e-mailadres te bevestigen.",
+      "tooManyAttempts": "Te veel onjuiste pogingen. Vraag een nieuwe code aan."
+    },
+    "hint": "6 cijfers, {minutes} minuten geldig.",
+    "label": "Bevestigingscode",
+    "rateLimited": "Er zijn te veel codes aangevraagd voor dit adres. Wacht een uur en probeer het opnieuw.",
+    "resend": "Nieuwe code sturen",
+    "resendIn": "Nieuwe code over {seconds} s",
+    "sent": "We hebben een nieuwe code naar {email} gestuurd.",
+    "submit": "Bevestigen"
+  },
   "EmailLayout": {
     "tagline": "De source-available CRM voor het opvolgen van klanten"
   },
   "EmailVerification": {
+    "dialogBody": "We sturen een 6-cijferige code naar {email}. Voer hem hieronder in.",
+    "dialogTitle": "Bevestig je e-mailadres",
     "notVerified": "E-mailadres niet geverifieerd",
-    "resend": "Verificatie-e-mail opnieuw verzenden",
-    "resendSuccess": "Verificatie-e-mail verzonden.",
-    "verified": "E-mailadres geverifieerd"
+    "verified": "E-mailadres geverifieerd",
+    "verify": "E-mailadres bevestigen"
   },
   "EntityChannels": {
     "addChannel": {
@@ -3592,8 +3638,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Weet je je wachtwoord weer? <backToSignInLink>Inloggen</backToSignInLink>",
     "resetLinkInvalid": "De resetlink is verlopen. Vraag een nieuwe link aan.",
-    "resetLinkSent": "Resetlink naar je e-mailadres verzonden.",
     "sendCta": "Resetlink verzenden",
+    "sentBody": "We hebben een link om je wachtwoord opnieuw in te stellen naar {email} gestuurd. Open hem om een nieuw wachtwoord te kiezen.",
     "title": "Wachtwoord vergeten"
   },
   "ForHub": {
@@ -4025,6 +4071,14 @@
   "Loading": {
     "text": "Laden..."
   },
+  "MagicLinkEmail": {
+    "cta": "Inloggen bij Customermates",
+    "expiry": "De link werkt één keer en verloopt over 15 minuten.",
+    "fallback": "Werkt de knop hierboven niet? Kopieer dan deze link en plak hem in je browser: ",
+    "intro": "Gebruik de knop hieronder om in te loggen bij Customermates.",
+    "securityNotice": "Heb je deze link niet aangevraagd? Dan kun je deze e-mail gerust negeren.",
+    "subject": "Je inloglink voor Customermates"
+  },
   "MassActions": {
     "clearField": "Veld leegmaken",
     "delete": "Geselecteerde verwijderen",
@@ -4047,7 +4101,6 @@
     "deny": "Weigeren",
     "destination": "Verbindingsbestemming: {host}",
     "error": "Er is iets misgegaan. Probeer het opnieuw of start de verbinding opnieuw vanuit je client.",
-    "permissionRequired": "Je rol staat geen MCP-verbindingen toe. Verbinden via MCP vereist Leestoegang Alles bij API & webhooks. Vraag een werkruimtebeheerder om deze toe te kennen.",
     "scopes": {
       "email": "Je e-mailadres lezen",
       "offlineAccess": "Verbonden blijven terwijl je weg bent",
@@ -4057,10 +4110,11 @@
     "subtitle": "{client} wil verbinding maken met je account."
   },
   "McpConsentWorkspace": {
-    "current": "Huidige werkruimte",
+    "accountHint": "{client} kiest per verzoek de werkruimte. Als je een werkruimte verlaat of eruit wordt verwijderd, verliest {client} de toegang ertoe.",
+    "accountTitle": "{client} toegang geven tot je Customermates-account",
     "fixed": {
-      "hint": "{client} heeft alleen toegang tot {workspace}. Elke werkruimte heeft een eigen MCP-URL, dus je kunt andere werkruimtes als aparte verbindingen koppelen.",
-      "notMember": "Deze MCP-URL hoort bij een werkruimte waarvan je geen lid bent. Log in met het account dat je daar gebruikt, of kopieer de MCP-URL van je eigen werkruimte via Instellingen → API-sleutels & connectors.",
+      "hint": "Deze oudere verbindings-URL heeft alleen toegang tot {workspace}. Verbindingen die je toevoegt via Instellingen → API-sleutels & connectors hebben toegang tot al je werkruimtes.",
+      "notMember": "Deze MCP-URL hoort bij een werkruimte waarvan je geen lid bent. Log in met het account dat je daar gebruikt, of maak opnieuw verbinding met de URL uit Instellingen → API-sleutels & connectors.",
       "unavailable": {
         "inactive": "Je toegang tot {workspace} is gedeactiveerd. Vraag een werkruimtebeheerder om die opnieuw te activeren.",
         "pending": "Je verzoek om deel te nemen aan {workspace} wacht nog op goedkeuring. Maak opnieuw verbinding zodra een beheerder het heeft goedgekeurd.",
@@ -4069,8 +4123,9 @@
         "terms": "Bijgewerkte voorwaarden moeten worden geaccepteerd voordat je {workspace} kunt koppelen. Open Customermates, accepteer ze en maak daarna opnieuw verbinding."
       }
     },
-    "pickerLabel": "Kies een werkruimte",
-    "scopeHint": "{client} heeft alleen toegang tot de werkruimte die je kiest. Maak opnieuw verbinding om een andere werkruimte te gebruiken.",
+    "newWorkspaces": "Nieuwe werkruimtes die het voor je aanmaakt",
+    "noneAvailable": "Geen van je werkruimtes kan nu via MCP worden gebruikt. De reden staat bij elke werkruimte.",
+    "termsForNewWorkspaces": "Accepteer de voorwaarden zodat {client} nieuwe werkruimtes voor je kan aanmaken. Je kunt ook zonder goedkeuren; {client} werkt dan alleen in je bestaande werkruimtes.",
     "title": "{client} koppelen aan deze werkruimte",
     "titleNamed": "{client} koppelen aan {workspace}",
     "unavailable": {
@@ -4078,7 +4133,8 @@
       "permission": "Je rol heeft geen API-toegang",
       "plan": "Geen actief abonnement",
       "terms": "Bijgewerkte voorwaarden moeten worden geaccepteerd"
-    }
+    },
+    "workspacesLabel": "Werkruimtes die het kan gebruiken"
   },
   "MemberRemoval": {
     "action": "Uit werkruimte verwijderen",
@@ -4321,8 +4377,7 @@
       "toneOfVoice": "## Hoe ik klink\nPersoonlijk, direct en betrouwbaar. Ik schrijf als mezelf, in de ik-vorm.\n\n## Regels\n- Korte berichten, elk over één onderwerp.\n- Blijf formeel tot de klant voornamen gebruikt en doe dan hetzelfde.\n- Wees concreet over beschikbaarheid, prijs en volgende stappen.\n- Vriendelijk, maar geen alinea's small talk voordat ik ter zake kom.\n- Geen emoji's in een eerste bericht; spiegel daarna de klant."
     },
     "guide": {
-      "intro": "Deze werkruimte is gestart vanuit het playbook {playbook}. Mate leest deze pagina's voordat Mate een antwoord opstelt of een volgende stap voorstelt. Pas ze aan tot ze klinken als jij: jouw diensten, jouw prijzen en jouw manier van schrijven.",
-      "pagesHeading": "Pagina's in de Kennisbank"
+      "intro": "Deze werkruimte is gestart vanuit het playbook {playbook}. Mate leest deze pagina's voordat Mate een antwoord opstelt of een volgende stap voorstelt. Pas ze aan tot ze klinken als jij: jouw diensten, jouw prijzen en jouw manier van schrijven."
     },
     "pages": {
       "followUps": "Opvolgregels",
@@ -4384,7 +4439,7 @@
         "claudeTitle": "Koppel je Claude-account",
         "externalNote": "Deze installatie gebeurt in een nieuw tabblad of in je AI. Customermates controleert de externe koppeling niet automatisch. <guide>Lees de volledige installatiehandleiding</guide>.",
         "urlLabel": "URL van de MCP-server",
-        "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL, dus je kunt meerdere werkruimtes tegelijk aan {client} koppelen."
+        "workspaceNote": "Eén verbinding dekt al je werkruimtes: {client} kiest per verzoek de werkruimte en kan op jouw verzoek een nieuwe aanmaken."
       },
       "createKey": "API-sleutel maken",
       "createKeyIntro": "Genereer een API-sleutel voor deze agent. De sleutel wordt één keer getoond en is verwerkt in het installatiefragment hieronder.",
@@ -4447,7 +4502,7 @@
         "stepsTitle": "Voeg Customermates toe als externe MCP-server",
         "subtitle": "Elke client die een externe MCP-server kan toevoegen, werkt met deze URL.",
         "title": "Andere MCP-client",
-        "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL."
+        "workspaceNote": "Dezelfde URL werkt voor al je werkruimtes. Een API-sleutel werkt altijd in de werkruimte waarin hij is aangemaakt."
       },
       "providers": {
         "ariaLabel": "AI-clients"
@@ -4469,6 +4524,7 @@
         }
       }
     },
+    "change": "Wijzigen",
     "channel": {
       "addAnother": "Voeg nog een kanaal toe als je klanten je ook ergens anders schrijven.",
       "captions": {
@@ -4494,24 +4550,15 @@
       "optionsLabel": "Kanalen om te koppelen",
       "skip": "Voorlopig overslaan"
     },
-    "connect": {
-      "checkAgain": "Opnieuw controleren",
-      "connected": "Verbonden. Je agent heeft deze werkruimte bereikt.",
-      "failed": "We konden de verbinding niet controleren. Probeer het zo opnieuw.",
-      "skip": "Later verbinden",
-      "statusLabel": "Verbindingsstatus",
-      "waiting": "Wachten op de eerste aanroep van {agent}. Het vinkje verschijnt vanzelf zodra {agent} is verbonden.",
-      "waitingGeneric": "Wachten op de eerste aanroep van je agent. Het vinkje verschijnt vanzelf zodra je agent is verbonden."
+    "confirmEmail": {
+      "body": "Voer de 6-cijferige code in die we naar <strong>{email}</strong> hebben gestuurd.",
+      "open": "{inbox} openen",
+      "title": "Bevestig je e-mailadres om te beginnen",
+      "wrongEmail": "Verkeerd adres? <signOut>Log uit</signOut> en meld je opnieuw aan."
     },
     "continue": "Doorgaan",
     "finish": "Werkruimte openen",
     "goal": {
-      "agent": {
-        "description": "Koppel hem aan Customermates, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
-        "descriptionSelfHosted": "Koppel hem aan deze instantie, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
-        "title": "Gebruik de AI-agent die je al hebt",
-        "worksWith": "Werkt met Claude, ChatGPT, Cursor, Gemini en elke andere MCP-client."
-      },
       "channelsHint": {
         "action": "Dashboard openen",
         "connectedDescription": "Mate schrijft conceptantwoorden in je inbox zodra er gesprekken binnenkomen. De volgende stappen verschijnen op je dashboard.",
@@ -4529,23 +4576,7 @@
         "salesNavigator": "Gebruik je Sales Navigator? Koppel LinkedIn dan met Sales Navigator",
         "title": "Koppel eerst LinkedIn"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate draait in Customermates Cloud. Je eerste in aanmerking komende cloudwerkruimte krijgt {days} dagen Pro, zonder kaart. Opent een aparte cloudwerkruimte.",
-        "opened": "We hebben Customermates Cloud in een nieuw tabblad geopend. Er is niets van deze instantie naartoe gestuurd. Je kunt hier verder inrichten.",
-        "title": "Liever Mate? Probeer de beheerde cloud"
-      },
-      "followup": {
-        "description": "Kies een playbook, koppel LinkedIn en zie wie op een antwoord wacht.",
-        "title": "Klantgesprekken opvolgen"
-      },
-      "optionsLabel": "Eerste stappen",
-      "recommended": "Aanbevolen",
-      "suggested": "Voorgesteld",
-      "workspace": {
-        "description": "Kies een sjabloon en onze ingebouwde agent bouwt de werkruimte hier. Niets om te koppelen.",
-        "title": "Laat Mate het voor me inrichten"
-      }
+      "suggested": "Voorgesteld"
     },
     "invite": {
       "captions": {
@@ -4567,17 +4598,6 @@
         "link": "Link delen"
       }
     },
-    "milestones": {
-      "ai": "AI-tools",
-      "channel": "Kanaal",
-      "connect": "Koppelen",
-      "goal": "Inrichting",
-      "invite": "Team",
-      "playbook": "Playbook",
-      "profile": "Jij",
-      "setup": "Werkruimte",
-      "template": "Sjabloon"
-    },
     "playbook": {
       "continue": "Dit playbook gebruiken",
       "optionsLabel": "Playbooks",
@@ -4586,8 +4606,8 @@
       "writesTitle": "Drie kennisbankpagina's, klaar om te bewerken"
     },
     "profile": {
-      "previewName": "Je naam",
-      "previewRole": "Eigenaar",
+      "discovery": "Hoe heb je ons gevonden? (optioneel)",
+      "languageFromBrowser": "{language} · uit je browser",
       "teamSize": {
         "label": "Hoeveel mensen gaan deze werkruimte gebruiken?",
         "large": "Meer dan 20",
@@ -4595,32 +4615,10 @@
         "required": "Kies een antwoord om door te gaan.",
         "small": "2 tot 5",
         "solo": "Alleen ik"
-      },
-      "websitePlaceholder": "voorbeeld.nl"
+      }
     },
     "progress": "Stap {current} van {total}",
     "progressLabel": "Voortgang van de onboarding",
-    "progressOpen": "Stap {current}",
-    "prompt": {
-      "changed": "Je agent is begonnen met bouwen. Open je werkruimte om mee te kijken.",
-      "copied": "Gekopieerd",
-      "copy": "Prompt kopiëren",
-      "copyFailed": "Kopiëren werkte hier niet. De prompt is geselecteerd: kopieer hem met Ctrl+C of Cmd+C.",
-      "failed": "We konden de prompt niet laden.",
-      "go": "Naar mijn werkruimte",
-      "loading": "Je prompt wordt voorbereid…",
-      "openIn": "Openen in {agent}",
-      "promptLabel": "Sjabloonprompt",
-      "retry": "Opnieuw proberen",
-      "steps": {
-        "approve": "Keur het plan goed dat hij toont",
-        "copy": "Kopieer de prompt",
-        "paste": "Plak hem in een nieuwe chat met {agent}",
-        "pasteGeneric": "Plak hem in een nieuwe chat met je agent"
-      },
-      "stepsLabel": "Volgende stappen",
-      "watching": "We letten op de eerste wijziging van je agent. Hier zie je meteen wanneer hij begint te bouwen."
-    },
     "source": {
       "choices": {
         "advertisement": "Een advertentie",
@@ -4634,30 +4632,18 @@
       },
       "detailLabel": "Waar heb je ons gevonden?",
       "detailPlaceholder": "Waar was dat? (optioneel)",
-      "optionsLabel": "Hoe je Customermates hebt gevonden",
-      "skip": "Overslaan"
+      "optionsLabel": "Hoe je Customermates hebt gevonden"
     },
     "steps": {
-      "ai": {
-        "subtitle": "Kies een AI-tool om te koppelen met je werkruimte en de bijbehorende kennis. Koppel er nu een, voeg later andere toe of sla deze stap over.",
-        "title": "Koppel de AI die je al gebruikt"
-      },
       "channel": {
         "subtitle": "Je gesprekken staan dan bij elke klant, klaar voor concepten en opvolging. Er wordt niets verstuurd zonder jou, en je kunt deze stap overslaan.",
         "title": "Koppel het kanaal waarop je klanten je schrijven"
       },
-      "connect": {
-        "subtitle": "Welke agent gebruik je? We laten de exacte stappen ervoor zien.",
-        "title": "Koppel je agent"
-      },
-      "goal": {
-        "subtitle": "Kies wie de werkruimte inricht. Je controleert elke wijziging voordat die wordt toegepast.",
-        "subtitleSelfHosted": "Je gegevens blijven op je eigen server. Je eigen agent koppelt via MCP en bouwt de werkruimte uit een sjabloon.",
-        "title": "Hoe richten we je werkruimte in?",
-        "titleSelfHosted": "Hoe richten we deze instantie in?"
+      "finish": {
+        "title": "Je workspace wordt geopend"
       },
       "invite": {
-        "subtitle": "Nodig collega's uit met een gedeelde link of met individuele e-mailuitnodigingen. Je kunt ook eerst alleen verder en later mensen uitnodigen.",
+        "subtitle": "Deel de link of nodig uit per e-mail. Dat kan ook later.",
         "title": "Haal je team erbij"
       },
       "playbook": {
@@ -4667,64 +4653,8 @@
       "profile": {
         "invitedSubtitle": "Vul je profiel aan om toegang te vragen tot de werkruimte waarvoor je bent uitgenodigd.",
         "invitedSubtitleNamed": "Vul je profiel aan om toegang te vragen tot {workspace}.",
-        "subtitle": "Voeg je naam toe zodat je teamgenoten je herkennen en kies de taal die je wilt gebruiken. Je kunt beide later wijzigen in je profiel.",
-        "title": "Maak deze werkruimte van jou"
-      },
-      "prompt": {
-        "subtitle": "{template}: je agent stelt een paar vragen en toont dan het plan ter goedkeuring.",
-        "title": "Plak dit in {agent}",
-        "titleGeneric": "Plak dit in je agent"
-      },
-      "setup": {
-        "planningSubtitle": "Je antwoorden zijn opgeslagen. Mate maakt er een plan voor je werkruimte van dat je controleert voordat er iets wordt gebouwd.",
-        "startSubtitle": "Wij bouwen je lijsten, stappen, dashboard en een paar kennisbankpagina's. Je kunt alles later wijzigen.",
-        "startTitle": "Waarmee moet Mate je werkruimte opbouwen?",
-        "subtitle": "Wat we op je website hebben gelezen is al ingevuld. Controleer het en pas aan wat niet klopt.",
-        "title": "Je werkruimte inrichten",
-        "withoutWebsiteSubtitle": "Een paar korte vragen over wat je wilt bijhouden. De meeste beantwoord je met één klik."
-      },
-      "source": {
-        "subtitle": "Eén optionele vraag. Ze helpt ons alleen om te zien welke kanalen werken, en je kunt haar overslaan.",
-        "title": "Hoe heb je ons gevonden?"
-      },
-      "template": {
-        "subtitle": "Je agent past het op jou aan en toont het plan voordat er iets verandert.",
-        "subtitleMate": "Mate past het op jou aan en toont het plan voordat er iets wordt gebouwd.",
-        "title": "Kies een sjabloon"
+        "title": "Welkom bij Customermates"
       }
-    },
-    "template": {
-      "browseAll": "Alle {count} sjablonen bekijken",
-      "connected": "{agent} verbonden",
-      "connectedGeneric": "Agent verbonden",
-      "counts": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}} · {rules, plural, one {# automatisering} other {# automatiseringen}}",
-      "countsNoRules": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}}",
-      "empty": "Geen sjabloon past bij je zoekopdracht.",
-      "families": {
-        "clients": "Klanten",
-        "community": "Community",
-        "content": "Content",
-        "custom": "Op maat",
-        "intake": "Aanvragen",
-        "investing": "Beleggen",
-        "operations": "Operatie",
-        "professional-services": "Zakelijke dienstverlening",
-        "property": "Vastgoed",
-        "recruiting": "Werving",
-        "sales": "Verkoop",
-        "trades": "Ambachten"
-      },
-      "filterAll": "Alle",
-      "filtersLabel": "Soorten sjablonen",
-      "none": "Geen sjabloon",
-      "optionsLabel": "Sjablonen",
-      "pickOne": "Kies een sjabloon om te zien wat het inricht.",
-      "recommended": "Aanbevolen",
-      "searchLabel": "Sjablonen zoeken",
-      "searchPlaceholder": "Sjablonen zoeken",
-      "showFewer": "Minder tonen",
-      "suggested": "Voorgesteld voor jou",
-      "use": "{name} gebruiken"
     }
   },
   "OperatorAudit": {
@@ -5028,6 +4958,10 @@
     "endDate": "Einddatum",
     "entryCount": "{count, plural, one {# item} other {# items}}",
     "event": "Afspraak",
+    "eventMoved": "Afspraak verplaatst",
+    "eventMovedMicrosoft": "Microsoft stuurt de deelnemers de nieuwe tijd.",
+    "eventMovedNotified": "Google stuurt de deelnemers de nieuwe tijd.",
+    "eventMovedQuiet": "De deelnemers zijn niet op de hoogte gebracht.",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",
     "includePersonal": "Neem ook geselecteerde gekoppelde afspraken op (kan een bestaande agenda dupliceren).",
@@ -5036,6 +4970,17 @@
       "quarter": "Kwartaal",
       "timeline": "Tijdlijn"
     },
+    "moveDialog": {
+      "justMove": "Alleen verplaatsen",
+      "move": "Verplaatsen",
+      "notify": "Deelnemers informeren",
+      "notifyDescription": "Google kan de deelnemers de nieuwe tijd mailen.",
+      "notifyTitle": "Deelnemers op de hoogte brengen?",
+      "scopeDescription": "Kies of alleen dit exemplaar of alle exemplaren worden verplaatst.",
+      "scopeTitle": "Terugkerende afspraak verplaatsen"
+    },
+    "moveEventFailed": "De afspraak kon niet worden verplaatst. Hij houdt zijn tijd.",
+    "moveEventUndone": "Verplaatsen ongedaan gemaakt",
     "next": "Volgende periode",
     "noEndDate": "Enkele datum",
     "noSources": "Kies datums uit je lijsten om je agenda samen te stellen.",
@@ -5047,6 +4992,7 @@
     "privateUrlDescription": "Iedereen met deze link kan deze afspraken lezen zolang jij toegang hebt. Kopieer hem nu; hij wordt maar één keer getoond. Trek hem hieronder in om toekomstige vernieuwingen te stoppen.",
     "quarterLabel": "K{number} · {year}",
     "readOnlyEvent": "Deze afspraak komt uit een gekoppelde agenda. Bewerk hem in de oorspronkelijke agenda.",
+    "readOnlySeries": "Deze terugkerende afspraak is als reeks zonder losse exemplaren gesynchroniseerd en kan daarom alleen in Google Agenda of Outlook worden gewijzigd.",
     "removeSource": "Datumbron verwijderen",
     "revokeSubscription": "Abonnement intrekken",
     "snapshot": "Momentopname downloaden",
@@ -5064,7 +5010,8 @@
     "timeZone": "Tijdzone",
     "title": "Agenda",
     "truncated": "Sommige afspraken vallen buiten de weergavelimiet. Kies een kortere periode of filter een datumbron. Voor exports is een volledig resultaat nodig.",
-    "unavailableSource": "Datumbron niet beschikbaar"
+    "unavailableSource": "Datumbron niet beschikbaar",
+    "undoMove": "Ongedaan maken"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# persoon is gepauzeerd} other {# personen zijn gepauzeerd}}. Kies {plan} om ze terug te halen.",
@@ -6456,34 +6403,51 @@
       "needsReconnect": "Je Google- of Microsoft-account moet opnieuw worden gekoppeld onder Kanalen & agenda's voordat er afspraken kunnen worden gemaakt.",
       "noCalendar": "Koppel een Google- of Microsoft-agenda onder Kanalen & agenda's om afspraken te plannen."
     },
+    "cancelAction": "Afspraak annuleren",
+    "cancelConfirmDescription": "Google of Outlook annuleert de afspraak voor alle deelnemers en brengt hen op de hoogte. Dit kan niet ongedaan worden gemaakt.",
+    "cancelConfirmTitle": "Deze afspraak annuleren?",
+    "cancelDone": "Afspraak geannuleerd",
     "created": "Afspraak gepland",
     "defaultTitle": "Afspraak met {name}",
     "duration": "{minutes} min",
+    "editTitle": "Afspraak bewerken",
+    "eventLoadFailed": "De afspraak kon niet worden geladen. Sluit dit venster en probeer het opnieuw.",
     "fields": {
       "attendees": "Deelnemers",
       "calendar": "Agenda",
       "date": "Datum",
       "description": "Beschrijving",
       "duration": "Duur",
+      "firstDay": "Eerste dag",
       "followUp": "Een vervolgtaak aanmaken in",
       "followUpDate": "Begintijd van de afspraak opslaan in",
+      "lastDay": "Laatste dag",
       "location": "Locatie",
       "sendInvites": "Uitnodigingen naar de deelnemers sturen",
+      "sendUpdates": "De wijzigingen naar de deelnemers sturen",
       "time": "Begintijd",
       "title": "Titel",
       "videoLink": "Videolink toevoegen"
     },
     "followUpNone": "Geen vervolgtaak",
     "freeSlots": "Vrije tijden ({timeZone})",
+    "keepMeeting": "Afspraak behouden",
     "loadFailed": "De agenda-opties konden niet worden geladen. Sluit dit venster en probeer het opnieuw.",
+    "microsoftSendsUpdates": "Microsoft stuurt de wijzigingen naar de deelnemers.",
     "newMeeting": "Nieuwe afspraak",
     "noFreeSlots": "Geen vrije tijden op deze dag. Je kunt nog steeds een begintijd invoeren.",
     "partial": "De afspraak is aangemaakt, maar het koppelen of het aanmaken van de vervolgtaak is niet gelukt.",
+    "scope": {
+      "label": "Welke afspraken",
+      "occurrence": "Deze afspraak",
+      "series": "Alle afspraken"
+    },
     "title": "Afspraak plannen",
     "unavailable": {
       "demo": "Afspraken plannen vereist een gekoppelde agenda en is niet beschikbaar in de demowerkruimte.",
       "selfHosted": "Afspraken plannen vereist de gehoste agendakoppeling en is niet beschikbaar bij zelf hosten."
     },
+    "updated": "Afspraak bijgewerkt",
     "upsell": {
       "detail": "Maak vanuit elk record afspraken in je Google- of Microsoft-agenda.",
       "title": "Afspraken plannen vanaf {plan}"
@@ -6539,11 +6503,10 @@
     "forgotPassword": "Wachtwoord vergeten?",
     "inviteSubtitle": "{inviterName} heeft je uitgenodigd om lid te worden van een werkruimte. Log in om de uitnodiging te bekijken.",
     "inviteSubtitleNamed": "{inviterName} heeft je uitgenodigd om lid te worden van {workspace}. Log in om de uitnodiging te bekijken.",
-    "or": "OF",
     "rememberMe": "Onthoud mij",
     "signInCta": "Inloggen",
     "signInTitle": "Log in op je account",
-    "switchToSignUp": "Nog geen account? <registerLink>Registreren</registerLink>"
+    "switchToSignUp": "Nieuw bij Customermates? <registerLink>Account aanmaken →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Doorgaan",
@@ -6553,9 +6516,8 @@
     "inviteSubtitle": "{inviterName} heeft je uitgenodigd om lid te worden van een werkruimte in Customermates. Kies hoe je je account wilt aanmaken.",
     "inviteSubtitleNamed": "{inviterName} heeft je uitgenodigd om lid te worden van {workspace} in Customermates. Kies hoe je je account wilt aanmaken.",
     "inviteTitle": "Bedrijfsuitnodiging accepteren",
-    "or": "OF",
     "signUpCta": "Account aanmaken",
-    "switchToSignIn": "Heb je al een account? <signInLink>Inloggen</signInLink>",
+    "switchToSignIn": "Heb je al een account? <signInLink>Inloggen →</signInLink>",
     "title": "Maak een Customermates-account aan"
   },
   "SolutionStage": {
@@ -7042,23 +7004,20 @@
     "formattingLocaleHint": "Bepaalt hoe getallen, datums en valuta worden opgemaakt."
   },
   "VerifyEmail": {
-    "cta": "E-mailadres bevestigen",
-    "fallback": "Werkt de knop hierboven niet? Kopieer dan deze link en plak hem in je browser: ",
-    "intro": "Bevestig je e-mailadres om verder te gaan.",
+    "expiry": "De code is {minutes} minuten geldig. Voer hem in de browser in waarin je je hebt aangemeld.",
+    "intro": "Voer deze code in Customermates in om je e-mailadres te bevestigen:",
     "securityNotice": "Als je dit verzoek niet zelf hebt gedaan, kun je dit bericht gerust negeren en verwijderen.",
-    "subject": "Bevestig je e-mailadres"
+    "subject": "{code} is je bevestigingscode voor Customermates",
+    "title": "Bevestig je e-mailadres"
   },
   "VerifyEmailCard": {
-    "body": "We hebben je een verificatiemail gestuurd. Controleer je inbox en klik op de link om je e-mailadres te bevestigen.",
-    "ctaLabel": "Verificatiemail opnieuw versturen",
+    "body": "Voer de 6-cijferige code in die we naar <strong>{email}</strong> hebben gestuurd. Geen geldige code bij de hand? Vraag een nieuwe aan.",
     "invitationFrom": "Uitnodiging van {inviterName}",
-    "linkExpired": "Deze verificatielink is verlopen.",
-    "linkInvalid": "Deze verificatielink is niet geldig.",
-    "resendSuccess": "Verificatiemail is verstuurd.",
-    "signedOutBody": "Log in op je account om een nieuwe verificatiemail aan te vragen.",
+    "retiredLink": "E-mailadressen worden nu bevestigd met een code in plaats van een link. Vraag een nieuwe code aan en voer hem hier in.",
+    "retiredLinkSignedOut": "E-mailadressen worden nu bevestigd met een code in plaats van een link. Log in en voer daarna de code in die we je sturen.",
+    "signedOutBody": "Log in op je account om een nieuwe bevestigingscode te ontvangen.",
     "subtitle": "Bevestig je e-mailadres om verder te gaan.",
-    "title": "E-mailverificatie",
-    "verifiedSignIn": "Je e-mailadres is nu bevestigd. Log in om verder te gaan."
+    "title": "E-mailverificatie"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Bezorgpogingen verschijnen hier zodra een webhook wordt geactiveerd.",
@@ -7122,31 +7081,18 @@
       "label": "Kaart van de Kennisbank",
       "legend": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen.",
       "legendEdit": "Grotere cirkels zijn pagina's waarnaar meer pagina's verwijzen. Klik op een pagina om haar te openen, sleep haar om haar op haar plek vast te zetten.",
-      "linkedFrom": "Gekoppeld vanuit",
-      "linkedFromCount": "{count, plural, one {Gekoppeld vanuit # pagina} other {Gekoppeld vanuit # pagina's}}",
+      "linkedPages": "Gekoppelde pagina's",
       "linksFailed": "De koppelingen van deze pagina konden niet worden geladen.",
-      "linksTo": "Verwijst naar",
+      "listsUsed": "Gebruikte lijsten",
       "loadFailed": "De pagina's van de Kennisbank konden niet worden geladen.",
       "missingLinks": "{count, plural, one {# koppeling wijst naar een verwijderde pagina} other {# koppelingen wijzen naar verwijderde pagina's}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Geen pagina's",
       "noMatches": "Geen pagina past bij het filter.",
       "pin": "Vastzetten op de kaart",
-      "pinHelp": "Houdt deze pagina op haar plek op de kaart. Je kunt een pagina ook slepen om haar vast te zetten.",
-      "pinned": "Vastgezet",
-      "pinnedHelp": "Deze pagina houdt haar plek wanneer de kaart zich opnieuw ordent.",
-      "records": "Gekoppelde records",
       "search": "Pagina zoeken",
-      "segments": {
-        "details": "Details",
-        "links": "Koppelingen",
-        "page": "Pagina"
-      },
-      "sheetSegments": "Onderdelen van de pagina",
       "syncing": "Links worden nog ingelezen. Laad de pagina opnieuw om ze allemaal te zien.",
       "truncated": "De eerste {count} pagina's worden getoond. Zoek en druk op Enter om een andere pagina te openen.",
-      "unpin": "Losmaken",
-      "unpinHelp": "De kaart plaatst deze pagina weer zelf."
+      "unpin": "Losmaken"
     },
     "kind": {
       "guide": "Werkhandleiding",
@@ -7162,6 +7108,7 @@
       "procedureHelp": "Gebruik dit voor een terugkerende taak, zoals het onboarden van klanten. Schrijf genummerde stappen en beschrijf het bijbehorende verzoek bij “Wanneer gebruiken”. Mate en gekoppelde AI-tools volgen ze wanneer dat verzoek voorkomt."
     },
     "linkPage": "Link naar een Kennisbank-pagina…",
+    "linksHere": "{count, plural, one {# pagina verwijst hierheen} other {# pagina's verwijzen hierheen}}",
     "loadFailed": "Pagina's konden niet worden geladen.",
     "newPage": "Nieuwe pagina",
     "next": "Volgende",
@@ -7203,11 +7150,14 @@
       "title": "Voorstellen"
     },
     "reload": "Pagina opnieuw laden",
+    "settings": {
+      "invalid": "Controleer de pagina-instellingen: een veld vraagt aandacht.",
+      "title": "Pagina-instellingen"
+    },
     "unavailableBody": "Deze pagina is verwijderd of je hebt er geen toegang toe. Kies een andere pagina.",
     "unavailableTitle": "Pagina niet beschikbaar",
     "untitled": "Pagina zonder titel",
     "verified": {
-      "help": "Legt vast dat je deze pagina vandaag hebt gecontroleerd en dat ze nog klopt.",
       "label": "Laatst gecontroleerd",
       "mark": "Markeren als gecontroleerd",
       "never": "Nog niet gecontroleerd",
@@ -7215,9 +7165,9 @@
       "saveFirst": "Sla je wijzigingen op voordat je de pagina als gecontroleerd markeert."
     },
     "view": {
+      "fullPage": "Volledige pagina",
       "label": "Weergave van de kennisbank",
       "map": "Kaart",
-      "openFullPage": "Als volledige pagina openen",
       "pages": "Pagina's",
       "showOnMap": "Op de kaart tonen"
     },
@@ -7272,6 +7222,13 @@
         "wins": "Waar klanten voor ons kiezen in plaats van {competitor}"
       },
       "gapsHeading": "Nog te bevestigen",
+      "links": {
+        "guides": "Handleidingen",
+        "knowledge": "Kennis",
+        "lists": "Lijsten",
+        "procedures": "Procedures",
+        "related": "Zie ook"
+      },
       "pagesHeading": "Kennisbank-pagina's",
       "roles": {
         "company_overview": "Bedrijfsoverzicht",
@@ -7344,7 +7301,6 @@
     "pendingMembers": "{count, plural, one {# lid wacht op goedkeuring} other {# leden wachten op goedkeuring}}"
   },
   "WorkspaceOnboarding": {
-    "workspaceNameDescription": "Optioneel. Helpt je je werkruimtes uit elkaar te houden; je kunt de naam later wijzigen.",
     "workspaceNamePlaceholder": "bijv. Acme Sales"
   },
   "WorkspaceRemovalNotice": {
@@ -7437,34 +7393,19 @@
   "WorkspaceSetup": {
     "actions": {
       "addOwn": "Iets anders",
-      "continueAnyway": "Toch doorgaan",
-      "fromWebsite": "Voorgesteld op basis van je website",
-      "upload": "Een spreadsheet uploaden"
+      "continueAnyway": "Toch doorgaan"
     },
     "anchors": {
       "price": "Prijs",
       "value": "Waarde"
     },
     "build": {
-      "actions": {
-        "dashboard": "Je dashboard wordt gebouwd",
-        "dataModel": "Je lijsten en velden worden aangemaakt",
-        "importing": "{fileName} wordt geïmporteerd",
-        "knowledgeBase": "Je kennisbankpagina's worden geschreven ({written} van {planned})",
-        "pipeline": "Je pipeline voor {list} wordt aangemaakt: {stages}",
-        "preparing": "Het volgende onderdeel wordt klaargezet",
-        "readingWebsite": "{website} wordt gelezen",
-        "records": "Voorbeeldrecords worden toegevoegd",
-        "views": "Je lijsten worden ingericht"
-      },
-      "completedBody": "Alles staat klaar. Nodig nu je team uit.",
+      "completedBody": "Alles staat klaar.",
       "completedTitle": "Je werkruimte is klaar",
-      "continue": "Verder naar uitnodigingen",
+      "eyebrow": "Mate is aan het bouwen",
       "failedBody": "Alles wat al klaar was, blijft behouden. Probeer het onderdeel dat niet is afgerond opnieuw om je werkruimte compleet te maken.",
       "failedTitle": "Een deel van de installatie is niet afgerond",
-      "frameTitle": "Je werkruimte",
-      "keepsRunning": "Dit loopt door als je het tabblad sluit.",
-      "nameColumn": "Naam",
+      "keepsRunning": "Je kunt verdergaan. Het bouwen wordt op de achtergrond afgerond.",
       "phases": {
         "dashboard": "Dashboard",
         "dataModel": "Lijsten en velden",
@@ -7472,15 +7413,8 @@
         "records": "Records",
         "views": "Lijstweergaven"
       },
-      "previewLabel": "Voorbeeld van je werkruimte",
-      "records": "Records",
+      "progressLabel": "Voortgang van het bouwen",
       "retry": "Opnieuw proberen",
-      "sidebarLabel": "Voorbeeld van de navigatie",
-      "states": {
-        "background": "Loopt door op de achtergrond",
-        "failed": "Niet afgerond",
-        "skipped": "Overgeslagen"
-      },
       "summaries": {
         "dashboard": "{count, plural, =0 {Geen widgets toegevoegd} one {# widget toegevoegd} other {# widgets toegevoegd}}",
         "dataModel": "{count, plural, =0 {Geen lijsten aangemaakt} one {# lijst klaar} other {# lijsten klaar}}",
@@ -7488,7 +7422,7 @@
         "records": "{count, plural, =0 {Geen records toegevoegd} one {# record toegevoegd} other {# records toegevoegd}}",
         "views": "{count, plural, =0 {Geen weergaven ingericht} one {# weergave ingericht} other {# weergaven ingericht}}"
       },
-      "title": "Je werkruimte wordt ingesteld"
+      "title": "Je workspace wordt gebouwd"
     },
     "empty": {
       "action": "Beginnen met een lege werkruimte",
@@ -7499,7 +7433,6 @@
     "failures": {
       "aiUnavailable": "De AI-service is op dit moment niet beschikbaar. Probeer het over een paar minuten opnieuw.",
       "contactSupport": "Contact opnemen met support",
-      "crawlFailed": "Je website kon niet worden gelezen.",
       "dependency": "Dit onderdeel wacht op een eerder onderdeel dat niet is afgerond.",
       "error": "Er is iets misgegaan in dit onderdeel.",
       "generation": "De AI kon deze keer geen bruikbaar resultaat maken.",
@@ -7507,56 +7440,28 @@
       "permission": "Met jouw rol mag je deze wijziging niet doorvoeren.",
       "schemaChanged": "Je werkruimte is gewijzigd terwijl dit onderdeel bezig was.",
       "spendCap": "Het installatiebudget van deze werkruimte is op, dus dit onderdeel is gestopt. Alles wat tot nu toe klaar is, blijft behouden. Neem contact met ons op, dan helpen we je de installatie af te maken.",
-      "spreadsheet": "De spreadsheet kon niet worden geïmporteerd.",
       "supportSubject": "Installatiebudget van de werkruimte"
     },
     "interview": {
       "addEntry": "Een item toevoegen",
-      "adjusting": "Pas een antwoord aan en laat daarna het plan opnieuw zien.",
-      "answerYourself": {
-        "cancel": "Wachten op de website",
-        "confirm": "Zelf antwoorden",
-        "description": "We vullen deze antwoorden nu in op basis van je website. Je hoeft ze alleen te controleren als we klaar zijn.",
-        "title": "Dit zelf beantwoorden?"
-      },
       "customPlaceholder": "Beschrijf het in een paar woorden",
       "days": "dagen",
       "entryLabel": "Item {index}",
       "followUpsSubtitle": "Sommige antwoorden kunnen meerdere dingen betekenen. Met deze vragen is het duidelijk.",
       "followUpsTitle": "Nog een paar details",
       "optionalPlaceholder": "Laat leeg als je niets kunt bedenken",
-      "planHint": "Je controleert het plan voordat er iets wordt gebouwd",
-      "prefillFailed": "We konden je website niet lezen, dus er is niets ingevuld. De vragen kosten nog steeds maar een paar minuten.",
-      "prefillPending": "De antwoorden hieronder worden automatisch ingevuld op basis van je website. Je kunt wachten en ze controleren als we klaar zijn.",
+      "pickOne": "Kies er een om verder te gaan",
       "rangeFrom": "Van",
       "rangeTo": "Tot",
       "rankedHint": "{count} van {max} gekozen, op volgorde van belangrijkheid",
       "rankedOption": "Plek {rank}: {label}",
-      "showPlan": "Mijn werkruimteplan tonen",
-      "stepsLabel": "Installatievragen",
-      "uploadChoose": "Bestand kiezen",
-      "uploadFailures": {
-        "cellTooLong": "Een cel bevat meer dan {maxCharacters, number} tekens.",
-        "fileTooLarge": "Het is groter dan {maxMegabytes} MB.",
-        "macroWorkbook": "Het bevat macro's. Sla het op als Excel-werkmap zonder macro's (.xlsx) en kies het opnieuw.",
-        "noHeader": "Het bevat geen gegevens. De eerste rij moet de kolomnamen bevatten en de rijen eronder de records.",
-        "sheetNotFound": "De werkmap heeft geen blad om te importeren.",
-        "tooManyColumns": "Het heeft meer dan {maxColumns, number} kolommen.",
-        "tooManyRows": "Het heeft meer dan {maxRows, number} rijen.",
-        "unreadableFile": "Het bestand kon niet worden gelezen. Mogelijk is het beschadigd.",
-        "unsupportedFormat": "Sla het op als CSV of als Excel-werkmap (.xlsx) en kies het opnieuw."
-      },
-      "uploadHint": "CSV of Excel, tot {maxMegabytes} MB en {maxRows, number} rijen.",
-      "uploadKept": "De installatie bewaart {fileName}.",
-      "uploadReady": "Klaar om te importeren in je nieuwe lijsten.",
-      "uploadRejected": "{fileName} kan niet worden geïmporteerd. {reason}",
-      "uploadReplace": "Een ander bestand kiezen"
+      "showMore": "Nog {count} tonen",
+      "showPlan": "Mijn plan tonen"
     },
     "options": {
       "existingData": {
         "empty": "Nee, beginnen zonder records",
-        "sampleData": "Ja, voorbeelden toevoegen",
-        "spreadsheet": "Mijn spreadsheet importeren"
+        "sampleData": "Ja, voorbeelden toevoegen"
       },
       "pricing": {
         "fixedPrice": "Een vaste prijs per opdracht",
@@ -7590,45 +7495,29 @@
       }
     },
     "plan": {
-      "adjust": "Antwoorden aanpassen",
       "build": "Mijn werkruimte bouwen",
-      "calendarSources": "Agenda: {sources}",
-      "dashboard": "Dashboard",
+      "changeNamed": "{item} wijzigen",
+      "eyebrow": "Plan van Mate",
       "failedTitle": "Het plan kon niet worden opgesteld",
-      "importSummary": "Importeert {fileName} in {list}.",
-      "keyFields": "Belangrijkste velden van {list}",
-      "knowledgeBase": "Kennisbank",
       "lists": "Lijsten",
-      "morePages": "{count, plural, one {en # pagina meer} other {en # pagina's meer}}",
-      "noDashboard": "Er zijn geen dashboardwidgets gepland.",
-      "noPages": "Er zijn geen kennisbankpagina's gepland.",
-      "noPipeline": "Er is geen pipeline gepland.",
       "pipeline": "Pipeline",
-      "planningTitle": "Je plan wordt opgesteld",
+      "planningTitle": "Mate stelt je plan op",
       "progress": {
-        "done": {
-          "answers": "Je antwoorden gelezen",
-          "knowledge": "De opzet van je kennisbankpagina's gemaakt",
-          "model": "Je lijsten, velden en pipeline ontworpen",
-          "views": "Weergaven, het dashboard en voorbeeldrecords gepland"
-        },
         "minutesLeft": "{minutes, plural, one {Nog ongeveer # minuut} other {Nog ongeveer # minuten}}",
         "overdue": "Dit duurt iets langer dan normaal. We zijn bijna klaar.",
-        "steps": {
-          "answers": "Je antwoorden lezen",
-          "knowledge": "De opzet van je kennisbankpagina's maken",
-          "model": "Je lijsten, velden en pipeline ontwerpen",
-          "views": "Weergaven, het dashboard en voorbeeldrecords plannen"
-        },
-        "typical": "Mate ontwerpt je werkruimte op basis van je antwoorden. Dit duurt meestal 1 tot 2 minuten.",
         "underMinute": "Nog minder dan een minuut"
       },
-      "reviewHint": "Bekijk het plan en bouw daarna je werkruimte.",
-      "sampleSummary": "{count, plural, one {Voegt # voorbeeldrecord toe, zodat je meteen kunt uitproberen.} other {Voegt # voorbeeldrecords toe, zodat je meteen kunt uitproberen.}}",
-      "subtitle": "Dit gaan we bouwen zodra je bevestigt.",
-      "title": "Je werkruimteplan",
-      "tryAgain": "Opnieuw proberen",
-      "winChanceValue": "{value}%"
+      "rows": {
+        "examples": "Voorbeeldrecords",
+        "no": "Nee",
+        "pricing": "Hoe je rekent",
+        "steps": "{count, plural, one {# stap} other {# stappen}}",
+        "workWith": "Je werkt met",
+        "yes": "Ja"
+      },
+      "subtitle": "Er wordt niets gebouwd voordat je bevestigt.",
+      "title": "Je workspace, klaar om te bouwen",
+      "tryAgain": "Opnieuw proberen"
     },
     "questions": {
       "companyName": {
@@ -7641,23 +7530,23 @@
         "label": "Valuta"
       },
       "existingData": {
-        "label": "Voorbeeldrecords toevoegen, zodat je dingen kunt uitproberen?"
+        "description": "Zo kun je meteen alles uitproberen.",
+        "label": "Voorbeeldrecords toevoegen",
+        "title": "Moet Mate voorbeeldrecords toevoegen?"
       },
       "language": {
         "label": "Taal"
       },
       "mainSteps": {
-        "label": "Welke stappen doorloopt dit werk? We hebben gangbare stappen voorgesteld: hernoem, voeg toe of verwijder ze."
+        "hint": "We hebben gangbare stappen voorgesteld. Hernoem, voeg toe of verwijder ze.",
+        "label": "Welke stappen doorloopt dit werk?"
       },
       "pricing": {
         "label": "Hoe reken je af?"
       },
       "purpose": {
-        "label": "Wat wil je bijhouden? Contactpersonen en taken zitten er altijd bij."
-      },
-      "purposeDetails": {
-        "label": "Is er nog iets wat we moeten weten?",
-        "placeholder": "Bijvoorbeeld: we bouwen keukens en volgen elke klus van het eerste bezoek tot de montage"
+        "hint": "Contacten en taken zijn altijd inbegrepen.",
+        "label": "Wat wil je bijhouden?"
       },
       "teamSize": {
         "label": "Alleen jij, of een team?"
@@ -7665,23 +7554,6 @@
       "workWith": {
         "label": "Met wie werk je samen?"
       }
-    },
-    "start": {
-      "emptyPrompt": "Liever zelf alles instellen?",
-      "optionsLabel": "Manieren om je werkruimte in te stellen",
-      "questions": {
-        "description": "Maximaal zes korte vragen over wat je wilt bijhouden.",
-        "note": "Ongeveer 1 minuut",
-        "title": "Beantwoord een paar vragen"
-      },
-      "website": {
-        "action": "Mijn website lezen",
-        "description": "We lezen je openbare website en vullen de antwoorden voor je in. Jij hoeft ze alleen te controleren.",
-        "note": "Ongeveer 2 minuten",
-        "recommended": "Aanbevolen",
-        "title": "Mijn website gebruiken"
-      },
-      "withoutWebsite": "Doorgaan zonder website"
     },
     "suggestedSteps": {
       "contracts": ["Onboarding", "Actief", "Te verlengen", "Verlengd", "Beëindigd"],
@@ -7694,20 +7566,6 @@
       "partners": ["Contact gehad", "In gesprek", "Actief", "Gepauzeerd"],
       "projects": ["Gepland", "Bezig", "Beoordeling", "Afgerond"],
       "support": ["Nieuw", "Bezig", "Wachten op klant", "Opgelost"]
-    },
-    "website": {
-      "change": "Wijzigen",
-      "eta": "Duurt meestal 1 tot 2 minuten.",
-      "finding": "Pagina's zoeken op {website}",
-      "found": "{count, plural, =0 {Geen pagina's gevonden op {website}} one {# pagina gevonden op {website}} other {# pagina's gevonden op {website}}}",
-      "hint": "Optioneel. We lezen je openbare website en doen suggesties voor antwoorden, zodat je meestal alleen hoeft te bevestigen.",
-      "read": "Website lezen",
-      "reading": "{website} wordt gelezen: {read} van {total} pagina's",
-      "readPages": "{count, plural, =0 {Geen pagina's gelezen} one {# pagina gelezen} other {# pagina's gelezen}}",
-      "suggested": "Voorgestelde antwoorden",
-      "suggestedHint": "Controleer de gemarkeerde antwoorden en pas aan wat niet klopt.",
-      "suggesting": "Antwoorden voorstellen op basis van {website}",
-      "title": "Antwoorden invullen op basis van je website"
     }
   }
 }

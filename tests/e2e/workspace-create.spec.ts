@@ -114,13 +114,9 @@ test("a legacy workspace another administrator set up leaves the login its trial
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  // A new cloud workspace first asks how the owner found us (optional), then what to do first, or continues at the invite step when AI setup is not configured.
+  // A new cloud workspace opens Mate's first question; the profile was already filled in for the first workspace.
   const stepHeading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
-  await expect(
-    stepHeading(englishMessages.OnboardingWizard.steps.source.title)
-      .or(stepHeading(englishMessages.OnboardingWizard.steps.goal.title))
-      .or(stepHeading(englishMessages.OnboardingWizard.steps.invite.title)),
-  ).toBeVisible();
+  await expect(stepHeading(englishMessages.WorkspaceSetup.questions.workWith.label)).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
     createdByAuthUserId: workspace.authUserId,
@@ -165,12 +161,13 @@ test("a legacy workspace the login set up as its first administrator counts as i
   expect(errors).toEqual([]);
 });
 
-test("a self-hosted workspace is ready to use at once and continues in its onboarding wizard", async ({
+test("a self-hosted workspace is ready to use at once and its onboarding opens the empty workspace", async ({
   page,
   database,
   workspace,
 }, testInfo) => {
   test.skip(e2eAppMode() !== "self-hosted", "Runs against a server started with APP_MODE=self-hosted");
+  test.slow();
   const name = uniqueWorkspaceName("Selbst gehostet");
   const errors = collectPageErrors(page);
   await page.goto(appPath(workspace.slug, "/settings/workspaces"));
@@ -183,24 +180,23 @@ test("a self-hosted workspace is ready to use at once and continues in its onboa
   await page.screenshot({ path: testInfo.outputPath("ws-create-modal-self-hosted.png") });
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  // Self-hosted workspaces have no guided Mate setup: the wizard asks how to set up this instance, own agent first.
-  await expect(
-    page.getByRole("heading", {
-      level: 1,
-      name: englishMessages.OnboardingWizard.steps.goal.titleSelfHosted,
-      exact: true,
-    }),
-  ).toBeVisible();
+  // Self-hosted workspaces have no guided Mate setup: the wizard finishes on its own into the empty workspace.
+  await expect
+    .poll(async () => (await createdWorkspace(database, name))[0]?.onboardingWizardCompletedAt ?? null, {
+      timeout: 30_000,
+    })
+    .toBeInstanceOf(Date);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"), { timeout: 30_000 });
+  await expect(page.locator("#onboarding-finish")).toHaveCount(0);
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
     createdByAuthUserId: workspace.authUserId,
     subscription: "active",
     trialEndDate: null,
     memberStatus: "active",
-    onboardingWizardCompletedAt: null,
     isSystemRole: true,
   });
+  expect(created.onboardingWizardCompletedAt).toBeInstanceOf(Date);
   expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: created.id });
   expect(errors).toEqual([]);
 });

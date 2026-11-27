@@ -53,9 +53,12 @@ export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore
 
   const isAllDay = Boolean(raw.is_all_day) || (!start.dateTime && Boolean(start.date));
   const end = toCalendarTime(raw.end);
+  const master = raw.master_event_id?.trim();
+  const masterUnipileEventId = master && master !== raw.id ? master : null;
 
   return {
     unipileEventId: raw.id,
+    masterUnipileEventId,
     title: raw.title?.trim() ?? "",
     description: raw.body ?? null,
     location: raw.location ?? null,
@@ -65,7 +68,7 @@ export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore
     endsAt: toCalendarDate(end) ?? new Date(startsAt.getTime() + (isAllDay ? DAY_MS : HOUR_MS)),
     allDay: isAllDay,
     timezone: start.timeZone ?? raw.timezone ?? null,
-    recurrenceRule: raw.recurrence?.length ? raw.recurrence.join("\n") : null,
+    recurrenceRule: !masterUnipileEventId && raw.recurrence?.length ? raw.recurrence.join("\n") : null,
     status: raw.is_cancelled ? CalendarEventStatus.cancelled : CalendarEventStatus.confirmed,
     visibility: raw.visibility ?? null,
     transparency: raw.transparency?.trim().toLowerCase() || null,

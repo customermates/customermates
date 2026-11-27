@@ -145,7 +145,6 @@ export const StepChannel = observer(({ email }: { email: string }) => {
   const { onboardingWizardStore: store, connectedAccountsStore } = useRootStore();
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
   const connected = connectedAccountsStore.items.filter((account) => account.isOwner);
-  const linkedinFirst = store.connectsAgent;
   const labels: Record<"google" | "outlook" | "imap", ChannelRow> = {
     google: {
       key: "google",
@@ -189,7 +188,7 @@ export const StepChannel = observer(({ email }: { email: string }) => {
     label: t("OnboardingWizard.goal.channelsHint.linkedinTitle"),
     caption: t("OnboardingWizard.channel.captions.linkedin"),
   };
-  rows.splice(linkedinFirst ? 0 : 2, 0, linkedinRow);
+  rows.splice(2, 0, linkedinRow);
 
   return (
     <div className="flex flex-col gap-3">
@@ -271,19 +270,25 @@ export const StepChannelFooter = observer(() => {
 
   return (
     <AppCardFooter className={WIZARD_FOOTER_CLASS}>
-      <Button
-        disabled={disabled || store.isFirstStep}
-        id="onboarding-channel-back"
-        type="button"
-        variant="ghost"
-        onClick={() => runUserAction(store.back)}
-      >
-        {t("Common.actions.back")}
-      </Button>
+      {store.isFirstStep ? (
+        <span />
+      ) : (
+        <Button
+          className="min-h-11"
+          disabled={disabled}
+          id="onboarding-channel-back"
+          type="button"
+          variant="ghost"
+          onClick={() => runUserAction(store.back)}
+        >
+          {t("Common.actions.back")}
+        </Button>
+      )}
 
       <div className={`${WIZARD_FOOTER_GROUP_CLASS} justify-end`}>
         {hasChannel ? null : (
           <Button
+            className="min-h-11"
             disabled={disabled}
             id="onboarding-channel-skip"
             type="button"
@@ -295,13 +300,13 @@ export const StepChannelFooter = observer(() => {
         )}
 
         <Button
-          className="max-sm:disabled:hidden"
+          className="min-h-11 max-sm:disabled:hidden"
           disabled={disabled || !hasChannel}
           id="onboarding-channel-continue"
           type="button"
           onClick={() => runUserAction(() => store.leaveChannelStep(false))}
         >
-          {t("OnboardingWizard.continue")}
+          {store.isLastStep ? t("OnboardingWizard.finish") : t("OnboardingWizard.continue")}
 
           <ArrowRight aria-hidden="true" className="size-4" />
         </Button>

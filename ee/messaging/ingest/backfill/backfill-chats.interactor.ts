@@ -28,6 +28,7 @@ import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 import { BACKFILL_MESSAGE_PAGE_BUDGET, UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
 import { synchronizeInboundAvatar, type ProviderAvatars } from "../inbound-avatar";
 import { isUnipileRateLimit, isUnipileTransientError } from "../../messaging.service";
+import { stopWhenAccountGone, throwIfAccountGone } from "./account-gone";
 
 const BACKFILL_MESSAGE_TIMEOUT_MS = 10_000;
 
@@ -63,7 +64,11 @@ export class BackfillChatsInteractor {
   ) {}
 
   @Enforce(Schema)
-  async invoke({ connectedAccountId, source, cursor }: BackfillChatsPayload): Promise<PageResult> {
+  invoke(payload: BackfillChatsPayload): Promise<PageResult> {
+    return stopWhenAccountGone(() => this.backfillPage(payload));
+  }
+
+  private async backfillPage({ connectedAccountId, source, cursor }: BackfillChatsPayload): Promise<PageResult> {
     const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
     if (!account || account.status === ConnectedAccountStatus.deleted)
       return { nextCursor: null, done: true, complete: false };
@@ -131,6 +136,7 @@ export class BackfillChatsInteractor {
         lastMessageIsSender: lastMessageText ? (chat.last_message?.is_sender ?? null) : undefined,
       });
     } catch (err) {
+      await throwIfAccountGone(this.repo, account.id, err);
       ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
@@ -266,6 +272,7 @@ export class BackfillChatsInteractor {
       });
       await synchronizeInboundAvatar(this.avatars, account.companyId, ingested);
     } catch (err) {
+      await throwIfAccountGone(this.repo, account.id, err);
       ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,

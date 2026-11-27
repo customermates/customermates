@@ -89,8 +89,14 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     await client.end();
   });
 
-  it("exposes the same search and fetch tools that MCP clients call", () => {
-    expect(MCP_ALWAYS_ON_TOOLS.map((tool) => tool.name)).toEqual([searchTool.name, fetchTool.name]);
+  it("exposes the same search and fetch tools that MCP clients call, next to the account workspace tools", () => {
+    expect(MCP_ALWAYS_ON_TOOLS.map((tool) => tool.name)).toEqual([
+      searchTool.name,
+      fetchTool.name,
+      "list_workspaces",
+      "create_workspace",
+      "get_workspace_setup_status",
+    ]);
   });
 
   it("rebuilds the section search documents after title and Markdown edits", async () => {

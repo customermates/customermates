@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const EXPLICITLY_CLEARED = new Set(["AuthUser", "MessagingInboundEvent"]);
+const EXPLICITLY_CLEARED = new Set(["AuthUser", "MessagingInboundEvent", "OauthAccessToken"]);
 const RETAINED_WITHOUT_IDENTITIES = new Set(["BillingUsageInterval", "BillingUsageWorkspace"]);
 
 type Relation = { target: string; required: boolean; onDelete: string | null };
@@ -73,6 +73,12 @@ describe("workspace deletion reaches every company-scoped model", () => {
     });
 
     expect(redundant).toEqual([]);
+  });
+
+  it("keeps an account-wide MCP token when its default workspace disappears and only clears the default", () => {
+    const relation = models.get("OauthAccessToken")?.relations.find((candidate) => candidate.target === "Company");
+
+    expect(relation?.onDelete).toBe("SetNull");
   });
 
   it("keeps a session's selected workspace when the workspace disappears, so its open tabs notice", () => {

@@ -17,6 +17,7 @@ export type CompleteReplyDraftSendArgs = {
   bodyHtml: string | null;
   attachmentsMeta: AttachmentMeta[];
   sentAt: Date;
+  folderIds?: string[];
 };
 
 export abstract class DraftSendRepo {

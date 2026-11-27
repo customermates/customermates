@@ -51,7 +51,6 @@ type SetupModelContext = {
   setupId: string;
   model: RecordModel;
   labels: SetupModelLabels;
-  brandChip?: ChipColor | null;
 };
 
 const PROBABILITY = "probability";
@@ -230,7 +229,7 @@ export function compileSetupRecordModel(
       embedded: false,
       accessPresetId: null,
     });
-    const color = list.color ?? context.brandChip ?? undefined;
+    const color = list.color ?? undefined;
     const paths = relationshipPaths.get(list.key);
     if (!color && !paths) return;
     operations.push({

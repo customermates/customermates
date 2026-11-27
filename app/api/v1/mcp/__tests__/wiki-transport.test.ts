@@ -28,7 +28,11 @@ vi.mock("@/core/di", () => ({
   getGetRecordInteractor: vi.fn(),
   getGetRecordModelInteractor: vi.fn(),
   getResolveRecordSearchInteractor: vi.fn(),
-  getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
+  getAuthService: () => ({
+    isMcpApiKeyValid: () => Promise.resolve(true),
+    resolveMcpCredentialWorkspace: () =>
+      Promise.resolve({ credential: "apiKey", email: "member@example.com", companyId: null, agentJobKey: null }),
+  }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
   getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),
 }));

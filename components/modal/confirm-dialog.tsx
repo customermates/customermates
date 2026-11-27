@@ -37,6 +37,8 @@ type ConfirmDialogProps = {
   confirmationText?: string;
   busy?: boolean;
   anchorScope?: string;
+  alternativeLabel?: ReactNode;
+  onAlternative?: () => unknown;
   onCancel?: () => void;
   onConfirm?: () => unknown;
   onCloseAutoFocus?: (event: Event) => void;
@@ -54,6 +56,8 @@ export function ConfirmDialog({
   confirmationText,
   busy: busyProp = false,
   anchorScope,
+  alternativeLabel,
+  onAlternative,
   onCancel,
   onConfirm,
   onCloseAutoFocus,
@@ -69,16 +73,20 @@ export function ConfirmDialog({
   const busy = busyProp || pending;
   const confirmationMissing = confirmationText !== undefined && typedValue.trim() !== confirmationText.trim();
 
-  function confirm() {
-    if (!onConfirm || busy) return;
+  function run(action: (() => unknown) | undefined) {
+    if (!action || busy) return;
     runUserAction(async () => {
       setPending(true);
       try {
-        await onConfirm();
+        await action();
       } finally {
         setPending(false);
       }
     });
+  }
+
+  function confirm() {
+    run(onConfirm);
   }
 
   return (
@@ -136,11 +144,28 @@ export function ConfirmDialog({
             ) : null}
           </AppCardBody>
 
-          <AppCardFooter data-slot="confirm-dialog-actions">
+          <AppCardFooter
+            className={cn("gap-2", onAlternative && "flex-col-reverse items-stretch")}
+            data-slot="confirm-dialog-actions"
+          >
             {onCancel ? (
               <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
                 {cancelLabel ?? (onConfirm ? t("Common.actions.cancel") : t("Common.actions.close"))}
               </AlertDialogCancel>
+            ) : null}
+
+            {onAlternative ? (
+              <AlertDialogAction
+                disabled={busy}
+                id={anchorScope ? `${anchorScope}-alternative` : undefined}
+                variant="secondary"
+                onClick={(event) => {
+                  event.preventDefault();
+                  run(onAlternative);
+                }}
+              >
+                {alternativeLabel}
+              </AlertDialogAction>
             ) : null}
 
             {onConfirm ? (

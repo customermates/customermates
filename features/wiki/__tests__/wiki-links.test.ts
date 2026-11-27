@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import { parseRecordHref } from "../wiki-link-targets";
 import {
   localizeWikiPageUrls,
   parseWikiPageHref,
+  recordListMarkdownLink,
+  withRelatedSection,
   parseWikiPageReference,
   wikiPageFetchId,
   wikiPageMarkdownLink,
@@ -183,5 +186,22 @@ describe("Wiki Markdown links", () => {
     const afterRename = `[New title](/wiki?page=${LINKED_ID})`;
     expect(extractWikiPageLinks(beforeRename, BASE_URL, SLUG)[0]?.id).toBe(LINKED_ID);
     expect(extractWikiPageLinks(afterRename, BASE_URL, SLUG)[0]?.id).toBe(LINKED_ID);
+  });
+});
+
+describe("List links and Related sections", () => {
+  it("links a list as a record-type link the link sync recognises", () => {
+    const link = recordListMarkdownLink("Deals [open]", ID.toUpperCase());
+    expect(link).toBe(`[Deals \\[open\\]](/records/${ID})`);
+    expect(parseRecordHref(`/records/${ID}`)).toEqual({ typeId: ID, recordId: null, slug: null });
+    expect(() => recordListMarkdownLink("Deals", "deals")).toThrow();
+  });
+
+  it("appends a Related section once and replaces it on the next run", () => {
+    const first = withRelatedSection("## Intro\n\nText\n", "## Related\n\n- one", "Related");
+    expect(first).toBe("## Intro\n\nText\n\n## Related\n\n- one");
+    const second = withRelatedSection(first, "## Related\n\n- two", "Related");
+    expect(second).toBe("## Intro\n\nText\n\n## Related\n\n- two");
+    expect(withRelatedSection("## Related\n\n- old", "## Related\n\n- new", "Related")).toBe("## Related\n\n- new");
   });
 });

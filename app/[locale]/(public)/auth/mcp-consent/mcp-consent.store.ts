@@ -8,17 +8,15 @@ import { decideMcpConsentAction } from "../actions";
 import { BaseStore } from "@/core/base/base.store";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
-function defaultWorkspace(workspaces: McpConsentWorkspace[]): McpConsentWorkspace | null {
-  const current = workspaces.find((workspace) => workspace.isCurrent);
-  if (current && current.unavailableReason === null) return current;
-
-  return workspaces.find((workspace) => workspace.unavailableReason === null) ?? current ?? workspaces[0] ?? null;
-}
+type ConsentOptions = { fixedWorkspace: boolean; termsOffered?: boolean; termsRequired: boolean };
 
 export class McpConsentStore extends BaseStore {
   isSubmitting = false;
   workspaces: McpConsentWorkspace[] = [];
-  selectedCompanyId: string | null = null;
+  fixedWorkspace = false;
+  termsOffered = false;
+  termsRequired = false;
+  termsAccepted = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -26,47 +24,56 @@ export class McpConsentStore extends BaseStore {
     makeObservable(this, {
       isSubmitting: observable,
       workspaces: observable.ref,
-      selectedCompanyId: observable,
-      selectedWorkspace: computed,
+      fixedWorkspace: observable,
+      termsOffered: observable,
+      termsRequired: observable,
+      termsAccepted: observable,
+      usableWorkspaces: computed,
       canApprove: computed,
+      canSubmitApproval: computed,
       initialize: action,
-      select: action,
+      setTermsAccepted: action,
       decide: action,
     });
   }
 
-  get selectedWorkspace(): McpConsentWorkspace | null {
-    return this.workspaces.find((workspace) => workspace.companyId === this.selectedCompanyId) ?? null;
+  get usableWorkspaces(): McpConsentWorkspace[] {
+    return this.workspaces.filter((workspace) => workspace.unavailableReason === null);
   }
 
   get canApprove(): boolean {
-    return this.selectedWorkspace?.unavailableReason === null;
+    if (this.fixedWorkspace) return this.workspaces[0]?.unavailableReason === null;
+    return this.usableWorkspaces.length > 0 || this.workspaces.length === 0;
   }
 
-  initialize = (workspaces: McpConsentWorkspace[]) => {
-    const kept = workspaces.find(
-      (workspace) => workspace.companyId === this.selectedCompanyId && workspace.unavailableReason === null,
-    );
+  get canSubmitApproval(): boolean {
+    return this.canApprove && !this.isSubmitting && (!this.termsRequired || this.termsAccepted);
+  }
+
+  initialize = (workspaces: McpConsentWorkspace[], options: ConsentOptions) => {
     this.workspaces = workspaces;
-    this.selectedCompanyId = kept?.companyId ?? defaultWorkspace(workspaces)?.companyId ?? null;
+    this.fixedWorkspace = options.fixedWorkspace;
+    this.termsOffered = !options.fixedWorkspace && (options.termsOffered === true || options.termsRequired);
+    this.termsRequired = this.termsOffered && options.termsRequired;
+    if (!this.termsOffered) this.termsAccepted = false;
   };
 
-  select = (companyId: string) => {
-    const workspace = this.workspaces.find((candidate) => candidate.companyId === companyId);
-    if (this.isSubmitting || !workspace || workspace.unavailableReason !== null) return;
-
-    this.selectedCompanyId = companyId;
+  setTermsAccepted = (accepted: boolean) => {
+    if (this.isSubmitting) return;
+    this.termsAccepted = accepted;
   };
 
   decide = async (consentCode: string, accept: boolean): Promise<string | null> => {
-    const companyId = this.selectedCompanyId;
+    const acceptTerms = accept && this.termsOffered ? this.termsAccepted : undefined;
     runInAction(() => {
       this.isSubmitting = true;
     });
 
-    const result = await decideMcpConsentAction({ consentCode, accept, ...(companyId ? { companyId } : {}) }).catch(
-      () => null,
-    );
+    const result = await decideMcpConsentAction({
+      consentCode,
+      accept,
+      ...(acceptTerms === undefined ? {} : { acceptTerms }),
+    }).catch(() => null);
 
     if (result?.ok && result.data?.redirectURI) return result.data.redirectURI;
     if (notifyIfWorkspaceChanged(result)) return null;

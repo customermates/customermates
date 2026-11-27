@@ -76,17 +76,6 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
     await expect(bar).toHaveCount(0);
     await expect(fencedBlock).toHaveText("yarn install");
 
-    const sheet = page.getByRole("dialog", { name: "Local setup" });
-    const outline = sheet.locator('[data-slot="collapsible-section"]').filter({ hasText: englishMessages.Wiki.onThisPage });
-    await outline.getByRole("button", { name: new RegExp(englishMessages.Wiki.onThisPage) }).click();
-    await expect(outline.locator('[data-slot="collapsible-section-content"]').getByRole("button")).toHaveText([
-      "Setup",
-      "Run",
-      "Deploy",
-    ]);
-    await outline.getByRole("button", { name: "Deploy", exact: true }).click();
-    await expect(document.locator("#wiki-heading-2")).toBeInViewport();
-
     await caretToEnd(fencedBlock);
     await page.keyboard.press("Enter");
     await page.keyboard.type("yarn dev");
@@ -153,17 +142,24 @@ test("guards a draft in the page sheet and saves a new page through the shared b
     const title = page.getByRole("textbox", { name: englishMessages.Wiki.pageTitle, exact: true });
     const newPage = page.locator("header").getByRole("button", { name: englishMessages.Wiki.newPage, exact: true });
     const sheet = page.getByRole("dialog");
-    const deletePage = sheet.getByRole("button", { name: englishMessages.Wiki.delete, exact: true });
+    const moreActions = sheet.getByRole("button", { name: englishMessages.DataView.moreActions, exact: true });
+    const deletePage = page.getByRole("menuitem", { name: englishMessages.Wiki.delete, exact: true });
+    const expectDeleteOffered = async (offered: boolean) => {
+      await moreActions.click();
+      await expect(deletePage).toHaveCount(offered ? 1 : 0);
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("menu")).toHaveCount(0);
+    };
     const bar = page.locator('[data-slot="unsaved-changes-bar"]');
     const confirmation = page.getByRole("alertdialog");
     await expect(page.locator('.tiptap[contenteditable="true"]')).toBeVisible();
     await expect(title).toHaveValue("Saved reference");
     await expect(bar).toHaveCount(0);
-    await expect(deletePage).toBeEnabled();
+    await expectDeleteOffered(true);
     await title.fill("Unsaved reference");
     await expect(title).toHaveValue("Unsaved reference");
     await expect(bar).toBeVisible();
-    await expect(deletePage).toBeEnabled();
+    await expectDeleteOffered(true);
     const scrolled = await sheet.locator("[data-wiki-page-scroller]").evaluate((body) => {
       body.scrollTop = body.scrollHeight;
       return body.scrollTop;
@@ -190,7 +186,7 @@ test("guards a draft in the page sheet and saves a new page through the shared b
 
     await newPage.click();
     await expect(title).toHaveValue("");
-    await expect(deletePage).toHaveCount(0);
+    await expectDeleteOffered(false);
     await expect(bar).toBeVisible();
     await expect(bar).not.toContainText(englishMessages.Common.unsavedChanges);
     await bar.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
@@ -201,8 +197,8 @@ test("guards a draft in the page sheet and saves a new page through the shared b
     await page.locator('.tiptap[contenteditable="true"]').fill("The saved draft is independent of the original page.");
     await bar.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
     await expect(bar).toHaveCount(0);
-    await expect(deletePage).toBeEnabled();
     await expect(page).toHaveURL(/[?&]page=/);
+    await expectDeleteOffered(true);
     await expect.poll(async () => (await database.query(
       'SELECT title,markdown FROM "WikiPage" WHERE "companyId"=$1 AND title=$2',
       [workspace.companyId, "Created with the shared bar"],

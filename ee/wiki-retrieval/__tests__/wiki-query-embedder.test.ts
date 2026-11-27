@@ -1,5 +1,6 @@
 import type { WikiEmbeddingService } from "../wiki-embedding.service";
 
+import { GatewayAuthenticationError } from "@ai-sdk/gateway";
 import { describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -159,6 +160,20 @@ describe("Wiki query embedding cache", () => {
       "a spend reservation that outlived its transaction",
       Object.assign(new Error("A query cannot be executed on an expired transaction."), { code: "P2028" }),
       "warning",
+    ],
+    [
+      "a request that carried no gateway credential",
+      GatewayAuthenticationError.createContextualError({
+        apiKeyProvided: false,
+        oidcTokenProvided: false,
+        cause: new Error("The 'x-vercel-oidc-token' header is missing from the request."),
+      }),
+      "warning",
+    ],
+    [
+      "a gateway that rejected the request's OIDC token",
+      GatewayAuthenticationError.createContextualError({ apiKeyProvided: false, oidcTokenProvided: true }),
+      undefined,
     ],
     [
       "a rejected gateway key",

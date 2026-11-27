@@ -98,8 +98,8 @@
   },
   "workspace": {
     "connected": "Jesteś już połączony z przestrzenią roboczą Customermates, która przyjmie ten szablon. Pracuj w niej i nie zakładaj kolejnej.",
-    "connectedAt": "Ta przestrzeń robocza już istnieje i jesteś z nią połączony przez MCP pod adresem {mcpUrl}. Pracuj w tej przestrzeni roboczej i w żadnej innej.",
-    "existsAt": "Ta przestrzeń robocza już istnieje, ale asystent nie jest jeszcze z nią połączony. Połącz go przez MCP pod adresem {mcpUrl} za pomocą klucza API z Ustawienia, Klucze API i konektory. Dopóki połączenia nie ma, poproś mnie o jego dokończenie, zanim cokolwiek zmienisz. Potem pracuj w tej przestrzeni roboczej i w żadnej innej.",
+    "connectedAt": "Ta przestrzeń robocza już istnieje i jesteś z nią połączony przez MCP pod adresem {mcpUrl}. Przy każdym wywołaniu narzędzia przekazuj workspace {workspace} i pracuj w tej przestrzeni roboczej i w żadnej innej.",
+    "existsAt": "Ta przestrzeń robocza już istnieje, ale asystent nie jest jeszcze z nią połączony. Połącz go przez MCP pod adresem {mcpUrl} i zaloguj się moim kontem Customermates. Dopóki połączenia nie ma, poproś mnie o jego dokończenie, zanim cokolwiek zmienisz. Potem przy każdym wywołaniu narzędzia przekazuj workspace {workspace} i pracuj w tej przestrzeni roboczej i w żadnej innej.",
     "unconnected": "Pracuj w przestrzeni roboczej Customermates, z którą jesteś połączony przez MCP. Jeśli nie jesteś jeszcze połączony z żadną, poproś mnie o połączenie, zanim cokolwiek zmienisz."
   }
 }

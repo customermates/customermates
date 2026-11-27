@@ -13,7 +13,11 @@ const mocks = vi.hoisted(() => ({
   readSignupSource: vi.fn(),
   readSignupTemplate: vi.fn(),
   forgetSignupJourney: vi.fn(),
+  recordDiscovery: vi.fn(),
+  captureException: vi.fn(),
 }));
+
+vi.mock("@/core/observability/server", () => ({ captureException: mocks.captureException }));
 
 vi.mock("next/cache", () => ({ refresh: mocks.refresh }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
@@ -22,12 +26,14 @@ vi.mock("@/core/di", () => ({
   getApplyOnboardingPlaybookInteractor: () => ({ invoke: mocks.applyPlaybook }),
   getCompleteOnboardingWizardInteractor: () => ({ invoke: mocks.complete }),
   getRegisterOnboardingProfileInteractor: () => ({ invoke: mocks.register }),
+  getRecordDiscoveryAnswerInteractor: () => ({ invoke: mocks.recordDiscovery }),
 }));
 vi.mock("@/core/utils/action-result", () => ({
   serializeResult: async (result: unknown) => await result,
   serializeTypedResult: async (result: unknown) => await result,
   settleActionResult: async (result: unknown) => await result,
 }));
+vi.mock("@/core/security/bot-check", () => ({ refuseBots: () => Promise.resolve(null) }));
 vi.mock("@/features/acquisition/next/ad-attribution-cookie", () => ({
   clearRegisteredAdClicksFromCookie: mocks.clearRegisteredClick,
   readRegistrationAdAttribution: mocks.readAttribution,
@@ -130,6 +136,41 @@ describe("onboarding registration action", () => {
     await expect(registerProfileAction({ ...registration, displayLanguage: "en" })).rejects.toThrow(
       "REDIRECT:/en/onboarding/wizard",
     );
+  });
+
+  it("records how the owner found us once the profile is registered", async () => {
+    mocks.register.mockResolvedValue({ data: { redirectTo: "/onboarding/wizard" }, ok: true });
+    mocks.recordDiscovery.mockResolvedValue({ ok: true, data: { recorded: true } });
+
+    await expect(registerProfileAction(registration, { choice: "aiAssistant" })).rejects.toThrow(
+      "REDIRECT:/en/onboarding/wizard",
+    );
+
+    expect(mocks.recordDiscovery).toHaveBeenCalledExactlyOnceWith({ choice: "aiAssistant" });
+    expect(mocks.register.mock.invocationCallOrder[0]).toBeLessThan(mocks.recordDiscovery.mock.invocationCallOrder[0]);
+  });
+
+  it("keeps the registration when the discovery answer cannot be recorded", async () => {
+    mocks.register.mockResolvedValue({ data: { redirectTo: "/onboarding/wizard" }, ok: true });
+    const failure = new Error("discovery down");
+    mocks.recordDiscovery.mockRejectedValue(failure);
+
+    await expect(registerProfileAction(registration, { choice: null })).rejects.toThrow(
+      "REDIRECT:/en/onboarding/wizard",
+    );
+
+    expect(mocks.captureException).toHaveBeenCalledWith(failure);
+    expect(mocks.clearRegisteredClick).toHaveBeenCalledOnce();
+  });
+
+  it("records no discovery answer without one or when the registration failed", async () => {
+    mocks.register.mockResolvedValue({ data: { redirectTo: "/onboarding/wizard" }, ok: true });
+    await expect(registerProfileAction(registration)).rejects.toThrow("REDIRECT:/en/onboarding/wizard");
+
+    mocks.register.mockResolvedValue({ ok: false, error: { fieldErrors: {}, formErrors: [] } });
+    await registerProfileAction(registration, { choice: "searchEngine" });
+
+    expect(mocks.recordDiscovery).not.toHaveBeenCalled();
   });
 });
 

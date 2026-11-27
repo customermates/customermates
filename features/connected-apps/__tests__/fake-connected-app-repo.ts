@@ -21,10 +21,10 @@ export class FakeConnectedAppRepo implements ConnectedAppRepo {
 
   findGrantsOfLogin(authUserId: string): Promise<ConnectedAppGrant[]> {
     this.askedFor.push(authUserId);
-    const { companyId } = getTenantUser();
+    getTenantUser();
     const grants = new Map<string, ConnectedAppGrant>();
     for (const token of this.tokens) {
-      if (token.userId !== authUserId || token.companyId !== companyId) continue;
+      if (token.userId !== authUserId) continue;
 
       const grant = grants.get(token.clientId);
       grants.set(token.clientId, {

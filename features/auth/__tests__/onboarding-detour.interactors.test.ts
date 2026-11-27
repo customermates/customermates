@@ -8,7 +8,6 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { RequestPasswordResetInteractor } from "../request-password-reset.interactor";
-import { ResendVerificationEmailInteractor } from "../resend-verification-email.interactor";
 import { ResetPasswordInteractor } from "../reset-password.interactor";
 import { SignOutInteractor } from "../sign-out.interactor";
 import { SignUpWithEmailInteractor } from "../sign-up-with-email.interactor";
@@ -78,23 +77,6 @@ describe("onboarding authentication detours", () => {
 
     await expect(interactor.invoke({ ...data, onboardingIntent: invitation.intent })).resolves.toEqual({
       redirect: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent",
-    });
-  });
-
-  it("derives the exact verification callback while keeping the session", async () => {
-    const resendVerificationEmail = vi.fn().mockResolvedValue(undefined);
-    const interactor = new ResendVerificationEmailInteractor(
-      {
-        getSession: vi.fn().mockResolvedValue({ user: { email: "invited@example.com" } }),
-        resendVerificationEmail,
-      } as unknown as AuthService,
-      onboardingIntentService as never,
-    );
-
-    await expect(interactor.invoke({ onboardingIntent: invitation.intent })).resolves.toEqual({ ok: true });
-    expect(resendVerificationEmail).toHaveBeenCalledWith("invited@example.com", {
-      callbackURL: "/auth/invitation?intent=signed.intent",
-      keepSession: true,
     });
   });
 

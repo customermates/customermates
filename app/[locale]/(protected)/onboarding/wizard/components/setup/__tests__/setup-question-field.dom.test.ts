@@ -72,7 +72,6 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     id: "customerKind",
     labelKey: labelKey("customerKind"),
     format: "singleChoice",
-    prefill: "yes",
     options: options("customerKind", ["businesses", "consumers", "both"]),
   },
   leadSources: {
@@ -80,7 +79,6 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     labelKey: labelKey("leadSources"),
     format: "multipleChoice",
     allowCustom: true,
-    prefill: "partly",
     options: options("leadSources", ["website", "referrals", "events"]),
   },
   salesSteps: {
@@ -88,14 +86,12 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     labelKey: labelKey("salesSteps"),
     format: "orderedList",
     maxItems: 12,
-    prefill: "suggested",
   },
   weeklyNumbers: {
     id: "weeklyNumbers",
     labelKey: labelKey("weeklyNumbers"),
     format: "rankedPick",
     maxPicks: 3,
-    prefill: "no",
     options: options("weeklyNumbers", ["pipelineValue", "forecast", "newLeads", "overdueTasks"]),
   },
   dealSize: {
@@ -106,7 +102,6 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     single: false,
     min: 0,
     max: 100_000_000,
-    prefill: "partly",
   },
   salesCycle: {
     id: "salesCycle",
@@ -116,7 +111,6 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     single: true,
     min: 0,
     max: 1_000,
-    prefill: "partly",
   },
   anythingMissed: {
     id: "anythingMissed",
@@ -124,7 +118,6 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     labelKey: labelKey("anythingMissed"),
     format: "shortText",
     maxLength: 1_000,
-    prefill: "no",
   },
 };
 
@@ -375,9 +368,12 @@ describe("SetupQuestionField", () => {
     expect(container.querySelector("label .text-destructive")?.textContent).toBe(" *");
   });
 
-  it("marks confident website answers", () => {
-    render(descriptorOf("companyName"), { format: "shortText", value: "Acme" }, { fromWebsite: true });
-    expect(container.textContent).toContain("WorkspaceSetup.actions.fromWebsite");
+  it("names the group without a visible label when the screen title already asks the question", () => {
+    render(descriptorOf("mainSteps"), { format: "orderedList", items: [] }, { hideLabel: true });
+    expect(container.querySelector("#setup-question-mainSteps")).toBeNull();
+    expect(container.querySelector('[role="group"]')?.getAttribute("aria-label")).toBe(
+      "WorkspaceSetup.questions.mainSteps.label",
+    );
   });
 
   it("renders follow-up questions with the same component", () => {

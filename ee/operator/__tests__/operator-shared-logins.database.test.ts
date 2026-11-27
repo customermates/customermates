@@ -353,7 +353,13 @@ describeDatabase("operator console with logins in several workspaces", { timeout
         where: { id: { in: [credentials.sharedDoomedToken, credentials.sharedKeptToken] } },
         select: { id: true, companyId: true },
       });
-      expect(tokens).toEqual([{ id: credentials.sharedKeptToken, companyId: fixture.kept }]);
+      expect(tokens).toEqual(
+        expect.arrayContaining([
+          { id: credentials.sharedKeptToken, companyId: fixture.kept },
+          { id: credentials.sharedDoomedToken, companyId: null },
+        ]),
+      );
+      expect(tokens).toHaveLength(2);
 
       const sessions = await prisma.authSession.findMany({
         where: { id: { in: [credentials.doomedSession, credentials.keptSession] } },

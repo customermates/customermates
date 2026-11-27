@@ -11,6 +11,7 @@ import {
   getBackfillEmailsInteractor,
   getBackfillCalendarsInteractor,
   getReleaseBackfillClaimInteractor,
+  getSweepEmailPresenceInteractor,
 } from "@/core/di";
 import {
   getRetryAfterSeconds,
@@ -31,6 +32,7 @@ const RESWEEP_DELAY_MS = 90_000;
 const BACKFILL_RESWEEPS = 2;
 const FINAL_SWEEP_DELAY_MS = 45 * 60_000;
 const CALENDAR_SOURCE = "calendar";
+const PRESENCE_SOURCE = "email presence";
 
 export type BackfillConnectedAccountPayload = {
   connectedAccountId: string;
@@ -38,7 +40,12 @@ export type BackfillConnectedAccountPayload = {
   tenant?: WorkflowTenant;
 };
 
-type PageKind = "chat" | "email" | "calendar";
+export type SweepEmailPresencePayload = {
+  connectedAccountId: string;
+  tenant?: WorkflowTenant;
+};
+
+type PageKind = "chat" | "email" | "calendar" | "presence";
 type ListPageResult = {
   nextCursor: string | null;
   done: boolean;
@@ -57,6 +64,8 @@ const pageFetchers: Record<PageKind, PageFetcher> = {
     await getBackfillCalendarsInteractor().invoke({ connectedAccountId });
     return { nextCursor: null, done: true };
   },
+  presence: (connectedAccountId, _source, cursor) =>
+    getSweepEmailPresenceInteractor().invoke({ connectedAccountId, cursor }),
 };
 
 async function claimBackfill(connectedAccountId: string): Promise<string | null> {
@@ -226,6 +235,9 @@ export async function backfillConnectedAccount(payload: BackfillConnectedAccount
       paused =
         plan.kind === "none" ? false : await drainWithResweeps(plan.kind, connectedAccountId, plan.sources, tenant);
 
+      if (!paused && plan.kind === "email" && !sourceFilter?.length)
+        paused = await drainSources("presence", connectedAccountId, [PRESENCE_SOURCE], tenant);
+
       if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE], tenant);
     }
 
@@ -238,4 +250,21 @@ export async function backfillConnectedAccount(payload: BackfillConnectedAccount
 
   await sleep(FINAL_SWEEP_DELAY_MS);
   await finalSweep(connectedAccountId, sourceFilter, tenant);
+}
+
+export async function sweepEmailPresence(payload: SweepEmailPresencePayload): Promise<void> {
+  "use workflow";
+  const { connectedAccountId, tenant } = payload;
+
+  const token = await claimBackfill(connectedAccountId);
+  if (!token) return;
+
+  try {
+    const paused = await drainSources("presence", connectedAccountId, [PRESENCE_SOURCE], tenant);
+    await releaseClaim(connectedAccountId, token, !paused);
+  } catch (err) {
+    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), tenant);
+    await releaseClaim(connectedAccountId, token, false).catch(() => undefined);
+    throw err;
+  }
 }

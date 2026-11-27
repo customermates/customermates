@@ -1,6 +1,7 @@
 import type { IngestMessage, MessageReactionEntry, MessagingMessage, MessagingThread } from "../messaging.schema";
 import type { MessagingThreadType } from "@/generated/prisma";
 import type { InboundSender } from "./inbound-avatar";
+import type { EmailSighting } from "./backfill/backfill.repo";
 
 export abstract class MessagingIngestRepo {
   abstract ingestMessageUnscoped(args: {
@@ -75,4 +76,15 @@ export abstract class MessagingIngestRepo {
     since: Date;
     seenUnipileMessageIds: string[];
   }): Promise<number>;
+  abstract findEmailPresenceHorizonUnscoped(args: {
+    companyId: string;
+    connectedAccountId: string;
+    startedAt: Date;
+  }): Promise<Date | null>;
+  abstract reconcileEmailPresenceUnscoped(args: {
+    companyId: string;
+    connectedAccountId: string;
+    startedAt: Date;
+    sightings: EmailSighting[];
+  }): Promise<{ hidden: number; relocated: number }>;
 }

@@ -6,6 +6,14 @@ const TRANSIENT_GATEWAY_ERROR_NAMES = new Set([
   "AbortError",
 ]);
 
+export function isMissingGatewayCredentialError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    error.name === "GatewayAuthenticationError" &&
+    error.message.includes("No authentication provided")
+  );
+}
+
 export function isTransientGatewayError(error: unknown, depth = 0): boolean {
   if (!(error instanceof Error) || depth > 4) return false;
   if (TRANSIENT_GATEWAY_ERROR_NAMES.has(error.name)) return true;

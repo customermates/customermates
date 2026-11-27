@@ -4,7 +4,6 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
-import type { SetupCrawlState } from "../workspace-setup.repo";
 import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "../workspace-setup.schema";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -24,19 +23,15 @@ import {
   SETUP_PLAN_QUEUE_STALE_MS,
   WorkspaceSetupInterviewService,
   setupPlanStalled,
-  setupPrefillStalled,
 } from "../workspace-setup-interview.service";
 
 const owner = createMockUser({ companyId: SETUP_COMPANY_ID });
-const blank = { choice: null, choices: [], custom: [], items: [], min: null, max: null, text: null };
 
-function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<SetupCrawlState> = {}) {
+function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
   let setup: WorkspaceSetupRecord = {
     id: "setup-1",
     userId: owner.id,
     status: "interview",
-    websiteUrl: "https://studio.example/",
-    crawlId: "crawl-1",
     answers: {},
     interview: StoredSetupInterviewSchema.parse({}),
     plan: null,
@@ -45,8 +40,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
     artifacts: {},
     created: StoredSetupCreatedSchema.parse({}),
     results: StoredSetupResultsSchema.parse({}),
-    spreadsheetName: null,
-    hasSpreadsheet: false,
     startedAt: new Date(),
     confirmedAt: null,
     finishedAt: null,
@@ -59,25 +52,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
       if (patch) setup = { ...setup, ...patch } as WorkspaceSetupRecord;
       return Promise.resolve({ setup, changed: Boolean(patch) });
     }),
-    crawlState: vi.fn(() =>
-      Promise.resolve({
-        status: "synthesizing",
-        failureReason: null,
-        homepageUrl: "https://studio.example/",
-        registrableDomain: "studio.example",
-        discovered: 12,
-        fetched: 12,
-        topics: [],
-        ...crawl,
-      }),
-    ),
-    crawlSources: vi.fn(() =>
-      Promise.resolve([
-        { url: "https://studio.example/privacy", title: "Privacy", text: "We store cookies.", category: "policy" },
-        { url: "https://studio.example/", title: "Studio", text: "We design websites in Berlin.", category: "about" },
-      ]),
-    ),
-    readSpreadsheet: vi.fn(() => Promise.resolve(null)),
   };
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const planner = { attempt: vi.fn(), assemble: vi.fn() };
@@ -88,35 +62,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
 
 describe("workspace setup interview", () => {
   beforeEach(() => vi.clearAllMocks());
-
-  it("waits while the website is still being read, then pre-fills without touching the owner's answers", async () => {
-    const { service, models, run, setup, repo } = harness({
-      answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Mine" } } },
-    });
-    repo.crawlState.mockResolvedValueOnce({ ...(await repo.crawlState()), status: "fetching" });
-    expect(await run(() => service.prefill("setup-1", false))).toBe("wait");
-    expect(models.generate).not.toHaveBeenCalled();
-
-    models.generate.mockResolvedValue({
-      ok: true,
-      value: {
-        answers: [
-          { ...blank, part: "companyName", confidence: 0.99, text: "Studio Example" },
-          { ...blank, part: "purpose", confidence: 0.9, choices: ["projects"], custom: [] },
-          { ...blank, part: "workWith", confidence: 0.9, choice: "clients" },
-          { ...blank, part: "pricing", confidence: 0.4, choice: "timeBased" },
-        ],
-      },
-    });
-    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
-    expect(models.generate.mock.calls[0][0]).toMatchObject({ purpose: "setupDrafting" });
-    expect(models.generate.mock.calls[0][0].prompt).toContain("<<<UNTRUSTED_RECORD_TEXT>>>\n# Studio");
-    expect(setup().interview.prefill).toBe("completed");
-    expect(setup().answers.companyName?.value).toEqual({ format: "shortText", value: "Mine" });
-    expect(setup().answers.workWith).toMatchObject({ source: "website", confidence: 0.9 });
-    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
-    expect(models.generate).toHaveBeenCalledTimes(1);
-  });
 
   it("returns to the interview with at most one follow-up question", async () => {
     const { service, models, run, setup } = harness({ status: "planning" });
@@ -151,38 +96,7 @@ describe("workspace setup interview", () => {
     expect(await run(() => service.followUps("setup-1"))).toBe("skip");
   });
 
-  it("reads the pricing and product pages before help and policy pages, and retries a malformed draft once", async () => {
-    const { service, models, run, setup } = harness();
-    models.generate
-      .mockResolvedValueOnce({
-        ok: false,
-        failure: "generation",
-        rejection: "answers: expected array, received string.",
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        value: {
-          answers: [
-            { ...blank, part: "purpose", confidence: 0.8, choices: ["projects"], custom: ["Fashion shoots"] },
-            { ...blank, part: "companyName", confidence: 0.95, text: "Studio Example" },
-            { ...blank, part: "workWith", confidence: 0.9, choice: "clients" },
-          ],
-        },
-      });
-    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
-    const [first, second] = models.generate.mock.calls.map(([call]) => (call as { prompt: string }).prompt);
-    expect(first.indexOf("# Studio")).toBeLessThan(first.indexOf("# Privacy"));
-    expect(first).toContain('"prefill":"suggested"');
-    expect(second).toContain("answers: expected array, received string.");
-    expect(setup().interview.prefill).toBe("completed");
-    expect(setup().answers.purpose?.value).toEqual({
-      format: "multipleChoice",
-      values: ["projects"],
-      custom: ["Fashion shoots"],
-    });
-  });
-
-  it("drafts each plan part in its own step with the setup's answers, language, currency and website", async () => {
+  it("drafts each plan part in its own step with the setup's answers, language and currency", async () => {
     const { service, planner, run, setup } = harness({
       status: "planning",
       planRevision: 1,
@@ -190,13 +104,7 @@ describe("workspace setup interview", () => {
         language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "en" } },
         currency: { source: "user", confidence: 1, value: { format: "singleChoice", value: "CHF" } },
       },
-      interview: StoredSetupInterviewSchema.parse({
-        plan: "queued",
-        followUps: "completed",
-        prefillDraft: {
-          language: { source: "website", confidence: 0.9, value: { format: "singleChoice", value: "de" } },
-        },
-      }),
+      interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
     });
     const parts = planToWireParts(agencyPlan);
     planner.attempt.mockImplementation((part: "model" | "knowledge" | "views", _input: unknown, state: object) =>
@@ -212,16 +120,12 @@ describe("workspace setup interview", () => {
     expect(planner.attempt.mock.calls[2][3]).toEqual({ model: parts.model, knowledge: parts.knowledge });
     expect(planner.attempt).toHaveBeenCalledWith(
       "model",
-      expect.objectContaining({
-        setupId: "setup-1",
-        language: "en",
-        answersLanguage: "de",
-        currency: "CHF",
-        sources: expect.arrayContaining([expect.objectContaining({ category: "about" })]),
-      }),
+      expect.objectContaining({ setupId: "setup-1", language: "en", currency: "CHF" }),
       expect.objectContaining({ revision: 1, attempts: 0 }),
       { model: null, knowledge: null },
     );
+    expect(planner.attempt.mock.calls[0][1]).not.toHaveProperty("sources");
+    expect(planner.attempt.mock.calls[0][1]).not.toHaveProperty("sheet");
     const plan = SetupPlanSchema.parse(agencyPlan);
     planner.assemble.mockResolvedValue({ ok: true, plan });
     expect(await run(() => service.finishPlan("setup-1", 1, false))).toBe("planned");
@@ -300,24 +204,15 @@ describe("workspace setup interview", () => {
     expect(planner.attempt).not.toHaveBeenCalled();
   });
 
-  it("keeps a website pre-fill that finished after the owner changed the website out of the new interview", async () => {
-    const { service, models, run, setup, repo } = harness();
-    models.generate.mockImplementation(() => {
-      void repo.mutate("setup-1", (current) => ({
-        crawlId: "crawl-2",
-        interview: { ...current.interview, prefill: "idle", prefillClaimedAt: null, prefillDraft: null },
-      }));
-      return Promise.resolve({
-        ok: true,
-        value: { answers: [{ ...blank, part: "workWith", confidence: 0.9, choice: "customers" }] },
-      });
+  it("claims a plan again once its claim went quiet, but never a claim that is still fresh", async () => {
+    const quiet = new Date(Date.now() - SETUP_GENERATION_STALE_MS - 60_000).toISOString();
+    const { service, run } = harness({
+      status: "planning",
+      planRevision: 1,
+      interview: StoredSetupInterviewSchema.parse({ plan: "running", planClaimedAt: quiet, followUps: "completed" }),
     });
-
-    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
-
-    expect(setup().crawlId).toBe("crawl-2");
-    expect(setup().interview.prefill).toBe("idle");
-    expect(setup().answers.workWith).toBeUndefined();
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "claimed", revision: 1 });
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "busy" });
   });
 
   it("counts a plan as stalled once nobody picked up its queue or its claim went quiet", () => {
@@ -338,36 +233,6 @@ describe("workspace setup interview", () => {
       setupPlanStalled(planning({ plan: "running", planClaimedAt: ago(SETUP_GENERATION_STALE_MS + 1) }), now),
     ).toBe(true);
     expect(setupPlanStalled({ status: "planned", interview }, now)).toBe(false);
-  });
-
-  it("runs a website pre-fill again once the step that claimed it went quiet", async () => {
-    const quiet = new Date(Date.now() - 6 * 60_000).toISOString();
-    const { service, models, run, setup } = harness({
-      interview: { ...StoredSetupInterviewSchema.parse({}), prefill: "running", prefillClaimedAt: quiet },
-    });
-    expect(setupPrefillStalled(setup(), new Date())).toBe(true);
-    models.generate.mockResolvedValue({
-      ok: true,
-      value: { answers: [{ ...blank, part: "workWith", confidence: 0.9, choice: "customers" }] },
-    });
-
-    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
-
-    expect(models.generate).toHaveBeenCalledTimes(1);
-    expect(setup().interview.prefill).toBe("completed");
-    expect(setupPrefillStalled(setup(), new Date())).toBe(false);
-  });
-
-  it("leaves a pre-fill alone while its step is still working", async () => {
-    const recent = new Date(Date.now() - 60_000).toISOString();
-    const { service, models, run, setup } = harness({
-      interview: { ...StoredSetupInterviewSchema.parse({}), prefill: "running", prefillClaimedAt: recent },
-    });
-
-    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
-
-    expect(models.generate).not.toHaveBeenCalled();
-    expect(setup().interview.prefill).toBe("running");
   });
 
   it("refreshes the plan claim around each part, so a slow but healthy plan never looks stalled", async () => {

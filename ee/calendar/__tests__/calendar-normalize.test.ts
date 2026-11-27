@@ -17,6 +17,18 @@ describe("buildCalendarEvent", () => {
     expect(buildCalendarEvent(rawEvent(title))?.title).toBe("");
   });
 
+  it("stores an occurrence with its series id and without the series rule", () => {
+    const occurrence = buildCalendarEvent(
+      rawEvent("Weekly sync", { master_event_id: "series-1", recurrence: ["RRULE:FREQ=WEEKLY"] }),
+    );
+    const series = buildCalendarEvent(rawEvent("Weekly sync", { recurrence: ["RRULE:FREQ=WEEKLY"] }));
+    const empty = buildCalendarEvent(rawEvent("Call", { master_event_id: "" }));
+
+    expect(occurrence).toMatchObject({ masterUnipileEventId: "series-1", recurrenceRule: null });
+    expect(series).toMatchObject({ masterUnipileEventId: null, recurrenceRule: "RRULE:FREQ=WEEKLY" });
+    expect(empty?.masterUnipileEventId).toBeNull();
+  });
+
   it("trims a provider-supplied title", () => {
     expect(buildCalendarEvent(rawEvent("  Quarterly review  "))?.title).toBe("Quarterly review");
   });

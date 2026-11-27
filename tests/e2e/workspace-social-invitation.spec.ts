@@ -17,6 +17,7 @@ test.skip(e2eAppMode() !== "cloud", "The local OAuth provider stands in for the 
 
 async function continueWithProvider(page: Page, provider: "Google" | "Microsoft") {
   const actions = serverActionIds("app/[locale]/(public)/auth/actions.ts", `continueWith${provider}Action`);
+  await clickHydrated(page.getByRole("tab", { name: englishMessages.AuthMethods.tabs.sso, exact: true }));
   const response = page.waitForResponse((candidate) => invokesServerAction(candidate.request(), actions));
   await clickHydrated(page.getByRole("button", { name: `Continue with ${provider}`, exact: true }));
   const redirected = await response;
@@ -54,7 +55,7 @@ async function openInvitationSignedOut(page: Page, token: string, entry: "signin
   await page.goto(`/en/invitation/${token}`);
   await expect(page).toHaveURL(/\/en\/auth\/signup\?intent=/);
   if (entry === "signin") {
-    await page.getByRole("link", { name: "Sign in", exact: true }).click();
+    await page.getByRole("link", { name: "Sign in →", exact: true }).click();
     await expect(page).toHaveURL(/\/en\/auth\/signin\?intent=/);
   }
 }
@@ -131,6 +132,7 @@ test("a new Google login from an invitation gets the invitation flow and waits f
     google.signInAs(providerIdentity(email, "Lea Brandt"));
 
     await openInvitationSignedOut(page, token, "signup");
+    await clickHydrated(page.getByRole("tab", { name: englishMessages.AuthMethods.tabs.sso, exact: true }));
     await clickHydrated(page.getByRole("button", { name: "Register with Google", exact: true }));
 
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
@@ -221,7 +223,7 @@ test("a Google login with another e-mail than the invited person sees whom it is
     expect(sessions.rows[0].count).toBe(0);
 
     google.signInAs(providerIdentity(invitedEmail, "Browser Administrator"));
-    await page.getByRole("link", { name: "Sign in", exact: true }).click();
+    await page.getByRole("link", { name: "Sign in →", exact: true }).click();
     await expect(page).toHaveURL(/\/en\/auth\/signin\?intent=/);
     await continueWithProvider(page, "Google");
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);

@@ -36,7 +36,9 @@ export function PlannerEventModal({
         </AppCardHeader>
 
         <AppCardBody>
-          <p className="text-sm text-muted-foreground">{t("Planner.readOnlyEvent")}</p>
+          <p className="text-sm text-muted-foreground">
+            {event.readOnlyReason === "series" ? t("Planner.readOnlySeries") : t("Planner.readOnlyEvent")}
+          </p>
 
           <p className="text-sm">{dateLabel(event.entry)}</p>
 

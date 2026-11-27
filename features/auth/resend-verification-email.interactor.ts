@@ -1,46 +1,26 @@
 import type { AuthService } from "./auth.service";
-import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
+import type { SendEmailCodeResult } from "./email-code";
 
 import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
-
-export type ResendVerificationEmailData = {
-  onboardingIntent?: string;
-};
 
 @SystemInteractor
 export class ResendVerificationEmailInteractor {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly onboardingIntentService: OnboardingIntentService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  async invoke(data: ResendVerificationEmailData = {}): Promise<{ ok: boolean }> {
-    const session = await this.authService.getSession();
+  async invoke(): Promise<SendEmailCodeResult> {
+    const session = await this.authService.getInteractiveSession();
     const email = session?.user?.email;
-    if (!email) return { ok: false };
-
-    const callbackURL = await this.resolveCallbackUrl(data.onboardingIntent);
+    if (!email) return { ok: false, error: "signedOut" };
+    if (session.user.emailVerified) return { ok: true };
 
     try {
-      await this.authService.resendVerificationEmail(email, { callbackURL, keepSession: true });
+      const outcome = await this.authService.sendVerificationCode(email);
+      return outcome === "sent" ? { ok: true } : { ok: false, error: "rateLimited" };
     } catch (error) {
       ErrorReporter.captureException(error);
-      return { ok: false };
+      return { ok: false, error: "failed" };
     }
-
-    return { ok: true };
-  }
-
-  private async resolveCallbackUrl(onboardingIntentValue?: string): Promise<string | undefined> {
-    if (onboardingIntentValue === undefined) return undefined;
-
-    const onboardingIntent = await this.onboardingIntentService.resolve(onboardingIntentValue);
-    if (onboardingIntent.status !== "valid") return undefined;
-
-    const destination = onboardingIntent.type === "invitation" ? "/auth/invitation" : "/onboarding/wizard";
-    return pathWithOnboardingIntent(destination, onboardingIntent.intent);
   }
 }

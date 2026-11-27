@@ -17,7 +17,9 @@ describe("per-workspace MCP resource", () => {
     expect(MCP_ENDPOINT_PATH).toBe("/api/v1/mcp");
     expect(mcpWorkspacePath(WORKSPACE)).toBe(`/api/v1/mcp/w/${WORKSPACE}`);
     expect(mcpWorkspaceUrl(BASE_URL, WORKSPACE)).toBe(`${BASE_URL}/api/v1/mcp/w/${WORKSPACE}`);
-    expect(mcpProtectedResourceMetadataUrl(BASE_URL)).toBe(`${BASE_URL}/.well-known/oauth-protected-resource`);
+    expect(mcpProtectedResourceMetadataUrl(BASE_URL)).toBe(
+      `${BASE_URL}/.well-known/oauth-protected-resource/api/v1/mcp`,
+    );
     expect(mcpProtectedResourceMetadataUrl(BASE_URL, WORKSPACE)).toBe(
       `${BASE_URL}/.well-known/oauth-protected-resource/api/v1/mcp/w/${WORKSPACE}`,
     );

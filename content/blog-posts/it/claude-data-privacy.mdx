@@ -186,7 +186,7 @@ I passaggi seguono la [guida al connettore](/docs/connect-custom-connector), la 
   <Step title="Creare un utente separato per Claude">
     In **Impostazioni › Membri** invita un utente con quel ruolo; occupa un posto. Un collegamento porta i permessi dell’utente che lo ha approvato, senza ambito per chiave: con il tuo utente, Claude vedrebbe tutto ciò che vedi tu. Impostare un membro su **Inattivo** blocca anche i suoi collegamenti MCP.
   </Step>
-  <Step title="Copiare l’URL dello spazio di lavoro e impostare i toolset">
+  <Step title="Copiare l’URL e impostare i toolset">
     Apri **Impostazioni › Chiavi API e connettori**, clicca su **Aggiungi**, scegli **Claude** sotto **Connessioni rapide**, poi **Account Claude**. Copia l’URL e aggiungi `?toolsets=records`. Il server offre allora solo gli strumenti per i record (più Cestino e stato delle operazioni): messaggistica, amministrazione di ruoli e membri, webhook e routine non ci sono. `search` e `fetch` restano sempre attivi. Se Claude deve leggere anche la base di conoscenza, aggiungi `wiki`: `?toolsets=records,wiki`. Il [riferimento MCP](/docs/mcp#narrowing-with-toolsets) elenca tutti i toolset.
   </Step>
   <Step title="Aggiungere il connettore in Claude">

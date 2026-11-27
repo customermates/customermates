@@ -34,7 +34,7 @@ export async function choosePlan(page: Page, plan: string) {
 }
 
 // The setup step builds the workspace with live AI, so browser tests record it as done and give the workspace the starter lists.
-async function completeSetupStepInDatabase(page: Page) {
+export async function completeSetupStepInDatabase(page: Page) {
   const cookie = (await page.context().cookies()).find((candidate) => candidate.name === "app.session_token");
   if (!cookie) throw new Error("The browser has no session to complete the setup step for");
   const signed = decodeURIComponent(cookie.value);
@@ -42,6 +42,17 @@ async function completeSetupStepInDatabase(page: Page) {
   const client = new Client({ connectionString: localE2eEnvironment().databaseUrl });
   await client.connect();
   try {
+    await expect
+      .poll(
+        async () =>
+          (
+            await client.query(
+              'SELECT 1 FROM "CompanyFunnelEvent" e WHERE e.type=\'jobSelected\' AND e."companyId"=COALESCE((SELECT id FROM "Company" WHERE slug=$2),(SELECT a."companyId" FROM "AuthSession" s JOIN "AuthUser" a ON a.id=s."userId" WHERE s.token=$1)) LIMIT 1',
+              [token, slugInUrl(page.url())],
+            )
+          ).rowCount,
+      )
+      .toBe(1);
     const updated = await client.query<{ id: string; companyId: string }>(
       'UPDATE "User" u SET "onboardingWikiStepCompletedAt"=NOW() FROM "AuthSession" s JOIN "AuthUser" a ON a.id=s."userId" WHERE s.token=$1 AND u."companyId"=COALESCE((SELECT id FROM "Company" WHERE slug=$2),a."companyId") AND u.email=a.email AND u."leftAt" IS NULL RETURNING u.id, u."companyId"',
       [token, slugInUrl(page.url())],
@@ -57,27 +68,20 @@ async function completeSetupStepInDatabase(page: Page) {
   }
 }
 
-export async function skipSourceQuestion(page: Page) {
-  const source = page.getByRole("heading", {
-    level: 1,
-    name: englishMessages.OnboardingWizard.steps.source.title,
-    exact: true,
-  });
-  const goal = page.getByRole("heading", {
-    level: 1,
-    name: englishMessages.OnboardingWizard.steps.goal.title,
-    exact: true,
-  });
-  await expect(source.or(goal)).toBeVisible();
-  if (await source.isVisible()) await clickHydrated(page.locator("#onboarding-source-skip"));
-}
-
 // A legacy workspace another administrator set up leaves the login its trial, so the new workspace opens its wizard.
-export async function openGoalOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
+export async function openQuestionsOfNewWorkspace(
+  page: Page,
+  database: Client,
+  workspace: BrowserWorkspace,
+  name: string,
+) {
   const companyId = await openWizardOfNewWorkspace(page, database, workspace, name);
-  await skipSourceQuestion(page);
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
+    page.getByRole("heading", {
+      level: 1,
+      name: englishMessages.WorkspaceSetup.questions.workWith.label,
+      exact: true,
+    }),
   ).toBeVisible();
   return companyId;
 }
@@ -108,24 +112,23 @@ export async function finishOnboarding(page: Page) {
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   const heading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
   const steps = englishMessages.OnboardingWizard.steps;
-  const setup = heading(steps.setup.startTitle).or(heading(steps.setup.title));
   const invite = heading(steps.invite.title);
-  const goal = heading(steps.goal.title).or(heading(steps.goal.titleSelfHosted));
-  await expect(heading(steps.source.title).or(goal).or(setup).or(invite)).toBeVisible();
-  if (await heading(steps.source.title).isVisible()) await clickHydrated(page.locator("#onboarding-source-skip"));
-  await expect(goal.or(setup).or(invite)).toBeVisible();
-  if (!(await invite.isVisible())) {
+  const channel = heading(steps.channel.title);
+  const question = heading(englishMessages.WorkspaceSetup.questions.workWith.label);
+  const dashboard = anyWorkspaceUrlPattern("/dashboard$");
+  await expect(async () => {
+    if (dashboard.test(page.url())) return;
+    await expect(question.or(invite).or(channel).or(heading(steps.finish.title))).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+  if (await question.isVisible()) {
     await completeSetupStepInDatabase(page);
     await page.reload();
   }
-  await expect(invite).toBeVisible();
-  await clickHydrated(page.locator("#onboarding-next"));
-  const ai = heading(englishMessages.OnboardingWizard.steps.ai.title);
-  await expect(heading(steps.channel.title).or(ai)).toBeVisible();
-  if (!(await ai.isVisible())) await clickHydrated(page.locator("#onboarding-channel-skip"));
-  await expect(ai).toBeVisible();
-  await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }));
-  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"));
+  await expect(async () => {
+    if (await invite.isVisible()) await clickHydrated(page.locator("#onboarding-next"));
+    if (await channel.isVisible()) await clickHydrated(page.locator("#onboarding-channel-skip"));
+    await expect(page).toHaveURL(dashboard, { timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
   return slugFromUrl(page.url());
 }
 

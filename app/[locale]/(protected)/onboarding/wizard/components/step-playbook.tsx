@@ -85,6 +85,19 @@ export const StepPlaybook = observer(() => {
       </div>
 
       <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
+        {store.isFirstStep ? null : (
+          <Button
+            className="me-auto"
+            disabled={disabled}
+            id="onboarding-playbook-back"
+            type="button"
+            variant="ghost"
+            onClick={() => runUserAction(store.back)}
+          >
+            {t("Common.actions.back")}
+          </Button>
+        )}
+
         <Button
           disabled={disabled}
           id="onboarding-playbook-skip"

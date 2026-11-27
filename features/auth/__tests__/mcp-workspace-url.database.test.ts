@@ -23,6 +23,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { GET as bareMetadata } from "@/app/.well-known/oauth-protected-resource/route";
+import { GET as accountMetadata } from "@/app/.well-known/oauth-protected-resource/api/v1/mcp/route";
 import { GET as workspaceMetadata } from "@/app/.well-known/oauth-protected-resource/api/v1/mcp/w/[workspaceId]/route";
 import { POST as bareMcp } from "@/app/api/v1/mcp/route";
 import { POST as workspaceMcp } from "@/app/api/v1/mcp/w/[workspaceId]/route";
@@ -104,16 +105,16 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
     return { status: response.status, location: new URL(response.headers.get("location") ?? "/", BASE_URL), verifier };
   }
 
-  async function decide(consentCode: string, decision: { accept: boolean; companyId?: string }) {
+  async function decide(consentCode: string, decision: { accept: boolean }) {
     const { getDecideMcpConsentInteractor } = await import("@/core/di");
     asSession();
     return getDecideMcpConsentInteractor().invoke({ consentCode, ...decision });
   }
 
-  async function connect(resource: string | null, companyId?: string) {
+  async function connect(resource: string | null) {
     const authorized = await authorize(resource);
     const consentCode = authorized.location.searchParams.get("consent_code") ?? "";
-    const decided = await decide(consentCode, { accept: true, ...(companyId ? { companyId } : {}) });
+    const decided = await decide(consentCode, { accept: true });
     const callback = new URL(decided.ok && decided.data ? decided.data.redirectURI : "https://invalid.example");
     return { code: callback.searchParams.get("code") ?? "", verifier: authorized.verifier, consentCode, decided };
   }
@@ -153,7 +154,11 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
     return rows[0]?.companyId;
   }
 
-  async function mcp(credential: Record<string, string>, workspace: Workspace | null): Promise<McpAnswer> {
+  async function mcp(
+    credential: Record<string, string>,
+    workspace: Workspace | null,
+    args: Record<string, unknown> = {},
+  ): Promise<McpAnswer> {
     const url = workspace
       ? `${workspaceUrl(workspace)}?toolsets=workspace`
       : `${BASE_URL}/api/v1/mcp?toolsets=workspace`;
@@ -184,16 +189,20 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
     if (initialized.status !== 200) return refusal(initialized);
     await initialized.text();
 
-    const called = await post(mcpBody("tools/call", 2, { name: "get_workspace_context", arguments: {} }));
+    const called = await post(mcpBody("tools/call", 2, { name: "get_workspace_context", arguments: args }));
     if (called.status === 401) return refusal(called);
     const event = lastEvent(await called.text(), called.headers.get("content-type")) as {
-      result?: { structuredContent?: { company?: { id?: string } } };
+      result?: {
+        isError?: boolean;
+        content?: Array<{ text?: string }>;
+        structuredContent?: { company?: { id?: string } };
+      };
     };
     return {
       status: called.status,
       companyId: event.result?.structuredContent?.company?.id ?? null,
       challenge: null,
-      error: null,
+      error: event.result?.isError ? (event.result.content?.[0]?.text ?? "tool error") : null,
     };
   }
 
@@ -301,8 +310,10 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
       `Bearer resource_metadata="${BASE_URL}/.well-known/oauth-protected-resource/api/v1/mcp/w/${companies.bergmann}"`,
     );
     expect((await mcp({}, null)).challenge).toBe(
-      `Bearer resource_metadata="${BASE_URL}/.well-known/oauth-protected-resource"`,
+      `Bearer resource_metadata="${BASE_URL}/.well-known/oauth-protected-resource/api/v1/mcp"`,
     );
+    const suffixed = await accountMetadata(new Request(`${BASE_URL}/.well-known/oauth-protected-resource/api/v1/mcp`));
+    expect(await suffixed.json()).toEqual(bareBody);
   });
 
   it("binds a connection through a workspace's URL to that workspace while the session works in another one", async () => {
@@ -318,7 +329,7 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
       workspaceId: companies.bergmann,
     });
 
-    const decided = await decide(consentCode, { accept: true, companyId: companies.bergmann });
+    const decided = await decide(consentCode, { accept: true });
     const callback = new URL(decided.ok && decided.data ? decided.data.redirectURI : "https://invalid.example");
     expect(callback.origin + callback.pathname).toBe(REDIRECT_URI);
     const issued = await exchange(
@@ -340,7 +351,13 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
 
     const bearer = { authorization: `Bearer ${issued.body.access_token}` };
     expect(await mcp(bearer, "bergmann")).toMatchObject({ status: 200, companyId: companies.bergmann });
-    expect(await mcp(bearer, null)).toMatchObject({ status: 200, companyId: companies.bergmann });
+    expect(await mcp(bearer, "bergmann", { workspace: companies.bergmann })).toMatchObject({
+      companyId: companies.bergmann,
+    });
+    expect(await mcp(bearer, "bergmann", { workspace: companies.atlas })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("locked to that workspace"),
+    });
     const foreign = await mcp(bearer, "atlas");
     expect(foreign).toMatchObject({ status: 401, error: "invalid_token" });
     expect(foreign.challenge).toContain('error="invalid_token"');
@@ -404,12 +421,38 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
   it("never lets a decision move a per-workspace authorization to another workspace", async () => {
     const authorized = await authorize(workspaceUrl("bergmann"));
     const consentCode = authorized.location.searchParams.get("consent_code") ?? "";
+    const second = await authorize(workspaceUrl("bergmann"));
+    const secondCode = second.location.searchParams.get("consent_code") ?? "";
+    expect(secondCode).not.toBe("");
 
-    expect(await decide(consentCode, { accept: true, companyId: companies.atlas })).toEqual({ ok: true, data: null });
+    const decided = await decide(consentCode, { accept: true });
+    const issued = await exchange(
+      {
+        code:
+          new URL(decided.ok && decided.data ? decided.data.redirectURI : "https://invalid.example").searchParams.get(
+            "code",
+          ) ?? "",
+        verifier: authorized.verifier,
+      },
+      workspaceUrl("bergmann"),
+    );
+    expect(await tokenWorkspace(issued.body.access_token)).toBe(companies.bergmann);
 
     const { getAuthService } = await import("@/core/di");
     asSession();
-    const forced = await getAuthService().decideMcpConsent({ consentCode, accept: true, companyId: companies.atlas });
+    const forced = await getAuthService().decideMcpConsent({
+      consentCode: secondCode,
+      accept: true,
+      companyId: companies.atlas,
+      accountWide: false,
+    });
+    const unbound = await getAuthService().decideMcpConsent({
+      consentCode: (await authorize(workspaceUrl("bergmann"))).location.searchParams.get("consent_code") ?? "",
+      accept: true,
+      companyId: companies.bergmann,
+      accountWide: true,
+    });
+    expect(new URL(unbound?.redirectURI ?? "https://invalid.example").searchParams.get("error")).toBe("access_denied");
     const callback = new URL(forced?.redirectURI ?? "https://invalid.example");
     expect(callback.searchParams.get("error")).toBe("access_denied");
     expect(callback.searchParams.get("code")).toBeNull();
@@ -456,6 +499,11 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
 
     expect(await mcp(key, "atlas")).toMatchObject({ status: 200, companyId: companies.atlas });
     expect(await mcp(key, null)).toMatchObject({ status: 200, companyId: companies.atlas });
+    expect(await mcp(key, null, { workspace: companies.atlas })).toMatchObject({ companyId: companies.atlas });
+    expect(await mcp(key, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("An API key always works in the workspace it was created in"),
+    });
     expect(await mcp(key, "bergmann")).toMatchObject({ status: 403, error: "workspace_mismatch", challenge: null });
     expect(await mcp({ "x-api-key": "z".repeat(64) }, "atlas")).toMatchObject({ status: 401, error: "unauthorized" });
   });
@@ -474,12 +522,14 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
     expect((await getAuthService().getMcpConsentPrompt({ consentCode, clientId }))?.workspaceId).toBe(
       companies[workspace],
     );
-    const { data: memberships } = await getListMcpConsentWorkspacesInteractor().invoke();
+    const {
+      data: { workspaces: memberships },
+    } = await getListMcpConsentWorkspacesInteractor().invoke();
     expect(memberships.find((membership) => membership.companyId === companies[workspace])?.unavailableReason).toBe(
       reason,
     );
 
-    const decided = await decide(consentCode, { accept: true, companyId: companies[workspace] });
+    const decided = await decide(consentCode, { accept: true });
     const callback = new URL(decided.ok && decided.data ? decided.data.redirectURI : "https://invalid.example");
     expect(callback.searchParams.get("error")).toBe("access_denied");
     expect(callback.searchParams.get("code")).toBeNull();
@@ -491,20 +541,22 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
     const { getListMcpConsentWorkspacesInteractor } = await import("@/core/di");
     asSession();
 
-    const { data: memberships } = await getListMcpConsentWorkspacesInteractor().invoke();
+    const {
+      data: { workspaces: memberships },
+    } = await getListMcpConsentWorkspacesInteractor().invoke();
     expect(memberships.map((membership) => membership.companyId)).not.toContain(companies.foreign);
     const decided = await decide(consentCode, { accept: true });
     const callback = new URL(decided.ok && decided.data ? decided.data.redirectURI : "https://invalid.example");
     expect(callback.searchParams.get("error")).toBe("access_denied");
   });
 
-  it("keeps the bare endpoint's picker binding for the bare resource and for no resource", async () => {
+  it("approves the bare endpoint for the whole account, without a default when two workspaces are usable", async () => {
     for (const resource of [`${BASE_URL}/api/v1/mcp`, null]) {
-      const grant = await connect(resource, companies.bergmann);
+      const grant = await connect(resource);
       const issued = await exchange(grant, resource ?? undefined);
 
       expect(issued.status).toBe(200);
-      expect(await tokenWorkspace(issued.body.access_token)).toBe(companies.bergmann);
+      expect(await tokenWorkspace(issued.body.access_token)).toBeNull();
     }
     const authorized = await authorize(`${BASE_URL}/api/v1/mcp`);
     const { getAuthService } = await import("@/core/di");
@@ -517,5 +569,139 @@ describeDatabase("per-workspace MCP URLs against the database", { timeout: 180_0
         })
       )?.workspaceId,
     ).toBeNull();
+  });
+
+  async function accountToken() {
+    const issued = await exchange(await connect(`${BASE_URL}/api/v1/mcp`), `${BASE_URL}/api/v1/mcp`);
+    return {
+      bearer: { authorization: `Bearer ${issued.body.access_token}` },
+      accessToken: issued.body.access_token ?? "",
+    };
+  }
+
+  async function accountWideOf(accessToken: string | undefined) {
+    const { rows } = await client.query<{ accountWide: boolean }>(
+      'SELECT "accountWide" FROM "OauthAccessToken" WHERE "accessToken" = $1',
+      [accessToken ?? ""],
+    );
+    return rows[0]?.accountWide;
+  }
+
+  it("marks only tokens of the account-wide consent as account-wide and keeps the mark on refresh", async () => {
+    const accountGrant = await connect(`${BASE_URL}/api/v1/mcp`);
+    const account = await exchange(accountGrant, `${BASE_URL}/api/v1/mcp`);
+    const workspace = await exchange(await connect(workspaceUrl("bergmann")), workspaceUrl("bergmann"));
+    const refresh = (refreshToken: string | undefined) =>
+      token({ grant_type: "refresh_token", refresh_token: refreshToken ?? "", client_id: clientId });
+
+    expect(await accountWideOf(account.body.access_token)).toBe(true);
+    expect(await accountWideOf(workspace.body.access_token)).toBe(false);
+
+    const accountRefreshed = await refresh(account.body.refresh_token);
+    const workspaceRefreshed = await refresh(workspace.body.refresh_token);
+    expect(await accountWideOf(accountRefreshed.body.access_token)).toBe(true);
+    expect(await tokenWorkspace(accountRefreshed.body.access_token)).toBeNull();
+    expect(await accountWideOf(workspaceRefreshed.body.access_token)).toBe(false);
+    expect(await tokenWorkspace(workspaceRefreshed.body.access_token)).toBe(companies.bergmann);
+  });
+
+  it("keeps a per-workspace URL token locked to its workspace at the account URL", async () => {
+    const issued = await exchange(await connect(workspaceUrl("bergmann")), workspaceUrl("bergmann"));
+    const bearer = { authorization: `Bearer ${issued.body.access_token}` };
+
+    expect(await mcp(bearer, null)).toMatchObject({ companyId: companies.bergmann });
+    expect(await mcp(bearer, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: companies.bergmann,
+    });
+    expect(await mcp(bearer, null, { workspace: companies.atlas })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("approved for one workspace only"),
+    });
+  });
+
+  it("keeps a token issued before account-wide connections locked to the workspace chosen back then", async () => {
+    const { accessToken, bearer } = await accountToken();
+    await client.query('UPDATE "OauthAccessToken" SET "companyId"=$2, "accountWide"=FALSE WHERE "accessToken"=$1', [
+      accessToken,
+      companies.atlas,
+    ]);
+
+    expect(await mcp(bearer, null)).toMatchObject({ companyId: companies.atlas });
+    expect(await mcp(bearer, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("connect again"),
+    });
+  });
+
+  it("lets an account-wide token choose the workspace per call and never picks one silently", async () => {
+    const { bearer } = await accountToken();
+
+    expect(await mcp(bearer, null)).toMatchObject({
+      status: 200,
+      companyId: null,
+      error: expect.stringContaining("several workspaces"),
+    });
+    expect(await mcp(bearer, null, { workspace: companies.atlas })).toMatchObject({ companyId: companies.atlas });
+    expect(await mcp(bearer, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: companies.bergmann,
+    });
+    expect(await mcp(bearer, null, { workspace: companies.foreign })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("has no workspace"),
+    });
+    for (const blocked of ["pending", "inactive", "reader", "unpaid"] as const) {
+      expect(await mcp(bearer, null, { workspace: companies[blocked] })).toMatchObject({
+        companyId: null,
+        error: expect.stringContaining("cannot be used through MCP"),
+      });
+    }
+  });
+
+  it("lists the account's workspaces with what the connection can use", async () => {
+    const { bearer } = await accountToken();
+    requestContext.headers = new Headers({ "content-type": "application/json", ...bearer });
+    const request = new Request(`${BASE_URL}/api/v1/mcp?toolsets=workspace`, {
+      method: "POST",
+      headers: { accept: "application/json, text/event-stream", "content-type": "application/json", ...bearer },
+      body: JSON.stringify(mcpBody("tools/call", 3, { name: "list_workspaces", arguments: {} })),
+    });
+    const response = await bareMcp(request);
+    const event = lastEvent(await response.text(), response.headers.get("content-type")) as {
+      result?: { structuredContent?: { workspaces?: Array<{ companyId: string; usable: boolean; plan: unknown }> } };
+    };
+    const listed = event.result?.structuredContent?.workspaces ?? [];
+
+    expect(
+      listed
+        .filter((workspace) => workspace.usable)
+        .map((workspace) => workspace.companyId)
+        .sort(),
+    ).toEqual([companies.atlas, companies.bergmann].sort());
+    expect(listed.find((workspace) => workspace.companyId === companies.pending)).toMatchObject({
+      usable: false,
+      plan: null,
+    });
+  });
+
+  it("keeps the token when a membership ends, clears its default there and refuses that workspace", async () => {
+    const { accessToken, bearer } = await accountToken();
+    await client.query('UPDATE "OauthAccessToken" SET "companyId"=$2 WHERE "accessToken"=$1', [
+      accessToken,
+      companies.bergmann,
+    ]);
+
+    const { getAuthService } = await import("@/core/di");
+    await getAuthService().revokeMembershipCredentials(authUserId, companies.bergmann);
+    await client.query(
+      'UPDATE "User" SET "status"=\'inactive\'::"Status", "leftAt"=CURRENT_TIMESTAMP WHERE "email"=$1 AND "companyId"=$2',
+      [email, companies.bergmann],
+    );
+
+    expect(await tokenWorkspace(accessToken)).toBeNull();
+    expect(await mcp(bearer, null, { workspace: companies.bergmann })).toMatchObject({
+      companyId: null,
+      error: expect.stringContaining("has no workspace"),
+    });
+    expect(await mcp(bearer, null)).toMatchObject({ companyId: companies.atlas });
   });
 });
