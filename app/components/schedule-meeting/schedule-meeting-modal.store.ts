@@ -322,13 +322,20 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     void this.loadSlots();
   };
 
-  slotLabel = (slot: MeetingSlot): string => {
+  slotTime = (slot: MeetingSlot): string => {
     const parts = zonedParts(new Date(slot.startsAt), this.timeZone);
     return `${pad(parts.hour)}:${pad(parts.minute)}`;
   };
 
+  slotLabel = (slot: MeetingSlot): string =>
+    new Intl.DateTimeFormat(this.rootStore.intlStore.formattingLocale, {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: this.timeZone,
+    }).format(new Date(slot.startsAt));
+
   pickSlot = (slot: MeetingSlot) => {
-    this.onChange("time", this.slotLabel(slot));
+    this.onChange("time", this.slotTime(slot));
   };
 
   setFollowUpList = (typeId: string) => {

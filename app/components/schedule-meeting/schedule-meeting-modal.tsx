@@ -134,7 +134,7 @@ export const ScheduleMeetingModal = observer(() => {
                   </div>
                 ) : (
                   <>
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
                       <FormIsoDatePicker
                         dateOnly
                         required
