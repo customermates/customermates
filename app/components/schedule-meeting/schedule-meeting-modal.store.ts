@@ -328,11 +328,7 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
   };
 
   slotLabel = (slot: MeetingSlot): string =>
-    new Intl.DateTimeFormat(this.rootStore.intlStore.formattingLocale, {
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: this.timeZone,
-    }).format(new Date(slot.startsAt));
+    this.rootStore.intlStore.formatClockTime(new Date(slot.startsAt), this.timeZone);
 
   pickSlot = (slot: MeetingSlot) => {
     this.onChange("time", this.slotTime(slot));

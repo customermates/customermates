@@ -267,6 +267,14 @@ export class IntlStore {
     }).format(date);
   }
 
+  formatClockTime(date: Date, timeZone: string): string {
+    return new Intl.DateTimeFormat(this.formattingLocale, {
+      hour: "numeric" as const,
+      minute: "2-digit" as const,
+      timeZone,
+    }).format(date);
+  }
+
   formatRelativeTime(date: Date | undefined): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
