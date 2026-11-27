@@ -401,4 +401,73 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
     expect(eventService.publish).toHaveBeenCalledTimes(1);
   });
+
+  describe("an email the workspace sent itself", () => {
+    const sentRow = {
+      ...existingRow,
+      direction: "outbound",
+      origin: "unipile",
+      sentAt: new Date("2026-11-24T10:00:00.000Z"),
+    };
+    const sentEnvelope = { ...envelope, payload: { email: { id: "SENT_ID" }, folder_id: "F_SENT" } };
+
+    it("keeps the row when the provider holds no copy of it", async () => {
+      const { interactor, ingest, eventService } = build({ existing: sentRow });
+
+      await interactor.invoke(sentEnvelope);
+
+      expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+      expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
+      expect(eventService.publish).not.toHaveBeenCalled();
+    });
+
+    it("keeps the row without a message id, also on a retried burst delete", async () => {
+      const { interactor, ingest } = build({ existing: { ...sentRow, providerMessageId: null }, recentDeletes: 50 });
+
+      await interactor.invoke({ ...sentEnvelope, receivedAt: new Date(Date.now() - 6 * 60_000) });
+
+      expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    });
+
+    it("keeps the row instead of deferring when a burst prevents the search", async () => {
+      const { interactor, ingest } = build({ existing: sentRow, recentDeletes: 50 });
+      vi.useFakeTimers();
+      const done = interactor.invoke(sentEnvelope);
+      await vi.runAllTimersAsync();
+      await expect(done).resolves.toBeUndefined();
+      vi.useRealTimers();
+
+      expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    });
+
+    it("searches a wider window around the local send time and re-keys the provider copy", async () => {
+      const { interactor, ingest, messagingService } = build({
+        existing: sentRow,
+        listEmails: () =>
+          Promise.resolve({
+            data: [
+              { ...relocatedEmail, id: "SENT_COPY_ID", date: "2026-11-24T10:00:07.000Z", folders: ["F_REFERENZ"] },
+            ],
+          }),
+      });
+
+      await interactor.invoke(sentEnvelope);
+
+      expect(messagingService.listEmails).toHaveBeenCalledWith(
+        expect.objectContaining({ after: "2026-11-24T09:58:00.000Z", before: "2026-11-24T10:02:00.000Z" }),
+      );
+      expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+        expect.objectContaining({ newUnipileMessageId: "SENT_COPY_ID", folderIds: ["F_REFERENZ"] }),
+      );
+      expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    });
+
+    it("still deletes an outbound email that was sent from another mail client", async () => {
+      const { interactor, ingest } = build({ existing: { ...sentRow, origin: "external" } });
+
+      await interactor.invoke(sentEnvelope);
+
+      expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
+    });
+  });
 });

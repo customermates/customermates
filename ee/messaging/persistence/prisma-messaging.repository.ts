@@ -103,6 +103,7 @@ type ConvertDraftToSentArgs = {
   bodyHtml: string | null;
   attachmentsMeta: AttachmentMeta[];
   sentAt: Date;
+  folderIds?: string[];
 };
 
 const REVIEW_DRAFT_SCAN_LIMIT = 500;
@@ -1311,6 +1312,7 @@ export class PrismaMessagingRepo
           bodyText: args.bodyText,
           bodyHtml: args.bodyHtml,
           ...(args.attachmentsMeta?.length ? { attachmentsMeta: args.attachmentsMeta } : {}),
+          ...(args.folderIds?.length ? { folderIds: args.folderIds, isHidden: false } : {}),
           sentAt: args.sentAt,
         },
       });
@@ -1322,6 +1324,20 @@ export class PrismaMessagingRepo
     }
 
     if (row.id !== draft.id) {
+      const claimOrigin =
+        isEmailProvider(row.provider) &&
+        row.direction === MessagingMessageDirection.outbound &&
+        row.origin !== MessagingMessageOrigin.unipile;
+      const placeInSent = row.folderIds.length === 0 && (args.folderIds?.length ?? 0) > 0;
+      if (claimOrigin || placeInSent) {
+        row = await this.prisma.messagingMessage.update({
+          where: { id: row.id, companyId: this.companyId },
+          data: {
+            ...(claimOrigin ? { origin: MessagingMessageOrigin.unipile } : {}),
+            ...(placeInSent ? { folderIds: args.folderIds, isHidden: false } : {}),
+          },
+        });
+      }
       const deleted = await this.prisma.messagingMessage.deleteMany({
         where: {
           id: draft.id,
@@ -2368,10 +2384,17 @@ export class PrismaMessagingRepo
     const safeMessage = sanitizeMessage(message);
 
     if (existing && !isInbound && message.origin === MessagingMessageOrigin.unipile) {
-      if (safeMessage.attachmentsMeta.length > 0 && existing.attachmentsMeta.length === 0) {
+      const keepAttachments = safeMessage.attachmentsMeta.length > 0 && existing.attachmentsMeta.length === 0;
+      const claimOrigin = isEmailProvider(existing.provider) && existing.origin !== MessagingMessageOrigin.unipile;
+      const placeInSent = existing.folderIds.length === 0 && (safeMessage.folderIds ?? []).length > 0;
+      if (keepAttachments || claimOrigin || placeInSent) {
         await this.prisma.messagingMessage.update({
           where: { id: existing.id },
-          data: { attachmentsMeta: safeMessage.attachmentsMeta },
+          data: {
+            ...(keepAttachments ? { attachmentsMeta: safeMessage.attachmentsMeta } : {}),
+            ...(claimOrigin ? { origin: MessagingMessageOrigin.unipile } : {}),
+            ...(placeInSent ? { folderIds: safeMessage.folderIds, isHidden: false } : {}),
+          },
         });
       }
       return { isEcho: true as const };
@@ -2403,6 +2426,9 @@ export class PrismaMessagingRepo
             folderIds,
             unipileMessageId: safeMessage.unipileMessageId,
             ...(folderIds.length > 0 ? { isHidden: false } : {}),
+            ...(safeMessage.origin === MessagingMessageOrigin.unipile && !isInbound
+              ? { origin: MessagingMessageOrigin.unipile }
+              : {}),
             ...(upgradeSender
               ? {
                   sender: safeMessage.sender as unknown as Prisma.InputJsonValue,
@@ -2694,9 +2720,16 @@ export class PrismaMessagingRepo
         sentAt: { gte: args.since },
         isDraft: false,
       },
-      select: { id: true, unipileMessageId: true, folderIds: true },
+      select: { id: true, unipileMessageId: true, folderIds: true, direction: true, origin: true },
     });
-    const stale = placed.filter((row) => !seen.has(row.unipileMessageId));
+    const account = await this.prisma.connectedAccount.findFirst({
+      where: { id: args.connectedAccountId, companyId: args.companyId },
+      select: { sentFolderIds: true },
+    });
+    const reconcilingSentFolder = account?.sentFolderIds.includes(args.folderId) ?? false;
+    const sentByUs = (row: (typeof placed)[number]) =>
+      row.direction === MessagingMessageDirection.outbound && row.origin === MessagingMessageOrigin.unipile;
+    const stale = placed.filter((row) => !seen.has(row.unipileMessageId) && !(reconcilingSentFolder && sentByUs(row)));
 
     for (const row of stale) {
       const folderIds = row.folderIds.filter((id) => id !== args.folderId);
@@ -2704,7 +2737,7 @@ export class PrismaMessagingRepo
         where: { id: row.id },
         data: {
           folderIds,
-          ...(folderIds.length === 0 ? { isHidden: true } : {}),
+          ...(folderIds.length === 0 && !sentByUs(row) ? { isHidden: true } : {}),
         },
       });
     }
