@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { ConnectedAccountStatus } from "@/generated/prisma";
+import { ConnectedAccountStatus, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -36,6 +36,7 @@ const BURST_WINDOW_MS = 60_000;
 const RETRY_MIN_AGE_MS = 60_000;
 const BURST_LIMIT = 10;
 const SEARCH_WINDOW_MS = 1_000;
+const SENT_SEARCH_WINDOW_MS = 120_000;
 const RELOCATION_GRACE_MS = 8_000;
 const SEARCH_LIMIT = 25;
 
@@ -94,12 +95,15 @@ export class ProcessEmailDeleteWebhookInteractor {
       if (!stillPresent) return;
     }
 
+    const sentByUs =
+      existing.direction === MessagingMessageDirection.outbound && existing.origin === MessagingMessageOrigin.unipile;
     const relocation = await this.findRelocation(
       account,
       existing.providerMessageId ?? null,
       existing.sentAt,
       envelope,
       burst,
+      sentByUs ? SENT_SEARCH_WINDOW_MS : SEARCH_WINDOW_MS,
     );
     if (relocation.status === "relocated") {
       await this.ingest.moveEmailMessageUnscoped({
@@ -112,6 +116,8 @@ export class ProcessEmailDeleteWebhookInteractor {
 
       return;
     }
+
+    if (sentByUs) return;
 
     if (relocation.status === "unsearchable")
       throw new DeferredWebhookError("relocation cannot be verified during a delete burst");
@@ -157,12 +163,13 @@ export class ProcessEmailDeleteWebhookInteractor {
     sentAt: Date,
     envelope: Payload,
     burst: boolean,
+    windowMs: number,
   ): Promise<Relocation> {
     if (!providerMessageId) return { status: burst ? "unsearchable" : "absent" };
 
     const folders = parseFolderCatalog(account.folders);
     const originFolderId = envelope.payload.folder_id ?? null;
-    const candidates = await this.listCandidates(account.unipileAccountId, sentAt, folders, burst);
+    const candidates = await this.listCandidates(account.unipileAccountId, sentAt, folders, burst, windowMs);
     if (!candidates) return { status: "unsearchable" };
 
     const catalogById = new Map(folders.map((folder) => [folder.id, folder]));
@@ -191,9 +198,10 @@ export class ProcessEmailDeleteWebhookInteractor {
     sentAt: Date,
     folders: EmailFolder[],
     burst: boolean,
+    windowMs: number,
   ): Promise<Candidate[] | null> {
-    const after = new Date(sentAt.getTime() - SEARCH_WINDOW_MS).toISOString();
-    const before = new Date(sentAt.getTime() + SEARCH_WINDOW_MS).toISOString();
+    const after = new Date(sentAt.getTime() - windowMs).toISOString();
+    const before = new Date(sentAt.getTime() + windowMs).toISOString();
 
     if (burst) return null;
 

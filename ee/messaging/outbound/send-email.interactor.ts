@@ -399,6 +399,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         bodyHtml: outgoingHtml,
         attachmentsMeta,
         sentAt,
+        folderIds: account.sentFolderIds,
       });
     }
 
@@ -418,6 +419,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
             bodyText: outgoingBody,
             bodyHtml: outgoingHtml,
             attachmentsMeta,
+            folderIds: account.sentFolderIds,
             isEvent: false,
             isDeleted: false,
             isHidden: false,
@@ -487,6 +489,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         sentFolderIds: account.sentFolderIds,
       });
       if (!message) return null;
+      message.origin = MessagingMessageOrigin.unipile;
+      if (!message.folderIds?.length) message.folderIds = account.sentFolderIds;
       if (message.recipients.bcc.length === 0 && submittedBcc.length > 0) {
         const self = (account.emailAddress ?? "").toLowerCase();
         message.recipients.bcc = submittedBcc.map((email) => {
