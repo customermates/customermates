@@ -2923,7 +2923,7 @@ import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-work
 import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
 import { PlanWorkspaceSetupInteractor } from "@/ee/workspace-setup/plan-workspace-setup.interactor";
 import { StartAgentWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-agent-workspace-setup.interactor";
-import { AdvanceAgentWorkspaceSetupInteractor } from "@/ee/workspace-setup/advance-agent-workspace-setup.interactor";
+import { BuildAgentWorkspaceSetupInteractor } from "@/ee/workspace-setup/build-agent-workspace-setup.interactor";
 import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-workspace-setup.interactor";
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
@@ -2999,12 +2999,8 @@ export const getStartAgentWorkspaceSetupInteractor = () =>
     getStartWorkspaceSetupInteractor(),
     getPlanWorkspaceSetupInteractor(),
   );
-export const getAdvanceAgentWorkspaceSetupInteractor = () =>
-  new AdvanceAgentWorkspaceSetupInteractor(
-    getWorkspaceSetupRepo(),
-    getGetWorkspaceSetupStatusInteractor(),
-    getConfirmWorkspaceSetupInteractor(),
-  );
+export const getBuildAgentWorkspaceSetupInteractor = () =>
+  new BuildAgentWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getConfirmWorkspaceSetupInteractor());
 export const getRetryWorkspaceSetupPhaseInteractor = () =>
   new RetryWorkspaceSetupPhaseInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService(), getEntitlementService());
 

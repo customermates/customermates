@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { z } from "zod";
 
-const calls = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn(), setup: vi.fn(), advance: vi.fn() }));
+const calls = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn(), setup: vi.fn(), status: vi.fn() }));
 
 vi.mock("@/core/di", () => ({
   getListAccountWorkspacesInteractor: () => ({ invoke: calls.list }),
   getCreateWorkspaceInteractor: () => ({ invokeForAgent: calls.create }),
   getStartAgentWorkspaceSetupInteractor: () => ({ invoke: calls.setup }),
-  getAdvanceAgentWorkspaceSetupInteractor: () => ({ invoke: calls.advance }),
+  getGetWorkspaceSetupStatusInteractor: () => ({ invoke: calls.status }),
 }));
 
 import { createZodError } from "@/core/validation/validation.utils";
@@ -149,8 +149,55 @@ describe("account workspace MCP tools", () => {
     expect(calls.setup).not.toHaveBeenCalled();
   });
 
+  it("reads a planned setup without starting anything and stays marked read-only", async () => {
+    calls.status.mockResolvedValue({
+      ok: true,
+      data: {
+        available: true,
+        setup: {
+          status: "planned",
+          plan: { status: "completed", error: null },
+          currentPhase: null,
+          phases: [],
+          knowledgeBase: null,
+          finishedAt: null,
+        },
+      },
+    });
+
+    const result = await getWorkspaceSetupStatusTool.execute();
+
+    expect(result).toMatchObject({ structuredContent: { status: "planned", phases: [] } });
+    expect(calls.status).toHaveBeenCalledExactlyOnceWith();
+    expect(calls.setup).not.toHaveBeenCalled();
+    expect(getWorkspaceSetupStatusTool.annotations.readOnlyHint).toBe(true);
+  });
+
+  it("passes failed phases of the build through with their errors", async () => {
+    calls.status.mockResolvedValue({
+      ok: true,
+      data: {
+        available: true,
+        setup: {
+          status: "failed",
+          plan: { status: "completed", error: null },
+          currentPhase: null,
+          phases: [
+            { key: "dataModel", status: "failed", error: "spendCap", attempts: 2, startedAt: null, finishedAt: null },
+          ],
+          knowledgeBase: null,
+          finishedAt: null,
+        },
+      },
+    });
+
+    expect(await getWorkspaceSetupStatusTool.execute()).toMatchObject({
+      structuredContent: { status: "failed", phases: [{ phase: "dataModel", status: "failed", error: "spendCap" }] },
+    });
+  });
+
   it("reports the setup progress in a compact form", async () => {
-    calls.advance.mockResolvedValue({
+    calls.status.mockResolvedValue({
       ok: true,
       data: {
         available: true,
@@ -183,7 +230,7 @@ describe("account workspace MCP tools", () => {
       },
     });
 
-    calls.advance.mockResolvedValue({ ok: true, data: { available: false, reason: "configured", setup: null } });
+    calls.status.mockResolvedValue({ ok: true, data: { available: false, reason: "configured", setup: null } });
     expect(await getWorkspaceSetupStatusTool.execute()).toMatchObject({
       structuredContent: { available: false, reason: "configured", status: null, phases: [] },
     });

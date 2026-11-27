@@ -12,6 +12,7 @@ const state = vi.hoisted(() => ({
   finish: vi.fn(),
   abandon: vi.fn(),
   abandonPlan: vi.fn(),
+  buildAgent: vi.fn(),
   reportFailure: vi.fn(),
   reportWarning: vi.fn(),
 }));
@@ -41,6 +42,7 @@ vi.mock("@/core/di", () => ({
     abandon: state.abandon,
     drainWarnings: () => ["phase warning"],
   }),
+  getBuildAgentWorkspaceSetupInteractor: () => ({ invoke: state.buildAgent }),
 }));
 vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: Error) => ({ name: error.name, message: error.message }),
@@ -63,6 +65,7 @@ beforeEach(() => {
   state.claimPlan.mockResolvedValue({ status: "claimed", revision: 4 });
   state.planPart.mockResolvedValue("done");
   state.finishPlan.mockResolvedValue("planned");
+  state.buildAgent.mockResolvedValue({ ok: true, data: { building: true } });
   state.runPhase.mockImplementation((_setupId: string, phase: string) => {
     state.calls.push(phase);
     if (phase === "knowledgeBase" && state.kbWaits > 0) {
@@ -96,6 +99,39 @@ describe("workspace setup workflows", () => {
     expect(state.planPart).not.toHaveBeenCalled();
     expect(state.finishPlan).not.toHaveBeenCalled();
     expect(state.sleeps).toBe(0);
+  });
+
+  it("hands a finished plan to the agent build in the same run, without any status read", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.finishPlan.mockResolvedValueOnce("retry").mockResolvedValueOnce("planned");
+    await planWorkspaceSetup(payload);
+    expect(state.buildAgent).toHaveBeenCalledExactlyOnceWith({ setupId: "setup-1" });
+    expect(state.finishPlan.mock.invocationCallOrder[1]).toBeLessThan(state.buildAgent.mock.invocationCallOrder[0]);
+
+    state.claimPlan.mockResolvedValue({ status: "planned" });
+    await planWorkspaceSetup(payload);
+    expect(state.buildAgent).toHaveBeenCalledTimes(2);
+  });
+
+  it("starts no build when the plan failed or the setup moved on", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.finishPlan.mockResolvedValue("failed");
+    await planWorkspaceSetup(payload);
+    state.finishPlan.mockResolvedValue("skip");
+    await planWorkspaceSetup(payload);
+    expect(state.buildAgent).not.toHaveBeenCalled();
+  });
+
+  it("reports a refused agent build as a warning and keeps the plan", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.buildAgent.mockResolvedValue({ ok: false, error: new Error("Mate is not included in this plan.") });
+    await expect(planWorkspaceSetup(payload)).resolves.toBeUndefined();
+    expect(state.reportWarning).toHaveBeenCalledWith(
+      "plan-workspace-setup",
+      "Mate is not included in this plan.",
+      undefined,
+    );
+    expect(state.abandonPlan).not.toHaveBeenCalled();
   });
 
   it("repeats a part attempt the planner asked to repair and skips views without a record model", async () => {

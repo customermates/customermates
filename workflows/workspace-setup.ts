@@ -5,7 +5,11 @@ import type { SetupPlanPart } from "@/ee/workspace-setup/workspace-setup-planner
 
 import { getWorkflowMetadata, sleep } from "workflow";
 
-import { getWorkspaceSetupBuildService, getWorkspaceSetupInterviewService } from "@/core/di";
+import {
+  getBuildAgentWorkspaceSetupInteractor,
+  getWorkspaceSetupBuildService,
+  getWorkspaceSetupInterviewService,
+} from "@/core/di";
 import { SETUP_PLAN_ATTEMPTS, SETUP_PLAN_PART_ATTEMPTS } from "@/ee/workspace-setup/workspace-setup-attempts";
 
 import { asBackgroundOwner } from "./background-owner";
@@ -65,6 +69,14 @@ async function finishWorkspaceSetupPlanStep(
   return present(result, "skip" as const);
 }
 
+async function buildAgentWorkspaceSetupStep(payload: WorkspaceSetupWorkflowPayload): Promise<string | null> {
+  "use step";
+  const result = await asBackgroundOwner(payload.userId, () =>
+    getBuildAgentWorkspaceSetupInteractor().invoke({ setupId: payload.setupId }),
+  );
+  return result === GONE || result.ok ? null : result.error.message;
+}
+
 async function buildWorkspaceSetupPhaseStep(
   payload: WorkspaceSetupWorkflowPayload,
   phase: WorkspaceSetupPhase,
@@ -110,6 +122,7 @@ followUpWorkspaceSetupStep.maxRetries = 1;
 claimWorkspaceSetupPlanStep.maxRetries = 1;
 planWorkspaceSetupPartStep.maxRetries = 1;
 finishWorkspaceSetupPlanStep.maxRetries = 1;
+buildAgentWorkspaceSetupStep.maxRetries = 1;
 buildWorkspaceSetupPhaseStep.maxRetries = 1;
 
 async function warn(name: string, warnings: string[], tenant?: WorkflowTenant) {
@@ -128,7 +141,8 @@ async function draftPlanPart(payload: WorkspaceSetupWorkflowPayload, revision: n
 async function claimPlan(payload: WorkspaceSetupWorkflowPayload) {
   for (let round = 0; round <= PLAN_BUSY_ROUNDS; round += 1) {
     const claim = await claimWorkspaceSetupPlanStep(payload);
-    if (claim.status !== "busy") return claim.status === "claimed" ? claim.revision : null;
+    if (claim.status === "claimed") return claim.revision;
+    if (claim.status !== "busy") return claim.status === "planned" ? ("planned" as const) : null;
     await sleep(WAIT);
   }
   return null;
@@ -137,6 +151,7 @@ async function claimPlan(payload: WorkspaceSetupWorkflowPayload) {
 async function draftPlan(payload: WorkspaceSetupWorkflowPayload, final: boolean, claimed: { revision: number | null }) {
   const revision = await claimPlan(payload);
   if (revision === null) return "skip" as const;
+  if (revision === "planned") return revision;
   claimed.revision = revision;
   const [model] = await Promise.all([
     draftPlanPart(payload, revision, "model"),
@@ -154,7 +169,12 @@ export async function planWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload)
     await warn("plan-workspace-setup", followUps.warnings, payload.tenant);
     if (followUps.result !== "none") return;
     for (let attempt = 1; attempt <= SETUP_PLAN_ATTEMPTS; attempt += 1) {
-      if ((await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS, claimed)) !== "retry") return;
+      const outcome = await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS, claimed);
+      if (outcome === "planned") {
+        const refused = await buildAgentWorkspaceSetupStep(payload);
+        if (refused) await reportWarning("plan-workspace-setup", refused, payload.tenant);
+      }
+      if (outcome !== "retry") return;
       await sleep(PLAN_RETRY_WAIT);
     }
   } catch (error) {

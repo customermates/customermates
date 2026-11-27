@@ -10,6 +10,7 @@ const state = vi.hoisted(() => ({
   claimPlan: vi.fn(),
   planPart: vi.fn(),
   finishPlan: vi.fn(),
+  buildAgent: vi.fn(),
   reportFailure: vi.fn(),
   reportWarning: vi.fn(),
 }));
@@ -53,6 +54,7 @@ vi.mock("@/core/di", () => ({
     abandon: state.abandon,
     drainWarnings: () => [],
   }),
+  getBuildAgentWorkspaceSetupInteractor: () => ({ invoke: state.buildAgent }),
 }));
 vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: Error) => ({ name: error.name, message: error.message }),
@@ -73,6 +75,7 @@ beforeEach(() => {
   state.claimPlan.mockResolvedValue({ status: "claimed", revision: 2 });
   state.planPart.mockResolvedValue("done");
   state.finishPlan.mockResolvedValue("planned");
+  state.buildAgent.mockResolvedValue({ ok: true, data: { building: true } });
 });
 
 describe("workspace setup workflows when things go wrong", () => {
@@ -138,6 +141,17 @@ describe("workspace setup workflows when things go wrong", () => {
     state.planPart.mockRejectedValue(new Error("database down"));
     await expect(planWorkspaceSetup(payload)).rejects.toThrow("database down");
     expect(state.abandonPlan).toHaveBeenCalledWith("setup-1", 2);
+  });
+
+  it("reports a planning run whose agent build could not be started", async () => {
+    state.buildAgent.mockRejectedValue(new Error("queue down"));
+    await expect(planWorkspaceSetup(payload)).rejects.toThrow("queue down");
+    expect(state.buildAgent).toHaveBeenCalledOnce();
+    expect(state.reportFailure).toHaveBeenCalledWith(
+      "plan-workspace-setup",
+      { name: "Error", message: "queue down" },
+      undefined,
+    );
   });
 
   it("waits for a phase another step still settles before it finishes", async () => {

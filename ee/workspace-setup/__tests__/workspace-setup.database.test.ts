@@ -1111,7 +1111,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     );
   }
 
-  it("plans from the description an agent gave without follow-up questions and builds once the plan is ready", async () => {
+  it("plans from the description an agent gave without follow-up questions and builds on the server once the plan is ready", async () => {
     const ws = await workspace();
     const description = "We design brand identities and websites for small hotels in the Alps.";
 
@@ -1149,22 +1149,39 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       true,
     );
 
-    const advanced = await ws.run(() => di.getAdvanceAgentWorkspaceSetupInteractor().invoke());
-    if (!advanced.ok || !advanced.data.available || !advanced.data.setup) throw new Error("no setup");
-    expect(advanced.data.setup.status).toBe("building");
-    expect(state.dispatch).toHaveBeenCalledWith("build-workspace-setup", { setupId, userId: ws.owner.id });
+    const autoBuild = di.getBuildAgentWorkspaceSetupInteractor();
+    expect(await ws.run(() => autoBuild.invoke({ setupId }))).toEqual({ ok: true, data: { building: true } });
+    expect((await status(ws)).status).toBe("building");
+    expect(await ws.run(() => autoBuild.invoke({ setupId }))).toEqual({ ok: true, data: { building: true } });
+    const builds = () => state.dispatch.mock.calls.filter(([name]) => name === "build-workspace-setup");
+    expect(builds()).toEqual([["build-workspace-setup", { setupId, userId: ws.owner.id }]]);
 
     expect(await build(ws, setupId)).toMatchObject({ dataModel: "settled", records: "settled" });
     expect((await status(ws)).status).toBe("completed");
   });
 
-  it("never builds a plan the owner started in the app when an agent reads the status", async () => {
+  it("leaves a plan the owner started in the app waiting for the owner, and a status read starts nothing", async () => {
     const ws = await workspace();
-    await planned(ws);
+    const { setupId } = await planned(ws);
 
-    const advanced = await ws.run(() => di.getAdvanceAgentWorkspaceSetupInteractor().invoke());
+    expect(await ws.run(() => di.getBuildAgentWorkspaceSetupInteractor().invoke({ setupId }))).toEqual({
+      ok: true,
+      data: { building: false },
+    });
+    expect((await status(ws)).status).toBe("planned");
+    expect((await status(ws)).status).toBe("planned");
+    expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
+  });
 
-    expect(advanced.ok && advanced.data.available && advanced.data.setup?.status).toBe("planned");
+  it("starts nothing when an agent reads the status of its planned setup", async () => {
+    const ws = await workspace();
+    const started = await agentSetup(ws).invoke({ companyId: ws.companyId, description: "A bakery in Vienna." });
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const { setupId } = started.data;
+    expect(await ws.run(() => di.getWorkspaceSetupInterviewService().followUps(setupId))).toBe("none");
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+
+    expect((await status(ws)).status).toBe("planned");
     expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
   });
 

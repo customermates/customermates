@@ -7,8 +7,8 @@ import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-se
 import { mcpInteractorFailure, runInteractor, toonResult } from "./utils";
 
 import {
-  getAdvanceAgentWorkspaceSetupInteractor,
   getCreateWorkspaceInteractor,
+  getGetWorkspaceSetupStatusInteractor,
   getListAccountWorkspacesInteractor,
   getStartAgentWorkspaceSetupInteractor,
 } from "@/core/di";
@@ -194,9 +194,9 @@ export const getWorkspaceSetupStatusTool = {
   title: "Get workspace setup status",
   description:
     "Reports the Mate setup of the workspace: status interview, planning, planned, building, completed or failed, the plan generation state with its error, the build phases (knowledgeBase, dataModel, views, records, dashboard) with status and error, the current phase, the Knowledge Base pages planned and written, and finishedAt. " +
-    "For a setup that the workspace creation started from a description, a finished plan is built right away, so a read during planned moves it to building. status null means no setup ran; available false carries the reason, such as configured for a workspace that already has lists.",
+    "Only reads: a setup that the workspace creation started from a description moves from planned to building on the server by itself as soon as its plan is ready, whether or not anyone reads the status; a setup started in the app waits for the owner to confirm the plan there. status null means no setup ran; available false carries the reason, such as configured for a workspace that already has lists.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
   outputSchema: SetupStatusOutputSchema,
-  execute: () => runInteractor(getAdvanceAgentWorkspaceSetupInteractor().invoke(), setupStatusResult),
+  execute: () => runInteractor(getGetWorkspaceSetupStatusInteractor().invoke(), setupStatusResult),
 };
