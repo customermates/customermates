@@ -27,6 +27,7 @@ import {
   startWorkspaceSetupAction,
 } from "../../workspace-setup-actions";
 
+import { buildPhaseStillRunning } from "./setup-build-state";
 import {
   answersPayload,
   displayedFollowUpValue,
@@ -144,7 +145,7 @@ export class WorkspaceSetupStore {
   get shouldPoll(): boolean {
     const setup = this.setup;
     if (!setup) return false;
-    if (setup.status === "planning" || setup.status === "building") return true;
+    if (setup.status === "planning" || setup.status === "building" || buildPhaseStillRunning(setup)) return true;
     return setup.status === "interview" && POLLED_GENERATION.has(setup.plan.status);
   }
 

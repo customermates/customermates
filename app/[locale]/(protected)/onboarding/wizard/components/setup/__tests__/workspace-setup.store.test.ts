@@ -29,7 +29,7 @@ vi.mock("@/core/errors/workspace-changed-notice", async () => {
 });
 
 import { WorkspaceSetupStore } from "../workspace-setup.store";
-import { PLAN_PROGRESS, SETUP_ID, setupPlan, setupView } from "./setup-view-fixture";
+import { PLAN_PROGRESS, SETUP_ID, phaseView, settledPhases, setupPlan, setupView } from "./setup-view-fixture";
 
 const MESSAGE = "Must not be blank.";
 const confirmed = { source: "user" as const, confidence: 1 };
@@ -288,8 +288,35 @@ describe("WorkspaceSetupStore commands", () => {
       storeWith(setupView({ plan: { status: "queued", error: null, revision: 1, plan: null, ...PLAN_PROGRESS } }))
         .shouldPoll,
     ).toBe(true);
-    expect(storeWith(setupView({ status: "completed" })).shouldPoll).toBe(false);
+    expect(storeWith(setupView({ status: "completed", phases: settledPhases() })).shouldPoll).toBe(false);
     expect(storeWith(setupView()).shouldPoll).toBe(false);
+  });
+
+  it("keeps polling a finished setup while a retried Knowledge Base still runs", () => {
+    const retried = settledPhases().map((phase) =>
+      phase.key === "knowledgeBase" ? phaseView("knowledgeBase", "pending") : phase,
+    );
+    expect(storeWith(setupView({ status: "completed", phases: retried })).shouldPoll).toBe(true);
+    expect(storeWith(setupView({ status: "failed", phases: retried })).shouldPoll).toBe(true);
+    const running = settledPhases().map((phase) =>
+      phase.key === "knowledgeBase" ? phaseView("knowledgeBase", "running") : phase,
+    );
+    expect(storeWith(setupView({ status: "completed", phases: running })).shouldPoll).toBe(true);
+  });
+
+  it("picks up the completion of a retried Knowledge Base on the next poll", async () => {
+    const retried = settledPhases().map((phase) =>
+      phase.key === "knowledgeBase" ? phaseView("knowledgeBase", "pending") : phase,
+    );
+    const store = storeWith(setupView({ status: "completed", phases: retried }));
+    actions.getWorkspaceSetupStatusAction.mockResolvedValueOnce({
+      ok: true,
+      data: { available: true, setup: setupView({ status: "completed", phases: settledPhases() }) },
+    });
+
+    expect(await store.poll()).toBe(true);
+    expect(store.setup?.phases.find((phase) => phase.key === "knowledgeBase")?.status).toBe("completed");
+    expect(store.shouldPoll).toBe(false);
   });
 
   it("keeps an answer the owner touched while the server answers change", () => {

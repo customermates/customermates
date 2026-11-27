@@ -27,7 +27,7 @@ vi.mock("../../../workspace-setup-actions", () => ({
 
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupBuildFooter, SetupBuildView } from "../setup-build-view";
-import { PLAN_PROGRESS, phaseView, setupPlan, setupView } from "./setup-view-fixture";
+import { PLAN_PROGRESS, phaseView, settledPhases, setupPlan, setupView } from "./setup-view-fixture";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -147,9 +147,31 @@ describe("SetupBuildView", () => {
   });
 
   it("reports a finished workspace", () => {
-    render(setupView({ status: "completed", phases: [phaseView("dataModel", "completed")] }));
+    render(setupView({ status: "completed", phases: settledPhases() }));
 
     expect(container.textContent).toContain("WorkspaceSetup.build.completedTitle");
     expect(container.textContent).toContain("WorkspaceSetup.build.completedBody");
+  });
+
+  it("says everything is in place only once the retried Knowledge Base finished too", () => {
+    const retried = settledPhases().map((phase) =>
+      phase.key === "knowledgeBase" ? phaseView("knowledgeBase", "pending") : phase,
+    );
+    render(setupView({ status: "completed", phases: retried }));
+
+    expect(container.textContent).not.toContain("WorkspaceSetup.build.completedBody");
+    expect(container.textContent).toContain("WorkspaceSetup.build.keepsRunning");
+    expect(container.querySelector("#setup-build")?.getAttribute("aria-busy")).toBe("true");
+  });
+
+  it("asks for a retry when the Knowledge Base failed after the rest finished", () => {
+    const failed = settledPhases().map((phase) =>
+      phase.key === "knowledgeBase" ? phaseView("knowledgeBase", "failed", "generation") : phase,
+    );
+    render(setupView({ status: "completed", phases: failed }));
+
+    expect(container.textContent).toContain("WorkspaceSetup.build.failedTitle");
+    expect(container.textContent).not.toContain("WorkspaceSetup.build.completedBody");
+    expect(button("WorkspaceSetup.build.retry")).toBeDefined();
   });
 });

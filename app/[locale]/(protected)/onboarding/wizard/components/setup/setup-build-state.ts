@@ -14,10 +14,18 @@ const PHASE_STATES: Record<WorkspaceSetupPhaseStatus, BuildPhaseState> = {
   skipped: "skipped",
 };
 
+const OPEN_PHASE_STATUSES: ReadonlySet<WorkspaceSetupPhaseStatus> = new Set(["pending", "running"]);
+const UNFINISHED_PHASE_STATUSES: ReadonlySet<WorkspaceSetupPhaseStatus> = new Set(["failed", "stopped"]);
+const BUILT_STATUSES: ReadonlySet<WorkspaceSetupView["status"]> = new Set(["completed", "failed"]);
+
+export function buildPhaseStillRunning(setup: WorkspaceSetupView): boolean {
+  return BUILT_STATUSES.has(setup.status) && setup.phases.some((phase) => OPEN_PHASE_STATUSES.has(phase.status));
+}
+
 export function buildOutcome(setup: WorkspaceSetupView): BuildOutcome {
-  if (setup.status === "completed") return "completed";
   if (setup.status === "failed") return "failed";
-  return "running";
+  if (setup.status !== "completed" || buildPhaseStillRunning(setup)) return "running";
+  return setup.phases.some((phase) => UNFINISHED_PHASE_STATUSES.has(phase.status)) ? "failed" : "completed";
 }
 
 export function buildPhaseState(phase: WorkspaceSetupPhaseView): BuildPhaseState {

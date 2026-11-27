@@ -198,6 +198,54 @@ test("the suggested steps reorder by dragging and by keyboard", async ({ page, d
   expect(errors).toEqual([]);
 });
 
+test("a retried Knowledge Base that finishes after the rest of the build shows as done without a reload", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  const companyId = await openQuestionsOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Retried Base"));
+  const now = new Date().toISOString();
+  const phase = (status: string, attempts: number) => ({
+    status,
+    error: null,
+    attempts,
+    retryFrom: status === "pending" ? attempts : 0,
+    claimedAt: status === "pending" ? now : null,
+    startedAt: status === "pending" ? null : now,
+    finishedAt: status === "pending" ? null : now,
+  });
+  const completed = phase("completed", 1);
+  const phases = (knowledgeBase: ReturnType<typeof phase>) =>
+    JSON.stringify({ knowledgeBase, dataModel: completed, views: completed, records: completed, dashboard: completed });
+  await expect
+    .poll(
+      async () =>
+        (await database.query('SELECT 1 FROM "WorkspaceSetup" WHERE "companyId"=$1', [companyId])).rowCount,
+    )
+    .toBe(1);
+  const built = await database.query(
+    'UPDATE "WorkspaceSetup" SET status=\'completed\', phases=$2::jsonb, "confirmedAt"=NOW(), "finishedAt"=NOW() WHERE "companyId"=$1',
+    [companyId, phases(phase("pending", 1))],
+  );
+  expect(built.rowCount).toBe(1);
+  await page.reload();
+
+  const build = page.locator("#setup-build");
+  const knowledgeBase = build.locator('[data-phase="knowledgeBase"]');
+  await expect(knowledgeBase).toHaveAttribute("data-state", "waiting");
+  await expect(build).toContainText(setup.build.keepsRunning);
+  await expect(build).not.toContainText(setup.build.completedBody);
+
+  await database.query('UPDATE "WorkspaceSetup" SET phases=$2::jsonb WHERE "companyId"=$1', [
+    companyId,
+    phases(phase("completed", 2)),
+  ]);
+  await expect(knowledgeBase).toHaveAttribute("data-state", "done", { timeout: 15_000 });
+  await expect(build).toContainText(setup.build.completedBody);
+  expect(errors).toEqual([]);
+});
+
 test("after the build a team is asked to invite, then to connect the inbox, and lands in the workspace", async ({
   page,
   database,

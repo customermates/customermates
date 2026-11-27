@@ -210,7 +210,7 @@ describe("claiming a build phase", () => {
     );
     const started = Date.now();
 
-    const result = run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"));
+    const result = run(() => service.runPhase(SETUP_ID, "knowledgeBase", true, "run-a"));
     await vi.advanceTimersByTimeAsync(SETUP_PHASE_HEARTBEAT_MS * 3);
     expect(new Date(repo.store.setup.phases.knowledgeBase?.claimedAt ?? 0).getTime()).toBe(
       started + SETUP_PHASE_HEARTBEAT_MS * 3,
@@ -636,6 +636,30 @@ describe("finishing a build", () => {
     expect(repo.store.setup.phases.knowledgeBase).toMatchObject({ status: "failed", error: "aiUnavailable" });
     expect(setupPhaseRetryable(repo.store.setup, "knowledgeBase", new Date())).toBe(true);
     expect(setupPhaseRetryable(repo.store.setup, "records", new Date())).toBe(false);
+  });
+
+  it("retries a Knowledge Base the AI could not write once by itself before it shows the failure", async () => {
+    const done = phase({ status: "completed", attempts: 1, finishedAt: ago(1_000) });
+    const repo = memoryRepo(
+      setupRecord({
+        status: "completed",
+        finishedAt: new Date(Date.now() - 1_000),
+        phases: { knowledgeBase: phase(), dataModel: done, views: done, records: done, dashboard: done },
+      }),
+    );
+    const { service, models } = buildService(repo);
+    models.generate.mockResolvedValue({ ok: false, failure: "generation" });
+
+    expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"))).toBe("wait");
+    expect(repo.store.setup.phases.knowledgeBase).toMatchObject({
+      status: "pending",
+      error: "generation",
+      attempts: 1,
+    });
+
+    expect(await run(() => service.runPhase(SETUP_ID, "knowledgeBase", false, "run-a"))).toBe("settled");
+    expect(repo.store.setup.phases.knowledgeBase).toMatchObject({ status: "failed", error: "generation", attempts: 2 });
+    expect(repo.store.setup.status).toBe("completed");
   });
 
   it("abandons a Knowledge Base whose run died after the setup completed, without reopening the setup", () => {

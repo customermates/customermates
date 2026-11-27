@@ -98,6 +98,10 @@ export function phaseView(
   return { key, status, error, attempts: status === "pending" ? 0 : 1, startedAt: null, finishedAt: null };
 }
 
+export function settledPhases(): WorkspaceSetupPhaseView[] {
+  return PHASES.map((key) => phaseView(key, "completed"));
+}
+
 export function setupView(overrides: Partial<WorkspaceSetupView> = {}): WorkspaceSetupView {
   return {
     id: SETUP_ID,
