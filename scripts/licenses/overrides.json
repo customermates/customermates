@@ -7,6 +7,10 @@
     "license": "Apache-2.0",
     "reason": "The manifest has no license field; the package ships the Apache License 2.0 text in LICENSE."
   },
+  "botid@1.5.13": {
+    "license": "MIT",
+    "reason": "The manifest has no license field and no LICENSE file is shipped; the package README's License section says MIT. It is Vercel's BotID client and server library."
+  },
   "chainsaw@0.1.0": {
     "license": "MIT",
     "reason": "The manifest says MIT/X11, the name the X Consortium gave the MIT License; the same author's traverse ships it as the MIT License."
