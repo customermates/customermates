@@ -100,7 +100,7 @@ async function issueOAuthTokens(client: Client, authUserId: string, clientId: st
   const { AuthService } = await import("@/features/auth/auth.service");
   const service = new AuthService({ send: vi.fn() } as never);
   vi.spyOn(service, "getSession").mockResolvedValue({ user: { id: authUserId } } as never);
-  const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId });
+  const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId, accountWide: false });
   const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
   return postToken({
     grant_type: "authorization_code",

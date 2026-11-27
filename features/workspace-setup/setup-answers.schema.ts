@@ -34,7 +34,7 @@ export type SetupAnswerValue = z.infer<typeof SetupAnswerValueSchema>;
 
 export const SetupAnswerSchema = z
   .object({
-    source: z.enum(["user", "website"]),
+    source: z.literal("user"),
     confidence: z.number().min(0).max(1),
     value: SetupAnswerValueSchema,
   })
@@ -53,7 +53,6 @@ export const SetupAnswersSchema = z
         issue("The answer does not match the question format.");
         continue;
       }
-      if (answer.source === "website" && part.prefill === "no") issue("This question is never pre-filled.");
       if (value.format === "singleChoice" && part.format === "singleChoice" && !part.optionSource)
         if (!part.options.some((option) => option.id === value.value)) issue("Unknown option.");
 
@@ -90,4 +89,6 @@ export function storedSetupAnswers(value: unknown): SetupAnswers {
   ) as SetupAnswers;
 }
 
-export const StoredSetupAnswersSchema = z.unknown().transform(storedSetupAnswers);
+export function touchAnswer(answers: SetupAnswers, id: keyof SetupAnswers, value: SetupAnswerValue): SetupAnswers {
+  return { ...answers, [id]: { source: "user", confidence: 1, value } };
+}

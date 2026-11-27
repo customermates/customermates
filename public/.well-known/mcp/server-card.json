@@ -59,6 +59,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -202,6 +207,11 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -4195,6 +4205,11 @@
               ],
               "additionalProperties": false
             }
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -7365,6 +7380,11 @@
                 "type": "null"
               }
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -8152,6 +8172,11 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -8324,6 +8349,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 10
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -8657,6 +8687,11 @@
                 "type": "null"
               }
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -9114,6 +9149,11 @@
               ],
               "additionalProperties": false
             }
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -11946,6 +11986,11 @@
             ],
             "additionalProperties": false,
             "description": "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends cannot conflict with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Only the fields of that action are allowed. Phone numbers, email addresses and social profiles are not fields: create and update carry them as identities inside this mutation object (with fields: [] when nothing else changes), and the list replaces the record's contact details, so it includes the ones to keep."
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -12589,6 +12634,11 @@
             "type": "integer",
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -14768,6 +14818,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 1000
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -16566,6 +16621,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -17199,6 +17259,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -17241,6 +17306,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -17373,6 +17443,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -22723,6 +22798,11 @@
           "expectedImpactHash": {
             "type": "string",
             "pattern": "^[a-f0-9]{64}$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -24167,6 +24247,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 500
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -25762,6 +25847,11 @@
             "type": "string",
             "minLength": 8,
             "maxLength": 200
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -25977,6 +26067,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 9007199254740991
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -28089,6 +28184,11 @@
               "operations"
             ],
             "additionalProperties": false
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -29182,7 +29282,7 @@
     {
       "name": "get_workspace_context",
       "title": "Get workspace context",
-      "description": "Returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, connected messaging accounts, and the Knowledge Base in one response. This connection is bound to exactly one workspace: every tool reads and writes only that workspace, and another workspace of the same login needs its own connection. On the first page wiki.guide is the Operating Guide (nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse. wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, not the complete page. wiki.nextPage is the wikiPage value of the following catalog page. wiki is omitted without Knowledge Base Read. A page's owner and verifiedAt (when someone last confirmed it is correct) appear when set. For someone who may edit pages, wiki.upkeep on the first page counts what is open, and is omitted when nothing is: openQuestions the Knowledge Base could not answer, orphanPages that no other page links to and pagesWithDeadLinks that link to a page that no longer exists; the two link counts are left out while links of recently changed pages are still being read. Each role carries its full permission list; without role management only the user's own role is listed, and a user's roleId matches a role id. Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; the id is the connectedAccountId of that account and status is its connection status. lastSyncedAt is the time the account's last history import finished, not the time of its newest message: a message that arrives later leaves it unchanged. For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter).",
+      "description": "Returns the current user, company (the workspace, with its name; null for an unnamed workspace), plan facts, role catalog with permissions, connected messaging accounts, and the Knowledge Base in one response. The workspace is the one named by the workspace argument, or the account's only usable workspace when the argument is left out; one connection reaches every workspace of the account, each named per request. plan holds the workspace's plan facts on Cloud (null elsewhere): plan is the current plan id, onFreePlan whether it runs on the free plan, trialDaysLeft the days left in the free trial (null when not in a trial), lostOnFree what stops working on the free plan as { kind, count } entries, keepsItRunning the cheapest plan that keeps all of it running (null when nothing would be lost) and choosePlanUrl the absolute link to the workspace's billing settings where a plan is chosen. On the first page wiki.guide is the Operating Guide (nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse. wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, not the complete page. wiki.nextPage is the wikiPage value of the following catalog page. wiki is omitted without Knowledge Base Read. A page's owner and verifiedAt (when someone last confirmed it is correct) appear when set. For someone who may edit pages, wiki.upkeep on the first page counts what is open, and is omitted when nothing is: openQuestions the Knowledge Base could not answer, orphanPages that no other page links to and pagesWithDeadLinks that link to a page that no longer exists; the two link counts are left out while links of recently changed pages are still being read. Each role carries its full permission list; without role management only the user's own role is listed, and a user's roleId matches a role id. Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; the id is the connectedAccountId of that account and status is its connection status. lastSyncedAt is the time the account's last history import finished, not the time of its newest message: a message that arrives later leaves it unchanged. For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter).",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -29196,6 +29296,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 9007199254740991
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -29231,6 +29336,104 @@
               "name"
             ],
             "additionalProperties": {}
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "plan": {
+                    "type": "string",
+                    "enum": [
+                      "free",
+                      "starter",
+                      "pro",
+                      "business",
+                      "max",
+                      "enterprise"
+                    ]
+                  },
+                  "onFreePlan": {
+                    "type": "boolean"
+                  },
+                  "trialDaysLeft": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "lostOnFree": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "accounts",
+                            "drafts",
+                            "routines",
+                            "rules",
+                            "members",
+                            "forms",
+                            "webhooks",
+                            "mate"
+                          ]
+                        },
+                        "count": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "count"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "keepsItRunning": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "starter",
+                          "pro",
+                          "business",
+                          "max"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "choosePlanUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": [
+                  "plan",
+                  "onFreePlan",
+                  "trialDaysLeft",
+                  "lostOnFree",
+                  "keepsItRunning",
+                  "choosePlanUrl"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "roles": {
             "type": "array",
@@ -29325,6 +29528,7 @@
         "required": [
           "user",
           "company",
+          "plan",
           "roles",
           "connectedAccounts"
         ],
@@ -29606,6 +29810,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -30294,6 +30503,11 @@
               }
             },
             "additionalProperties": false
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -32083,6 +32297,11 @@
               "fieldOrder"
             ],
             "additionalProperties": false
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -32655,6 +32874,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -33452,6 +33676,11 @@
               "locale"
             ],
             "additionalProperties": false
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -33715,6 +33944,11 @@
           "verified": {
             "description": "update only: true records that the page was checked against its sources and is still correct. verifiedAt becomes now; updatedAt moves only when the content changes.",
             "type": "boolean"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -34322,6 +34556,11 @@
               "field",
               "direction"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -35156,6 +35395,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -35513,6 +35757,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -35625,6 +35874,11 @@
             "description": "Sender signature. Required for recruiter",
             "type": "string",
             "maxLength": 998
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -35806,6 +36060,11 @@
             "type": "string",
             "format": "date-time",
             "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -35931,6 +36190,11 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -35988,6 +36252,11 @@
             "format": "date-time",
             "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
             "description": "Opaque revision of the draft, as returned when it was saved"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -36051,6 +36320,11 @@
               "closed",
               "spam"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -36110,6 +36384,11 @@
             "type": "string",
             "minLength": 1,
             "description": "Id of the target folder, taken from the thread's folder.moveTargets; a folder name is not accepted"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -36230,6 +36509,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -36965,6 +37249,11 @@
               "facebook"
             ],
             "description": "Which channel to connect: google (Gmail), outlook, imap (any other email via IMAP/SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram, telegram, facebook (Messenger)."
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -37137,6 +37426,11 @@
           "shared": {
             "description": "set_sharing: true shares every conversation of the account with the workspace, false makes it private.",
             "type": "boolean"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -37197,7 +37491,7 @@
     {
       "name": "schedule_meeting",
       "title": "Schedule, move and cancel meetings",
-      "description": "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. cancel notifies the attendees and cancels the event permanently for them. Only events created through this tool or the app and owned by the caller can be changed; an event id is the id returned by create or the id of a synced calendar event.",
+      "description": "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. Google follows sendInvites on update; Microsoft sends updates to the attendees either way.update moves, resizes or edits an existing event: the id returned by create, or the id of any synced event in the caller's own connected Google or Microsoft calendar, also when it was created outside Customermates. Send startsAt with durationMinutes or endsAt to move a timed event, and startDate with endDate to move an all-day event; an event cannot be switched between timed and all-day. Only the keys sent change. The result is the event as the provider returned it after the change. For an occurrence of a repeating event, scope occurrence (the default) changes or cancels only that occurrence and series changes or cancels every occurrence; moving the series shifts every occurrence by the same amount. Changing this and the following occurrences is not offered, because Google cannot do it in one change. cancel notifies the attendees and cancels the event permanently for them. Events in calendars that only someone else connected cannot be changed, and a change the provider refuses (for example an event organised by someone else) returns an error and leaves the event as it was.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -37214,7 +37508,7 @@
               "update",
               "cancel"
             ],
-            "description": "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update: id, title, startsAt, durationMinutes, timeZone, description, location, attendees, sendInvites; cancel: id, comment."
+            "description": "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update (move, resize or edit an existing event): id, startsAt with durationMinutes or endsAt (timed events), startDate with endDate (all-day events), timeZone, title, description, location, attendees, sendInvites, scope; cancel: id, comment, scope."
           },
           "record": {
             "description": "options only: the record the meeting is for, to get attendee suggestions from its linked People.",
@@ -37241,7 +37535,7 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-            "description": "The event id returned when the meeting was created."
+            "description": "The calendar event id: the id returned when the meeting was created, or the id of any synced event in the caller's own connected calendar."
           },
           "calendarId": {
             "description": "A calendar from the meeting options; the first writable calendar of the caller when omitted.",
@@ -37273,11 +37567,29 @@
             "minimum": 5,
             "maximum": 1440
           },
+          "endsAt": {
+            "description": "New end as an instant with offset or Z, sent together with startsAt in place of durationMinutes.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
           "timeZone": {
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
             "description": "IANA time zone the event is shown in, for example Europe/Berlin."
+          },
+          "startDate": {
+            "description": "All-day events only: the new first day as YYYY-MM-DD, sent together with endDate.",
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
+          "endDate": {
+            "description": "All-day events only: the new last day as YYYY-MM-DD, the same as startDate for a one-day event.",
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
           },
           "attendees": {
             "maxItems": 50,
@@ -37309,7 +37621,16 @@
           },
           "sendInvites": {
             "default": true,
+            "description": "Let the provider send the change to the attendees. Google follows it; Microsoft sends the update to the attendees either way.",
             "type": "boolean"
+          },
+          "scope": {
+            "description": "update and cancel of a repeating event: occurrence changes or cancels only this occurrence, series every occurrence. Defaults to occurrence for an occurrence id and to series for a series synced without its occurrences.",
+            "type": "string",
+            "enum": [
+              "occurrence",
+              "series"
+            ]
           },
           "records": {
             "default": [],
@@ -37385,6 +37706,11 @@
             "description": "cancel only: a message to the attendees, shown by Outlook.",
             "type": "string",
             "maxLength": 1000
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -37986,6 +38312,11 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -38964,6 +39295,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -39072,6 +39408,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -39150,6 +39491,11 @@
               "person",
               "company"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -39266,6 +39612,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -39386,6 +39737,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -39505,6 +39861,11 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -40110,6 +40471,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -40500,6 +40866,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -40602,6 +40973,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -40707,6 +41083,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -40801,6 +41182,11 @@
               "api",
               "all"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -40927,6 +41313,11 @@
               "docs",
               "api"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -45564,6 +45955,11 @@
                 "type": "null"
               }
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -47738,6 +48134,11 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 86400
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -49312,6 +49713,11 @@
             "description": "runs only. The nextCursor of the previous page. Omit it for the newest runs.",
             "type": "string",
             "maxLength": 500
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -51735,6 +52141,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -51957,6 +52368,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -52137,6 +52553,11 @@
               "nl",
               "system"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
@@ -52218,6 +52639,11 @@
               "active",
               "inactive"
             ]
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -52462,6 +52888,11 @@
               "idempotencyKey"
             ],
             "additionalProperties": false
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -52829,6 +53260,11 @@
             "minLength": 1,
             "maxLength": 10000,
             "description": "The full question or problem description, including relevant context."
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -52873,6 +53309,11 @@
             "type": "string",
             "minLength": 1,
             "description": "Search terms for workspace Knowledge Base content, file text, CRM record names, and product documentation"
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -52997,6 +53438,11 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 9007199254740991
+          },
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -53106,6 +53552,592 @@
         "destructiveHint": false,
         "openWorldHint": false
       }
+    },
+    {
+      "name": "list_workspaces",
+      "title": "List workspaces",
+      "description": "Returns every workspace of the signed-in account: name, slug (the value of the workspace argument of the other tools), companyId, the account's role there, setUp (true once the workspace holds records, false while it is still empty; null when it cannot be used), records (the record count), usable with the unavailableReason and a plain unavailableExplanation when the workspace cannot be used through this connection, and plan. plan holds the workspace's plan facts on Cloud (null elsewhere): plan is the current plan id, onFreePlan whether it runs on the free plan, trialDaysLeft the days left in the free trial (null when not in a trial), lostOnFree what stops working on the free plan as { kind, count } entries, keepsItRunning the cheapest plan that keeps all of it running (null when nothing would be lost) and choosePlanUrl the absolute link to the workspace's billing settings where a plan is chosen. canCreateWorkspace tells whether this connection may create another workspace. With an API key only the key's own workspace is listed.",
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "workspaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "companyId": {
+                  "type": "string"
+                },
+                "role": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isAdmin": {
+                  "type": "boolean"
+                },
+                "setUp": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "records": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "usable": {
+                  "type": "boolean"
+                },
+                "unavailableReason": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailableExplanation": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "plan": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "plan": {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "starter",
+                            "pro",
+                            "business",
+                            "max",
+                            "enterprise"
+                          ]
+                        },
+                        "onFreePlan": {
+                          "type": "boolean"
+                        },
+                        "trialDaysLeft": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "lostOnFree": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "accounts",
+                                  "drafts",
+                                  "routines",
+                                  "rules",
+                                  "members",
+                                  "forms",
+                                  "webhooks",
+                                  "mate"
+                                ]
+                              },
+                              "count": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "count"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "keepsItRunning": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "starter",
+                                "pro",
+                                "business",
+                                "max"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "choosePlanUrl": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      },
+                      "required": [
+                        "plan",
+                        "onFreePlan",
+                        "trialDaysLeft",
+                        "lostOnFree",
+                        "keepsItRunning",
+                        "choosePlanUrl"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "slug",
+                "companyId",
+                "role",
+                "isAdmin",
+                "setUp",
+                "records",
+                "usable",
+                "unavailableReason",
+                "unavailableExplanation",
+                "plan"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "canCreateWorkspace": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "workspaces",
+          "canCreateWorkspace"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_workspace",
+      "title": "Create workspace",
+      "description": "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial, setup }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). With a description, Mate plans and builds the whole workspace on the server, the same setup the app's onboarding runs: setup.status planning means it started and the workspace setup status reports its progress; notStarted carries the reason, for example a plan without Mate, and leaves an empty workspace. Without a description the workspace starts empty and setup is null. Cloud only; needs a verified email address and an OAuth connection approved for the whole account, allows at most 3 new workspaces per account in any 24 hours, and follows the terms the account accepted.",
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "Workspace name, usually the company name"
+          },
+          "teamSize": {
+            "type": "string",
+            "enum": [
+              "solo",
+              "small",
+              "medium",
+              "large"
+            ],
+            "description": "How many people will work in it: solo (just one person), small (2-5), medium (6-20), large (more than 20)"
+          },
+          "displayLanguage": {
+            "description": "App language of the account in the new workspace; system follows the browser. Defaults to the language already in use",
+            "type": "string",
+            "enum": [
+              "system",
+              "de",
+              "en",
+              "es",
+              "fr",
+              "it",
+              "pt",
+              "pl",
+              "nl"
+            ]
+          },
+          "description": {
+            "description": "One or two sentences about the business in the owner's words: what it does and for whom. When given, Mate builds the workspace from it on the server: lists, fields, pipeline, views, dashboard and Knowledge Base",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "workWith": {
+            "description": "Who the business works with: clients (ongoing relationships), customers (one-off buyers) or ownWork",
+            "type": "string",
+            "enum": [
+              "clients",
+              "customers",
+              "ownWork"
+            ]
+          },
+          "purpose": {
+            "description": "What the workspace keeps track of",
+            "maxItems": 11,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "deals",
+                "projects",
+                "contracts",
+                "orders",
+                "chats",
+                "support",
+                "hiring",
+                "investors",
+                "partners",
+                "finances",
+                "marketing"
+              ]
+            }
+          },
+          "mainSteps": {
+            "description": "Pipeline steps of the main tracked work, in order",
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            }
+          },
+          "pricing": {
+            "description": "How the business charges",
+            "type": "string",
+            "enum": [
+              "fixedPrice",
+              "timeBased",
+              "subscription",
+              "products",
+              "free"
+            ]
+          },
+          "exampleRecords": {
+            "description": "Whether Mate adds example records (default true)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "teamSize"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trial": {
+            "type": "boolean"
+          },
+          "setup": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "planning",
+                      "notStarted"
+                    ]
+                  },
+                  "setupId": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "status",
+                  "setupId",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "companyId",
+          "slug",
+          "trial",
+          "setup"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_workspace_setup_status",
+      "title": "Get workspace setup status",
+      "description": "Reports the Mate setup of the workspace: status interview, planning, planned, building, completed or failed, the plan generation state with its error, the build phases (knowledgeBase, dataModel, views, records, dashboard) with status and error, the current phase, the Knowledge Base pages planned and written, and finishedAt. Only reads: a setup that the workspace creation started from a description moves from planned to building on the server by itself as soon as its plan is ready, whether or not anyone reads the status; a setup started in the app waits for the owner to confirm the plan there. status null means no setup ran; available false carries the reason, such as configured for a workspace that already has lists.",
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "description": "Slug or id of the workspace to work in. Optional when the account has exactly one usable workspace; required when it has several. An API key always works in its own workspace.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "status",
+                  "error"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currentPhase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "phase": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "error": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "phase",
+                "status",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "knowledgeBase": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "pagesPlanned": {
+                    "type": "number"
+                  },
+                  "pagesWritten": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "pagesPlanned",
+                  "pagesWritten"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "available",
+          "reason",
+          "status",
+          "plan",
+          "currentPhase",
+          "phases",
+          "knowledgeBase",
+          "finishedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     }
   ],
   "resources": [],
@@ -53124,6 +54156,11 @@
           "name": "template",
           "description": "The template slug, for example client-tracker",
           "required": true
+        },
+        {
+          "name": "workspace",
+          "description": "Slug or id of the workspace to set up; needed when the account has several workspaces",
+          "required": false
         }
       ]
     }

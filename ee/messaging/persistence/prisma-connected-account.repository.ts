@@ -24,6 +24,7 @@ import { EmailFolderSchema } from "../email-folders";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
 import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.repo";
+import type { DispatchEmailPresenceSweepsRepo } from "../ingest/dispatch-email-presence-sweeps.repo";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.repo";
 import type { FindUsableAccountRepo } from "./find-usable-account.repo";
 import type { FindAccountByUnipileIdUnscopedRepo } from "./find-account-by-unipile-id-unscoped.repo";
@@ -43,7 +44,14 @@ import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.re
 
 import { randomUUID } from "node:crypto";
 
-import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, SubscriptionStatus } from "@/generated/prisma";
+import {
+  AccountActivityKind,
+  ConnectedAccountStatus,
+  MessagingProvider,
+  Resource,
+  Status,
+  SubscriptionStatus,
+} from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -53,6 +61,7 @@ import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema
 import { channelChange } from "@/features/billing-usage/billing-usage-changes";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
+const EMAIL_PRESENCE_PREFIX = "presence:";
 
 export class PrismaConnectedAccountRepo
   extends TenantRepository
@@ -69,6 +78,7 @@ export class PrismaConnectedAccountRepo
     AccountWebhookRepo,
     BackfillConnectedAccountRepo,
     ClaimBackfillRepo,
+    DispatchEmailPresenceSweepsRepo,
     ReleaseBackfillClaimRepo,
     FindUsableAccountRepo,
     FindAccountByUnipileIdUnscopedRepo,
@@ -318,6 +328,67 @@ export class PrismaConnectedAccountRepo
     });
 
     return rows.map((row) => row.unipileMessageId);
+  }
+
+  @BypassTenantGuard
+  async clearEmailPresenceSweepUnscoped(
+    args: RepoArgs<BackfillConnectedAccountRepo, "clearEmailPresenceSweepUnscoped">,
+  ) {
+    await this.prisma.messagingFolderPassMessage.deleteMany({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        folderId: { startsWith: EMAIL_PRESENCE_PREFIX },
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async recordEmailSightingsUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordEmailSightingsUnscoped">) {
+    if (args.sightings.length === 0) return;
+
+    await this.prisma.messagingFolderPassMessage.createMany({
+      data: args.sightings.map((sighting) => ({
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        folderId: `${EMAIL_PRESENCE_PREFIX}${sighting.folderId}`,
+        unipileMessageId: sighting.unipileMessageId,
+        providerMessageId: sighting.providerMessageId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  @BypassTenantGuard
+  async listEmailSightingsUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "listEmailSightingsUnscoped">) {
+    const rows = await this.prisma.messagingFolderPassMessage.findMany({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        folderId: { startsWith: EMAIL_PRESENCE_PREFIX },
+      },
+      select: { folderId: true, unipileMessageId: true, providerMessageId: true },
+    });
+
+    return rows.map((row) => ({
+      folderId: row.folderId.slice(EMAIL_PRESENCE_PREFIX.length),
+      unipileMessageId: row.unipileMessageId,
+      providerMessageId: row.providerMessageId,
+    }));
+  }
+
+  @BypassTenantGuard
+  async findAccountsForEmailPresenceSweepUnscoped() {
+    return this.prisma.connectedAccount.findMany({
+      where: {
+        provider: MessagingProvider.mail,
+        status: ConnectedAccountStatus.ok,
+        hasMessaging: true,
+        foldersSyncedAt: { not: null },
+      },
+      select: { id: true, companyId: true },
+      orderBy: { id: "asc" },
+    });
   }
 
   @BypassTenantGuard

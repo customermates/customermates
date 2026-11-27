@@ -9,6 +9,7 @@ import type { PlannerEntry } from "@/features/planner/planner-entries";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   ArrowUpRight,
   CalendarClock,
@@ -52,6 +53,7 @@ import { recordDisplayName } from "@/features/records/record-display-name";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { encodeGetParams } from "@/core/utils/get-params";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { browserTimeZone } from "@/core/utils/time-zone";
@@ -70,7 +72,16 @@ import { RecordCalendarView } from "../../records/[typeId]/components/record-cal
 import { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 import { calendarSwatchStyle } from "../../records/[typeId]/components/record-calendar-layout";
 import { cn } from "@/core/utils/cn";
-import { plannerCalendarAdapter, plannerEntryColors } from "./planner-calendar-adapter";
+import {
+  type PlannerEventMove,
+  type PlannerEventTiming,
+  type PlannerMoveQuestion,
+  plannerCalendarAdapter,
+  plannerEntryColors,
+  plannerMoveQuestion,
+} from "./planner-calendar-adapter";
+import { moveMeetingAction } from "../schedule-actions";
+import { type PlannerMoveDecision, PlannerMoveDialog } from "./planner-move-dialog";
 import { BookingPanel } from "./booking/booking-panel";
 import type { BookingPanelState } from "./booking/booking-panel-model";
 import { PlannerSettingsStore } from "./planner-settings.store";
@@ -198,12 +209,15 @@ const PlannerPageViewContent = observer(function PlannerPageView({
   );
   const byId = new Map(entries.map((item) => [item.id, item]));
   const colors = useMemo(() => plannerEntryColors(config, result), [config, result]);
+  const canMoveEvents = root.appMode === "cloud" && options.personalAvailable;
   const open = useCallback(
     (item: PlannerEntry, opener?: HTMLElement | null) => {
+      const edit = { eventId: item.eventId ?? "", timeZone: config.timeZone, recurring: item.recurring === true };
       if (item.record) root.recordWorkspaceStore.open(item.record.ref, opener);
+      else if (canMoveEvents && item.editable && item.eventId) root.scheduleMeetingModalStore.edit(edit, opener);
       else setEventDetail(item);
     },
-    [root],
+    [root, canMoveEvents, config.timeZone],
   );
   const stores = useMemo(
     () =>
@@ -246,6 +260,67 @@ const PlannerPageViewContent = observer(function PlannerPageView({
     [creatableKey, createIn, canSchedule, scheduleAt],
   );
   const creatable = Boolean(creatableKey) || canSchedule;
+  const [moveQuestion, setMoveQuestion] = useState<{
+    question: PlannerMoveQuestion;
+    resolve: (decision: PlannerMoveDecision | null) => void;
+  } | null>(null);
+  const decideMove = useCallback(
+    (decision: PlannerMoveDecision | null) => {
+      moveQuestion?.resolve(decision);
+      setMoveQuestion(null);
+    },
+    [moveQuestion],
+  );
+  const moveEvent = useCallback(
+    async (move: PlannerEventMove) => {
+      const item = entries.find((entry) => entry.id === move.entryId);
+      const question = plannerMoveQuestion(item ?? {});
+      const asked =
+        question.scope || question.notify
+          ? await new Promise<PlannerMoveDecision | null>((resolve) => setMoveQuestion({ question, resolve }))
+          : { sendInvites: false };
+      if (!asked) return { saved: false };
+      const decision: PlannerMoveDecision = question.notify
+        ? asked
+        : { ...asked, sendInvites: item?.hasGuests === true };
+      const outlookGuests = item?.hasGuests === true && item.provider?.toLowerCase() === "outlook";
+      const description = outlookGuests
+        ? t("Planner.eventMovedMicrosoft")
+        : decision.sendInvites
+          ? t("Planner.eventMovedNotified")
+          : item?.hasGuests
+            ? t("Planner.eventMovedQuiet")
+            : undefined;
+
+      async function send(timing: PlannerEventTiming, offerUndo: boolean): Promise<{ saved: boolean }> {
+        const result = await moveMeetingAction({
+          id: move.eventId,
+          ...timing,
+          sendInvites: decision.sendInvites,
+          scope: decision.scope,
+        });
+        await refresh().catch(reportApplicationError);
+        if (!result.ok) {
+          if (!toastZodErrorTree(result.error)) toast.error(t("Planner.moveEventFailed"));
+          return { saved: false };
+        }
+        if (!offerUndo) {
+          toast.success(t("Planner.moveEventUndone"));
+          return { saved: true };
+        }
+        toast.success(t("Planner.eventMoved"), {
+          description,
+          action: {
+            label: t("Planner.undoMove"),
+            onClick: () => runUserAction(() => send(move.previous, false)),
+          },
+        });
+        return { saved: true };
+      }
+      return send(move.timing, true);
+    },
+    [entries, refresh, t],
+  );
   const adapter = useMemo(
     () =>
       plannerCalendarAdapter({
@@ -259,8 +334,22 @@ const PlannerPageViewContent = observer(function PlannerPageView({
         refresh,
         navigate: setAnchor,
         create: creatable ? createAt : null,
+        moveEvent: canMoveEvents ? moveEvent : null,
       }),
-    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh, creatable, createAt],
+    [
+      stores,
+      colors,
+      entries,
+      anchor,
+      windowMode,
+      calendarWindow,
+      refreshing,
+      refresh,
+      creatable,
+      createAt,
+      canMoveEvents,
+      moveEvent,
+    ],
   );
   const dateLabel = (date: string, full = false) =>
     format.date(
@@ -759,6 +848,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({
           </PopoverContent>
         </Popover>
       )}
+
+      <PlannerMoveDialog question={moveQuestion?.question ?? null} onDecide={decideMove} />
 
       {eventDetail && (
         <PlannerEventModal

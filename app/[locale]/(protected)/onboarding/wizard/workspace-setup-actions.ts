@@ -4,7 +4,6 @@ import type {
   ConfirmWorkspaceSetupData,
   RetryWorkspaceSetupPhaseData,
   SaveWorkspaceSetupAnswersData,
-  SetWorkspaceSetupWebsiteData,
   StartWorkspaceSetupData,
   WorkspaceSetupIdData,
 } from "@/ee/workspace-setup/workspace-setup-input.schema";
@@ -16,18 +15,12 @@ import {
   getPlanWorkspaceSetupInteractor,
   getRetryWorkspaceSetupPhaseInteractor,
   getSaveWorkspaceSetupAnswersInteractor,
-  getSetWorkspaceSetupWebsiteInteractor,
   getStartWorkspaceSetupInteractor,
-  getUploadWorkspaceSetupSpreadsheetInteractor,
 } from "@/core/di";
 import { serializeTypedResult } from "@/core/utils/action-result";
 
 export async function startWorkspaceSetupAction(data: StartWorkspaceSetupData) {
   return serializeTypedResult(getStartWorkspaceSetupInteractor().invoke(data));
-}
-
-export async function setWorkspaceSetupWebsiteAction(data: SetWorkspaceSetupWebsiteData) {
-  return serializeTypedResult(getSetWorkspaceSetupWebsiteInteractor().invoke(data));
 }
 
 export async function getWorkspaceSetupStatusAction() {
@@ -36,18 +29,6 @@ export async function getWorkspaceSetupStatusAction() {
 
 export async function saveWorkspaceSetupAnswersAction(data: SaveWorkspaceSetupAnswersData) {
   return serializeTypedResult(getSaveWorkspaceSetupAnswersInteractor().invoke(data));
-}
-
-export async function uploadWorkspaceSetupSpreadsheetAction(formData: FormData) {
-  const file = formData.get("file");
-  const setupId = formData.get("setupId");
-  return serializeTypedResult(
-    getUploadWorkspaceSetupSpreadsheetInteractor().invoke({
-      setupId: typeof setupId === "string" ? setupId : "",
-      fileName: file instanceof File ? file.name : "",
-      bytes: file instanceof File ? new Uint8Array(await file.arrayBuffer()) : new Uint8Array(),
-    }),
-  );
 }
 
 export async function planWorkspaceSetupAction(data: WorkspaceSetupIdData) {

@@ -1,99 +1,82 @@
 "use client";
 
-import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
-import { useLayoutEffect } from "react";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { AppLink } from "@/components/shared/app-link";
-import { useRootStore } from "@/core/stores/root-store.provider";
-import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { useRouter } from "@/i18n/navigation";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+
+import { EmailCodeForm } from "./email-code-form";
 
 type Props = {
   email?: string;
   inviterName?: string;
-  justVerified?: boolean;
-  linkProblem?: "expired" | "invalid";
   onboardingIntent?: string;
+  retiredLink?: boolean;
 };
 
-const VerifyEmailCardContent = observer(
-  ({ email, inviterName, justVerified, linkProblem, onboardingIntent }: Props) => {
-    const t = useTranslations();
-    const router = useRouter();
-    const { verifyEmailStore } = useRootStore();
-    const signedOut = email === undefined;
+function VerifyEmailCardContent({ email, inviterName, onboardingIntent, retiredLink }: Props) {
+  const t = useTranslations();
+  const router = useRouter();
+  const signInHref = onboardingIntent ? pathWithOnboardingIntent("/auth/signin", onboardingIntent) : "/auth/signin";
 
-    useLayoutEffect(() => {
-      verifyEmailStore.activate(email, onboardingIntent);
-      return () => verifyEmailStore.deactivate(email);
-    }, [email, onboardingIntent, verifyEmailStore]);
+  return (
+    <AppCard className="max-w-md">
+      <CardHeroHeader alt="" subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
 
-    const body = !signedOut
-      ? t("VerifyEmailCard.body")
-      : justVerified && !linkProblem
-        ? t("VerifyEmailCard.verifiedSignIn")
-        : t("VerifyEmailCard.signedOutBody");
+      <AppCardBody>
+        {inviterName ? (
+          <Alert role="note">
+            <p className="text-x-sm">{t("VerifyEmailCard.invitationFrom", { inviterName })}</p>
+          </Alert>
+        ) : null}
 
-    return (
-      <AppCard className="max-w-md">
-        <CardHeroHeader alt="" subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
+        {retiredLink ? (
+          <Alert variant="info">
+            <p className="text-x-sm">
+              {email === undefined ? t("VerifyEmailCard.retiredLinkSignedOut") : t("VerifyEmailCard.retiredLink")}
+            </p>
+          </Alert>
+        ) : null}
 
-        <AppCardBody>
-          {inviterName ? (
-            <Alert role="note">
-              <p className="text-x-sm">{t("VerifyEmailCard.invitationFrom", { inviterName })}</p>
-            </Alert>
-          ) : null}
+        {email === undefined ? (
+          <>
+            <p className="text-x-sm text-center">{t("VerifyEmailCard.signedOutBody")}</p>
 
-          {linkProblem ? (
-            <Alert variant="warning">
-              <p className="text-x-sm">
-                {linkProblem === "expired" ? t("VerifyEmailCard.linkExpired") : t("VerifyEmailCard.linkInvalid")}
-              </p>
-            </Alert>
-          ) : null}
-
-          <p className="text-x-sm text-center">{body}</p>
-
-          {signedOut ? (
             <div className="flex w-full justify-center">
               <AppLink href="/auth/forgot-password">{t("SignInForm.forgotPassword")}</AppLink>
             </div>
-          ) : null}
-        </AppCardBody>
+          </>
+        ) : (
+          <>
+            <p className="text-x-sm text-center">
+              {t.rich("VerifyEmailCard.body", {
+                email,
+                strong: (chunks) => <strong className="font-medium text-foreground">{chunks}</strong>,
+              })}
+            </p>
 
+            <EmailCodeForm email={email} idPrefix="verify-email" onVerified={() => window.location.reload()} />
+          </>
+        )}
+      </AppCardBody>
+
+      {email === undefined ? (
         <AppCardFooter>
-          {signedOut ? (
-            <Button className="w-full" onClick={() => router.push("/auth/signin")}>
-              {t("SignInForm.signInCta")}
-            </Button>
-          ) : (
-            <>
-              <Button className="w-full" variant="secondary" onClick={() => window.location.reload()}>
-                {t("Common.actions.refresh")}
-              </Button>
-
-              <Button
-                className="w-full"
-                disabled={verifyEmailStore.isSent}
-                onClick={() => runUserAction(() => verifyEmailStore.resend())}
-              >
-                {t("VerifyEmailCard.ctaLabel")}
-              </Button>
-            </>
-          )}
+          <Button className="w-full" onClick={() => router.push(signInHref)}>
+            {t("SignInForm.signInCta")}
+          </Button>
         </AppCardFooter>
-      </AppCard>
-    );
-  },
-);
+      ) : null}
+    </AppCard>
+  );
+}
 
 export const VerifyEmailCard = serverRenderedClient(VerifyEmailCardContent);

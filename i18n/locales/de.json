@@ -979,8 +979,12 @@
     "title": "Wo Agent-Schritte laufen"
   },
   "AgentStart": {
+    "connect": {
+      "account": "Angemeldet als {email} · {count, plural, =0 {noch kein Workspace} one {# Workspace} other {# Workspaces}}",
+      "subtitle": "Funktioniert mit Claude, ChatGPT und jedem anderen MCP-Client. Eine Verbindung erreicht alle deine Workspaces.",
+      "title": "Verbinde deinen KI-Agenten"
+    },
     "copied": "Kopiert",
-    "copiedTip": "Kopiert. Jetzt im Agenten einfügen",
     "copy": "Kopieren",
     "daysLeft": "{count, plural, one {Noch # Tag} other {Noch # Tage}}",
     "failed": "Kopieren fehlgeschlagen",
@@ -989,8 +993,9 @@
     "label": "Agent einrichten",
     "openIn": "In {app} öffnen",
     "progress": "{done} von {total} erledigt",
-    "prompt": "Lies {url}, verbinde Customermates und richte es mit der passendsten Vorlage für meine Firma ein.",
+    "prompt": "Lies {url}, verbinde Customermates unter {mcp} und richte es für meine Firma ein. Nutze meinen bestehenden Workspace, falls ich einen habe.",
     "sidebarDismiss": "Ausblenden",
+    "stepAgent": "KI-Agenten verbinden",
     "stepInbox": "Postfach verbinden",
     "stepPlan": "Tarif wählen"
   },
@@ -1011,6 +1016,25 @@
   "ApiKeysCard": {
     "unnamed": "Unbenannt"
   },
+  "AuthMethods": {
+    "magicLink": {
+      "hint": "Wir schicken dir einen Link per E-Mail, der dich anmeldet. Er funktioniert einmal und läuft nach 15 Minuten ab.",
+      "resend": "Link erneut senden",
+      "resendIn": "Erneut senden in {seconds} s",
+      "sentBody": "Wir haben einen Link an {email} gesendet. Öffne ihn auf diesem Gerät, um fortzufahren.",
+      "sentTitle": "Schau in dein Postfach",
+      "signInCta": "Anmeldelink per E-Mail senden",
+      "signUpCta": "Registrierungslink per E-Mail senden",
+      "useAnotherEmail": "Andere E-Mail verwenden"
+    },
+    "tabs": {
+      "magicLink": "Magic Link",
+      "password": "Passwort",
+      "sso": "Single Sign-on",
+      "ssoShort": "SSO"
+    },
+    "tabsLabel": "Anmeldemethode"
+  },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
@@ -1028,6 +1052,7 @@
     "invalidProfile": "Das Profil vom Anbieter war ungültig. Bitte versuche es erneut.",
     "issuerMismatch": "Der Antwort des Anbieters konnte nicht vertraut werden. Bitte versuche es erneut.",
     "issuerMissing": "Die Antwort des Anbieters konnte nicht überprüft werden. Bitte versuche es erneut.",
+    "magicLinkInvalid": "Dieser Anmeldelink ist abgelaufen oder wurde bereits verwendet. Fordere einen neuen an.",
     "missingProfile": "Der Anbieter hat keine Profildaten übermittelt. Bitte versuche es erneut.",
     "nameIsMissing": "Der Anbieter hat keinen Namen zurückgegeben. Bitte versuche es erneut.",
     "noCallbackUrl": "Die Anmeldeanfrage war unvollständig. Bitte versuche es erneut.",
@@ -1921,6 +1946,8 @@
       "bookingRateLimited": "Zu viele Buchungsversuche. Versuche es später erneut.",
       "bookingSlotTaken": "Diese Zeit ist nicht mehr verfügbar. Wähle eine andere Zeit.",
       "bookingUnavailable": "Diese Buchungsseite ist gerade nicht verfügbar.",
+      "botDetected": "Wir konnten diese Anfrage nicht verifizieren. Lade die Seite neu und versuche es erneut.",
+      "calendarEventChangeUnsupported": "Diese Änderung passt nicht zum Termin. Ganztägige Termine bekommen Daten, Termine mit Uhrzeit bekommen Zeiten, und nur ein Termin aus einer Serie lässt sich für alle Termine der Serie ändern.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "calendarExportIncomplete": "Dieser Zeitraum enthält mehr Einträge, als ein Export aufnehmen kann. Wähle einen kürzeren Zeitraum oder engere Filter für die Datumsquellen.",
       "calendarNeedsReconnect": "Verbinde dein Google- oder Microsoft-Konto unter Kanäle & Kalender erneut, um Kalenderänderungen zu erlauben, und versuche es dann noch einmal.",
@@ -1938,6 +1965,7 @@
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
+      "disposableEmail": "Mit temporären E-Mail-Adressen lässt sich keine Testphase starten. Bitte nutze deine geschäftliche oder private E-Mail-Adresse.",
       "draftAlreadySent": "Dieser Entwurf wurde bereits gesendet.",
       "draftChanged": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast.",
       "draftFilesEmailOnly": "Nur E-Mail-Entwürfe können Anhänge enthalten.",
@@ -1983,6 +2011,7 @@
       "linkedinInboxUnavailable": "Dieses LinkedIn-Konto hat keinen {product}-Posteingang. Verbinde das Konto mit {product}, um ihn zu nutzen.",
       "linkedinProductRequiresLinkedin": "InMail- und LinkedIn-Produktoptionen brauchen ein LinkedIn-Konto.",
       "linkedinProductUnavailable": "Dieses LinkedIn-Konto hat dieses Produkt nicht verbunden.",
+      "magicLinkRateLimited": "Für diese E-Mail-Adresse wurden zu viele Anmeldelinks angefordert. Warte eine Stunde oder melde dich auf andere Weise an.",
       "memberReferenceRequired": "Gib das Mitglied mit userId oder email an.",
       "messageContentRequired": "Bitte eine Nachricht oder einen Anhang hinzufügen.",
       "messageNotFound": "Diese Nachricht ist nicht mehr verfügbar.",
@@ -2155,6 +2184,7 @@
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
       "workspaceChanged": "Dieser Workspace ist nicht mehr verfügbar. Er wurde gelöscht, seine URL wurde geändert oder dein Zugriff wurde entfernt.",
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
+      "workspaceDailyLimitReached": "Du kannst innerhalb von 24 Stunden bis zu {limit} Workspaces erstellen. Versuche es morgen erneut oder nutze einen deiner bestehenden Workspaces.",
       "workspaceDeleteAdminRequired": "Nur ein Admin kann diesen Workspace löschen.",
       "workspaceDeleteBillingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
       "workspaceDeleteBillingUnverified": "Die Abrechnung dieses Workspace konnte bei Lemon Squeezy nicht geprüft werden, daher wurde nichts gelöscht. Versuche es in ein paar Minuten noch einmal.",
@@ -2176,7 +2206,8 @@
       "workspaceSetupConflict": "Die Workspace-Einrichtung ist gerade mit einem anderen Schritt beschäftigt. Lade sie neu und versuche es erneut.",
       "workspaceSetupNotFound": "Für diesen Workspace wurde keine Einrichtung gefunden.",
       "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar.",
-      "workspaceSlugTaken": "Ein anderer Workspace verwendet diese URL bereits. Wähle eine andere."
+      "workspaceSlugTaken": "Ein anderer Workspace verwendet diese URL bereits. Wähle eine andere.",
+      "workspaceTermsNotAccepted": "Für neue Workspaces müssen die Bedingungen akzeptiert sein. Verbinde erneut und akzeptiere die Bedingungen auf dem Zustimmungsbildschirm, oder erstelle den Workspace in Customermates."
     },
     "events": {
       "automation": {
@@ -2438,8 +2469,7 @@
       "triggerFilters": "Datensatzfilter",
       "triggerKind": "Auslöser",
       "unavailableSelection": "Auswahl nicht verfügbar",
-      "url": "URL",
-      "websiteUrl": "Unternehmenswebsite"
+      "url": "URL"
     },
     "language": "Sprache",
     "legacyEvents": {
@@ -3431,14 +3461,30 @@
   "EditorTabs": {
     "invalid": "Enthält Fehler"
   },
+  "EmailCode": {
+    "errors": {
+      "expired": "Dieser Code ist abgelaufen. Fordere einen neuen an.",
+      "invalid": "Dieser Code stimmt nicht. Prüfe die neueste E-Mail und versuche es erneut.",
+      "signedOut": "Deine Sitzung ist abgelaufen. Melde dich erneut an, um deine E-Mail-Adresse zu bestätigen.",
+      "tooManyAttempts": "Zu viele falsche Versuche. Fordere einen neuen Code an."
+    },
+    "hint": "6 Ziffern, {minutes} Minuten gültig.",
+    "label": "Bestätigungscode",
+    "rateLimited": "Für diese Adresse wurden zu viele Codes angefordert. Warte eine Stunde und versuche es dann erneut.",
+    "resend": "Neuen Code senden",
+    "resendIn": "Neuer Code in {seconds} s",
+    "sent": "Wir haben einen neuen Code an {email} geschickt.",
+    "submit": "Bestätigen"
+  },
   "EmailLayout": {
     "tagline": "Das CRM zum Nachfassen mit einsehbarem Quellcode"
   },
   "EmailVerification": {
+    "dialogBody": "Wir schicken einen 6-stelligen Code an {email}. Gib ihn unten ein.",
+    "dialogTitle": "Bestätige deine E-Mail-Adresse",
     "notVerified": "E-Mail nicht verifiziert",
-    "resend": "Verifizierungs-E-Mail erneut senden",
-    "resendSuccess": "Verifizierungs-E-Mail wurde gesendet.",
-    "verified": "E-Mail verifiziert"
+    "verified": "E-Mail verifiziert",
+    "verify": "E-Mail-Adresse bestätigen"
   },
   "EntityChannels": {
     "addChannel": {
@@ -3592,8 +3638,8 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Passwort wieder eingefallen? <backToSignInLink>Anmelden</backToSignInLink>",
     "resetLinkInvalid": "Der Link zum Zurücksetzen ist abgelaufen. Bitte fordere einen neuen Link an.",
-    "resetLinkSent": "Link zum Zurücksetzen an deine E-Mail gesendet.",
     "sendCta": "Link zum Zurücksetzen senden",
+    "sentBody": "Wir haben einen Link zum Zurücksetzen deines Passworts an {email} gesendet. Öffne ihn, um ein neues Passwort festzulegen.",
     "title": "Passwort vergessen"
   },
   "ForHub": {
@@ -4025,6 +4071,14 @@
   "Loading": {
     "text": "Laden..."
   },
+  "MagicLinkEmail": {
+    "cta": "Bei Customermates anmelden",
+    "expiry": "Der Link funktioniert einmal und läuft in 15 Minuten ab.",
+    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "intro": "Mit dem Button unten meldest du dich bei Customermates an.",
+    "securityNotice": "Falls du diesen Link nicht angefordert hast, kannst du diese E-Mail einfach ignorieren.",
+    "subject": "Dein Anmeldelink für Customermates"
+  },
   "MassActions": {
     "clearField": "Feld leeren",
     "delete": "Ausgewählte löschen",
@@ -4047,7 +4101,6 @@
     "deny": "Ablehnen",
     "destination": "Verbindungsziel: {host}",
     "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut oder starte die Verbindung in deinem Client neu.",
-    "permissionRequired": "Deine Rolle erlaubt keine MCP-Verbindungen. Die Verbindung über MCP braucht Lesen Alle bei API & Webhooks. Bitte eine Person mit Admin-Rechten, sie dir zu geben.",
     "scopes": {
       "email": "Deine E-Mail-Adresse lesen",
       "offlineAccess": "Verbunden bleiben, während du abwesend bist",
@@ -4057,10 +4110,11 @@
     "subtitle": "{client} möchte sich mit deinem Konto verbinden."
   },
   "McpConsentWorkspace": {
-    "current": "Aktueller Workspace",
+    "accountHint": "{client} wählt für jede Anfrage den Workspace. Wenn du einen Workspace verlässt oder daraus entfernt wirst, verliert {client} den Zugriff darauf.",
+    "accountTitle": "{client} den Zugriff auf dein Customermates-Konto erlauben",
     "fixed": {
-      "hint": "{client} erreicht nur {workspace}. Jeder Workspace hat eine eigene MCP-URL, so kannst du weitere als separate Verbindungen hinzufügen.",
-      "notMember": "Diese MCP-URL gehört zu einem Workspace, in dem du kein Mitglied bist. Melde dich mit dem Konto an, das du dort nutzt, oder kopiere die MCP-URL deines eigenen Workspaces unter Einstellungen → API-Schlüssel & Konnektoren.",
+      "hint": "Diese ältere Verbindungs-URL erreicht nur {workspace}. Verbindungen, die du unter Einstellungen → API-Schlüssel & Konnektoren hinzufügst, erreichen alle deine Workspaces.",
+      "notMember": "Diese MCP-URL gehört zu einem Workspace, in dem du kein Mitglied bist. Melde dich mit dem Konto an, das du dort nutzt, oder verbinde erneut mit der URL unter Einstellungen → API-Schlüssel & Konnektoren.",
       "unavailable": {
         "inactive": "Dein Zugriff auf {workspace} ist deaktiviert. Bitte eine Person mit Admin-Rechten, ihn wieder zu aktivieren.",
         "pending": "Deine Anfrage für {workspace} wartet noch auf Genehmigung. Verbinde erneut, sobald eine Person mit Admin-Rechten sie genehmigt hat.",
@@ -4069,8 +4123,9 @@
         "terms": "Bevor du {workspace} verbinden kannst, müssen neue Bedingungen akzeptiert werden. Öffne Customermates, akzeptiere sie und verbinde dann erneut."
       }
     },
-    "pickerLabel": "Workspace auswählen",
-    "scopeHint": "{client} erreicht nur den Workspace, den du auswählst. Für einen anderen Workspace verbindest du erneut.",
+    "newWorkspaces": "Neue Workspaces, die es für dich erstellt",
+    "noneAvailable": "Keiner deiner Workspaces kann gerade über MCP genutzt werden. Den Grund siehst du neben jedem Workspace.",
+    "termsForNewWorkspaces": "Damit {client} neue Workspaces für dich erstellen kann, akzeptiere die Bedingungen. Du kannst auch ohne sie zustimmen; {client} arbeitet dann nur in deinen bestehenden Workspaces.",
     "title": "{client} mit diesem Workspace verbinden",
     "titleNamed": "{client} mit {workspace} verbinden",
     "unavailable": {
@@ -4078,7 +4133,8 @@
       "permission": "Deine Rolle hat keinen API-Zugriff",
       "plan": "Kein aktives Abonnement",
       "terms": "Neue Bedingungen müssen akzeptiert werden"
-    }
+    },
+    "workspacesLabel": "Workspaces, die es nutzen kann"
   },
   "MemberRemoval": {
     "action": "Aus Workspace entfernen",
@@ -4321,8 +4377,7 @@
       "toneOfVoice": "## So klinge ich\nPersönlich, direkt und verlässlich. Ich schreibe als ich selbst, in der ersten Person.\n\n## Regeln\n- Kurze Nachrichten, je ein Thema.\n- Siezen, bis der Kunde das Du anbietet, dann ebenfalls duzen.\n- Konkret sein bei Verfügbarkeit, Preis und nächsten Schritten.\n- Freundlich, aber ohne Absätze voller Small Talk vor dem eigentlichen Punkt.\n- Keine Emojis in einer ersten Nachricht, danach am Kunden orientieren."
     },
     "guide": {
-      "intro": "Dieser Workspace startete mit dem Playbook {playbook}. Mate liest diese Seiten, bevor es eine Antwort entwirft oder einen nächsten Schritt vorschlägt. Passe sie an, bis sie nach dir klingen: deine Leistungen, deine Preise und deine Art zu schreiben.",
-      "pagesHeading": "Wissensdatenbank-Seiten"
+      "intro": "Dieser Workspace startete mit dem Playbook {playbook}. Mate liest diese Seiten, bevor es eine Antwort entwirft oder einen nächsten Schritt vorschlägt. Passe sie an, bis sie nach dir klingen: deine Leistungen, deine Preise und deine Art zu schreiben."
     },
     "pages": {
       "followUps": "Regeln zum Nachfassen",
@@ -4384,7 +4439,7 @@
         "claudeTitle": "Claude-Konto verbinden",
         "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Customermates prüft die externe Verbindung nicht automatisch. <guide>Vollständige Anleitung lesen</guide>.",
         "urlLabel": "MCP-Server-URL",
-        "workspaceNote": "Diese URL verbindet {workspace}. Jeder Workspace hat eine eigene URL, so kannst du mehrere Workspaces gleichzeitig mit {client} verbinden."
+        "workspaceNote": "Eine Verbindung deckt alle deine Workspaces ab: {client} wählt für jede Anfrage den Workspace und kann auf deinen Wunsch einen neuen erstellen."
       },
       "createKey": "API-Key erstellen",
       "createKeyIntro": "Erstelle einen API-Key für diesen Agenten. Der Key wird nur einmal angezeigt und ist im Install-Snippet unten enthalten.",
@@ -4447,7 +4502,7 @@
         "stepsTitle": "Customermates als entfernten MCP-Server hinzufügen",
         "subtitle": "Jeder Client, der einen entfernten MCP-Server hinzufügen kann, funktioniert mit dieser URL.",
         "title": "Anderer MCP-Client",
-        "workspaceNote": "Diese URL verbindet {workspace}. Jeder Workspace hat eine eigene URL."
+        "workspaceNote": "Dieselbe URL gilt für alle deine Workspaces. Ein API-Schlüssel arbeitet immer in dem Workspace, in dem er erstellt wurde."
       },
       "providers": {
         "ariaLabel": "KI-Clients"
@@ -4469,6 +4524,7 @@
         }
       }
     },
+    "change": "Ändern",
     "channel": {
       "addAnother": "Füge einen weiteren Kanal hinzu, wenn deine Kunden dir auch woanders schreiben.",
       "captions": {
@@ -4494,24 +4550,15 @@
       "optionsLabel": "Kanäle zum Verbinden",
       "skip": "Vorerst überspringen"
     },
-    "connect": {
-      "checkAgain": "Erneut prüfen",
-      "connected": "Verbunden. Dein Agent hat diesen Workspace erreicht.",
-      "failed": "Wir konnten die Verbindung nicht prüfen. Versuche es gleich noch einmal.",
-      "skip": "Später verbinden",
-      "statusLabel": "Verbindungsstatus",
-      "waiting": "Warte auf den ersten Aufruf von {agent}. Das Häkchen erscheint von selbst, sobald {agent} verbunden ist.",
-      "waitingGeneric": "Warte auf den ersten Aufruf deines Agenten. Das Häkchen erscheint von selbst, sobald dein Agent verbunden ist."
+    "confirmEmail": {
+      "body": "Gib den 6-stelligen Code ein, den wir an <strong>{email}</strong> geschickt haben.",
+      "open": "{inbox} öffnen",
+      "title": "Bestätige deine E-Mail-Adresse, um loszulegen",
+      "wrongEmail": "Falsche Adresse? <signOut>Melde dich ab</signOut> und registriere dich neu."
     },
     "continue": "Weiter",
     "finish": "Workspace öffnen",
     "goal": {
-      "agent": {
-        "description": "Verbinde ihn mit Customermates, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",
-        "descriptionSelfHosted": "Verbinde ihn mit dieser Instanz, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",
-        "title": "Den KI-Agenten nutzen, den du schon hast",
-        "worksWith": "Funktioniert mit Claude, ChatGPT, Cursor, Gemini und jedem anderen MCP-Client."
-      },
       "channelsHint": {
         "action": "Dashboard öffnen",
         "connectedDescription": "Mate entwirft Antworten in deinem Posteingang, sobald deine Gespräche ankommen. Die nächsten Schritte landen auf deinem Dashboard.",
@@ -4529,23 +4576,7 @@
         "salesNavigator": "Du nutzt Sales Navigator? Verbinde LinkedIn stattdessen mit Sales Navigator",
         "title": "Verbinde zuerst LinkedIn"
       },
-      "cloud": {
-        "badge": "Cloud",
-        "description": "Mate läuft in Customermates Cloud. Dein erster berechtigter Cloud-Workspace erhält {days} Tage Pro, ganz ohne Karte. Öffnet einen separaten Cloud-Workspace.",
-        "opened": "Wir haben Customermates Cloud in einem neuen Tab geöffnet. Von dieser Instanz wurde nichts dorthin gesendet. Du kannst hier weiter einrichten.",
-        "title": "Lieber Mate? Teste die verwaltete Cloud"
-      },
-      "followup": {
-        "description": "Wähle ein Playbook, verbinde LinkedIn und sieh, wer auf eine Antwort wartet.",
-        "title": "Bei Kundengesprächen nachfassen"
-      },
-      "optionsLabel": "Erste Schritte",
-      "recommended": "Empfohlen",
-      "suggested": "Vorgeschlagen",
-      "workspace": {
-        "description": "Wähle eine Vorlage, und unser integrierter Agent baut den Workspace hier. Nichts zu verbinden.",
-        "title": "Mate richtet es für mich ein"
-      }
+      "suggested": "Vorgeschlagen"
     },
     "invite": {
       "captions": {
@@ -4567,17 +4598,6 @@
         "link": "Link teilen"
       }
     },
-    "milestones": {
-      "ai": "KI-Tools",
-      "channel": "Kanal",
-      "connect": "Verbinden",
-      "goal": "Einrichtung",
-      "invite": "Team",
-      "playbook": "Playbook",
-      "profile": "Du",
-      "setup": "Workspace",
-      "template": "Vorlage"
-    },
     "playbook": {
       "continue": "Dieses Playbook nutzen",
       "optionsLabel": "Playbooks",
@@ -4586,8 +4606,8 @@
       "writesTitle": "Drei Seiten in der Wissensdatenbank, bereit zum Bearbeiten"
     },
     "profile": {
-      "previewName": "Dein Name",
-      "previewRole": "Eigentümer",
+      "discovery": "Wie hast du uns gefunden? (optional)",
+      "languageFromBrowser": "{language} · aus deinem Browser",
       "teamSize": {
         "label": "Wie viele Personen werden diesen Workspace nutzen?",
         "large": "Mehr als 20",
@@ -4595,32 +4615,10 @@
         "required": "Wähle eine Antwort, um fortzufahren.",
         "small": "2 bis 5",
         "solo": "Nur ich"
-      },
-      "websitePlaceholder": "beispiel.de"
+      }
     },
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
-    "progressOpen": "Schritt {current}",
-    "prompt": {
-      "changed": "Dein Agent hat angefangen zu bauen. Öffne deinen Workspace, um zuzusehen.",
-      "copied": "Kopiert",
-      "copy": "Prompt kopieren",
-      "copyFailed": "Kopieren hat hier nicht geklappt. Der Prompt ist markiert: Mit Strg+C oder Cmd+C kopierst du ihn.",
-      "failed": "Wir konnten den Prompt nicht laden.",
-      "go": "Zu meinem Workspace",
-      "loading": "Prompt wird vorbereitet…",
-      "openIn": "In {agent} öffnen",
-      "promptLabel": "Vorlagen-Prompt",
-      "retry": "Erneut versuchen",
-      "steps": {
-        "approve": "Gib den Plan frei, den er dir zeigt",
-        "copy": "Den Prompt kopieren",
-        "paste": "In einen neuen {agent}-Chat einfügen",
-        "pasteGeneric": "In einen neuen Chat mit deinem Agenten einfügen"
-      },
-      "stepsLabel": "Nächste Schritte",
-      "watching": "Wir achten auf die erste Änderung deines Agenten. Hier siehst du sofort, sobald er zu bauen beginnt."
-    },
     "source": {
       "choices": {
         "advertisement": "Über eine Anzeige",
@@ -4634,30 +4632,18 @@
       },
       "detailLabel": "Wo hast du uns gefunden?",
       "detailPlaceholder": "Wo war das? (optional)",
-      "optionsLabel": "Wie du Customermates gefunden hast",
-      "skip": "Überspringen"
+      "optionsLabel": "Wie du Customermates gefunden hast"
     },
     "steps": {
-      "ai": {
-        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Workspace und seinem Wissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
-        "title": "Verbinde die KI, die du schon nutzt"
-      },
       "channel": {
         "subtitle": "Deine Gespräche liegen dann bei jedem Kunden, bereit für Entwürfe und zum Nachfassen. Ohne dich wird nichts gesendet, und du kannst diesen Schritt überspringen.",
         "title": "Verbinde den Kanal, über den deine Kunden dir schreiben"
       },
-      "connect": {
-        "subtitle": "Welchen Agenten nutzt du? Wir zeigen dir die genauen Schritte dafür.",
-        "title": "Agent verbinden"
-      },
-      "goal": {
-        "subtitle": "Wähle, wer den Workspace aufbaut. Du prüfst jede Änderung, bevor sie angewendet wird.",
-        "subtitleSelfHosted": "Deine Daten bleiben auf deinem Server. Dein eigener Agent verbindet sich über MCP und baut den Workspace aus einer Vorlage.",
-        "title": "Wie sollen wir deinen Workspace einrichten?",
-        "titleSelfHosted": "Wie sollen wir diese Instanz einrichten?"
+      "finish": {
+        "title": "Dein Workspace wird geöffnet"
       },
       "invite": {
-        "subtitle": "Lade andere über einen gemeinsamen Link oder einzelne E-Mails ein. Du kannst auch allein weitermachen und dein Team später einladen.",
+        "subtitle": "Teile den Link oder lade per E-Mail ein. Das geht auch später.",
         "title": "Hol dein Team dazu"
       },
       "playbook": {
@@ -4667,64 +4653,8 @@
       "profile": {
         "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Workspace anzufragen, zu dem du eingeladen wurdest.",
         "invitedSubtitleNamed": "Vervollständige dein Profil, um Zugang zu {workspace} anzufragen.",
-        "subtitle": "Ergänze deinen Namen, damit dein Team dich erkennt, und wähle die Sprache, die du nutzen möchtest. Beides lässt sich später in deinem Profil ändern.",
-        "title": "Mach diesen Workspace zu deinem"
-      },
-      "prompt": {
-        "subtitle": "{template}: Dein Agent stellt ein paar Fragen und zeigt dir dann den Plan zur Freigabe.",
-        "title": "Füge das in {agent} ein",
-        "titleGeneric": "Füge das in deinen Agenten ein"
-      },
-      "setup": {
-        "planningSubtitle": "Deine Antworten sind gespeichert. Mate macht daraus einen Plan für deinen Workspace, den du prüfst, bevor etwas angelegt wird.",
-        "startSubtitle": "Wir legen deine Listen, Schritte, das Dashboard und ein paar Seiten der Wissensdatenbank an. Du kannst später alles ändern.",
-        "startTitle": "Woraus soll Mate deinen Workspace aufbauen?",
-        "subtitle": "Was wir auf deiner Website gelesen haben, ist schon ausgefüllt. Prüfe es und ändere, was nicht passt.",
-        "title": "Richte deinen Workspace ein",
-        "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, was du festhalten möchtest. Die meisten beantwortest du mit einem Klick."
-      },
-      "source": {
-        "subtitle": "Eine optionale Frage. Sie hilft uns nur zu sehen, welche Kanäle funktionieren, und du kannst sie überspringen.",
-        "title": "Wie hast du uns gefunden?"
-      },
-      "template": {
-        "subtitle": "Dein Agent passt sie an dich an und zeigt den Plan, bevor er etwas ändert.",
-        "subtitleMate": "Mate passt sie an dich an und zeigt den Plan, bevor etwas gebaut wird.",
-        "title": "Vorlage wählen"
+        "title": "Willkommen bei Customermates"
       }
-    },
-    "template": {
-      "browseAll": "Alle {count} Vorlagen ansehen",
-      "connected": "{agent} verbunden",
-      "connectedGeneric": "Agent verbunden",
-      "counts": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}} · {rules, plural, one {# Automatisierung} other {# Automatisierungen}}",
-      "countsNoRules": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}}",
-      "empty": "Keine Vorlage passt zu deiner Suche.",
-      "families": {
-        "clients": "Kundenarbeit",
-        "community": "Community",
-        "content": "Inhalte",
-        "custom": "Eigene",
-        "intake": "Anfragen",
-        "investing": "Investieren",
-        "operations": "Betrieb",
-        "professional-services": "Professionelle Dienstleistungen",
-        "property": "Immobilien",
-        "recruiting": "Recruiting",
-        "sales": "Vertrieb",
-        "trades": "Handwerk"
-      },
-      "filterAll": "Alle",
-      "filtersLabel": "Vorlagentypen",
-      "none": "Keine Vorlage",
-      "optionsLabel": "Vorlagen",
-      "pickOne": "Wähle eine Vorlage, um zu sehen, was sie einrichtet.",
-      "recommended": "Empfohlen",
-      "searchLabel": "Vorlagen durchsuchen",
-      "searchPlaceholder": "Vorlagen durchsuchen",
-      "showFewer": "Weniger anzeigen",
-      "suggested": "Für dich vorgeschlagen",
-      "use": "{name} verwenden"
     }
   },
   "OperatorAudit": {
@@ -5028,6 +4958,10 @@
     "endDate": "Enddatum",
     "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
     "event": "Ereignis",
+    "eventMoved": "Termin verschoben",
+    "eventMovedMicrosoft": "Microsoft schickt den Teilnehmenden die neue Zeit.",
+    "eventMovedNotified": "Google schickt den Teilnehmenden die neue Zeit.",
+    "eventMovedQuiet": "Die Teilnehmenden wurden nicht benachrichtigt.",
     "filterCount": "{count, plural, one {# Filter} other {# Filter}}",
     "filters": "Filter",
     "includePersonal": "Auch ausgewählte verbundene Termine aufnehmen (kann vorhandene Termine verdoppeln).",
@@ -5036,6 +4970,17 @@
       "quarter": "Quartal",
       "timeline": "Zeitachse"
     },
+    "moveDialog": {
+      "justMove": "Nur verschieben",
+      "move": "Verschieben",
+      "notify": "Benachrichtigen",
+      "notifyDescription": "Google kann den Teilnehmenden die neue Zeit per E-Mail schicken.",
+      "notifyTitle": "Teilnehmende benachrichtigen?",
+      "scopeDescription": "Wähle, ob nur dieser Termin oder alle Termine der Serie verschoben werden.",
+      "scopeTitle": "Serientermin verschieben"
+    },
+    "moveEventFailed": "Der Termin konnte nicht verschoben werden. Er behält seine Zeit.",
+    "moveEventUndone": "Verschieben rückgängig gemacht",
     "next": "Nächster Zeitraum",
     "noEndDate": "Einzelnes Datum",
     "noSources": "Wähle Datumsfelder aus deinen Listen für deinen Kalender.",
@@ -5047,6 +4992,7 @@
     "privateUrlDescription": "Jeder mit diesem Link kann diese Termine lesen, solange du Zugriff hast. Kopiere ihn jetzt; er wird nur einmal angezeigt. Widerrufe ihn unten, um weitere Aktualisierungen zu stoppen.",
     "quarterLabel": "{number}. Quartal {year}",
     "readOnlyEvent": "Dieser Termin stammt aus einem verbundenen Kalender. Bearbeite ihn im ursprünglichen Kalender.",
+    "readOnlySeries": "Diese Terminserie wurde ohne ihre einzelnen Termine synchronisiert. Du kannst sie deshalb nur in Google Kalender oder Outlook ändern.",
     "removeSource": "Datumsquelle entfernen",
     "revokeSubscription": "Abonnement widerrufen",
     "snapshot": "Momentaufnahme herunterladen",
@@ -5064,7 +5010,8 @@
     "timeZone": "Zeitzone",
     "title": "Kalender",
     "truncated": "Einige Termine überschreiten das Anzeigelimit. Wähle einen kürzeren Zeitraum oder zusätzliche Filter. Exporte erfordern vollständige Ergebnisse.",
-    "unavailableSource": "Datumsquelle nicht verfügbar"
+    "unavailableSource": "Datumsquelle nicht verfügbar",
+    "undoMove": "Rückgängig"
   },
   "PlanPause": {
     "banner": "{count, plural, one {# Person ist pausiert} other {# Personen sind pausiert}}. Wähle {plan}, um sie zurückzuholen.",
@@ -6456,34 +6403,51 @@
       "needsReconnect": "Dein Google- oder Microsoft-Konto muss unter Kanäle & Kalender neu verbunden werden, bevor Termine angelegt werden können.",
       "noCalendar": "Verbinde unter Kanäle & Kalender einen Google- oder Microsoft-Kalender, um Termine zu planen."
     },
+    "cancelAction": "Termin absagen",
+    "cancelConfirmDescription": "Google oder Outlook sagt den Termin für alle Teilnehmenden ab und benachrichtigt sie. Das lässt sich nicht rückgängig machen.",
+    "cancelConfirmTitle": "Diesen Termin absagen?",
+    "cancelDone": "Termin abgesagt",
     "created": "Termin geplant",
     "defaultTitle": "Termin mit {name}",
     "duration": "{minutes} Min.",
+    "editTitle": "Termin bearbeiten",
+    "eventLoadFailed": "Der Termin konnte nicht geladen werden. Schließe dieses Fenster und versuche es erneut.",
     "fields": {
       "attendees": "Teilnehmer",
       "calendar": "Kalender",
       "date": "Datum",
       "description": "Beschreibung",
       "duration": "Dauer",
+      "firstDay": "Erster Tag",
       "followUp": "Folgeaufgabe anlegen in",
       "followUpDate": "Terminbeginn speichern in",
+      "lastDay": "Letzter Tag",
       "location": "Standort",
       "sendInvites": "Einladungen an die Teilnehmer senden",
+      "sendUpdates": "Änderungen an die Teilnehmenden senden",
       "time": "Beginn",
       "title": "Titel",
       "videoLink": "Videolink hinzufügen"
     },
     "followUpNone": "Keine Folgeaufgabe",
     "freeSlots": "Freie Zeiten ({timeZone})",
+    "keepMeeting": "Termin behalten",
     "loadFailed": "Die Kalenderoptionen konnten nicht geladen werden. Schließe dieses Fenster und versuche es erneut.",
+    "microsoftSendsUpdates": "Microsoft schickt die Änderungen an die Teilnehmenden.",
     "newMeeting": "Neuer Termin",
     "noFreeSlots": "Keine freien Zeiten an diesem Tag. Du kannst trotzdem eine Startzeit eingeben.",
     "partial": "Der Termin wurde angelegt, aber die Verknüpfung oder die Folgeaufgabe konnte nicht abgeschlossen werden.",
+    "scope": {
+      "label": "Welche Termine",
+      "occurrence": "Diesen Termin",
+      "series": "Alle Termine"
+    },
     "title": "Termin planen",
     "unavailable": {
       "demo": "Das Planen von Terminen braucht einen verbundenen Kalender und ist im Demo-Workspace nicht verfügbar.",
       "selfHosted": "Das Planen von Terminen braucht die gehostete Kalenderverbindung und ist bei selbst gehosteten Instanzen nicht verfügbar."
     },
+    "updated": "Termin aktualisiert",
     "upsell": {
       "detail": "Lege aus jedem Datensatz Termine in deinem Google- oder Microsoft-Kalender an.",
       "title": "Termine planen ab {plan}"
@@ -6539,11 +6503,10 @@
     "forgotPassword": "Passwort vergessen?",
     "inviteSubtitle": "{inviterName} hat dich in einen Workspace eingeladen. Melde dich an, um die Einladung zu prüfen.",
     "inviteSubtitleNamed": "{inviterName} hat dich eingeladen, {workspace} beizutreten. Melde dich an, um die Einladung zu prüfen.",
-    "or": "ODER",
     "rememberMe": "Angemeldet bleiben",
     "signInCta": "Anmelden",
     "signInTitle": "Bei deinem Konto anmelden",
-    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>"
+    "switchToSignUp": "Neu bei Customermates? <registerLink>Konto erstellen →</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Weiter",
@@ -6553,9 +6516,8 @@
     "inviteSubtitle": "{inviterName} hat dich in einen Workspace auf Customermates eingeladen. Wähle aus, wie du dein Konto erstellen möchtest.",
     "inviteSubtitleNamed": "{inviterName} hat dich eingeladen, {workspace} auf Customermates beizutreten. Wähle aus, wie du dein Konto erstellen möchtest.",
     "inviteTitle": "Firmeneinladung annehmen",
-    "or": "ODER",
     "signUpCta": "Konto erstellen",
-    "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden</signInLink>",
+    "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden →</signInLink>",
     "title": "Customermates-Konto erstellen"
   },
   "SolutionStage": {
@@ -7042,23 +7004,20 @@
     "formattingLocaleHint": "Steuert, wie Zahlen, Daten und Währungen formatiert werden."
   },
   "VerifyEmail": {
-    "cta": "E-Mail bestätigen",
-    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
-    "intro": "Bestätige deine E-Mail, um fortzufahren.",
+    "expiry": "Der Code gilt {minutes} Minuten. Gib ihn in dem Browser ein, in dem du dich registriert hast.",
+    "intro": "Gib diesen Code in Customermates ein, um deine E-Mail-Adresse zu bestätigen:",
     "securityNotice": "Solltest du diese E-Mail nicht angefordert haben, kannst du diese Nachricht ignorieren und löschen.",
-    "subject": "E-Mail bestätigen"
+    "subject": "{code} ist dein Customermates-Bestätigungscode",
+    "title": "Bestätige deine E-Mail-Adresse"
   },
   "VerifyEmailCard": {
-    "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
-    "ctaLabel": "Verifizierungs-E-Mail erneut senden",
+    "body": "Gib den 6-stelligen Code ein, den wir an <strong>{email}</strong> geschickt haben. Kein gültiger Code zur Hand? Fordere einen neuen an.",
     "invitationFrom": "Einladung von {inviterName}",
-    "linkExpired": "Dieser Bestätigungslink ist abgelaufen.",
-    "linkInvalid": "Dieser Bestätigungslink ist ungültig.",
-    "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
-    "signedOutBody": "Melde dich in deinem Konto an, um eine neue Bestätigungs-E-Mail anzufordern.",
+    "retiredLink": "E-Mail-Adressen werden jetzt mit einem Code statt mit einem Link bestätigt. Fordere einen neuen Code an und gib ihn hier ein.",
+    "retiredLinkSignedOut": "E-Mail-Adressen werden jetzt mit einem Code statt mit einem Link bestätigt. Melde dich an und gib dann den Code ein, den wir dir schicken.",
+    "signedOutBody": "Melde dich in deinem Konto an, um einen neuen Bestätigungscode zu erhalten.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
-    "title": "E-Mail-Verifizierung",
-    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren."
+    "title": "E-Mail-Verifizierung"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",
@@ -7122,31 +7081,18 @@
       "label": "Karte der Wissensdatenbank",
       "legend": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu öffnen.",
       "legendEdit": "Größere Kreise sind Seiten, auf die mehr Seiten verweisen. Klicke auf eine Seite, um sie zu öffnen, ziehe sie, um sie an ihrem Platz festzupinnen.",
-      "linkedFrom": "Verweise von",
-      "linkedFromCount": "{count, plural, one {Verweis von # Seite} other {Verweise von # Seiten}}",
+      "linkedPages": "Verknüpfte Seiten",
       "linksFailed": "Die Verweise dieser Seite konnten nicht geladen werden.",
-      "linksTo": "Verweist auf",
+      "listsUsed": "Verwendete Listen",
       "loadFailed": "Die Seiten der Wissensdatenbank konnten nicht geladen werden.",
       "missingLinks": "{count, plural, one {# Verweis führt zu einer gelöschten Seite} other {# Verweise führen zu gelöschten Seiten}}",
       "nodeLabel": "{title} ({kind})",
-      "noLinks": "Keine Seiten",
       "noMatches": "Keine Seite passt zum Filter.",
       "pin": "Auf der Karte festpinnen",
-      "pinHelp": "Hält diese Seite an ihrem Platz auf der Karte. Du kannst eine Seite auch ziehen, um sie festzupinnen.",
-      "pinned": "Festgepinnt",
-      "pinnedHelp": "Diese Seite behält ihren Platz, wenn sich die Karte neu ordnet.",
-      "records": "Verknüpfte Datensätze",
       "search": "Seite finden",
-      "segments": {
-        "details": "Details",
-        "links": "Verweise",
-        "page": "Seite"
-      },
-      "sheetSegments": "Bereiche der Seite",
       "syncing": "Links werden noch eingelesen. Lade die Seite neu, um alle zu sehen.",
       "truncated": "Die ersten {count} Seiten werden gezeigt. Suche und drücke Enter, um eine andere Seite zu öffnen.",
-      "unpin": "Pin lösen",
-      "unpinHelp": "Die Karte ordnet diese Seite wieder selbst ein."
+      "unpin": "Pin lösen"
     },
     "kind": {
       "guide": "Betriebsleitfaden",
@@ -7162,6 +7108,7 @@
       "procedureHelp": "Für wiederkehrende Aufgaben wie das Onboarding eines Kunden. Schreibe nummerierte Schritte und beschreibe unter „Wann verwenden“ die passende Anfrage. Mate und verbundene KI-Tools folgen den Schritten, wenn diese Anfrage auftritt."
     },
     "linkPage": "Wissensdatenbank-Seite verlinken…",
+    "linksHere": "{count, plural, one {# Seite verweist hierher} other {# Seiten verweisen hierher}}",
     "loadFailed": "Die Seiten konnten nicht geladen werden.",
     "newPage": "Neue Seite",
     "next": "Weiter",
@@ -7203,11 +7150,14 @@
       "title": "Vorschläge"
     },
     "reload": "Seite neu laden",
+    "settings": {
+      "invalid": "Prüfe die Seiteneinstellungen: Ein Feld braucht deine Aufmerksamkeit.",
+      "title": "Seiteneinstellungen"
+    },
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
     "unavailableTitle": "Seite nicht verfügbar",
     "untitled": "Unbenannte Seite",
     "verified": {
-      "help": "Hält fest, dass du diese Seite heute geprüft hast und sie noch stimmt.",
       "label": "Zuletzt geprüft",
       "mark": "Als geprüft markieren",
       "never": "Noch nicht geprüft",
@@ -7215,9 +7165,9 @@
       "saveFirst": "Speichere deine Änderungen, bevor du die Seite als geprüft markierst."
     },
     "view": {
+      "fullPage": "Ganze Seite",
       "label": "Ansicht der Wissensdatenbank",
       "map": "Karte",
-      "openFullPage": "Als ganze Seite öffnen",
       "pages": "Seiten",
       "showOnMap": "Auf der Karte zeigen"
     },
@@ -7272,6 +7222,13 @@
         "wins": "Warum sich Kunden für uns statt für {competitor} entscheiden"
       },
       "gapsHeading": "Noch zu klären",
+      "links": {
+        "guides": "Leitfäden",
+        "knowledge": "Wissen",
+        "lists": "Listen",
+        "procedures": "Verfahren",
+        "related": "Siehe auch"
+      },
       "pagesHeading": "Wissensdatenbank-Seiten",
       "roles": {
         "company_overview": "Unternehmensüberblick",
@@ -7344,7 +7301,6 @@
     "pendingMembers": "{count, plural, one {# Mitglied wartet auf Genehmigung} other {# Mitglieder warten auf Genehmigung}}"
   },
   "WorkspaceOnboarding": {
-    "workspaceNameDescription": "Optional. Damit unterscheidest du deine Workspaces; du kannst ihn später ändern.",
     "workspaceNamePlaceholder": "z. B. Acme Vertrieb"
   },
   "WorkspaceRemovalNotice": {
@@ -7437,34 +7393,19 @@
   "WorkspaceSetup": {
     "actions": {
       "addOwn": "Etwas anderes",
-      "continueAnyway": "Trotzdem weiter",
-      "fromWebsite": "Von deiner Website vorgeschlagen",
-      "upload": "Tabelle hochladen"
+      "continueAnyway": "Trotzdem weiter"
     },
     "anchors": {
       "price": "Preis",
       "value": "Wert"
     },
     "build": {
-      "actions": {
-        "dashboard": "Wir bauen dein Dashboard",
-        "dataModel": "Wir legen deine Listen und Felder an",
-        "importing": "Wir importieren {fileName}",
-        "knowledgeBase": "Wir schreiben deine Seiten für die Wissensdatenbank ({written} von {planned})",
-        "pipeline": "Wir legen deine Pipeline für {list} an: {stages}",
-        "preparing": "Wir bereiten den nächsten Teil vor",
-        "readingWebsite": "Wir lesen {website}",
-        "records": "Wir legen Beispieldatensätze an",
-        "views": "Wir ordnen deine Listen an"
-      },
-      "completedBody": "Alles ist eingerichtet. Als Nächstes holst du dein Team dazu.",
+      "completedBody": "Alles ist eingerichtet.",
       "completedTitle": "Dein Workspace ist bereit",
-      "continue": "Weiter zu den Einladungen",
+      "eyebrow": "Mate baut",
       "failedBody": "Alles Fertige bleibt erhalten. Versuch den unfertigen Teil erneut, um deinen Workspace fertigzustellen.",
       "failedTitle": "Ein Teil der Einrichtung wurde nicht fertig",
-      "frameTitle": "Dein Workspace",
-      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt.",
-      "nameColumn": "Name",
+      "keepsRunning": "Du kannst weitermachen. Der Aufbau läuft im Hintergrund zu Ende.",
       "phases": {
         "dashboard": "Dashboard",
         "dataModel": "Listen und Felder",
@@ -7472,15 +7413,8 @@
         "records": "Datensätze",
         "views": "Listenansichten"
       },
-      "previewLabel": "Vorschau deines Workspace",
-      "records": "Datensätze",
+      "progressLabel": "Fortschritt des Aufbaus",
       "retry": "Erneut versuchen",
-      "sidebarLabel": "Vorschau der Navigation",
-      "states": {
-        "background": "Läuft im Hintergrund weiter",
-        "failed": "Nicht fertig",
-        "skipped": "Übersprungen"
-      },
       "summaries": {
         "dashboard": "{count, plural, =0 {Keine Widgets angelegt} one {# Widget angelegt} other {# Widgets angelegt}}",
         "dataModel": "{count, plural, =0 {Keine Listen angelegt} one {# Liste bereit} other {# Listen bereit}}",
@@ -7488,7 +7422,7 @@
         "records": "{count, plural, =0 {Keine Datensätze angelegt} one {# Datensatz angelegt} other {# Datensätze angelegt}}",
         "views": "{count, plural, =0 {Keine Ansichten angeordnet} one {# Ansicht angeordnet} other {# Ansichten angeordnet}}"
       },
-      "title": "Wir richten deinen Workspace ein"
+      "title": "Dein Workspace wird aufgebaut"
     },
     "empty": {
       "action": "Mit einem leeren Workspace starten",
@@ -7499,7 +7433,6 @@
     "failures": {
       "aiUnavailable": "Der KI-Dienst ist gerade nicht erreichbar. Versuch es in ein paar Minuten noch einmal.",
       "contactSupport": "Support kontaktieren",
-      "crawlFailed": "Deine Website konnte nicht gelesen werden.",
       "dependency": "Dieser Teil wartet auf einen früheren Teil, der nicht fertig wurde.",
       "error": "In diesem Teil ist etwas schiefgegangen.",
       "generation": "Die KI konnte diesmal kein brauchbares Ergebnis liefern.",
@@ -7507,56 +7440,28 @@
       "permission": "Deine Rolle erlaubt diese Änderung nicht.",
       "schemaChanged": "Dein Workspace hat sich geändert, während dieser Teil lief.",
       "spendCap": "Das Budget für die Einrichtung dieses Workspace ist aufgebraucht, deshalb wurde dieser Teil angehalten. Alles bisher Fertige bleibt erhalten. Schreib uns, dann helfen wir dir, die Einrichtung abzuschließen.",
-      "spreadsheet": "Die Tabelle konnte nicht importiert werden.",
       "supportSubject": "Budget für die Workspace-Einrichtung"
     },
     "interview": {
       "addEntry": "Eintrag hinzufügen",
-      "adjusting": "Ändere beliebige Antworten und lass dir den Plan dann neu zeigen.",
-      "answerYourself": {
-        "cancel": "Auf die Website warten",
-        "confirm": "Selbst beantworten",
-        "description": "Wir füllen diese Antworten gerade aus deiner Website aus. Du musst sie nur prüfen, wenn wir fertig sind.",
-        "title": "Selbst beantworten?"
-      },
       "customPlaceholder": "Beschreib es in ein paar Worten",
       "days": "Tage",
       "entryLabel": "Eintrag {index}",
       "followUpsSubtitle": "Manche Antworten lassen sich unterschiedlich verstehen. Diese Fragen klären das.",
       "followUpsTitle": "Noch ein paar Details",
       "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
-      "planHint": "Du prüfst den Plan, bevor etwas angelegt wird",
-      "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
-      "prefillPending": "Die Antworten unten werden automatisch aus deiner Website ausgefüllt. Du kannst warten und sie prüfen, wenn wir fertig sind.",
+      "pickOne": "Wähle eine Antwort, um weiterzumachen",
       "rangeFrom": "Von",
       "rangeTo": "Bis",
       "rankedHint": "{count} von {max} gewählt, nach Wichtigkeit geordnet",
       "rankedOption": "Platz {rank}: {label}",
-      "showPlan": "Plan für meinen Workspace zeigen",
-      "stepsLabel": "Fragen zur Einrichtung",
-      "uploadChoose": "Datei wählen",
-      "uploadFailures": {
-        "cellTooLong": "Eine Zelle enthält mehr als {maxCharacters, number} Zeichen.",
-        "fileTooLarge": "Sie ist größer als {maxMegabytes} MB.",
-        "macroWorkbook": "Sie enthält Makros. Speichere sie als Excel-Arbeitsmappe ohne Makros (.xlsx) und wähle sie erneut.",
-        "noHeader": "Sie enthält keine Daten. In die erste Zeile gehören die Spaltennamen, darunter die Datensätze.",
-        "sheetNotFound": "Die Arbeitsmappe hat kein Tabellenblatt zum Importieren.",
-        "tooManyColumns": "Sie hat mehr als {maxColumns, number} Spalten.",
-        "tooManyRows": "Sie hat mehr als {maxRows, number} Zeilen.",
-        "unreadableFile": "Die Datei konnte nicht gelesen werden. Sie ist vielleicht beschädigt.",
-        "unsupportedFormat": "Speichere sie als CSV oder als Excel-Arbeitsmappe (.xlsx) und wähle sie erneut."
-      },
-      "uploadHint": "CSV oder Excel, bis {maxMegabytes} MB und {maxRows, number} Zeilen.",
-      "uploadKept": "Die Einrichtung verwendet weiter {fileName}.",
-      "uploadReady": "Bereit für den Import in deine neuen Listen.",
-      "uploadRejected": "{fileName} kann nicht importiert werden. {reason}",
-      "uploadReplace": "Andere Datei wählen"
+      "showMore": "{count} weitere anzeigen",
+      "showPlan": "Meinen Plan zeigen"
     },
     "options": {
       "existingData": {
         "empty": "Nein, ohne Datensätze starten",
-        "sampleData": "Ja, Beispiele anlegen",
-        "spreadsheet": "Meine Tabelle importieren"
+        "sampleData": "Ja, Beispiele anlegen"
       },
       "pricing": {
         "fixedPrice": "Ein Festpreis pro Auftrag",
@@ -7590,45 +7495,29 @@
       }
     },
     "plan": {
-      "adjust": "Antworten anpassen",
       "build": "Workspace aufbauen",
-      "calendarSources": "Kalender: {sources}",
-      "dashboard": "Dashboard",
+      "changeNamed": "{item} ändern",
+      "eyebrow": "Plan von Mate",
       "failedTitle": "Der Plan konnte nicht erstellt werden",
-      "importSummary": "Importiert {fileName} in {list}.",
-      "keyFields": "Wichtige Felder in {list}",
-      "knowledgeBase": "Wissensdatenbank",
       "lists": "Listen",
-      "morePages": "{count, plural, one {und # weitere Seite} other {und # weitere Seiten}}",
-      "noDashboard": "Es sind keine Dashboard-Widgets geplant.",
-      "noPages": "Es sind keine Seiten für die Wissensdatenbank geplant.",
-      "noPipeline": "Es ist keine Pipeline geplant.",
       "pipeline": "Pipeline",
-      "planningTitle": "Wir erstellen deinen Plan",
+      "planningTitle": "Mate entwirft deinen Plan",
       "progress": {
-        "done": {
-          "answers": "Deine Antworten gelesen",
-          "knowledge": "Seiten der Wissensdatenbank skizziert",
-          "model": "Listen, Felder und Pipeline entworfen",
-          "views": "Ansichten, Dashboard und Beispieldatensätze geplant"
-        },
         "minutesLeft": "{minutes, plural, one {Noch etwa # Minute} other {Noch etwa # Minuten}}",
         "overdue": "Dauert etwas länger als sonst. Gleich geschafft.",
-        "steps": {
-          "answers": "Deine Antworten lesen",
-          "knowledge": "Seiten der Wissensdatenbank gliedern",
-          "model": "Listen, Felder und Pipeline entwerfen",
-          "views": "Ansichten, Dashboard und Beispieldatensätze planen"
-        },
-        "typical": "Mate entwirft deinen Workspace aus deinen Antworten. Das dauert meist 1 bis 2 Minuten.",
         "underMinute": "Noch weniger als eine Minute"
       },
-      "reviewHint": "Prüfe den Plan und baue dann deinen Workspace.",
-      "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
-      "subtitle": "Das bauen wir für dich, sobald du bestätigst.",
-      "title": "Dein Plan für den Workspace",
-      "tryAgain": "Erneut versuchen",
-      "winChanceValue": "{value} %"
+      "rows": {
+        "examples": "Beispieldatensätze",
+        "no": "Nein",
+        "pricing": "Abrechnung",
+        "steps": "{count, plural, one {# Schritt} other {# Schritte}}",
+        "workWith": "Du arbeitest mit",
+        "yes": "Ja"
+      },
+      "subtitle": "Es wird nichts angelegt, bevor du bestätigst.",
+      "title": "Dein Workspace, bereit zum Aufbau",
+      "tryAgain": "Erneut versuchen"
     },
     "questions": {
       "companyName": {
@@ -7641,23 +7530,23 @@
         "label": "Währung"
       },
       "existingData": {
-        "label": "Beispieldatensätze anlegen, damit du alles ausprobieren kannst?"
+        "description": "Damit du sofort alles ausprobieren kannst.",
+        "label": "Beispieldatensätze anlegen",
+        "title": "Soll Mate Beispieldatensätze anlegen?"
       },
       "language": {
         "label": "Sprache"
       },
       "mainSteps": {
-        "label": "Welche Schritte durchläuft diese Arbeit? Wir haben übliche vorgeschlagen: umbenennen, ergänzen oder entfernen."
+        "hint": "Wir haben übliche Schritte vorgeschlagen. Benenne sie um, ergänze oder entferne sie.",
+        "label": "Welche Schritte durchläuft diese Arbeit?"
       },
       "pricing": {
         "label": "Wie rechnest du ab?"
       },
       "purpose": {
-        "label": "Was möchtest du festhalten? Kontakte und Aufgaben sind immer dabei."
-      },
-      "purposeDetails": {
-        "label": "Sollten wir sonst noch etwas wissen?",
-        "placeholder": "Zum Beispiel: Wir bauen Küchen und begleiten jeden Auftrag vom ersten Termin bis zur Montage"
+        "hint": "Kontakte und Aufgaben sind immer dabei.",
+        "label": "Was möchtest du festhalten?"
       },
       "teamSize": {
         "label": "Nur du oder ein Team?"
@@ -7665,23 +7554,6 @@
       "workWith": {
         "label": "Mit wem arbeitest du?"
       }
-    },
-    "start": {
-      "emptyPrompt": "Lieber selbst einrichten?",
-      "optionsLabel": "Wege, deinen Workspace einzurichten",
-      "questions": {
-        "description": "Bis zu sechs kurze Fragen dazu, was du festhalten möchtest.",
-        "note": "Etwa 1 Minute",
-        "title": "Ein paar Fragen beantworten"
-      },
-      "website": {
-        "action": "Website lesen",
-        "description": "Wir lesen deine öffentliche Website und füllen die Antworten für dich aus. Du prüfst sie nur.",
-        "note": "Etwa 2 Minuten",
-        "recommended": "Empfohlen",
-        "title": "Meine Website nutzen"
-      },
-      "withoutWebsite": "Ohne Website weiter"
     },
     "suggestedSteps": {
       "contracts": ["Onboarding", "Aktiv", "Verlängerung fällig", "Verlängert", "Beendet"],
@@ -7694,20 +7566,6 @@
       "partners": ["Kontaktiert", "Im Gespräch", "Aktiv", "Pausiert"],
       "projects": ["Geplant", "In Arbeit", "Abnahme", "Erledigt"],
       "support": ["Neu", "In Arbeit", "Wartet auf Kunden", "Gelöst"]
-    },
-    "website": {
-      "change": "Ändern",
-      "eta": "Dauert meist 1 bis 2 Minuten.",
-      "finding": "Wir suchen Seiten auf {website}",
-      "found": "{count, plural, =0 {Keine Seiten auf {website} gefunden} one {# Seite auf {website} gefunden} other {# Seiten auf {website} gefunden}}",
-      "hint": "Optional. Wir lesen deine öffentliche Website und schlagen Antworten vor, die du meist nur noch bestätigst.",
-      "read": "Website lesen",
-      "reading": "Wir lesen {website}: {read} von {total} Seiten",
-      "readPages": "{count, plural, =0 {Keine Seiten gelesen} one {# Seite gelesen} other {# Seiten gelesen}}",
-      "suggested": "Antworten vorgeschlagen",
-      "suggestedHint": "Prüf die markierten Antworten und ändere, was nicht passt.",
-      "suggesting": "Wir schlagen Antworten aus {website} vor",
-      "title": "Antworten aus deiner Website vorschlagen lassen"
     }
   }
 }

@@ -85,17 +85,17 @@ Wer „Claude MCP einrichten“ sucht, will einen MCP-Server in Claude hinzufüg
 
 ### Beispiel: Claude MCP mit Customermates einrichten
 
-Customermates verbindet sich als eigener Connector, und der ist in jedem Claude-Tarif möglich, im Free-Tarif einer (Anthropics Hilfeartikel, am 10. November 2026 erneut geprüft). Jeder Workspace hat eine eigene URL mit denselben Tools, fest an diesen Workspace gebunden:
+Customermates verbindet sich als eigener Connector, und der ist in jedem Claude-Tarif möglich, im Free-Tarif einer (Anthropics Hilfeartikel, am 10. November 2026 erneut geprüft). Eine URL deckt Ihr ganzes Konto ab, und derselbe Connector bedient jeden Workspace, dem Sie angehören:
 
 ```text
-https://<ihre-customermates-adresse>/api/v1/mcp/w/<workspace-id>
+https://<ihre-customermates-adresse>/api/v1/mcp
 ```
 
 Bei einer selbst gehosteten Installation ist `<ihre-customermates-adresse>` die Adresse, unter der Sie Customermates öffnen.
 
 <Steps>
-  <Step title="Workspace-URL kopieren">
-    Öffnen Sie in Customermates **Einstellungen › API-Schlüssel & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**. Der Dialog zeigt die URL Ihres aktuellen Workspace mit einer Kopierschaltfläche. Für die Verbindung braucht Ihre Rolle **Lesen** **Alle** in der Zeile **API & Webhooks**, wie es die Seite [API-Schlüssel](/docs/api-keys) verlangt; die eingebaute Rolle Admin hat dieses Recht.
+  <Step title="URL kopieren">
+    Öffnen Sie in Customermates **Einstellungen › API-Schlüssel & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**. Der Dialog zeigt die URL mit einer Kopierschaltfläche. Für die Verbindung braucht Ihre Rolle **Lesen** **Alle** in der Zeile **API & Webhooks**, wie es die Seite [API-Schlüssel](/docs/api-keys) verlangt; die eingebaute Rolle Admin hat dieses Recht.
   </Step>
   <Step title="Connector in Claude hinzufügen">
     Öffnen Sie **Customize › Connectors**, klicken Sie auf **+**, wählen Sie **Add custom connector**, vergeben Sie einen Namen und fügen Sie die URL ein. Lassen Sie die Authentifizierung auf OAuth: Es gibt keinen Key zu kopieren. Die Schaltfläche **Zu Claude hinzufügen** im selben Dialog öffnet das Formular von Claude mit eingetragener URL (nur Claude im Web und Team).
@@ -140,7 +140,7 @@ Die Grenzen unten für Customermates stehen in der [MCP-Referenz](/docs/mcp) und
 | Anzahl der Tools | [[derived.mcp.tools.total]] Tools. Mit `?toolsets=` an der URL bieten Sie nur Gruppen davon an; ein unbekannter Schlüssel liefert HTTP 400. | Weniger Tools anbieten, wenn Claude weniger können soll. |
 | Rechte von Claude | Claude handelt als der Nutzer, der freigegeben hat, mit den Rechten seiner Rolle. Ein Scoping pro Key gibt es nicht. | Für weniger Rechte einen eigenen Nutzer mit engerer Rolle verbinden (das belegt einen Platz) oder `?toolsets=` nutzen. |
 | Gültigkeit der Verbindung | Sie erneuert sich im Hintergrund. Wer sie länger als 30 Tage nicht nutzt, gibt einmal neu frei. | Dann einmal neu freigeben. |
-| Mehrere Workspaces | Jeder Workspace hat eine eigene URL. Claude lehnt einen zweiten Connector mit einer URL ab, die es schon kennt. | Pro Workspace einen Connector mit dessen eigener URL hinzufügen. |
+| Mehrere Workspaces | Ein Connector deckt jeden Workspace ab, dem Sie angehören. Nennt eine Anfrage keinen Workspace und gibt es mehrere, fragt Claude nach. | Den Workspace in der Anfrage nennen. |
 
 ## Was kann Claude nach der Anbindung erledigen?
 
@@ -161,7 +161,7 @@ Dieses Ranking veröffentlicht Customermates. Es beruht auf drei Punkten, die di
 
 | # | CRM | Anbindung an Claude | Was Claude kann | Tarif nötig | Einrichtung in einer Zeile |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Customermates (Herausgeber), [Connector-Anleitung](/docs/connect-custom-connector) und [MCP-Referenz](/docs/mcp) | MCP-Server, im Produkt eingebaut. Eigener Connector mit OAuth in Claude, API-Key in Claude Code | [[derived.mcp.tools.total]] Tools: Datensätze in jeder Liste, die Sie anlegen (etwa Kontakte, Organisationen, Deals und Aufgaben), lesen, anlegen, ändern und löschen, dazu Notizen, Dateien und die Wissensdatenbank. Ab Pro auch der [einheitliche Posteingang](/features/unified-inbox) mit E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Verläufen, Entwürfen und Versand | Jeder Tarif und selbst gehostet. Free teilt sich [[commercial.limit.free.apiRequestsPerMinute]] Anfragen pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag je Workspace; der Posteingang braucht Pro oder höher | Customize › Connectors › Add custom connector, Workspace-URL einfügen, anmelden, Zulassen |
+| 1 | Customermates (Herausgeber), [Connector-Anleitung](/docs/connect-custom-connector) und [MCP-Referenz](/docs/mcp) | MCP-Server, im Produkt eingebaut. Eigener Connector mit OAuth in Claude, API-Key in Claude Code | [[derived.mcp.tools.total]] Tools: Datensätze in jeder Liste, die Sie anlegen (etwa Kontakte, Organisationen, Deals und Aufgaben), lesen, anlegen, ändern und löschen, dazu Notizen, Dateien und die Wissensdatenbank. Ab Pro auch der [einheitliche Posteingang](/features/unified-inbox) mit E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Verläufen, Entwürfen und Versand | Jeder Tarif und selbst gehostet. Free teilt sich [[commercial.limit.free.apiRequestsPerMinute]] Anfragen pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag je Workspace; der Posteingang braucht Pro oder höher | Customize › Connectors › Add custom connector, URL einfügen, anmelden, Zulassen |
 | 2 | [Breakcold](https://docs.breakcold.com/api/mcp-applications/claude) | Offizieller („first party“) MCP-Server unter `https://mcp.breakcold.com/mcp/v1`, in Claude als eigener Connector mit OAuth hinzugefügt | Datensätze einschließlich eigener Objekte (anlegen, ändern, archivieren), Aufgaben, Notizen, Meetings mit Transkripten und der Posteingang: Konversationen lesen, Entwürfe setzen, Nachrichten senden. Die Produktseite nennt E-Mail, LinkedIn, WhatsApp und Telegram. Datensätze werden archiviert, nicht gelöscht | Volles MCP in jedem Tarif; die [Produktseite](https://www.breakcold.com/crm/claude) nennt ab 49 USD pro Platz und Monat | Customize › Connectors › Add custom connector, Endpunkt einfügen, anmelden, im Chat aktivieren |
 | 3 | [Close](https://help.close.com/integrations/close-mcp-server) | Close beschreibt seinen MCP-Server als offiziell unterstützt im gesamten Claude-Umfeld: `https://mcp.close.com/mcp` mit OAuth | Drei Stufen, die Sie beim Verbinden wählen: nur lesen, lesen und schreiben oder lesen, schreiben und löschen. Die [Tool-Liste](https://developer.close.com/mcp/tools) deckt Leads, Kontakte, Opportunities, Aufgaben, Notizen, eigene Objekte und E-Mail-Entwürfe ab (kein Sende-Tool); Anrufe, Meeting-Transkripte und SMS sind nur lesbar | Die Seite nennt keinen Close-Tarif. Claude: Das Connector-Verzeichnis der Organisation setzt einen bezahlten Tarif voraus, im Free-Tarif fügen Sie Close in Claude Desktop über das +-Menü hinzu | Settings › Connectors › Organization connectors, Close wählen, Connect, Stufe wählen |
 | 4 | [Attio](https://docs.attio.com/mcp/overview) | Offizieller gehosteter MCP-Server unter `https://mcp.attio.com/mcp`, in Claude unter Browse connectors zu finden, OAuth | Datensätze (Personen, Unternehmen, Deals, eigene Objekte), Listen, Notizen, Aufgaben und Kommentare suchen, lesen, anlegen und ändern; Datensätze zusammenführen; gelöscht werden können nur Aufgaben und Kommentare. Liest E-Mails, Meetings und Anrufaufzeichnungen, ein Sende-Tool nennt die Seite nicht. Schreibzugriffe fragen nach Bestätigung | Die Seite nennt für den Connector keinen Tarif; das SQL-Reporting-Tool gibt es nicht in jedem Tarif | Settings › Connectors › Browse connectors, Attio suchen, Install, anmelden |

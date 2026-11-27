@@ -164,7 +164,7 @@ A maioria das explicações para em uma ferramenta de previsão do tempo. Aqui e
 
 **O endpoint.** O Customermates opera um servidor remoto em `/api/v1/mcp` no endereço que você usa para o app, além de uma URL específica do espaço de trabalho com as mesmas ferramentas travadas nesse espaço de trabalho. Ele fala Streamable HTTP. O endpoint faz parte de todos os planos Cloud e das instalações com hospedagem própria; quando você hospeda por conta própria a edição Community, ele continua sendo um servidor remoto, só que na sua própria infraestrutura.
 
-**A conexão.** No Claude e no ChatGPT, você adiciona a URL como conector personalizado, faz login e aprova ([configuração do conector personalizado](/docs/connect-custom-connector)). Claude Code, Codex, Cursor e Gemini CLI se conectam com uma chave de API no cabeçalho `x-api-key` ([configuração da CLI](/docs/connect-cli)). De qualquer forma, o cliente age como exatamente um usuário em exatamente um espaço de trabalho, e conectar exige acesso de leitura a API e webhooks na função desse usuário.
+**A conexão.** No Claude e no ChatGPT, você adiciona a URL como conector personalizado, faz login e aprova ([configuração do conector personalizado](/docs/connect-custom-connector)). Claude Code, Codex, Cursor e Gemini CLI se conectam com uma chave de API no cabeçalho `x-api-key` ([configuração da CLI](/docs/connect-cli)). De qualquer forma, o cliente age como exatamente um usuário: uma chave de API no espaço de trabalho em que foi criada, uma conexão OAuth no espaço de trabalho que cada chamada indica, e conectar exige acesso de leitura a API e webhooks na função desse usuário.
 
 **O que ele expõe.** As três primitivas:
 

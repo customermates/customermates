@@ -1,12 +1,12 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 
+import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -16,24 +16,16 @@ import { followUpDescriptor } from "./setup-question-descriptor";
 import { SetupQuestionField } from "./setup-question-field";
 
 export const SetupFollowUps = observer(function SetupFollowUps() {
-  const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
-  const section = useRef<HTMLElement>(null);
   const setup = store.setup;
   if (!setup) return null;
 
   return (
     <section
-      ref={section}
       aria-busy={store.isBusy}
       className="flex animate-page-result-in flex-col gap-6 motion-reduce:animate-none"
+      id="setup-follow-ups"
     >
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold">{t("WorkspaceSetup.interview.followUpsTitle")}</h2>
-
-        <p className="text-sm text-muted-foreground">{t("WorkspaceSetup.interview.followUpsSubtitle")}</p>
-      </div>
-
       {store.pendingFollowUps.map((question) => (
         <SetupQuestionField
           key={question.id}
@@ -45,21 +37,33 @@ export const SetupFollowUps = observer(function SetupFollowUps() {
           onChange={(value) => store.setFollowUpAnswer(question.id, value)}
         />
       ))}
-
-      <div className="flex justify-end">
-        <Button
-          disabled={store.isBusy}
-          type="button"
-          onClick={() => {
-            if (store.showMissingAnswers(t("Common.errors.mustNotBeBlank"))) focusFirstInvalidField(section.current);
-            else runUserAction(store.confirmFollowUps);
-          }}
-        >
-          {store.pending === "followUps" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
-
-          {t("OnboardingWizard.continue")}
-        </Button>
-      </div>
     </section>
+  );
+});
+
+export const SetupFollowUpsFooter = observer(function SetupFollowUpsFooter() {
+  const t = useTranslations();
+  const { workspaceSetupStore: store } = useRootStore();
+
+  return (
+    <AppCardFooter className="justify-end">
+      <Button
+        className="min-h-11 max-sm:w-full"
+        disabled={store.isBusy}
+        id="setup-follow-ups-continue"
+        type="button"
+        onClick={() => {
+          if (store.showMissingAnswers(t("Common.errors.mustNotBeBlank")))
+            focusFirstInvalidField(document.getElementById("setup-follow-ups"));
+          else runUserAction(store.confirmFollowUps);
+        }}
+      >
+        {store.pending === "followUps" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
+
+        {t("OnboardingWizard.continue")}
+
+        {store.pending === "followUps" ? null : <ArrowRight aria-hidden="true" className="size-4" />}
+      </Button>
+    </AppCardFooter>
   );
 });

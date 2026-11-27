@@ -140,7 +140,7 @@ describe("claiming a job", () => {
           promptUntrusted: true,
           confirmWithinSeconds: 60,
         },
-        mcp: { url: `https://app.example.test/api/v1/mcp/w/${COMPANY_ID}`, token: "job-key" },
+        mcp: { url: "https://app.example.test/api/v1/mcp", token: "job-key" },
       },
     });
     expect(s.credentials.issued).toEqual([

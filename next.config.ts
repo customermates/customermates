@@ -233,6 +233,11 @@ export default async function configure(phase: string, context: { defaultConfig:
       },
     };
   }
+  // Vercel BotID only runs on hosted cloud deployments; self-hosted builds keep no challenge rewrites.
+  if (env.APP_MODE === "cloud" && env.VERCEL_ENV !== undefined) {
+    const { withBotId } = await import("botid/next/config");
+    config = withBotId({ ...config, env: { ...config.env, NEXT_PUBLIC_BOT_PROTECTION: "botid" } });
+  }
   const composed = withWorkflow(withMDX(withNextIntl(config)));
   return composed(phase, context);
 }

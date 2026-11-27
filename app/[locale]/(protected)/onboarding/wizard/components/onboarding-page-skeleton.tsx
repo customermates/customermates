@@ -8,9 +8,7 @@ export function OnboardingPageSkeleton({ animated = true }: { animated?: boolean
   return (
     <OnboardingSkeletonSurface animated={animated}>
       <div data-onboarding-profile-skeleton className="flex min-h-0 flex-1 flex-col gap-4 p-6">
-        <Shape animated={animated} className="h-8 w-full rounded-full" />
-
-        <Shape animated={animated} className="h-32 w-full rounded-xl sm:h-40" />
+        <Shape animated={animated} className="h-1 w-full rounded-full" />
 
         <div className="flex flex-col gap-1">
           <Shape breathe animated={animated} className="h-7 w-1/2" motionPhase={1} />
@@ -57,7 +55,7 @@ function OnboardingSkeletonSurface({ animated, children }: { animated: boolean; 
       <GridPattern />
 
       <div className="relative z-10 size-full min-h-0">
-        <CenteredCardPageSkeleton align="top" animated={animated} maxWidth="3xl">
+        <CenteredCardPageSkeleton align="steps" animated={animated} maxWidth="xl">
           {children}
         </CenteredCardPageSkeleton>
       </div>

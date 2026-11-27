@@ -114,6 +114,14 @@ function calendarEventTime(instant: Date, timeZone: string | undefined) {
   };
 }
 
+export type CalendarEventUpdateInput = Partial<CalendarEventWriteInput> & {
+  accountId: string;
+  calendarId: string;
+  eventId: string;
+  startDate?: string;
+  endDate?: string;
+};
+
 type MessagingSendResult<T> = { ok: true; data: T } | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
 
 type ProviderProfile = {
@@ -561,10 +569,11 @@ export class MessagingService {
     );
   }
 
-  async listFolders(input: { accountId: string; timeoutMs?: number }) {
+  async listFolders(input: { accountId: string; cursor?: string; timeoutMs?: number }) {
     return requestData(
       this.sdk.emails.getFoldersList({
         path: { account_id: input.accountId },
+        ...(input.cursor != null ? { query: { cursor: input.cursor } } : {}),
         ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );
@@ -691,9 +700,25 @@ export class MessagingService {
     }
   }
 
-  async updateCalendarEvent(
-    input: Partial<CalendarEventWriteInput> & { accountId: string; calendarId: string; eventId: string },
-  ): Promise<MessagingSendResult<UnipileCalendarEventRecord>> {
+  async getCalendarEvent(input: {
+    accountId: string;
+    calendarId: string;
+    eventId: string;
+  }): Promise<MessagingSendResult<UnipileCalendarEventRecord>> {
+    try {
+      const raw = await requestData(
+        this.sdk.calendar.getCalendarEvent({
+          path: { account_id: input.accountId, calendar_id: input.calendarId, event_id: input.eventId },
+        }),
+      );
+
+      return { ok: true, data: UnipileCalendarEventSchema.parse(raw) };
+    } catch (err) {
+      return this.mapSendError(err);
+    }
+  }
+
+  async updateCalendarEvent(input: CalendarEventUpdateInput): Promise<MessagingSendResult<UnipileCalendarEventRecord>> {
     try {
       const raw = await requestData(
         this.sdk.calendar.updateCalendarEvent({
@@ -708,7 +733,12 @@ export class MessagingService {
                   start: calendarEventTime(input.startsAt, input.timeZone),
                   end: calendarEventTime(input.endsAt, input.timeZone),
                 }
-              : {}),
+              : input.startDate && input.endDate
+                ? {
+                    start: { type: "date" as const, date: input.startDate },
+                    end: { type: "date" as const, date: input.endDate },
+                  }
+                : {}),
             ...(input.conferenceProvider ? { conference: { provider: input.conferenceProvider } } : {}),
             ...(input.notifyAttendees !== undefined ? { notify: input.notifyAttendees ? "all" : "none" } : {}),
           },

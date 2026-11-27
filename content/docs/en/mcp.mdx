@@ -4,7 +4,7 @@ heading: "Connect AI clients to your CRM with MCP"
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, and every workspace also has its own URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, with the same tools locked to that workspace. A connected client discovers the CRM tools automatically. Two ways to connect:
+Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at. One connection covers your whole account: every tool takes an optional `workspace` argument, so the same URL serves every workspace you belong to ([choosing the workspace](#choosing-the-workspace)). A connected client discovers the CRM tools automatically. Two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve; no key to manage. See [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -26,11 +26,11 @@ x-api-key: <your-64-character-key>
 
 The endpoint speaks the Model Context Protocol (streamable HTTP variant). `tools/list` returns every tool with its JSON Schema; `tools/call` invokes a tool by name. Every request must send `Accept: application/json, text/event-stream`, otherwise the endpoint returns `406 Not Acceptable`. The client guides set this up; raw HTTP callers such as curl or scripts add the header themselves.
 
-An API key is 64 letters (a-z, A-Z) and carries the permissions of the user who created it; there is no per-key scoping. Custom-connector clients (Claude, ChatGPT) use OAuth instead and obtain and refresh a bearer token for you, see [Connect with a custom connector](/docs/connect-custom-connector). Both act in exactly one workspace: a key in the workspace it was created in, an OAuth connection in the workspace of its URL or the one chosen on the consent screen ([which workspace a connection uses](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use)).
+An API key is 64 letters (a-z, A-Z) and carries the permissions of the user who created it; there is no per-key scoping. Custom-connector clients (Claude, ChatGPT) use OAuth instead and obtain and refresh a bearer token for you, see [Connect with a custom connector](/docs/connect-custom-connector). A key acts in the workspace it was created in. An OAuth connection acts for your whole account, in the workspace each call names ([choosing the workspace](#choosing-the-workspace), [which workspace a connection uses](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use)).
 
-A workspace's URL accepts only credentials of that workspace. An OAuth token of another workspace gets HTTP `401` with `error="invalid_token"` in the `WWW-Authenticate` header, whose `resource_metadata` points at `/.well-known/oauth-protected-resource/api/v1/mcp/w/<WORKSPACE_ID>`, so the client authorizes again for this workspace. The token request may name the URL in `resource`; a `resource` of another workspace than the approved one gets `400` with `error: invalid_target`. An API key of another workspace gets `403` with `error: workspace_mismatch`. Every other check stays the same as at `<BASE_URL>/api/v1/mcp`.
+Connectors added earlier with a workspace's own URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, keep working and stay locked to that workspace: an OAuth token of another workspace gets HTTP `401` with `error="invalid_token"`, and an API key of another workspace gets `403` with `error: workspace_mismatch`. Connections you approved before account-wide connections existed also stay locked to the workspace chosen then. To let such a connection choose among all your workspaces, remove the connector and connect again.
 
-A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role, the same permission as the API keys & connectors page; the built-in **Admin** role has it. A valid key or OAuth token of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs, and the OAuth consent screen refuses such a user. A key or token of a Cloud workspace that is still waiting for its first plan gets `403` with `error: plan_required`. The in-app assistant does not need it.
+A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. The same metadata is served at the RFC 9728 path `/.well-known/oauth-protected-resource/api/v1/mcp`. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role in the workspace used, the same permission as the API keys & connectors page; the built-in **Admin** role has it. A valid key of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs. For an OAuth connection, the consent screen lists a workspace where the role lacks it as one the app cannot use, and a call that names it is refused. A key of a Cloud workspace that is still waiting for its first plan, and an OAuth connection locked to that workspace, get `403` with `error: plan_required` and a `choosePlanUrl`, an absolute link to the workspace's Billing page. An account-wide OAuth connection shows such a workspace as one it cannot use, and only a call that names it is refused, with a tool error saying it has no active subscription. The in-app assistant does not need it.
 
 The endpoint and API keys are available on every plan and on self-hosted instances. Only the messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only); see [Messaging](/docs/mcp#messaging).
 
@@ -48,7 +48,7 @@ Open [API keys & connectors](app:settings/api-keys) in Settings and click [Add](
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header, or connect through OAuth where the client supports it. The guides in the table below carry the exact configuration.
 </Step>
 <Step title="Confirm the tools arrived">
-Ask the client to list its tools; `get_workspace_context` should be among them. It is the natural first call: it returns your user, company, roles, connected accounts and the Knowledge Base in one go; record-type labels come from `discover_record_types`.
+Ask the client to list its tools; `get_workspace_context` should be among them. It is the natural first call: it returns your user, company, roles, connected accounts and the Knowledge Base in one go (with several workspaces, pass `workspace`); record-type labels come from `discover_record_types`.
 </Step>
 </Steps>
 
@@ -63,6 +63,25 @@ Ask the client to list its tools; `get_workspace_context` should be among them. 
 | Cursor | API key | [Connect Cursor](/docs/connect-cli#cursor) |
 | Gemini CLI | API key | [Connect Gemini](/docs/connect-cli#gemini-cli) |
 | Any MCP client | Key header | Use the endpoint and header from [What is the MCP server endpoint URL?](#the-endpoint) |
+
+## How does an agent choose the workspace? [#choosing-the-workspace]
+
+One OAuth connection covers every workspace you belong to, so each call says which one it means. Every tool takes an optional `workspace` argument: the workspace's slug or its id. `list_workspaces` returns both for every workspace, and `get_workspace_context` returns the workspace of the call as `company`.
+
+- **One usable workspace:** a call without `workspace` uses it.
+- **Several usable workspaces:** a call without `workspace` is refused with a tool error that lists the workspaces (name and slug) and asks the agent to pass `workspace`. There is never a silent default, so a write cannot land in the wrong workspace. When the request does not say which one, the agent asks the user.
+- **A workspace the login cannot use:** one where the user is not an active member, or that MCP cannot use, is refused. MCP cannot use a workspace when the user's request to join is waiting for approval, the access is deactivated, the role has no **Read access** **All** on **API & Webhooks**, the workspace has no active subscription, or updated terms need to be accepted. `list_workspaces` shows each workspace's role and whether MCP can use it, with the reason if not.
+- **API keys:** a key stays bound to the workspace it was created in, and passing another `workspace` with a key is refused.
+
+Every call runs as the approving user, with that user's role in the workspace it names, so what a call may do differs per workspace.
+
+`create_workspace` creates a new workspace for the account from a name, a team size (`solo`, `small` for 2 to 5 people, `medium` for 6 to 20, `large` for more than 20) and a display language, and returns its slug. The agent passes that slug as `workspace` from then on, typically followed by the `setup-from-template` prompt. It works on Customermates Cloud only, needs a verified email address, and creates at most three new workspaces per account in any 24 hours, on top of the total of [[commercial.workspaces.creationLimit]] workspaces one login can create. A refused creation names the reason in `customCode`: `emailNotVerified` (kind `authorization`), `workspaceDailyLimitReached` (kind `rate_limit`) or `workspaceLimitReached` (kind `conflict`). As on the web, only the first workspace a login creates gets the free trial ([which workspace gets the free trial](/docs/app-workspaces#which-workspace-gets-the-free-trial)). An agent should never create a second workspace when an existing one fits; it asks the user first.
+
+Give `create_workspace` a `description` of the business, one or two sentences on what it does and for whom (up to 1,000 characters), and the new workspace is set up as well. On Cloud, when the plan or trial includes Mate, the server runs the same Mate setup as the app's onboarding: Mate plans the workspace from the description and the optional answers (`workWith`, `purpose`, `mainSteps`, `pricing`, `exampleRecords`), then builds the lists, fields, pipeline, views, dashboard, Knowledge Base and example records, with no step-by-step tool calls and no follow-up questions. The result adds `setup`, which is `null` without a description, `{ status: "planning", setupId }` when the setup started and `{ status: "notStarted", reason }` when it could not start, for example on a plan without Mate, which leaves the workspace empty. `get_workspace_setup_status` takes only the usual `workspace` argument and reports the `status` (`interview`, `planning`, `planned`, `building`, `completed` or `failed`), the plan, the phases and the Knowledge Base pages written; for a setup that `create_workspace` started, the server starts the build by itself as soon as the plan is ready, and the tool only reads, so agents check it about once a minute until `completed`. A setup started in the app keeps waiting at `planned` until the owner confirms the plan there. It works on Cloud only and returns `available: false` with the reason `configured` when the workspace already has lists; the `setup-from-template` prompt stays the way to set up an existing empty workspace.
+
+### Plan facts [#plan-facts]
+
+`get_workspace_context` and `list_workspaces` return a `plan` object for the workspace: the current `plan`, `onFreePlan`, `trialDaysLeft` (`null` outside a trial), `lostOnFree` (what would stop working on the Free plan, by kind with counts), `keepsItRunning` (the plan that keeps everything running) and `choosePlanUrl` (an absolute link to the workspace's [Billing](app:settings/billing) page). A tool call refused because of a plan limit carries the same `choosePlanUrl`, so the agent can hand the user the link.
 
 ## Server instructions, prompts, and toolsets
 
@@ -176,7 +195,7 @@ Customermates exposes up to [[derived.mcp.tools.total]] MCP tools, all enabled b
 **Read-only** means the tool does not write. **Can delete data** marks a tool that includes destructive operations; not every action on it deletes (a configuration preview, for example, writes nothing). Tools that send messages, invitations or support requests, move email or change provider data have real effects even without the destructive flag. Set client approval for the actual operation: the server enforces authorization and validation, but an external MCP call does not open the hosted assistant's approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `list_workspaces`, `get_workspace_setup_status`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `schedule_meeting`, `manage_booking_links`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_rules`, `manage_webhooks`, `manage_incoming_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
@@ -391,10 +410,12 @@ A token works for 24 hours and only in the workspace that looked it up; otherwis
 
 ### Workspace
 
+`list_workspaces` and `create_workspace` work across the whole account, and every other tool takes the optional `workspace` argument; see [how an agent chooses the workspace](#choosing-the-workspace).
+
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Read the current user, the company (the workspace, with its name), role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session; the connection is bound to exactly one workspace. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
+Read the current user, the company (the workspace, with its name), role catalog with permissions, accessible connected messaging accounts, the workspace's plan facts (`plan`: current plan, Free plan or trial days left, what would stop working on Free, the plan that keeps everything running and the link to choose it), and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. The workspace is chosen per call with the optional `workspace` argument (slug or id): without it the call uses your only workspace, and with several it is refused and lists them. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
 
 **Read-only.** Optional: `wikiPage`.
 
@@ -403,6 +424,24 @@ Read the current user, the company (the workspace, with its name), role catalog 
 Team members with id, name, email, roleId, and status. When the caller's role has Users & Roles read access Assigned, only the caller is returned.
 
 **Read-only.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `list_workspaces`
+
+List the workspaces of the account: for each its name, slug, your role, whether it is set up or still empty, the plan facts (`plan`) and whether MCP can use it, with the reason if not. Call it when the account may have several workspaces, then pass the slug as `workspace` in the other tools.
+
+**Read-only.** No arguments.
+
+#### `create_workspace`
+
+Create a new workspace for the account from a name, a team size (solo, small for 2 to 5 people, medium for 6 to 20, large for more than 20) and a display language. Add a `description` of one or two sentences about the business (what it does and for whom, up to 1,000 characters), optionally with `workWith`, `purpose`, `mainSteps`, `pricing` and `exampleRecords`, and Mate plans and builds the workspace on the server when the plan or trial includes it, the same setup as the app's onboarding: lists, fields, pipeline, views, dashboard, Knowledge Base and example records, with no step-by-step tool calls and no follow-up questions. Returns `companyId`, the new workspace's `slug` (pass it as `workspace` in the following calls), `trial` and `setup`. `setup` is null without a description, `planning` with a `setupId` when the setup started and `notStarted` with a `reason` when it could not start, for example on a plan without Mate; the workspace then stays empty, typically followed by the `setup-from-template` prompt. Follow a started setup with `get_workspace_setup_status`. Customermates Cloud only, needs a verified email address and a connection approved for the whole account, and creates at most three new workspaces per account in any 24 hours, within the total limit per login. Only the first workspace a login creates gets the free trial. Never create a second workspace when an existing one fits; ask the user first.
+
+Required: `name`, `teamSize`. Optional: `displayLanguage`, `description`, `workWith`, `purpose`, `mainSteps`, `pricing`, `exampleRecords`.
+
+#### `get_workspace_setup_status`
+
+Read the Mate setup of the workspace: `status` (interview, planning, planned, building, completed or failed, null when no setup ran), the plan with its error, the phases knowledgeBase, dataModel, views, records and dashboard each with status and error, the current phase, the Knowledge Base pages planned and written, and when it finished. For a setup that `create_workspace` started, the server starts the build by itself as soon as the plan is ready, so planned moves to building without any call; the tool only reads, so read it about once a minute until it is completed. A setup started in the app waits for the owner to confirm the plan there. `available` is false with a `reason`, such as `configured` when the workspace already has lists. Customermates Cloud only. The `setup-from-template` prompt stays the way to set up an existing empty workspace.
+
+**Read-only.** No arguments.
 {/* /mcp-catalog */}
 
 ### Saved views
@@ -526,7 +565,7 @@ List your connected accounts with folders and email settings, and change one you
 
 Create, move and cancel meetings in the caller’s connected Google or Microsoft calendar and find free slots.
 
-**Can delete data.** Required: `action`. Optional: `record`, `id`, `calendarId`, `title`, `description`, `location`, `startsAt`, `durationMinutes`, `timeZone`, `attendees`, `videoLink`, `sendInvites`, `records`, `followUp`, `from`, `days`, `workingHours`, `bufferMinutes`, `comment`.
+**Can delete data.** Required: `action`. Optional: `record`, `id`, `calendarId`, `title`, `description`, `location`, `startsAt`, `durationMinutes`, `endsAt`, `timeZone`, `startDate`, `endDate`, `attendees`, `videoLink`, `sendInvites`, `scope`, `records`, `followUp`, `from`, `days`, `workingHours`, `bufferMinutes`, `comment`.
 
 #### `manage_booking_links`
 
@@ -737,7 +776,7 @@ Optional: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `for
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), change a member's role and status (update_member), or remove a member from the workspace (remove_member). For update_member and remove_member, identify the member by userId or email; if you provide both, they must match. remove_member ends the member's access, revokes their API keys and MCP connections for this workspace, disconnects the channels they connected here and declines a pending request; it sends the removed member a real email (none for a declined request), and their records stay. invite and invite_link need Create on Users & Roles; update_member and remove_member need Edit, like REST.
+Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), change a member's role and status (update_member), or remove a member from the workspace (remove_member). For update_member and remove_member, identify the member by userId or email; if you provide both, they must match. remove_member ends the member's access, revokes their API keys for this workspace, stops their MCP connections from working in it, disconnects the channels they connected here and declines a pending request; it sends the removed member a real email (none for a declined request), and their records stay. invite and invite_link need Create on Users & Roles; update_member and remove_member need Edit, like REST.
 
 **Can delete data.** Required: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 
@@ -748,7 +787,7 @@ Read, create or edit roles with system permissions and access to any configured 
 **Can delete data.** Required: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change or a removal made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys & connectors](app:settings/api-keys).
+No tool changes the subscription, the plan or the seats, reads invoices or payment details, or creates or deletes API keys; the read-only `plan` facts ([plan facts](#plan-facts)) only describe the current plan and link to the Billing page. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change or a removal made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys & connectors](app:settings/api-keys).
 
 ### Support
 
@@ -770,7 +809,7 @@ All tools are on by default. To expose only part of the surface, append `?toolse
 
 Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. No parameter means everything; an unknown key returns HTTP `400` with `error: invalid_toolsets`, the unknown keys and the valid ones. `records` also holds the operation tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) and the Trash tools; `record-model` holds only `configure_record_model`. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
-`widgets`, `routines` and `webhooks` also include `discover_record_types` and `get_record_model`, which their tools need for type and field ids and the current schema revision; `record-model` includes both plus `read_crm_operation` for applies that are still pending. API keys and billing stay in the web app by design; no tool reads or changes them.
+`widgets`, `routines` and `webhooks` also include `discover_record_types` and `get_record_model`, which their tools need for type and field ids and the current schema revision; `record-model` includes both plus `read_crm_operation` for applies that are still pending. API keys and billing stay in the web app by design; no tool changes them, and the `plan` facts only read the current plan.
 
 ### When a call is refused
 
@@ -826,7 +865,7 @@ Send your 64-character API key in the `x-api-key` header, or connect through OAu
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths under [Connect a client](#connect-a-client). Another client may work if it supports MCP over streamable HTTP and the required authentication; verify its compatibility and instruction handling before use.
 </FaqItem>
 <FaqItem question="Which plan do I need for MCP?">
-None in particular. The MCP endpoint and API keys work on every plan, during the trial and on self-hosted instances. The plan changes what some tools allow: messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud) and refuse with a plan message on Starter or self-hosted; connecting a messaging account stops at the plan's account limit per user; `manage_routines` refuses a new routine at the plan's routine limit; and activity widgets leave out messages and calendar events without messaging. See [when a call is refused](/docs/mcp#when-a-call-is-refused). On the Free plan, MCP tool calls count toward the workspace limit of [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day, shared with REST; connecting, listing tools and other protocol messages do not count. Beyond the limit, a tool call returns a tool error (`isError: true`, HTTP `200`, `Retry-After` header) whose text tells the agent the workspace is on Free and names Starter with its price and the billing link, and whose `structuredContent` carries `error: rate_limited`, the window, the limit and the upgrade; any other request gets HTTP `429` with `error: rate_limited`. Paid plans and self-hosted instances have no request limit. When a trial ends, the workspace moves to Free and keys keep working; when a payment fails, the web app pauses first, while API keys and MCP connections keep working until the members are set **Inactive**; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). A Cloud workspace that is still waiting for its first plan refuses its keys and connections with `403` and `error: plan_required` until an admin chooses one.
+None in particular. The MCP endpoint and API keys work on every plan, during the trial and on self-hosted instances. The plan changes what some tools allow: messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud) and refuse with a plan message on Starter or self-hosted; connecting a messaging account stops at the plan's account limit per user; `manage_routines` refuses a new routine at the plan's routine limit; and activity widgets leave out messages and calendar events without messaging. See [when a call is refused](/docs/mcp#when-a-call-is-refused). On the Free plan, MCP tool calls count toward the workspace limit of [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day, shared with REST; connecting, listing tools and other protocol messages do not count. Beyond the limit, a tool call returns a tool error (`isError: true`, HTTP `200`, `Retry-After` header) whose text tells the agent the workspace is on Free and names Starter with its price and the billing link, and whose `structuredContent` carries `error: rate_limited`, the window, the limit and the upgrade; any other request gets HTTP `429` with `error: rate_limited`. Paid plans and self-hosted instances have no request limit. When a trial ends, the workspace moves to Free and keys keep working; when a payment fails, the web app pauses first, while API keys and MCP connections keep working until the members are set **Inactive**; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). A Cloud workspace that is still waiting for its first plan refuses its keys and the OAuth connections locked to one workspace with `403`, `error: plan_required` and a `choosePlanUrl` to its Billing page until an admin chooses a plan; an account-wide connection refuses only the calls that name that workspace, with a tool error saying it has no active subscription, and its other workspaces keep working.
 </FaqItem>
 <FaqItem question="Can I reduce the number of tools a client sees?">
 Yes. Append `?toolsets=` with a comma-separated list of group keys (`records`, `workspace`, `views`, `wiki`, `messaging`, `social`, `docs`, `record-model`, `widgets`, `routines`, `webhooks`, `admin`, `support`) to the endpoint URL and only those tools are advertised. The connector tools `search` and `fetch` stay on.

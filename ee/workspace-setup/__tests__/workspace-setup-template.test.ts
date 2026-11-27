@@ -37,13 +37,9 @@ const owner = createMockUser({ companyId: SETUP_COMPANY_ID });
 const input: SetupPlanInput = {
   setupId: "0f8f6c1e-7b52-4f0a-a7a4-1d3c2b9e8f70",
   language: "en",
-  answersLanguage: null,
   currency: "EUR",
   answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Studio" } } },
   followUps: [],
-  sources: [],
-  website: false,
-  sheet: null,
   templateSlug: "sales-pipeline",
 };
 
@@ -133,8 +129,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
     id: "setup-1",
     userId: owner.id,
     status: "planning",
-    websiteUrl: null,
-    crawlId: null,
     answers: {},
     interview: StoredSetupInterviewSchema.parse({ plan: "queued", templateSlug: "sales-pipeline" }),
     plan: null,
@@ -143,8 +137,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
     artifacts: {},
     created: StoredSetupCreatedSchema.parse({}),
     results: StoredSetupResultsSchema.parse({}),
-    spreadsheetName: null,
-    hasSpreadsheet: false,
     startedAt: new Date(),
     confirmedAt: null,
     finishedAt: null,
@@ -157,8 +149,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
       if (patch) setup = { ...setup, ...patch } as WorkspaceSetupRecord;
       return Promise.resolve({ setup, changed: Boolean(patch) });
     }),
-    crawlSources: vi.fn(() => Promise.resolve([])),
-    readSpreadsheet: vi.fn(() => Promise.resolve(null)),
   };
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const mate = { attempt: vi.fn(), assemble: vi.fn(), fromTemplate: vi.fn() };
@@ -226,11 +216,10 @@ describe("template plans in the Mate setup steps", () => {
 
 describe("starting a Mate setup with a template", () => {
   it("accepts a known template slug and rejects an unknown one", () => {
-    expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null, templateSlug: "client-tracker" }).success).toBe(
-      true,
-    );
-    expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null }).success).toBe(true);
-    expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null, templateSlug: "nope" }).success).toBe(false);
+    expect(StartWorkspaceSetupSchema.safeParse({ templateSlug: "client-tracker" }).success).toBe(true);
+    expect(StartWorkspaceSetupSchema.safeParse({}).success).toBe(true);
+    expect(StartWorkspaceSetupSchema.safeParse({ templateSlug: "nope" }).success).toBe(false);
+    expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: "https://studio.example" }).success).toBe(false);
   });
 
   it("compiles the plan with the currency of the setup and refuses an unknown slug", async () => {

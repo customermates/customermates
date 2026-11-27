@@ -7,9 +7,9 @@ import type { PlannerPersonalEventsRepo, PersonalCalendarEvent } from "./planner
 import type { PlannerQuery, PlannerSource } from "./planner.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { roleCanRead } from "@/core/base/permission.service";
+import { roleCanRead, rolePermits } from "@/core/base/permission.service";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -71,6 +71,8 @@ export class ReadPlannerInteractor extends AuthenticatedInteractor<PlannerQuery,
       !(await this.entitlements.require("messaging"))
         ? await this.personal.events(config.calendarIds, calendarWindow)
         : { events: [], truncated: false };
-    return { ok: true, data: { sources, events: personal.events, personalTruncated: personal.truncated } };
+    const canUpdate = rolePermits(this.user.role, Resource.inboxMessages, Action.update);
+    const events = personal.events.map((event) => ({ ...event, editable: canUpdate && event.editable === true }));
+    return { ok: true, data: { sources, events, personalTruncated: personal.truncated } };
   }
 }

@@ -6705,6 +6705,11 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
 
+botid@1.5.13:
+  version "1.5.13"
+  resolved "https://registry.yarnpkg.com/botid/-/botid-1.5.13.tgz#74754f392c4ff107654aa969d9bc4f3b1bf7502e"
+  integrity sha512-bd1oGgunQXOXQOctgLm/XuJKji5E8EUJdHYQAHJhJPgFeBo/mLQMeEsokO9nbrjjOZsSoKZfGHRfM/VAux44GA==
+
 bowser@^2.11.0:
   version "2.14.1"
   resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.14.1.tgz#4ea39bf31e305184522d7ad7bfd91389e4f0cb79"
@@ -7969,6 +7974,11 @@ dingbat-to-unicode@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/dingbat-to-unicode/-/dingbat-to-unicode-1.0.2.tgz#3c2ee8421480f2c136a82b284aaf45a5a6f36034"
   integrity sha512-R0bRerYzy/EZP6QzD3Hkl6JjUDA1Mnn+pd928w0nWjPzihnbAR6dcjGJGiRyznj5E4S1duEKzWrTqw02DPcdzg==
+
+disposable-email-domains-js@1.26.0:
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/disposable-email-domains-js/-/disposable-email-domains-js-1.26.0.tgz#2f4dd37166b3d3dafa4b29910080d6c28cf2b847"
+  integrity sha512-pSqALZAiuw6HDC1HqhhtvShRnniUNObQ6kzwa5N280XbyxxCPBZnQQ7fO6Uk/CNTi4cAaKE1UZl3Mc30Zfj4UA==
 
 dlv@^1.1.3:
   version "1.1.3"

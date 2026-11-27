@@ -6,7 +6,6 @@ import type { WikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/wiki-website-crawl.re
 import type { StartWikiWebsiteCrawlRepo } from "@/features/wiki/start-wiki-website-crawl.repo";
 import type { GetWikiWebsiteCrawlStateRepo } from "@/features/wiki/get-wiki-website-crawl-state.repo";
 import type { WikiWebsiteCrawlCleanupRepo, WikiWebsiteCrawlCleanup } from "./wiki-website-crawl-cleanup.repo";
-import type { WikiWebsiteCrawlControlRepo } from "./wiki-website-crawl-control.repo";
 
 import { Prisma } from "@/generated/prisma";
 
@@ -109,12 +108,7 @@ const TOPIC_UPDATE_ATTEMPTS = 5;
 
 export class PrismaWikiWebsiteCrawlRepo
   extends TenantRepository
-  implements
-    WikiWebsiteCrawlRepo,
-    StartWikiWebsiteCrawlRepo,
-    GetWikiWebsiteCrawlStateRepo,
-    WikiWebsiteCrawlCleanupRepo,
-    WikiWebsiteCrawlControlRepo
+  implements WikiWebsiteCrawlRepo, StartWikiWebsiteCrawlRepo, GetWikiWebsiteCrawlStateRepo, WikiWebsiteCrawlCleanupRepo
 {
   constructor(private readonly pages: WikiImportPageRepo) {
     super();
@@ -139,62 +133,6 @@ export class PrismaWikiWebsiteCrawlRepo
         data: { status: "failed", failureReason: "error", finishedAt: new Date() },
       });
     });
-  }
-
-  async stopCrawl(crawlId: string) {
-    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-      where: { id: crawlId, companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
-      select: { topics: true, importedPages: true },
-    });
-    if (!crawl) return;
-    const written =
-      crawl.importedPages > 0 ||
-      (Array.isArray(crawl.topics) &&
-        crawl.topics.some(
-          (topic) => typeof topic === "object" && topic !== null && !Array.isArray(topic) && topic.status === "created",
-        ));
-    await this.prisma.wikiWebsiteCrawl.updateMany({
-      where: { id: crawlId, companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
-      data: {
-        status: written ? "completed" : "failed",
-        failureReason: written ? null : "cancelled",
-        finishedAt: new Date(),
-      },
-    });
-  }
-
-  async setCrawlLocale(crawlId: string, locale: string) {
-    await this.prisma.wikiWebsiteCrawl.updateMany({
-      where: {
-        id: crawlId,
-        companyId: this.companyId,
-        status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] },
-        topics: { equals: Prisma.AnyNull },
-      },
-      data: { locale },
-    });
-  }
-
-  async reopenSynthesis(crawlId: string) {
-    const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
-      where: {
-        id: crawlId,
-        companyId: this.companyId,
-        payer: "workspaceSetup",
-        OR: [
-          { status: { in: ["completed", "failed"] }, topics: { equals: [] } },
-          { status: "synthesizing", topics: { equals: Prisma.DbNull }, workflowRunId: null },
-        ],
-      },
-      data: {
-        status: "synthesizing",
-        topics: Prisma.DbNull,
-        failureReason: null,
-        finishedAt: null,
-        workflowRunId: null,
-      },
-    });
-    return count === 1;
   }
 
   async createCrawl(

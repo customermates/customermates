@@ -5,6 +5,7 @@ import { expect, test } from "./fixtures";
 import { localWebhookSecret } from "./local-email-provider.mjs";
 import { localE2eEnvironment } from "./local-environment";
 import { clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
+import { anyWorkspaceUrlPattern } from "./app-paths";
 
 test.skip(e2eAppMode() !== "cloud", "Channels connect only in the cloud");
 
@@ -68,11 +69,12 @@ test("a mailbox connected in the onboarding channel step returns to that step an
     }),
   );
 
-  const goal = page.locator("#onboarding-goal-continue");
-  const sourceSkip = page.locator("#onboarding-source-skip");
-  await expect(goal.or(sourceSkip)).toBeVisible({ timeout: 30_000 });
-  if (await sourceSkip.isVisible()) await clickHydrated(sourceSkip);
-  await clickHydrated(goal);
+  const startEmpty = page.locator("#setup-start-empty");
+  await expect(startEmpty).toBeVisible({ timeout: 30_000 });
+  await clickHydrated(startEmpty);
+  const confirm = page.getByRole("alertdialog", { name: englishMessages.WorkspaceSetup.empty.title });
+  await confirm.getByRole("button", { name: englishMessages.WorkspaceSetup.empty.confirm, exact: true }).click();
+  await expect(heading(steps.invite.title)).toBeVisible();
   await clickHydrated(page.locator("#onboarding-next"));
 
   await expect(heading(steps.channel.title)).toBeVisible();
@@ -111,7 +113,8 @@ test("a mailbox connected in the onboarding channel step returns to that step an
   await expect(page.locator("#onboarding-channel-finishing")).toHaveCount(0);
   await expect(page.locator("#onboarding-channel-skip")).toHaveCount(0);
 
+  await expect(page.locator("#onboarding-channel-continue")).toHaveText(englishMessages.OnboardingWizard.finish);
   await clickHydrated(page.locator("#onboarding-channel-continue"));
-  await expect(heading(steps.connect.title)).toBeVisible({ timeout: 30_000 });
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"), { timeout: 30_000 });
   await context.close();
 });

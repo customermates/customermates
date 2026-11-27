@@ -271,10 +271,6 @@ import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/rec
 import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
 import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
 import { RecordChannelSkippedInteractor } from "@/features/onboarding-funnel/record-channel-skipped.interactor";
-import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
-import { GetOnboardingTemplatePromptInteractor } from "@/features/onboarding-templates/get-onboarding-template-prompt.interactor";
-import { GetOnboardingTemplateChoiceInteractor } from "@/features/onboarding-templates/get-onboarding-template-choice.interactor";
-import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -343,8 +339,13 @@ import { WithdrawWorkspaceRequestInteractor } from "@/features/workspace/withdra
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
 import { DecideMcpConsentInteractor } from "@/features/auth/decide-mcp-consent.interactor";
 import { ListMcpConsentWorkspacesInteractor } from "@/features/auth/list-mcp-consent-workspaces.interactor";
+import { RequestMagicLinkInteractor } from "@/features/auth/request-magic-link.interactor";
+import { McpWorkspaceAccessService } from "@/features/auth/mcp-workspace-access.service";
+import { WorkspacePlanFactsService } from "@/ee/subscription/workspace-plan-facts.service";
+import { ListAccountWorkspacesInteractor } from "@/features/workspace/list-account-workspaces.interactor";
 import { RequestPasswordResetInteractor } from "@/features/auth/request-password-reset.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
+import { VerifyEmailCodeInteractor } from "@/features/auth/verify-email-code.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
 import { SignInWithEmailInteractor } from "@/features/auth/sign-in-with-email.interactor";
 import { SignOutInteractor } from "@/features/auth/sign-out.interactor";
@@ -399,6 +400,8 @@ import { BackfillCalendarsInteractor } from "@/ee/messaging/ingest/backfill/back
 import { BackfillChatsInteractor } from "@/ee/messaging/ingest/backfill/backfill-chats.interactor";
 import { BackfillEmailsInteractor } from "@/ee/messaging/ingest/backfill/backfill-emails.interactor";
 import { PrepareBackfillInteractor } from "@/ee/messaging/ingest/backfill/prepare-backfill.interactor";
+import { SweepEmailPresenceInteractor } from "@/ee/messaging/ingest/backfill/sweep-email-presence.interactor";
+import { DispatchEmailPresenceSweepsInteractor } from "@/ee/messaging/ingest/dispatch-email-presence-sweeps.interactor";
 import { ClaimBackfillInteractor } from "@/ee/messaging/ingest/claim-backfill.interactor";
 import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
 import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
@@ -595,6 +598,7 @@ import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
 import { WikiWebsiteSynthesisService } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
+import { NO_WIKI_SYNTHESIS_BRIEF } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { WikiSummaryService } from "@/ee/wiki-retrieval/wiki-summary.service";
@@ -1390,6 +1394,7 @@ export const getApplyOnboardingPlaybookInteractor = () =>
     getUserRepo(),
     getUserRepo(),
     getRouteGuardService(),
+    getUpdateWikiPageInteractor(),
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
 export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
@@ -1397,23 +1402,12 @@ export const getRecordChannelSkippedInteractor = () =>
   new RecordChannelSkippedInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getRecordDiscoveryAnswerInteractor = () =>
   new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
-export const getGetOnboardingAgentStatusInteractor = () =>
-  new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
-export const getGetOnboardingTemplatePromptInteractor = () =>
-  new GetOnboardingTemplatePromptInteractor(
-    loadTemplateBundle,
-    getRouteGuardService(),
-    getOnboardingFunnelRepo(),
-    getCompanyRepo(),
-  );
-export const getGetOnboardingTemplateChoiceInteractor = () =>
-  new GetOnboardingTemplateChoiceInteractor(getOnboardingFunnelRepo());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
-  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService());
 
 export const getSaveOnboardingWizardProgressInteractor = () =>
-  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -1544,6 +1538,8 @@ export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(
 export const getSignUpWithEmailInteractor = () =>
   new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService(), getUserRepo());
 
+export const getRequestMagicLinkInteractor = () => new RequestMagicLinkInteractor(getAuthService());
+
 export const getRequestPasswordResetInteractor = () =>
   new RequestPasswordResetInteractor(getAuthService(), getOnboardingIntentService());
 
@@ -1553,17 +1549,42 @@ export const getResetPasswordInteractor = () =>
 export const getContinueWithSocialsInteractor = () =>
   new ContinueWithSocialsInteractor(getAuthService(), getUserRepo());
 
-export const getResendVerificationEmailInteractor = () =>
-  new ResendVerificationEmailInteractor(getAuthService(), getOnboardingIntentService());
+export const getResendVerificationEmailInteractor = () => new ResendVerificationEmailInteractor(getAuthService());
+
+export const getVerifyEmailCodeInteractor = () => new VerifyEmailCodeInteractor(getAuthService());
 
 export const getSignOutInteractor = () =>
   new SignOutInteractor(getAuthService(), getOnboardingIntentService(), getInviteTokenCookieRepo());
 
-export const getDecideMcpConsentInteractor = () =>
-  new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
-
 export const getListMcpConsentWorkspacesInteractor = () =>
-  new ListMcpConsentWorkspacesInteractor(getListMyWorkspacesInteractor(), getRouteGuardService());
+  new ListMcpConsentWorkspacesInteractor(
+    getAuthService(),
+    getListMyWorkspacesInteractor(),
+    getRouteGuardService(),
+    getUserRepo(),
+  );
+
+export const getDecideMcpConsentInteractor = () =>
+  new DecideMcpConsentInteractor(
+    getAuthService(),
+    getRouteGuardService(),
+    getListMcpConsentWorkspacesInteractor(),
+    getUserRepo(),
+  );
+
+export const getMcpWorkspaceAccessService = () =>
+  new McpWorkspaceAccessService(getUserRepo(), getRouteGuardService(), getWorkspaceSlugResolver());
+
+export const getWorkspacePlanFactsService = () =>
+  new WorkspacePlanFactsService(getCompanyRepo(), getPlanLimitsService(), env.APP_MODE, env.BASE_URL);
+
+export const getListAccountWorkspacesInteractor = () =>
+  new ListAccountWorkspacesInteractor(
+    getAuthService(),
+    getMcpWorkspaceAccessService(),
+    getWorkspacePlanFactsService(),
+    new PrismaPlanUsageRepo(),
+  );
 
 // --- Company ---
 
@@ -1697,7 +1718,7 @@ export const getWikiWebsiteSynthesisService = () =>
     getWikiWebsiteCrawlRepo(),
     getAgentUsageService(),
     getCreateWikiPagesInteractor(),
-    getWorkspaceSetupKnowledgeBrief(),
+    NO_WIKI_SYNTHESIS_BRIEF,
   );
 
 // --- Webhook ---
@@ -1812,6 +1833,12 @@ export const getBackfillEmailsInteractor = () =>
     getMessagingRepo(),
     getProviderAvatarService,
   );
+
+export const getSweepEmailPresenceInteractor = () =>
+  new SweepEmailPresenceInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
+
+export const getDispatchEmailPresenceSweepsInteractor = () =>
+  new DispatchEmailPresenceSweepsInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
 
 export const getBackfillChatsInteractor = () =>
   new BackfillChatsInteractor(
@@ -2891,26 +2918,19 @@ import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/wor
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
-import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
-import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
-import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
-import { SetWorkspaceSetupWebsiteInteractor } from "@/ee/workspace-setup/set-workspace-setup-website.interactor";
 import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
 import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
 import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
-import { UploadWorkspaceSetupSpreadsheetInteractor } from "@/ee/workspace-setup/upload-workspace-setup-spreadsheet.interactor";
 import { PlanWorkspaceSetupInteractor } from "@/ee/workspace-setup/plan-workspace-setup.interactor";
+import { StartAgentWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-agent-workspace-setup.interactor";
+import { BuildAgentWorkspaceSetupInteractor } from "@/ee/workspace-setup/build-agent-workspace-setup.interactor";
 import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-workspace-setup.interactor";
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
 
-export const getWorkspaceSetupRepo = () =>
-  new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo(), getOnboardingFunnelRepo());
-export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
+export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getOnboardingFunnelRepo());
 export const getWorkspaceSetupModelService = (budget: WorkspaceSetupBudgetKind) =>
   new WorkspaceSetupModelService(getAgentUsageService(), WORKSPACE_SETUP_BUDGETS[budget]);
-export const getWorkspaceSetupCrawlStarter = () =>
-  new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
 export const getWorkspaceSetupInterviewService = () => {
   const models = getWorkspaceSetupModelService("plan");
   return new WorkspaceSetupInterviewService(
@@ -2935,35 +2955,26 @@ export const getWorkspaceSetupBuildService = () =>
     getUpsertDataViewInteractor(),
     getSaveWidgetInteractor(),
     getImportSpreadsheetInteractor(),
-    websiteBrandFetch,
     getUpdateUserDetailsInteractor(),
     getMutateRecordInteractor(),
     getCreateWikiPagesInteractor(),
     getSavePlannerInteractor(),
     getPostalCodeService(),
     getShareDataViewInteractor(),
+    getGetWikiPageInteractor(),
+    getUpdateWikiPageInteractor(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(
     getWorkspaceSetupRepo(),
-    getWorkspaceSetupCrawlStarter(),
-    getBackgroundTaskService(),
     getCompanyRepo(),
-    getEntitlementService(),
-  );
-export const getSetWorkspaceSetupWebsiteInteractor = () =>
-  new SetWorkspaceSetupWebsiteInteractor(
-    getWorkspaceSetupRepo(),
-    getWorkspaceSetupCrawlStarter(),
-    getBackgroundTaskService(),
+    getOnboardingFunnelRepo(),
     getEntitlementService(),
   );
 export const getGetWorkspaceSetupStatusInteractor = () =>
   new GetWorkspaceSetupStatusInteractor(getWorkspaceSetupRepo(), getAgentUsageService(), getRecordRepo());
 export const getSaveWorkspaceSetupAnswersInteractor = () =>
   new SaveWorkspaceSetupAnswersInteractor(getWorkspaceSetupRepo());
-export const getUploadWorkspaceSetupSpreadsheetInteractor = () =>
-  new UploadWorkspaceSetupSpreadsheetInteractor(getWorkspaceSetupRepo());
 export const getPlanWorkspaceSetupInteractor = () =>
   new PlanWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService(), getEntitlementService());
 export const getAdjustWorkspaceSetupInteractor = () =>
@@ -2980,13 +2991,18 @@ export const getConfirmWorkspaceSetupInteractor = () =>
     getRenameWorkspaceInteractor(),
     getEntitlementService(),
   );
-export const getRetryWorkspaceSetupPhaseInteractor = () =>
-  new RetryWorkspaceSetupPhaseInteractor(
+export const getStartAgentWorkspaceSetupInteractor = () =>
+  new StartAgentWorkspaceSetupInteractor(
+    getAuthService(),
+    getUserRepo(),
     getWorkspaceSetupRepo(),
-    getWorkspaceSetupCrawlStarter(),
-    getBackgroundTaskService(),
-    getEntitlementService(),
+    getStartWorkspaceSetupInteractor(),
+    getPlanWorkspaceSetupInteractor(),
   );
+export const getBuildAgentWorkspaceSetupInteractor = () =>
+  new BuildAgentWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getConfirmWorkspaceSetupInteractor());
+export const getRetryWorkspaceSetupPhaseInteractor = () =>
+  new RetryWorkspaceSetupPhaseInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService(), getEntitlementService());
 
 import { PrismaPlannerPersonalEventsRepo } from "@/ee/calendar/prisma-planner-personal-events.repository";
 import { ReadPlannerInteractor } from "@/features/planner/read-planner.interactor";

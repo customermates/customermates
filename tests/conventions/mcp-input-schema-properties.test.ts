@@ -5,7 +5,7 @@ import { toJsonSchemaCompat } from "@modelcontextprotocol/sdk/server/zod-json-sc
 
 import { ALL_MCP_TOOLS_WITH_OPERATOR } from "@/features/mcp-tools/tool-registry";
 
-const NO_INPUT_TOOLS = new Set<string>();
+const NO_INPUT_TOOLS = new Set<string>(["list_workspaces", "get_workspace_setup_status"]);
 
 function advertisedInputSchema(schema: z.ZodType) {
   const strict = schema instanceof z.ZodObject ? schema.strict() : schema;

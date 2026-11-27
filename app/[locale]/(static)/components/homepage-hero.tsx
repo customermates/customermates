@@ -3,9 +3,8 @@ import type { Hero } from "@/core/fumadocs/schemas/homepage";
 import { ArrowRight, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { env } from "@/env";
 import { AgentStartPill } from "@/components/agent-start/agent-start-pill";
-import { agentStartUrl } from "@/core/agent-start/agent-start-guide";
+import { CONNECT_AGENT_PATH } from "@/core/agent-start/connect-agent-path";
 
 import { marketingButtonClassName } from "@/components/marketing/marketing-button";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
@@ -24,17 +23,7 @@ export function HomepageHero({ heroSection }: Props) {
   const { assurances, badge, picker, primaryCta, secondaryCta, subtitle, title } = heroSection;
   const t = useTranslations();
   const agentActions = (
-    <AgentStartPill
-      className="homepage-hero-agent-pill"
-      labels={{
-        copied: t("AgentStart.copiedTip"),
-        failed: t("Common.notifications.copyFailed"),
-        label: t("AgentStart.label"),
-        openInClaude: t("AgentStart.openIn", { app: "Claude" }),
-        openInChatgpt: t("AgentStart.openIn", { app: "ChatGPT" }),
-      }}
-      prompt={t("AgentStart.prompt", { url: agentStartUrl(env.BASE_URL) })}
-    />
+    <AgentStartPill className="homepage-hero-agent-pill" href={CONNECT_AGENT_PATH} label={t("AgentStart.label")} />
   );
 
   return (

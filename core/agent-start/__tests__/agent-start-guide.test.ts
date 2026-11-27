@@ -12,19 +12,37 @@ describe("agent start guide", () => {
     expect(agentStartUrl(BASE)).toBe("https://customermates.com/start.md");
   });
 
-  it("goes from connecting and signing up to a template, then the inbox", () => {
+  it("goes from connecting and signing up to choosing the workspace, a template, then the inbox", () => {
     const guide = agentStartGuide(BASE, "en", []);
     const order = [
       "## 1. Connect and sign up",
-      "## 2. Read the workspace",
+      "## 2. Choose the workspace",
       "## 3. Pick a template",
       "## 4. Connect the inbox",
     ];
     const positions = order.map((heading) => guide.indexOf(heading));
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
-    expect(guide).toContain("https://customermates.com/api/v1/mcp");
-    expect(guide).toContain("`setup-from-template`");
+    expect(guide).toContain("`https://customermates.com/api/v1/mcp`");
+    expect(guide).not.toContain("/api/v1/mcp/w/");
+    expect(guide).toContain("`setup-from-template` with its slug and the `workspace` argument");
+    expect(guide).toContain("AI CRM for small teams");
+  });
+
+  it("lists workspaces before anything is created and never sets one up twice", () => {
+    const guide = agentStartGuide(BASE, "en", []);
+    expect(guide.indexOf("Call `list_workspaces` first")).toBeLessThan(guide.indexOf("Call `create_workspace`"));
+    expect(guide).toContain("never set it up a second time");
+    expect(guide).toContain("Never create a second workspace when an existing one fits");
+    expect(guide).toContain("the team size");
+  });
+
+  it("lets Mate build a new workspace from a one-sentence description instead of step by step", () => {
+    const guide = agentStartGuide(BASE, "en", []);
+    expect(guide).toContain("Call `create_workspace` with that sentence as `description`");
+    expect(guide).toContain("`get_workspace_setup_status`");
+    expect(guide.indexOf("`get_workspace_setup_status`")).toBeLessThan(guide.indexOf("## 4. Connect the inbox"));
+    expect(guide).toContain("Skip this step when `create_workspace` started a Mate setup");
   });
 
   it("lists every offered template with its slug, name, summary and page", () => {
@@ -45,7 +63,9 @@ describe("agent start guide", () => {
   it("sends plan questions to the pricing page and keeps upgrades honest and rare", () => {
     const guide = agentStartGuide(BASE, "en", []);
     expect(guide).toContain("https://customermates.com/en/pricing");
-    expect(guide).toContain("say which plan includes it, link the pricing page and carry on");
+    expect(guide).toContain("say which plan includes it, give them `choosePlanUrl` and carry on");
+    expect(guide).toContain("`trialDaysLeft`");
+    expect(guide).toContain("`keepsItRunning`");
     expect(guide).toContain("mention it once, in one sentence");
     expect(guide).toContain("Never invent prices, discounts or features, never repeat an offer your user declined");
   });

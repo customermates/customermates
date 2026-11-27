@@ -3,9 +3,7 @@ import type { SetupQuestionPart } from "@/features/workspace-setup/setup-intervi
 import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { SetupFollowUpQuestion } from "@/ee/workspace-setup/workspace-setup.schema";
 
-import { SETUP_PARTS, setupOptionVisible, setupPartVisible } from "@/features/workspace-setup/setup-interview";
-import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
-import { localeDefaultCurrency } from "@/i18n/locale-registry";
+import { SETUP_QUESTION_PARTS, setupOptionVisible, setupPartVisible } from "@/features/workspace-setup/setup-interview";
 
 export type SetupStage =
   | "unavailable"
@@ -45,11 +43,7 @@ export function partVisible(part: SetupQuestionPart, answers: SetupAnswers): boo
   return setupPartVisible(part.id, answers);
 }
 
-function defaultAnswerValue(
-  part: SetupQuestionPart,
-  locale: string,
-  answers: SetupAnswers = {},
-): SetupAnswerValue | null {
+function defaultAnswerValue(part: SetupQuestionPart, answers: SetupAnswers = {}): SetupAnswerValue | null {
   switch (part.format) {
     case "multipleChoice":
       return {
@@ -63,23 +57,18 @@ function defaultAnswerValue(
       return { format: "orderedList", items: [] };
     case "shortText":
       return { format: "shortText", value: "" };
-    case "singleChoice":
-      if (part.optionSource === "locales") return { format: "singleChoice", value: locale };
-      return part.optionSource === "currencies"
-        ? { format: "singleChoice", value: localeDefaultCurrency(locale) }
-        : null;
+    case "singleChoice": {
+      const preselected = part.options.find((option) => option.preselected && setupOptionVisible(option, answers));
+      return preselected ? { format: "singleChoice", value: preselected.id } : null;
+    }
     case "rankedPick":
     case "range":
       return null;
   }
 }
 
-export function displayedAnswerValue(
-  part: SetupQuestionPart,
-  answers: SetupAnswers,
-  locale: string,
-): SetupAnswerValue | null {
-  return answers[part.id]?.value ?? defaultAnswerValue(part, locale, answers);
+export function displayedAnswerValue(part: SetupQuestionPart, answers: SetupAnswers): SetupAnswerValue | null {
+  return answers[part.id]?.value ?? defaultAnswerValue(part, answers);
 }
 
 export function sanitizeAnswerValue(value: SetupAnswerValue): SetupAnswerValue {
@@ -126,21 +115,17 @@ export function answerComplete(
   return !answerIsEmpty(value);
 }
 
-export function missingParts(answers: SetupAnswers, locale: string): string[] {
-  return SETUP_PARTS.filter(
+export function missingParts(answers: SetupAnswers): string[] {
+  return SETUP_QUESTION_PARTS.filter(
     (part) =>
-      partVisible(part, answers) &&
-      !answerComplete(part, displayedAnswerValue(part, answers, locale), { requireChoice: true }),
+      partVisible(part, answers) && !answerComplete(part, displayedAnswerValue(part, answers), { requireChoice: true }),
   ).map((part) => part.id);
 }
 
-export function answersPayload(
-  answers: SetupAnswers,
-  locale: string,
-): Partial<Record<string, SetupAnswerValue | null>> {
+export function answersPayload(answers: SetupAnswers): Partial<Record<string, SetupAnswerValue | null>> {
   const payload: Partial<Record<string, SetupAnswerValue | null>> = {};
-  for (const part of SETUP_PARTS) {
-    const value = partVisible(part, answers) ? displayedAnswerValue(part, answers, locale) : null;
+  for (const part of SETUP_QUESTION_PARTS) {
+    const value = partVisible(part, answers) ? displayedAnswerValue(part, answers) : null;
     if (!value || (part.optional && answerIsEmpty(value))) {
       if (answers[part.id]) payload[part.id] = null;
       continue;
@@ -162,11 +147,7 @@ export function mergeServerAnswers(
     const answer: SetupAnswer | undefined = local[id];
     if (answer) confirmed[id] = answer;
   }
-  return mergeWebsitePrefill(confirmed, server);
-}
-
-export function answerFromWebsite(answers: SetupAnswers, id: string): boolean {
-  return answers[id]?.source === "website";
+  return confirmed;
 }
 
 function defaultFollowUpValue(question: SetupFollowUpQuestion): SetupAnswerValue | null {

@@ -1,66 +1,29 @@
 import { z } from "zod";
 
-import { OnboardingJobSchema } from "@/features/onboarding-funnel/onboarding-job";
+export type AiConnectionSelection = {
+  route:
+    | { screen: "providers" | "claude" | "openai" | "other" }
+    | { screen: "app"; provider: "grok" | "langdock" }
+    | { screen: "setup"; provider: "cursor" | "gemini" };
+  selectedProvider: "claude" | "openai" | "cursor" | "gemini" | "grok" | "langdock" | null;
+  claudeMethod: "account" | "local" | null;
+  claudeClient: "claudeCode" | "claudeDesktop" | null;
+  openAiMethod: "chatgpt" | "codex" | null;
+  apiKeyIds: Partial<Record<"claudeCode" | "claudeDesktop" | "codex" | "cursor" | "gemini", string>>;
+};
 
-const AiConnectionSelectionSchema = z.strictObject({
-  route: z.discriminatedUnion("screen", [
-    z.strictObject({ screen: z.literal("providers") }),
-    z.strictObject({ screen: z.literal("claude") }),
-    z.strictObject({ screen: z.literal("openai") }),
-    z.strictObject({ screen: z.literal("other") }),
-    z.strictObject({
-      screen: z.literal("app"),
-      provider: z.enum(["grok", "langdock"]),
-    }),
-    z.strictObject({
-      screen: z.literal("setup"),
-      provider: z.enum(["cursor", "gemini"]),
-    }),
-  ]),
-  selectedProvider: z.enum(["claude", "openai", "cursor", "gemini", "grok", "langdock"]).nullable(),
-  claudeMethod: z.enum(["account", "local"]).nullable(),
-  claudeClient: z.enum(["claudeCode", "claudeDesktop"]).nullable(),
-  openAiMethod: z.enum(["chatgpt", "codex"]).nullable(),
-  apiKeyIds: z.partialRecord(
-    z.enum(["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"]),
-    z.string().min(1).max(100),
-  ),
-});
-
-export type AiConnectionSelection = z.infer<typeof AiConnectionSelectionSchema>;
-
-export const OnboardingWizardProgressSchema = z.strictObject({
-  step: z.enum(["goal", "invite", "channel", "ai", "template", "prompt"]),
+const progressShape = {
+  step: z.enum(["invite", "channel"]),
   inviteTab: z.enum(["link", "email"]),
-  ai: AiConnectionSelectionSchema,
-  job: OnboardingJobSchema.nullable().default(null),
-  template: z.string().max(64).nullable().default(null),
-  schemaBaseline: z.number().int().nonnegative().nullable().default(null),
-});
+};
+
+export const OnboardingWizardProgressSchema = z.strictObject(progressShape);
 
 export type OnboardingWizardProgress = z.infer<typeof OnboardingWizardProgressSchema>;
 
-function initialAiConnectionSelection(): AiConnectionSelection {
-  return {
-    route: { screen: "providers" },
-    selectedProvider: null,
-    claudeMethod: null,
-    claudeClient: null,
-    openAiMethod: null,
-    apiKeyIds: {},
-  };
-}
+const StoredOnboardingWizardProgressSchema = z.object(progressShape);
 
 export function readOnboardingWizardProgress(value: unknown): OnboardingWizardProgress {
-  const parsed = OnboardingWizardProgressSchema.safeParse(value);
-  return parsed.success
-    ? parsed.data
-    : {
-        step: "invite",
-        inviteTab: "link",
-        ai: initialAiConnectionSelection(),
-        job: null,
-        template: null,
-        schemaBaseline: null,
-      };
+  const parsed = StoredOnboardingWizardProgressSchema.safeParse(value);
+  return parsed.success ? parsed.data : { step: "invite", inviteTab: "link" };
 }

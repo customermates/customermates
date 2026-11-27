@@ -152,6 +152,7 @@ export class PrismaCalendarRepo
       endsAt: args.event.endsAt,
       allDay: args.event.allDay,
       timezone: args.event.timezone,
+      masterUnipileEventId: args.event.masterUnipileEventId ?? null,
       recurrenceRule: args.event.recurrenceRule,
       status: args.event.status,
       visibility: args.event.visibility,
@@ -192,6 +193,50 @@ export class PrismaCalendarRepo
     await this.prisma.calendarEvent.update({ where: { id: event.id }, data: { status: "cancelled" } });
 
     return { id: event.id };
+  }
+
+  @BypassTenantGuard
+  async applySeriesChangeUnscoped(args: RepoArgs<CalendarWriteRepo, "applySeriesChangeUnscoped">) {
+    const rows = await this.prisma.calendarEvent.findMany({
+      where: {
+        connectedAccountId: args.connectedAccountId,
+        masterUnipileEventId: args.masterUnipileEventId,
+        unipileEventId: { not: args.exceptUnipileEventId },
+        status: "confirmed",
+      },
+      select: { id: true, startsAt: true },
+    });
+    if (!args.shift) {
+      if (!rows.length || !Object.keys(args.fields).length) return { count: 0 };
+      const updated = await this.prisma.calendarEvent.updateMany({
+        where: { id: { in: rows.map((row) => row.id) } },
+        data: args.fields,
+      });
+      return { count: updated.count };
+    }
+
+    for (const row of rows) {
+      const startsAt = new Date(row.startsAt.getTime() + args.shift.byMs);
+      await this.prisma.calendarEvent.update({
+        where: { id: row.id },
+        data: { ...args.fields, startsAt, endsAt: new Date(startsAt.getTime() + args.shift.durationMs) },
+      });
+    }
+
+    return { count: rows.length };
+  }
+
+  @BypassTenantGuard
+  async markSeriesCancelledUnscoped(args: RepoArgs<CalendarWriteRepo, "markSeriesCancelledUnscoped">) {
+    const updated = await this.prisma.calendarEvent.updateMany({
+      where: {
+        connectedAccountId: args.connectedAccountId,
+        OR: [{ masterUnipileEventId: args.masterUnipileEventId }, { unipileEventId: args.masterUnipileEventId }],
+      },
+      data: { status: "cancelled" },
+    });
+
+    return { count: updated.count };
   }
 
   @BypassTenantGuard

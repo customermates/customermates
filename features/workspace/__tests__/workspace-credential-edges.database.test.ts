@@ -197,7 +197,7 @@ describeDatabase("credentials and invitations at the edges of a login's membersh
     await client.end();
   });
 
-  it("refuses to refresh the MCP connection of a workspace the login left and keeps refreshing the other one", async () => {
+  it("keeps the MCP connection of a workspace the login left but takes that workspace away from it", async () => {
     const { getLeaveWorkspaceInteractor } = await import("@/core/di");
     asSession();
 
@@ -206,7 +206,14 @@ describeDatabase("credentials and invitations at the edges of a login's membersh
       data: { companyId: companies.left },
     });
 
-    expect(await refresh(refreshTokens.left)).toMatchObject({ status: 401, body: { error: "invalid_grant" } });
+    const formerlyLeft = await refresh(refreshTokens.left);
+    expect(formerlyLeft.status).toBe(200);
+    const unbound = await client.query<{ companyId: string | null }>(
+      'SELECT "companyId" FROM "OauthAccessToken" WHERE "accessToken"=$1',
+      [formerlyLeft.body.access_token],
+    );
+    expect(unbound.rows).toEqual([{ companyId: null }]);
+    expect((await whoAmI({ authorization: `Bearer ${formerlyLeft.body.access_token}` })).status).not.toBe(200);
     const kept = await refresh(refreshTokens.kept);
     expect(kept.status).toBe(200);
     const stored = await client.query<{ companyId: string | null }>(

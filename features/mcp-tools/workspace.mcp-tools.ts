@@ -26,12 +26,20 @@ import {
   getGetWikiKnowledgeGapsInteractor,
   getGetWikiLinkReportInteractor,
   getGetCompanyInteractor,
+  getUserService,
+  getWorkspacePlanFactsService,
+  getWorkspaceSlugResolver,
 } from "@/core/di";
 import * as ErrorReporter from "@/core/observability/server";
+import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
+import { WorkspacePlanFactsSchema } from "@/features/workspace/workspace-plan-facts.schema";
+
+import { PLAN_FACTS_DESCRIPTION } from "./account-workspace.mcp-tools";
 
 const WorkspaceContextOutputSchema = z.looseObject({
   user: z.looseObject({}),
   company: z.looseObject({ id: z.string(), name: z.string().nullable() }),
+  plan: WorkspacePlanFactsSchema.nullable(),
   roles: z.array(z.looseObject({ id: z.string() })),
   connectedAccounts: z.array(z.looseObject({ id: z.string() })),
   wiki: z
@@ -85,8 +93,19 @@ async function wikiUpkeep() {
   }
 }
 
+async function workspacePlan() {
+  try {
+    const user = await resolveActiveTenantUser(() => getUserService().getActiveTenantUserOrThrow());
+    const slug = await getWorkspaceSlugResolver().requireSlugOf(user);
+    return await getWorkspacePlanFactsService().factsFor({ companyId: user.companyId, slug });
+  } catch (error) {
+    ErrorReporter.captureException(error, { tags: { kind: "workspace-plan-facts" } });
+    return null;
+  }
+}
+
 async function workspaceContext(wikiPage: number | null) {
-  const [userResult, companyResult, rolesResult, accountsResult, wikiResult, upkeep] = await Promise.all([
+  const [userResult, companyResult, rolesResult, accountsResult, wikiResult, upkeep, plan] = await Promise.all([
     getGetUserDetailsInteractor().invoke(),
     getGetCompanyInteractor().invoke(),
     getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
@@ -100,6 +119,7 @@ async function workspaceContext(wikiPage: number | null) {
             throw error;
           }),
     wikiPage === 1 ? wikiUpkeep() : undefined,
+    workspacePlan(),
   ]);
   if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
   if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
@@ -109,6 +129,7 @@ async function workspaceContext(wikiPage: number | null) {
     formatDatesInResponse({
       user: userResult.data,
       company: companyResult.data,
+      plan,
       ...(wiki
         ? {
             wiki: {
@@ -133,8 +154,10 @@ export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, connected messaging accounts, and the Knowledge Base in one response. " +
-    "This connection is bound to exactly one workspace: every tool reads and writes only that workspace, and another workspace of the same login needs its own connection. " +
+    "Returns the current user, company (the workspace, with its name; null for an unnamed workspace), plan facts, role catalog with permissions, connected messaging accounts, and the Knowledge Base in one response. " +
+    "The workspace is the one named by the workspace argument, or the account's only usable workspace when the argument is left out; one connection reaches every workspace of the account, each named per request. " +
+    PLAN_FACTS_DESCRIPTION +
+    " " +
     "On the first page wiki.guide is the Operating Guide (nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse. " +
     "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, not the complete page. " +
     "wiki.nextPage is the wikiPage value of the following catalog page. wiki is omitted without Knowledge Base Read. " +

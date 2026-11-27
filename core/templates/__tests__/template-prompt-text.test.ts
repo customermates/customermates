@@ -87,8 +87,13 @@ describe("template prompt scaffolding", () => {
   });
 
   it.each(SCAFFOLD_CHECKED_LOCALES)("renders a %s prompt without English scaffolding", (locale) => {
-    const mcpUrl = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
-    for (const options of [{}, { connected: true }, { connected: true, mcpUrl }, { connected: false, mcpUrl }]) {
+    const mcpUrl = "https://app.example.test/api/v1/mcp";
+    for (const options of [
+      {},
+      { connected: true },
+      { connected: true, mcpUrl, workspace: "acme" },
+      { connected: false, mcpUrl, workspace: "acme" },
+    ]) {
       const prompt = promptFor("sales-pipeline", locale, options);
       for (const segment of ENGLISH_SEGMENTS) expect(prompt, `English scaffolding: ${segment}`).not.toContain(segment);
       for (const heading of ["Your workspace", "Before you write anything", "Record details", "Rules"])
@@ -98,14 +103,14 @@ describe("template prompt scaffolding", () => {
   });
 
   it("names the connected workspace in the locale of the prompt and reproduces the onboarding wording in English", () => {
-    const mcpUrl = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
-    const english = promptFor("sales-pipeline", "en", { connected: true, mcpUrl });
+    const mcpUrl = "https://app.example.test/api/v1/mcp";
+    const english = promptFor("sales-pipeline", "en", { connected: true, mcpUrl, workspace: "acme" });
     expect(english).toContain(
-      `## 1. Your workspace\nThis workspace already exists and you are connected to it through MCP at ${mcpUrl}. Work in this workspace and in no other.\n\n## 2. Before you write anything`,
+      `## 1. Your workspace\nThis workspace already exists and you are connected to it through MCP at ${mcpUrl}. Pass workspace acme on every tool call, and work in this workspace and in no other.\n\n## 2. Before you write anything`,
     );
     expect(english).not.toContain("Get a workspace");
     expect(english).not.toContain("signup");
-    const german = promptFor("sales-pipeline", "de", { connected: true, mcpUrl });
+    const german = promptFor("sales-pipeline", "de", { connected: true, mcpUrl, workspace: "acme" });
     expect(german).toContain(`## 1. ${templatePromptText("de").headings.yourWorkspace}\n`);
     expect(german).toContain(mcpUrl);
     expect(german).not.toContain(templatePromptText("de").workspace.unconnected);
@@ -114,12 +119,12 @@ describe("template prompt scaffolding", () => {
   it.each(APP_LOCALES)(
     "tells a %s assistant that is not connected yet to connect first, and only a connected one that it is",
     (locale) => {
-      const mcpUrl = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
+      const mcpUrl = "https://app.example.test/api/v1/mcp";
       const copy = templatePromptText(locale);
-      const pending = promptFor("sales-pipeline", locale, { connected: false, mcpUrl });
-      const connected = promptFor("sales-pipeline", locale, { connected: true, mcpUrl });
-      const existsAt = fillPrompt(copy.workspace.existsAt, { mcpUrl });
-      const connectedAt = fillPrompt(copy.workspace.connectedAt, { mcpUrl });
+      const pending = promptFor("sales-pipeline", locale, { connected: false, mcpUrl, workspace: "acme" });
+      const connected = promptFor("sales-pipeline", locale, { connected: true, mcpUrl, workspace: "acme" });
+      const existsAt = fillPrompt(copy.workspace.existsAt, { mcpUrl, workspace: "acme" });
+      const connectedAt = fillPrompt(copy.workspace.connectedAt, { mcpUrl, workspace: "acme" });
 
       expect(pending).toContain(`## 1. ${copy.headings.yourWorkspace}\n${existsAt}\n\n`);
       expect(pending).not.toContain(connectedAt);
@@ -130,12 +135,14 @@ describe("template prompt scaffolding", () => {
       expect(connected).not.toContain(existsAt);
       expect(existsAt).not.toBe(connectedAt);
       expect(existsAt).toContain(mcpUrl);
+      expect(existsAt).toContain("workspace acme");
+      expect(connectedAt).toContain("workspace acme");
     },
   );
 
   it("says in English that the assistant still has to connect, and asks to be connected without an address", () => {
-    const mcpUrl = "https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
-    const pending = promptFor("sales-pipeline", "en", { connected: false, mcpUrl });
+    const mcpUrl = "https://app.example.test/api/v1/mcp";
+    const pending = promptFor("sales-pipeline", "en", { connected: false, mcpUrl, workspace: "acme" });
     expect(pending).toContain("your assistant is not connected to it yet");
     expect(pending).not.toContain("you are connected");
     expect(promptFor("sales-pipeline", "en", { connected: false })).toContain(

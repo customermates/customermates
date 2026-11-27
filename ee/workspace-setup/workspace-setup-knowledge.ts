@@ -5,9 +5,52 @@ import type { WikiSynthesisRole } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
 import { WIKI_SYNTHESIS_MAX_STORED_TOPICS } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 import { WITH_CUSTOMERS, conditionMet } from "@/features/workspace-setup/setup-interview";
+import { getTranslator } from "@/i18n/get-translator";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 export type SetupPageKind = (typeof SETUP_PAGE_KINDS)[number];
 export type SetupPageTitle = (kind: SetupPageKind) => string;
+
+export type SetupPageCopy = {
+  title: SetupPageTitle;
+  operatingGuide: string;
+  sourcesHeading: string;
+  gapsHeading: string;
+  pagesHeading: string;
+  guidesHeading: string;
+  proceduresHeading: string;
+  knowledgeHeading: string;
+  listsHeading: string;
+  relatedHeading: string;
+  answersSource: (date: string) => string;
+};
+
+export async function setupPageTitles(locale: string): Promise<SetupPageCopy> {
+  const appLocale = appLocaleOrDefault(locale);
+  const t = await getTranslator(appLocale, "WikiSetup.generated");
+  const titles: Record<SetupPageKind, string> = {
+    overview: t("roles.company_overview"),
+    idealCustomer: t("roles.customers_and_use_cases"),
+    salesPlaybook: t("roles.sales_messaging"),
+    toneOfVoice: t("roles.voice_and_tone"),
+    productsPricing: t("setupPages.productsPricing"),
+    faq: t("setupPages.faq"),
+    processes: t("setupPages.processes"),
+  };
+  return {
+    operatingGuide: t("roles.operating_guide"),
+    sourcesHeading: t("sourcesHeading"),
+    gapsHeading: t("gapsHeading"),
+    pagesHeading: t("pagesHeading"),
+    guidesHeading: t("links.guides"),
+    proceduresHeading: t("links.procedures"),
+    knowledgeHeading: t("links.knowledge"),
+    listsHeading: t("links.lists"),
+    relatedHeading: t("links.related"),
+    answersSource: (date) => t("answersSource", { date }),
+    title: (kind) => titles[kind],
+  };
+}
 
 const ALWAYS_PAGE_KINDS = ["overview", "faq", "processes"] as const;
 const CUSTOMER_PAGE_KINDS = ["productsPricing", "idealCustomer", "salesPlaybook"] as const;
@@ -28,6 +71,11 @@ const PAGE_ROLES: Record<SetupPageKind, WikiSynthesisRole> = {
   toneOfVoice: "voice_and_tone",
 };
 const MAX_KEY_LENGTH = 40;
+
+export function setupPageKindOfRole(role: WikiSynthesisRole): SetupPageKind | null {
+  const match = Object.entries(PAGE_ROLES).find(([, candidate]) => candidate === role);
+  return match ? (match[0] as SetupPageKind) : null;
+}
 
 export function setupPageKinds(answers: SetupAnswers): SetupPageKind[] {
   const [overview, ...rest] = ALWAYS_PAGE_KINDS;

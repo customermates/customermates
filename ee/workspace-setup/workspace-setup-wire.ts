@@ -1,4 +1,4 @@
-import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupAnswerValue } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupListRole } from "@/features/workspace-setup/setup-anchors";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { SetupFollowUpQuestion } from "./workspace-setup.schema";
@@ -7,12 +7,7 @@ import { z } from "zod";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { RECORD_MEASURE_DATE_INTERVALS } from "@/features/records/record-measure.schema";
-import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
-import {
-  SETUP_FOLLOW_UP_QUESTIONS,
-  SETUP_QUESTION_FORMATS,
-  setupPart,
-} from "@/features/workspace-setup/setup-interview";
+import { SETUP_FOLLOW_UP_QUESTIONS, SETUP_QUESTION_FORMATS } from "@/features/workspace-setup/setup-interview";
 import {
   SETUP_FIELD_VALUE_TYPES,
   SETUP_PAGE_KINDS,
@@ -24,70 +19,7 @@ import { SETUP_LIST_ROLES } from "@/features/workspace-setup/setup-anchors";
 import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
 import { CALENDAR_WIDGET_LAYOUTS } from "@/features/widget/record-calendar-widget.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
-import { APP_LOCALES } from "@/i18n/locale-registry";
 import { SETUP_FOLLOW_UP_IDS, SetupFollowUpQuestionSchema } from "./workspace-setup.schema";
-
-const AnswerFields = {
-  confidence: z.number().describe("0 to 1."),
-  choice: z.string().nullable().describe("singleChoice: the option id."),
-  choices: z.array(z.string()).describe("multipleChoice or rankedPick: option ids in order."),
-  custom: z.array(z.string()).describe("multipleChoice: own entries when allowCustom."),
-  items: z.array(z.object({ label: z.string() })).describe("orderedList: entries in order."),
-  min: z.number().nullable().describe("range: the number, or the lower bound."),
-  max: z.number().nullable().describe("range: the upper bound, null for one number."),
-  text: z.string().nullable().describe("shortText: the text."),
-};
-
-export const PrefillWireSchema = z.object({
-  answers: z.array(z.object({ part: z.string(), ...AnswerFields })),
-});
-type PrefillWire = z.infer<typeof PrefillWireSchema>;
-
-type WireAnswer = Omit<PrefillWire["answers"][number], "part" | "confidence">;
-
-function wireAnswerValue(format: (typeof SETUP_QUESTION_FORMATS)[number], wire: WireAnswer): SetupAnswerValue {
-  switch (format) {
-    case "singleChoice":
-      return { format, value: wire.choice ?? "" };
-    case "multipleChoice":
-      return { format, values: wire.choices, custom: wire.custom };
-    case "orderedList":
-      return { format, items: wire.items.map((item) => ({ label: item.label })) };
-    case "rankedPick":
-      return { format, values: wire.choices };
-    case "range":
-      return { format, min: wire.min ?? 0, max: wire.max };
-    case "shortText":
-      return { format, value: wire.text ?? "" };
-  }
-}
-
-const COUNTRY = /^[A-Z]{2}$/;
-const CURRENCY = /^[A-Z]{3}$/;
-
-function optionSourceValid(part: string, value: SetupAnswerValue): boolean {
-  if (value.format !== "singleChoice") return true;
-  if (part === "country") return COUNTRY.test(value.value);
-  if (part === "currency") return CURRENCY.test(value.value);
-  if (part === "language") return (APP_LOCALES as readonly string[]).includes(value.value);
-  return true;
-}
-
-export function prefillAnswers(wire: PrefillWire): SetupAnswers {
-  const answers: SetupAnswers = {};
-  for (const entry of wire.answers) {
-    const part = setupPart(entry.part);
-    if (!part || part.prefill === "no" || answers[entry.part]) continue;
-    const value = wireAnswerValue(part.format, entry);
-    if (!optionSourceValid(entry.part, value)) continue;
-    const candidate = {
-      [entry.part]: { source: "website" as const, confidence: Math.min(1, Math.max(0, entry.confidence)), value },
-    };
-    const parsed = SetupAnswersSchema.safeParse(candidate);
-    if (parsed.success) Object.assign(answers, parsed.data);
-  }
-  return answers;
-}
 
 export const FollowUpWireSchema = z.object({
   questions: z.array(
@@ -557,23 +489,6 @@ export function planFromWire(
     issues: parsed.error.issues.slice(0, 30).map((issue) => ({ path: issue.path.join("."), message: issue.message })),
   };
 }
-
-export const MappingWireSchema = z.object({
-  columns: z.array(
-    z.object({
-      column: z.string(),
-      field: z.string().nullable().describe("The offered field key, or null to leave the column out."),
-      dateOrder: z.enum(["dmy", "mdy", "ymd"]).nullable(),
-      currency: z.string().nullable(),
-      namePart: z
-        .enum(["first", "last"])
-        .nullable()
-        .describe("For a column of full person names: the part this field takes. Otherwise null."),
-    }),
-  ),
-  relationships: z.array(z.object({ column: z.string(), relationship: z.string() })),
-  phoneCountryCode: z.string().nullable(),
-});
 
 export function sampleRecordsWireSchema(columns: readonly string[]) {
   return z.object({

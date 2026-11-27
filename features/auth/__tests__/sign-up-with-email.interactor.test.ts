@@ -1,4 +1,5 @@
 import type { AuthService } from "../auth.service";
+import type * as EnvModule from "@/env";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -6,6 +7,20 @@ vi.mock("next-intl/server", () => ({
   getLocale: vi.fn().mockResolvedValue("en"),
   getTranslations: vi.fn().mockResolvedValue(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
+
+const appMode = vi.hoisted(() => ({ value: "self-hosted" }));
+
+vi.mock("@/env", async (importOriginal) => {
+  const actual = await importOriginal<typeof EnvModule>();
+  return {
+    env: {
+      ...actual.env,
+      get APP_MODE() {
+        return appMode.value;
+      },
+    },
+  };
+});
 
 import { SignUpWithEmailInteractor } from "../sign-up-with-email.interactor";
 
@@ -33,6 +48,46 @@ const signUpData = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  appMode.value = "self-hosted";
+});
+
+describe("SignUpWithEmailInteractor for a new account", () => {
+  it("registers with the password so better-auth sends the verification email, then opens onboarding", async () => {
+    const { interactor, registerWithEmail } = buildInteractor({});
+
+    await expect(interactor.invoke(signUpData)).resolves.toEqual({ redirect: "/onboarding" });
+    expect(registerWithEmail).toHaveBeenCalledExactlyOnceWith({
+      email: signUpData.email,
+      name: signUpData.email,
+      password: signUpData.password,
+      callbackURL: undefined,
+    });
+  });
+
+  it("refuses a temporary email address in the cloud before an account exists", async () => {
+    appMode.value = "cloud";
+    const { interactor, registerWithEmail } = buildInteractor({});
+
+    const result = await interactor.invoke({
+      ...signUpData,
+      email: "trial@mailinator.com",
+      confirmEmail: "trial@mailinator.com",
+    });
+
+    expect(result).toMatchObject({ ok: false });
+    expect((result as { error: { issues: { path: string[]; message: string }[] } }).error.issues).toEqual([
+      expect.objectContaining({ path: ["email"], message: "Common.errors.disposableEmail" }),
+    ]);
+    expect(registerWithEmail).not.toHaveBeenCalled();
+  });
+
+  it("keeps self-hosted sign-ups open to any address", async () => {
+    const { interactor, registerWithEmail } = buildInteractor({});
+
+    await interactor.invoke({ ...signUpData, email: "trial@mailinator.com", confirmEmail: "trial@mailinator.com" });
+
+    expect(registerWithEmail).toHaveBeenCalledOnce();
+  });
 });
 
 describe("SignUpWithEmailInteractor when the account already exists", () => {

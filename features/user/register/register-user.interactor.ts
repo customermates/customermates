@@ -35,7 +35,7 @@ import {
 import { RegistrationSignupSourceSchema, type RegistrationSignupSource } from "@/features/acquisition/signup-source";
 import { TEMPLATE_SLUGS, type TemplateSlug } from "@/core/templates/template-slugs";
 import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
-import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
+import { workspaceCreationRefusal } from "@/features/workspace/workspace-creation-limit";
 import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
 import { decodeSignupCampaign } from "@/features/acquisition/signup-campaign";
 import { TeamSizeSchema } from "@/features/onboarding-funnel/team-size";
@@ -80,6 +80,7 @@ export type RegistrationTarget = Data<typeof RegistrationTargetSchema>;
 
 const RegistrationSchema = RegisterUserSchema.extend({
   sessionUserId: z.string().min(1),
+  sessionEmailVerified: z.boolean(),
   adAttribution: z.array(RegistrationAdAttributionSchema),
   signupSource: RegistrationSignupSourceSchema.nullable(),
   signupTemplate: z.enum(TEMPLATE_SLUGS).nullable(),
@@ -119,6 +120,7 @@ export class RegisterUserInteractor {
       ...data,
       email: resolution.sessionUser.email,
       sessionUserId: resolution.sessionUser.id,
+      sessionEmailVerified: resolution.emailVerified === true,
       adAttribution: context.adAttribution ?? [],
       signupSource: context.signupSource ?? null,
       signupTemplate: context.signupTemplate ?? null,
@@ -148,6 +150,7 @@ export class RegisterUserInteractor {
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
     const {
       sessionUserId,
+      sessionEmailVerified,
       adAttribution,
       signupSource,
       signupTemplate,
@@ -181,9 +184,10 @@ export class RegisterUserInteractor {
           ? authUserCompanyId
           : null;
     if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
-    const limit = workspaceCreationLimit();
-    if (!companyId && limit !== null && (await this.repo.countCreatedWorkspacesUnscoped(sessionUserId)) >= limit)
-      return failConflict(CustomErrorCode.workspaceLimitReached, [], { limit });
+    const creationRefused = companyId
+      ? null
+      : await workspaceCreationRefusal({ authUserId: sessionUserId, emailVerified: sessionEmailVerified }, this.repo);
+    if (creationRefused) return creationRefused;
     if (
       companyId &&
       target.type === "existingAuthUserCompanyBinding" &&
@@ -240,6 +244,8 @@ export class RegisterUserInteractor {
       authUserId: sessionUserId,
       companyId: tenantUser.companyId,
     });
+    if (isNewCloudCompany && registrationData.agreeToTerms)
+      await this.repo.recordAccountLegalVersionsUnscoped(sessionUserId, currentLegalDocumentVersions());
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {

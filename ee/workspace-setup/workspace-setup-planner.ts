@@ -6,9 +6,7 @@ import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.sche
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { AppLocale } from "@/i18n/locale-registry";
 import type { WorkspaceSetupFailure } from "./workspace-setup.schema";
-import type { SetupCrawlSource } from "./workspace-setup.repo";
 import type { WorkspaceSetupModelService } from "./workspace-setup-model.service";
-import type { LoadedSpreadsheet } from "./workspace-setup-inputs";
 import type { PlanKnowledgeWire, PlanModelWire, PlanViewsWire, PlanWire } from "./workspace-setup-wire";
 
 import { z } from "zod";
@@ -52,7 +50,6 @@ import {
   setupLanguageName,
 } from "./workspace-setup-prompts";
 import { setupModelLabels } from "./workspace-setup-labels";
-import { setupWebsiteText } from "./workspace-setup-website";
 import { SETUP_PLAN_PART_ATTEMPTS } from "./workspace-setup-attempts";
 
 export const SETUP_PLAN_PARTS = ["model", "knowledge", "views"] as const;
@@ -60,8 +57,6 @@ export type SetupPlanPart = (typeof SETUP_PLAN_PARTS)[number];
 
 const REPAIR_ISSUES = 30;
 const ISSUE_VALUE_CHARACTERS = 400;
-const MODEL_WEBSITE = { characters: 6_000, perSource: 1_500 };
-const KNOWLEDGE_WEBSITE = { characters: 8_000, perSource: 2_000 };
 
 export const SetupPlanPartStateSchema = z
   .object({
@@ -85,13 +80,9 @@ type SetupPlanDrafts = { model: PlanModelWire | null; knowledge: PlanKnowledgeWi
 export type SetupPlanInput = {
   setupId: string;
   language: AppLocale;
-  answersLanguage: string | null;
   currency: string;
   answers: SetupAnswers;
   followUps: Array<{ question: string; format: string; options?: unknown; answer: unknown }>;
-  sources: SetupCrawlSource[];
-  website: boolean;
-  sheet: LoadedSpreadsheet | null;
   templateSlug?: string | null;
 };
 
@@ -227,9 +218,6 @@ export class WorkspaceSetupPlanner extends UserAccessor {
     const catalog = await setupInterviewCatalog();
     return [
       `Workspace language: ${setupLanguageName(input.language)}. Workspace currency: ${input.currency}.`,
-      ...(input.answersLanguage && input.answersLanguage !== input.language
-        ? [`Answers drafted from the website are written in ${setupLanguageName(input.answersLanguage)}.`]
-        : []),
       "Answers and follow-ups:",
       untrustedText(
         encodePromptJson({ answers: setupAnswerDigest(input.answers, catalog), followUps: input.followUps }),
@@ -238,27 +226,13 @@ export class WorkspaceSetupPlanner extends UserAccessor {
     ];
   }
 
-  private sheet(input: SetupPlanInput) {
-    return input.sheet
-      ? [
-          "Uploaded spreadsheet to import (add the fields it needs):",
-          untrustedText(encodePromptJson({ profile: input.sheet.profile, preview: input.sheet.preview })),
-        ]
-      : [];
-  }
-
-  private website(input: SetupPlanInput, budget: { characters: number; perSource: number }) {
-    const text = setupWebsiteText(input.sources, budget);
-    return text ? ["Website:", untrustedText(text)] : [];
-  }
-
   private modelPart(input: SetupPlanInput, context: string[]): PlanPart<PlanModelWire> {
     return {
       label: "Workspace setup plan: record model",
       purpose: "setupPlanning",
       schema: PlanModelWireSchema,
       system: SETUP_PLAN_MODEL_INSTRUCTION,
-      prompt: [...context, ...this.website(input, MODEL_WEBSITE), ...this.sheet(input)],
+      prompt: context,
       check: async (planned) => {
         const owned = ["workspace", "recordModel"];
         const wire = (model: PlanModelWire) =>
@@ -281,10 +255,10 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       prompt: [
         ...context,
         `Page kinds: ${encodePromptJson(setupPageKinds(input.answers))}`,
-        ...(input.website ? this.website(input, KNOWLEDGE_WEBSITE) : [SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE]),
+        SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE,
       ],
       check: async (planned) => {
-        const value = input.website ? planned : { pages: planned.pages.filter((page) => page.kind !== "faq") };
+        const value = { pages: planned.pages.filter((page) => page.kind !== "faq") };
         return {
           value,
           issues: await this.wireIssues(input, planWireFromParts(EMPTY_PLAN_MODEL_WIRE, EMPTY_PLAN_VIEWS_WIRE, value), [
@@ -301,7 +275,6 @@ export class WorkspaceSetupPlanner extends UserAccessor {
     model: PlanModelWire,
     knowledge: PlanKnowledgeWire | null,
   ): PlanPart<PlanViewsWire> {
-    const sheet = this.sheet(input);
     return {
       label: "Workspace setup plan: views and dashboard",
       purpose: "setupPlanning",
@@ -311,7 +284,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
         ...context,
         `Planned record model: ${encodePromptJson(model)}`,
         `Automatic fields: ${encodePromptJson([...model.lists.map((list) => `${list.key}.name`), ...setupAnchorFields(model.lists)])}`,
-        ...(sheet.length ? sheet : ["No spreadsheet was uploaded: importMapping is null."]),
+        "No spreadsheet was uploaded: importMapping is null.",
       ],
       check: async (value) => {
         const owned = ["listDefaults", "sampleData", "dashboard", "calendar", "importMapping"];

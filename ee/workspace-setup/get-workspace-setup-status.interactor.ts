@@ -39,13 +39,10 @@ export class GetWorkspaceSetupStatusInteractor extends AuthenticatedInteractor<v
         : { ok: true, data: { available: true, setup: null } };
     }
     const budget = WORKSPACE_SETUP_BUDGETS[BUILD_STATUSES.has(setup.status) ? "build" : "plan"];
-    const [crawl, spend] = await Promise.all([
-      setup.crawlId ? this.repo.crawlState(setup.crawlId) : Promise.resolve(null),
-      this.usage.workspacePlatformSpend({ companyId: this.companyId, purpose: budget.purpose }),
-    ]);
+    const spend = await this.usage.workspacePlatformSpend({ companyId: this.companyId, purpose: budget.purpose });
     return {
       ok: true,
-      data: { available: true, setup: workspaceSetupView(setup, crawl, spend, budget.capMicrocents) },
+      data: { available: true, setup: workspaceSetupView(setup, spend, budget.capMicrocents) },
     };
   }
 }

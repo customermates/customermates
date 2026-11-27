@@ -11,6 +11,7 @@ import { resolveTemplateRule, templateCountry, templateRuleText } from "./templa
 type PromptOptions = {
   connected?: boolean;
   mcpUrl?: string;
+  workspace?: string;
   country?: string | null;
   routineAllowance?: number | "unlimited" | null;
 };
@@ -26,15 +27,15 @@ function heading(copy: string, index?: number): string {
 }
 
 function workspaceSection(options: PromptOptions, copy: TemplatePromptText): string[] {
-  if (options.connected && options.mcpUrl) {
+  if (options.connected && options.mcpUrl && options.workspace) {
     return [
       heading(copy.headings.yourWorkspace, 1),
-      fillPrompt(copy.workspace.connectedAt, { mcpUrl: options.mcpUrl }),
+      fillPrompt(copy.workspace.connectedAt, { mcpUrl: options.mcpUrl, workspace: options.workspace }),
     ];
   }
   if (options.connected) return [heading(copy.headings.thisWorkspace, 1), copy.workspace.connected];
-  if (options.mcpUrl) {
-    const pending = fillPrompt(copy.workspace.existsAt, { mcpUrl: options.mcpUrl });
+  if (options.mcpUrl && options.workspace) {
+    const pending = fillPrompt(copy.workspace.existsAt, { mcpUrl: options.mcpUrl, workspace: options.workspace });
     return [heading(copy.headings.yourWorkspace, 1), pending];
   }
   return [heading(copy.headings.yourWorkspace, 1), copy.workspace.unconnected];

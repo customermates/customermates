@@ -42,6 +42,21 @@ describe("ForgotPasswordStore", () => {
     expect(store.savedState.onboardingIntent).toBeUndefined();
   });
 
+  it("remembers where the reset link went only after the request succeeded", async () => {
+    const store = new ForgotPasswordStore(rootStore);
+    store.onChange("email", " reset@example.com ");
+    actions.requestPasswordResetAction.mockResolvedValueOnce({ ok: false, error: { email: ["invalid"] } });
+
+    await store.onSubmit();
+    expect(store.sentTo).toBeNull();
+
+    await store.onSubmit();
+    expect(store.sentTo).toBe("reset@example.com");
+
+    store.setSentTo(null);
+    expect(store.sentTo).toBeNull();
+  });
+
   it("submits the active onboarding intent with the email", async () => {
     const store = new ForgotPasswordStore(rootStore);
     store.onChange("email", "invited@example.com");

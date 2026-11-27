@@ -96,7 +96,7 @@ describeDatabase("connected AI apps against the database", { timeout: 120_000 },
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
   });
 
-  it("groups the member's tokens of this workspace by app and hides expired, foreign and unbound ones", async () => {
+  it("groups the member's account-wide tokens by app and hides expired ones and other members' ones", async () => {
     const [workspace, otherWorkspace, me, colleague] = [await company(), await company(), await login(), await login()];
     const [claude, chatgpt, cursor, stale] = [
       await client("Claude"),
@@ -118,11 +118,14 @@ describeDatabase("connected AI apps against the database", { timeout: 120_000 },
       new GetConnectedAppsInteractor(new PrismaConnectedAppRepo(), signedIn(me)).invoke(),
     );
 
-    expect(result.data.map((app) => app.name)).toEqual(["Claude", "ChatGPT"]);
-    expect(result.data[0]).toMatchObject({ id: claude, connectedAt: firstConnected, lastActiveAt: lastRefreshed });
+    expect(result.data.map((app) => app.name).sort()).toEqual(["ChatGPT", "Claude", "Cursor"]);
+    expect(result.data.find((app) => app.id === claude)).toMatchObject({
+      connectedAt: firstConnected,
+      lastActiveAt: lastRefreshed,
+    });
   });
 
-  it("disconnects one app of one member in one workspace and forgets the consent once no workspace uses it", async () => {
+  it("disconnects one app of one member across the account and forgets its consent", async () => {
     const [workspace, otherWorkspace, me, colleague] = [await company(), await company(), await login(), await login()];
     const [claude, chatgpt] = [await client("Claude"), await client("ChatGPT")];
     await token({ userId: me.id, companyId: workspace, clientId: claude, createdAt: days(-40) });
@@ -143,20 +146,11 @@ describeDatabase("connected AI apps against the database", { timeout: 120_000 },
     expect(first).toEqual({ ok: true, data: claude });
     expect(await tokensOf(me.id, claude, workspace)).toBe(0);
     expect(await tokensOf(me.id, claude, null)).toBe(0);
-    expect(await tokensOf(me.id, claude, otherWorkspace)).toBe(1);
+    expect(await tokensOf(me.id, claude, otherWorkspace)).toBe(0);
     expect(await tokensOf(me.id, chatgpt, workspace)).toBe(1);
     expect(await tokensOf(colleague.id, claude, workspace)).toBe(1);
-    expect(await consents(me.id, claude)).toBe(1);
+    expect(await consents(me.id, claude)).toBe(0);
     expect(await consents(me.id, chatgpt)).toBe(1);
     expect(await consents(colleague.id, claude)).toBe(1);
-
-    await inWorkspace(otherWorkspace, me, () =>
-      new DisconnectConnectedAppInteractor(signedIn(me)).invoke({ id: claude }),
-    );
-
-    expect(await tokensOf(me.id, claude, otherWorkspace)).toBe(0);
-    expect(await consents(me.id, claude)).toBe(0);
-    expect(await consents(colleague.id, claude)).toBe(1);
-    expect(await tokensOf(colleague.id, claude, workspace)).toBe(1);
   });
 });

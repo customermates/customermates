@@ -18,6 +18,7 @@ export type CalendarAttendee = z.infer<typeof CalendarAttendeeSchema>;
 
 const CalendarEventCoreSchema = z.object({
   unipileEventId: z.string(),
+  masterUnipileEventId: z.string().nullable().optional(),
   title: z.string(),
   description: z.string().nullable(),
   location: z.string().nullable(),
@@ -57,6 +58,7 @@ export type CalendarDto = z.infer<typeof CalendarDtoSchema>;
 
 export const CalendarEventDtoSchema = CalendarEventSchema.omit({
   unipileEventId: true,
+  masterUnipileEventId: true,
   visibility: true,
   transparency: true,
   createdAt: true,

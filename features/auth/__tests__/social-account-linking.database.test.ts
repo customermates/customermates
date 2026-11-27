@@ -220,12 +220,11 @@ describeDatabase("unverified account access against the database", { timeout: 12
     expect((await snapshot(seeded.id)).providers).toEqual(["credential", "microsoft"]);
   });
 
-  it("verifies an address by link without signing the visitor in or touching what the account holds", async () => {
+  it("no longer verifies an address by link, and leaves everything the account holds in place", async () => {
     const seeded = await seedUser({ emailVerified: false });
 
-    const result = await verifyByLink(seeded.email);
+    await expect(verifyByLink(seeded.email)).rejects.toMatchObject({ body: { code: "VERIFICATION_LINK_RETIRED" } });
 
-    expect(result).toEqual({ status: true, user: null });
     expect(await snapshot(seeded.id)).toEqual({
       providers: ["credential", "microsoft"],
       password: "hashed-password",
@@ -233,7 +232,7 @@ describeDatabase("unverified account access against the database", { timeout: 12
       apiKeys: 1,
       tokens: 1,
       consents: 1,
-      emailVerified: true,
+      emailVerified: false,
     });
   });
 

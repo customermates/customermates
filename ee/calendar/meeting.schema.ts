@@ -67,23 +67,92 @@ export const ScheduleMeetingSchema = MeetingTimingSchema.extend({
 export type ScheduleMeetingData = z.infer<typeof ScheduleMeetingSchema>;
 export type ScheduleMeetingInput = z.input<typeof ScheduleMeetingSchema>;
 
+export const MEETING_SCOPES = ["occurrence", "series"] as const;
+export type MeetingScope = (typeof MEETING_SCOPES)[number];
+export const MEETING_MAX_ALL_DAY_SPAN_DAYS = 366;
+
+const MeetingScopeSchema = z
+  .enum(MEETING_SCOPES)
+  .optional()
+  .describe(
+    "For a repeating event: occurrence changes only this one occurrence, series changes every occurrence. Defaults to occurrence for an occurrence id and to series for the id of a series that was synced without its occurrences.",
+  );
+
 export const UpdateMeetingSchema = z
   .object({
-    id: z.uuid().describe("The event id returned when the meeting was created."),
+    id: z
+      .uuid()
+      .describe(
+        "The calendar event id: the id returned when the meeting was created, or the id of any synced event in the caller's own connected calendar.",
+      ),
     title: z.string().trim().min(1).max(200).optional(),
     description: z.string().max(5000).optional(),
     location: z.string().max(500).optional(),
     startsAt: MeetingTimingSchema.shape.startsAt.optional(),
     durationMinutes: MeetingTimingSchema.shape.durationMinutes.optional(),
+    endsAt: z.iso
+      .datetime({ offset: true })
+      .optional()
+      .describe("New end as an instant with offset or Z, sent together with startsAt in place of durationMinutes."),
     timeZone: MeetingTimingSchema.shape.timeZone.optional(),
+    startDate: z.iso
+      .date()
+      .optional()
+      .describe("All-day events only: the new first day as YYYY-MM-DD, sent together with endDate."),
+    endDate: z.iso
+      .date()
+      .optional()
+      .describe("All-day events only: the new last day as YYYY-MM-DD, the same as startDate for a one-day event."),
     attendees: z.array(MeetingAttendeeInputSchema).max(MEETING_MAX_ATTENDEES).optional(),
-    sendInvites: z.boolean().default(true),
+    sendInvites: z
+      .boolean()
+      .default(true)
+      .describe(
+        "Let the provider send the change to the attendees. Google follows it; Microsoft sends the update to the attendees either way.",
+      ),
+    scope: MeetingScopeSchema,
   })
   .strict()
-  .refine((data) => (data.startsAt === undefined) === (data.durationMinutes === undefined), {
-    message: "Send startsAt and durationMinutes together to move a meeting",
-    path: ["startsAt"],
-  });
+  .refine(
+    (data) =>
+      data.startsAt === undefined
+        ? data.durationMinutes === undefined && data.endsAt === undefined
+        : (data.durationMinutes === undefined) !== (data.endsAt === undefined),
+    {
+      message: "Send startsAt with either durationMinutes or endsAt to move a meeting",
+      path: ["startsAt"],
+    },
+  )
+  .refine((data) => (data.startDate === undefined) === (data.endDate === undefined), {
+    message: "Send startDate and endDate together to move an all-day event",
+    path: ["startDate"],
+  })
+  .refine((data) => data.startDate === undefined || data.startsAt === undefined, {
+    message: "Send either startDate and endDate for an all-day event or startsAt for a timed event",
+    path: ["startDate"],
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      const days = (Date.parse(data.endDate) - Date.parse(data.startDate)) / 86_400_000;
+      return days >= 0 && days < MEETING_MAX_ALL_DAY_SPAN_DAYS;
+    },
+    {
+      message: `endDate must be on or after startDate and less than ${MEETING_MAX_ALL_DAY_SPAN_DAYS} days later`,
+      path: ["endDate"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (!data.startsAt || !data.endsAt) return true;
+      const minutes = (new Date(data.endsAt).getTime() - new Date(data.startsAt).getTime()) / 60_000;
+      return minutes >= MEETING_MIN_MINUTES && minutes <= MEETING_MAX_MINUTES;
+    },
+    {
+      message: `endsAt must be between ${MEETING_MIN_MINUTES} minutes and ${MEETING_MAX_MINUTES / 60} hours after startsAt`,
+      path: ["endsAt"],
+    },
+  );
 export type UpdateMeetingData = z.infer<typeof UpdateMeetingSchema>;
 export type UpdateMeetingInput = z.input<typeof UpdateMeetingSchema>;
 
@@ -91,6 +160,7 @@ export const CancelMeetingSchema = z
   .object({
     id: z.uuid().describe("The event id returned when the meeting was created."),
     comment: z.string().trim().max(1000).optional().describe("A message to the attendees, shown by Outlook."),
+    scope: MeetingScopeSchema,
   })
   .strict();
 export type CancelMeetingData = z.infer<typeof CancelMeetingSchema>;

@@ -4,13 +4,11 @@ on:
   issue_comment:
     types: [created]
   pull_request_target:
-    types: [opened, closed, synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
-  actions: write
   contents: write
   pull-requests: write
-  statuses: write
 
 concurrency:
   group: cla-check-${{ github.event.pull_request.number || github.event.issue.number }}
@@ -27,19 +25,84 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: contributor-assistant/github-action@ca4a40a7d1004f18d9960b404b97e5f30a505a08 # v2.6.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          path-to-signatures: signatures/cla.json
-          path-to-document: https://github.com/customermates/customermates/blob/main/.github/CLA.md
-          branch: cla-signatures
-          allowlist: benjiwagner,eljulsi,dependabot[bot],github-actions[bot],renovate[bot]
-          lock-pullrequest-aftermerge: false
-          custom-notsigned-prcomment: >-
-            Thank you for the pull request. Before it can be merged, every contributor has to sign the
-            [Contributor License Agreement](https://github.com/customermates/customermates/blob/main/.github/CLA.md),
-            a few plain-English sentences. Sign it by replying with the sentence below; you sign once for all later
-            pull requests. The contributors who have not signed yet:
-          custom-pr-sign-comment: I have read the CLA Document and I hereby sign the CLA
-          custom-allsigned-prcomment: Every contributor has signed the Contributor License Agreement.
+          script: |
+            const SIGN_SENTENCE = "I have read the CLA Document and I hereby sign the CLA";
+            const ALLOWLIST = new Set(["benjiwagner", "eljulsi", "dependabot[bot]", "github-actions[bot]", "renovate[bot]"]);
+            const BRANCH = "cla-signatures";
+            const PATH = "signatures/cla.json";
+            const DOCUMENT = `https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CLA.md`;
+            const MARKER = "<!-- cla-check -->";
+            const repo = context.repo;
+            const number = context.payload.pull_request?.number ?? context.payload.issue.number;
+
+            async function readSignatures() {
+              try {
+                const { data } = await github.rest.repos.getContent({ ...repo, path: PATH, ref: BRANCH });
+                return { signers: JSON.parse(Buffer.from(data.content, "base64").toString("utf8")).signedContributors ?? [], sha: data.sha };
+              } catch (error) {
+                if (error.status === 404) return { signers: [], sha: undefined };
+                throw error;
+              }
+            }
+
+            async function ensureBranch() {
+              try {
+                await github.rest.git.getRef({ ...repo, ref: `heads/${BRANCH}` });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                const { data: main } = await github.rest.repos.get(repo);
+                const { data: head } = await github.rest.git.getRef({ ...repo, ref: `heads/${main.default_branch}` });
+                await github.rest.git.createRef({ ...repo, ref: `refs/heads/${BRANCH}`, sha: head.object.sha });
+              }
+            }
+
+            async function sign(login, id) {
+              await ensureBranch();
+              const { signers, sha } = await readSignatures();
+              if (signers.some((signer) => signer.name === login)) return;
+              signers.push({ name: login, id, comment_id: context.payload.comment.id, created_at: new Date().toISOString(), repoId: context.payload.repository.id, pullRequestNo: number });
+              await github.rest.repos.createOrUpdateFileContents({
+                ...repo,
+                path: PATH,
+                branch: BRANCH,
+                sha,
+                message: `chore(cla): ${login} signed the CLA in #${number}`,
+                content: Buffer.from(`${JSON.stringify({ signedContributors: signers }, null, 2)}\n`).toString("base64"),
+              });
+            }
+
+            async function upsertComment(body) {
+              const comments = await github.paginate(github.rest.issues.listComments, { ...repo, issue_number: number });
+              const previous = comments.find((comment) => comment.body?.includes(MARKER));
+              if (previous) await github.rest.issues.updateComment({ ...repo, comment_id: previous.id, body: `${MARKER}\n${body}` });
+              else await github.rest.issues.createComment({ ...repo, issue_number: number, body: `${MARKER}\n${body}` });
+            }
+
+            if (context.eventName === "issue_comment" && context.payload.comment.body === SIGN_SENTENCE)
+              await sign(context.payload.comment.user.login, context.payload.comment.user.id);
+
+            const commits = await github.paginate(github.rest.pulls.listCommits, { ...repo, pull_number: number });
+            const authors = [...new Set(commits.map((commit) => commit.author?.login ?? commit.commit.author?.name).filter(Boolean))];
+            const { signers } = await readSignatures();
+            const signed = new Set(signers.map((signer) => signer.name));
+            const missing = authors.filter((author) => !ALLOWLIST.has(author) && !signed.has(author));
+
+            if (missing.length === 0) {
+              if (authors.some((author) => !ALLOWLIST.has(author)))
+                await upsertComment("Every contributor has signed the Contributor License Agreement.");
+              core.info("Every contributor has signed the CLA.");
+              return;
+            }
+
+            await upsertComment(
+              [
+                `Thank you for the pull request. Before it can be merged, every contributor has to sign the [Contributor License Agreement](${DOCUMENT}), a few plain-English sentences. Sign it by replying with the sentence below; you sign once for all later pull requests.`,
+                "",
+                `> ${SIGN_SENTENCE}`,
+                "",
+                `The contributors who have not signed yet: ${missing.map((author) => `@${author}`).join(", ")}`,
+              ].join("\n"),
+            );
+            core.setFailed(`Not signed yet: ${missing.join(", ")}`);

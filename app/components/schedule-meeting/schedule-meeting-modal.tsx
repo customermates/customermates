@@ -2,6 +2,9 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
+
+import { MessagingProvider } from "@/generated/prisma";
 
 import { MESSAGING_UPSELL_PLAN } from "@/app/components/upsell/plan-upsell-highlights";
 import { PlanUpsellNotice } from "@/app/components/upsell/plan-upsell-notice";
@@ -16,7 +19,9 @@ import { FormSwitch } from "@/components/forms/form-switch";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { AppForm } from "@/components/forms/form-context";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
-import { AppModal } from "@/components/modal";
+import { AppModal, type AppModalActions } from "@/components/modal";
+import { MeetingScopeChoice } from "./meeting-scope-choice";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -31,8 +36,29 @@ export const ScheduleMeetingModal = observer(() => {
   const { form, options, slots, slotsLoading, unavailable } = store;
   const subscription = root.subscriptionStore.subscription;
   const planLocked = subscription != null && !getEntitlements(effectivePlanId(subscription)).messaging;
-  const blocked = options?.blockedReason ?? null;
-  const ready = !unavailable && !planLocked && options !== null && blocked === null;
+  const editing = store.editingId !== null;
+  const blocked = editing ? null : (options?.blockedReason ?? null);
+  const loaded = editing ? store.eventLoaded : options !== null;
+  const ready = !unavailable && !planLocked && loaded && blocked === null;
+  const title = editing ? t("ScheduleMeeting.editTitle") : t("ScheduleMeeting.title");
+  const microsoftEvent = editing && store.provider === MessagingProvider.outlook;
+  const modalActions: AppModalActions =
+    editing && ready
+      ? [
+          {
+            id: "cancel-meeting",
+            anchorId: "schedule-meeting-cancel",
+            label: t("ScheduleMeeting.cancelAction"),
+            icon: Trash2,
+            variant: "destructive",
+            disabled: store.isLoading,
+            onClick: () => store.setCancelConfirm(true),
+          },
+        ]
+      : [];
+  const durations = [...new Set<number>([...MEETING_DURATION_MINUTES, form.durationMinutes])]
+    .filter((minutes) => minutes > 0)
+    .sort((a, b) => a - b);
 
   const notice = unavailable ? (
     <Alert
@@ -60,76 +86,106 @@ export const ScheduleMeetingModal = observer(() => {
       variant="warning"
     />
   ) : store.optionsFailed ? (
-    <Alert description={t("ScheduleMeeting.loadFailed")} role="alert" variant="destructive" />
-  ) : !options ? (
+    <Alert
+      description={editing ? t("ScheduleMeeting.eventLoadFailed") : t("ScheduleMeeting.loadFailed")}
+      role="alert"
+      variant="destructive"
+    />
+  ) : !loaded ? (
     <div className="flex justify-center py-8">
       <Spinner aria-label={t("Loading.text")} className="size-5" />
     </div>
   ) : null;
 
   return (
-    <AppModal store={store} title={t("ScheduleMeeting.title")}>
+    <AppModal actions={modalActions} store={store} title={title}>
       <AppForm store={store}>
         <AppCard className="relative">
           <AppCardHeader>
-            <h2 className="text-x-lg">{t("ScheduleMeeting.title")}</h2>
+            <h2 className="text-x-lg">{title}</h2>
           </AppCardHeader>
 
           <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {notice}
 
-            {ready && options ? (
+            {ready ? (
               <>
                 <FormInput required id="title" label={t("ScheduleMeeting.fields.title")} />
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <FormIsoDatePicker
-                    dateOnly
-                    required
-                    id="date"
-                    label={t("ScheduleMeeting.fields.date")}
-                    onValueChange={store.setDate}
+                {store.recurring ? (
+                  <MeetingScopeChoice
+                    disabled={store.isLoading}
+                    value={form.scope}
+                    onChange={(scope) => store.onChange("scope", scope)}
                   />
+                ) : null}
 
-                  <FormInput required id="time" label={t("ScheduleMeeting.fields.time")} step={900} type="time" />
-                </div>
+                {store.allDay ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <FormIsoDatePicker
+                      dateOnly
+                      required
+                      id="date"
+                      label={t("ScheduleMeeting.fields.firstDay")}
+                      onValueChange={store.setDate}
+                    />
 
-                <FormSelect
-                  id="durationMinutes"
-                  items={MEETING_DURATION_MINUTES.map((minutes) => ({
-                    value: String(minutes),
-                    label: t("ScheduleMeeting.duration", { minutes }),
-                  }))}
-                  label={t("ScheduleMeeting.fields.duration")}
-                  value={String(form.durationMinutes)}
-                  onValueChange={(value) => store.setDuration(Number(value))}
-                />
+                    <FormIsoDatePicker dateOnly required id="endDate" label={t("ScheduleMeeting.fields.lastDay")} />
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                      <FormIsoDatePicker
+                        dateOnly
+                        required
+                        id="date"
+                        label={t("ScheduleMeeting.fields.date")}
+                        onValueChange={store.setDate}
+                      />
 
-                <div className="space-y-1.5" data-schedule-meeting-slots="">
-                  <p className="text-sm font-medium">{t("ScheduleMeeting.freeSlots", { timeZone: store.timeZone })}</p>
-
-                  {slotsLoading ? (
-                    <Spinner aria-label={t("Loading.text")} className="size-4" />
-                  ) : slots.length ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {slots.map((slot) => (
-                        <Button
-                          key={slot.startsAt}
-                          size="sm"
-                          type="button"
-                          variant={store.startsAt === slot.startsAt ? "default" : "secondary"}
-                          onClick={() => store.pickSlot(slot)}
-                        >
-                          {store.slotLabel(slot)}
-                        </Button>
-                      ))}
+                      <FormInput required id="time" label={t("ScheduleMeeting.fields.time")} step={900} type="time" />
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">{t("ScheduleMeeting.noFreeSlots")}</p>
-                  )}
-                </div>
 
-                {options.calendars.length > 1 ? (
+                    <FormSelect
+                      id="durationMinutes"
+                      items={durations.map((minutes) => ({
+                        value: String(minutes),
+                        label: t("ScheduleMeeting.duration", { minutes }),
+                      }))}
+                      label={t("ScheduleMeeting.fields.duration")}
+                      value={String(form.durationMinutes)}
+                      onValueChange={(value) => store.setDuration(Number(value))}
+                    />
+
+                    <div className="space-y-1.5" data-schedule-meeting-slots="">
+                      <p className="text-xs text-muted-foreground">
+                        {t("ScheduleMeeting.freeSlots", { timeZone: store.timeZone })}
+                      </p>
+
+                      {slotsLoading ? (
+                        <Spinner aria-label={t("Loading.text")} className="size-4" />
+                      ) : slots.length ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {slots.map((slot) => (
+                            <Button
+                              key={slot.startsAt}
+                              size="sm"
+                              type="button"
+                              variant={store.startsAt === slot.startsAt ? "default" : "secondary"}
+                              onClick={() => store.pickSlot(slot)}
+                            >
+                              {store.slotLabel(slot)}
+                            </Button>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">{t("ScheduleMeeting.noFreeSlots")}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {options && options.calendars.length > 1 ? (
                   <FormSelect
                     required
                     id="calendarId"
@@ -152,11 +208,18 @@ export const ScheduleMeetingModal = observer(() => {
 
                 <FormTextarea id="description" label={t("ScheduleMeeting.fields.description")} rows={3} />
 
-                <FormSwitch id="videoLink" label={t("ScheduleMeeting.fields.videoLink")} />
+                {editing ? null : <FormSwitch id="videoLink" label={t("ScheduleMeeting.fields.videoLink")} />}
 
-                <FormSwitch id="sendInvites" label={t("ScheduleMeeting.fields.sendInvites")} />
+                {microsoftEvent ? (
+                  <p className="text-sm text-muted-foreground">{t("ScheduleMeeting.microsoftSendsUpdates")}</p>
+                ) : (
+                  <FormSwitch
+                    id="sendInvites"
+                    label={editing ? t("ScheduleMeeting.fields.sendUpdates") : t("ScheduleMeeting.fields.sendInvites")}
+                  />
+                )}
 
-                {options.actionLists.length ? (
+                {options?.actionLists.length ? (
                   <div className="grid gap-3 sm:grid-cols-2">
                     <FormSelect
                       id="followUpTypeId"
@@ -182,9 +245,27 @@ export const ScheduleMeetingModal = observer(() => {
             ) : null}
           </AppCardBody>
 
-          {ready ? <UnsavedChangesBar creating anchorScope="schedule-meeting-modal" store={store} /> : null}
+          {ready ? <UnsavedChangesBar anchorScope="schedule-meeting-modal" creating={!editing} store={store} /> : null}
         </AppCard>
       </AppForm>
+
+      <ConfirmDialog
+        cancelLabel={t("ScheduleMeeting.keepMeeting")}
+        confirmLabel={t("ScheduleMeeting.cancelAction")}
+        description={t("ScheduleMeeting.cancelConfirmDescription")}
+        open={editing && store.cancelConfirmOpen}
+        title={t("ScheduleMeeting.cancelConfirmTitle")}
+        onCancel={() => store.setCancelConfirm(false)}
+        onConfirm={store.cancelMeeting}
+      >
+        {store.recurring ? (
+          <MeetingScopeChoice
+            disabled={store.isLoading}
+            value={form.scope}
+            onChange={(scope) => store.onChange("scope", scope)}
+          />
+        ) : null}
+      </ConfirmDialog>
     </AppModal>
   );
 });

@@ -35,6 +35,8 @@ const di = await import("@/core/di");
 const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { SetupPlanSchema } = await import("@/features/workspace-setup/setup-plan.schema");
 const { emptySetupPhase } = await import("../workspace-setup-phases");
+const { SETUP_ANSWER_GUIDE_KEY, setupAnswerTopics } = await import("../workspace-setup-answer-pages");
+const { setupPageTitles } = await import("../workspace-setup-knowledge");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -65,27 +67,20 @@ async function workspace(): Promise<Workspace> {
 }
 
 async function buildingSetup(ws: Workspace) {
+  const plan = SetupPlanSchema.parse(agencyPlan);
+  const copy = await setupPageTitles("en");
+  const keys = [...setupAnswerTopics(plan, {}, copy.title).map((topic) => topic.key), SETUP_ANSWER_GUIDE_KEY];
+  const pageId = randomUUID();
   return runWithoutTenant(async () => {
-    const crawl = await prisma.wikiWebsiteCrawl.create({
-      data: {
-        companyId: ws.companyId,
-        userId: ws.owner.id,
-        clientRequestId: randomUUID(),
-        homepageUrl: "https://studio.example/",
-        registrableDomain: "studio.example",
-        locale: "en",
-        payer: "workspaceSetup",
-        status: "synthesizing",
-        targets: [{ url: "https://studio.example/", category: "about", status: "read" }],
-      },
-    });
     const setup = await prisma.workspaceSetup.create({
       data: {
         companyId: ws.companyId,
         userId: ws.owner.id,
         status: "building",
-        crawlId: crawl.id,
-        plan: SetupPlanSchema.parse(agencyPlan),
+        plan,
+        artifacts: {
+          answerPages: { planned: keys.length, pages: keys.map((key) => ({ key, title: `Page ${key}`, pageId })) },
+        },
         planRevision: 1,
         confirmedAt: new Date(),
         phases: {

@@ -10,6 +10,10 @@
       "schedule": "30 3 * * *"
     },
     {
+      "path": "/api/cron/email-presence",
+      "schedule": "40 2 * * *"
+    },
+    {
       "path": "/api/cron/reprocess-webhook-events",
       "schedule": "*/5 * * * *"
     },

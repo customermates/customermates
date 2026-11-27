@@ -12,21 +12,25 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const provider = key.split(".").at(-1);
-    const labels: Record<string, string> = {
-      claude: "Claude",
-      chatgpt: "ChatGPT",
-      codex: "Codex",
-      cursor: "Cursor",
-      gemini: "Gemini",
-      grok: "Grok",
-      langdock: "Langdock",
-      openai: "ChatGPT & Codex",
-    };
+  useTranslations: () =>
+    Object.assign(
+      (key: string) => {
+        const provider = key.split(".").at(-1);
+        const labels: Record<string, string> = {
+          claude: "Claude",
+          chatgpt: "ChatGPT",
+          codex: "Codex",
+          cursor: "Cursor",
+          gemini: "Gemini",
+          grok: "Grok",
+          langdock: "Langdock",
+          openai: "ChatGPT & Codex",
+        };
 
-    return labels[provider ?? ""] ?? key;
-  },
+        return labels[provider ?? ""] ?? key;
+      },
+      { rich: (key: string) => key },
+    ),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -41,7 +45,9 @@ vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", (
   createApiKeyAction: vi.fn(),
 }));
 
+import { AiConnectionAppSetup } from "../ai-connection-app-setup";
 import { AiConnectionClaudeSetup } from "../ai-connection-claude-setup";
+import { AiConnectionConnectorSetup } from "../ai-connection-connector-setup";
 import { executeAiConnectionKeyCreation } from "../ai-connection-key-creation";
 import { AiConnectionOpenAiSetup } from "../ai-connection-openai-setup";
 import { AiConnectionProviderGrid } from "../ai-connection-provider-grid";
@@ -90,6 +96,32 @@ describe("executeAiConnectionKeyCreation", () => {
 
     expect(feedback.toastZodErrorTree).toHaveBeenCalledWith(error);
     expect(feedback.toastError).not.toHaveBeenCalled();
+  });
+});
+
+describe("AiConnectionConnectorSetup", () => {
+  const ACCOUNT_URL = "https://app.example/api/v1/mcp";
+
+  it("pre-fills Claude with the account-wide URL and the plain connector name", () => {
+    const html = renderToStaticMarkup(
+      createElement(AiConnectionConnectorSetup, { mcpUrl: ACCOUNT_URL, provider: "claude" }),
+    );
+    const href = html.match(/href="(https:\/\/claude\.ai[^"]*)"/)?.[1]?.replaceAll("&amp;", "&") ?? "";
+    const link = new URL(href);
+
+    expect(link.searchParams.get("connectorUrl")).toBe(ACCOUNT_URL);
+    expect(link.searchParams.get("connectorName")).toBe("Customermates");
+    expect(html).toContain("OnboardingWizard.ai.connector.workspaceNote");
+    expect(html).not.toContain("/api/v1/mcp/w/");
+  });
+
+  it("shows the same account-wide URL for apps without a quick button", () => {
+    const html = renderToStaticMarkup(
+      createElement(AiConnectionAppSetup, { mcpUrl: ACCOUNT_URL, provider: "langdock" }),
+    );
+
+    expect(html).toContain(ACCOUNT_URL);
+    expect(html).toContain("OnboardingWizard.ai.connector.workspaceNote");
   });
 });
 

@@ -245,11 +245,13 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
   await expect(page).toHaveURL(new RegExp(`[?&]page=${procedure.id}`));
   await expect(sheet.getByRole("textbox", { name: "Page title", exact: true })).toHaveValue(procedure.title);
   await expect(sheet.getByRole("heading", { name: heading })).toBeVisible();
-  await sheet.getByRole("tab", { name: "Links", exact: true }).click();
-  await expect(sheet.getByText(/^Linked from · [1-9]/)).toBeVisible();
-  await sheet.getByRole("tab", { name: "Details", exact: true }).click();
-  await expect(sheet.getByRole("combobox", { name: "Page type" })).toHaveText("Procedure");
-  await expect(sheet.getByRole("textbox", { name: /When to use/ })).not.toHaveValue("");
+  await expect(sheet.getByRole("button", { name: /^[1-9]\d* pages? links? here$/ })).toBeVisible();
+  await expect(sheet.locator("[data-wiki-linked-pages]").getByRole("button").first()).toBeVisible();
+  await sheet.getByRole("button", { name: "More actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Page settings", exact: true }).click();
+  const settings = page.getByRole("dialog", { name: "Page settings", exact: true });
+  await expect(settings.getByRole("combobox", { name: "Page type" })).toHaveText("Procedure");
+  await expect(settings.getByRole("textbox", { name: /When to use/ })).not.toHaveValue("");
   expect(errors).toEqual([]);
 });
 

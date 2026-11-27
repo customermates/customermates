@@ -9,16 +9,10 @@ export const SETUP_QUESTION_FORMATS = [
   "shortText",
 ] as const;
 
-export const SETUP_PREFILL_LEVELS = ["yes", "partly", "suggested", "no"] as const;
-type SetupPrefillLevel = (typeof SETUP_PREFILL_LEVELS)[number];
-
 export const SETUP_OPTION_SOURCES = ["countries", "currencies", "locales"] as const;
 export type SetupOptionSource = (typeof SETUP_OPTION_SOURCES)[number];
 
 export const SETUP_FOLLOW_UP_QUESTIONS = 1;
-export const SETUP_PREFILL_CONFIDENCE = 0.7;
-
-export const SETUP_BASICS_QUESTION = "basics";
 
 export type SetupVisibility = { part: string; anyOf: string[] };
 
@@ -27,15 +21,14 @@ export type SetupOption = { id: string; labelKey: string; preselected?: boolean;
 type SetupPartBase = {
   id: string;
   labelKey: string;
-  prefill: SetupPrefillLevel;
   optional?: boolean;
   visibleWhen?: SetupVisibility;
 };
 
 export type SetupQuestionPart = SetupPartBase &
   (
-    | { format: "singleChoice"; options: SetupOption[]; optionSource?: undefined; upload?: boolean }
-    | { format: "singleChoice"; options: []; optionSource: SetupOptionSource; upload?: undefined }
+    | { format: "singleChoice"; options: SetupOption[]; optionSource?: undefined }
+    | { format: "singleChoice"; options: []; optionSource: SetupOptionSource }
     | { format: "multipleChoice"; options: SetupOption[]; allowCustom: boolean }
     | { format: "orderedList"; maxItems: number }
     | { format: "rankedPick"; options: SetupOption[]; maxPicks: number }
@@ -73,10 +66,9 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         id: "workWith",
         labelKey: "WorkspaceSetup.questions.workWith.label",
         format: "singleChoice",
-        prefill: "partly",
         options: [
-          { id: "customers", labelKey: "WorkspaceSetup.options.workWith.customers" },
           { id: "clients", labelKey: "WorkspaceSetup.options.workWith.clients" },
+          { id: "customers", labelKey: "WorkspaceSetup.options.workWith.customers" },
           { id: "ownWork", labelKey: "WorkspaceSetup.options.workWith.ownWork" },
         ],
       },
@@ -91,7 +83,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         labelKey: "WorkspaceSetup.questions.purpose.label",
         format: "multipleChoice",
         allowCustom: true,
-        prefill: "partly",
         options: [
           { id: "deals", labelKey: "WorkspaceSetup.options.purpose.deals" },
           { id: "projects", labelKey: "WorkspaceSetup.options.purpose.projects" },
@@ -119,21 +110,19 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         labelKey: "WorkspaceSetup.questions.mainSteps.label",
         format: "orderedList",
         maxItems: 12,
-        prefill: "suggested",
       },
     ],
   },
   {
-    id: "pricing",
+    id: "charge",
     number: 4,
-    visibleWhen: WITH_CUSTOMERS,
     parts: [
       {
         id: "pricing",
         optional: true,
+        visibleWhen: WITH_CUSTOMERS,
         labelKey: "WorkspaceSetup.questions.pricing.label",
         format: "singleChoice",
-        prefill: "partly",
         options: [
           { id: "fixedPrice", labelKey: "WorkspaceSetup.options.pricing.fixedPrice" },
           { id: "timeBased", labelKey: "WorkspaceSetup.options.pricing.timeBased" },
@@ -142,101 +131,65 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
           { id: "free", labelKey: "WorkspaceSetup.options.pricing.free" },
         ],
       },
-    ],
-  },
-  {
-    id: "team",
-    number: 5,
-    parts: [
-      {
-        id: "teamSize",
-        optional: true,
-        labelKey: "WorkspaceSetup.questions.teamSize.label",
-        format: "singleChoice",
-        prefill: "partly",
-        options: [
-          { id: "solo", labelKey: "WorkspaceSetup.options.teamSize.solo" },
-          { id: "small", labelKey: "WorkspaceSetup.options.teamSize.small" },
-          { id: "large", labelKey: "WorkspaceSetup.options.teamSize.large" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "existingData",
-    number: 6,
-    parts: [
       {
         id: "existingData",
         labelKey: "WorkspaceSetup.questions.existingData.label",
         format: "singleChoice",
-        upload: true,
-        prefill: "no",
         options: [
-          { id: "sampleData", labelKey: "WorkspaceSetup.options.existingData.sampleData" },
+          { id: "sampleData", labelKey: "WorkspaceSetup.options.existingData.sampleData", preselected: true },
           { id: "empty", labelKey: "WorkspaceSetup.options.existingData.empty" },
-          { id: "spreadsheet", labelKey: "WorkspaceSetup.options.existingData.spreadsheet" },
         ],
-      },
-    ],
-  },
-  {
-    id: "purposeDetails",
-    number: 7,
-    parts: [
-      {
-        id: "purposeDetails",
-        optional: true,
-        labelKey: "WorkspaceSetup.questions.purposeDetails.label",
-        format: "shortText",
-        maxLength: 300,
-        placeholderKey: "WorkspaceSetup.questions.purposeDetails.placeholder",
-        prefill: "partly",
-      },
-    ],
-  },
-  {
-    id: SETUP_BASICS_QUESTION,
-    number: 8,
-    parts: [
-      {
-        id: "companyName",
-        optional: true,
-        labelKey: "WorkspaceSetup.questions.companyName.label",
-        format: "shortText",
-        maxLength: 120,
-        prefill: "yes",
-      },
-      {
-        id: "country",
-        optional: true,
-        labelKey: "WorkspaceSetup.questions.country.label",
-        format: "singleChoice",
-        options: [],
-        optionSource: "countries",
-        prefill: "yes",
-      },
-      {
-        id: "language",
-        labelKey: "WorkspaceSetup.questions.language.label",
-        format: "singleChoice",
-        options: [],
-        optionSource: "locales",
-        prefill: "yes",
-      },
-      {
-        id: "currency",
-        labelKey: "WorkspaceSetup.questions.currency.label",
-        format: "singleChoice",
-        options: [],
-        optionSource: "currencies",
-        prefill: "yes",
       },
     ],
   },
 ];
 
-export const SETUP_PARTS: SetupQuestionPart[] = SETUP_QUESTIONS.flatMap((question) => question.parts);
+export const SETUP_CONTEXT_PARTS: SetupQuestionPart[] = [
+  {
+    id: "teamSize",
+    optional: true,
+    labelKey: "WorkspaceSetup.questions.teamSize.label",
+    format: "singleChoice",
+    options: [
+      { id: "solo", labelKey: "WorkspaceSetup.options.teamSize.solo" },
+      { id: "small", labelKey: "WorkspaceSetup.options.teamSize.small" },
+      { id: "large", labelKey: "WorkspaceSetup.options.teamSize.large" },
+    ],
+  },
+  {
+    id: "companyName",
+    optional: true,
+    labelKey: "WorkspaceSetup.questions.companyName.label",
+    format: "shortText",
+    maxLength: 120,
+  },
+  {
+    id: "country",
+    optional: true,
+    labelKey: "WorkspaceSetup.questions.country.label",
+    format: "singleChoice",
+    options: [],
+    optionSource: "countries",
+  },
+  {
+    id: "language",
+    labelKey: "WorkspaceSetup.questions.language.label",
+    format: "singleChoice",
+    options: [],
+    optionSource: "locales",
+  },
+  {
+    id: "currency",
+    labelKey: "WorkspaceSetup.questions.currency.label",
+    format: "singleChoice",
+    options: [],
+    optionSource: "currencies",
+  },
+];
+
+export const SETUP_QUESTION_PARTS: SetupQuestionPart[] = SETUP_QUESTIONS.flatMap((question) => question.parts);
+
+export const SETUP_PARTS: SetupQuestionPart[] = [...SETUP_QUESTION_PARTS, ...SETUP_CONTEXT_PARTS];
 
 export const SETUP_PART_IDS = SETUP_PARTS.map((part) => part.id) as [string, ...string[]];
 
@@ -259,12 +212,18 @@ export function conditionMet(condition: SetupVisibility | undefined, answers: Se
 }
 
 export function setupPartVisible(partId: string, answers: SetupAnswers): boolean {
-  const question = setupQuestionOf(partId);
   const part = setupPart(partId);
   return (
-    Boolean(question && part) &&
-    conditionMet(question?.visibleWhen, answers) &&
-    conditionMet(part?.visibleWhen, answers)
+    part !== undefined &&
+    conditionMet(setupQuestionOf(partId)?.visibleWhen, answers) &&
+    conditionMet(part.visibleWhen, answers)
+  );
+}
+
+export function setupQuestionVisible(question: SetupQuestion, answers: SetupAnswers): boolean {
+  return (
+    conditionMet(question.visibleWhen, answers) &&
+    question.parts.some((part) => conditionMet(part.visibleWhen, answers))
   );
 }
 

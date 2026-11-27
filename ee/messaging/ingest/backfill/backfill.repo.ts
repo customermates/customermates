@@ -3,6 +3,8 @@ import type { EmailFolder } from "../../email-folders";
 import type { AccountConnectionDetails } from "../../account-connection.schema";
 
 export type EmailFolderPass = { companyId: string; connectedAccountId: string; folderId: string };
+export type EmailPresenceAccount = { companyId: string; connectedAccountId: string };
+export type EmailSighting = { folderId: string; unipileMessageId: string; providerMessageId: string | null };
 
 export abstract class BackfillConnectedAccountRepo {
   abstract recordUnusableItemUnscoped(args: {
@@ -34,4 +36,7 @@ export abstract class BackfillConnectedAccountRepo {
   abstract clearEmailFolderPassUnscoped(args: EmailFolderPass): Promise<void>;
   abstract recordEmailFolderPassSeenUnscoped(args: EmailFolderPass & { unipileMessageIds: string[] }): Promise<void>;
   abstract listEmailFolderPassSeenUnscoped(args: EmailFolderPass): Promise<string[]>;
+  abstract clearEmailPresenceSweepUnscoped(args: EmailPresenceAccount): Promise<void>;
+  abstract recordEmailSightingsUnscoped(args: EmailPresenceAccount & { sightings: EmailSighting[] }): Promise<void>;
+  abstract listEmailSightingsUnscoped(args: EmailPresenceAccount): Promise<EmailSighting[]>;
 }

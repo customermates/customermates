@@ -4,6 +4,12 @@ import { PLAN_CATALOG, PURCHASABLE_PLAN_IDS } from "./plan-catalog";
 
 export const TRIAL_END_WINDOW_DAYS = 4;
 
+const DAY_MS = 86_400_000;
+
+export function trialDaysLeft(trialEndDate: Date | null, now = Date.now()): number | null {
+  return trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - now) / DAY_MS)) : null;
+}
+
 export type PlanFitUsage = {
   members: number;
   connectedAccounts: number;

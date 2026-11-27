@@ -3,7 +3,11 @@ import "dotenv/config";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import {
+  MCP_ALWAYS_ON_TOOLS,
+  MCP_TOOL_GROUPS,
+  MCP_WORKSPACE_LIFECYCLE_TOOLS,
+} from "@/features/mcp-tools/tool-registry";
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
@@ -12,12 +16,12 @@ const summariesPath = (locale: ContentLocale) => join(ROOT, "content", "docs", l
 
 export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
   records: MCP_TOOL_GROUPS.records,
-  workspace: MCP_TOOL_GROUPS.workspace,
+  workspace: [...MCP_TOOL_GROUPS.workspace, ...MCP_WORKSPACE_LIFECYCLE_TOOLS],
   views: MCP_TOOL_GROUPS.views,
   wiki: MCP_TOOL_GROUPS.wiki,
   messaging: MCP_TOOL_GROUPS.messaging,
   social: MCP_TOOL_GROUPS.social,
-  docs: [...MCP_TOOL_GROUPS.docs, ...MCP_ALWAYS_ON_TOOLS],
+  docs: [...MCP_TOOL_GROUPS.docs, ...MCP_ALWAYS_ON_TOOLS.filter((tool) => !MCP_WORKSPACE_LIFECYCLE_TOOLS.includes(tool))],
   "record-model": MCP_TOOL_GROUPS["record-model"],
   widgets: MCP_TOOL_GROUPS.widgets,
   routines: MCP_TOOL_GROUPS.routines,

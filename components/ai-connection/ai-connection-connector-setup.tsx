@@ -10,14 +10,14 @@ import { CopyableCode } from "@/components/shared/copyable-code";
 type Props = {
   mcpUrl: string;
   provider: "claude" | "chatgpt";
-  workspaceName: string;
   disabled?: boolean;
 };
 
-export function AiConnectionConnectorSetup({ mcpUrl, provider, workspaceName, disabled = false }: Props) {
+const CONNECTOR_NAME = "Customermates";
+
+export function AiConnectionConnectorSetup({ mcpUrl, provider, disabled = false }: Props) {
   const t = useTranslations();
   const isClaude = provider === "claude";
-  const connectorName = `Customermates (${workspaceName})`;
 
   return (
     <div className="flex min-w-0 flex-col gap-3 rounded-xl border bg-muted p-4">
@@ -41,7 +41,6 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider, workspaceName, di
         <p className="text-xs leading-relaxed text-muted-foreground">
           {t("OnboardingWizard.ai.connector.workspaceNote", {
             client: isClaude ? t("OnboardingWizard.ai.choices.claude") : t("OnboardingWizard.ai.choices.chatgpt"),
-            workspace: workspaceName,
           })}
         </p>
       </div>
@@ -50,7 +49,7 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider, workspaceName, di
         <Button asChild className="self-start" variant="secondary">
           <a
             aria-disabled={disabled || undefined}
-            href={`https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=${encodeURIComponent(connectorName)}&connectorUrl=${encodeURIComponent(mcpUrl)}`}
+            href={`https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=${encodeURIComponent(CONNECTOR_NAME)}&connectorUrl=${encodeURIComponent(mcpUrl)}`}
             rel="noreferrer noopener"
             target="_blank"
             onClick={(event) => {

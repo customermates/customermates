@@ -42,6 +42,7 @@ export type McpTool = {
   title: string;
   description: string;
   annotations?: Record<string, boolean>;
+  scope?: "account";
   inputSchema: z.ZodType;
   outputSchema?: z.ZodType;
   execute: (...args: never[]) => Promise<McpToolResult> | McpToolResult;

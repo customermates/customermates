@@ -19,6 +19,7 @@ import ContactInquiry from "../contact-inquiry";
 import Feedback from "../feedback";
 import LegalDocumentNoticeContract from "../legal-document-notice-contract";
 import LegalDocumentNoticeInformation from "../legal-document-notice-information";
+import MagicLinkEmail from "../magic-link";
 import NewUserNotification from "../new-user-notification";
 import NotificationEmail from "../notification-email";
 import PlanPauseNotice from "../plan-pause-notice";
@@ -147,12 +148,31 @@ const EMAIL_PREVIEW_CASES = [
     sourcePath: "features/auth/auth.service.ts",
     templatePath: "components/emails/verify-email.tsx",
     template: VerifyEmail,
-    expectedText: (locale) => catalog(locale).VerifyEmail.subject,
+    expectedText: (locale) => catalog(locale).VerifyEmail.title,
     render: (locale) => {
       const copy = catalog(locale).VerifyEmail;
       return createElement(VerifyEmail, {
         ...previewLayoutProps(locale),
-        url: `${PREVIEW_BASE_URL}/auth/verify-email?token=synthetic-preview-token`,
+        ...copy,
+        code: "482913",
+        subject: copy.subject.replace("{code}", "482913"),
+        expiry: copy.expiry.replace("{minutes}", "15"),
+      });
+    },
+  },
+  {
+    key: "magic-link",
+    sendSite: "magic-link",
+    audience: "recipient-localized",
+    sourcePath: "features/auth/auth.service.ts",
+    templatePath: "components/emails/magic-link.tsx",
+    template: MagicLinkEmail,
+    expectedText: (locale) => catalog(locale).MagicLinkEmail.subject,
+    render: (locale) => {
+      const copy = catalog(locale).MagicLinkEmail;
+      return createElement(MagicLinkEmail, {
+        ...previewLayoutProps(locale),
+        url: `${PREVIEW_BASE_URL}/api/auth/magic-link/verify?token=synthetic-preview-token`,
         ...copy,
       });
     },
@@ -554,11 +574,11 @@ const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
 );
 
 describe("transactional email preview inventory", () => {
-  it("maps all 17 production send sites onto 18 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(18);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(18);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(17);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(18);
+  it("maps all 18 production send sites onto 19 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(19);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(19);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(18);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(19);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -587,11 +607,11 @@ describe("transactional email preview inventory", () => {
   });
 
   it("keeps recipient localization and internal English explicit", () => {
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(14);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(15);
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(4);
   });
 
-  it("discovers all 18 top-level production templates", () => {
+  it("discovers all 19 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -617,7 +637,7 @@ describe("transactional email preview inventory", () => {
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(116);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(124);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(

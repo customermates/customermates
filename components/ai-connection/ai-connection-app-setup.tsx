@@ -10,7 +10,6 @@ import { CopyableCode } from "@/components/shared/copyable-code";
 type Props = {
   mcpUrl: string;
   provider: AiConnectionAppProvider;
-  workspaceName: string;
 };
 
 const GUIDE_HREF: Record<AiConnectionAppProvider, string> = {
@@ -18,7 +17,7 @@ const GUIDE_HREF: Record<AiConnectionAppProvider, string> = {
   langdock: "/docs/connect-custom-connector#langdock",
 };
 
-export function AiConnectionAppSetup({ mcpUrl, provider, workspaceName }: Props) {
+export function AiConnectionAppSetup({ mcpUrl, provider }: Props) {
   const t = useTranslations();
   const client = t(`OnboardingWizard.ai.choices.${provider}`);
 
@@ -38,10 +37,7 @@ export function AiConnectionAppSetup({ mcpUrl, provider, workspaceName }: Props)
         <CopyableCode value={mcpUrl} />
 
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {t("OnboardingWizard.ai.connector.workspaceNote", {
-            client,
-            workspace: workspaceName,
-          })}
+          {t("OnboardingWizard.ai.connector.workspaceNote", { client })}
         </p>
       </div>
 

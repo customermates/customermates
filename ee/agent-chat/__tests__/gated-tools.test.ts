@@ -466,7 +466,7 @@ describe("gated-tools", () => {
       admin: 3,
       support: 1,
     });
-    expect(MCP_ALWAYS_ON_TOOLS).toHaveLength(2);
+    expect(MCP_ALWAYS_ON_TOOLS).toHaveLength(5);
     expect(readOnlyNames().sort()).toMatchSnapshot();
     expect(approvalFreeWriteNames().sort()).toMatchSnapshot();
     expect(approvalRequiredNames().sort()).toMatchSnapshot();

@@ -10,9 +10,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
+import { SetupAnswersSchema, touchAnswer } from "@/features/workspace-setup/setup-answers.schema";
 import { setupVisibleAnswers } from "@/features/workspace-setup/setup-interview";
-import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
 
 import { SaveWorkspaceSetupAnswersSchema } from "./workspace-setup-input.schema";
 import { workspaceSetupUnavailability } from "./workspace-setup-availability";

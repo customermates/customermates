@@ -1,4 +1,3 @@
-import type { ChipColor } from "@/constants/chip-colors";
 import type { WikiGraph, WikiGraphNode } from "@/features/wiki/wiki-graph.schema";
 import type { WikiPageKind } from "@/features/wiki/wiki.schema";
 
@@ -17,12 +16,6 @@ const LABEL_GAP = 3;
 const LABEL_PADDING = 3;
 
 export type WikiGraphTransform = { k: number; x: number; y: number };
-
-export const WIKI_KIND_CHIP: Record<WikiPageKind, ChipColor | "ink"> = {
-  guide: "ink",
-  procedure: "info",
-  knowledge: "secondary",
-};
 
 export const WIKI_GRAPH_KIND_NODE: Record<WikiPageKind, { tint: string; ring: string }> = {
   guide: { tint: "fill-background", ring: "stroke-foreground" },

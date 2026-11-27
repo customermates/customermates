@@ -22,6 +22,7 @@ import {
 } from "@/core/di";
 import { serializeResult, serializeTypedResult, settleActionResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
+import { refuseBots } from "@/core/security/bot-check";
 import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
@@ -32,6 +33,7 @@ import {
   readRegistrationSignupTemplate,
 } from "@/features/acquisition/next/signup-journey-cookie";
 import { appLocaleOrDefault, buildLocalePath } from "@/i18n/locale-registry";
+import * as ErrorReporter from "@/core/observability/server";
 
 async function settleInLocale<T>(outcome: Parameters<typeof settleActionResult<T>>[0]) {
   const settled = await settleActionResult(outcome);
@@ -39,7 +41,13 @@ async function settleInLocale<T>(outcome: Parameters<typeof settleActionResult<T
   return settled;
 }
 
-export async function registerProfileAction(data: RegisterOnboardingProfileData) {
+export async function registerProfileAction(
+  data: RegisterOnboardingProfileData,
+  discovery?: RecordDiscoveryAnswerData,
+) {
+  const refused = await refuseBots();
+  if (refused) return refused;
+
   const adAttribution = await readRegistrationAdAttribution();
   const signupSource = await readRegistrationSignupSource();
   const signupTemplate = await readRegistrationSignupTemplate();
@@ -51,6 +59,7 @@ export async function registerProfileAction(data: RegisterOnboardingProfileData)
   if (isRedirect(registrationResult)) redirect(await appRedirectHref(registrationResult.redirect));
   const result = await serializeResult(registrationResult);
   if (result.ok) {
+    if (discovery) await getRecordDiscoveryAnswerInteractor().invoke(discovery).catch(ErrorReporter.captureException);
     await clearRegisteredAdClicksFromCookie();
     await forgetSignupJourney();
     refresh();
@@ -77,10 +86,6 @@ export async function completeOnboardingSetupStepAction() {
 
 export async function selectOnboardingJobAction(data: SelectOnboardingJobData) {
   return serializeTypedResult(await settleInLocale(getSelectOnboardingJobInteractor().invoke(data)));
-}
-
-export async function recordDiscoveryAnswerAction(data: RecordDiscoveryAnswerData) {
-  return serializeTypedResult(await settleInLocale(getRecordDiscoveryAnswerInteractor().invoke(data)));
 }
 
 export async function applyOnboardingPlaybookAction(data: Pick<ApplyOnboardingPlaybookData, "playbook">) {

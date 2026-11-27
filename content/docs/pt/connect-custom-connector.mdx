@@ -11,17 +11,15 @@ Este é o caminho recomendado para o **Claude** (web, desktop e celular) e o **C
 
 ## Qual URL eu colo? [#the-url]
 
-Cada espaço de trabalho tem a própria URL de MCP:
+Há uma única URL para toda a sua conta:
 
 ```
-<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>
+<BASE_URL>/api/v1/mcp
 ```
 
-`<BASE_URL>` é o endereço pelo qual você abre o Customermates, na nuvem ou na sua própria instância, e `<WORKSPACE_ID>` identifica o espaço de trabalho. Você não precisa montá-la: o Customermates mostra a URL do seu espaço de trabalho atual, com um botão de copiar, em [Chaves de API e conectores](app:settings/api-keys) quando você clica em [Adicionar](app:settings/api-keys?focus=generate) e escolhe **Claude** e depois **Conta do Claude** (ou **ChatGPT & Codex** e depois **App do ChatGPT**), e na etapa inicial **Conecte a IA que você já usa**. Troque de espaço de trabalho para copiar a URL de outro.
+`<BASE_URL>` é o endereço pelo qual você abre o Customermates, na nuvem ou na sua própria instância. Você não precisa montá-la: o Customermates a mostra com um botão de copiar em [Chaves de API e conectores](app:settings/api-keys) quando você clica em [Adicionar](app:settings/api-keys?focus=generate) e escolhe **Claude** e depois **Conta do Claude** (ou **ChatGPT & Codex** e depois **App do ChatGPT**), e na etapa inicial **Conecte a IA que você já usa**.
 
-Como cada espaço de trabalho tem a própria URL, você pode adicionar vários espaços de trabalho ao Claude ao mesmo tempo, um conector por espaço. O Claude recusa um segundo conector com uma URL que ele já tem ("A connector with this URL already exists in your organization"), então um segundo espaço de trabalho precisa da própria URL.
-
-`<BASE_URL>/api/v1/mcp` continua funcionando: ela oferece as mesmas ferramentas, e a tela de consentimento pergunta a qual espaço de trabalho a conexão será atribuída. As conexões que você adicionou antes com ela continuam como estavam.
+Um conector cobre todos os espaços de trabalho dos quais você faz parte. Você o aprova uma vez para a sua conta, e a sua IA indica o espaço de trabalho em cada chamada, ou pergunta qual você quer dizer quando há vários. Um espaço de trabalho em que você entrar ou que criar depois funciona sem reconectar. Os conectores que você adicionou antes com o endereço próprio de um espaço de trabalho continuam funcionando e ficam presos a esse espaço. O mesmo vale para as conexões que você aprovou antes de existirem as conexões da conta inteira: elas ficam presas ao espaço de trabalho escolhido na época. Para que uma conexão assim possa escolher entre todos os seus espaços de trabalho, remova o conector e conecte de novo.
 
 O conector funciona em todos os planos do Customermates e em instâncias com hospedagem própria; apenas as ferramentas de mensagens, calendário e redes sociais exigem, na nuvem, um plano com mensagens, Pro ou superior.
 
@@ -46,14 +44,14 @@ De volta ao Claude, o Customermates aparece com as ferramentas listadas.
 
 Adicione uma vez e ele sincroniza com o Claude na web, no desktop e no celular. A conexão fica vinculada à sua conta do Claude, não a um único dispositivo, e é renovada em segundo plano.
 
-Com um clique só: no Customermates, abra [Chaves de API e conectores](app:settings/api-keys), clique em [Adicionar](app:settings/api-keys?focus=generate), escolha **Claude** em **Conexões rápidas**, depois **Conta do Claude**, e clique em **Adicionar ao Claude**. Isso abre a janela de adicionar conector do Claude já preenchida com a URL do espaço de trabalho atual e com um nome de conector que inclui o nome do espaço de trabalho (apenas Claude web e Teams). A etapa inicial **Conecte a IA que você já usa** oferece o mesmo botão. **Adicionar** exige **Criar** em **API e webhooks**; sem essa permissão, cole a URL como explicado acima.
+Com um clique só: no Customermates, abra [Chaves de API e conectores](app:settings/api-keys), clique em [Adicionar](app:settings/api-keys?focus=generate), escolha **Claude** em **Conexões rápidas**, depois **Conta do Claude**, e clique em **Adicionar ao Claude**. Isso abre a janela de adicionar conector do Claude já preenchida com a URL e com o nome de conector **Customermates** (apenas Claude web e Teams). A etapa inicial **Conecte a IA que você já usa** oferece o mesmo botão. **Adicionar** exige **Criar** em **API e webhooks**; sem essa permissão, cole a URL como explicado acima.
 
 ## Como conecto o ChatGPT? [#chatgpt]
 
 No chatgpt.com, abra **[Plugins](https://chatgpt.com/plugins) → + → Add custom MCP server**:
 
 - **Name:** Customermates
-- **Connection:** o endpoint público, a URL do seu espaço de trabalho `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([qual URL](#the-url))
+- **Connection:** o endpoint público `<BASE_URL>/api/v1/mcp` ([qual URL](#the-url))
 - **Authentication:** OAuth
 
 Confirme o aviso de risco com **I understand and want to continue** e depois **Create as a plugin**. O ChatGPT abre uma janela do Customermates. Entre na sua conta e clique em **Aprovar** na tela de consentimento. Todas as ferramentas do Customermates aparecem listadas, sem nenhuma chave para guardar ou trocar.
@@ -84,7 +82,7 @@ O conector abre uma janela do Customermates:
 Ou você já está conectado.
 </Step>
 <Step title="Leia o que está sendo autorizado">
-A tela de consentimento, intitulada **Conectar … a …**, informa o app que está se conectando, lista o que ele solicita (como **Confirmar sua identidade**, **Ler seu perfil básico**, **Ler seu endereço de e-mail** e **Manter a conexão enquanto você estiver ausente**) e mostra **Destino da conexão** com o host para o qual o acesso será enviado. Com a URL de um espaço de trabalho, ela mostra esse espaço de trabalho com o avatar dele, e a conexão recebe exatamente esse espaço. Com `<BASE_URL>/api/v1/mcp` e vários espaços de trabalho, ela pergunta a qual espaço a conexão será atribuída; o seu espaço de trabalho atual já vem selecionado.
+A tela de consentimento, intitulada **Permitir que … use a sua conta do Customermates**, informa o app que está se conectando, lista o que ele solicita (como **Confirmar sua identidade**, **Ler seu perfil básico**, **Ler seu endereço de e-mail** e **Manter a conexão enquanto você estiver ausente**) e mostra **Destino da conexão** com o host para o qual o acesso será enviado. Ela também lista os espaços de trabalho que o app pode usar, cada um com o nome e a sua função nele, e uma última linha, **Novos espaços de trabalho que ele cria para você**. Não há espaço de trabalho para escolher: a conexão cobre todos eles.
 </Step>
 <Step title="Aprove">
 Clique em **Aprovar**, ou em **Negar** para recusar.
@@ -93,17 +91,17 @@ Clique em **Aprovar**, ou em **Negar** para recusar.
 
 Você volta para a sua IA, conectado, com as ferramentas do Customermates listadas.
 
-Se você não consegue conectar o espaço de trabalho da URL, a tela explica o motivo e oferece apenas **Negar**: você não é membro dele (entre com a conta que usa lá), o seu pedido para entrar está aguardando aprovação, o seu acesso está desativado, a sua função não tem **Acesso de leitura** **Todos** em **API e webhooks**, o espaço de trabalho não tem uma assinatura ativa, ou é preciso aceitar termos atualizados.
+Um espaço de trabalho que o app não pode usar aparece na lista com o motivo: o seu pedido para entrar está aguardando aprovação, o seu acesso está desativado, a sua função não tem **Acesso de leitura** **Todos** em **API e webhooks**, o espaço de trabalho não tem uma assinatura ativa, ou é preciso aceitar termos atualizados. Mesmo assim, aprovar funciona, e também funciona quando você ainda não tem nenhum espaço de trabalho: um login sem espaço de trabalho também pode aprovar e, no Cloud, aceita os termos na própria tela de consentimento. No Cloud, a sua IA pode então criar o primeiro espaço de trabalho para você.
 
-O conector aceita qualquer cliente, então a tela de consentimento é a barreira. Aprove apenas uma conexão que você mesmo iniciou e clique em **Negar** em qualquer uma que você não iniciou. Conectar por OAuth não exige chave de API, mas a sua função precisa de **Acesso de leitura** **Todos** em **API e webhooks**, como em toda conexão MCP; sem isso, a tela recusa a conexão.
+O conector aceita qualquer cliente, então a tela de consentimento é a barreira. Aprove apenas uma conexão que você mesmo iniciou e clique em **Negar** em qualquer uma que você não iniciou. Conectar por OAuth não exige chave de API, mas em cada espaço de trabalho a sua função precisa de **Acesso de leitura** **Todos** em **API e webhooks**, como em toda conexão MCP; um espaço de trabalho sem isso aparece como um espaço que o app não pode usar.
 
 ## Por quanto tempo a conexão continua válida? [#it-syncs-and-stays-connected]
 
 - Adicione uma vez no Claude web e ela aparece também no **desktop e no celular**. A conexão fica vinculada à sua conta do Claude, não a um único dispositivo.
 - Ela é renovada em segundo plano. Use-a em qualquer janela de 30 dias e você nunca precisa autorizar de novo; se ficar parada por mais tempo, você aprova mais uma vez.
-- Cada chamada é executada como o usuário do Customermates que aprovou, dentro do espaço de trabalho escolhido na tela de consentimento e com as permissões da função desse usuário nele. As chaves de API funcionam do mesmo jeito: herdam as permissões do usuário dono no espaço de trabalho em que foram criadas, e não existe escopo por chave.
-- Uma conexão fica no próprio espaço de trabalho, inclusive os tokens renovados. Para trabalhar em vários espaços de trabalho, adicione um conector por espaço com a URL desse espaço; eles funcionam lado a lado na mesma conta do Claude. Veja [Espaços de trabalho](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
-- Se esse usuário for definido como **Inativo**, toda chamada que lê ou altera dados do espaço de trabalho falha com "Sua conta de usuário está inativa. Entre em contato com um administrador do espaço de trabalho." até que um membro com **Editar** em **Usuários e funções** volte o usuário para **Ativo**.
+- Cada chamada é executada como o usuário do Customermates que aprovou, com a função desse usuário no espaço de trabalho que a chamada indica. As chaves de API funcionam do mesmo jeito: herdam as permissões do usuário dono no espaço de trabalho em que foram criadas, e não existe escopo por chave.
+- O espaço de trabalho é escolhido a cada chamada, não uma vez só. Toda ferramenta aceita um argumento opcional `workspace`, o slug ou o id do espaço de trabalho. Com exatamente um espaço de trabalho que a conexão pode usar, uma chamada sem ele usa esse espaço. Com vários, uma chamada sem ele é recusada com a lista dos seus espaços de trabalho e o pedido para passar `workspace`, então nada cai no espaço errado por padrão. Veja [como um agente escolhe o espaço de trabalho](/docs/mcp#choosing-the-workspace) e [Espaços de trabalho](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+- Se esse usuário for definido como **Inativo** em um espaço de trabalho, toda chamada que o indica e lê ou altera dados do espaço de trabalho falha com "Sua conta de usuário está inativa. Entre em contato com um administrador do espaço de trabalho." até que um membro com **Editar** em **Usuários e funções** volte o usuário para **Ativo**.
 
 ## O que devo testar primeiro? [#try-your-first-prompt]
 
@@ -132,10 +130,10 @@ Deixe em *Ask* toda ferramenta que não seja somente leitura. A lista completa e
 
 | Sintoma | Causa | Solução |
 |---|---|---|
-| "Couldn't register with the sign-in service" (Claude) ou "Connector verification failed" (ChatGPT) | A URL do servidor está errada ou inacessível | Copie a URL de novo no Customermates ([qual URL](#the-url)), ou use exatamente `<BASE_URL>/api/v1/mcp`, com o endereço pelo qual você abre o Customermates como `<BASE_URL>` |
-| "A connector with this URL already exists in your organization" (Claude) | Essa URL já está conectada, possivelmente para outro espaço de trabalho | Adicione o outro espaço de trabalho com a própria URL, copiada enquanto esse espaço está aberto |
-| A URL de um espaço de trabalho responde HTTP `401` com `error="invalid_token"` | A conexão foi aprovada para outro espaço de trabalho | Conecte de novo; o cliente pede o login outra vez para o espaço de trabalho da URL |
-| A URL de um espaço de trabalho responde HTTP `403` com `error: workspace_mismatch` (chave de cabeçalho) | A chave de API pertence a outro espaço de trabalho | Use a URL do espaço de trabalho da chave, ou crie uma chave neste espaço de trabalho |
+| "Couldn't register with the sign-in service" (Claude) ou "Connector verification failed" (ChatGPT) | A URL do servidor está errada ou inacessível | Copie a URL de novo no Customermates ([qual URL](#the-url)); ela é exatamente `<BASE_URL>/api/v1/mcp`, com o endereço pelo qual você abre o Customermates como `<BASE_URL>` |
+| A IA diz que precisa de um `workspace` | Você faz parte de vários espaços de trabalho e a chamada não indicou nenhum | Cite o espaço de trabalho na sua mensagem, ou peça à IA que chame `list_workspaces` e escolha um |
+| Um espaço de trabalho é recusado como não utilizável | O seu pedido para entrar está aguardando, o seu acesso está desativado, a sua função não tem **Acesso de leitura** **Todos** em **API e webhooks**, o espaço de trabalho não tem uma assinatura ativa, ou há termos atualizados pendentes | Resolva o motivo que `list_workspaces` mostra, por exemplo peça a um administrador que aprove você ou conceda a permissão; não é preciso reconectar |
+| Uma chave de API é recusada para outro `workspace` | Uma chave de API continua presa ao espaço de trabalho em que foi criada | Crie uma chave no espaço de trabalho em que você quer trabalhar; uma chave nunca alcança dois espaços de trabalho |
 | O conector não lista nenhuma ferramenta e o servidor responde HTTP `401` (ChatGPT com cabeçalho) | O valor de `x-api-key` está errado, truncado, expirado ou foi excluído | Crie uma chave nova em [Chaves de API e conectores](app:settings/api-keys) e cole os 64 caracteres completos |
 | Toda chamada que lê ou altera dados do espaço de trabalho diz "Sua conta de usuário está inativa. Entre em contato com um administrador do espaço de trabalho." | O seu usuário do Customermates foi definido como **Inativo** | Um membro com **Editar** em **Usuários e funções** volta você para **Ativo** em [Membros](app:settings/members) |
 | Não aparece a opção "Add custom connector" | Plano Free | O ChatGPT exige um plano pago; o Claude Free permite um conector personalizado, então remova outro antes. Veja [o método por CLI](/docs/connect-cli) |
@@ -157,7 +155,7 @@ No ChatGPT, as políticas da conta e do espaço de trabalho decidem sobre servid
 
 ## Grok e Grok Bot [#grok-bot]
 
-**Chat do Grok:** abra [grok.com/connectors](https://grok.com/connectors), clique em **New Connector**, escolha **Custom** e cole a URL do seu espaço de trabalho ([qual URL](#the-url)). O Grok abre uma janela do Customermates: entre e clique em **Aprovar**. No Grok Business e no Enterprise, um administrador da equipe adiciona antes o conector no console da xAI.
+**Chat do Grok:** abra [grok.com/connectors](https://grok.com/connectors), clique em **New Connector**, escolha **Custom** e cole a URL ([qual URL](#the-url)). O Grok abre uma janela do Customermates: entre e clique em **Aprovar**. No Grok Business e no Enterprise, um administrador da equipe adiciona antes o conector no console da xAI.
 
 **Grok Bot:** em **Connect apps**, escolha **Add a custom connector**, digite o nome Customermates, escolha o tipo **Remote HTTPS** e cole a URL como **Server URL**. Adicione o cabeçalho HTTP `x-api-key` com uma chave de API padrão ([chaves de API](/docs/api-keys)) e escolha **Add plugin**. Se preferir, o Grok Bot também pode trabalhar no Customermates pelo navegador dele.
 
@@ -165,6 +163,6 @@ No Customermates, [Chaves de API e conectores](app:settings/api-keys) → **Adic
 
 ## Langdock [#langdock]
 
-No Langdock, adicione uma integração MCP e cole a URL do seu espaço de trabalho ([qual URL](#the-url)). Como método de autenticação escolha **OAuth 2.0 (Dynamic Client Registration)**, salve e conecte. Abre-se uma janela do Customermates: entre e clique em **Aprovar**. O Langdock lista as ferramentas do Customermates e você escolhe quais ele pode usar.
+No Langdock, adicione uma integração MCP e cole a URL ([qual URL](#the-url)). Como método de autenticação escolha **OAuth 2.0 (Dynamic Client Registration)**, salve e conecte. Abre-se uma janela do Customermates: entre e clique em **Aprovar**. O Langdock lista as ferramentas do Customermates e você escolhe quais ele pode usar.
 
 O Langdock bloqueia por padrão endereços de rede privados e internos, então uma instância auto-hospedada precisa de um endereço HTTPS público. No Customermates, [Chaves de API e conectores](app:settings/api-keys) → **Adicionar** → **Langdock** mostra a URL com um botão de copiar. Fonte: o [guia oficial de MCP do Langdock](https://docs.langdock.com/en/using-langdock/guides/integrations/mcp/mcp), conferido em 24 de novembro de 2026.

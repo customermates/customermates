@@ -21,11 +21,6 @@ function part(id: string) {
 }
 
 const user = (value: NonNullable<SetupAnswers[string]>["value"]) => ({ source: "user" as const, confidence: 1, value });
-const website = (value: NonNullable<SetupAnswers[string]>["value"]) => ({
-  source: "website" as const,
-  confidence: 0.9,
-  value,
-});
 
 const purpose = (...values: string[]) => user({ format: "multipleChoice", values, custom: [] });
 
@@ -49,7 +44,7 @@ describe("resolveSetupStage", () => {
     expect(resolveSetupStage(null)).toBe("unavailable");
   });
 
-  it("asks for a website when no setup exists yet", () => {
+  it("starts a setup when none exists yet", () => {
     expect(resolveSetupStage({ available: true, setup: null })).toBe("start");
   });
 
@@ -86,16 +81,16 @@ describe("resolveSetupStage", () => {
 });
 
 describe("mergeServerAnswers", () => {
-  it("takes late website guesses for untouched questions but never overwrites a touched answer", () => {
-    const local: SetupAnswers = { companyName: user({ format: "shortText", value: "Typed by owner" }) };
+  it("takes server answers for untouched questions but never overwrites a touched answer", () => {
+    const local: SetupAnswers = { workWith: user({ format: "singleChoice", value: "clients" }) };
     const server: SetupAnswers = {
-      companyName: website({ format: "shortText", value: "From website" }),
-      teamSize: website({ format: "singleChoice", value: "small" }),
+      workWith: user({ format: "singleChoice", value: "customers" }),
+      teamSize: user({ format: "singleChoice", value: "small" }),
     };
 
-    const merged = mergeServerAnswers(local, new Set(["companyName"]), server);
+    const merged = mergeServerAnswers(local, new Set(["workWith"]), server);
 
-    expect(merged.companyName?.value).toEqual({ format: "shortText", value: "Typed by owner" });
+    expect(merged.workWith?.value).toEqual({ format: "singleChoice", value: "clients" });
     expect(merged.teamSize).toEqual(server.teamSize);
   });
 
@@ -115,31 +110,35 @@ describe("visibility, completeness and payload", () => {
     expect(partVisible(part("pricing"), ANSWERS)).toBe(true);
   });
 
-  it("defaults the language to the interface and the currency to the interface's usual one", () => {
-    expect(displayedAnswerValue(part("language"), {}, "de")).toEqual({ format: "singleChoice", value: "de" });
-    expect(displayedAnswerValue(part("currency"), {}, "de")).toEqual({ format: "singleChoice", value: "EUR" });
-    expect(displayedAnswerValue(part("currency"), {}, "en")).toEqual({ format: "singleChoice", value: "USD" });
+  it("preselects example records and leaves the other choices open", () => {
+    expect(displayedAnswerValue(part("existingData"), {})).toEqual({ format: "singleChoice", value: "sampleData" });
+    expect(displayedAnswerValue(part("workWith"), {})).toBeNull();
+    expect(displayedAnswerValue(part("language"), {})).toBeNull();
   });
 
-  it("lists every visible required answer still missing", () => {
-    expect(missingParts({}, "en")).toEqual(["workWith", "purpose", "existingData"]);
-    expect(missingParts(ANSWERS, "en")).toEqual([]);
-    expect(missingParts({ ...ANSWERS, purpose: purpose() }, "en")).toEqual(["purpose"]);
-    const withoutName = Object.fromEntries(Object.entries(ANSWERS).filter(([id]) => id !== "companyName"));
-    expect(missingParts(withoutName, "en")).toEqual([]);
+  it("lists every visible required question part still missing and never a profile part", () => {
+    expect(missingParts({})).toEqual(["workWith", "purpose"]);
+    expect(missingParts(ANSWERS)).toEqual([]);
+    expect(missingParts({ ...ANSWERS, purpose: purpose() })).toEqual(["purpose"]);
+    const withoutLanguage = Object.fromEntries(Object.entries(ANSWERS).filter(([id]) => id !== "language"));
+    expect(missingParts(withoutLanguage)).toEqual([]);
   });
 
-  it("clears answers to hidden questions and drops blank list entries", () => {
+  it("clears answers to hidden questions, drops blank list entries and never sends profile parts", () => {
     const answers: SetupAnswers = {
       ...ANSWERS,
       workWith: user({ format: "singleChoice", value: "ownWork" }),
       mainSteps: user({ format: "orderedList", items: [{ label: " Inquiry " }, { label: "  " }] }),
     };
 
-    const payload = answersPayload(answers, "en");
+    const payload = answersPayload(answers);
 
     expect(payload.pricing).toBeNull();
     expect(payload.mainSteps).toEqual({ format: "orderedList", items: [{ label: "Inquiry" }] });
-    expect(payload.companyName).toEqual({ format: "shortText", value: "Acme" });
+    expect(Object.keys(payload).sort()).toEqual(["existingData", "mainSteps", "pricing", "purpose", "workWith"]);
+  });
+
+  it("sends the preselected example records when the owner keeps them", () => {
+    expect(answersPayload({}).existingData).toEqual({ format: "singleChoice", value: "sampleData" });
   });
 });

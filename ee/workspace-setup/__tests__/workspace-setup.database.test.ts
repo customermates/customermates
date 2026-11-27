@@ -7,6 +7,7 @@ import type * as StructuredModelCall from "@/ee/agent-chat/structured-model-call
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { extractWikiLinkTargets } from "@/features/wiki/wiki-link-targets";
 
 const state = vi.hoisted(() => ({
   dispatch: vi.fn((..._args: unknown[]) => Promise.resolve()),
@@ -56,6 +57,7 @@ const { WORKSPACE_SETUP_BUDGETS } = await import("../workspace-setup-spend");
 const { SETUP_BUILD_PHASE_ATTEMPTS } = await import("../workspace-setup-attempts");
 const { SETUP_PHASE_STALE_MS, emptySetupPhase } = await import("../workspace-setup-phases");
 const { SETUP_GENERATION_STALE_MS } = await import("../workspace-setup-interview.service");
+const { StartAgentWorkspaceSetupInteractor: AgentSetup } = await import("../start-agent-workspace-setup.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -162,78 +164,8 @@ function modelReplies() {
   );
 }
 
-type MappingReply = {
-  columns: Array<{ column: string; field: string | null; namePart?: "first" | "last" }>;
-  relationships: Array<{ column: string; relationship: string | null }>;
-};
-
-function promptKey(prompt: string, prefix: string, label: string) {
-  const line = prompt.split("\n").find((entry) => entry.startsWith(prefix)) ?? `${prefix}[]`;
-  const entries = JSON.parse(line.slice(prefix.length)) as { key: string; label: string }[];
-  return entries.find((entry) => entry.label === label)?.key ?? null;
-}
-
-function mappingReplies(reply: (key: (prefix: string, label: string) => string | null) => MappingReply | null) {
-  const planReply = state.generate.getMockImplementation();
-  state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) => {
-    if (args.label !== "Workspace setup column mapping") return planReply?.(args);
-    const charge = { ...CHARGE, model: args.model.modelId };
-    const output = reply((prefix, label) => promptKey(args.prompt, prefix, label));
-    if (!output) return Promise.resolve({ output: null, charge, failure: "provider down", failureScope: "provider" });
-    return Promise.resolve({
-      output: {
-        columns: output.columns.map((column) => ({ dateOrder: null, currency: null, namePart: null, ...column })),
-        relationships: output.relationships,
-        phoneCountryCode: null,
-      },
-      charge,
-    });
-  });
-}
-
-const CLIENTS_CSV = [
-  "Full name,Email,Phone,Company,Job title",
-  "Mary Ann Collins,mary.collins@example.net,+44 20 7946 0005,,Owner",
-  "Priya Patel,keine,+44 20 7946 0003,Northgate Analytics,Head of People",
-  "Jack Whitmore,jack.whitmore@example.com,+44 20 7946 0006,Northgate Analytics,CFO",
-  "Lily Chen,lily.chen@example.com,+44 20 7946 0019,Brightwave Media,Account Director",
-].join("\n");
-
-async function spreadsheetSetup(ws: Workspace, csv: string) {
-  const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
-  if (!started.ok) throw new Error(JSON.stringify(started.error));
-  const setupId = started.data.setupId;
-  const uploaded = await ws.run(() =>
-    di
-      .getUploadWorkspaceSetupSpreadsheetInteractor()
-      .invoke({ setupId, fileName: "clients.csv", bytes: new TextEncoder().encode(csv) }),
-  );
-  expect(uploaded).toMatchObject({ ok: true, data: { accepted: true } });
-  const saved = await ws.run(() =>
-    di.getSaveWorkspaceSetupAnswersInteractor().invoke({
-      setupId,
-      answers: {
-        companyName: { format: "shortText", value: "Studio Example" },
-        language: { format: "singleChoice", value: "en" },
-        currency: { format: "singleChoice", value: "EUR" },
-        existingData: { format: "singleChoice", value: "spreadsheet" },
-      },
-      followUpAnswers: [],
-    }),
-  );
-  if (!saved.ok) throw new Error(JSON.stringify(saved.error));
-  const queued = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
-  if (!queued.ok) throw new Error(JSON.stringify(queued.error));
-  expect(await draftPlan(ws, setupId)).toBe("planned");
-  const confirmed = await ws.run(() =>
-    di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: queued.data.planRevision }),
-  );
-  expect(confirmed.ok).toBe(true);
-  return setupId;
-}
-
 async function planned(ws: Workspace) {
-  const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+  const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({}));
   if (!started.ok) throw new Error(JSON.stringify(started.error));
   const setupId = started.data.setupId;
   const saved = await ws.run(() =>
@@ -278,7 +210,7 @@ async function references(ws: Workspace, setupId: string) {
 async function build(ws: Workspace, setupId: string) {
   const service = di.getWorkspaceSetupBuildService();
   const results: Record<string, string> = {};
-  for (const phase of ["knowledgeBase", "dataModel", "views", "records", "dashboard"] as const) {
+  for (const phase of ["dataModel", "views", "records", "dashboard", "knowledgeBase"] as const) {
     for (let round = 0; round < SETUP_BUILD_PHASE_ATTEMPTS + 1; round += 1) {
       results[phase] = await ws.run(() => service.runPhase(setupId, phase, false, RUN_ID));
       if (results[phase] !== "wait") break;
@@ -314,7 +246,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const ws = await workspace();
     expect(await ws.run(() => createTestRecordRepo().getModel())).toMatchObject({ revision: 0, types: [] });
     const { setupId, planRevision } = await planned(ws);
-    expect(state.dispatch).toHaveBeenCalledWith("prepare-workspace-setup", { setupId, userId: ws.owner.id });
+    expect(state.dispatch).not.toHaveBeenCalledWith("prepare-workspace-setup", expect.anything());
     expect(state.dispatch).toHaveBeenCalledWith("plan-workspace-setup", { setupId, userId: ws.owner.id });
     expect((await status(ws)).status).toBe("planned");
 
@@ -339,13 +271,20 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       ["dashboard", "completed", 1],
     ]);
     expect(view.results.pages.map((page) => page.title)).toEqual(["About the agency", "Operating Guide"]);
-    expect(view.knowledgeBase).toMatchObject({ crawlStatus: null, pagesPlanned: 4, pagesWritten: 2 });
+    expect(view.knowledgeBase).toEqual({ pagesPlanned: 4, pagesWritten: 2 });
     const [about, guide] = await runWithoutTenant(() =>
       Promise.all(view.results.pages.map((page) => prisma.wikiPage.findUniqueOrThrow({ where: { id: page.id } }))),
     );
     expect(about).toMatchObject({ kind: "knowledge" });
     expect(JSON.stringify(about)).toContain("Answers given during the workspace setup");
     expect(guide).toMatchObject({ kind: "guide" });
+    const linkTargets = (page: { id: string; markdown: string }) =>
+      extractWikiLinkTargets(page.markdown, { baseUrl: "http://localhost:4000", workspaceSlug: null, pageId: page.id });
+    const listIds = view.results.lists.map((list) => list.id).sort();
+    expect(linkTargets(guide).pages).toEqual([about.id]);
+    expect(linkTargets(guide).lists.sort()).toEqual(listIds);
+    expect(linkTargets(about).pages).toEqual([guide.id]);
+    expect(linkTargets(about).lists.every((id) => listIds.includes(id))).toBe(true);
     expect(view.results.lists.map((list) => list.key)).toEqual([
       "contact",
       "organization",
@@ -475,16 +414,14 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const { loadTemplate } = await import("@/core/templates/template-registry");
     const ws = await workspace();
     const started = await ws.run(() =>
-      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
+      di.getStartWorkspaceSetupInteractor().invoke({ templateSlug: "sales-pipeline" }),
     );
     if (!started.ok) throw new Error(JSON.stringify(started.error));
     const setupId = started.data.setupId;
     expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.interview.templateSlug).toBe(
       "sales-pipeline",
     );
-    const again = await ws.run(() =>
-      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
-    );
+    const again = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ templateSlug: "sales-pipeline" }));
     expect(again).toEqual({ ok: true, data: { setupId } });
     const saved = await ws.run(() =>
       di.getSaveWorkspaceSetupAnswersInteractor().invoke({
@@ -522,18 +459,14 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
 
   it("restarts a setup that was started with another template", async () => {
     const ws = await workspace();
-    const first = await ws.run(() =>
-      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
-    );
+    const first = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ templateSlug: "sales-pipeline" }));
     if (!first.ok) throw new Error(JSON.stringify(first.error));
-    const second = await ws.run(() =>
-      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "client-tracker" }),
-    );
+    const second = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ templateSlug: "client-tracker" }));
     expect(second).toEqual({ ok: true, data: { setupId: first.data.setupId } });
     expect((await ws.run(() => di.getWorkspaceSetupRepo().get(first.data.setupId)))?.interview.templateSlug).toBe(
       "client-tracker",
     );
-    const none = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    const none = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({}));
     expect(none).toEqual({ ok: true, data: { setupId: first.data.setupId } });
     expect((await ws.run(() => di.getWorkspaceSetupRepo().get(first.data.setupId)))?.interview.templateSlug).toBeNull();
   });
@@ -976,182 +909,11 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(setup?.created.sampleRecords).toEqual([]);
   });
 
-  it("waits for the website import and records the pages it wrote", async () => {
-    const ws = await workspace();
-    const { setupId, planRevision } = await planned(ws);
-    const created = await ws.run(() =>
-      di.getCreateWikiPagesInteractor().invoke({
-        requireEmpty: false,
-        pages: [{ title: "About Studio Example", kind: "knowledge", markdown: "We design websites." }],
-      }),
-    );
-    if (!created.ok) throw new Error(JSON.stringify(created.error));
-    const crawl = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.create({
-        data: {
-          companyId: ws.companyId,
-          userId: ws.owner.id,
-          clientRequestId: randomUUID(),
-          homepageUrl: "https://studio.example/",
-          registrableDomain: "studio.example",
-          locale: "en",
-          payer: "workspaceSetup",
-          status: "synthesizing",
-          targets: [{ url: "https://studio.example/", category: "about", status: "read" }],
-          topics: [
-            {
-              title: "About Studio Example",
-              role: "company_overview",
-              sourceIds: [],
-              status: "created",
-              pageId: created.data[0].id,
-            },
-          ],
-        },
-      }),
-    );
-    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
-    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
-    const service = di.getWorkspaceSetupBuildService();
-    expect(await ws.run(() => service.runPhase(setupId, "knowledgeBase", false, RUN_ID))).toBe("wait");
-    expect(await ws.run(() => service.runPhase(setupId, "knowledgeBase", false, RUN_ID))).toBe("wait");
-    expect((await status(ws)).phases[0]).toMatchObject({ key: "knowledgeBase", status: "running", attempts: 1 });
-    await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.update({ where: { id: crawl.id }, data: { status: "completed" } }),
-    );
-    expect(await ws.run(() => service.runPhase(setupId, "knowledgeBase", false, RUN_ID))).toBe("settled");
-    const view = await status(ws);
-    expect(view.phases[0]).toMatchObject({ status: "completed", attempts: 1 });
-    expect(view.results.pages).toEqual([{ id: created.data[0].id, title: "About Studio Example" }]);
-    expect(view.knowledgeBase).toMatchObject({ crawlStatus: "completed", pagesPlanned: 1, pagesWritten: 1 });
-  });
-
-  it("writes the Knowledge Base in the confirmed interview language, not the interface language", async () => {
-    const ws = await workspace();
-    const { setupId, planRevision } = await planned(ws);
-    const crawl = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.create({
-        data: {
-          companyId: ws.companyId,
-          userId: ws.owner.id,
-          clientRequestId: randomUUID(),
-          homepageUrl: "https://studio-example.de/",
-          registrableDomain: "studio-example.de",
-          locale: "de",
-          payer: "workspaceSetup",
-          status: "synthesizing",
-          targets: [{ url: "https://studio-example.de/preise", category: "pricing", status: "read" }],
-          sources: {
-            create: {
-              companyId: ws.companyId,
-              url: "https://studio-example.de/preise",
-              canonicalUrl: "https://studio-example.de/preise",
-              category: "pricing",
-              title: "Preise",
-              text: "Websites ab 5.000 Euro.",
-              contentHash: "pricing",
-            },
-          },
-        },
-      }),
-    );
-    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
-    expect(await ws.run(() => di.getWorkspaceSetupRepo().crawlSources(crawl.id))).toEqual([
-      expect.objectContaining({ category: "pricing", title: "Preise" }),
-    ]);
-
-    const confirmed = await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
-    expect(confirmed.ok).toBe(true);
-    const stored = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { locale: true } }),
-    );
-    expect(stored.locale).toBe("en");
-  });
-
-  it("plans the website import's pages from the confirmed plan and the pages a workspace without customers needs", async () => {
-    const ws = await workspace();
-    const { setupId } = await planned(ws);
-    const crawl = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.create({
-        data: {
-          companyId: ws.companyId,
-          userId: ws.owner.id,
-          clientRequestId: randomUUID(),
-          homepageUrl: "https://studio-example.com/",
-          registrableDomain: "studio-example.com",
-          locale: "en",
-          payer: "workspaceSetup",
-          status: "synthesizing",
-          targets: [{ url: "https://studio-example.com/", category: "about", status: "read" }],
-          sources: {
-            create: {
-              companyId: ws.companyId,
-              url: "https://studio-example.com/",
-              canonicalUrl: "https://studio-example.com/",
-              category: "about",
-              title: "Studio Example",
-              text: "Studio Example designs websites for marketing teams.",
-              contentHash: "home",
-            },
-          },
-        },
-      }),
-    );
-    const adjusted = await ws.run(() =>
-      di.getAdjustWorkspaceSetupInteractor().invoke({
-        setupId,
-        answers: {
-          workWith: { format: "singleChoice", value: "ownWork" },
-          purpose: { format: "multipleChoice", values: ["projects"], custom: [] },
-        },
-        followUpAnswers: [],
-      }),
-    );
-    if (!adjusted.ok) throw new Error(JSON.stringify(adjusted.error));
-    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
-    await draftPlan(ws, setupId);
-    const synthesis = di.getWikiWebsiteSynthesisService();
-    expect(await ws.run(() => synthesis.plan(crawl.id))).toBe("wait");
-
-    const confirmed = await ws.run(() =>
-      di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: adjusted.data.planRevision }),
-    );
-    expect(confirmed.ok).toBe(true);
-    state.generate.mockImplementationOnce((args: { model: { modelId: string }; prompt: string }) => {
-      expect(args.prompt).not.toContain('"key":"competitorA"');
-      return Promise.resolve({
-        output: { topics: [{ key: "overview", title: "x", role: "company_overview", sources: ["s1"] }] },
-        charge: { ...CHARGE, model: args.model.modelId },
-      });
-    });
-    expect(await ws.run(() => synthesis.plan(crawl.id))).toBe(5);
-    const stored = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { topics: true } }),
-    );
-    expect(stored.topics).toEqual([
-      expect.objectContaining({
-        title: "About the agency",
-        setupKey: "overview",
-        outline: ["What we do", "How we work"],
-      }),
-      expect.objectContaining({ title: "Voice and tone", role: "voice_and_tone" }),
-      expect.objectContaining({ title: "Frequently asked questions", role: "faq" }),
-      expect.objectContaining({ title: "Processes", role: "procedure" }),
-      expect.objectContaining({ title: "Operating Guide", role: "operating_guide" }),
-    ]);
-  });
-
-  it("withdraws a drafted plan when its answers or spreadsheet change, so the old plan cannot be built", async () => {
+  it("withdraws a drafted plan when its answers change, so the old plan cannot be built", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
     const confirm = (revision: number) =>
       ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: revision }));
-    const upload = (fileName: string) =>
-      ws.run(() =>
-        di
-          .getUploadWorkspaceSetupSpreadsheetInteractor()
-          .invoke({ setupId, fileName, bytes: new TextEncoder().encode("Name,Email\nAda Lovelace,ada@example.test") }),
-      );
 
     const saved = await ws.run(() =>
       di.getSaveWorkspaceSetupAnswersInteractor().invoke({
@@ -1163,129 +925,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(saved.ok).toBe(true);
     expect((await status(ws)).status).toBe("interview");
     expect(await confirm(planRevision)).toMatchObject({ ok: false });
-
-    const replanned = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
-    if (!replanned.ok) throw new Error(JSON.stringify(replanned.error));
-    expect(await draftPlan(ws, setupId)).toBe("planned");
-    expect(await upload("contacts.ods")).toMatchObject({ ok: true, data: { accepted: false } });
-    expect((await status(ws)).status).toBe("planned");
-    expect(await upload("contacts.csv")).toMatchObject({ ok: true, data: { accepted: true } });
-    expect((await status(ws)).status).toBe("interview");
-    expect(await confirm(replanned.data.planRevision)).toMatchObject({ ok: false });
     expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
-  });
-
-  it("writes no Knowledge Base before the plan is confirmed and resumes the website import at Confirm", async () => {
-    const ws = await workspace();
-    const { setupId, planRevision } = await planned(ws);
-    const crawl = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.create({
-        data: {
-          companyId: ws.companyId,
-          userId: ws.owner.id,
-          clientRequestId: randomUUID(),
-          homepageUrl: "https://studio-example.com/",
-          registrableDomain: "studio-example.com",
-          locale: "de",
-          payer: "workspaceSetup",
-          status: "synthesizing",
-          workflowRunId: "wrun_first_import",
-          importedPages: 1,
-          targets: [{ url: "https://studio-example.com/", category: "about", status: "read" }],
-          sources: {
-            create: {
-              companyId: ws.companyId,
-              url: "https://studio-example.com/",
-              canonicalUrl: "https://studio-example.com/",
-              category: "about",
-              title: "Studio Example",
-              text: "Studio Example designs websites for marketing teams.",
-              contentHash: "home",
-            },
-          },
-        },
-      }),
-    );
-    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
-    const synthesis = di.getWikiWebsiteSynthesisService();
-    const stored = () =>
-      runWithoutTenant(() =>
-        prisma.wikiWebsiteCrawl.findUniqueOrThrow({
-          where: { id: crawl.id },
-          select: { status: true, topics: true, locale: true, workflowRunId: true },
-        }),
-      );
-    const calls = state.generate.mock.calls.length;
-    expect(await ws.run(() => synthesis.plan(crawl.id, true))).toBe(0);
-    await ws.run(() => synthesis.settle(crawl.id));
-    expect(state.generate.mock.calls.length).toBe(calls);
-    expect(await stored()).toMatchObject({ status: "completed", topics: [] });
-
-    state.dispatch.mockClear();
-    const confirmed = await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
-    expect(confirmed.ok).toBe(true);
-    expect(state.dispatch).toHaveBeenCalledWith("crawl-wiki-website", { crawlId: crawl.id, userId: ws.owner.id });
-    expect(await stored()).toEqual({ status: "synthesizing", topics: null, locale: "en", workflowRunId: null });
-    expect(await ws.run(() => di.getWorkspaceSetupRepo().reopenCrawlSynthesis(crawl.id))).toBe(true);
-    await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.update({ where: { id: crawl.id }, data: { workflowRunId: "wrun_second_import" } }),
-    );
-    expect(await ws.run(() => di.getWorkspaceSetupRepo().reopenCrawlSynthesis(crawl.id))).toBe(false);
-    state.generate.mockImplementationOnce((args: { model: { modelId: string } }) =>
-      Promise.resolve({
-        output: { topics: [{ key: "overview", title: "x", role: "company_overview", sources: ["s1"] }] },
-        charge: { ...CHARGE, model: args.model.modelId },
-      }),
-    );
-    expect(await ws.run(() => synthesis.plan(crawl.id))).toBeGreaterThan(0);
-    expect((await stored()).topics).toEqual(
-      expect.arrayContaining([expect.objectContaining({ role: "company_overview", setupKey: "overview" })]),
-    );
-  });
-
-  it("resumes a website import whose pages were never planned when the owner retries the Knowledge Base", async () => {
-    const ws = await workspace();
-    const { setupId, planRevision } = await planned(ws);
-    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
-    const crawl = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.create({
-        data: {
-          companyId: ws.companyId,
-          userId: ws.owner.id,
-          clientRequestId: randomUUID(),
-          homepageUrl: "https://studio-example.com/",
-          registrableDomain: "studio-example.com",
-          locale: "en",
-          payer: "workspaceSetup",
-          status: "failed",
-          failureReason: "cancelled",
-          workflowRunId: "wrun_first_import",
-          topics: [],
-        },
-      }),
-    );
-    await ws.run(() =>
-      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
-        crawlId: crawl.id,
-        websiteUrl: "https://studio-example.com/",
-        phases: {
-          ...current.phases,
-          knowledgeBase: { ...emptySetupPhase(), status: "failed", error: "crawlFailed", attempts: 1 },
-        },
-      })),
-    );
-    state.dispatch.mockClear();
-    expect(
-      await ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "knowledgeBase" })),
-    ).toEqual({ ok: true, data: { setupId } });
-    expect(state.dispatch).toHaveBeenCalledWith("crawl-wiki-website", { crawlId: crawl.id, userId: ws.owner.id });
-    expect(await runWithoutTenant(() => prisma.wikiWebsiteCrawl.count({ where: { companyId: ws.companyId } }))).toBe(1);
-    expect(
-      await runWithoutTenant(() =>
-        prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { status: true } }),
-      ),
-    ).toEqual({ status: "synthesizing" });
-    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.crawlId).toBe(crawl.id);
   });
 
   it("applies the confirmed language to the formatting settings and stores no country on the owner", async () => {
@@ -1295,7 +935,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
         answers: {
           ...current.answers,
-          country: { source: "website", confidence: 0.9, value: { format: "singleChoice", value: "AT" } },
+          country: { source: "user", confidence: 1, value: { format: "singleChoice", value: "AT" } },
           language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "de" } },
         },
       })),
@@ -1316,108 +956,19 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await owner()).toEqual({ formattingLocale: "de" });
   });
 
-  it("reads a website named later in the interview and keeps the owner's own answers", async () => {
+  it("starts with the answers the profile gave and reads no website", async () => {
     const ws = await workspace();
-    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
-    if (!started.ok) throw new Error(JSON.stringify(started.error));
-    const setupId = started.data.setupId;
-    const saved = await ws.run(() =>
-      di.getSaveWorkspaceSetupAnswersInteractor().invoke({
-        setupId,
-        answers: { companyName: { format: "shortText", value: "Typed by owner" } },
-        followUpAnswers: [],
-      }),
-    );
-    expect(saved.ok).toBe(true);
-    await ws.run(() =>
-      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
-        answers: {
-          ...current.answers,
-          teamSize: { source: "website", confidence: 0.9, value: { format: "singleChoice", value: "small" } },
-        },
-        interview: { ...current.interview, prefill: "skipped" },
-      })),
-    );
     state.dispatch.mockClear();
-
-    const set = await ws.run(() =>
-      di.getSetWorkspaceSetupWebsiteInteractor().invoke({ setupId, websiteUrl: "studio-example.com", locale: "en" }),
-    );
-
-    expect(set).toEqual({ ok: true, data: { websiteUrl: "https://studio-example.com/" } });
-    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
-    expect(setup).toMatchObject({
-      websiteUrl: "https://studio-example.com/",
-      interview: { prefill: "idle" },
-    });
-    expect(setup?.crawlId).toEqual(expect.any(String));
-    expect(Object.keys(setup?.answers ?? {})).toEqual(["companyName"]);
-    expect(state.dispatch).toHaveBeenCalledWith("prepare-workspace-setup", { setupId, userId: ws.owner.id });
-    expect(
-      await ws.run(() =>
-        di.getSetWorkspaceSetupWebsiteInteractor().invoke({ setupId, websiteUrl: "not a website", locale: "en" }),
-      ),
-    ).toMatchObject({ ok: false });
-  });
-
-  it("keeps one tracked website import when the owner submits the website twice at once", async () => {
-    const ws = await workspace();
-    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ locale: "de" }));
     if (!started.ok) throw new Error(JSON.stringify(started.error));
-    const setupId = started.data.setupId;
-
-    const results = await Promise.all(
-      [0, 1].map(() =>
-        ws.run(() =>
-          di
-            .getSetWorkspaceSetupWebsiteInteractor()
-            .invoke({ setupId, websiteUrl: "studio-example.com", locale: "en" }),
-        ),
-      ),
-    );
-
-    expect(results).toEqual([
-      { ok: true, data: { websiteUrl: "https://studio-example.com/" } },
-      { ok: true, data: { websiteUrl: "https://studio-example.com/" } },
-    ]);
-    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
-    const active = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.findMany({
-        where: { companyId: ws.companyId, status: { notIn: ["completed", "failed", "blocked"] } },
-        select: { id: true },
-      }),
-    );
-    expect(active).toEqual([{ id: setup?.crawlId }]);
-  });
-
-  it("stops the website import of a setup that starts over, so it spends nothing more", async () => {
-    const ws = await workspace();
-    const { setupId } = await planned(ws);
-    const crawl = await runWithoutTenant(() =>
-      prisma.wikiWebsiteCrawl.create({
-        data: {
-          companyId: ws.companyId,
-          userId: ws.owner.id,
-          clientRequestId: randomUUID(),
-          homepageUrl: "https://studio-example.com/",
-          registrableDomain: "studio-example.com",
-          locale: "en",
-          payer: "workspaceSetup",
-          status: "fetching",
-        },
-      }),
-    );
-    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id, status: "failed" })));
-    const restarted = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
-    expect(restarted).toEqual({ ok: true, data: { setupId } });
-    expect(
-      await runWithoutTenant(() =>
-        prisma.wikiWebsiteCrawl.findUniqueOrThrow({
-          where: { id: crawl.id },
-          select: { status: true, failureReason: true },
-        }),
-      ),
-    ).toEqual({ status: "failed", failureReason: "cancelled" });
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(started.data.setupId));
+    expect(setup?.status).toBe("interview");
+    expect(setup?.answers).toMatchObject({
+      language: { source: "user", value: { format: "singleChoice", value: "de" } },
+      currency: { source: "user", value: { format: "singleChoice", value: "EUR" } },
+      country: { source: "user", value: { format: "singleChoice", value: "DE" } },
+    });
+    expect(state.dispatch).not.toHaveBeenCalled();
   });
 
   it("gives sample deals a value from their line items of sample services", async () => {
@@ -1525,250 +1076,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(addresses).toBe(3);
   });
 
-  it("imports every spreadsheet row with its whole name, email and phone channels and the organization it names", async () => {
-    const ws = await workspace();
-    state.plan = {
-      ...structuredClone(agencyPlan),
-      importMapping: {
-        list: "contact",
-        columns: [
-          { column: "Full name", field: "contact.name" },
-          { column: "Email", field: null },
-          { column: "Company", field: null },
-          { column: "Job title", field: "contact.jobTitle" },
-        ],
-      },
-    };
-    mappingReplies((key) => ({
-      columns: [
-        { column: "Full name", field: key("Fields: ", "Contact"), namePart: "first" },
-        { column: "Job title", field: key("Fields: ", "Job title") },
-      ],
-      relationships: [{ column: "Company", relationship: key("Relationships: ", "Client") }],
-    }));
-    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
-    expect((await build(ws, setupId)).records).toBe("settled");
-
-    const reference = await references(ws, setupId);
-    const contacts = reference("$list.contact");
-    const clients = reference("$list.organization");
-    const model = await ws.run(() => createTestRecordRepo().getModel());
-    const nameField = model.types.find((type) => type.id === contacts)?.primaryFieldId ?? "";
-    const channels = model.fields.find((field) => field.typeId === contacts && field.valueType === "channels")?.id;
-    const view = await status(ws);
-    expect(view.results.records.map((entry) => [entry.listId, entry.kind, entry.count, entry.titles])).toEqual([
-      [contacts, "imported", 4, ["Mary Ann Collins", "Priya Patel", "Jack Whitmore", "Lily Chen"]],
-      [clients, "imported", 2, ["Northgate Analytics", "Brightwave Media"]],
-    ]);
-    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
-    expect(setup?.created.importedRecords).toHaveLength(6);
-    expect(setup?.artifacts.importMapping).toMatchObject({
-      columns: [
-        { column: "Full name", fieldId: nameField },
-        { column: "Job title" },
-        { column: "Email", fieldId: channels },
-        { column: "Phone", fieldId: channels },
-      ],
-    });
-    const names = await runWithoutTenant(() =>
-      prisma.recordValue.findMany({
-        where: { companyId: ws.companyId, fieldId: nameField },
-        select: { textValue: true },
-      }),
-    );
-    expect(names.map((row) => row.textValue).sort()).toEqual([
-      "Jack Whitmore",
-      "Lily Chen",
-      "Mary Ann Collins",
-      "Priya Patel",
-    ]);
-    const identities = await runWithoutTenant(() =>
-      prisma.recordIdentity.findMany({ where: { companyId: ws.companyId }, select: { value: true } }),
-    );
-    expect(identities.map((row) => row.value).sort()).toEqual([
-      "+442079460003",
-      "+442079460005",
-      "+442079460006",
-      "+442079460019",
-      "jack.whitmore@example.com",
-      "lily.chen@example.com",
-      "mary.collins@example.net",
-    ]);
-    expect(view.results.records[0].skippedRows).toBe(0);
-    expect(
-      await runWithoutTenant(() =>
-        prisma.recordLink.count({
-          where: { companyId: ws.companyId, sourceTypeId: contacts, targetTypeId: clients, deletedAt: null },
-        }),
-      ),
-    ).toBe(3);
-  });
-
-  it("creates a client named in two link columns once, so every row that names it links", async () => {
-    const ws = await workspace();
-    const plan = structuredClone(agencyPlan);
-    state.plan = {
-      ...plan,
-      recordModel: {
-        ...plan.recordModel,
-        relationships: [
-          ...plan.recordModel.relationships,
-          {
-            key: "contactPartner",
-            source: "contact",
-            target: "organization",
-            sourceLabel: "Partner",
-            targetLabel: "Partner contacts",
-            sourceCardinality: "one",
-            targetCardinality: "many",
-          },
-        ],
-      },
-      importMapping: null,
-    };
-    mappingReplies((key) => ({
-      columns: [{ column: "Full name", field: key("Fields: ", "Contact") }],
-      relationships: [
-        { column: "Client", relationship: key("Relationships: ", "Client") },
-        { column: "Partner", relationship: key("Relationships: ", "Partner") },
-      ],
-    }));
-    const setupId = await spreadsheetSetup(
-      ws,
-      [
-        "Full name,Client,Partner",
-        "Mary Ann Collins,Acme GmbH,Northgate Analytics",
-        "Priya Patel,Brightwave Media,Acme GmbH",
-        "Jack Whitmore,Acme GmbH,",
-      ].join("\n"),
-    );
-    expect((await build(ws, setupId)).records).toBe("settled");
-    const reference = await references(ws, setupId);
-    const view = await status(ws);
-    expect(view.results.records.map((entry) => [entry.listId, entry.count, entry.skippedRows])).toEqual([
-      [reference("$list.contact"), 3, 0],
-      [reference("$list.organization"), 3, 0],
-    ]);
-    const acme = await runWithoutTenant(() =>
-      prisma.recordValue.count({
-        where: { companyId: ws.companyId, fieldId: reference("$list.organization.name"), textValue: "Acme GmbH" },
-      }),
-    );
-    expect(acme).toBe(1);
-    expect(
-      await runWithoutTenant(() =>
-        prisma.recordLink.count({
-          where: { companyId: ws.companyId, sourceTypeId: reference("$list.contact"), deletedAt: null },
-        }),
-      ),
-    ).toBe(5);
-  });
-
-  it("maps the sheet again instead of storing a column mapping the import cannot use", async () => {
-    const ws = await workspace();
-    state.plan = { ...structuredClone(agencyPlan), importMapping: null };
-    let reply: "down" | "unnamed" | "named" = "down";
-    mappingReplies((key) =>
-      reply === "down"
-        ? null
-        : {
-            columns: [
-              reply === "named"
-                ? { column: "Full name", field: key("Fields: ", "Contact") }
-                : { column: "Job title", field: key("Fields: ", "Job title") },
-            ],
-            relationships: [],
-          },
-    );
-    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
-    const service = di.getWorkspaceSetupBuildService();
-    const stored = async () => (await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.artifacts.importMapping;
-    const records = async () => (await status(ws)).phases.find((phase) => phase.key === "records");
-    expect(await ws.run(() => service.runPhase(setupId, "dataModel", false, RUN_ID))).toBe("settled");
-
-    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("wait");
-    expect(await records()).toMatchObject({ status: "pending", error: "aiUnavailable" });
-    expect(await stored()).toBeUndefined();
-
-    reply = "unnamed";
-    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("wait");
-    expect(await records()).toMatchObject({ status: "pending", error: "generation" });
-    expect(await stored()).toBeUndefined();
-
-    reply = "named";
-    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("settled");
-    expect(await records()).toMatchObject({ status: "completed", attempts: 3 });
-    expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4, skippedRows: 0 });
-  });
-
-  it("drops a stored column mapping the import refuses and maps the sheet again", async () => {
-    const ws = await workspace();
-    state.plan = { ...structuredClone(agencyPlan), importMapping: null };
-    mappingReplies((key) => ({
-      columns: [{ column: "Full name", field: key("Fields: ", "Contact") }],
-      relationships: [],
-    }));
-    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
-    const service = di.getWorkspaceSetupBuildService();
-    expect(await ws.run(() => service.runPhase(setupId, "dataModel", false, RUN_ID))).toBe("settled");
-    const reference = await references(ws, setupId);
-    await ws.run(() =>
-      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
-        artifacts: {
-          ...current.artifacts,
-          importMapping: {
-            typeId: reference("$list.contact"),
-            locale: "en",
-            timeZone: "UTC",
-            columns: [{ column: "Client name", fieldId: reference("$list.contact.name") }],
-            relationships: [],
-          },
-        },
-      })),
-    );
-    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("wait");
-    const cleared = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
-    expect(cleared?.artifacts.importMapping).toBeUndefined();
-    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("settled");
-    const imported = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
-    expect(imported?.artifacts.importMapping).toMatchObject({
-      columns: [
-        { column: "Full name", fieldId: reference("$list.contact.name") },
-        { column: "Email" },
-        { column: "Phone" },
-      ],
-    });
-    expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4 });
-  });
-
-  it("keeps the fields of the imported list optional, so rows import without a column for a required field", async () => {
-    const ws = await workspace();
-    const plan = structuredClone(agencyPlan);
-    state.plan = {
-      ...plan,
-      recordModel: {
-        ...plan.recordModel,
-        fields: plan.recordModel.fields.map((field) =>
-          field.key.startsWith("contact.") || field.key === "project.budget" ? { ...field, required: true } : field,
-        ),
-      },
-      importMapping: { list: "contact", columns: [{ column: "Full name", field: "contact.name" }] },
-    };
-    mappingReplies((key) => ({
-      columns: [{ column: "Full name", field: key("Fields: ", "Contact") }],
-      relationships: [],
-    }));
-    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
-    expect((await build(ws, setupId)).records).toBe("settled");
-    expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4, skippedRows: 0 });
-    const reference = await references(ws, setupId);
-    const model = await ws.run(() => createTestRecordRepo().getModel());
-    const required = (ref: string) => model.fields.find((field) => field.id === reference(ref))?.required;
-    expect(required("$field.contact.jobTitle")).toBe(false);
-    expect(required("$list.contact.name")).toBe(true);
-    expect(required("$field.project.budget")).toBe(true);
-  });
-
   it("skips the setup for a workspace that already has lists and never started one", async () => {
     const ws = await workspace();
     await ws.run(() => initializeStarterRecordModel());
@@ -1792,5 +1099,106 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(
       await second.run(() => di.getWorkspaceSetupBuildService().runPhase(setupId, "dataModel", false, RUN_ID)),
     ).toBe("skip");
+  });
+
+  function agentSetup(ws: Workspace) {
+    return new AgentSetup(
+      { getAccountSession: () => Promise.resolve({ user: { email: ws.owner.email } } as never) },
+      { findMembershipUnscoped: () => Promise.resolve(ws.owner) },
+      di.getWorkspaceSetupRepo(),
+      di.getStartWorkspaceSetupInteractor(),
+      di.getPlanWorkspaceSetupInteractor(),
+    );
+  }
+
+  it("plans from the description an agent gave without follow-up questions and builds on the server once the plan is ready", async () => {
+    const ws = await workspace();
+    const description = "We design brand identities and websites for small hotels in the Alps.";
+
+    const started = await agentSetup(ws).invoke({
+      companyId: ws.companyId,
+      description,
+      locale: "en",
+      teamSize: "small",
+      workWith: "clients",
+      purpose: ["deals", "projects"],
+      mainSteps: ["Briefing", "Design", "Build"],
+      pricing: "fixedPrice",
+      exampleRecords: true,
+    });
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const { setupId } = started.data;
+    expect(started.data.status).toBe("planning");
+    expect(state.dispatch).toHaveBeenCalledWith("plan-workspace-setup", { setupId, userId: ws.owner.id });
+
+    const interview = di.getWorkspaceSetupInterviewService();
+    expect(await ws.run(() => interview.followUps(setupId))).toBe("none");
+    const seeded = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(seeded?.answers).toMatchObject({
+      workWith: { value: { format: "singleChoice", value: "clients" } },
+      purpose: { value: { format: "multipleChoice", values: ["deals", "projects"], custom: [] } },
+      pricing: { value: { format: "singleChoice", value: "fixedPrice" } },
+      teamSize: { value: { format: "singleChoice", value: "small" } },
+    });
+    expect(seeded?.interview.followUpAnswers).toEqual([
+      { id: "followUp1", value: { format: "shortText", value: description } },
+    ]);
+
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+    expect(state.generate.mock.calls.some(([args]) => JSON.stringify(args).includes("small hotels in the Alps"))).toBe(
+      true,
+    );
+
+    const autoBuild = di.getBuildAgentWorkspaceSetupInteractor();
+    expect(await ws.run(() => autoBuild.invoke({ setupId }))).toEqual({ ok: true, data: { building: true } });
+    expect((await status(ws)).status).toBe("building");
+    expect(await ws.run(() => autoBuild.invoke({ setupId }))).toEqual({ ok: true, data: { building: true } });
+    const builds = () => state.dispatch.mock.calls.filter(([name]) => name === "build-workspace-setup");
+    expect(builds()).toEqual([["build-workspace-setup", { setupId, userId: ws.owner.id }]]);
+
+    expect(await build(ws, setupId)).toMatchObject({ dataModel: "settled", records: "settled" });
+    expect((await status(ws)).status).toBe("completed");
+  });
+
+  it("leaves a plan the owner started in the app waiting for the owner, and a status read starts nothing", async () => {
+    const ws = await workspace();
+    const { setupId } = await planned(ws);
+
+    expect(await ws.run(() => di.getBuildAgentWorkspaceSetupInteractor().invoke({ setupId }))).toEqual({
+      ok: true,
+      data: { building: false },
+    });
+    expect((await status(ws)).status).toBe("planned");
+    expect((await status(ws)).status).toBe("planned");
+    expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
+  });
+
+  it("starts nothing when an agent reads the status of its planned setup", async () => {
+    const ws = await workspace();
+    const started = await agentSetup(ws).invoke({ companyId: ws.companyId, description: "A bakery in Vienna." });
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const { setupId } = started.data;
+    expect(await ws.run(() => di.getWorkspaceSetupInterviewService().followUps(setupId))).toBe("none");
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+
+    expect((await status(ws)).status).toBe("planned");
+    expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
+  });
+
+  it("refuses an agent setup for a workspace the login does not belong to and an invalid answer", async () => {
+    const ws = await workspace();
+    const outsider = new AgentSetup(
+      { getAccountSession: () => Promise.resolve({ user: { email: "someone@example.test" } } as never) },
+      { findMembershipUnscoped: () => Promise.resolve(null) },
+      di.getWorkspaceSetupRepo(),
+      di.getStartWorkspaceSetupInteractor(),
+      di.getPlanWorkspaceSetupInteractor(),
+    );
+
+    expect((await outsider.invoke({ companyId: ws.companyId, description: "Bakery" })).ok).toBe(false);
+    expect(
+      (await agentSetup(ws).invoke({ companyId: ws.companyId, description: "Bakery", mainSteps: ["x".repeat(81)] })).ok,
+    ).toBe(false);
+    expect(state.dispatch).not.toHaveBeenCalled();
   });
 });

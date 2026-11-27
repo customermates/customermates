@@ -1,7 +1,6 @@
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 import type { GenericRecordWidgetInput } from "@/features/widget/record-widget.schema";
-import type { ChartColor } from "@/features/widget/widget-display.schema";
 import type { GridRect } from "@/features/widget/widget-grid";
 import type { SetupChartWidget, SetupPlan, SetupWidget } from "./setup-plan.schema";
 import type { SetupCompileIssue, SetupCompileResult, SetupResolver } from "./setup-references";
@@ -14,7 +13,6 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { DisplayType } from "@/features/widget/widget-display.schema";
 import { structuredDashboardLayout } from "@/features/widget/widget-grid";
 
-import { brandAccent } from "./brand-colors";
 import { setupWidgetKind, setupWidgetSketch } from "./setup-plan.schema";
 import { setupIdempotencyKey } from "./setup-references";
 
@@ -38,7 +36,6 @@ export function setupWidgetCreationOrder<T extends { layout?: { x: number; y: nu
 type SetupDashboardContext = {
   setupId: string;
   expectedRevision: number;
-  brandChart?: ChartColor | null;
   occupied?: GridRect[];
   timeZone?: string;
 };
@@ -181,7 +178,6 @@ export function compileSetupDashboard(
       measure,
       displayOptions: {
         displayType: chart.display,
-        ...(context.brandChart ? { barColors: [brandAccent(context.brandChart)] } : {}),
         useGroupColors: false,
         palette: "accent" as const,
       },

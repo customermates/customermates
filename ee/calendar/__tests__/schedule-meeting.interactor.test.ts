@@ -334,6 +334,170 @@ describe("UpdateMeetingInteractor", () => {
       CustomErrorCode.calendarEventNotFound,
     );
   });
+
+  it("moves a synced event to an explicit end and keeps the event's own time zone when none is sent", async () => {
+    const moved = {
+      ...EVENT,
+      startsAt: new Date("2026-11-26T14:00:00.000Z"),
+      endsAt: new Date("2026-11-26T15:15:00.000Z"),
+    };
+    const { update, writer } = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, timezone: "Europe/Berlin" }) },
+      writer: { update: vi.fn().mockResolvedValue({ ok: true, eventId: EVENT_ID, event: moved }) },
+    });
+
+    const result = await run(() =>
+      update.invoke({
+        id: EVENT_ID,
+        startsAt: "2026-11-26T15:00:00+01:00",
+        endsAt: "2026-11-26T16:15:00+01:00",
+      } as never),
+    );
+
+    expect(result.ok && [result.data.startsAt, result.data.endsAt]).toEqual([
+      "2026-11-26T14:00:00.000Z",
+      "2026-11-26T15:15:00.000Z",
+    ]);
+    expect(writer.update).toHaveBeenCalledWith(
+      mockUser.companyId,
+      expect.objectContaining({ id: EVENT_ID }),
+      expect.objectContaining({
+        startsAt: new Date("2026-11-26T14:00:00.000Z"),
+        endsAt: new Date("2026-11-26T15:15:00.000Z"),
+        timeZone: "Europe/Berlin",
+        notifyAttendees: true,
+      }),
+    );
+  });
+
+  it("does not pass a provider-specific time zone name and leaves the time zone alone for a title change", async () => {
+    const outlook = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, timezone: "W. Europe Standard Time" }) },
+    });
+    const renamed = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, timezone: "Europe/Berlin" }) },
+    });
+
+    await run(() =>
+      outlook.update.invoke({
+        id: EVENT_ID,
+        startsAt: "2026-11-26T14:00:00.000Z",
+        endsAt: "2026-11-26T15:00:00.000Z",
+      } as never),
+    );
+    await run(() => renamed.update.invoke({ id: EVENT_ID, title: "Renamed" } as never));
+
+    expect(outlook.writer.update.mock.calls[0]?.[2]).toMatchObject({ timeZone: undefined });
+    expect(renamed.writer.update.mock.calls[0]?.[2]).toMatchObject({
+      title: "Renamed",
+      startsAt: undefined,
+      endsAt: undefined,
+      timeZone: undefined,
+    });
+  });
+
+  it("rejects an end without a start, both a length and an end, and an end before the start", async () => {
+    const { update, writer } = build({ access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) } });
+    const invalid = [
+      { id: EVENT_ID, endsAt: "2026-11-26T15:00:00.000Z" },
+      { id: EVENT_ID, startsAt: "2026-11-26T14:00:00.000Z", durationMinutes: 30, endsAt: "2026-11-26T15:00:00.000Z" },
+      { id: EVENT_ID, startsAt: "2026-11-26T14:00:00.000Z", endsAt: "2026-11-26T13:00:00.000Z" },
+    ];
+
+    for (const input of invalid) expect((await run(() => update.invoke(input as never))).ok).toBe(false);
+    expect(writer.update).not.toHaveBeenCalled();
+  });
+
+  it("moves an all-day event by dates, sends the day after the last day as the end and leaves bookings alone", async () => {
+    const allDayRow = { ...ROW, allDay: true };
+    const moved = {
+      ...EVENT,
+      allDay: true,
+      startsAt: new Date("2026-11-20T00:00:00.000Z"),
+      endsAt: new Date("2026-11-22T00:00:00.000Z"),
+    };
+    const { update, writer, bookings } = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue(allDayRow) },
+      writer: { update: vi.fn().mockResolvedValue({ ok: true, eventId: EVENT_ID, event: moved }) },
+    });
+
+    const result = await run(() =>
+      update.invoke({ id: EVENT_ID, startDate: "2026-11-20", endDate: "2026-11-21", sendInvites: false } as never),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(writer.update).toHaveBeenCalledWith(
+      mockUser.companyId,
+      allDayRow,
+      expect.objectContaining({ startDate: "2026-11-20", endDate: "2026-11-22", notifyAttendees: false }),
+    );
+    expect(bookings.eventAt).not.toHaveBeenCalled();
+  });
+
+  it("refuses times for an all-day event, dates for a timed one and dates without an end", async () => {
+    const allDay = build({ access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, allDay: true }) } });
+    const timed = build({ access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, allDay: false }) } });
+
+    expect(
+      code(
+        await run(() =>
+          allDay.update.invoke({ id: EVENT_ID, startsAt: "2026-11-18T10:00:00.000Z", durationMinutes: 30 } as never),
+        ),
+      ),
+    ).toBe(CustomErrorCode.calendarEventChangeUnsupported);
+    expect(
+      code(
+        await run(() => timed.update.invoke({ id: EVENT_ID, startDate: "2026-11-20", endDate: "2026-11-20" } as never)),
+      ),
+    ).toBe(CustomErrorCode.calendarEventChangeUnsupported);
+    expect((await run(() => allDay.update.invoke({ id: EVENT_ID, startDate: "2026-11-20" } as never))).ok).toBe(false);
+    expect(
+      (await run(() => allDay.update.invoke({ id: EVENT_ID, startDate: "2026-11-20", endDate: "2026-11-19" } as never)))
+        .ok,
+    ).toBe(false);
+    expect(allDay.writer.update).not.toHaveBeenCalled();
+    expect(timed.writer.update).not.toHaveBeenCalled();
+  });
+
+  it("changes one occurrence by default and the whole series on request", async () => {
+    const occurrence = { ...ROW, unipileEventId: "evt_1_20261124", masterUnipileEventId: "evt_master" };
+    const updateSeries = vi.fn().mockResolvedValue({ ok: true, eventId: EVENT_ID, event: EVENT });
+    const { update, writer } = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue(occurrence) },
+      writer: { updateSeries },
+    });
+
+    await run(() => update.invoke({ id: EVENT_ID, title: "Only today" } as never));
+    await run(() => update.invoke({ id: EVENT_ID, title: "Weekly sync", scope: "series" } as never));
+
+    expect(writer.update).toHaveBeenCalledExactlyOnceWith(
+      mockUser.companyId,
+      occurrence,
+      expect.objectContaining({ title: "Only today" }),
+    );
+    expect(updateSeries).toHaveBeenCalledExactlyOnceWith(
+      mockUser.companyId,
+      occurrence,
+      "evt_master",
+      expect.objectContaining({ title: "Weekly sync" }),
+    );
+  });
+
+  it("refuses a series change for a single event and an occurrence change for a series synced without occurrences", async () => {
+    const single = build({ access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) } });
+    const series = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue({ ...ROW, recurrenceRule: "RRULE:FREQ=WEEKLY" }) },
+    });
+
+    expect(code(await run(() => single.update.invoke({ id: EVENT_ID, title: "x", scope: "series" } as never)))).toBe(
+      CustomErrorCode.calendarEventChangeUnsupported,
+    );
+    expect(
+      code(await run(() => series.update.invoke({ id: EVENT_ID, title: "x", scope: "occurrence" } as never))),
+    ).toBe(CustomErrorCode.calendarEventChangeUnsupported);
+    expect((await run(() => series.update.invoke({ id: EVENT_ID, title: "x" } as never))).ok).toBe(true);
+    expect(series.writer.update).toHaveBeenCalledOnce();
+  });
 });
 
 describe("CancelMeetingInteractor", () => {
@@ -373,5 +537,20 @@ describe("CancelMeetingInteractor", () => {
     );
     expect(refused.bookings.eventCancelled).not.toHaveBeenCalled();
     expect(code(await run(() => foreign.cancel.invoke({ id: EVENT_ID })))).toBe(CustomErrorCode.calendarEventNotFound);
+  });
+
+  it("cancels one occurrence by default and the whole series on request", async () => {
+    const occurrence = { ...ROW, unipileEventId: "evt_1_20261124", masterUnipileEventId: "evt_master" };
+    const cancelSeries = vi.fn().mockResolvedValue({ ok: true });
+    const { cancel, writer } = build({
+      access: { findOwnEvent: vi.fn().mockResolvedValue(occurrence) },
+      writer: { cancelSeries },
+    });
+
+    await run(() => cancel.invoke({ id: EVENT_ID }));
+    await run(() => cancel.invoke({ id: EVENT_ID, scope: "series" }));
+
+    expect(writer.cancel).toHaveBeenCalledExactlyOnceWith(occurrence, undefined);
+    expect(cancelSeries).toHaveBeenCalledExactlyOnceWith(occurrence, "evt_master", undefined);
   });
 });
