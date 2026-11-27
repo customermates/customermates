@@ -2805,6 +2805,7 @@
     "visibilityUpdateFailed": "Sichtbarkeit konnte nicht aktualisiert werden. Bitte erneut versuchen."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} verliert sofort den Zugriff auf dein ganzes Konto, in jedem Workspace. Um die App wieder zu nutzen, verbinde sie erneut und bestätige den Zugriff.",
     "disconnectDescription": "{name} verliert sofort den Zugriff auf diesen Workspace. Um die App wieder zu nutzen, verbinde sie erneut und bestätige den Zugriff.",
     "disconnectTitle": "Diese App trennen?",
     "empty": "Noch ist keine KI-App verbunden. Verbinde Claude, ChatGPT oder eine andere KI-App, um von dort aus mit diesem Workspace zu arbeiten.",

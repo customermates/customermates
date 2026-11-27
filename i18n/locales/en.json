@@ -2805,6 +2805,7 @@
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} loses access to your whole account, in every workspace, at once. To use it again, connect it again and approve the access.",
     "disconnectDescription": "{name} loses access to this workspace at once. To use it again, connect it again and approve the access.",
     "disconnectTitle": "Disconnect this app?",
     "empty": "No AI app is connected yet. Connect Claude, ChatGPT or another AI app to work with this workspace from there.",

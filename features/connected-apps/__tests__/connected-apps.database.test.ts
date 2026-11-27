@@ -120,9 +120,11 @@ describeDatabase("connected AI apps against the database", { timeout: 120_000 },
 
     expect(result.data.map((app) => app.name).sort()).toEqual(["ChatGPT", "Claude", "Cursor"]);
     expect(result.data.find((app) => app.id === claude)).toMatchObject({
+      accountWide: false,
       connectedAt: firstConnected,
       lastActiveAt: lastRefreshed,
     });
+    expect(result.data.find((app) => app.id === cursor)?.accountWide).toBe(true);
   });
 
   it("disconnects one app of one member across the account and forgets its consent", async () => {

@@ -2805,6 +2805,7 @@
     "visibilityUpdateFailed": "Zichtbaarheid kon niet worden bijgewerkt. Probeer het opnieuw."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} verliest direct de toegang tot je hele account, in elke werkruimte. Koppel de app opnieuw en keur de toegang goed om hem weer te gebruiken.",
     "disconnectDescription": "{name} verliest direct de toegang tot deze werkruimte. Koppel de app opnieuw en keur de toegang goed om hem weer te gebruiken.",
     "disconnectTitle": "Deze app ontkoppelen?",
     "empty": "Er is nog geen AI-app gekoppeld. Koppel Claude, ChatGPT of een andere AI-app om van daaruit met deze werkruimte te werken.",

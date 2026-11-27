@@ -158,6 +158,7 @@ test("the API keys page lists the member's connected AI app once and disconnecti
   const errors = collectPageErrors(page);
   const messages = englishMessages.ConnectedApps;
   const ownClient = `connector-${randomUUID()}`;
+  const accountClient = `connector-${randomUUID()}`;
   const colleagueClient = `connector-${randomUUID()}`;
   const colleagueLogin = randomUUID();
   const application = (clientId: string, name: string) =>
@@ -165,11 +166,11 @@ test("the API keys page lists the member's connected AI app once and disconnecti
       'INSERT INTO "OauthApplication" (id,name,"clientId","redirectUrls",type,"updatedAt") VALUES ($1,$2,$3,$4,\'public\',NOW())',
       [randomUUID(), name, clientId, REDIRECT_URI],
     );
-  const token = (clientId: string, userId: string, issued: string) =>
+  const token = (clientId: string, userId: string, issued: string, companyId: string | null = workspace.companyId) =>
     database.query(
       `INSERT INTO "OauthAccessToken" (id,"accessToken","refreshToken","accessTokenExpiresAt","refreshTokenExpiresAt","clientId","userId",scopes,"companyId","createdAt","updatedAt")
        VALUES ($1,$2,$3,NOW()+$4::interval+interval '1 hour',NOW()+$4::interval+interval '30 days',$5,$6,'openid offline_access',$7,NOW()+$4::interval,NOW()+$4::interval)`,
-      [randomUUID(), randomUUID(), randomUUID(), issued, clientId, userId, workspace.companyId],
+      [randomUUID(), randomUUID(), randomUUID(), issued, clientId, userId, companyId],
     );
   const tokensOf = async (clientId: string, userId: string) =>
     (
@@ -185,9 +186,11 @@ test("the API keys page lists the member's connected AI app once and disconnecti
   );
   try {
     await application(ownClient, "Claude");
+    await application(accountClient, "ChatGPT");
     await application(colleagueClient, "Colleague Connector");
     await token(ownClient, workspace.authUserId, "-45 days");
     await token(ownClient, workspace.authUserId, "-2 days");
+    await token(accountClient, workspace.authUserId, "-1 day", null);
     await token(colleagueClient, colleagueLogin, "-1 day");
     await database.query(
       'INSERT INTO "OauthConsent" (id,"clientId","userId",scopes,"consentGiven","updatedAt") VALUES ($1,$2,$3,\'openid offline_access\',true,NOW())',
@@ -200,15 +203,24 @@ test("the API keys page lists the member's connected AI app once and disconnecti
       card.getByRole("heading", { level: 2, name: englishMessages.Connections.apps.title, exact: true }),
     ).toBeVisible();
     const apps = card.locator("[data-connected-app]");
-    await expect(apps).toHaveCount(1);
-    await expect(apps).toContainText("Claude");
-    await expect(apps).toContainText(englishMessages.Connections.apps.connected);
+    await expect(apps).toHaveCount(2);
+    const claude = card.locator(`[data-connected-app="${ownClient}"]`);
+    await expect(claude).toContainText("Claude");
+    await expect(claude).toContainText(englishMessages.Connections.apps.connected);
     await expect(card).not.toContainText("Colleague Connector");
 
-    await clickHydrated(apps.getByRole("button", { name: "Disconnect", exact: true }));
+    await clickHydrated(
+      card.locator(`[data-connected-app="${accountClient}"]`).getByRole("button", { name: "Disconnect", exact: true }),
+    );
     const confirm = page.getByRole("alertdialog");
     await expect(confirm).toContainText(messages.disconnectTitle);
-    await expect(confirm).toContainText("Claude");
+    await expect(confirm).toContainText(messages.disconnectAccountDescription.replace("{name}", "ChatGPT"));
+    await confirm.locator("#confirm-delete").click();
+    await expect(apps).toHaveCount(1);
+    expect(await tokensOf(accountClient, workspace.authUserId)).toBe("0");
+
+    await clickHydrated(claude.getByRole("button", { name: "Disconnect", exact: true }));
+    await expect(confirm).toContainText(messages.disconnectDescription.replace("{name}", "Claude"));
     await confirm.locator("#confirm-delete").click();
 
     await expect(page.locator("[data-connected-app]")).toHaveCount(0);
@@ -217,7 +229,11 @@ test("the API keys page lists the member's connected AI app once and disconnecti
     const consents = await database.query('SELECT 1 FROM "OauthConsent" WHERE "clientId"=$1', [ownClient]);
     expect(consents.rowCount).toBe(0);
   } finally {
-    await database.query('DELETE FROM "OauthApplication" WHERE "clientId" IN ($1,$2)', [ownClient, colleagueClient]);
+    await database.query('DELETE FROM "OauthApplication" WHERE "clientId" IN ($1,$2,$3)', [
+      ownClient,
+      accountClient,
+      colleagueClient,
+    ]);
     await database.query('DELETE FROM "AuthUser" WHERE id=$1', [colleagueLogin]);
   }
   expect(errors).toEqual([]);

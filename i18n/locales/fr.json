@@ -2805,6 +2805,7 @@
     "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} perd immédiatement l’accès à tout votre compte, dans chaque espace de travail. Pour l’utiliser à nouveau, reconnectez-la et approuvez l’accès.",
     "disconnectDescription": "{name} perd immédiatement l’accès à cet espace de travail. Pour l’utiliser à nouveau, reconnectez-la et approuvez l’accès.",
     "disconnectTitle": "Déconnecter cette application ?",
     "empty": "Aucune application d’IA n’est encore connectée. Connectez Claude, ChatGPT ou une autre application d’IA pour travailler avec cet espace de travail depuis celle-ci.",

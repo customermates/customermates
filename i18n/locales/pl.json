@@ -2805,6 +2805,7 @@
     "visibilityUpdateFailed": "Nie udało się zmienić widoczności. Spróbuj ponownie."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} od razu traci dostęp do całego Twojego konta, we wszystkich przestrzeniach roboczych. Aby znów z niej korzystać, połącz ją ponownie i zatwierdź dostęp.",
     "disconnectDescription": "{name} od razu traci dostęp do tej przestrzeni roboczej. Aby znów z niej korzystać, połącz ją ponownie i zatwierdź dostęp.",
     "disconnectTitle": "Rozłączyć tę aplikację?",
     "empty": "Nie połączono jeszcze żadnej aplikacji AI. Połącz Claude, ChatGPT lub inną aplikację AI, aby pracować z tą przestrzenią roboczą z jej poziomu.",
