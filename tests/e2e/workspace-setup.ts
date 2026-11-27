@@ -42,6 +42,17 @@ export async function completeSetupStepInDatabase(page: Page) {
   const client = new Client({ connectionString: localE2eEnvironment().databaseUrl });
   await client.connect();
   try {
+    await expect
+      .poll(
+        async () =>
+          (
+            await client.query(
+              'SELECT 1 FROM "CompanyFunnelEvent" e WHERE e.type=\'jobSelected\' AND e."companyId"=COALESCE((SELECT id FROM "Company" WHERE slug=$2),(SELECT a."companyId" FROM "AuthSession" s JOIN "AuthUser" a ON a.id=s."userId" WHERE s.token=$1)) LIMIT 1',
+              [token, slugInUrl(page.url())],
+            )
+          ).rowCount,
+      )
+      .toBe(1);
     const updated = await client.query<{ id: string; companyId: string }>(
       'UPDATE "User" u SET "onboardingWikiStepCompletedAt"=NOW() FROM "AuthSession" s JOIN "AuthUser" a ON a.id=s."userId" WHERE s.token=$1 AND u."companyId"=COALESCE((SELECT id FROM "Company" WHERE slug=$2),a."companyId") AND u.email=a.email AND u."leftAt" IS NULL RETURNING u.id, u."companyId"',
       [token, slugInUrl(page.url())],
