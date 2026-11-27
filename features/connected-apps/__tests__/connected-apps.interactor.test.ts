@@ -84,8 +84,22 @@ describe("GetConnectedAppsInteractor", () => {
     expect(await interactor.invoke()).toEqual({
       ok: true,
       data: [
-        { id: "claude", name: "Claude", device: null, connectedAt: days(-40), lastActiveAt: days(-1) },
-        { id: "chatgpt", name: "ChatGPT", device: null, connectedAt: days(-2), lastActiveAt: days(-2) },
+        {
+          id: "claude",
+          name: "Claude",
+          device: null,
+          accountWide: false,
+          connectedAt: days(-40),
+          lastActiveAt: days(-1),
+        },
+        {
+          id: "chatgpt",
+          name: "ChatGPT",
+          device: null,
+          accountWide: false,
+          connectedAt: days(-2),
+          lastActiveAt: days(-2),
+        },
       ],
     });
   });
@@ -113,6 +127,11 @@ describe("GetConnectedAppsInteractor", () => {
     const result = await interactor.invoke();
 
     expect(result.data.map((app) => app.id).sort()).toEqual(["chatgpt", "claude", "grok"]);
+    expect(Object.fromEntries(result.data.map((app) => [app.id, app.accountWide]))).toEqual({
+      chatgpt: false,
+      claude: false,
+      grok: true,
+    });
     expect(repo.askedFor).toEqual([LOGIN]);
   });
 

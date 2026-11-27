@@ -53556,7 +53556,7 @@
     {
       "name": "list_workspaces",
       "title": "List workspaces",
-      "description": "Returns every workspace of the signed-in account: name, slug (the value of the workspace argument of the other tools), companyId, the account's role there, setUp (true once the workspace holds records, false while it is still empty; null when it cannot be used), records (the record count), usable with the unavailableReason and a plain unavailableExplanation when the workspace cannot be used through this connection, and plan. plan holds the workspace's plan facts on Cloud (null elsewhere): plan is the current plan id, onFreePlan whether it runs on the free plan, trialDaysLeft the days left in the free trial (null when not in a trial), lostOnFree what stops working on the free plan as { kind, count } entries, keepsItRunning the cheapest plan that keeps all of it running (null when nothing would be lost) and choosePlanUrl the absolute link to the workspace's billing settings where a plan is chosen. canCreateWorkspace tells whether this connection may create another workspace. With an API key only the key's own workspace is listed.",
+      "description": "Returns every workspace of the signed-in account: name, slug (the value of the workspace argument of the other tools), companyId, the account's role there, setUp (true once the workspace holds records, false while it is still empty; null when it cannot be used), records (the record count), usable with the unavailableReason and a plain unavailableExplanation when the workspace cannot be used through this connection, and plan. plan holds the workspace's plan facts on Cloud (null elsewhere): plan is the current plan id, onFreePlan whether it runs on the free plan, trialDaysLeft the days left in the free trial (null when not in a trial), lostOnFree what stops working on the free plan as { kind, count } entries, keepsItRunning the cheapest plan that keeps all of it running (null when nothing would be lost) and choosePlanUrl the absolute link to the workspace's billing settings where a plan is chosen. canCreateWorkspace tells whether this connection may create another workspace; only the first workspace a login creates starts with the free trial, so a later one cannot be used and Mate cannot build it until a plan is chosen at the choosePlanUrl returned when it is created. With an API key only the key's own workspace is listed.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -53782,7 +53782,7 @@
     {
       "name": "create_workspace",
       "title": "Create workspace",
-      "description": "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial, setup }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). With a description, Mate plans and builds the whole workspace on the server, the same setup the app's onboarding runs: setup.status planning means it started and the workspace setup status reports its progress; notStarted carries the reason, for example a plan without Mate, and leaves an empty workspace. Without a description the workspace starts empty and setup is null. Cloud only; needs a verified email address and an OAuth connection approved for the whole account, allows at most 3 new workspaces per account in any 24 hours, and follows the terms the account accepted.",
+      "description": "Creates a new workspace for the signed-in account, with the account as its administrator, and returns { companyId, slug, trial, choosePlanUrl, setup }. The slug is the value of the workspace argument for work in the new workspace; trial is true when it starts with the free trial (only the first workspace a login creates does). Without a trial the workspace cannot be used until a plan is chosen, and choosePlanUrl is the link where the user chooses it (null with a trial). With a description, Mate plans and builds the whole workspace on the server, the same setup the app's onboarding runs: setup.status planning means it started and the workspace setup status reports its progress; notStarted carries the reason, for example a workspace without a plan or a plan without Mate, and leaves an empty workspace. Without a description the workspace starts empty and setup is null. Cloud only; needs a verified email address and an OAuth connection approved for the whole account, allows at most 3 new workspaces per account in any 24 hours, and follows the terms the account accepted.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -53909,6 +53909,16 @@
           "trial": {
             "type": "boolean"
           },
+          "choosePlanUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "setup": {
             "anyOf": [
               {
@@ -53959,6 +53969,7 @@
           "companyId",
           "slug",
           "trial",
+          "choosePlanUrl",
           "setup"
         ],
         "additionalProperties": false

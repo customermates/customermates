@@ -293,6 +293,40 @@ test("deleting the login's only workspace blocks its other tab, stops its polls 
   expect(errors).toEqual([]);
 });
 
+test("after deleting the only workspace the onboarding page shows Sign Out and signing out drops the session hint", async ({
+  context,
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  if (e2eAppMode() === "cloud")
+    await database.query(
+      'UPDATE "Subscription" SET status=\'trial\',"trialEndDate"=NOW()+interval \'3 days\' WHERE "companyId"=$1',
+      [workspace.companyId],
+    );
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(appPath(workspace.slug, "/settings/general"));
+  await clickHydrated(page.locator("#settings-general-delete"));
+  await confirmDeletion(page, "settings-general-delete-confirm", "Browser workspace");
+  await expect(page).toHaveURL(/\/en\/onboarding$/);
+  const sessionHint = async () =>
+    (await context.cookies()).some((cookie) => cookie.name === "app.session_hint" && cookie.value !== "");
+  expect(await sessionHint()).toBe(true);
+
+  await page.reload();
+  const actions = page.locator("[data-public-nav-actions]");
+  const signOut = actions.getByRole("button", { name: englishMessages.UserAvatar.signOut, exact: true });
+  await expect(signOut).toBeVisible();
+  await expect(page.locator("html")).not.toHaveAttribute("data-session-hint");
+  await expect(actions.locator("xpath=preceding-sibling::span[1]")).toBeHidden();
+
+  await clickHydrated(signOut);
+  await expect.poll(sessionHint).toBe(false);
+  await expect(page).not.toHaveURL(/\/en\/onboarding$/);
+  expect(errors).toEqual([]);
+});
+
 test("a workspace with an active subscription cannot be deleted and says why", async ({
   page,
   database,

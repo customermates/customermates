@@ -26,12 +26,20 @@ export class PrismaConnectedAppRepo extends TenantRepository implements Connecte
     });
     if (!groups.length) return [];
 
-    const applications = await this.prisma.oauthApplication.findMany({
-      where: { clientId: { in: groups.map((group) => group.clientId) } },
-      select: { clientId: true, name: true, metadata: true },
-    });
+    const [applications, accountWideTokens] = await Promise.all([
+      this.prisma.oauthApplication.findMany({
+        where: { clientId: { in: groups.map((group) => group.clientId) } },
+        select: { clientId: true, name: true, metadata: true },
+      }),
+      this.prisma.oauthAccessToken.findMany({
+        where: { userId: authUserId, companyId: null },
+        distinct: ["clientId"],
+        select: { clientId: true },
+      }),
+    ]);
     const names = new Map(applications.map((application) => [application.clientId, application.name]));
     const devices = new Map(applications.map((application) => [application.clientId, deviceOf(application.metadata)]));
+    const accountWide = new Set(accountWideTokens.map((token) => token.clientId));
 
     return groups.flatMap((group) => {
       const name = names.get(group.clientId);
@@ -42,7 +50,17 @@ export class PrismaConnectedAppRepo extends TenantRepository implements Connecte
 
       const device = devices.get(group.clientId) ?? null;
 
-      return [{ clientId: group.clientId, name, device, connectedAt, lastActiveAt, refreshableUntil }];
+      return [
+        {
+          clientId: group.clientId,
+          name,
+          device,
+          accountWide: accountWide.has(group.clientId),
+          connectedAt,
+          lastActiveAt,
+          refreshableUntil,
+        },
+      ];
     });
   }
 }

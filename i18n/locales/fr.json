@@ -2668,6 +2668,7 @@
     "agentChatDisabled": "L’assistant est temporairement indisponible.",
     "agentChatRequiresCloud": "L’assistant est disponible sur Customermates Cloud.",
     "agentChatRequiresPlan": "L’assistant n’est pas disponible avec votre offre actuelle.",
+    "agentChatRequiresSubscription": "Mate nécessite un abonnement actif ou un essai non expiré.",
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l’espace de travail pour éviter les messages en double dans la boîte de réception.",
     "alreadyExistsToastTitle": "Compte déjà connecté",
     "channels": {
@@ -2804,6 +2805,7 @@
     "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} perd immédiatement l’accès à tout votre compte, dans chaque espace de travail. Pour l’utiliser à nouveau, reconnectez-la et approuvez l’accès.",
     "disconnectDescription": "{name} perd immédiatement l’accès à cet espace de travail. Pour l’utiliser à nouveau, reconnectez-la et approuvez l’accès.",
     "disconnectTitle": "Déconnecter cette application ?",
     "empty": "Aucune application d’IA n’est encore connectée. Connectez Claude, ChatGPT ou une autre application d’IA pour travailler avec cet espace de travail depuis celle-ci.",

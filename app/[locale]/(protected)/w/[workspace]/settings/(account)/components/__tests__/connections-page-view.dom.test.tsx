@@ -15,6 +15,7 @@ const harness = vi.hoisted(() => ({
   openAccount: vi.fn(),
   addKey: vi.fn(),
   selectProvider: vi.fn(),
+  showConfirmation: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -39,7 +40,7 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   }),
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
-  useDeleteConfirmation: () => ({ showConfirmation: vi.fn(), showDeleteConfirmation: vi.fn() }),
+  useDeleteConfirmation: () => ({ showConfirmation: harness.showConfirmation, showDeleteConfirmation: vi.fn() }),
 }));
 vi.mock("@/components/shared/app-link", () => ({
   AppLink: ({ children }: { children: ReactNode }) => createElement("a", null, children),
@@ -87,6 +88,7 @@ const APP: ConnectedApp = {
   id: "client-claude",
   name: "Claude",
   device: "Claude Desktop · MacBook Pro",
+  accountWide: true,
   connectedAt: new Date("2026-09-03T08:00:00.000Z"),
   lastActiveAt: new Date("2026-11-20T06:00:00.000Z"),
 };
@@ -247,6 +249,31 @@ describe("ConnectionsPageView", () => {
     await click(container.querySelector<HTMLElement>('[data-connect-ai-app="gemini"]'));
     expect(harness.addKey).toHaveBeenCalledTimes(1);
     expect(harness.selectProvider).toHaveBeenCalledWith("gemini");
+  });
+
+  it("warns that disconnecting an account-wide app ends its access to the whole account", async () => {
+    await render();
+
+    await click(container.querySelector<HTMLElement>('[data-connected-app="client-claude"] button'));
+
+    expect(harness.showConfirmation).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "ConnectedApps.disconnectAccountDescription(name=Claude)" }),
+    );
+  });
+
+  it("keeps the workspace warning for an app connected to one workspace only", async () => {
+    const legacy = { ...APP, accountWide: false };
+    harness.rootStore = {
+      ...rootStore(),
+      connectedAppsStore: { items: [legacy], setItems: vi.fn(), disconnect: vi.fn() },
+    };
+    await render({ ...FULL, api: { apiKeys: [KEY], connectedApps: [legacy] } });
+
+    await click(container.querySelector<HTMLElement>('[data-connected-app="client-claude"] button'));
+
+    expect(harness.showConfirmation).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "ConnectedApps.disconnectDescription(name=Claude)" }),
+    );
   });
 
   it("lists API keys in a compact table with a masked prefix and a create button", async () => {

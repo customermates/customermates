@@ -133,6 +133,38 @@ describe("account workspace MCP tools", () => {
     expect(JSON.stringify(result)).toContain("Mate is not included in this plan.");
   });
 
+  it("explains a second workspace without a plan as a missing plan for Mate, with the link to choose one", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: { companyId: "company-n", slug: "second-co", trial: false } });
+    calls.setup.mockResolvedValue({
+      ok: false,
+      error: createZodError("Connecting channels requires an active subscription.", [], {
+        entitlement: "paidSubscriptionRequired",
+      }),
+    });
+
+    const result = await createWorkspaceTool.execute(
+      createWorkspaceTool.inputSchema.parse({ name: "Second", teamSize: "solo", description: "A bakery." }),
+    );
+
+    const content = createWorkspaceTool.outputSchema.parse(
+      (result as { structuredContent: unknown }).structuredContent,
+    );
+    expect(content.choosePlanUrl).toMatch(/\/w\/second-co\/settings\/billing$/);
+    expect(content.setup?.reason).toContain("no active plan and no trial, so Mate cannot build it");
+    expect(content.setup?.reason).toContain(content.choosePlanUrl);
+    expect(content.setup?.reason).not.toMatch(/Validation error|channels|✖/);
+  });
+
+  it("returns no plan link for a workspace that starts with the trial", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: { companyId: "company-n", slug: "new-co", trial: true } });
+
+    const result = await createWorkspaceTool.execute(
+      createWorkspaceTool.inputSchema.parse({ name: "New", teamSize: "solo" }),
+    );
+
+    expect(result).toMatchObject({ structuredContent: { trial: true, choosePlanUrl: null } });
+  });
+
   it("starts no setup when the workspace itself could not be created", async () => {
     calls.create.mockResolvedValue({
       ok: false,

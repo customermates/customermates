@@ -44,7 +44,9 @@ export const AiAppsSection = observer(() => {
   function disconnect(app: ConnectedApp) {
     showConfirmation({
       title: t("ConnectedApps.disconnectTitle"),
-      message: t("ConnectedApps.disconnectDescription", { name: app.name }),
+      message: app.accountWide
+        ? t("ConnectedApps.disconnectAccountDescription", { name: app.name })
+        : t("ConnectedApps.disconnectDescription", { name: app.name }),
       confirmLabel: t("ConnectedAccountsCard.disconnect"),
       confirmVariant: "destructive",
       successKey: "ConnectedApps.toastDisconnected",

@@ -39,6 +39,7 @@ export class GetConnectedAppsInteractor extends AuthenticatedInteractor<void, Co
           id: grant.clientId,
           name: grant.name,
           device: grant.device,
+          accountWide: grant.accountWide,
           connectedAt: grant.connectedAt,
           lastActiveAt: grant.lastActiveAt,
         })),

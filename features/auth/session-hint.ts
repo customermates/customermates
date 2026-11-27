@@ -22,3 +22,9 @@ export const sessionHintDocumentScript =
 export function clearSessionHintDocumentAttribute() {
   document.documentElement.removeAttribute(SESSION_HINT_DOCUMENT_ATTRIBUTE);
 }
+
+export function forgetSessionHint() {
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${expiredSessionHintCookie()}${secure}`;
+  clearSessionHintDocumentAttribute();
+}

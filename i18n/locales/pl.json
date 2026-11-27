@@ -2668,6 +2668,7 @@
     "agentChatDisabled": "Asystent jest tymczasowo niedostępny.",
     "agentChatRequiresCloud": "Asystent jest dostępny w Customermates Cloud.",
     "agentChatRequiresPlan": "Asystent nie jest dostępny w Twoim obecnym planie.",
+    "agentChatRequiresSubscription": "Mate wymaga aktywnej subskrypcji lub okresu próbnego, który nie wygasł.",
     "alreadyExistsToastDescription": "To konto zostało już połączone przez członka Twojej przestrzeni roboczej. Poproś tę osobę o udostępnienie go w przestrzeni roboczej, aby w skrzynce odbiorczej nie pojawiały się zduplikowane wiadomości.",
     "alreadyExistsToastTitle": "Konto jest już połączone",
     "channels": {
@@ -2804,6 +2805,7 @@
     "visibilityUpdateFailed": "Nie udało się zmienić widoczności. Spróbuj ponownie."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} od razu traci dostęp do całego Twojego konta, we wszystkich przestrzeniach roboczych. Aby znów z niej korzystać, połącz ją ponownie i zatwierdź dostęp.",
     "disconnectDescription": "{name} od razu traci dostęp do tej przestrzeni roboczej. Aby znów z niej korzystać, połącz ją ponownie i zatwierdź dostęp.",
     "disconnectTitle": "Rozłączyć tę aplikację?",
     "empty": "Nie połączono jeszcze żadnej aplikacji AI. Połącz Claude, ChatGPT lub inną aplikację AI, aby pracować z tą przestrzenią roboczą z jej poziomu.",

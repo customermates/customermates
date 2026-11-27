@@ -2668,6 +2668,7 @@
     "agentChatDisabled": "O Assistente está temporariamente indisponível.",
     "agentChatRequiresCloud": "O Assistente está disponível no Customermates Cloud.",
     "agentChatRequiresPlan": "O Assistente não está disponível no seu plano atual.",
+    "agentChatRequiresSubscription": "O Mate exige uma assinatura ativa ou um período de teste que não tenha expirado.",
     "alreadyExistsToastDescription": "Esta conta já está conectada por um membro do seu espaço de trabalho. Peça a essa pessoa para compartilhá-la com o espaço de trabalho, para que a caixa de entrada não mostre mensagens duplicadas.",
     "alreadyExistsToastTitle": "Conta já conectada",
     "channels": {
@@ -2804,6 +2805,7 @@
     "visibilityUpdateFailed": "Não foi possível atualizar a visibilidade. Tente de novo."
   },
   "ConnectedApps": {
+    "disconnectAccountDescription": "{name} perde o acesso a toda a sua conta, em todos os espaços de trabalho, imediatamente. Para usá-lo de novo, conecte-o outra vez e aprove o acesso.",
     "disconnectDescription": "{name} perde o acesso a este espaço de trabalho imediatamente. Para usá-lo de novo, conecte-o outra vez e aprove o acesso.",
     "disconnectTitle": "Desconectar este app?",
     "empty": "Nenhum app de IA está conectado ainda. Conecte Claude, ChatGPT ou outro app de IA para trabalhar com este espaço de trabalho a partir dele.",

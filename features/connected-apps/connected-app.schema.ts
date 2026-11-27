@@ -6,6 +6,7 @@ export const ConnectedAppDtoSchema = z.object({
   id: z.string(),
   name: z.string(),
   device: z.string().nullable(),
+  accountWide: z.boolean(),
   connectedAt: z.date(),
   lastActiveAt: z.date(),
 });
