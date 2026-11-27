@@ -544,8 +544,11 @@ export class AuthService {
   }
 
   async signOut(): Promise<void> {
-    await auth.api.signOut({ headers: await headers() });
-    (await cookies()).delete(SESSION_HINT_COOKIE_NAME);
+    try {
+      await auth.api.signOut({ headers: await headers() });
+    } finally {
+      (await cookies()).delete(SESSION_HINT_COOKIE_NAME);
+    }
   }
 
   async sendNewUserNotificationEmail(args: {

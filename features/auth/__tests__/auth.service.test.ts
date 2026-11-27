@@ -94,6 +94,13 @@ describe("AuthService", () => {
     expect(mocks.deleteCookie).toHaveBeenCalledWith("app.session_hint");
   });
 
+  it("drops the session hint even when Better Auth fails to end the session", async () => {
+    mocks.signOut.mockRejectedValueOnce(new Error("session store unavailable"));
+
+    await expect(service.signOut()).rejects.toThrow("session store unavailable");
+    expect(mocks.deleteCookie).toHaveBeenCalledWith("app.session_hint");
+  });
+
   it("lets Better Auth infer the current request origin when email sign-in has no callback", async () => {
     await service.signInWithEmail({
       email: "max@example.com",

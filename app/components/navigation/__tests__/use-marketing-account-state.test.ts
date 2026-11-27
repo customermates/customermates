@@ -96,11 +96,14 @@ describe("useMarketingAccountState", () => {
     mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
     const signedIn = await render();
 
+    document.documentElement.setAttribute("data-session-hint", "");
+
     act(() => signedIn.markSignedOut());
 
     expect(latest?.accountState).toBe("unauthenticated");
     expect(latest?.profile).toBeNull();
     expect(document.cookie).not.toContain(`${SESSION_HINT_COOKIE_NAME}=`);
+    expect(document.documentElement.hasAttribute("data-session-hint")).toBe(false);
   });
 
   it("rechecks on navigation, so a sign-out that redirected elsewhere shows the signed-out navbar", async () => {

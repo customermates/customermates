@@ -6,11 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 import { readMarketingAccountAction } from "@/app/[locale]/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
-import {
-  clearSessionHintDocumentAttribute,
-  expiredSessionHintCookie,
-  hasSessionHint,
-} from "@/features/auth/session-hint";
+import { clearSessionHintDocumentAttribute, forgetSessionHint, hasSessionHint } from "@/features/auth/session-hint";
 
 export function useMarketingAccountState(
   knownAccount: MarketingAccount | undefined,
@@ -55,7 +51,7 @@ export function useMarketingAccountState(
   }, [settled, known]);
 
   const markSignedOut = useCallback(() => {
-    document.cookie = expiredSessionHintCookie();
+    forgetSessionHint();
     setResolvedAccountState("unauthenticated");
     setProfile(null);
   }, []);

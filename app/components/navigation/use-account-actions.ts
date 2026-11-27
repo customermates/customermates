@@ -9,6 +9,7 @@ import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { forgetSessionHint } from "@/features/auth/session-hint";
 
 export function useAccountActions(restricted = false) {
   const { companyInviteModalStore, feedbackModalStore, userStore } = useRootStore();
@@ -22,7 +23,8 @@ export function useAccountActions(restricted = false) {
     signOut: () =>
       runUserAction(async () => {
         const result = await signOutAction();
-        if (!result.ok) toastZodErrorTree(result.error);
+        if (result.ok) forgetSessionHint();
+        else toastZodErrorTree(result.error);
       }),
     inviteMembers: () => {
       runUserAction(() => companyInviteModalStore.generateInviteLink());

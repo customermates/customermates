@@ -554,6 +554,20 @@ describe("NavigationSwitch account-state refresh", () => {
     expect(scrollport?.scrollTop).toBe(0);
   });
 
+  it("drops the session hint of a full page load, so the public navbar shows the known session's Sign out", () => {
+    state.pathname = "/onboarding";
+    document.documentElement.setAttribute("data-session-hint", "");
+
+    act(() => {
+      root.render(
+        jsx(NavigationSwitch, { ...allowedProps(), accountState: "onboarding", sidebarUser: null, children: "page" }),
+      );
+    });
+
+    expect(container.querySelector("[data-public-navbar]")).not.toBeNull();
+    expect(document.documentElement.hasAttribute("data-session-hint")).toBe(false);
+  });
+
   it("passes one unambiguous onboarding intent to the public navbar", () => {
     state.pathname = "/auth/signin";
     state.searchParams = { intent: ["signed.intent"] };

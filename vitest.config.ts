@@ -176,6 +176,7 @@ export const domTestFiles = [
   "app/[locale]/(protected)/w/[workspace]/inbox/components/__tests__/draft-conflict-bar.dom.test.ts",
   "app/[locale]/(protected)/w/[workspace]/inbox/components/__tests__/draft-review-shortcuts.dom.test.ts",
   "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
+  "app/components/navigation/__tests__/use-public-navbar-sign-out.dom.test.ts",
   "components/ui/__tests__/tooltip.dom.test.ts",
   "components/keyboard/__tests__/key-matching-context.dom.test.ts",
   "app/components/keyboard-shortcuts/__tests__/global-keyboard-shortcuts.dom.test.ts",

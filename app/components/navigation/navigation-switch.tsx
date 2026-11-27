@@ -17,6 +17,7 @@ import { useEffect, useLayoutEffect, useRef, useTransition } from "react";
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
 import { isCanonicalInactiveErrorType } from "@/features/auth/account-state";
+import { clearSessionHintDocumentAttribute } from "@/features/auth/session-hint";
 import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
 import { FallbackWorkspaceSlugProvider, usePathname, useRouter } from "@/i18n/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -117,6 +118,10 @@ export function NavigationSwitch({
   useEffect(() => {
     if (currentAccountState !== accountState) router.refresh();
   }, [accountState, currentAccountState, router]);
+
+  useLayoutEffect(() => {
+    clearSessionHintDocumentAttribute();
+  }, []);
 
   useEffect(() => {
     let active = true;
