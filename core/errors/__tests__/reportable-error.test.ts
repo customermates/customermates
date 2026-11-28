@@ -27,4 +27,21 @@ describe("isReportableError", () => {
     ])
       expect(isReportableError(error)).toBe(false);
   });
+
+  it("skips a Suspense boundary the server stream never finished, which carries no digest", () => {
+    const minified = new Error(
+      "Minified React error #419; visit https://react.dev/errors/419 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+    );
+    const development = new Error(
+      "The server could not finish this Suspense boundary, likely due to an error during server rendering. Switched to client rendering.",
+    );
+
+    expect(isReportableError(minified)).toBe(false);
+    expect(isReportableError(development)).toBe(false);
+  });
+
+  it("keeps other React production errors", () => {
+    expect(isReportableError(new Error("Minified React error #418; visit https://react.dev/errors/418"))).toBe(true);
+    expect(isReportableError(new Error("Minified React error #4190; visit https://react.dev/errors/4190"))).toBe(true);
+  });
 });
